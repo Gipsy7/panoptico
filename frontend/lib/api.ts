@@ -85,3 +85,33 @@ export function getGastos(id: string, ano?: string) {
   const query = ano ? `?ano=${encodeURIComponent(ano)}` : "";
   return getJson<Gastos>(`/parlamentares/${encodeURIComponent(id)}/gastos${query}`);
 }
+
+export type ProjetoItem = {
+  sigla_tipo: string;
+  numero: number;
+  ano: number;
+  ementa: string;
+  data_apresentacao: string;
+  situacao: string | null;
+  virou_lei: boolean;
+  url: string;
+  primeiro_autor: boolean;
+};
+
+export type Projetos = {
+  desde: string;
+  primeiro_autor: number;
+  coautor: number;
+  viraram_norma: number;
+  media_casa_primeiro_autor: number;
+  por_tipo: { sigla: string; nome: string; primeiro_autor: number; coautor: number }[];
+  recentes: ProjetoItem[];
+  viraram_norma_lista: ProjetoItem[];
+  fonte_nome: string;
+  fonte_url: string;
+  atualizado_em: string | null;
+};
+
+export function getProjetos(id: string) {
+  return getJson<Projetos>(`/parlamentares/${encodeURIComponent(id)}/projetos`);
+}

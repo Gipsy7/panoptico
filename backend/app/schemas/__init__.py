@@ -71,3 +71,36 @@ class GastosResposta(BaseModel):
     fonte_nome: str
     fonte_url: str
     atualizado_em: datetime | None
+
+
+class ProjetoTipo(BaseModel):
+    sigla: str
+    nome: str
+    primeiro_autor: int
+    coautor: int
+
+
+class ProjetoItem(BaseModel):
+    sigla_tipo: str
+    numero: int
+    ano: int
+    ementa: str
+    data_apresentacao: date
+    situacao: str | None
+    virou_lei: bool
+    url: str
+    primeiro_autor: bool
+
+
+class ProjetosResposta(BaseModel):
+    desde: date
+    primeiro_autor: int
+    coautor: int
+    viraram_norma: int
+    media_casa_primeiro_autor: float
+    por_tipo: list[ProjetoTipo]
+    recentes: list[ProjetoItem]
+    viraram_norma_lista: list[ProjetoItem]
+    fonte_nome: str
+    fonte_url: str
+    atualizado_em: datetime | None

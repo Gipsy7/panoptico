@@ -6,6 +6,7 @@ reprocessar o bruto sem rede (--de-raw).
 """
 
 import argparse
+import gzip
 import json
 import re
 import time
@@ -62,13 +63,15 @@ def get_bytes(client: httpx.Client, url: str, tentativas: int = 3) -> bytes:
     return _get(client, url, None, tentativas).content
 
 
-def salvar_raw(fonte: str, payload: Any, prefixo: str = "") -> Path:
+def salvar_raw(fonte: str, payload: Any, prefixo: str = "", extensao: str = ".zip") -> Path:
+    """Grava o bruto. Bytes são gravados como vieram (comprimidos com gzip se a extensão
+    terminar em .gz); qualquer outro payload vira JSON."""
     destino = RAW_DIR / fonte
     destino.mkdir(parents=True, exist_ok=True)
     nome = f"{prefixo}{datetime.now():%Y-%m-%d_%H%M%S}"
     if isinstance(payload, bytes):
-        arquivo = destino / f"{nome}.zip"
-        arquivo.write_bytes(payload)
+        arquivo = destino / f"{nome}{extensao}"
+        arquivo.write_bytes(gzip.compress(payload) if extensao.endswith(".gz") else payload)
     else:
         arquivo = destino / f"{nome}.json"
         arquivo.write_text(json.dumps(payload, ensure_ascii=False), encoding="utf-8")
@@ -79,6 +82,8 @@ def carregar_raw(arquivo: Path) -> Any:
     arquivo = Path(arquivo)
     if arquivo.suffix == ".json":
         return json.loads(arquivo.read_text(encoding="utf-8"))
+    if arquivo.suffix == ".gz":
+        return gzip.decompress(arquivo.read_bytes())
     return arquivo.read_bytes()
 
 
@@ -176,12 +181,13 @@ def executar_ingestao(
     carregar: Carregar,
     de_raw: Path | None = None,
     prefixo_raw: str = "",
+    extensao_raw: str = ".zip",
 ) -> int:
     """Baixa (ou lê o bruto), grava o bruto e roda a carga numa transação registrada."""
     if de_raw is None:
         with criar_cliente() as client:
             payload = baixar(client)
-        arquivo = salvar_raw(fonte, payload, prefixo_raw)
+        arquivo = salvar_raw(fonte, payload, prefixo_raw, extensao_raw)
     else:
         arquivo = Path(de_raw)
         payload = carregar_raw(arquivo)

@@ -7,7 +7,9 @@ from collections.abc import Callable
 from ingestion import comum
 from ingestion.camara import deputados
 from ingestion.camara import despesas as despesas_camara
+from ingestion.camara import proposicoes as proposicoes_camara
 from ingestion.senado import despesas as despesas_senado
+from ingestion.senado import proposicoes as proposicoes_senado
 from ingestion.senado import senadores
 
 
@@ -17,6 +19,8 @@ def _tarefas() -> list[tuple[str, Callable[[], int]]]:
     for ano in comum.anos_padrao():
         for modulo in (despesas_camara, despesas_senado):
             tarefas.append((f"{modulo.FONTE} {ano}", lambda m=modulo, a=ano: m.executar(a)))
+        tarefas.append((f"camara_proposicoes {ano}", lambda a=ano: proposicoes_camara.executar(a)))
+    tarefas.append((proposicoes_senado.FONTE, proposicoes_senado.executar))
     return tarefas
 
 
