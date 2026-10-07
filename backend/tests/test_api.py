@@ -102,3 +102,13 @@ def test_remuneracao_vigente():
 
     assert remuneracao.vigente(date(2024, 1, 31))["subsidio_mensal"] == Decimal("41650.92")
     assert remuneracao.vigente(date(2025, 2, 1))["subsidio_mensal"] == Decimal("46366.19")
+
+
+def test_url_do_banco_aceita_formato_do_provedor():
+    from app.config import _com_driver
+
+    assert _com_driver("postgresql://u:s@h/db?sslmode=require") == (
+        "postgresql+psycopg://u:s@h/db?sslmode=require"
+    )
+    assert _com_driver("postgres://u:s@h/db").startswith("postgresql+psycopg://")
+    assert _com_driver("postgresql+psycopg://u:s@h/db") == "postgresql+psycopg://u:s@h/db"

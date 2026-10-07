@@ -1,0 +1,12 @@
+# Só a API vai para a função da Vercel; ingestão de dados roda no GitHub Actions.
+.venv
+.env
+data
+tests
+alembic
+alembic.ini
+Dockerfile
+.dockerignore
+.pytest_cache
+.ruff_cache
+__pycache__

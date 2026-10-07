@@ -54,3 +54,10 @@ O subsídio é igual para deputados e senadores e é fixado por decreto legislat
 - Autor → parlamentar: o nome mais recente de cada código de autor, comparado sem acentos e sem pontuação, só com correspondência exata. Nome que bate com mais de um parlamentar fica sem vínculo. Correspondências aproximadas foram testadas e estavam todas erradas ("Camilo Santana" → "Alex Santana").
 - Município do favorecido → IBGE: nome + UF exato (99,6%), depois aproximação dentro da UF (corte 0,88). Sobram cerca de 200 pagamentos sem município, contados no log.
 - Autores sem vínculo (ex-parlamentares, licenciados) aparecem pelo nome em "outros autores".
+
+## 2026-10-07: hospedagem gratuita
+
+- Por enquanto o projeto fica em planos gratuitos: Vercel (site e API, em dois projetos), Neon (Postgres, 0,5 GB) e GitHub Actions (ingestão diária e CI). Repositório público.
+- A API roda como função Python na Vercel, sem pool de conexões e sem prepared statements, usando o pooler do Neon. A ingestão e as migrações usam a conexão direta.
+- Os arquivos de deploy em VPS (`deploy/`) ficam prontos para quando houver orçamento.
+- `pandas` saiu das dependências: não era usado e pesava no pacote da função.

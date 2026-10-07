@@ -1,0 +1,54 @@
+name: Ingestão diária
+
+on:
+  schedule:
+    - cron: "0 9 * * *" # 6h no horário de Brasília
+  workflow_dispatch:
+    inputs:
+      carga_inicial:
+        description: "Carga inicial: também baixa os projetos de lei da Câmara desde 2023"
+        type: boolean
+        default: false
+
+concurrency:
+  group: ingestao
+  cancel-in-progress: false
+
+jobs:
+  ingestao:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    defaults:
+      run:
+        working-directory: backend
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: astral-sh/setup-uv@v6
+        with:
+          version: "0.12.23"
+
+      - name: Instalar dependências
+        run: uv sync --locked --no-dev
+
+      - name: Migrações do banco
+        run: uv run alembic upgrade head
+
+      - name: Projetos de lei da Câmara desde 2023 (só na carga inicial)
+        if: ${{ inputs.carga_inicial }}
+        run: uv run python -m ingestion.camara.proposicoes --ano $(seq 2023 "$(date +%Y)")
+
+      - name: Ingestão de todas as fontes
+        run: uv run python -m ingestion.run_all
+
+      # Arquivos brutos guardados por alguns dias para reprocessar sem baixar de novo.
+      - name: Guardar dados brutos
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: brutos-${{ github.run_id }}
+          path: backend/data/raw/
+          retention-days: 7
+          if-no-files-found: ignore

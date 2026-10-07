@@ -40,7 +40,8 @@ cd frontend && npm run lint
 
 ## Deploy
 
-Ver [docs/DEPLOY.md](docs/DEPLOY.md) (VPS única com docker compose, HTTPS automático e ingestão diária).
+- **Hoje (gratuito):** Vercel (site e API) + Neon (banco) + GitHub Actions (atualização diária). Ver [docs/DEPLOY_GRATUITO.md](docs/DEPLOY_GRATUITO.md).
+- **Futuro:** VPS única com docker compose. Ver [docs/DEPLOY.md](docs/DEPLOY.md).
 
 ## Ingestão
 
