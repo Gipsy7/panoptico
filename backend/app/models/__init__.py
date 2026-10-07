@@ -6,7 +6,8 @@ from app.models.fonte_ingestao import FonteIngestao
 from app.models.municipio import Municipio
 from app.models.parlamentar import Parlamentar
 from app.models.proposicao import Autoria, Proposicao
-from app.models.votacao import Votacao, Voto
+from app.models.proposicao_tema import ProposicaoTema
+from app.models.votacao import Orientacao, Votacao, Voto
 
 __all__ = [
     "Autoria",
@@ -16,8 +17,10 @@ __all__ = [
     "EmendaPagamento",
     "FonteIngestao",
     "Municipio",
+    "Orientacao",
     "Parlamentar",
     "Proposicao",
+    "ProposicaoTema",
     "Votacao",
     "Voto",
 ]

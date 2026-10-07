@@ -40,6 +40,10 @@ def normalizar(payload: list[dict[str, Any]]) -> tuple[list[dict[str, Any]], lis
                 "data": date.fromisoformat(v["dataSessao"][:10]),
                 "descricao": " ".join((v.get("descricaoVotacao") or "").split()),
                 "proposicao": v.get("identificacao"),
+                "proposicao_id_externo": str(v["codigoMateria"])
+                if v.get("codigoMateria")
+                else None,
+                "proposicao_ementa": " ".join((v.get("ementa") or "").split()) or None,
                 "secreta": v.get("votacaoSecreta") == "S",
             }
         )
@@ -48,6 +52,7 @@ def normalizar(payload: list[dict[str, Any]]) -> tuple[list[dict[str, Any]], lis
                 "id_externo_votacao": id_externo,
                 "codigo_senador": str(x["codigoParlamentar"]),
                 "voto": x.get("siglaVotoParlamentar") or "",
+                "partido": x.get("siglaPartidoParlamentar") or None,
             }
             for x in v["votos"]
         )

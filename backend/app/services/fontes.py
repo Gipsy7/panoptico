@@ -25,7 +25,7 @@ CATALOGO = [
         "url": "https://www.camara.leg.br/transparencia/gastos-parlamentares",
     },
     {
-        "dado": "Presença em votações nominais do Plenário",
+        "dado": "Votações nominais do Plenário e orientação do Governo",
         "orgao": "Câmara dos Deputados e Senado Federal",
         "fontes": ["camara_votacoes", "senado_votacoes"],
         "url": "https://dadosabertos.camara.leg.br/",
@@ -34,6 +34,12 @@ CATALOGO = [
         "dado": "Projetos de lei e autores",
         "orgao": "Câmara dos Deputados e Senado Federal",
         "fontes": ["camara_proposicoes", "camara_autores", "senado_proposicoes"],
+        "url": "https://dadosabertos.camara.leg.br/",
+    },
+    {
+        "dado": "Temas das proposições (classificação oficial)",
+        "orgao": "Câmara dos Deputados",
+        "fontes": ["camara_temas"],
         "url": "https://dadosabertos.camara.leg.br/",
     },
     {

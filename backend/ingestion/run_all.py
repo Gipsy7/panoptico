@@ -8,6 +8,7 @@ from ingestion import comum, limpar_raw
 from ingestion.camara import deputados
 from ingestion.camara import despesas as despesas_camara
 from ingestion.camara import proposicoes as proposicoes_camara
+from ingestion.camara import temas as temas_camara
 from ingestion.camara import votacoes as votacoes_camara
 from ingestion.ibge import municipios
 from ingestion.senado import despesas as despesas_senado
@@ -25,6 +26,8 @@ def _tarefas() -> list[tuple[str, Callable[[], int]]]:
             tarefas.append((f"{modulo.FONTE} {ano}", lambda m=modulo, a=ano: m.executar(a)))
         tarefas.append((f"camara_proposicoes {ano}", lambda a=ano: proposicoes_camara.executar(a)))
     tarefas.append((proposicoes_senado.FONTE, proposicoes_senado.executar))
+    # Depois das votações: busca na API os temas das matérias votadas que faltarem.
+    tarefas.append((temas_camara.FONTE, temas_camara.executar))
     tarefas.append((municipios.FONTE, municipios.executar))
     tarefas.append((emendas.FONTE, emendas.executar))
     return tarefas

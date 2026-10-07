@@ -61,7 +61,14 @@ Endpoints conferidos em 2026-10-06.
 - Filtro: `siglaOrgao = PLEN` e votação com votos registrados (as simbólicas não têm).
 - O arquivo de votos **só lista quem votou**. Não há registro de ausência nem de justificativa.
 - Códigos de voto: Sim, Não, Abstenção, Obstrução, "Artigo 17" (presidente da sessão) e vazio.
-- Os dois CSVs são gravados juntos num `.zip` bruto.
+- Também `votacoesProposicoes-{ano}.csv` (liga a votação à proposição; quando há duas, uma é REQ/REC sobre a outra, e usamos a principal) e `votacoesOrientacoes-{ano}.csv` (orientação por bancada). Os blocos vêm com nome truncado ("Bl UniPpPsd..."), então só guardamos Governo, Maioria, Minoria e Oposição.
+- O arquivo de votos traz `deputado_siglaPartido` no dia da votação.
+- Os quatro CSVs são gravados juntos num `.zip` bruto.
+
+## Câmara: temas das proposições
+
+- **URLs:** `https://dadosabertos.camara.leg.br/arquivos/proposicoesTemas/csv/proposicoesTemas-{ano}.csv` (~5 MB/ano) e, para matérias votadas de anos antigos, `GET /api/v2/proposicoes/{id}/temas`.
+- 32 temas oficiais (`/referencias/proposicoes/codTema`), entre eles "Homenagens e Datas Comemorativas". Uma proposição pode ter mais de um tema.
 
 ## Câmara: detalhe do deputado
 

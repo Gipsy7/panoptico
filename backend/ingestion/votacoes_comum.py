@@ -6,7 +6,10 @@ from sqlalchemy import delete, extract
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.orm import Session
 
-from app.models import FonteIngestao, Votacao, Voto
+from app.models import FonteIngestao, Orientacao, Votacao, Voto
+
+# Só estas bancadas têm nome estável; os blocos vêm truncados ("Bl UniPpPsd...").
+BANCADAS = {"Governo", "Maioria", "Minoria", "Oposição"}
 
 
 def recarregar_votacoes(
@@ -16,11 +19,13 @@ def recarregar_votacoes(
     votacoes: list[dict[str, Any]],
     votos: list[dict[str, Any]],
     ingestao: FonteIngestao,
+    orientacoes: list[dict[str, Any]] | None = None,
 ) -> int:
-    """Substitui as votações (e votos) de uma casa num ano.
+    """Substitui as votações (votos e orientações) de uma casa num ano.
 
-    `votos` usa `id_externo_votacao` e `parlamentar_id`; o id interno da votação é
-    resolvido aqui depois da inserção.
+    `votos` e `orientacoes` usam `id_externo_votacao`; o id interno da votação é
+    resolvido aqui depois da inserção. Votos levam `parlamentar_id`, `voto` e,
+    opcionalmente, `partido`.
     """
     if not votacoes:
         raise ValueError(f"Nenhuma votação de {casa} em {ano}; abortando para não zerar o ano.")
@@ -30,7 +35,8 @@ def recarregar_votacoes(
     mapa: dict[str, int] = {}
     for inicio in range(0, len(votacoes), 2000):
         lote = [
-            {**v, "casa": casa, "ingestao_id": ingestao.id}
+            {"proposicao_id_externo": None, "proposicao_ementa": None, **v}
+            | {"casa": casa, "ingestao_id": ingestao.id}
             for v in votacoes[inicio : inicio + 2000]
         ]
         resultado = session.execute(
@@ -43,6 +49,7 @@ def recarregar_votacoes(
             "votacao_id": mapa[v["id_externo_votacao"]],
             "parlamentar_id": v["parlamentar_id"],
             "voto": v["voto"],
+            "partido": v.get("partido"),
         }
         for v in votos
         if v["id_externo_votacao"] in mapa
@@ -50,4 +57,16 @@ def recarregar_votacoes(
     valores = list(linhas.values())
     for inicio in range(0, len(valores), 5000):
         session.execute(insert(Voto).values(valores[inicio : inicio + 5000]))
+
+    orientacoes_validas = {
+        (mapa[o["id_externo_votacao"]], o["bancada"]): {
+            "votacao_id": mapa[o["id_externo_votacao"]],
+            "bancada": o["bancada"],
+            "orientacao": o["orientacao"],
+        }
+        for o in orientacoes or []
+        if o["id_externo_votacao"] in mapa and o["bancada"] in BANCADAS
+    }
+    if orientacoes_validas:
+        session.execute(insert(Orientacao).values(list(orientacoes_validas.values())))
     return len(valores)

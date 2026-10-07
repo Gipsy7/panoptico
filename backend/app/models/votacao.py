@@ -20,7 +20,10 @@ class Votacao(Base):
     id_externo: Mapped[str] = mapped_column(String(30))
     data: Mapped[date] = mapped_column(Date)
     descricao: Mapped[str] = mapped_column(Text)
+    # Proposição votada: rótulo ("PL 759/2015"), id na fonte e ementa.
     proposicao: Mapped[str | None] = mapped_column(String(40))
+    proposicao_id_externo: Mapped[str | None] = mapped_column(String(30), index=True)
+    proposicao_ementa: Mapped[str | None] = mapped_column(Text)
     secreta: Mapped[bool] = mapped_column(Boolean, default=False)
     ingestao_id: Mapped[int | None] = mapped_column(ForeignKey("fonte_ingestao.id"))
 
@@ -38,3 +41,18 @@ class Voto(Base):
         ForeignKey("parlamentar.id", ondelete="CASCADE"), primary_key=True, index=True
     )
     voto: Mapped[str] = mapped_column(String(60))
+    # Partido do parlamentar no dia da votação (base do "votou como a maioria do partido").
+    partido: Mapped[str | None] = mapped_column(String(30))
+
+
+class Orientacao(Base):
+    """Orientação de voto de uma bancada. Guardamos só Governo, Maioria, Minoria e Oposição:
+    os blocos partidários vêm com nome truncado e não dá para ligá-los aos partidos."""
+
+    __tablename__ = "orientacao"
+
+    votacao_id: Mapped[int] = mapped_column(
+        ForeignKey("votacao.id", ondelete="CASCADE"), primary_key=True
+    )
+    bancada: Mapped[str] = mapped_column(String(30), primary_key=True)
+    orientacao: Mapped[str] = mapped_column(String(30))

@@ -1,8 +1,9 @@
 """Votações nominais do Plenário da Câmara (arquivos anuais em CSV).
 
-Baixa votações e votos do ano e grava os dois CSVs num único .zip bruto, para que a
-carga seja uma transação só. Só entram votações do Plenário que têm votos
-registrados (as simbólicas não têm). O arquivo de votos só lista quem votou.
+Baixa quatro CSVs do ano (votações, votos, proposições votadas e orientações das
+bancadas) e grava todos num único .zip bruto, para que a carga seja uma transação só.
+Só entram votações do Plenário que têm votos registrados (as simbólicas não têm).
+O arquivo de votos só lista quem votou e traz o partido do deputado no dia.
 """
 
 import argparse
@@ -11,7 +12,6 @@ import io
 import zipfile
 from datetime import date
 from pathlib import Path
-from typing import Any
 
 import httpx
 from sqlalchemy.orm import Session
@@ -22,23 +22,51 @@ from ingestion import votacoes_comum as vc
 
 FONTE = "camara_votacoes"
 CASA = "camara"
-URL_VOTACOES = "https://dadosabertos.camara.leg.br/arquivos/votacoes/csv/votacoes-{ano}.csv"
-URL_VOTOS = "https://dadosabertos.camara.leg.br/arquivos/votacoesVotos/csv/votacoesVotos-{ano}.csv"
+BASE = "https://dadosabertos.camara.leg.br/arquivos"
+ARQUIVOS = {
+    "votacoes.csv": BASE + "/votacoes/csv/votacoes-{ano}.csv",
+    "votos.csv": BASE + "/votacoesVotos/csv/votacoesVotos-{ano}.csv",
+    "proposicoes.csv": BASE + "/votacoesProposicoes/csv/votacoesProposicoes-{ano}.csv",
+    "orientacoes.csv": BASE + "/votacoesOrientacoes/csv/votacoesOrientacoes-{ano}.csv",
+}
+# Quando a votação cita mais de uma proposição, a matéria principal é a que não é
+# requerimento nem recurso sobre ela (ex.: "PL 364/2019" e "REC 5/2024").
+ACESSORIAS = {"REQ", "REC"}
 
 
 def baixar(client: httpx.Client, ano: int) -> bytes:
     buffer = io.BytesIO()
     with zipfile.ZipFile(buffer, "w", zipfile.ZIP_DEFLATED) as z:
-        z.writestr("votacoes.csv", comum.get_bytes(client, URL_VOTACOES.format(ano=ano)))
-        z.writestr("votos.csv", comum.get_bytes(client, URL_VOTOS.format(ano=ano)))
+        for nome, url in ARQUIVOS.items():
+            z.writestr(nome, comum.get_bytes(client, url.format(ano=ano)))
     return buffer.getvalue()
 
 
 def _csv(z: zipfile.ZipFile, nome: str):
+    if nome not in z.namelist():  # brutos antigos têm só votações e votos
+        return []
     return csv.DictReader(io.StringIO(z.read(nome).decode("utf-8-sig")), delimiter=";")
 
 
-def normalizar(conteudo: bytes) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+def _proposicoes_principais(z: zipfile.ZipFile, votacoes: set[str]) -> dict[str, dict]:
+    por_votacao: dict[str, list[dict]] = {}
+    for linha in _csv(z, "proposicoes.csv"):
+        if linha["idVotacao"] in votacoes:
+            por_votacao.setdefault(linha["idVotacao"], []).append(linha)
+    principais = {}
+    for id_votacao, linhas in por_votacao.items():
+        linhas.sort(key=lambda p: p["proposicao_siglaTipo"] in ACESSORIAS)
+        p = linhas[0]
+        principais[id_votacao] = {
+            "proposicao": p["proposicao_titulo"] or None,
+            "proposicao_id_externo": p["proposicao_id"] or None,
+            "proposicao_ementa": " ".join(p["proposicao_ementa"].split()) or None,
+        }
+    return principais
+
+
+def normalizar(conteudo: bytes) -> tuple[list[dict], list[dict], list[dict]]:
+    """Devolve (votações, votos, orientações)."""
     with zipfile.ZipFile(io.BytesIO(conteudo)) as z:
         plenario = {
             linha["id"]: {
@@ -56,28 +84,42 @@ def normalizar(conteudo: bytes) -> tuple[list[dict[str, Any]], list[dict[str, An
                 "id_externo_votacao": linha["idVotacao"],
                 "id_deputado": linha["deputado_id"],
                 "voto": linha["voto"],
+                "partido": linha.get("deputado_siglaPartido") or None,
             }
             for linha in _csv(z, "votos.csv")
             if linha["idVotacao"] in plenario
         ]
-    nominais = {v["id_externo_votacao"] for v in votos}
-    return [v for k, v in plenario.items() if k in nominais], votos
+        nominais = {v["id_externo_votacao"] for v in votos}
+        for id_votacao, proposicao in _proposicoes_principais(z, nominais).items():
+            plenario[id_votacao].update(proposicao)
+        orientacoes = [
+            {
+                "id_externo_votacao": linha["idVotacao"],
+                "bancada": linha["siglaBancada"].strip(),
+                "orientacao": linha["orientacao"].strip(),
+            }
+            for linha in _csv(z, "orientacoes.csv")
+            if linha["idVotacao"] in nominais and linha["siglaBancada"].strip() in vc.BANCADAS
+        ]
+    return [v for k, v in plenario.items() if k in nominais], votos, orientacoes
 
 
 def executar(ano: int, de_raw: Path | None = None) -> int:
     def carregar(session: Session, conteudo: bytes, ingestao: FonteIngestao) -> int:
-        votacoes, votos = normalizar(conteudo)
+        votacoes, votos, orientacoes = normalizar(conteudo)
         deputados = comum.mapa_parlamentares(session, CASA)
         votos = [
             {**v, "parlamentar_id": deputados[v["id_deputado"]]}
             for v in votos
             if v["id_deputado"] in deputados
         ]
-        return vc.recarregar_votacoes(session, CASA, ano, votacoes, votos, ingestao)
+        return vc.recarregar_votacoes(
+            session, CASA, ano, votacoes, votos, ingestao, orientacoes=orientacoes
+        )
 
     return comum.executar_ingestao(
         FONTE,
-        URL_VOTACOES.format(ano=ano),
+        ARQUIVOS["votacoes.csv"].format(ano=ano),
         lambda client: baixar(client, ano),
         carregar,
         de_raw=de_raw,
