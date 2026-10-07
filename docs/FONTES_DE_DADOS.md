@@ -55,6 +55,25 @@ Endpoints conferidos em 2026-10-06.
 - **Autor principal:** o primeiro nome em `autoria`. Os demais são coautores (PECs exigem 27 assinaturas).
 - **Página pública:** `https://www25.senado.leg.br/web/atividade/materias/-/materia/{codigoMateria}`
 
+## Câmara: votações nominais do Plenário
+
+- **URLs:** `https://dadosabertos.camara.leg.br/arquivos/votacoes/csv/votacoes-{ano}.csv` e `.../votacoesVotos/csv/votacoesVotos-{ano}.csv`
+- Filtro: `siglaOrgao = PLEN` e votação com votos registrados (as simbólicas não têm).
+- O arquivo de votos **só lista quem votou**. Não há registro de ausência nem de justificativa.
+- Códigos de voto: Sim, Não, Abstenção, Obstrução, "Artigo 17" (presidente da sessão) e vazio.
+- Os dois CSVs são gravados juntos num `.zip` bruto.
+
+## Câmara: detalhe do deputado
+
+- **URL:** `GET https://dadosabertos.camara.leg.br/api/v2/deputados/{id}` (513 chamadas, 8 em paralelo)
+- Usado para `nomeCivil`, `ultimoStatus.gabinete.telefone` e `ultimoStatus.data` (início do exercício atual: posse, posse de suplente ou retorno).
+
+## Senado: votações nominais do Plenário
+
+- **URL:** `GET https://legis.senado.leg.br/dadosabertos/votacao?dataInicio={ano}-01-01&dataFim={ano}-12-31`
+- Cada votação lista **todos os senadores** com `siglaVotoParlamentar`: Sim, Não, Abstenção, Votou (secreta), Presidente (art. 51 RISF), P-NRV (presente, não registrou voto), AP (atividade parlamentar), LS (licença saúde), MIS (missão), LP (licença particular), LAP (licença paternidade), NCom (não compareceu), NA (dispositivo não citado, fora da conta).
+- O início do exercício atual vem de `Mandato.Exercicios.Exercicio[]` (o que não tem `DataFim`) na lista de senadores.
+
 ## A confirmar (fases seguintes)
 
 - Portal da Transparência (CGU): remuneração e emendas. Exige chave.

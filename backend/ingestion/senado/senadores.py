@@ -1,5 +1,6 @@
 """Senadores em exercício (API de Dados Abertos do Senado)."""
 
+from datetime import date
 from typing import Any
 
 import httpx
@@ -27,6 +28,13 @@ def _formatar_telefone(numero: str) -> str:
     if len(numero) == 8 and numero.isdigit():
         return f"(61) {numero[:4]}-{numero[4:]}"
     return numero
+
+
+def _exercicio_atual(mandato: dict[str, Any]) -> date | None:
+    """Início do exercício em aberto (sem DataFim) do mandato atual."""
+    exercicios = _como_lista((mandato.get("Exercicios") or {}).get("Exercicio"))
+    abertos = [e["DataInicio"] for e in exercicios if e.get("DataInicio") and not e.get("DataFim")]
+    return date.fromisoformat(max(abertos)) if abertos else None
 
 
 def baixar(client: httpx.Client) -> dict[str, Any]:
@@ -58,6 +66,7 @@ def normalizar(payload: dict[str, Any]) -> list[dict[str, Any]]:
                 else None,
                 "pagina_url": _https(ident.get("UrlPaginaParlamentar")),
                 "fonte_url": f"https://legis.senado.leg.br/dadosabertos/senador/{codigo}",
+                "em_exercicio_desde": _exercicio_atual(p.get("Mandato") or {}),
             }
         )
     return registros

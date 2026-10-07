@@ -5,8 +5,9 @@ import { AvisoErro } from "@/components/aviso-erro";
 import { FonteRodape } from "@/components/fonte-rodape";
 import { GastosSecao } from "@/components/gastos-secao";
 import { Foto } from "@/components/parlamentar-card";
+import { PresencaSecao } from "@/components/presenca-secao";
 import { ProjetosSecao } from "@/components/projetos-secao";
-import { getGastos, getParlamentar, getProjetos } from "@/lib/api";
+import { getGastos, getParlamentar, getPresenca, getProjetos } from "@/lib/api";
 import { FONTE_CASA, NOME_CASA } from "@/lib/formato";
 
 export default function ParlamentarPage({
@@ -23,10 +24,11 @@ export default function ParlamentarPage({
 }
 
 async function Perfil({ id, ano }: { id: string; ano?: string }) {
-  const [resultado, gastos, projetos] = await Promise.all([
+  const [resultado, gastos, projetos, presenca] = await Promise.all([
     getParlamentar(id),
     getGastos(id, ano),
     getProjetos(id),
+    getPresenca(id, ano),
   ]);
   if (!resultado.ok) {
     if (resultado.status === 404 || resultado.status === 422) notFound();
@@ -57,6 +59,8 @@ async function Perfil({ id, ano }: { id: string; ano?: string }) {
       ) : (
         <p className="text-sm text-muted-foreground">Gastos do gabinete: {gastos.mensagem}</p>
       )}
+
+      {presenca.ok && <PresencaSecao presenca={presenca.dados} casa={p.casa} />}
 
       {projetos.ok && <ProjetosSecao projetos={projetos.dados} casa={p.casa} />}
 
@@ -102,7 +106,7 @@ async function Perfil({ id, ano }: { id: string; ano?: string }) {
       </section>
 
       <section className="rounded-xl border border-dashed p-4 text-sm text-muted-foreground">
-        Em breve: presença em votações e remuneração.
+        Em breve: remuneração.
       </section>
 
       <FonteRodape fonte={FONTE_CASA[p.casa]} url={p.fonte_url} atualizadoEm={p.atualizado_em} />

@@ -1,6 +1,6 @@
-from datetime import datetime
+from datetime import date, datetime
 
-from sqlalchemy import Boolean, DateTime, ForeignKey, String, UniqueConstraint
+from sqlalchemy import Boolean, Date, DateTime, ForeignKey, String, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.models.base import Base
@@ -24,6 +24,8 @@ class Parlamentar(Base):
     telefone: Mapped[str | None] = mapped_column(String(100))
     pagina_url: Mapped[str | None] = mapped_column(String(500))
     em_exercicio: Mapped[bool] = mapped_column(Boolean, default=True)
+    # Início do período atual de exercício (posse, posse de suplente ou retorno).
+    em_exercicio_desde: Mapped[date | None] = mapped_column(Date)
     fonte_url: Mapped[str] = mapped_column(String(500))
     atualizado_em: Mapped[datetime] = mapped_column(DateTime(timezone=True))
     ingestao_id: Mapped[int | None] = mapped_column(ForeignKey("fonte_ingestao.id"))

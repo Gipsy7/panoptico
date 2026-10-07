@@ -115,3 +115,26 @@ export type Projetos = {
 export function getProjetos(id: string) {
   return getJson<Projetos>(`/parlamentares/${encodeURIComponent(id)}/projetos`);
 }
+
+export type Presenca = {
+  ano: number;
+  anos_disponiveis: number[];
+  periodo_inicio: string;
+  total_votacoes: number;
+  votou: number;
+  presente_sem_voto: number;
+  justificada: number;
+  nao_compareceu: number;
+  justificativas: { motivo: string; quantidade: number }[];
+  percentual: number | null;
+  media_casa_percentual: number | null;
+  ausencia_detalhada: boolean;
+  fonte_nome: string;
+  fonte_url: string;
+  atualizado_em: string | null;
+};
+
+export function getPresenca(id: string, ano?: string) {
+  const query = ano ? `?ano=${encodeURIComponent(ano)}` : "";
+  return getJson<Presenca>(`/parlamentares/${encodeURIComponent(id)}/presenca${query}`);
+}

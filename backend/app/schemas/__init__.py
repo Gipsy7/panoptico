@@ -20,6 +20,7 @@ class ParlamentarDetalhe(ParlamentarResumo):
     telefone: str | None
     pagina_url: str | None
     em_exercicio: bool
+    em_exercicio_desde: date | None
     fonte_url: str
     atualizado_em: datetime
 
@@ -101,6 +102,29 @@ class ProjetosResposta(BaseModel):
     por_tipo: list[ProjetoTipo]
     recentes: list[ProjetoItem]
     viraram_norma_lista: list[ProjetoItem]
+    fonte_nome: str
+    fonte_url: str
+    atualizado_em: datetime | None
+
+
+class Justificativa(BaseModel):
+    motivo: str
+    quantidade: int
+
+
+class PresencaResposta(BaseModel):
+    ano: int
+    anos_disponiveis: list[int]
+    periodo_inicio: date
+    total_votacoes: int
+    votou: int
+    presente_sem_voto: int
+    justificada: int
+    nao_compareceu: int
+    justificativas: list[Justificativa]
+    percentual: float | None
+    media_casa_percentual: float | None
+    ausencia_detalhada: bool
     fonte_nome: str
     fonte_url: str
     atualizado_em: datetime | None

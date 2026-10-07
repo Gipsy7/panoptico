@@ -34,3 +34,11 @@ Na Fase 2 existem só `parlamentar` e `fonte_ingestao`. `despesa` (4a) e `propos
 - Separamos autor principal de coautor. O número de destaque e a média da Casa usam só o autor principal, para não inflar com coautorias em massa de PECs.
 - "Virou lei ou norma" = situação contém "norma jurídica". "Transformado em nova proposição" não conta.
 - Carga inicial da Câmara: `python -m ingestion.camara.proposicoes --ano 2023 2024 2025 2026`. O `run_all` atualiza só o ano anterior e o atual.
+
+## 2026-10-06: presença em votações
+
+- Métrica comum às duas casas: "votou em X de Y votações nominais do Plenário" no ano.
+- O período começa no início do ano ou no início do exercício atual, o que vier depois. Quem assumiu no meio do ano não é comparado com votações de antes.
+- Quem preside a sessão conta como presente que votou ("Artigo 17" na Câmara, "Presidente" no Senado).
+- O Senado informa justificativas (missão, licença, atividade parlamentar) e elas aparecem separadas. A Câmara não publica ausências, então lá aparece só "sem registro de voto", com essa ressalva no texto.
+- A média da Casa é a média dos percentuais dos parlamentares em exercício.
