@@ -69,7 +69,7 @@
   --border: oklch(0.9 0.012 70);
   --input: oklch(0.82 0.015 70);
   --ring: oklch(0.55 0.12 330);
-  --chart-1: oklch(0.4 0.09 330);
+  --chart-1: oklch(0.52 0.14 330); /* validado (dataviz): L/C em faixa, contraste >= 3:1 */
   --chart-2: oklch(0.6 0.08 330);
   --chart-3: oklch(0.55 0.05 70);
   --chart-4: oklch(0.7 0.04 70);

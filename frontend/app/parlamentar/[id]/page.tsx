@@ -3,22 +3,26 @@ import { Suspense } from "react";
 
 import { AvisoErro } from "@/components/aviso-erro";
 import { FonteRodape } from "@/components/fonte-rodape";
+import { GastosSecao } from "@/components/gastos-secao";
 import { Foto } from "@/components/parlamentar-card";
-import { getParlamentar } from "@/lib/api";
+import { getGastos, getParlamentar } from "@/lib/api";
 import { FONTE_CASA, NOME_CASA } from "@/lib/formato";
 
-export default function ParlamentarPage({ params }: PageProps<"/parlamentar/[id]">) {
+export default function ParlamentarPage({
+  params,
+  searchParams,
+}: PageProps<"/parlamentar/[id]">) {
   return (
     <Suspense fallback={<Carregando />}>
-      {params.then(({ id }) => (
-        <Perfil id={id} />
+      {Promise.all([params, searchParams]).then(([{ id }, sp]) => (
+        <Perfil id={id} ano={typeof sp.ano === "string" ? sp.ano : undefined} />
       ))}
     </Suspense>
   );
 }
 
-async function Perfil({ id }: { id: string }) {
-  const resultado = await getParlamentar(id);
+async function Perfil({ id, ano }: { id: string; ano?: string }) {
+  const [resultado, gastos] = await Promise.all([getParlamentar(id), getGastos(id, ano)]);
   if (!resultado.ok) {
     if (resultado.status === 404 || resultado.status === 422) notFound();
     return <AvisoErro titulo="Não deu para carregar agora" mensagem={resultado.mensagem} />;
@@ -42,6 +46,12 @@ async function Perfil({ id }: { id: string }) {
           )}
         </div>
       </header>
+
+      {gastos.ok ? (
+        <GastosSecao gastos={gastos.dados} casa={p.casa} parlamentarId={p.id} />
+      ) : (
+        <p className="text-sm text-muted-foreground">Gastos do gabinete: {gastos.mensagem}</p>
+      )}
 
       <section className="flex flex-col gap-2 rounded-xl bg-card p-4 ring-1 ring-foreground/10">
         <h2 className="font-semibold">Contato do gabinete</h2>
@@ -85,7 +95,7 @@ async function Perfil({ id }: { id: string }) {
       </section>
 
       <section className="rounded-xl border border-dashed p-4 text-sm text-muted-foreground">
-        Em breve: gastos do gabinete, presença em votações, projetos de lei e remuneração.
+        Em breve: presença em votações, projetos de lei e remuneração.
       </section>
 
       <FonteRodape fonte={FONTE_CASA[p.casa]} url={p.fonte_url} atualizadoEm={p.atualizado_em} />

@@ -59,3 +59,29 @@ export function getParlamentar(id: string) {
 export function getSaude() {
   return getJson<{ status: string; banco: string }>("/saude");
 }
+
+export type Gastos = {
+  ano: number;
+  anos_disponiveis: number[];
+  ultimo_mes: number | null;
+  total: number;
+  media_casa: number;
+  por_categoria: { categoria: string; total: number }[];
+  por_mes: { mes: number; total: number }[];
+  maiores_despesas: {
+    mes: number;
+    categoria: string;
+    fornecedor: string | null;
+    valor: number;
+    data: string | null;
+    url_documento: string | null;
+  }[];
+  fonte_nome: string;
+  fonte_url: string;
+  atualizado_em: string | null;
+};
+
+export function getGastos(id: string, ano?: string) {
+  const query = ano ? `?ano=${encodeURIComponent(ano)}` : "";
+  return getJson<Gastos>(`/parlamentares/${encodeURIComponent(id)}/gastos${query}`);
+}

@@ -1,12 +1,13 @@
-"""Peças compartilhadas da ingestão: HTTP, arquivo bruto, registro e upsert.
+"""Peças compartilhadas da ingestão: HTTP, arquivo bruto, registro e cargas.
 
-Fluxo de cada fonte: baixar() grava o JSON bruto em data/raw/<fonte>/ e
-normalizar() transforma o bruto em registros de parlamentar. As duas etapas são
-separadas para poder reprocessar o bruto sem rede (--de-raw).
+Fluxo de cada fonte: baixar() grava o bruto em data/raw/<fonte>/ e carregar()
+transforma o bruto e grava no banco. As duas etapas são separadas para poder
+reprocessar o bruto sem rede (--de-raw).
 """
 
 import argparse
 import json
+import re
 import time
 from collections.abc import Callable
 from datetime import UTC, datetime
@@ -14,54 +15,93 @@ from pathlib import Path
 from typing import Any
 
 import httpx
-from sqlalchemy import update
+from sqlalchemy import delete, select, update
+from sqlalchemy import insert as sa_insert
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.orm import Session
 
 from app.config import BACKEND_DIR
 from app.db import SessionLocal
-from app.models import FonteIngestao, Parlamentar
+from app.models import Despesa, FonteIngestao, Parlamentar
 
 RAW_DIR = BACKEND_DIR / "data" / "raw"
 USER_AGENT = "Panoptico/0.1 (+https://panoptico.social.br)"
 
 Baixar = Callable[[httpx.Client], Any]
 Normalizar = Callable[[Any], list[dict[str, Any]]]
+Carregar = Callable[[Session, Any, FonteIngestao], int]
 
 
 def criar_cliente() -> httpx.Client:
     return httpx.Client(
-        timeout=30.0,
+        timeout=httpx.Timeout(30.0, read=120.0),
         headers={"Accept": "application/json", "User-Agent": USER_AGENT},
         follow_redirects=True,
     )
 
 
-def get_json(client: httpx.Client, url: str, params: dict | None = None, tentativas: int = 3):
+def _get(client: httpx.Client, url: str, params: dict | None, tentativas: int) -> httpx.Response:
     for tentativa in range(1, tentativas + 1):
         try:
             resposta = client.get(url, params=params)
             if resposta.status_code < 500:
-                resposta.raise_for_status()
-                return resposta.json()
+                return resposta.raise_for_status()
         except httpx.TransportError:
             if tentativa == tentativas:
                 raise
         if tentativa < tentativas:
             time.sleep(2**tentativa)
-    resposta.raise_for_status()
+    return resposta.raise_for_status()
 
 
-def salvar_raw(fonte: str, payload: Any) -> Path:
+def get_json(client: httpx.Client, url: str, params: dict | None = None, tentativas: int = 3):
+    return _get(client, url, params, tentativas).json()
+
+
+def get_bytes(client: httpx.Client, url: str, tentativas: int = 3) -> bytes:
+    return _get(client, url, None, tentativas).content
+
+
+def salvar_raw(fonte: str, payload: Any, prefixo: str = "") -> Path:
     destino = RAW_DIR / fonte
     destino.mkdir(parents=True, exist_ok=True)
-    arquivo = destino / f"{datetime.now():%Y-%m-%d_%H%M%S}.json"
-    arquivo.write_text(json.dumps(payload, ensure_ascii=False), encoding="utf-8")
+    nome = f"{prefixo}{datetime.now():%Y-%m-%d_%H%M%S}"
+    if isinstance(payload, bytes):
+        arquivo = destino / f"{nome}.zip"
+        arquivo.write_bytes(payload)
+    else:
+        arquivo = destino / f"{nome}.json"
+        arquivo.write_text(json.dumps(payload, ensure_ascii=False), encoding="utf-8")
     return arquivo
 
 
 def carregar_raw(arquivo: Path) -> Any:
-    return json.loads(Path(arquivo).read_text(encoding="utf-8"))
+    arquivo = Path(arquivo)
+    if arquivo.suffix == ".json":
+        return json.loads(arquivo.read_text(encoding="utf-8"))
+    return arquivo.read_bytes()
+
+
+def mapa_parlamentares(session: Session, casa: str) -> dict[str, int]:
+    """id_externo -> id interno, para ligar dados de outras fontes ao parlamentar."""
+    linhas = session.execute(
+        select(Parlamentar.id_externo, Parlamentar.id).where(Parlamentar.casa == casa)
+    )
+    return {id_externo: id_ for id_externo, id_ in linhas}
+
+
+def vincular_parlamentares(
+    session: Session, casa: str, registros: list[dict[str, Any]]
+) -> list[dict[str, Any]]:
+    """Troca o id externo pelo id interno e descarta quem não está na base."""
+    mapa = mapa_parlamentares(session, casa)
+    linhas = []
+    for r in registros:
+        parlamentar_id = mapa.get(r["id_externo_parlamentar"])
+        if parlamentar_id is not None:
+            linha = {k: v for k, v in r.items() if k != "id_externo_parlamentar"}
+            linhas.append({**linha, "parlamentar_id": parlamentar_id})
+    return linhas
 
 
 def upsert_parlamentares(
@@ -101,30 +141,57 @@ def upsert_parlamentares(
     return len(linhas)
 
 
-def executar(
+def limpar_categoria(texto: str | None) -> str:
+    """Padroniza o nome da categoria de gasto (a Câmara publica tudo em maiúsculas)."""
+    t = re.sub(r"\s*,\s*", ", ", " ".join((texto or "").split())).rstrip(".").strip()
+    if not t:
+        return "Não informado"
+    return t[0].upper() + t[1:].lower() if t.isupper() else t
+
+
+def recarregar_despesas(
+    session: Session, casa: str, ano: int, linhas: list[dict[str, Any]], ingestao: FonteIngestao
+) -> int:
+    """Substitui as despesas de uma casa num ano. Os arquivos oficiais são anuais e mudam
+    retroativamente (glosas, restituições), então recarregar o ano inteiro é o mais seguro."""
+    if not linhas:
+        raise ValueError(f"Nenhuma despesa de {casa} em {ano}; abortando para não zerar o ano.")
+    session.execute(delete(Despesa).where(Despesa.casa == casa, Despesa.ano == ano))
+    base = {"casa": casa, "ano": ano, "ingestao_id": ingestao.id}
+    for inicio in range(0, len(linhas), 5000):
+        lote = [{**base, **linha} for linha in linhas[inicio : inicio + 5000]]
+        session.execute(sa_insert(Despesa), lote)
+    return len(linhas)
+
+
+def anos_padrao() -> list[int]:
+    ano = datetime.now().year
+    return [ano - 1, ano]
+
+
+def executar_ingestao(
     fonte: str,
-    casa: str,
     url: str,
     baixar: Baixar,
-    normalizar: Normalizar,
+    carregar: Carregar,
     de_raw: Path | None = None,
+    prefixo_raw: str = "",
 ) -> int:
+    """Baixa (ou lê o bruto), grava o bruto e roda a carga numa transação registrada."""
     if de_raw is None:
         with criar_cliente() as client:
             payload = baixar(client)
-        arquivo = salvar_raw(fonte, payload)
+        arquivo = salvar_raw(fonte, payload, prefixo_raw)
     else:
         arquivo = Path(de_raw)
         payload = carregar_raw(arquivo)
-
-    registros = normalizar(payload)
 
     with SessionLocal() as session:
         ingestao = FonteIngestao(fonte=fonte, url=url, arquivo_raw=str(arquivo))
         session.add(ingestao)
         session.flush()
         try:
-            total = upsert_parlamentares(session, casa, registros, ingestao)
+            total = carregar(session, payload, ingestao)
             ingestao.registros = total
             ingestao.status = "ok"
             ingestao.concluido_em = datetime.now(UTC)
@@ -143,6 +210,22 @@ def executar(
             session.commit()
             raise
     return total
+
+
+def executar(
+    fonte: str,
+    casa: str,
+    url: str,
+    baixar: Baixar,
+    normalizar: Normalizar,
+    de_raw: Path | None = None,
+) -> int:
+    """Ingestão da lista de parlamentares de uma casa."""
+
+    def carregar(session: Session, payload: Any, ingestao: FonteIngestao) -> int:
+        return upsert_parlamentares(session, casa, normalizar(payload), ingestao)
+
+    return executar_ingestao(fonte, url, baixar, carregar, de_raw=de_raw)
 
 
 def main(fonte: str, casa: str, url: str, baixar: Baixar, normalizar: Normalizar) -> None:
