@@ -168,3 +168,23 @@ def test_rota_de_temas_do_perfil(client, session):
     assert corpo["temas"][0] == {"tema": "Saúde", "primeiro_autor": 1, "coautor": 1}
     assert corpo["homenagens"] == 1
     assert client.get(f"/parlamentares/{senador.id}/temas").json()["disponivel"] is False
+
+
+def test_rota_comparar(client, session):
+    a, b, c = _cenario(session)
+    senador = session.scalars(select(Parlamentar).where(Parlamentar.casa == "senado")).first()
+    session.execute(resumos.ResumoParlamentar.__table__.insert(), resumos.calcular(session, [2026]))
+    session.flush()
+
+    corpo = client.get(f"/comparar?a={a.id}&b={b.id}").json()
+    assert corpo["mesma_casa"] is True
+    assert corpo["convergencia"]["votacoes_em_comum"] == 4
+    assert corpo["convergencia"]["percentual"] == 50.0
+    assert corpo["numeros_a"]["governo"] == 66.7
+
+    misto = client.get(f"/comparar?a={a.id}&b={senador.id}").json()
+    assert misto["mesma_casa"] is False
+    assert misto["convergencia"] is None
+
+    assert client.get(f"/comparar?a={a.id}&b={a.id}").status_code == 422
+    assert client.get(f"/comparar?a={a.id}&b=999999").status_code == 404

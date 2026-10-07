@@ -278,3 +278,66 @@ class VotosResposta(BaseModel):
     fonte_nome: str
     fonte_url: str
     atualizado_em: datetime | None
+
+
+class TemaLadoALado(BaseModel):
+    tema: str
+    a: int
+    b: int
+
+
+class Divergencia(BaseModel):
+    data: date
+    proposicao: str | None
+    proposicao_ementa: str | None
+    descricao: str
+    voto_a: str
+    voto_b: str
+    url: str | None
+
+
+class TemaConvergencia(BaseModel):
+    tema: str
+    iguais: int
+    total: int
+    percentual: float | None
+
+
+class Convergencia(BaseModel):
+    votacoes_em_comum: int
+    iguais: int
+    percentual: float | None
+    por_tema: list[TemaConvergencia]
+    divergencias: list[Divergencia]
+
+
+class Coautoria(BaseModel):
+    sigla_tipo: str
+    numero: int
+    ano: int
+    ementa: str
+    data_apresentacao: date
+    situacao: str | None
+    virou_lei: bool
+    url: str
+
+
+class Coautorias(BaseModel):
+    total: int
+    itens: list[Coautoria]
+
+
+class ComparacaoResposta(BaseModel):
+    ano: int
+    anos_disponiveis: list[int]
+    a: ParlamentarResumo
+    b: ParlamentarResumo
+    numeros_a: ParlamentarNaLista | None
+    numeros_b: ParlamentarNaLista | None
+    criterios: list[Criterio]
+    medias: dict[str, dict[str, float | None]]
+    mesma_casa: bool
+    temas: list[TemaLadoALado]
+    convergencia: Convergencia | None
+    coautorias: Coautorias
+    atualizado_em: datetime | None

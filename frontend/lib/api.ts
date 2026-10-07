@@ -287,3 +287,42 @@ export function getVotos(id: string, opcoes: { ano?: string; tema?: string; pagi
   for (const [chave, valor] of Object.entries(opcoes)) if (valor) params.set(chave, valor);
   return getJson<Votos>(`/parlamentares/${encodeURIComponent(id)}/votos?${params}`);
 }
+
+export type Comparacao = {
+  ano: number;
+  anos_disponiveis: number[];
+  a: ParlamentarResumo;
+  b: ParlamentarResumo;
+  numeros_a: ParlamentarNaLista | null;
+  numeros_b: ParlamentarNaLista | null;
+  criterios: { id: CriterioId; nome: string; definicao: string }[];
+  medias: Record<Casa, Record<string, number | null>>;
+  mesma_casa: boolean;
+  temas: { tema: string; a: number; b: number }[];
+  convergencia: {
+    votacoes_em_comum: number;
+    iguais: number;
+    percentual: number | null;
+    por_tema: { tema: string; iguais: number; total: number; percentual: number | null }[];
+    divergencias: {
+      data: string;
+      proposicao: string | null;
+      proposicao_ementa: string | null;
+      descricao: string;
+      voto_a: string;
+      voto_b: string;
+      url: string | null;
+    }[];
+  } | null;
+  coautorias: {
+    total: number;
+    itens: Omit<ProjetoItem, "primeiro_autor">[];
+  };
+  atualizado_em: string | null;
+};
+
+export function getComparacao(a: string, b: string, ano?: string) {
+  const params = new URLSearchParams({ a, b });
+  if (ano) params.set("ano", ano);
+  return getJson<Comparacao>(`/comparar?${params}`);
+}

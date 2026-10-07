@@ -59,6 +59,30 @@ export default function SobreAsFontesPage() {
           intermediários. O autor é identificado pelo nome usado no orçamento; quem não está em
           exercício aparece em &quot;outros autores&quot;.
         </Item>
+        <Item titulo="Como votou">
+          Contam as votações nominais do Plenário em que o parlamentar deu voto (Sim, Não,
+          Abstenção ou Obstrução). &quot;Votou como o Governo orientou&quot; usa a orientação
+          oficial do Governo registrada pela Câmara, só quando ela foi Sim, Não ou Obstrução;
+          votações liberadas ficam de fora. &quot;Votou como a maioria do seu partido&quot;
+          compara com o voto mais comum entre os outros deputados do mesmo partido naquele dia
+          (pelo menos dois votando; empates ficam de fora).
+        </Item>
+        <Item titulo="Temas">
+          Os temas são a classificação oficial da Câmara para cada proposição (uma proposição
+          pode ter vários). O Panóptico não classifica ninguém como a favor ou contra um tema:
+          um voto &quot;Sim&quot; pode tanto endurecer quanto suavizar uma lei, e por isso
+          mostramos a ementa de cada votação.
+        </Item>
+        <Item titulo="Votos em comum (comparador)">
+          Entre dois parlamentares da mesma Casa, contamos as votações em que os dois deram voto e
+          quantas vezes o voto foi igual. Votações secretas ficam de fora. Deputados e senadores
+          votam em votações diferentes, então entre eles só comparamos os números.
+        </Item>
+        <Item titulo="Lista de todos os parlamentares">
+          A lista pode ser ordenada por um critério de cada vez, sempre com a definição na tela e
+          a média da Casa. Não há nota geral nem posição: juntar critérios exigiria escolher pesos,
+          e isso seria uma opinião. A ordem padrão é alfabética.
+        </Item>
         <Item titulo="Salário">
           O subsídio é o mesmo para todos os deputados federais e senadores e é fixado por decreto
           legislativo. Os gastos do gabinete são uma verba separada.

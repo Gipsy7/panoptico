@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 
@@ -108,6 +109,15 @@ async function Perfil({
         projetos={projetos.ok ? projetos.dados : undefined}
         subsidio={p.remuneracao.subsidio_mensal}
       />
+
+      <div className="flex flex-wrap gap-2">
+        <Link
+          href={`/comparar?a=${p.id}`}
+          className="inline-flex h-11 items-center rounded-xl px-4 text-sm font-medium ring-1 ring-foreground/15 hover:bg-accent focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none"
+        >
+          Comparar com outro parlamentar
+        </Link>
+      </div>
 
       <CompartilharWhatsApp
         caminho={`/parlamentar/${p.id}`}
