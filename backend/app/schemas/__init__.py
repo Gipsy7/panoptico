@@ -185,3 +185,47 @@ class FonteItem(BaseModel):
     orgao: str
     url: str
     atualizado_em: datetime | None
+
+
+class Criterio(BaseModel):
+    id: str
+    nome: str
+    definicao: str
+
+
+class ParlamentarNaLista(BaseModel):
+    id: int
+    casa: str
+    nome_parlamentar: str
+    partido: str | None
+    uf: str
+    foto_url: str | None
+    gastos: float
+    presenca_votou: int
+    presenca_total: int
+    presenca: float | None
+    governo_iguais: int
+    governo_total: int
+    governo: float | None
+    partido_iguais: int
+    partido_total: int
+    partido_pct: float | None
+    projetos: int
+    homenagens: int
+    normas: int
+    emendas: float
+
+
+class ListaParlamentaresResposta(BaseModel):
+    ano: int
+    anos_disponiveis: list[int]
+    ordenar: str
+    ordem: str
+    criterios: list[Criterio]
+    medias: dict[str, dict[str, float | None]]
+    partidos: list[str]
+    total: int
+    pagina: int
+    por_pagina: int
+    itens: list[ParlamentarNaLista]
+    atualizado_em: datetime | None

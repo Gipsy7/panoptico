@@ -187,3 +187,54 @@ export type Municipio = { ibge: string; nome: string; uf: string };
 export function getMunicipios(uf: string) {
   return getJson<Municipio[]>(`/municipios?uf=${encodeURIComponent(uf)}`);
 }
+
+export type CriterioId = "nome" | "gastos" | "presenca" | "projetos" | "normas" | "emendas" | "governo";
+
+export type ParlamentarNaLista = ParlamentarResumo & {
+  gastos: number;
+  presenca_votou: number;
+  presenca_total: number;
+  presenca: number | null;
+  governo_iguais: number;
+  governo_total: number;
+  governo: number | null;
+  partido_iguais: number;
+  partido_total: number;
+  partido_pct: number | null;
+  projetos: number;
+  homenagens: number;
+  normas: number;
+  emendas: number;
+};
+
+export type ListaParlamentares = {
+  ano: number;
+  anos_disponiveis: number[];
+  ordenar: CriterioId;
+  ordem: "asc" | "desc";
+  criterios: { id: CriterioId; nome: string; definicao: string }[];
+  medias: Record<Casa, Record<string, number | null>>;
+  partidos: string[];
+  total: number;
+  pagina: number;
+  por_pagina: number;
+  itens: ParlamentarNaLista[];
+  atualizado_em: string | null;
+};
+
+export type FiltrosLista = {
+  busca?: string;
+  casa?: string;
+  uf?: string;
+  partido?: string;
+  ordenar?: string;
+  ordem?: string;
+  ano?: string;
+  pagina?: string;
+};
+
+export function getParlamentares(filtros: FiltrosLista) {
+  const params = new URLSearchParams();
+  for (const [chave, valor] of Object.entries(filtros)) if (valor) params.set(chave, valor);
+  return getJson<ListaParlamentares>(`/parlamentares?${params}`);
+}

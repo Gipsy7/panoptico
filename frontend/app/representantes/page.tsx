@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { Suspense } from "react";
 
 import { AvisoErro } from "@/components/aviso-erro";
@@ -102,6 +103,13 @@ async function Lista({ cep, uf, municipio }: Busca) {
       />
 
       {emendas && <EmendasMunicipioSecao dados={emendas} />}
+
+      <Link
+        href={`/parlamentares?uf=${localizacao.uf}`}
+        className="self-start text-sm font-medium text-primary underline underline-offset-4"
+      >
+        Comparar os números de todos de {localizacao.estado}
+      </Link>
 
       <FonteRodape fonte="Dados Abertos da Câmara e do Senado" atualizadoEm={atualizado_em} />
     </div>

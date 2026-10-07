@@ -4,7 +4,7 @@ import sys
 import traceback
 from collections.abc import Callable
 
-from ingestion import comum, limpar_raw
+from ingestion import comum, limpar_raw, resumos
 from ingestion.camara import deputados
 from ingestion.camara import despesas as despesas_camara
 from ingestion.camara import proposicoes as proposicoes_camara
@@ -30,6 +30,8 @@ def _tarefas() -> list[tuple[str, Callable[[], int]]]:
     tarefas.append((temas_camara.FONTE, temas_camara.executar))
     tarefas.append((municipios.FONTE, municipios.executar))
     tarefas.append((emendas.FONTE, emendas.executar))
+    # Por último: consolida os números de cada parlamentar a partir do que foi carregado.
+    tarefas.append((resumos.FONTE, resumos.executar))
     return tarefas
 
 

@@ -1,12 +1,18 @@
-from typing import Annotated
+from typing import Annotated, Literal
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 
 from app.db import get_session
 from app.models import Parlamentar
-from app.schemas import GastosResposta, ParlamentarDetalhe, PresencaResposta, ProjetosResposta
-from app.services import gastos, presenca, projetos, remuneracao
+from app.schemas import (
+    GastosResposta,
+    ListaParlamentaresResposta,
+    ParlamentarDetalhe,
+    PresencaResposta,
+    ProjetosResposta,
+)
+from app.services import gastos, presenca, projetos, ranking, remuneracao
 
 router = APIRouter()
 
@@ -16,6 +22,33 @@ def _buscar(session: Session, parlamentar_id: int) -> Parlamentar:
     if encontrado is None:
         raise HTTPException(404, "Parlamentar não encontrado.")
     return encontrado
+
+
+@router.get("/parlamentares", response_model=ListaParlamentaresResposta)
+def lista_de_parlamentares(
+    session: Annotated[Session, Depends(get_session)],
+    busca: Annotated[str | None, Query(description="Parte do nome")] = None,
+    casa: Literal["camara", "senado"] | None = None,
+    uf: Annotated[str | None, Query(min_length=2, max_length=2)] = None,
+    partido: str | None = None,
+    ordenar: Literal[
+        "nome", "gastos", "presenca", "projetos", "normas", "emendas", "governo"
+    ] = "nome",
+    ordem: Literal["asc", "desc"] = "asc",
+    ano: Annotated[int | None, Query(description="Padrão: ano mais recente")] = None,
+    pagina: Annotated[int, Query(ge=1)] = 1,
+) -> dict:
+    anos = ranking.anos_disponiveis(session)
+    if not anos:
+        raise HTTPException(404, "Os números ainda não foram calculados.")
+    if ano is None:
+        ano = anos[0]
+    elif ano not in anos:
+        raise HTTPException(404, f"Sem números para {ano}.")
+    return ranking.listar(
+        session, ano=ano, busca=busca, casa=casa, uf=uf, partido=partido,
+        ordenar=ordenar, ordem=ordem, pagina=pagina,
+    )  # fmt: skip
 
 
 @router.get("/parlamentares/{parlamentar_id}", response_model=ParlamentarDetalhe)

@@ -41,13 +41,18 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         >
           Pular para o conteúdo
         </a>
-        <header className="mx-auto w-full max-w-3xl px-4 pt-4">
+        <header className="mx-auto flex w-full max-w-3xl items-center justify-between gap-4 px-4 pt-4">
           <Link
             href="/"
             className="text-lg font-bold tracking-tight text-primary focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none"
           >
             Panóptico
           </Link>
+          <nav aria-label="Principal" className="flex gap-4 text-sm">
+            <Link href="/parlamentares" className="underline-offset-4 hover:underline">
+              Todos os parlamentares
+            </Link>
+          </nav>
         </header>
         <main id="conteudo" className="mx-auto w-full max-w-3xl flex-1 px-4 py-6">
           {children}
