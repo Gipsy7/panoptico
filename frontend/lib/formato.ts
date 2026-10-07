@@ -30,6 +30,15 @@ export function formatarReais(valor: number, curto = false): string {
   return (curto ? REAIS_CURTO : REAIS).format(valor);
 }
 
+/**
+ * Gastos do gabinete: zero quer dizer que a fonte oficial não tem nenhum reembolso no período
+ * (abriu mão da cota, estava licenciado ou como ministro, ou assumiu depois). Conferido na
+ * fonte: não é falha de carga. Mostrar "R$ 0" sugeriria um valor medido; o texto diz o que é.
+ */
+export function formatarGastos(valor: number, curto = false): string {
+  return valor === 0 ? "Nenhum reembolso" : formatarReais(valor, curto);
+}
+
 export const MESES = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"];
 
 export const CASA_CURTA: Record<Casa, string> = { camara: "Câmara", senado: "Senado" };

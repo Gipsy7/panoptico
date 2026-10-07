@@ -93,6 +93,70 @@ export function EmendasMunicipioSecao({ dados }: { dados: EmendasMunicipio }) {
             </details>
           )}
 
+          {(dados.por_area ?? []).length > 0 && (
+            <div className="flex flex-col gap-2">
+              <h3 className="font-medium">Para quais áreas</h3>
+              <ul className="flex flex-col gap-3">
+                {dados.por_area.map((a) => (
+                  <Barra
+                    key={a.area}
+                    rotulo={a.area}
+                    detalhe={`${a.percentual.toLocaleString("pt-BR", { maximumFractionDigits: 1 })}%`}
+                    valor={a.total}
+                    maior={dados.por_area[0].total}
+                  />
+                ))}
+              </ul>
+              <p className="text-xs text-muted-foreground">
+                Área é a função do orçamento a que a emenda pertence.
+                {dados.por_area.some((a) => a.area === "Encargos especiais") &&
+                  " \"Encargos especiais\" reúne, entre outras, as transferências especiais (as \"emendas Pix\"), em que o dinheiro vai direto para o caixa da prefeitura sem área definida."}
+              </p>
+            </div>
+          )}
+
+          {(dados.favorecidos ?? []).length > 0 && (
+            <div className="flex flex-col gap-2">
+              <h3 className="font-medium">Quem recebeu</h3>
+              <ul className="lista-fios flex flex-col">
+                {dados.favorecidos.map((f) => (
+                  <li key={f.cnpj} className="flex flex-col gap-1 py-3">
+                    <div className="flex items-baseline justify-between gap-3">
+                      <span className="min-w-0 text-sm font-medium">{f.nome}</span>
+                      <span className="shrink-0 text-sm font-medium tabular-nums">
+                        {formatarReais(f.total, true)}
+                      </span>
+                    </div>
+                    <p className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground">
+                      <span className="pilula">{f.grupo === "entidade" ? "Entidade" : "Prefeitura ou fundo"}</span>
+                      <span className="tabular-nums">CNPJ {formatarCnpj(f.cnpj)}</span>
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      Enviado por{" "}
+                      {f.autores.map((a, i) => (
+                        <span key={a.autor_nome}>
+                          {i > 0 && (i === f.autores.length - 1 ? " e " : ", ")}
+                          {a.parlamentar_id ? (
+                            <Link href={`/parlamentar/${a.parlamentar_id}`} className="underline underline-offset-2">
+                              {nomeProprio(a.autor_nome)}
+                            </Link>
+                          ) : (
+                            nomeProprio(a.autor_nome)
+                          )}
+                        </span>
+                      ))}
+                    </p>
+                  </li>
+                ))}
+              </ul>
+              {dados.numero_favorecidos > dados.favorecidos.length && (
+                <p className="text-sm text-muted-foreground">
+                  E mais {dados.numero_favorecidos - dados.favorecidos.length} que receberam valores menores.
+                </p>
+              )}
+            </div>
+          )}
+
           <p className="text-sm text-muted-foreground">
             Soma o que foi pago à prefeitura, aos fundos municipais e a entidades sem fins
             lucrativos de {cidade}. Não inclui emendas de bancada, de comissão ou de relator, nem
@@ -108,6 +172,20 @@ export function EmendasMunicipioSecao({ dados }: { dados: EmendasMunicipio }) {
       />
     </section>
   );
+}
+
+function formatarCnpj(c: string) {
+  const d = c.replace(/\D/g, "");
+  return d.length === 14 ? d.replace(/^(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})$/, "$1.$2.$3/$4-$5") : c;
+}
+
+// Os nomes dos autores vêm em maiúsculas da fonte ("FULANO DE TAL").
+function nomeProprio(nome: string) {
+  if (nome !== nome.toUpperCase()) return nome;
+  return nome
+    .toLowerCase()
+    .replace(/(^|[\s-])(\p{L})/gu, (_, sep: string, letra: string) => sep + letra.toUpperCase())
+    .replace(/\b(De|Da|Do|Das|Dos|E)\b/g, (p) => p.toLowerCase());
 }
 
 function Barra({

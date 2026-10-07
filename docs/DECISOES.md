@@ -93,3 +93,17 @@ O subsídio é igual para deputados e senadores e é fixado por decreto legislat
 - **Temas:** o Senado classifica cada processo numa hierarquia própria ("Política Social / Educação / Educação Básica"). Usamos o 2º nível, de granularidade parecida com os temas da Câmara, e o 1º quando só ele existe. "Honorífico / Homenagem" recebe o mesmo rótulo da Câmara ("Homenagens e Datas Comemorativas"), para a exclusão das homenagens valer igual nas duas casas.
 - A classificação só vem no detalhe de cada processo (duas chamadas por matéria). A carga `senado_temas` é **incremental**: só busca matérias ainda sem tema. Matéria sem classificação fica marcada como "Sem classificação", que não aparece no site. A API limita a taxa (429): duas conexões em paralelo, novas tentativas com `Retry-After`, e falhas ficam para a próxima carga.
 - **Orientação do Governo:** vem de `/plenario/votacao/orientacaoBancada/{data}` e é ligada à votação pelo `sequencialVotacao`. Só existe em parte das votações abertas (em 2026, 11 de 19), e votações secretas não têm. O alinhamento dos senadores usa a mesma regra da Câmara, sobre uma base menor; o site avisa isso.
+
+## 2026-10-07: gastos zerados
+
+- Em 2025, 21 deputados e 9 senadores em exercício aparecem sem nenhum reembolso da cota. Conferimos cada caso no arquivo bruto e, para deputados, na API da Câmara: nenhum é falha de carga.
+- A maioria tem despesas só em 2026, porque em 2025 eram ministros ou estavam licenciados, ou porque assumiram o mandato depois. Os demais (por exemplo, Jorge Kajuru, Priscila Costa e Gilmar Machado) não têm nenhum reembolso registrado na fonte em nenhum dos dois anos.
+- No site, zero aparece como "Nenhum reembolso", e o perfil explica as causas possíveis. Não escrevemos "economizou", porque a fonte não diz o motivo.
+
+## 2026-10-07: emendas por área e por quem recebeu
+
+- **Área:** é a função orçamentária da emenda. O arquivo de pagamentos não traz a área, então ela vem do cadastro da emenda, pelo código.
+  - Um mesmo código pode ter linhas com áreas diferentes (53 casos), uma por localidade. Nesse caso vale a área da linha do próprio município.
+  - Sem essa linha, vale a área única do código. Se ainda houver mais de uma, o valor fica em "Mais de uma área", em vez de ser atribuído por palpite.
+- **"Encargos especiais"** inclui as transferências especiais ("emendas Pix"), que chegam ao caixa da prefeitura sem área definida. A página diz isso.
+- **"Quem recebeu"** lista prefeitura, fundos e entidades pelo CNPJ, com quem enviou. Não colocamos link para o Portal da Transparência, porque a página do favorecido recusa acesso automatizado e não conseguimos garantir que o link funcione.

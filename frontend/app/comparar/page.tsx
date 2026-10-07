@@ -14,9 +14,9 @@ import {
   getComparacao,
   getParlamentar,
 } from "@/lib/api";
-import { CASA_CURTA, NOME_CASA, formatarData, formatarReais } from "@/lib/formato";
+import { CASA_CURTA, NOME_CASA, formatarData, formatarGastos, formatarReais } from "@/lib/formato";
 
-type Busca = { a?: string; b?: string; ano?: string };
+type Busca = { a?: string; b?: string; ano?: string; diferencas?: boolean };
 
 const texto = (v: string | string[] | undefined) => (typeof v === "string" && v ? v : undefined);
 
@@ -53,14 +53,14 @@ export default function CompararPage({ searchParams }: PageProps<"/comparar">) {
       </header>
       <Revelacao fallback={<p className="text-muted-foreground">Carregando…</p>}>
         {searchParams.then((sp) => (
-          <Conteudo a={texto(sp.a)} b={texto(sp.b)} ano={texto(sp.ano)} />
+          <Conteudo a={texto(sp.a)} b={texto(sp.b)} ano={texto(sp.ano)} diferencas={texto(sp.diferencas) === "1"} />
         ))}
       </Revelacao>
     </div>
   );
 }
 
-async function Conteudo({ a, b, ano }: Busca) {
+async function Conteudo({ a, b, ano, diferencas = false }: Busca) {
   if (!a) {
     return <BuscaParlamentar hrefBase="/comparar?a=" rotulo="Escolha o primeiro parlamentar" />;
   }
@@ -82,7 +82,7 @@ async function Conteudo({ a, b, ano }: Busca) {
   if (!resultado.ok) {
     return <AvisoErro titulo="Não deu para comparar" mensagem={resultado.mensagem} />;
   }
-  return <Resultado dados={resultado.dados} />;
+  return <Resultado dados={resultado.dados} diferencas={diferencas} />;
 }
 
 function Pessoa({ p }: { p: ParlamentarResumo }) {
@@ -105,7 +105,7 @@ const PCT = (v: number) => `${v.toLocaleString("pt-BR", { maximumFractionDigits:
 function linhasDeNumeros(n: ParlamentarNaLista | null): Record<string, string> {
   if (!n) return {};
   return {
-    gastos: formatarReais(n.gastos, true),
+    gastos: formatarGastos(n.gastos, true),
     presenca: n.presenca === null ? "—" : `${n.presenca_votou} de ${n.presenca_total} (${PCT(n.presenca)})`,
     projetos: String(n.projetos),
     normas: String(n.normas),
@@ -114,67 +114,82 @@ function linhasDeNumeros(n: ParlamentarNaLista | null): Record<string, string> {
   };
 }
 
-function Resultado({ dados }: { dados: Comparacao }) {
+function Resultado({ dados, diferencas }: { dados: Comparacao; diferencas: boolean }) {
   const { a, b, convergencia } = dados;
   const na = linhasDeNumeros(dados.numeros_a);
   const nb = linhasDeNumeros(dados.numeros_b);
-  const criterios = dados.criterios.filter(
-    (c) => c.id !== "nome",
-  );
+  const base = `/comparar?a=${a.id}&b=${b.id}&ano=${dados.ano}`;
+
+  const numeros: Linha[] = dados.criterios
+    .filter((c) => c.id !== "nome")
+    .map((c) => ({
+      id: c.id,
+      rotulo: c.nome,
+      detalhe: mediaTexto(dados, c.id),
+      a: na[c.id] ?? "—",
+      b: nb[c.id] ?? "—",
+      va: valorNumerico(dados.numeros_a, c.id),
+      vb: valorNumerico(dados.numeros_b, c.id),
+    }));
+  const votosPorTema: Linha[] =
+    convergencia && convergencia.votacoes_em_comum > 0
+      ? convergencia.por_tema.map((t) => ({
+          id: `voto-${t.tema}`,
+          rotulo: t.tema,
+          inteira: `votaram igual em ${t.iguais} de ${t.total}`,
+          a: "",
+          b: "",
+          va: null,
+          vb: null,
+        }))
+      : [];
+  const temas: Linha[] = dados.temas.map((t) => ({
+    id: `tema-${t.tema}`,
+    rotulo: t.tema,
+    a: String(t.a),
+    b: String(t.b),
+    va: t.a,
+    vb: t.b,
+  }));
+  const visiveis = (linhas: Linha[]) =>
+    diferencas ? linhas.filter((l) => l.inteira !== undefined || l.a !== l.b) : linhas;
 
   return (
     <>
-      <div className="grid grid-cols-2 gap-3">
-        <Pessoa p={a} />
-        <Pessoa p={b} />
-      </div>
-      <p className="text-sm">
-        <Link href={`/comparar?a=${a.id}`} className="underline underline-offset-4">
-          Trocar o segundo parlamentar
-        </Link>
-      </p>
-
-      <CompartilharWhatsApp
-        caminho={`/comparar?a=${a.id}&b=${b.id}`}
-        texto={`Compare ${a.nome_parlamentar} e ${b.nome_parlamentar}, com dados oficiais:`}
-      />
-
-      <section aria-labelledby="numeros-titulo" className="revelar flex flex-col gap-3">
-        <h2 id="numeros-titulo" className="text-2xl">
-          Números de {dados.ano}
-        </h2>
-        <div className="overflow-x-auto border-y border-border">
-          <table className="w-full text-left text-sm">
-            <thead className="text-muted-foreground">
-              <tr>
-                <th scope="col" className="p-3 font-normal">
-                  <span className="sr-only">Critério</span>
-                </th>
-                <th scope="col" className="p-3 font-medium text-foreground">{a.nome_parlamentar}</th>
-                <th scope="col" className="p-3 font-medium text-foreground">{b.nome_parlamentar}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {criterios.map((c) => (
-                <tr key={c.id} className="border-t align-top">
-                  <th scope="row" className="p-3 font-normal">
-                    <span className="block">{c.nome}</span>
-                    <span className="block text-xs text-muted-foreground">{mediaTexto(dados, c.id)}</span>
-                  </th>
-                  <td className="p-3 tabular-nums">{na[c.id] ?? "—"}</td>
-                  <td className="p-3 tabular-nums">{nb[c.id] ?? "—"}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+      <div className="sticky top-14 z-30 -mx-4 border-b border-foreground bg-background/95 px-4 py-3 backdrop-blur-md">
+        <div className="grid grid-cols-2 gap-4 md:grid-cols-[minmax(0,1.1fr)_1fr_1fr]">
+          <div className="hidden flex-col justify-end md:flex">
+            <span className="sobretitulo">Comparação · {dados.ano}</span>
+          </div>
+          <Coluna p={a} trocar={`/comparar?a=${b.id}`} />
+          <Coluna p={b} trocar={`/comparar?a=${a.id}`} />
         </div>
-        <p className="text-sm text-muted-foreground">
-          Projetos contam só os de autor principal, sem homenagens e datas comemorativas.{" "}
-          <Link href="/sobre-as-fontes" className="underline underline-offset-2">
-            Como calculamos
-          </Link>
+      </div>
+
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <p className="text-sm">
+          {diferencas ? (
+            <Link href={base} className="underline underline-offset-4">
+              Mostrar todas as linhas
+            </Link>
+          ) : (
+            <Link href={`${base}&diferencas=1`} className="underline underline-offset-4">
+              Mostrar só as diferenças
+            </Link>
+          )}
         </p>
-      </section>
+        <CompartilharWhatsApp
+          caminho={`/comparar?a=${a.id}&b=${b.id}`}
+          texto={`Compare ${a.nome_parlamentar} e ${b.nome_parlamentar}, com dados oficiais:`}
+        />
+      </div>
+
+      <Grupo titulo={`Números de ${dados.ano}`} id="numeros-titulo" a={a} b={b} linhas={visiveis(numeros)}>
+        Projetos contam só os de autor principal, sem homenagens e datas comemorativas.{" "}
+        <Link href="/sobre-as-fontes" className="underline underline-offset-2">
+          Como calculamos
+        </Link>
+      </Grupo>
 
       {convergencia ? (
         <section aria-labelledby="votos-titulo" className="revelar flex flex-col gap-3">
@@ -210,25 +225,14 @@ function Resultado({ dados }: { dados: Comparacao }) {
                   />
                 </div>
               </div>
-
-              {convergencia.por_tema.length > 0 && (
+              {votosPorTema.length > 0 && (
                 <details className="painel">
                   <summary className="cursor-pointer font-medium">Votos iguais por tema</summary>
-                  <table className="mt-3 w-full text-left text-sm">
-                    <tbody>
-                      {convergencia.por_tema.map((t) => (
-                        <tr key={t.tema} className="border-t">
-                          <th scope="row" className="py-2 pr-3 font-normal">{t.tema}</th>
-                          <td className="py-2 text-right whitespace-nowrap tabular-nums">
-                            {t.iguais} de {t.total}
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                  <div className="mt-3">
+                    <Linhas linhas={votosPorTema} a={a} b={b} />
+                  </div>
                 </details>
               )}
-
               {convergencia.divergencias.length > 0 && (
                 <details className="painel">
                   <summary className="cursor-pointer font-medium">
@@ -273,38 +277,14 @@ function Resultado({ dados }: { dados: Comparacao }) {
         </p>
       )}
 
-      {dados.temas.length > 0 && (
-        <section aria-labelledby="temas-titulo" className="revelar flex flex-col gap-3">
-          <h2 id="temas-titulo" className="text-2xl">
-            Projetos por tema
-          </h2>
-          <div className="overflow-x-auto border-y border-border">
-            <table className="w-full text-left text-sm">
-              <thead className="text-muted-foreground">
-                <tr>
-                  <th scope="col" className="p-3 font-normal">Tema (classificação oficial)</th>
-                  <th scope="col" className="p-3 text-right font-normal">{primeiroNome(a)}</th>
-                  <th scope="col" className="p-3 text-right font-normal">{primeiroNome(b)}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {dados.temas.map((t) => (
-                  <tr key={t.tema} className="border-t">
-                    <th scope="row" className="p-3 font-normal">{t.tema}</th>
-                    <td className="p-3 text-right tabular-nums">{t.a}</td>
-                    <td className="p-3 text-right tabular-nums">{t.b}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-          <p className="text-sm text-muted-foreground">
-            Projetos como autor principal. Um projeto pode ter mais de um tema.
-            {a.casa !== b.casa
-              ? " Câmara e Senado usam classificações diferentes, então os nomes dos temas não coincidem."
-              : ""}
-          </p>
-        </section>
+      {temas.length > 0 && (
+        <Grupo titulo="Projetos por tema" id="temas-titulo" a={a} b={b} linhas={visiveis(temas)}>
+          Projetos como autor principal, pela classificação oficial. Um projeto pode ter mais de um
+          tema.
+          {a.casa !== b.casa
+            ? " Câmara e Senado usam classificações diferentes, então os nomes dos temas não coincidem."
+            : ""}
+        </Grupo>
       )}
 
       {dados.coautorias.total > 0 && (
@@ -333,8 +313,134 @@ function Resultado({ dados }: { dados: Comparacao }) {
   );
 }
 
-function primeiroNome(p: ParlamentarResumo) {
-  return p.nome_parlamentar.split(" ").slice(0, 2).join(" ");
+type Linha = {
+  id: string;
+  rotulo: string;
+  detalhe?: string;
+  /** Texto que ocupa as duas colunas (ex.: votos iguais por tema, um dado do par). */
+  inteira?: string;
+  a: string;
+  b: string;
+  va: number | null;
+  vb: number | null;
+};
+
+function Coluna({ p, trocar }: { p: ParlamentarResumo; trocar: string }) {
+  return (
+    <div className="flex min-w-0 items-center gap-3">
+      <Link href={`/parlamentar/${p.id}`} className="shrink-0 hover:opacity-80">
+        <Foto parlamentar={p} largura={40} />
+      </Link>
+      <div className="flex min-w-0 flex-col gap-1">
+        <Link href={`/parlamentar/${p.id}`} className="truncate font-semibold leading-tight hover:underline">
+          {p.nome_parlamentar}
+        </Link>
+        <span className="flex flex-wrap items-center gap-1">
+          {p.partido && <span className="pilula">{p.partido}</span>}
+          <span className="pilula">
+            {CASA_CURTA[p.casa]} · {p.uf}
+          </span>
+          <Link href={trocar} className="ml-1 text-xs text-muted-foreground underline underline-offset-2">
+            trocar
+          </Link>
+        </span>
+      </div>
+    </div>
+  );
+}
+
+function Grupo({
+  titulo,
+  id,
+  a,
+  b,
+  linhas,
+  children,
+}: {
+  titulo: string;
+  id: string;
+  a: ParlamentarResumo;
+  b: ParlamentarResumo;
+  linhas: Linha[];
+  children?: React.ReactNode;
+}) {
+  return (
+    <section aria-labelledby={id} className="revelar flex flex-col gap-3">
+      <h2 id={id} className="text-2xl">
+        {titulo}
+      </h2>
+      {linhas.length === 0 ? (
+        <p className="text-sm text-muted-foreground">Nenhuma diferença neste grupo.</p>
+      ) : (
+        <Linhas linhas={linhas} a={a} b={b} />
+      )}
+      {children && <p className="text-sm text-muted-foreground">{children}</p>}
+    </section>
+  );
+}
+
+function Linhas({ linhas, a, b }: { linhas: Linha[]; a: ParlamentarResumo; b: ParlamentarResumo }) {
+  return (
+    <ul className="lista-fios flex flex-col">
+      {linhas.map((l) => {
+        const maior = Math.max(l.va ?? 0, l.vb ?? 0);
+        return (
+          <li key={l.id} className="grid grid-cols-2 gap-x-4 gap-y-1.5 py-3 md:grid-cols-[minmax(0,1.1fr)_1fr_1fr]">
+            <div className="col-span-2 md:col-span-1">
+              <span className="block text-sm">{l.rotulo}</span>
+              {l.detalhe && <span className="block text-xs text-muted-foreground">{l.detalhe}</span>}
+            </div>
+            {l.inteira !== undefined ? (
+              <span className="col-span-2 text-sm tabular-nums">{l.inteira}</span>
+            ) : (
+              <>
+                <Valor nome={a.nome_parlamentar} texto={l.a} valor={l.va} maior={maior} />
+                <Valor nome={b.nome_parlamentar} texto={l.b} valor={l.vb} maior={maior} />
+              </>
+            )}
+          </li>
+        );
+      })}
+    </ul>
+  );
+}
+
+function Valor({ nome, texto, valor, maior }: { nome: string; texto: string; valor: number | null; maior: number }) {
+  // Barra neutra, proporcional ao maior dos dois: mostra a diferença sem eleger um "melhor".
+  const largura = valor !== null && maior > 0 ? Math.max(2, (valor / maior) * 100) : 0;
+  return (
+    <div className="flex min-w-0 flex-col gap-1.5">
+      <span className="text-sm tabular-nums">
+        <span className="sr-only">{nome}: </span>
+        {texto}
+      </span>
+      {valor !== null && (
+        <span aria-hidden className="h-1 w-full rounded-full bg-muted">
+          <span className="block h-1 rounded-full bg-chart-1" style={{ width: `${largura}%` }} />
+        </span>
+      )}
+    </div>
+  );
+}
+
+function valorNumerico(n: ParlamentarNaLista | null, criterio: string): number | null {
+  if (!n) return null;
+  switch (criterio) {
+    case "gastos":
+      return n.gastos;
+    case "presenca":
+      return n.presenca;
+    case "projetos":
+      return n.projetos;
+    case "normas":
+      return n.normas;
+    case "emendas":
+      return n.emendas;
+    case "governo":
+      return n.governo;
+    default:
+      return null;
+  }
 }
 
 function mediaTexto(dados: Comparacao, criterio: string): string {

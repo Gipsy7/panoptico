@@ -163,6 +163,25 @@ class EmendaOutroAutor(BaseModel):
     total: float
 
 
+class EmendaArea(BaseModel):
+    area: str
+    total: float
+    percentual: float
+
+
+class EmendaAutorDoFavorecido(BaseModel):
+    autor_nome: str
+    parlamentar_id: int | None
+
+
+class EmendaFavorecido(BaseModel):
+    nome: str
+    cnpj: str
+    grupo: str
+    total: float
+    autores: list[EmendaAutorDoFavorecido]
+
+
 class EmendasMunicipioResposta(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
@@ -175,6 +194,9 @@ class EmendasMunicipioResposta(BaseModel):
     parlamentares: list[EmendaParlamentar]
     outros_autores: list[EmendaOutroAutor]
     numero_autores: int
+    por_area: list[EmendaArea]
+    favorecidos: list[EmendaFavorecido]
+    numero_favorecidos: int
     fonte_nome: str
     fonte_url: str
     atualizado_em: datetime | None

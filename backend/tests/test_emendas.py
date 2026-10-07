@@ -4,7 +4,7 @@ from decimal import Decimal
 
 from sqlalchemy import insert, select
 
-from app.models import EmendaPagamento, Municipio, Parlamentar
+from app.models import Emenda, EmendaPagamento, Municipio, Parlamentar
 from ingestion import comum
 from ingestion.transparencia import emendas
 from tests.test_api import _popular
@@ -100,9 +100,30 @@ def test_emendas_municipio_endpoint(client, session):
              "autor_codigo": "9", "autor_nome": "EX DEPUTADO", "valor": Decimal("30")},
         ],
     )  # fmt: skip
+    # A mesma emenda com áreas diferentes em municípios diferentes: vale a do município.
+    emenda = {
+        "codigo": "x", "ano": 2025, "tipo": "Emenda Individual", "individual": True,
+        "autor_codigo": "1", "autor_nome": "A", "localidade": "L", "valor_empenhado": Decimal("0"),
+        "valor_pago": Decimal("0"),
+    }  # fmt: skip
+    session.execute(
+        insert(Emenda),
+        [
+            {**emenda, "municipio_ibge": "1600303", "funcao": "Saúde"},
+            {**emenda, "municipio_ibge": "9999999", "funcao": "Educação"},
+        ],
+    )
     session.flush()
 
     corpo = client.get("/municipios/1600303/emendas").json()
+    assert corpo["por_area"] == [{"area": "Saúde", "total": 180.0, "percentual": 100.0}]
+    assert corpo["numero_favorecidos"] == 1
+    favorecido = corpo["favorecidos"][0]
+    assert (favorecido["nome"], favorecido["total"]) == ("F", 180.0)
+    assert favorecido["autores"] == [
+        {"autor_nome": "A", "parlamentar_id": deps[0].id},
+        {"autor_nome": "EX DEPUTADO", "parlamentar_id": None},
+    ]
     assert (corpo["total"], corpo["total_prefeitura"], corpo["total_entidades"]) == (180, 130, 50)
     assert [a["ano"] for a in corpo["por_ano"]] == [2025, 2026]
     assert corpo["parlamentares"][0]["total"] == 150

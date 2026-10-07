@@ -2,7 +2,7 @@ import Link from "next/link";
 
 import { FonteRodape } from "@/components/fonte-rodape";
 import type { Casa, Gastos } from "@/lib/api";
-import { CASA_CURTA, MESES, formatarData, formatarReais } from "@/lib/formato";
+import { CASA_CURTA, MESES, formatarData, formatarGastos, formatarReais } from "@/lib/formato";
 
 export function GastosSecao({
   gastos,
@@ -49,7 +49,7 @@ export function GastosSecao({
             Total em {gastos.ano}
             {periodo}
           </dt>
-          <dd className="numero text-3xl">{formatarReais(gastos.total, true)}</dd>
+          <dd className="numero text-3xl">{formatarGastos(gastos.total, true)}</dd>
         </div>
         <div className="figura">
           <dt className="text-sm text-muted-foreground">Média por parlamentar do {CASA_CURTA[casa]}</dt>
@@ -60,7 +60,11 @@ export function GastosSecao({
       </dl>
 
       {gastos.por_categoria.length === 0 ? (
-        <p className="text-muted-foreground">Nenhum gasto registrado em {gastos.ano}.</p>
+        <p className="nota text-sm text-muted-foreground">
+          A fonte oficial não tem nenhum reembolso da cota para este parlamentar em {gastos.ano}.
+          Acontece quando a pessoa abre mão da cota, está licenciada (por exemplo, como ministra)
+          ou assumiu o mandato depois.
+        </p>
       ) : (
         <div className="flex flex-col gap-2">
           <h3 className="font-medium">Onde o dinheiro foi gasto</h3>

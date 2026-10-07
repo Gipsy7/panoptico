@@ -1,5 +1,5 @@
 import type { Gastos, Presenca, Projetos } from "@/lib/api";
-import { formatarReais } from "@/lib/formato";
+import { formatarGastos, formatarReais } from "@/lib/formato";
 
 const PCT = new Intl.NumberFormat("pt-BR", { maximumFractionDigits: 0 });
 
@@ -20,7 +20,7 @@ export function ResumoPerfil({
   if (gastos) {
     itens.push({
       rotulo: `Gastos do gabinete em ${gastos.ano}`,
-      valor: formatarReais(gastos.total, true),
+      valor: formatarGastos(gastos.total, true),
       detalhe: `Média: ${formatarReais(gastos.media_casa, true)}`,
       ancora: "#gastos-titulo",
     });

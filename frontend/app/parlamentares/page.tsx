@@ -13,7 +13,7 @@ import {
   type ParlamentarNaLista,
   getParlamentares,
 } from "@/lib/api";
-import { CASA_CURTA, formatarReais } from "@/lib/formato";
+import { CASA_CURTA, formatarGastos, formatarReais } from "@/lib/formato";
 import { UFS } from "@/lib/ufs";
 
 export const metadata: Metadata = {
@@ -199,6 +199,7 @@ function Filtros({ dados, filtros }: { dados: ListaParlamentares; filtros: Filtr
 function formatarValor(criterio: CriterioId, valor: number): string {
   switch (criterio) {
     case "gastos":
+      return formatarGastos(valor, true);
     case "emendas":
       return formatarReais(valor, true);
     case "presenca":
@@ -211,7 +212,7 @@ function formatarValor(criterio: CriterioId, valor: number): string {
 
 function Cartao({ p, ordenar }: { p: ParlamentarNaLista; ordenar: CriterioId }) {
   const numeros: { id: CriterioId; rotulo: string; valor: string }[] = [
-    { id: "gastos", rotulo: "Gastos", valor: formatarReais(p.gastos, true) },
+    { id: "gastos", rotulo: "Gastos", valor: formatarGastos(p.gastos, true) },
     {
       id: "presenca",
       rotulo: "Votou",

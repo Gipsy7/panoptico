@@ -3,6 +3,7 @@ import { Geist, Newsreader } from "next/font/google";
 import Link from "next/link";
 
 import { Logo, Marca } from "@/components/logo";
+import { MenuPrincipal } from "@/components/menu-principal";
 import { SITE_URL } from "@/lib/site";
 
 import "./globals.css";
@@ -56,7 +57,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           style={{ viewTransitionName: "site-header" }}
           className="sticky top-0 z-40 border-b border-border/70 bg-background/85 backdrop-blur-md"
         >
-          <div className="mx-auto flex w-full max-w-3xl items-center justify-between gap-4 px-4 py-3">
+          <div className="mx-auto flex w-full max-w-5xl items-center justify-between gap-4 px-4 py-3">
             <Link
               href="/"
               aria-label="Panóptico.social, página inicial"
@@ -64,18 +65,14 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
             >
               <Logo tamanho={28} />
             </Link>
-            <nav aria-label="Principal" className="flex gap-4 text-sm">
-              <Link href="/parlamentares" className="underline-offset-4 hover:underline">
-                Todos os parlamentares
-              </Link>
-            </nav>
+            <MenuPrincipal />
           </div>
         </header>
-        <main id="conteudo" className="mx-auto w-full max-w-3xl flex-1 px-4 py-8">
+        <main id="conteudo" className="mx-auto w-full max-w-3xl flex-1 px-4 py-8 has-[[data-largura=larga]]:max-w-5xl">
           {children}
         </main>
         <footer className="mt-8 border-t border-border/70">
-          <div className="mx-auto flex w-full max-w-3xl flex-col gap-4 px-4 py-8 text-xs text-muted-foreground">
+          <div className="mx-auto flex w-full max-w-5xl flex-col gap-4 px-4 py-8 text-xs text-muted-foreground">
             <div className="flex items-start gap-3">
               <Marca tamanho={28} traco={2.4} className="shrink-0 text-bronze" />
               <p className="max-w-prose text-sm leading-relaxed">

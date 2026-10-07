@@ -173,6 +173,15 @@ export type EmendasMunicipio = {
   parlamentares: { parlamentar: ParlamentarResumo; total: number; do_estado: boolean }[];
   outros_autores: { autor_nome: string; total: number }[];
   numero_autores: number;
+  por_area: { area: string; total: number; percentual: number }[];
+  favorecidos: {
+    nome: string;
+    cnpj: string;
+    grupo: "prefeitura" | "entidade";
+    total: number;
+    autores: { autor_nome: string; parlamentar_id: number | null }[];
+  }[];
+  numero_favorecidos: number;
   fonte_nome: string;
   fonte_url: string;
   atualizado_em: string | null;
