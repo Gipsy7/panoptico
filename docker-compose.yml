@@ -1,0 +1,15 @@
+# Alternativa ao PostgreSQL nativo (ver docs/DECISOES.md).
+services:
+  db:
+    image: postgres:18
+    environment:
+      POSTGRES_USER: panoptico
+      POSTGRES_PASSWORD: panoptico
+      POSTGRES_DB: panoptico
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql
+
+volumes:
+  pgdata:
