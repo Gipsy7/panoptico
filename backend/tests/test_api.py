@@ -112,3 +112,11 @@ def test_url_do_banco_aceita_formato_do_provedor():
     )
     assert _com_driver("postgres://u:s@h/db").startswith("postgresql+psycopg://")
     assert _com_driver("postgresql+psycopg://u:s@h/db") == "postgresql+psycopg://u:s@h/db"
+
+
+def test_cache_na_cdn_so_para_respostas_boas(client, session):
+    camara, _ = _popular(session)
+    ok = client.get(f"/representantes?uf={camara[0]['uf']}")
+    assert "s-maxage" in ok.headers["cache-control"]
+    assert "cache-control" not in client.get("/representantes?uf=XX").headers
+    assert "cache-control" not in client.get("/saude").headers
