@@ -43,6 +43,7 @@ Você pode ajudar de várias formas, mesmo sem programar:
 - **Algo confuso no site?** Sugestões de texto e de usabilidade são muito bem-vindas, principalmente vindas de quem não acompanha política.
 - **Conhece uma fonte de dados boa?** Conte para a gente numa issue.
 - **Programa?** Veja [Como contribuir](#como-contribuir).
+- **Quer ajudar com os custos?** O site é gratuito e sem anúncios; a página [Apoie](https://panoptico.social.br/apoie) mostra quanto custa mantê-lo no ar e aceita doações por Pix. Doações não mudam nada no que o site mostra, e não aceitamos doações de partidos, mandatos ou campanhas.
 
 ---
 
@@ -189,7 +190,15 @@ Os testes do backend usam um banco `panoptico_test` (criado pelo `scripts/criar_
 
 ## Deploy
 
-- **Hoje (gratuito):** Vercel (site e API), Neon (banco) e GitHub Actions (atualização diária). Ver [docs/DEPLOY_GRATUITO.md](docs/DEPLOY_GRATUITO.md).
+- **Hoje:** Vercel no plano gratuito (site e API), Neon no plano Launch, pago por uso (banco), e GitHub Actions (atualização diária). Ver [docs/DEPLOY_GRATUITO.md](docs/DEPLOY_GRATUITO.md).
+- **Travas de custo.** O plano gratuito do Neon foi trocado pelo pago depois que a cota mensal de transferência estourou. Para o custo não disparar com muito acesso ou um ataque:
+  - as respostas da API ficam em cache na CDN (`s-maxage` de 1 hora), então a mesma consulta chega ao banco no máximo uma vez por hora;
+  - a base da lista de parlamentares fica 10 minutos em memória;
+  - o firewall da Vercel limita a API a 120 requisições por minuto por IP;
+  - o banco está travado em 0,25 CU e desliga quando fica ocioso, o que põe um teto de cerca de US$ 19 por mês no processamento;
+  - há um spending limit com alerta por e-mail.
+
+  O custo esperado é de R$ 5 a 20 por mês, detalhado na página [Apoie](https://panoptico.social.br/apoie).
 - **Alternativa:** VPS única com docker compose e HTTPS automático. Ver [docs/DEPLOY.md](docs/DEPLOY.md).
 
 ---
@@ -213,9 +222,7 @@ Os testes do backend usam um banco `panoptico_test` (criado pelo `scripts/criar_
 ### Próximos passos
 
 - Vereadores e deputados estaduais, começando pelas capitais
-- Como cada parlamentar votou em votações importantes
 - Bens declarados e prestação de contas de campanha (TSE)
-- Busca por nome de parlamentar
 - Processos e investigações, só com fonte oficial e curadoria
 
 ## Licença
