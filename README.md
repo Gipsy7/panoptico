@@ -45,6 +45,11 @@ Você pode ajudar de várias formas, mesmo sem programar:
 - **Programa?** Veja [Como contribuir](#como-contribuir).
 - **Quer ajudar com os custos?** O site é gratuito e sem anúncios; a página [Apoie](https://panoptico.social.br/apoie) mostra quanto custa mantê-lo no ar e aceita doações por Pix. Doações não mudam nada no que o site mostra, e não aceitamos doações de partidos, mandatos ou campanhas.
 
+<p align="center">
+  <img src="frontend/public/pix-qr.svg" alt="QR code Pix para apoiar o Panóptico" width="180"><br>
+  <sub>Pix (chave aleatória): <code>4c02a34c-095e-4990-9bdb-0fe161608f8c</code></sub>
+</p>
+
 ---
 
 ## Como funciona
