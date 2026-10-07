@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
-import { Suspense } from "react";
 
+import { Revelacao } from "@/components/revelacao";
 import { getFontes } from "@/lib/api";
 import { formatarData } from "@/lib/formato";
 
@@ -21,16 +21,16 @@ export default function SobreAsFontesPage() {
         </p>
       </header>
 
-      <section aria-labelledby="fontes-titulo" className="flex flex-col gap-3">
+      <section aria-labelledby="fontes-titulo" className="revelar flex flex-col gap-3">
         <h2 id="fontes-titulo" className="text-xl font-semibold">
           De onde vem cada dado
         </h2>
-        <Suspense fallback={<p className="text-muted-foreground">Carregando…</p>}>
+        <Revelacao fallback={<p className="text-muted-foreground">Carregando…</p>}>
           <ListaFontes />
-        </Suspense>
+        </Revelacao>
       </section>
 
-      <section aria-labelledby="calculo-titulo" className="flex flex-col gap-4">
+      <section aria-labelledby="calculo-titulo" className="revelar flex flex-col gap-4">
         <h2 id="calculo-titulo" className="text-xl font-semibold">
           Como cada número é calculado
         </h2>
@@ -93,7 +93,7 @@ export default function SobreAsFontesPage() {
         </Item>
       </section>
 
-      <section aria-labelledby="erros-titulo" className="flex flex-col gap-2">
+      <section aria-labelledby="erros-titulo" className="revelar flex flex-col gap-2">
         <h2 id="erros-titulo" className="text-xl font-semibold">
           Encontrou um erro?
         </h2>
@@ -113,7 +113,7 @@ async function ListaFontes() {
     return <p className="text-muted-foreground">Não foi possível carregar a lista agora.</p>;
   }
   return (
-    <ul className="flex flex-col divide-y rounded-xl bg-card ring-1 ring-foreground/10">
+    <ul className="flex flex-col divide-y rounded-xl bg-card border border-border/80">
       {resultado.dados.map((f) => (
         <li key={f.dado} className="flex flex-col gap-0.5 p-4">
           <span className="font-medium">{f.dado}</span>

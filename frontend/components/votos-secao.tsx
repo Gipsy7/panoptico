@@ -24,7 +24,7 @@ export function VotosSecao({
   };
 
   return (
-    <section aria-labelledby="votos-titulo" className="flex flex-col gap-4">
+    <section aria-labelledby="votos-titulo" className="revelar flex flex-col gap-4">
       <div>
         <h2 id="votos-titulo" className="text-xl font-semibold">
           Como votou
@@ -95,7 +95,7 @@ export function VotosSecao({
           {dados.total} {dados.total === 1 ? "votação" : "votações"}
           {dados.tema && ` sobre ${dados.tema}`}
         </p>
-        <ul className="flex flex-col divide-y rounded-xl bg-card ring-1 ring-foreground/10">
+        <ul className="flex flex-col divide-y rounded-xl bg-card border border-border/80">
           {dados.itens.map((v, i) => (
             <li key={`${v.data}-${i}`} className="flex flex-col gap-2 p-4">
               <div className="flex flex-col gap-0.5">
@@ -167,7 +167,7 @@ function Bloco({
   casa: Casa;
 }) {
   return (
-    <div className="flex flex-col gap-0.5 rounded-xl bg-card p-4 ring-1 ring-foreground/10">
+    <div className="flex flex-col gap-0.5 rounded-xl bg-card p-4 border border-border/80">
       <dt className="text-sm text-muted-foreground">{rotulo}</dt>
       <dd className="text-2xl font-bold tabular-nums">
         {placar.total ? `${placar.iguais} de ${placar.total}` : "—"}

@@ -58,7 +58,7 @@ export function ResumoPerfil({
           <li key={i.ancora}>
             <a
               href={i.ancora}
-              className="flex h-full flex-col gap-0.5 rounded-xl bg-card p-3 ring-1 ring-foreground/10 transition-colors hover:bg-accent focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none"
+              className="flex h-full flex-col gap-0.5 rounded-xl bg-card p-3 border border-border/80 transition-colors hover:bg-accent focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none"
             >
               <span className="text-xs text-muted-foreground">{i.rotulo}</span>
               <span className="text-xl font-bold tabular-nums">{i.valor}</span>

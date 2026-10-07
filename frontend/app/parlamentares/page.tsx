@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import Form from "next/form";
 import Link from "next/link";
-import { Suspense } from "react";
 
 import { AvisoErro } from "@/components/aviso-erro";
+import { Revelacao } from "@/components/revelacao";
 import { FonteRodape } from "@/components/fonte-rodape";
 import { Foto } from "@/components/parlamentar-card";
 import { Button } from "@/components/ui/button";
@@ -35,7 +35,7 @@ export default function ParlamentaresPage({ searchParams }: PageProps<"/parlamen
           cada número vem de fonte oficial e não é uma nota.
         </p>
       </header>
-      <Suspense fallback={<p className="text-muted-foreground">Carregando…</p>}>
+      <Revelacao fallback={<p className="text-muted-foreground">Carregando…</p>}>
         {searchParams.then((sp) => {
           const filtros: FiltrosLista = {};
           for (const campo of CAMPOS) {
@@ -44,7 +44,7 @@ export default function ParlamentaresPage({ searchParams }: PageProps<"/parlamen
           }
           return <Lista filtros={filtros} />;
         })}
-      </Suspense>
+      </Revelacao>
     </div>
   );
 }
@@ -62,7 +62,7 @@ async function Lista({ filtros }: { filtros: FiltrosLista }) {
     <>
       <Filtros dados={dados} filtros={filtros} />
 
-      <section aria-labelledby="lista-titulo" className="flex flex-col gap-3">
+      <section aria-labelledby="lista-titulo" className="revelar flex flex-col gap-3">
         <div className="flex flex-col gap-1 rounded-xl bg-muted p-4 text-sm">
           <h2 id="lista-titulo" className="font-semibold">
             {dados.total} {dados.total === 1 ? "parlamentar" : "parlamentares"}
@@ -232,7 +232,7 @@ function Cartao({ p, ordenar }: { p: ParlamentarNaLista; ordenar: CriterioId }) 
   return (
     <Link
       href={`/parlamentar/${p.id}`}
-      className="flex h-full flex-col gap-3 rounded-xl bg-card p-3 ring-1 ring-foreground/10 transition-colors hover:bg-accent focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none"
+      className="flex h-full flex-col gap-3 rounded-xl bg-card p-3 border border-border/80 transition-colors hover:bg-accent focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none"
     >
       <div className="flex items-center gap-3">
         <Foto parlamentar={p} largura={44} />

@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Suspense } from "react";
 
 import { AvisoErro } from "@/components/aviso-erro";
+import { Revelacao } from "@/components/revelacao";
 import { CompartilharWhatsApp } from "@/components/compartilhar";
 import { FonteRodape } from "@/components/fonte-rodape";
 import { EmendasMunicipioSecao } from "@/components/emendas-municipio";
@@ -21,7 +21,7 @@ type Busca = { cep?: string; uf?: string; municipio?: string };
 
 export default function RepresentantesPage({ searchParams }: PageProps<"/representantes">) {
   return (
-    <Suspense fallback={<Carregando />}>
+    <Revelacao fallback={<Carregando />}>
       {searchParams.then((sp) => (
         <Lista
           cep={primeiro(sp.cep)}
@@ -29,7 +29,7 @@ export default function RepresentantesPage({ searchParams }: PageProps<"/represe
           municipio={primeiro(sp.municipio)}
         />
       ))}
-    </Suspense>
+    </Revelacao>
   );
 }
 

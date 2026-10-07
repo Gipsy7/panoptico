@@ -8,7 +8,7 @@ export function ProjetosSecao({ projetos, casa }: { projetos: Projetos; casa: Ca
   const desde = new Date(projetos.desde).getUTCFullYear();
 
   return (
-    <section aria-labelledby="projetos-titulo" className="flex flex-col gap-4">
+    <section aria-labelledby="projetos-titulo" className="revelar flex flex-col gap-4">
       <div>
         <h2 id="projetos-titulo" className="text-xl font-semibold">
           Projetos de lei
@@ -65,7 +65,7 @@ export function ProjetosSecao({ projetos, casa }: { projetos: Projetos; casa: Ca
       )}
 
       {projetos.recentes.length > 0 ? (
-        <details className="rounded-xl bg-card p-4 ring-1 ring-foreground/10">
+        <details className="rounded-xl bg-card p-4 border border-border/80">
           <summary className="cursor-pointer font-medium">
             Ver os {projetos.recentes.length} projetos mais recentes como autor principal
           </summary>
@@ -88,7 +88,7 @@ export function ProjetosSecao({ projetos, casa }: { projetos: Projetos; casa: Ca
 
 function Numero({ rotulo, valor }: { rotulo: string; valor: number }) {
   return (
-    <div className="rounded-xl bg-card p-4 ring-1 ring-foreground/10">
+    <div className="rounded-xl bg-card p-4 border border-border/80">
       <dt className="text-sm text-muted-foreground">{rotulo}</dt>
       <dd className="text-2xl font-bold tabular-nums">{NUMERO.format(valor)}</dd>
     </div>

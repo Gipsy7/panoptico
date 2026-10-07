@@ -8,7 +8,7 @@ export function TemasSecao({ dados, casa }: { dados: Temas; casa: Casa }) {
   const maior = Math.max(...temas.map((t) => t.primeiro_autor), 1);
 
   return (
-    <section aria-labelledby="temas-titulo" className="flex flex-col gap-3">
+    <section aria-labelledby="temas-titulo" className="revelar flex flex-col gap-3">
       <div>
         <h2 id="temas-titulo" className="text-xl font-semibold">
           Projetos por tema

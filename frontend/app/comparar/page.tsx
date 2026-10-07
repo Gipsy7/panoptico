@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Suspense } from "react";
 
 import { AvisoErro } from "@/components/aviso-erro";
+import { Revelacao } from "@/components/revelacao";
 import { BuscaParlamentar } from "@/components/busca-parlamentar";
 import { CompartilharWhatsApp } from "@/components/compartilhar";
 import { FonteRodape } from "@/components/fonte-rodape";
@@ -51,11 +51,11 @@ export default function CompararPage({ searchParams }: PageProps<"/comparar">) {
           em quantas votações votaram igual.
         </p>
       </header>
-      <Suspense fallback={<p className="text-muted-foreground">Carregando…</p>}>
+      <Revelacao fallback={<p className="text-muted-foreground">Carregando…</p>}>
         {searchParams.then((sp) => (
           <Conteudo a={texto(sp.a)} b={texto(sp.b)} ano={texto(sp.ano)} />
         ))}
-      </Suspense>
+      </Revelacao>
     </div>
   );
 }
@@ -89,7 +89,7 @@ function Pessoa({ p }: { p: ParlamentarResumo }) {
   return (
     <Link
       href={`/parlamentar/${p.id}`}
-      className="flex min-w-0 flex-col items-center gap-2 rounded-xl bg-card p-3 text-center ring-1 ring-foreground/10 hover:bg-accent"
+      className="flex min-w-0 flex-col items-center gap-2 rounded-xl bg-card p-3 text-center border border-border/80 hover:bg-accent"
     >
       <Foto parlamentar={p} largura={64} />
       <span className="font-semibold leading-tight">{p.nome_parlamentar}</span>
@@ -139,11 +139,11 @@ function Resultado({ dados }: { dados: Comparacao }) {
         texto={`Compare ${a.nome_parlamentar} e ${b.nome_parlamentar}, com dados oficiais:`}
       />
 
-      <section aria-labelledby="numeros-titulo" className="flex flex-col gap-3">
+      <section aria-labelledby="numeros-titulo" className="revelar flex flex-col gap-3">
         <h2 id="numeros-titulo" className="text-xl font-semibold">
           Números de {dados.ano}
         </h2>
-        <div className="overflow-x-auto rounded-xl bg-card ring-1 ring-foreground/10">
+        <div className="overflow-x-auto rounded-xl bg-card border border-border/80">
           <table className="w-full text-left text-sm">
             <thead className="text-muted-foreground">
               <tr>
@@ -177,7 +177,7 @@ function Resultado({ dados }: { dados: Comparacao }) {
       </section>
 
       {convergencia ? (
-        <section aria-labelledby="votos-titulo" className="flex flex-col gap-3">
+        <section aria-labelledby="votos-titulo" className="revelar flex flex-col gap-3">
           <h2 id="votos-titulo" className="text-xl font-semibold">
             Votos em comum
           </h2>
@@ -187,7 +187,7 @@ function Resultado({ dados }: { dados: Comparacao }) {
             </p>
           ) : (
             <>
-              <div className="rounded-xl bg-card p-4 ring-1 ring-foreground/10">
+              <div className="rounded-xl bg-card p-4 border border-border/80">
                 <p className="text-sm text-muted-foreground">Votaram igual em</p>
                 <p className="text-2xl font-bold tabular-nums">
                   {convergencia.iguais} de {convergencia.votacoes_em_comum} votações
@@ -212,7 +212,7 @@ function Resultado({ dados }: { dados: Comparacao }) {
               </div>
 
               {convergencia.por_tema.length > 0 && (
-                <details className="rounded-xl bg-card p-4 ring-1 ring-foreground/10">
+                <details className="rounded-xl bg-card p-4 border border-border/80">
                   <summary className="cursor-pointer font-medium">Votos iguais por tema</summary>
                   <table className="mt-3 w-full text-left text-sm">
                     <tbody>
@@ -230,7 +230,7 @@ function Resultado({ dados }: { dados: Comparacao }) {
               )}
 
               {convergencia.divergencias.length > 0 && (
-                <details className="rounded-xl bg-card p-4 ring-1 ring-foreground/10">
+                <details className="rounded-xl bg-card p-4 border border-border/80">
                   <summary className="cursor-pointer font-medium">
                     Onde votaram diferente (mais recentes)
                   </summary>
@@ -274,11 +274,11 @@ function Resultado({ dados }: { dados: Comparacao }) {
       )}
 
       {dados.temas.length > 0 && (
-        <section aria-labelledby="temas-titulo" className="flex flex-col gap-3">
+        <section aria-labelledby="temas-titulo" className="revelar flex flex-col gap-3">
           <h2 id="temas-titulo" className="text-xl font-semibold">
             Projetos por tema
           </h2>
-          <div className="overflow-x-auto rounded-xl bg-card ring-1 ring-foreground/10">
+          <div className="overflow-x-auto rounded-xl bg-card border border-border/80">
             <table className="w-full text-left text-sm">
               <thead className="text-muted-foreground">
                 <tr>
@@ -308,11 +308,11 @@ function Resultado({ dados }: { dados: Comparacao }) {
       )}
 
       {dados.coautorias.total > 0 && (
-        <section aria-labelledby="juntos-titulo" className="flex flex-col gap-3">
+        <section aria-labelledby="juntos-titulo" className="revelar flex flex-col gap-3">
           <h2 id="juntos-titulo" className="text-xl font-semibold">
             Projetos assinados juntos ({dados.coautorias.total})
           </h2>
-          <ul className="flex flex-col divide-y rounded-xl bg-card px-4 ring-1 ring-foreground/10">
+          <ul className="flex flex-col divide-y rounded-xl bg-card px-4 border border-border/80">
             {dados.coautorias.itens.map((p) => (
               <li key={`${p.sigla_tipo}-${p.numero}-${p.ano}`} className="flex flex-col gap-1 py-3">
                 <a href={p.url} target="_blank" rel="noopener noreferrer" className="font-medium underline underline-offset-2">

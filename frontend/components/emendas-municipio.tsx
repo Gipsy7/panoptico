@@ -13,7 +13,7 @@ export function EmendasMunicipioSecao({ dados }: { dados: EmendasMunicipio }) {
   const maior = Math.max(top[0]?.total ?? 0, dados.outros_autores[0]?.total ?? 0);
 
   return (
-    <section aria-labelledby="emendas-titulo" className="flex flex-col gap-4">
+    <section aria-labelledby="emendas-titulo" className="revelar flex flex-col gap-4">
       <div>
         <h2 id="emendas-titulo" className="text-xl font-semibold">
           Dinheiro enviado para {cidade}
@@ -30,7 +30,7 @@ export function EmendasMunicipioSecao({ dados }: { dados: EmendasMunicipio }) {
       ) : (
         <>
           <dl className="grid grid-cols-2 gap-3">
-            <div className="col-span-2 rounded-xl bg-card p-4 ring-1 ring-foreground/10">
+            <div className="col-span-2 rounded-xl bg-card p-4 border border-border/80">
               <dt className="text-sm text-muted-foreground">Total recebido</dt>
               <dd className="text-3xl font-bold tabular-nums">
                 {formatarReais(dados.total, true)}
@@ -40,13 +40,13 @@ export function EmendasMunicipioSecao({ dados }: { dados: EmendasMunicipio }) {
                 {dados.numero_autores === 1 ? "parlamentar" : "parlamentares"}
               </dd>
             </div>
-            <div className="rounded-xl bg-card p-4 ring-1 ring-foreground/10">
+            <div className="rounded-xl bg-card p-4 border border-border/80">
               <dt className="text-sm text-muted-foreground">Prefeitura e fundos municipais</dt>
               <dd className="text-xl font-bold tabular-nums">
                 {formatarReais(dados.total_prefeitura, true)}
               </dd>
             </div>
-            <div className="rounded-xl bg-card p-4 ring-1 ring-foreground/10">
+            <div className="rounded-xl bg-card p-4 border border-border/80">
               <dt className="text-sm text-muted-foreground">Entidades sem fins lucrativos</dt>
               <dd className="text-xl font-bold tabular-nums">
                 {formatarReais(dados.total_entidades, true)}
@@ -81,7 +81,7 @@ export function EmendasMunicipioSecao({ dados }: { dados: EmendasMunicipio }) {
           )}
 
           {dados.outros_autores.length > 0 && (
-            <details className="rounded-xl bg-card p-4 ring-1 ring-foreground/10">
+            <details className="rounded-xl bg-card p-4 border border-border/80">
               <summary className="cursor-pointer font-medium">
                 Outros autores (fora de exercício ou não identificados)
               </summary>

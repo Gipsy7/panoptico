@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { ViewTransition } from "react";
 
 import type { ParlamentarResumo } from "@/lib/api";
 
@@ -13,7 +14,7 @@ export function ParlamentarCard({
   return (
     <Link
       href={`/parlamentar/${parlamentar.id}`}
-      className="flex items-center gap-4 rounded-xl bg-card p-3 ring-1 ring-foreground/10 transition-colors hover:bg-accent focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none"
+      className="flex items-center gap-4 rounded-xl border border-border/80 bg-card p-3 transition-[background-color,transform,box-shadow] duration-300 ease-out hover:-translate-y-0.5 hover:bg-accent/60 hover:shadow-[0_10px_30px_-18px_oklch(0.36_0.1_330/0.45)] focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none motion-reduce:transition-none motion-reduce:hover:translate-y-0"
     >
       <Foto parlamentar={parlamentar} largura={56} />
       <div className="min-w-0">
@@ -46,15 +47,19 @@ export function Foto({
       />
     );
   }
+  // Mesmo nome no card e no topo do perfil: a foto "voa" de um para o outro.
+  // Cada parlamentar aparece no máximo uma vez por página, então o nome é único.
   return (
-    <Image
-      src={parlamentar.foto_url}
-      alt={`Foto de ${parlamentar.nome_parlamentar}`}
-      width={largura}
-      height={altura}
-      preload={prioridade}
-      className="shrink-0 rounded-lg bg-muted object-cover"
-      style={{ width: largura, height: altura }}
-    />
+    <ViewTransition name={`foto-${parlamentar.id}`} share="morph" default="none">
+      <Image
+        src={parlamentar.foto_url}
+        alt={`Foto de ${parlamentar.nome_parlamentar}`}
+        width={largura}
+        height={altura}
+        preload={prioridade}
+        className="shrink-0 rounded-lg bg-muted object-cover"
+        style={{ width: largura, height: altura }}
+      />
+    </ViewTransition>
   );
 }

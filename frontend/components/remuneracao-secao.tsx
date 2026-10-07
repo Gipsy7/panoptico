@@ -4,14 +4,14 @@ import { formatarData, formatarReais } from "@/lib/formato";
 
 export function RemuneracaoSecao({ remuneracao }: { remuneracao: ParlamentarDetalhe["remuneracao"] }) {
   return (
-    <section aria-labelledby="remuneracao-titulo" className="flex flex-col gap-3">
+    <section aria-labelledby="remuneracao-titulo" className="revelar flex flex-col gap-3">
       <div>
         <h2 id="remuneracao-titulo" className="text-xl font-semibold">
           Salário
         </h2>
         <p className="text-xs text-muted-foreground">Subsídio mensal dos membros do Congresso</p>
       </div>
-      <div className="rounded-xl bg-card p-4 ring-1 ring-foreground/10">
+      <div className="rounded-xl bg-card p-4 border border-border/80">
         <p className="text-sm text-muted-foreground">Valor bruto por mês</p>
         <p className="text-2xl font-bold tabular-nums">
           {formatarReais(remuneracao.subsidio_mensal)}

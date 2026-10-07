@@ -3,12 +3,13 @@ import type { NextRequest } from "next/server";
 
 import { type ParlamentarResumo, getComparacao } from "@/lib/api";
 import { CASA_CURTA } from "@/lib/formato";
+import { COR_MARCA, COR_PAPEL, COR_SUAVE, COR_TINTA, LINHAS_MARCA } from "@/lib/marca-svg";
 
 // Imagem de pré-visualização do comparador. É uma rota própria (e não opengraph-image)
 // porque depende dos parâmetros ?a= e ?b=, que o opengraph-image não recebe.
 
 const TAMANHO = { width: 1200, height: 630 };
-const COR = { fundo: "#fbf8f3", texto: "#2f2420", suave: "#6b5d56", primaria: "#62345f" };
+const COR = { fundo: COR_PAPEL, texto: COR_TINTA, suave: COR_SUAVE, primaria: COR_MARCA };
 
 export async function GET(request: NextRequest) {
   const a = request.nextUrl.searchParams.get("a");
@@ -63,7 +64,17 @@ export async function GET(request: NextRequest) {
         {destaque}
       </div>
       <div style={{ display: "flex", justifyContent: "space-between", fontSize: 26 }}>
-        <div style={{ color: COR.primaria, fontWeight: 700 }}>Panóptico</div>
+        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          <svg width={40} height={40} viewBox="0 0 64 64" fill="none" stroke={COR.primaria} strokeLinecap="round">
+            {LINHAS_MARCA.map((l, i) => (
+              <line key={i} {...l} strokeWidth={3.6} />
+            ))}
+            <circle cx={32} cy={32} r={7.5} strokeWidth={3} />
+          </svg>
+          <div style={{ display: "flex", alignItems: "baseline", color: COR.texto, fontWeight: 700 }}>
+            Panóptico<span style={{ color: COR.primaria, fontWeight: 500 }}>.social</span>
+          </div>
+        </div>
         <div style={{ color: COR.suave }}>Quem te representa, às claras · dados oficiais</div>
       </div>
     </div>,

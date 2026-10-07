@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Suspense } from "react";
 
 import { AvisoErro } from "@/components/aviso-erro";
+import { Revelacao } from "@/components/revelacao";
 import { CompartilharWhatsApp } from "@/components/compartilhar";
 import { FonteRodape } from "@/components/fonte-rodape";
 import { GastosSecao } from "@/components/gastos-secao";
@@ -44,7 +44,7 @@ export default function ParlamentarPage({
   searchParams,
 }: PageProps<"/parlamentar/[id]">) {
   return (
-    <Suspense fallback={<Carregando />}>
+    <Revelacao fallback={<Carregando />}>
       {Promise.all([params, searchParams]).then(([{ id }, sp]) => {
         const texto = (v: string | string[] | undefined) => (typeof v === "string" ? v : undefined);
         return (
@@ -56,7 +56,7 @@ export default function ParlamentarPage({
           />
         );
       })}
-    </Suspense>
+    </Revelacao>
   );
 }
 
@@ -140,7 +140,7 @@ async function Perfil({
 
       <RemuneracaoSecao remuneracao={p.remuneracao} />
 
-      <section className="flex flex-col gap-2 rounded-xl bg-card p-4 ring-1 ring-foreground/10">
+      <section className="flex flex-col gap-2 rounded-xl bg-card p-4 border border-border/80">
         <h2 className="font-semibold">Contato do gabinete</h2>
         <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 text-sm">
           {p.email && (

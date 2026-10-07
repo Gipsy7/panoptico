@@ -2,6 +2,7 @@ import { ImageResponse } from "next/og";
 
 import { getGastos, getParlamentar, getPresenca, getProjetos } from "@/lib/api";
 import { NOME_CASA, formatarReais } from "@/lib/formato";
+import { COR_MARCA, COR_PAPEL, COR_SUAVE, COR_TINTA, LINHAS_MARCA } from "@/lib/marca-svg";
 
 export const alt = "Resumo do parlamentar no Panóptico";
 export const size = { width: 1200, height: 630 };
@@ -9,12 +10,12 @@ export const contentType = "image/png";
 
 // Tokens da paleta (globals.css) em hex, porque o gerador de imagem não lê CSS.
 const COR = {
-  fundo: "#fbf8f3",
-  texto: "#2f2420",
-  suave: "#6b5d56",
-  primaria: "#62345f",
+  fundo: COR_PAPEL,
+  texto: COR_TINTA,
+  suave: COR_SUAVE,
+  primaria: COR_MARCA,
   cartao: "#ffffff",
-  borda: "#e8e1d6",
+  borda: "#e7dfd2",
 };
 
 export default async function Image({ params }: { params: Promise<{ id: string }> }) {
@@ -118,7 +119,17 @@ export default async function Image({ params }: { params: Promise<{ id: string }
       </div>
 
       <div style={{ display: "flex", justifyContent: "space-between", fontSize: 26 }}>
-        <div style={{ color: COR.primaria, fontWeight: 700 }}>Panóptico</div>
+        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          <svg width={40} height={40} viewBox="0 0 64 64" fill="none" stroke={COR.primaria} strokeLinecap="round">
+            {LINHAS_MARCA.map((l, i) => (
+              <line key={i} {...l} strokeWidth={3.6} />
+            ))}
+            <circle cx={32} cy={32} r={7.5} strokeWidth={3} />
+          </svg>
+          <div style={{ display: "flex", alignItems: "baseline", color: COR.texto, fontWeight: 700 }}>
+            Panóptico<span style={{ color: COR.primaria, fontWeight: 500 }}>.social</span>
+          </div>
+        </div>
         <div style={{ color: COR.suave }}>Quem te representa, às claras · dados oficiais</div>
       </div>
     </div>,
