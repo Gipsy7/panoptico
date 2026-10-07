@@ -238,3 +238,52 @@ export function getParlamentares(filtros: FiltrosLista) {
   for (const [chave, valor] of Object.entries(filtros)) if (valor) params.set(chave, valor);
   return getJson<ListaParlamentares>(`/parlamentares?${params}`);
 }
+
+export type Temas = {
+  disponivel: boolean;
+  temas: { tema: string; primeiro_autor: number; coautor: number }[];
+  homenagens: number;
+};
+
+export function getTemas(id: string) {
+  return getJson<Temas>(`/parlamentares/${encodeURIComponent(id)}/temas`);
+}
+
+export type Placar = { iguais: number; total: number; percentual: number | null };
+
+export type VotoItem = {
+  data: string;
+  descricao: string;
+  proposicao: string | null;
+  proposicao_ementa: string | null;
+  temas: string[];
+  voto: string;
+  orientacao_governo: string | null;
+  maioria_partido: string | null;
+  partido: string | null;
+  url: string | null;
+};
+
+export type Votos = {
+  ano: number;
+  anos_disponiveis: number[];
+  governo: Placar | null;
+  partido: Placar;
+  media_governo: number | null;
+  media_partido: number | null;
+  temas_disponiveis: string[];
+  tema: string | null;
+  total: number;
+  pagina: number;
+  por_pagina: number;
+  itens: VotoItem[];
+  fonte_nome: string;
+  fonte_url: string;
+  atualizado_em: string | null;
+};
+
+export function getVotos(id: string, opcoes: { ano?: string; tema?: string; pagina?: string }) {
+  const params = new URLSearchParams();
+  for (const [chave, valor] of Object.entries(opcoes)) if (valor) params.set(chave, valor);
+  return getJson<Votos>(`/parlamentares/${encodeURIComponent(id)}/votos?${params}`);
+}

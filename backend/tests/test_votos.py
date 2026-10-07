@@ -3,8 +3,9 @@ from datetime import date
 
 from sqlalchemy import select
 
-from app.models import Parlamentar
+from app.models import Parlamentar, ProposicaoTema
 from app.services import ranking, votos
+from ingestion import proposicoes_comum as pc
 from ingestion import resumos
 from ingestion import votacoes_comum as vc
 from tests.test_api import _ingestao, _popular
@@ -111,3 +112,59 @@ def test_resumo_e_lista_ordenavel(client, session):
     assert a.id in [i["id"] for i in busca["itens"]]
     assert client.get("/parlamentares?ano=1999").status_code == 404
     assert client.get("/parlamentares?ordenar=nota").status_code == 422
+
+
+def test_rota_de_votos_do_perfil(client, session):
+    a, b, c = _cenario(session)
+    session.execute(resumos.ResumoParlamentar.__table__.insert(), resumos.calcular(session, [2026]))
+    session.execute(
+        ProposicaoTema.__table__.insert(),
+        [{"casa": "camara", "proposicao_id_externo": "1", "tema": "Economia"}],
+    )
+    session.flush()
+
+    corpo = client.get(f"/parlamentares/{a.id}/votos").json()
+    assert corpo["governo"] == {"iguais": 2, "total": 3, "percentual": 66.7}
+    assert corpo["total"] == 4
+    assert corpo["temas_disponiveis"] == ["Economia"]
+
+    so_economia = client.get(f"/parlamentares/{a.id}/votos?tema=Economia").json()
+    assert [i["proposicao"] for i in so_economia["itens"]] == ["PL 1/2026"]
+    assert so_economia["itens"][0]["temas"] == ["Economia"]
+
+
+def test_rota_de_temas_do_perfil(client, session):
+    _popular(session)
+    deputado = session.scalars(select(Parlamentar).where(Parlamentar.casa == "camara")).first()
+    senador = session.scalars(select(Parlamentar).where(Parlamentar.casa == "senado")).first()
+    ingestao = _ingestao(session)
+    base = {"ementa": "E.", "situacao": None, "virou_lei": False, "url": "u", "ano": 2024,
+            "sigla_tipo": "PL", "data_apresentacao": date(2024, 1, 1)}  # fmt: skip
+    mapa = pc.upsert_proposicoes(
+        session,
+        "camara",
+        [{**base, "id_externo": "p1", "numero": 1}, {**base, "id_externo": "p2", "numero": 2}],
+        ingestao,
+    )
+    pc.substituir_autorias(
+        session,
+        list(mapa.values()),
+        [
+            {"proposicao_id": mapa["p1"], "parlamentar_id": deputado.id, "primeiro_autor": True},
+            {"proposicao_id": mapa["p2"], "parlamentar_id": deputado.id, "primeiro_autor": False},
+        ],
+    )
+    session.execute(
+        ProposicaoTema.__table__.insert(),
+        [
+            {"casa": "camara", "proposicao_id_externo": "p1", "tema": "Saúde"},
+            {"casa": "camara", "proposicao_id_externo": "p1", "tema": resumos.TEMA_HOMENAGENS},
+            {"casa": "camara", "proposicao_id_externo": "p2", "tema": "Saúde"},
+        ],
+    )
+    session.flush()
+
+    corpo = client.get(f"/parlamentares/{deputado.id}/temas").json()
+    assert corpo["temas"][0] == {"tema": "Saúde", "primeiro_autor": 1, "coautor": 1}
+    assert corpo["homenagens"] == 1
+    assert client.get(f"/parlamentares/{senador.id}/temas").json()["disponivel"] is False

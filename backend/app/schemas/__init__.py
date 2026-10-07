@@ -229,3 +229,52 @@ class ListaParlamentaresResposta(BaseModel):
     por_pagina: int
     itens: list[ParlamentarNaLista]
     atualizado_em: datetime | None
+
+
+class TemaContagem(BaseModel):
+    tema: str
+    primeiro_autor: int
+    coautor: int
+
+
+class TemasResposta(BaseModel):
+    disponivel: bool
+    temas: list[TemaContagem]
+    homenagens: int
+
+
+class PlacarResposta(BaseModel):
+    iguais: int
+    total: int
+    percentual: float | None
+
+
+class VotoItem(BaseModel):
+    data: date
+    descricao: str
+    proposicao: str | None
+    proposicao_ementa: str | None
+    temas: list[str]
+    voto: str
+    orientacao_governo: str | None
+    maioria_partido: str | None
+    partido: str | None
+    url: str | None
+
+
+class VotosResposta(BaseModel):
+    ano: int
+    anos_disponiveis: list[int]
+    governo: PlacarResposta | None
+    partido: PlacarResposta
+    media_governo: float | None
+    media_partido: float | None
+    temas_disponiveis: list[str]
+    tema: str | None
+    total: int
+    pagina: int
+    por_pagina: int
+    itens: list[VotoItem]
+    fonte_nome: str
+    fonte_url: str
+    atualizado_em: datetime | None

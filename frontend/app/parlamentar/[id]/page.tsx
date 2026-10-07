@@ -11,7 +11,16 @@ import { PresencaSecao } from "@/components/presenca-secao";
 import { ProjetosSecao } from "@/components/projetos-secao";
 import { RemuneracaoSecao } from "@/components/remuneracao-secao";
 import { ResumoPerfil } from "@/components/resumo-perfil";
-import { getGastos, getParlamentar, getPresenca, getProjetos } from "@/lib/api";
+import { TemasSecao } from "@/components/temas-secao";
+import { VotosSecao } from "@/components/votos-secao";
+import {
+  getGastos,
+  getParlamentar,
+  getPresenca,
+  getProjetos,
+  getTemas,
+  getVotos,
+} from "@/lib/api";
 import { FONTE_CASA, NOME_CASA } from "@/lib/formato";
 
 export async function generateMetadata({
@@ -35,19 +44,39 @@ export default function ParlamentarPage({
 }: PageProps<"/parlamentar/[id]">) {
   return (
     <Suspense fallback={<Carregando />}>
-      {Promise.all([params, searchParams]).then(([{ id }, sp]) => (
-        <Perfil id={id} ano={typeof sp.ano === "string" ? sp.ano : undefined} />
-      ))}
+      {Promise.all([params, searchParams]).then(([{ id }, sp]) => {
+        const texto = (v: string | string[] | undefined) => (typeof v === "string" ? v : undefined);
+        return (
+          <Perfil
+            id={id}
+            ano={texto(sp.ano)}
+            tema={texto(sp.tema)}
+            paginaVotos={texto(sp.pagina_votos)}
+          />
+        );
+      })}
     </Suspense>
   );
 }
 
-async function Perfil({ id, ano }: { id: string; ano?: string }) {
-  const [resultado, gastos, projetos, presenca] = await Promise.all([
+async function Perfil({
+  id,
+  ano,
+  tema,
+  paginaVotos,
+}: {
+  id: string;
+  ano?: string;
+  tema?: string;
+  paginaVotos?: string;
+}) {
+  const [resultado, gastos, projetos, presenca, temas, votos] = await Promise.all([
     getParlamentar(id),
     getGastos(id, ano),
     getProjetos(id),
     getPresenca(id, ano),
+    getTemas(id),
+    getVotos(id, { ano, tema, pagina: paginaVotos }),
   ]);
   if (!resultado.ok) {
     if (resultado.status === 404 || resultado.status === 422) notFound();
@@ -93,7 +122,11 @@ async function Perfil({ id, ano }: { id: string; ano?: string }) {
 
       {presenca.ok && <PresencaSecao presenca={presenca.dados} casa={p.casa} />}
 
+      {votos.ok && <VotosSecao dados={votos.dados} casa={p.casa} parlamentarId={p.id} />}
+
       {projetos.ok && <ProjetosSecao projetos={projetos.dados} casa={p.casa} />}
+
+      {temas.ok && <TemasSecao dados={temas.dados} />}
 
       <RemuneracaoSecao remuneracao={p.remuneracao} />
 

@@ -11,8 +11,10 @@ from app.schemas import (
     ParlamentarDetalhe,
     PresencaResposta,
     ProjetosResposta,
+    TemasResposta,
+    VotosResposta,
 )
-from app.services import gastos, presenca, projetos, ranking, remuneracao
+from app.services import gastos, presenca, projetos, ranking, remuneracao, temas, votos
 
 router = APIRouter()
 
@@ -99,3 +101,54 @@ def presenca_do_parlamentar(
     elif ano not in anos:
         raise HTTPException(404, f"Sem votações carregadas para {ano}.")
     return presenca.resumo(session, p, ano)
+
+
+@router.get("/parlamentares/{parlamentar_id}/temas", response_model=TemasResposta)
+def temas_do_parlamentar(
+    parlamentar_id: int, session: Annotated[Session, Depends(get_session)]
+) -> dict:
+    return temas.projetos_por_tema(session, _buscar(session, parlamentar_id))
+
+
+@router.get("/parlamentares/{parlamentar_id}/votos", response_model=VotosResposta)
+def votos_do_parlamentar(
+    parlamentar_id: int,
+    session: Annotated[Session, Depends(get_session)],
+    ano: Annotated[int | None, Query(description="Padrão: ano mais recente com dados")] = None,
+    tema: Annotated[str | None, Query(description="Tema oficial da proposição votada")] = None,
+    pagina: Annotated[int, Query(ge=1)] = 1,
+) -> dict:
+    p = _buscar(session, parlamentar_id)
+    anos = presenca.anos_disponiveis(session, p.casa)
+    if not anos:
+        raise HTTPException(404, "Ainda não há votações carregadas para esta Casa.")
+    if ano is None:
+        ano = anos[0]
+    elif ano not in anos:
+        raise HTTPException(404, f"Sem votações carregadas para {ano}.")
+
+    resumo = ranking.resumo_de(session, p, ano)
+    lista = ranking.listar(session, ano=ano, casa=p.casa)
+    fonte = presenca.FONTES[p.casa]
+
+    def placar(iguais: int, total: int) -> dict:
+        return {"iguais": iguais, "total": total, "percentual": ranking._pct(iguais, total)}
+
+    return {
+        "ano": ano,
+        "anos_disponiveis": anos,
+        "governo": placar(resumo["governo_iguais"], resumo["governo_total"])
+        if resumo and p.casa == "camara"
+        else None,
+        "partido": placar(resumo["partido_iguais"], resumo["partido_total"])
+        if resumo
+        else placar(0, 0),
+        "media_governo": lista["medias"][p.casa]["governo"],
+        "media_partido": ranking.media_partido(session, p.casa, ano),
+        "temas_disponiveis": votos.temas_disponiveis(session, p, ano),
+        "tema": tema,
+        **votos.lista_votos(session, p, ano, tema, pagina),
+        "fonte_nome": fonte["nome"],
+        "fonte_url": fonte["url"],
+        "atualizado_em": lista["atualizado_em"],
+    }

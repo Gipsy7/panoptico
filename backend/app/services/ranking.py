@@ -103,6 +103,21 @@ def medias(itens: list[dict]) -> dict[str, dict[str, float | None]]:
     return resultado
 
 
+def media_partido(session: Session, casa: str, ano: int) -> float | None:
+    """Média do percentual 'votou como a maioria do partido' entre os parlamentares da casa."""
+    linhas = session.execute(
+        select(ResumoParlamentar.partido_iguais, ResumoParlamentar.partido_total)
+        .join(Parlamentar, Parlamentar.id == ResumoParlamentar.parlamentar_id)
+        .where(
+            Parlamentar.casa == casa,
+            Parlamentar.em_exercicio,
+            ResumoParlamentar.ano == ano,
+            ResumoParlamentar.partido_total > 0,
+        )
+    ).all()
+    return round(mean(100 * i / t for i, t in linhas), 1) if linhas else None
+
+
 def listar(
     session: Session,
     *,
