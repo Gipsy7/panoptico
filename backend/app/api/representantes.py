@@ -4,6 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 
 from app.db import get_session
+from app.models import Municipio
 from app.schemas import Localizacao, RepresentantesResposta
 from app.services import cep as cep_service
 from app.services.representantes import UFS, listar_por_uf
@@ -16,8 +17,22 @@ def representantes(
     session: Annotated[Session, Depends(get_session)],
     cep: Annotated[str | None, Query(description="CEP com ou sem hífen")] = None,
     uf: Annotated[str | None, Query(description="Sigla da UF, se não souber o CEP")] = None,
+    municipio: Annotated[
+        str | None, Query(description="Código IBGE do município, se não souber o CEP")
+    ] = None,
 ) -> RepresentantesResposta:
-    if cep:
+    if municipio:
+        encontrado = session.get(Municipio, municipio)
+        if encontrado is None:
+            raise HTTPException(404, "Município não encontrado.")
+        localizacao = Localizacao(
+            cep=None,
+            uf=encontrado.uf,
+            estado=UFS[encontrado.uf],
+            municipio=encontrado.nome,
+            codigo_ibge=encontrado.ibge,
+        )
+    elif cep:
         try:
             local = cep_service.buscar_cep(cep)
         except cep_service.CepInvalido as e:

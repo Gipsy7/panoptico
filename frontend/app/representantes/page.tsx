@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 
 import { AvisoErro } from "@/components/aviso-erro";
+import { CompartilharWhatsApp } from "@/components/compartilhar";
 import { FonteRodape } from "@/components/fonte-rodape";
 import { EmendasMunicipioSecao } from "@/components/emendas-municipio";
 import { ParlamentarCard } from "@/components/parlamentar-card";
@@ -15,13 +16,17 @@ import { formatarCep, formatarReais } from "@/lib/formato";
 
 export const metadata: Metadata = { title: "Seus representantes" };
 
-type Busca = { cep?: string; uf?: string };
+type Busca = { cep?: string; uf?: string; municipio?: string };
 
 export default function RepresentantesPage({ searchParams }: PageProps<"/representantes">) {
   return (
     <Suspense fallback={<Carregando />}>
       {searchParams.then((sp) => (
-        <Lista cep={primeiro(sp.cep)} uf={primeiro(sp.uf)} />
+        <Lista
+          cep={primeiro(sp.cep)}
+          uf={primeiro(sp.uf)}
+          municipio={primeiro(sp.municipio)}
+        />
       ))}
     </Suspense>
   );
@@ -31,16 +36,18 @@ function primeiro(valor: string | string[] | undefined) {
   return Array.isArray(valor) ? valor[0] : valor;
 }
 
-async function Lista({ cep, uf }: Busca) {
-  if (!cep && !uf) {
+async function Lista({ cep, uf, municipio }: Busca) {
+  if (!cep && !uf && !municipio) {
     return <AvisoErro titulo="Faltou o CEP" mensagem="Digite um CEP para ver seus representantes." />;
   }
 
-  const resultado = await getRepresentantes({ cep, uf });
+  const resultado = await getRepresentantes({ cep, uf, municipio });
   if (!resultado.ok) {
     const titulo =
       resultado.status === 404
-        ? "Não encontramos esse CEP"
+        ? municipio
+          ? "Não encontramos essa cidade"
+          : "Não encontramos esse CEP"
         : resultado.status === 422
           ? "CEP inválido"
           : "Não deu para buscar agora";
@@ -60,13 +67,26 @@ async function Lista({ cep, uf }: Busca) {
     <div className="flex flex-col gap-8">
       <div className="flex flex-col gap-1">
         <p className="text-sm text-muted-foreground">
-          {localizacao.cep ? `CEP ${formatarCep(localizacao.cep)}` : "Busca por estado"}
+          {localizacao.cep
+            ? `CEP ${formatarCep(localizacao.cep)}`
+            : localizacao.municipio
+              ? "Busca por cidade"
+              : "Busca por estado"}
         </p>
         <h1 className="text-2xl font-bold tracking-tight">Você está em {lugar}</h1>
         <p className="text-muted-foreground">
           Quem representa {localizacao.estado} no Congresso Nacional:
         </p>
       </div>
+
+      <CompartilharWhatsApp
+        caminho={
+          localizacao.codigo_ibge
+            ? `/representantes?municipio=${localizacao.codigo_ibge}`
+            : `/representantes?uf=${localizacao.uf}`
+        }
+        texto={`Veja quem representa ${lugar} no Congresso e quanto cada um enviou para a cidade:`}
+      />
 
       <Secao
         titulo="Senadores"

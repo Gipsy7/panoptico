@@ -57,9 +57,10 @@ async function getJson<T>(caminho: string): Promise<Resultado<T>> {
   return { ok: true, dados: (await resposta.json()) as T };
 }
 
-export function getRepresentantes(busca: { cep?: string; uf?: string }) {
+export function getRepresentantes(busca: { cep?: string; uf?: string; municipio?: string }) {
   const params = new URLSearchParams();
-  if (busca.cep) params.set("cep", busca.cep);
+  if (busca.municipio) params.set("municipio", busca.municipio);
+  else if (busca.cep) params.set("cep", busca.cep);
   else if (busca.uf) params.set("uf", busca.uf);
   return getJson<Representantes>(`/representantes?${params}`);
 }
@@ -168,4 +169,16 @@ export type EmendasMunicipio = {
 
 export function getEmendasMunicipio(ibge: string) {
   return getJson<EmendasMunicipio>(`/municipios/${encodeURIComponent(ibge)}/emendas`);
+}
+
+export type Fonte = { dado: string; orgao: string; url: string; atualizado_em: string | null };
+
+export function getFontes() {
+  return getJson<Fonte[]>("/fontes");
+}
+
+export type Municipio = { ibge: string; nome: string; uf: string };
+
+export function getMunicipios(uf: string) {
+  return getJson<Municipio[]>(`/municipios?uf=${encodeURIComponent(uf)}`);
 }

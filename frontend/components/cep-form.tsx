@@ -1,15 +1,32 @@
 "use client";
 
 import Form from "next/form";
-import { useState } from "react";
+import { useRef, useState } from "react";
 
 import { Button } from "@/components/ui/button";
+import { type Municipio, getMunicipios } from "@/lib/api";
 import { formatarCep } from "@/lib/formato";
 import { UFS } from "@/lib/ufs";
+
+const CAMPO =
+  "h-14 rounded-xl border border-input bg-card px-4 text-lg focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none disabled:opacity-60";
+
+type Cidades = { uf: string; estado: "vazio" | "carregando" | "pronto"; lista: Municipio[] };
 
 export function CepForm() {
   const [cep, setCep] = useState("");
   const [semCep, setSemCep] = useState(false);
+  const [cidades, setCidades] = useState<Cidades>({ uf: "", estado: "vazio", lista: [] });
+  const ufAtual = useRef("");
+
+  async function carregarCidades(uf: string) {
+    ufAtual.current = uf;
+    setCidades({ uf, estado: "carregando", lista: [] });
+    const resultado = await getMunicipios(uf);
+    if (ufAtual.current !== uf) return; // o usuário já trocou de estado
+    // Sem a lista, a busca segue funcionando pelo estado inteiro.
+    setCidades({ uf, estado: "pronto", lista: resultado.ok ? resultado.dados : [] });
+  }
 
   if (semCep) {
     return (
@@ -22,7 +39,8 @@ export function CepForm() {
           name="uf"
           required
           defaultValue=""
-          className="h-14 rounded-xl border border-input bg-card px-4 text-lg focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none"
+          onChange={(e) => carregarCidades(e.target.value)}
+          className={CAMPO}
         >
           <option value="" disabled>
             Selecione
@@ -33,6 +51,30 @@ export function CepForm() {
             </option>
           ))}
         </select>
+        {cidades.estado !== "vazio" && (
+          <>
+            <label htmlFor="municipio" className="text-base font-medium">
+              E sua cidade
+            </label>
+            <select
+              id="municipio"
+              name="municipio"
+              defaultValue=""
+              key={cidades.uf}
+              disabled={cidades.estado === "carregando"}
+              className={CAMPO}
+            >
+              <option value="">
+                {cidades.estado === "carregando" ? "Carregando cidades…" : "Todo o estado"}
+              </option>
+              {cidades.lista.map((m) => (
+                <option key={m.ibge} value={m.ibge}>
+                  {m.nome}
+                </option>
+              ))}
+            </select>
+          </>
+        )}
         <Button type="submit" className="h-14 rounded-xl text-lg">
           Ver meus representantes
         </Button>

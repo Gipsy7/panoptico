@@ -140,6 +140,8 @@ class PresencaResposta(BaseModel):
 
 
 class MunicipioInfo(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     ibge: str
     nome: str
     uf: str
@@ -175,4 +177,11 @@ class EmendasMunicipioResposta(BaseModel):
     numero_autores: int
     fonte_nome: str
     fonte_url: str
+    atualizado_em: datetime | None
+
+
+class FonteItem(BaseModel):
+    dado: str
+    orgao: str
+    url: str
     atualizado_em: datetime | None

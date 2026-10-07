@@ -1,7 +1,9 @@
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 
 import { AvisoErro } from "@/components/aviso-erro";
+import { CompartilharWhatsApp } from "@/components/compartilhar";
 import { FonteRodape } from "@/components/fonte-rodape";
 import { GastosSecao } from "@/components/gastos-secao";
 import { Foto } from "@/components/parlamentar-card";
@@ -11,6 +13,21 @@ import { RemuneracaoSecao } from "@/components/remuneracao-secao";
 import { ResumoPerfil } from "@/components/resumo-perfil";
 import { getGastos, getParlamentar, getPresenca, getProjetos } from "@/lib/api";
 import { FONTE_CASA, NOME_CASA } from "@/lib/formato";
+
+export async function generateMetadata({
+  params,
+}: PageProps<"/parlamentar/[id]">): Promise<Metadata> {
+  const { id } = await params;
+  const resultado = await getParlamentar(id);
+  if (!resultado.ok) return { title: "Parlamentar" };
+  const p = resultado.dados;
+  const descricao = `Gastos do gabinete, presença em votações e projetos de lei de ${p.nome_parlamentar} (${[p.partido, p.uf].filter(Boolean).join("-")}), com dados oficiais e link para a fonte.`;
+  return {
+    title: p.nome_parlamentar,
+    description: descricao,
+    openGraph: { title: `${p.nome_parlamentar} · ${NOME_CASA[p.casa]}`, description: descricao },
+  };
+}
 
 export default function ParlamentarPage({
   params,
@@ -61,6 +78,11 @@ async function Perfil({ id, ano }: { id: string; ano?: string }) {
         presenca={presenca.ok ? presenca.dados : undefined}
         projetos={projetos.ok ? projetos.dados : undefined}
         subsidio={p.remuneracao.subsidio_mensal}
+      />
+
+      <CompartilharWhatsApp
+        caminho={`/parlamentar/${p.id}`}
+        texto={`Veja os gastos, a presença e os projetos de ${p.nome_parlamentar} (${NOME_CASA[p.casa]}), com dados oficiais:`}
       />
 
       {gastos.ok ? (
