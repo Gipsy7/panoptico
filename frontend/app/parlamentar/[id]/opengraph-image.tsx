@@ -14,8 +14,8 @@ const COR = {
   texto: COR_TINTA,
   suave: COR_SUAVE,
   primaria: COR_MARCA,
-  cartao: "#ffffff",
-  borda: "#e7dfd2",
+  cartao: "#f8f6f0",
+  borda: "#d9d3c7",
 };
 
 export default async function Image({ params }: { params: Promise<{ id: string }> }) {

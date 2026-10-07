@@ -10,7 +10,7 @@ export function TemasSecao({ dados, casa }: { dados: Temas; casa: Casa }) {
   return (
     <section aria-labelledby="temas-titulo" className="revelar flex flex-col gap-3">
       <div>
-        <h2 id="temas-titulo" className="text-xl font-semibold">
+        <h2 id="temas-titulo" className="text-2xl">
           Projetos por tema
         </h2>
         <p className="text-xs text-muted-foreground">

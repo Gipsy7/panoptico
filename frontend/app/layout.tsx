@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Fraunces, Geist } from "next/font/google";
+import { Geist, Newsreader } from "next/font/google";
 import Link from "next/link";
 
 import { Logo, Marca } from "@/components/logo";
@@ -12,11 +12,11 @@ const geistSans = Geist({
   subsets: ["latin"],
 });
 
-// Serifa dos títulos e do nome na logo: dá o tom editorial.
-const fraunces = Fraunces({
-  variable: "--font-fraunces",
+// Serifa editorial dos títulos, dos números em destaque e do nome na logo.
+const newsreader = Newsreader({
+  variable: "--font-newsreader",
   subsets: ["latin"],
-  axes: ["opsz", "SOFT"],
+  axes: ["opsz"],
 });
 
 const CONTATO = process.env.NEXT_PUBLIC_CONTATO_EMAIL;
@@ -34,7 +34,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#faf6ef",
+  themeColor: "#f4f1ea",
 };
 
 const LINK = "underline underline-offset-2 hover:text-foreground";
@@ -43,7 +43,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="pt-BR"
-      className={`${geistSans.variable} ${fraunces.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${newsreader.variable} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col">
         <a
@@ -77,7 +77,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <footer className="mt-8 border-t border-border/70">
           <div className="mx-auto flex w-full max-w-3xl flex-col gap-4 px-4 py-8 text-xs text-muted-foreground">
             <div className="flex items-start gap-3">
-              <Marca tamanho={28} className="shrink-0 text-primary" />
+              <Marca tamanho={28} traco={2.4} className="shrink-0 text-bronze" />
               <p className="max-w-prose text-sm leading-relaxed">
                 O panóptico era uma prisão em que um vigia, de uma torre, via todos sem ser visto.
                 Aqui é o contrário: todos podem ver quem os representa.

@@ -74,7 +74,7 @@ async function Lista({ cep, uf, municipio }: Busca) {
               ? "Busca por cidade"
               : "Busca por estado"}
         </p>
-        <h1 className="text-2xl font-bold tracking-tight">Você está em {lugar}</h1>
+        <h1 className="text-3xl tracking-tight">Você está em {lugar}</h1>
         <p className="text-muted-foreground">
           Quem representa {localizacao.estado} no Congresso Nacional:
         </p>
@@ -137,7 +137,7 @@ function Secao({
   return (
     <section className="flex flex-col gap-3" aria-labelledby={`secao-${titulo}`}>
       <div>
-        <h2 id={`secao-${titulo}`} className="text-xl font-semibold">
+        <h2 id={`secao-${titulo}`} className="text-2xl">
           {titulo} <span className="text-muted-foreground">({parlamentares.length})</span>
         </h2>
         <p className="text-sm text-muted-foreground">{explicacao}</p>
@@ -145,9 +145,9 @@ function Secao({
       {parlamentares.length === 0 ? (
         <p className="text-muted-foreground">Nenhum dado carregado ainda.</p>
       ) : (
-        <ul className="grid gap-2 sm:grid-cols-2">
+        <ul className="grid border-t border-border sm:grid-cols-2 sm:gap-x-10">
           {parlamentares.map((p) => (
-            <li key={p.id}>
+            <li key={p.id} className="border-b border-border">
               <ParlamentarCard parlamentar={p} destaque={destaque(p.id)} />
             </li>
           ))}
@@ -161,9 +161,9 @@ function Carregando() {
   return (
     <div className="flex flex-col gap-3" aria-busy="true" aria-live="polite">
       <span className="sr-only">Carregando representantes…</span>
-      <div className="h-8 w-2/3 animate-pulse rounded-lg bg-muted" />
+      <div className="h-8 w-2/3 animate-pulse rounded-[2px] bg-muted" />
       {Array.from({ length: 6 }, (_, i) => (
-        <div key={i} className="h-20 animate-pulse rounded-xl bg-muted" />
+        <div key={i} className="h-16 animate-pulse rounded-[2px] bg-muted" />
       ))}
     </div>
   );

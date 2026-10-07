@@ -6,7 +6,6 @@ import { AvisoErro } from "@/components/aviso-erro";
 import { Revelacao } from "@/components/revelacao";
 import { FonteRodape } from "@/components/fonte-rodape";
 import { Foto } from "@/components/parlamentar-card";
-import { Button } from "@/components/ui/button";
 import {
   type CriterioId,
   type FiltrosLista,
@@ -29,7 +28,7 @@ export default function ParlamentaresPage({ searchParams }: PageProps<"/parlamen
   return (
     <div className="flex flex-col gap-6">
       <header className="flex flex-col gap-1">
-        <h1 className="text-2xl font-bold tracking-tight">Todos os parlamentares</h1>
+        <h1 className="text-3xl tracking-tight">Todos os parlamentares</h1>
         <p className="text-muted-foreground">
           Deputados federais e senadores em exercício. Escolha um critério para ordenar a lista:
           cada número vem de fonte oficial e não é uma nota.
@@ -63,7 +62,7 @@ async function Lista({ filtros }: { filtros: FiltrosLista }) {
       <Filtros dados={dados} filtros={filtros} />
 
       <section aria-labelledby="lista-titulo" className="revelar flex flex-col gap-3">
-        <div className="flex flex-col gap-1 rounded-xl bg-muted p-4 text-sm">
+        <div className="nota flex flex-col gap-1 text-sm">
           <h2 id="lista-titulo" className="font-semibold">
             {dados.total} {dados.total === 1 ? "parlamentar" : "parlamentares"}
             {dados.ordenar !== "nome" && <> · ordenado por {criterio.nome.toLowerCase()}</>}
@@ -86,9 +85,9 @@ async function Lista({ filtros }: { filtros: FiltrosLista }) {
         {dados.itens.length === 0 ? (
           <p className="text-muted-foreground">Ninguém encontrado com esses filtros.</p>
         ) : (
-          <ul className="grid gap-2 sm:grid-cols-2">
+          <ul className="grid border-t border-border sm:grid-cols-2 sm:gap-x-10">
             {dados.itens.map((p) => (
-              <li key={p.id}>
+              <li key={p.id} className="border-b border-border">
                 <Cartao p={p} ordenar={dados.ordenar} />
               </li>
             ))}
@@ -116,7 +115,7 @@ async function Lista({ filtros }: { filtros: FiltrosLista }) {
 }
 
 const SELECT =
-  "h-11 rounded-xl border border-input bg-card px-3 text-sm focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none";
+  "seletor w-full";
 
 function Filtros({ dados, filtros }: { dados: ListaParlamentares; filtros: FiltrosLista }) {
   return (
@@ -190,9 +189,9 @@ function Filtros({ dados, filtros }: { dados: ListaParlamentares; filtros: Filtr
           </select>
         </label>
       )}
-      <Button type="submit" className="col-span-2 h-11 rounded-xl sm:col-span-3">
+      <button type="submit" className="botao col-span-2 sm:col-span-3">
         Aplicar
-      </Button>
+      </button>
     </Form>
   );
 }
@@ -232,7 +231,7 @@ function Cartao({ p, ordenar }: { p: ParlamentarNaLista; ordenar: CriterioId }) 
   return (
     <Link
       href={`/parlamentar/${p.id}`}
-      className="flex h-full flex-col gap-3 rounded-xl bg-card p-3 border border-border/80 transition-colors hover:bg-accent focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none"
+      className="flex h-full flex-col gap-3 py-4 transition-colors duration-300 hover:bg-accent/50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-bronze"
     >
       <div className="flex items-center gap-3">
         <Foto parlamentar={p} largura={44} />

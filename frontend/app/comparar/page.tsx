@@ -45,7 +45,7 @@ export default function CompararPage({ searchParams }: PageProps<"/comparar">) {
   return (
     <div className="flex flex-col gap-6">
       <header className="flex flex-col gap-1">
-        <h1 className="text-2xl font-bold tracking-tight">Comparar parlamentares</h1>
+        <h1 className="text-3xl tracking-tight">Comparar parlamentares</h1>
         <p className="text-muted-foreground">
           Dois parlamentares lado a lado: números, temas dos projetos e, se forem da mesma Casa,
           em quantas votações votaram igual.
@@ -89,7 +89,7 @@ function Pessoa({ p }: { p: ParlamentarResumo }) {
   return (
     <Link
       href={`/parlamentar/${p.id}`}
-      className="flex min-w-0 flex-col items-center gap-2 rounded-xl bg-card p-3 text-center border border-border/80 hover:bg-accent"
+      className="flex min-w-0 flex-col items-center gap-2 text-center transition-opacity hover:opacity-80"
     >
       <Foto parlamentar={p} largura={64} />
       <span className="font-semibold leading-tight">{p.nome_parlamentar}</span>
@@ -140,10 +140,10 @@ function Resultado({ dados }: { dados: Comparacao }) {
       />
 
       <section aria-labelledby="numeros-titulo" className="revelar flex flex-col gap-3">
-        <h2 id="numeros-titulo" className="text-xl font-semibold">
+        <h2 id="numeros-titulo" className="text-2xl">
           Números de {dados.ano}
         </h2>
-        <div className="overflow-x-auto rounded-xl bg-card border border-border/80">
+        <div className="overflow-x-auto border-y border-border">
           <table className="w-full text-left text-sm">
             <thead className="text-muted-foreground">
               <tr>
@@ -178,7 +178,7 @@ function Resultado({ dados }: { dados: Comparacao }) {
 
       {convergencia ? (
         <section aria-labelledby="votos-titulo" className="revelar flex flex-col gap-3">
-          <h2 id="votos-titulo" className="text-xl font-semibold">
+          <h2 id="votos-titulo" className="text-2xl">
             Votos em comum
           </h2>
           {convergencia.votacoes_em_comum === 0 ? (
@@ -187,9 +187,9 @@ function Resultado({ dados }: { dados: Comparacao }) {
             </p>
           ) : (
             <>
-              <div className="rounded-xl bg-card p-4 border border-border/80">
+              <div className="figura">
                 <p className="text-sm text-muted-foreground">Votaram igual em</p>
-                <p className="text-2xl font-bold tabular-nums">
+                <p className="numero text-3xl">
                   {convergencia.iguais} de {convergencia.votacoes_em_comum} votações
                 </p>
                 <p className="text-sm text-muted-foreground tabular-nums">
@@ -212,7 +212,7 @@ function Resultado({ dados }: { dados: Comparacao }) {
               </div>
 
               {convergencia.por_tema.length > 0 && (
-                <details className="rounded-xl bg-card p-4 border border-border/80">
+                <details className="painel">
                   <summary className="cursor-pointer font-medium">Votos iguais por tema</summary>
                   <table className="mt-3 w-full text-left text-sm">
                     <tbody>
@@ -230,11 +230,11 @@ function Resultado({ dados }: { dados: Comparacao }) {
               )}
 
               {convergencia.divergencias.length > 0 && (
-                <details className="rounded-xl bg-card p-4 border border-border/80">
+                <details className="painel">
                   <summary className="cursor-pointer font-medium">
                     Onde votaram diferente (mais recentes)
                   </summary>
-                  <ul className="mt-3 flex flex-col divide-y">
+                  <ul className="mt-3 lista-fios flex flex-col">
                     {convergencia.divergencias.map((d, i) => (
                       <li key={i} className="flex flex-col gap-1 py-3">
                         <span className="text-xs text-muted-foreground">{formatarData(d.data)}</span>
@@ -267,7 +267,7 @@ function Resultado({ dados }: { dados: Comparacao }) {
           )}
         </section>
       ) : (
-        <p className="rounded-xl bg-muted p-4 text-sm text-muted-foreground">
+        <p className="nota text-sm text-muted-foreground">
           {NOME_CASA[a.casa]} e {NOME_CASA[b.casa]} votam em votações diferentes, então não dá para
           comparar votos. Os números acima são comparáveis.
         </p>
@@ -275,10 +275,10 @@ function Resultado({ dados }: { dados: Comparacao }) {
 
       {dados.temas.length > 0 && (
         <section aria-labelledby="temas-titulo" className="revelar flex flex-col gap-3">
-          <h2 id="temas-titulo" className="text-xl font-semibold">
+          <h2 id="temas-titulo" className="text-2xl">
             Projetos por tema
           </h2>
-          <div className="overflow-x-auto rounded-xl bg-card border border-border/80">
+          <div className="overflow-x-auto border-y border-border">
             <table className="w-full text-left text-sm">
               <thead className="text-muted-foreground">
                 <tr>
@@ -309,10 +309,10 @@ function Resultado({ dados }: { dados: Comparacao }) {
 
       {dados.coautorias.total > 0 && (
         <section aria-labelledby="juntos-titulo" className="revelar flex flex-col gap-3">
-          <h2 id="juntos-titulo" className="text-xl font-semibold">
+          <h2 id="juntos-titulo" className="text-2xl">
             Projetos assinados juntos ({dados.coautorias.total})
           </h2>
-          <ul className="flex flex-col divide-y rounded-xl bg-card px-4 border border-border/80">
+          <ul className="lista-fios flex flex-col">
             {dados.coautorias.itens.map((p) => (
               <li key={`${p.sigla_tipo}-${p.numero}-${p.ano}`} className="flex flex-col gap-1 py-3">
                 <a href={p.url} target="_blank" rel="noopener noreferrer" className="font-medium underline underline-offset-2">

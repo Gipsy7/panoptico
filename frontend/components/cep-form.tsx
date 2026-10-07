@@ -3,13 +3,12 @@
 import Form from "next/form";
 import { useRef, useState } from "react";
 
-import { Button } from "@/components/ui/button";
 import { type Municipio, getMunicipios } from "@/lib/api";
 import { formatarCep } from "@/lib/formato";
 import { UFS } from "@/lib/ufs";
 
 const CAMPO =
-  "h-14 rounded-xl border border-input bg-card px-4 text-lg focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none disabled:opacity-60";
+  "seletor h-12 w-full text-base disabled:opacity-60";
 
 type Cidades = { uf: string; estado: "vazio" | "carregando" | "pronto"; lista: Municipio[] };
 
@@ -75,9 +74,9 @@ export function CepForm() {
             </select>
           </>
         )}
-        <Button type="submit" className="h-14 rounded-xl text-lg">
+        <button type="submit" className="botao w-full">
           Ver meus representantes
-        </Button>
+        </button>
         <button
           type="button"
           onClick={() => setSemCep(false)}
@@ -105,11 +104,11 @@ export function CepForm() {
         title="O CEP tem 8 números, por exemplo 01310-100"
         value={cep}
         onChange={(e) => setCep(formatarCep(e.target.value))}
-        className="h-14 rounded-xl border border-input bg-card px-4 text-center text-2xl tracking-widest placeholder:text-muted-foreground/60 focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none"
+        className="campo numero h-16 text-center text-4xl tracking-[0.12em]"
       />
-      <Button type="submit" className="h-14 rounded-xl text-lg">
+      <button type="submit" className="botao w-full">
         Ver meus representantes
-      </Button>
+      </button>
       <button
         type="button"
         onClick={() => setSemCep(true)}

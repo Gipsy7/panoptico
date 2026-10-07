@@ -21,7 +21,7 @@ export function GastosSecao({
     <section aria-labelledby="gastos-titulo" className="revelar flex flex-col gap-4">
       <div className="flex flex-wrap items-baseline justify-between gap-2">
         <div>
-          <h2 id="gastos-titulo" className="text-xl font-semibold">
+          <h2 id="gastos-titulo" className="text-2xl">
             Gastos do gabinete
           </h2>
           <p className="text-xs text-muted-foreground">{gastos.fonte_nome}</p>
@@ -34,7 +34,7 @@ export function GastosSecao({
                 href={`/parlamentar/${parlamentarId}?ano=${ano}`}
                 scroll={false}
                 aria-current={ano === gastos.ano ? "page" : undefined}
-                className="rounded-lg px-3 py-1.5 text-sm border border-border/80 aria-[current=page]:bg-primary aria-[current=page]:text-primary-foreground"
+                className="px-1 py-1 text-sm text-muted-foreground underline-offset-8 transition-colors hover:text-foreground aria-[current=page]:text-foreground aria-[current=page]:underline aria-[current=page]:decoration-bronze aria-[current=page]:decoration-2"
               >
                 {ano}
               </Link>
@@ -44,16 +44,16 @@ export function GastosSecao({
       </div>
 
       <dl className="grid grid-cols-2 gap-3">
-        <div className="rounded-xl bg-card p-4 border border-border/80">
+        <div className="figura">
           <dt className="text-sm text-muted-foreground">
             Total em {gastos.ano}
             {periodo}
           </dt>
-          <dd className="text-2xl font-bold tabular-nums">{formatarReais(gastos.total, true)}</dd>
+          <dd className="numero text-3xl">{formatarReais(gastos.total, true)}</dd>
         </div>
-        <div className="rounded-xl bg-card p-4 border border-border/80">
+        <div className="figura">
           <dt className="text-sm text-muted-foreground">Média por parlamentar do {CASA_CURTA[casa]}</dt>
-          <dd className="text-2xl font-bold tabular-nums">
+          <dd className="numero text-3xl">
             {formatarReais(gastos.media_casa, true)}
           </dd>
         </div>
@@ -94,7 +94,7 @@ export function GastosSecao({
       )}
 
       {gastos.maiores_despesas.length > 0 && (
-        <details className="rounded-xl bg-card p-4 border border-border/80">
+        <details className="painel">
           <summary className="cursor-pointer font-medium">
             Ver os {gastos.maiores_despesas.length} maiores gastos de {gastos.ano}
           </summary>

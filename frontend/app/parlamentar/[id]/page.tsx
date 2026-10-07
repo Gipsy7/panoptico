@@ -90,7 +90,7 @@ async function Perfil({
       <header className="flex items-start gap-4">
         <Foto parlamentar={p} largura={96} prioridade />
         <div className="flex min-w-0 flex-col gap-1">
-          <h1 className="text-2xl font-bold tracking-tight">{p.nome_parlamentar}</h1>
+          <h1 className="text-3xl tracking-tight">{p.nome_parlamentar}</h1>
           {p.nome_civil && p.nome_civil !== p.nome_parlamentar && (
             <p className="text-sm text-muted-foreground">{p.nome_civil}</p>
           )}
@@ -113,7 +113,7 @@ async function Perfil({
       <div className="flex flex-wrap gap-2">
         <Link
           href={`/comparar?a=${p.id}`}
-          className="inline-flex h-11 items-center rounded-xl px-4 text-sm font-medium ring-1 ring-foreground/15 hover:bg-accent focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none"
+          className="botao-linha"
         >
           Comparar com outro parlamentar
         </Link>
@@ -140,7 +140,7 @@ async function Perfil({
 
       <RemuneracaoSecao remuneracao={p.remuneracao} />
 
-      <section className="flex flex-col gap-2 rounded-xl bg-card p-4 border border-border/80">
+      <section className="painel flex flex-col gap-2">
         <h2 className="font-semibold">Contato do gabinete</h2>
         <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 text-sm">
           {p.email && (
@@ -190,10 +190,10 @@ function Carregando() {
   return (
     <div className="flex gap-4" aria-busy="true" aria-live="polite">
       <span className="sr-only">Carregando perfil…</span>
-      <div className="h-32 w-24 animate-pulse rounded-lg bg-muted" />
+      <div className="h-32 w-24 animate-pulse rounded-[2px] bg-muted" />
       <div className="flex flex-1 flex-col gap-2">
-        <div className="h-7 w-2/3 animate-pulse rounded-lg bg-muted" />
-        <div className="h-5 w-1/2 animate-pulse rounded-lg bg-muted" />
+        <div className="h-7 w-2/3 animate-pulse rounded-[2px] bg-muted" />
+        <div className="h-5 w-1/2 animate-pulse rounded-[2px] bg-muted" />
       </div>
     </div>
   );

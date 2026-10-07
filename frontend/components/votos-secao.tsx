@@ -26,7 +26,7 @@ export function VotosSecao({
   return (
     <section aria-labelledby="votos-titulo" className="revelar flex flex-col gap-4">
       <div>
-        <h2 id="votos-titulo" className="text-xl font-semibold">
+        <h2 id="votos-titulo" className="text-2xl">
           Como votou
         </h2>
         <p className="text-xs text-muted-foreground">
@@ -71,7 +71,7 @@ export function VotosSecao({
             <select
               name="tema"
               defaultValue={dados.tema ?? ""}
-              className="h-11 rounded-xl border border-input bg-card px-3 text-sm focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none"
+              className="seletor w-full"
             >
               <option value="">Todos os temas</option>
               {dados.temas_disponiveis.map((t) => (
@@ -83,7 +83,7 @@ export function VotosSecao({
           </label>
           <button
             type="submit"
-            className="h-11 rounded-xl bg-secondary px-4 text-sm font-medium text-secondary-foreground"
+            className="botao-linha"
           >
             Filtrar
           </button>
@@ -95,7 +95,7 @@ export function VotosSecao({
           {dados.total} {dados.total === 1 ? "votação" : "votações"}
           {dados.tema && ` sobre ${dados.tema}`}
         </p>
-        <ul className="flex flex-col divide-y rounded-xl bg-card border border-border/80">
+        <ul className="lista-fios flex flex-col">
           {dados.itens.map((v, i) => (
             <li key={`${v.data}-${i}`} className="flex flex-col gap-2 p-4">
               <div className="flex flex-col gap-0.5">
@@ -167,9 +167,9 @@ function Bloco({
   casa: Casa;
 }) {
   return (
-    <div className="flex flex-col gap-0.5 rounded-xl bg-card p-4 border border-border/80">
+    <div className="figura flex flex-col gap-0.5">
       <dt className="text-sm text-muted-foreground">{rotulo}</dt>
-      <dd className="text-2xl font-bold tabular-nums">
+      <dd className="numero text-3xl">
         {placar.total ? `${placar.iguais} de ${placar.total}` : "—"}
       </dd>
       {placar.percentual !== null && (

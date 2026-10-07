@@ -6,14 +6,14 @@ export function RemuneracaoSecao({ remuneracao }: { remuneracao: ParlamentarDeta
   return (
     <section aria-labelledby="remuneracao-titulo" className="revelar flex flex-col gap-3">
       <div>
-        <h2 id="remuneracao-titulo" className="text-xl font-semibold">
+        <h2 id="remuneracao-titulo" className="text-2xl">
           Salário
         </h2>
         <p className="text-xs text-muted-foreground">Subsídio mensal dos membros do Congresso</p>
       </div>
-      <div className="rounded-xl bg-card p-4 border border-border/80">
+      <div className="figura">
         <p className="text-sm text-muted-foreground">Valor bruto por mês</p>
-        <p className="text-2xl font-bold tabular-nums">
+        <p className="numero text-3xl">
           {formatarReais(remuneracao.subsidio_mensal)}
         </p>
         <p className="text-sm text-muted-foreground">

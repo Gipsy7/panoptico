@@ -9,7 +9,7 @@ export default function PrivacidadePage() {
   return (
     <article className="flex flex-col gap-6">
       <header className="flex flex-col gap-2">
-        <h1 className="text-2xl font-bold tracking-tight">Privacidade</h1>
+        <h1 className="text-3xl tracking-tight">Privacidade</h1>
         <p className="text-muted-foreground">
           Resumo: o Panóptico funciona sem cadastro e não guarda quem você é nem onde você mora.
         </p>

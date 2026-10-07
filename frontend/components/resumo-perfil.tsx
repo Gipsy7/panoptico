@@ -58,10 +58,10 @@ export function ResumoPerfil({
           <li key={i.ancora}>
             <a
               href={i.ancora}
-              className="flex h-full flex-col gap-0.5 rounded-xl bg-card p-3 border border-border/80 transition-colors hover:bg-accent focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none"
+              className="figura flex h-full flex-col gap-0.5 transition-colors duration-300 hover:border-bronze focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-bronze"
             >
               <span className="text-xs text-muted-foreground">{i.rotulo}</span>
-              <span className="text-xl font-bold tabular-nums">{i.valor}</span>
+              <span className="numero text-2xl">{i.valor}</span>
               <span className="text-xs text-muted-foreground">{i.detalhe}</span>
             </a>
           </li>

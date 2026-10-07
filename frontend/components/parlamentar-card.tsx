@@ -14,7 +14,7 @@ export function ParlamentarCard({
   return (
     <Link
       href={`/parlamentar/${parlamentar.id}`}
-      className="flex items-center gap-4 rounded-xl border border-border/80 bg-card p-3 transition-[background-color,transform,box-shadow] duration-300 ease-out hover:-translate-y-0.5 hover:bg-accent/60 hover:shadow-[0_10px_30px_-18px_oklch(0.36_0.1_330/0.45)] focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none motion-reduce:transition-none motion-reduce:hover:translate-y-0"
+      className="group flex items-center gap-4 py-3 transition-colors duration-300 hover:bg-accent/50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-bronze"
     >
       <Foto parlamentar={parlamentar} largura={56} />
       <div className="min-w-0">
@@ -22,7 +22,7 @@ export function ParlamentarCard({
         <p className="text-sm text-muted-foreground">
           {[parlamentar.partido, parlamentar.uf].filter(Boolean).join(" · ")}
         </p>
-        {destaque && <p className="text-xs font-medium text-primary">{destaque}</p>}
+        {destaque && <p className="text-xs font-medium text-bronze-texto">{destaque}</p>}
       </div>
     </Link>
   );
@@ -43,7 +43,7 @@ export function Foto({
       <div
         aria-hidden
         style={{ width: largura, height: altura }}
-        className="shrink-0 rounded-lg bg-muted"
+        className="shrink-0 rounded-[2px] bg-muted"
       />
     );
   }
@@ -57,7 +57,7 @@ export function Foto({
         width={largura}
         height={altura}
         preload={prioridade}
-        className="shrink-0 rounded-lg bg-muted object-cover"
+        className="shrink-0 rounded-[2px] bg-muted object-cover grayscale-[15%]"
         style={{ width: largura, height: altura }}
       />
     </ViewTransition>

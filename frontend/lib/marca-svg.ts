@@ -2,10 +2,10 @@
  * Geometria da marca para usos fora do React DOM (ícones e imagens de compartilhamento,
  * gerados com ImageResponse). Mesmos números do componente <Marca>.
  */
-export const COR_MARCA = "#592656"; // --primary: oklch(0.36 0.1 330)
-export const COR_PAPEL = "#faf6ef"; // --background
-export const COR_TINTA = "#1e130f"; // --foreground
-export const COR_SUAVE = "#60524d"; // --muted-foreground
+export const COR_MARCA = "#9c6a2a"; // --bronze
+export const COR_PAPEL = "#f4f1ea"; // --background
+export const COR_TINTA = "#141414"; // --foreground
+export const COR_SUAVE = "#6e6a63"; // --muted-foreground
 
 const r = (n: number) => Math.round(n * 100) / 100;
 

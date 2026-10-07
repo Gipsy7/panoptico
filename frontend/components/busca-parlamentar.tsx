@@ -55,10 +55,10 @@ export function BuscaParlamentar({
         onChange={(e) => setTermo(e.target.value)}
         placeholder="Ex.: Tabata, Romário"
         autoComplete="off"
-        className="h-12 rounded-xl border border-input bg-card px-4 text-base placeholder:text-muted-foreground/60 focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none"
+        className="campo text-base"
       />
       {resultados !== null && (
-        <ul aria-live="polite" className="flex flex-col divide-y rounded-xl bg-card border border-border/80">
+        <ul aria-live="polite" className="lista-fios flex flex-col">
           {resultados.length === 0 ? (
             <li className="p-3 text-sm text-muted-foreground">Ninguém encontrado com esse nome.</li>
           ) : (

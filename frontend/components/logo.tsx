@@ -71,12 +71,12 @@ export function Marca({
 export function Logo({ animada = false, tamanho = 30 }: { animada?: boolean; tamanho?: number }) {
   return (
     <span className="inline-flex items-center gap-2.5 text-foreground">
-      <Marca tamanho={tamanho} animada={animada} className="text-primary" />
+      <Marca tamanho={tamanho} animada={animada} traco={2.6} className="text-bronze" />
       <span className="flex items-baseline">
-        <span className="font-heading text-[1.35em] leading-none font-semibold tracking-tight">
+        <span className="font-heading text-[1.4em] leading-none font-medium tracking-tight">
           Panóptico
         </span>
-        <span className="text-[0.85em] leading-none font-medium text-primary">.social</span>
+        <span className="text-[0.8em] leading-none text-bronze-texto">.social</span>
       </span>
     </span>
   );

@@ -13,7 +13,7 @@ export default function SobreAsFontesPage() {
   return (
     <article className="flex flex-col gap-8">
       <header className="flex flex-col gap-2">
-        <h1 className="text-2xl font-bold tracking-tight">Sobre as fontes</h1>
+        <h1 className="text-3xl tracking-tight">Sobre as fontes</h1>
         <p className="text-muted-foreground">
           Todos os dados do Panóptico vêm de fontes públicas e oficiais. Não fazemos notas,
           rankings nem avaliações: mostramos o dado, a média para comparação e o link para a
@@ -22,7 +22,7 @@ export default function SobreAsFontesPage() {
       </header>
 
       <section aria-labelledby="fontes-titulo" className="revelar flex flex-col gap-3">
-        <h2 id="fontes-titulo" className="text-xl font-semibold">
+        <h2 id="fontes-titulo" className="text-2xl">
           De onde vem cada dado
         </h2>
         <Revelacao fallback={<p className="text-muted-foreground">Carregando…</p>}>
@@ -31,7 +31,7 @@ export default function SobreAsFontesPage() {
       </section>
 
       <section aria-labelledby="calculo-titulo" className="revelar flex flex-col gap-4">
-        <h2 id="calculo-titulo" className="text-xl font-semibold">
+        <h2 id="calculo-titulo" className="text-2xl">
           Como cada número é calculado
         </h2>
         <Item titulo="Gastos do gabinete">
@@ -94,7 +94,7 @@ export default function SobreAsFontesPage() {
       </section>
 
       <section aria-labelledby="erros-titulo" className="revelar flex flex-col gap-2">
-        <h2 id="erros-titulo" className="text-xl font-semibold">
+        <h2 id="erros-titulo" className="text-2xl">
           Encontrou um erro?
         </h2>
         <p className="text-muted-foreground">
@@ -113,7 +113,7 @@ async function ListaFontes() {
     return <p className="text-muted-foreground">Não foi possível carregar a lista agora.</p>;
   }
   return (
-    <ul className="flex flex-col divide-y rounded-xl bg-card border border-border/80">
+    <ul className="lista-fios flex flex-col">
       {resultado.dados.map((f) => (
         <li key={f.dado} className="flex flex-col gap-0.5 p-4">
           <span className="font-medium">{f.dado}</span>

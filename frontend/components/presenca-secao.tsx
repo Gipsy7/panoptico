@@ -11,7 +11,7 @@ export function PresencaSecao({ presenca, casa }: { presenca: Presenca; casa: Ca
   return (
     <section aria-labelledby="presenca-titulo" className="revelar flex flex-col gap-4">
       <div>
-        <h2 id="presenca-titulo" className="text-xl font-semibold">
+        <h2 id="presenca-titulo" className="text-2xl">
           Presença em votações
         </h2>
         <p className="text-xs text-muted-foreground">
@@ -25,20 +25,20 @@ export function PresencaSecao({ presenca, casa }: { presenca: Presenca; casa: Ca
       ) : (
         <>
           <dl className="grid grid-cols-2 gap-3">
-            <div className="rounded-xl bg-card p-4 border border-border/80">
+            <div className="figura">
               <dt className="text-sm text-muted-foreground">Votou em</dt>
-              <dd className="text-2xl font-bold tabular-nums">
+              <dd className="numero text-3xl">
                 {p.votou} de {p.total_votacoes}
               </dd>
               <dd className="text-sm text-muted-foreground tabular-nums">
                 {PCT.format(p.percentual ?? 0)}%
               </dd>
             </div>
-            <div className="rounded-xl bg-card p-4 border border-border/80">
+            <div className="figura">
               <dt className="text-sm text-muted-foreground">
                 Média por parlamentar do {CASA_CURTA[casa]}
               </dt>
-              <dd className="text-2xl font-bold tabular-nums">
+              <dd className="numero text-3xl">
                 {p.media_casa_percentual === null ? "—" : `${PCT.format(p.media_casa_percentual)}%`}
               </dd>
             </div>

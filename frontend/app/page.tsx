@@ -9,16 +9,16 @@ export default function Home() {
           a busca. É decorativa (o significado está no texto). */}
       <div
         aria-hidden
-        className="pointer-events-none absolute top-[-1rem] left-1/2 -z-10 -translate-x-1/2 text-primary/25"
+        className="pointer-events-none absolute top-[-1rem] left-1/2 -z-10 -translate-x-1/2 text-bronze/30"
       >
         <Marca tamanho={440} animada traco={0.45} />
       </div>
 
       <div className="flex flex-col gap-4 pt-16 text-center sm:pt-20">
-        <p className="text-xs font-medium tracking-[0.2em] text-primary uppercase">
+        <p className="sobretitulo">
           O panóptico, invertido
         </p>
-        <h1 className="text-4xl leading-[1.05] font-semibold sm:text-5xl">
+        <h1 className="text-5xl leading-[1.02] sm:text-6xl">
           Quem te representa, às claras
         </h1>
         <p className="text-lg leading-relaxed text-muted-foreground">
@@ -27,7 +27,7 @@ export default function Home() {
         </p>
       </div>
 
-      <div className="rounded-2xl border border-border/80 bg-card/90 p-5 shadow-[0_1px_0_0_var(--border),0_12px_40px_-24px_oklch(0.36_0.1_330/0.35)] backdrop-blur-sm sm:p-6">
+      <div className="border-t border-foreground pt-6">
         <CepForm />
       </div>
 
