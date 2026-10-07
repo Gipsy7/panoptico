@@ -107,3 +107,19 @@ Regras:
 - **Vercel Hobby:** uso não comercial.
 - **GitHub Actions:** em repositório público, os workflows agendados são **desativados depois de 60 dias sem commits**. O GitHub avisa por e-mail; basta reativar em **Actions** ou fazer um commit.
 - **Arquivos brutos:** ficam 7 dias como artefato de cada execução (aba **Actions → execução → Artifacts**).
+- **Neon, transferência de dados:** o plano gratuito tem uma cota mensal pequena de transferência. Em outubro de 2026 ela estourou num dia de várias cargas completas seguidas, e o banco ficou bloqueado até a cota renovar. Evite disparar recargas completas à mão.
+
+## Travas contra consumo excessivo
+
+Valem tanto no plano gratuito quanto no pago:
+
+- **Cache na CDN** (`backend/app/main.py`): toda resposta GET 200 da API sai com `s-maxage=3600, stale-while-revalidate=86400`, então a mesma consulta chega ao banco no máximo uma vez por hora. `/saude` e os erros ficam sem cache.
+- **Cache por instância da lista** (`backend/app/services/ranking.py`): em produção, a base da lista de parlamentares fica 10 minutos em memória. Buscas por nome diferentes, que escapam da CDN, não releem a tabela.
+- **Firewall da Vercel no projeto `panoptico-api`:** limite de 120 requisições por minuto por IP; acima disso, a resposta é 429. O servidor do site se identifica com o `User-Agent: panoptico-site` (`frontend/lib/api.ts`) e fica de fora, porque as renderizações de muitos visitantes saem dos mesmos IPs da Vercel. Para ver ou mudar o limite, use **panoptico-api → Firewall**.
+
+No plano pago do Neon, configure também no console:
+
+- **Autoscaling:** mínimo e máximo de 0,25 CU, e scale to zero ligado. Isso põe um teto de cerca de US$ 19 por mês no processamento, mesmo com o banco ligado o mês inteiro.
+- **Spending limit** baixo, por exemplo US$ 10. Hoje ele só manda e-mail aos 80% e aos 100% e não suspende o banco.
+- **Um único branch:** cada compute ligado custa à parte.
+- **`DATABASE_URL` nunca em código ou log:** o repositório é público.

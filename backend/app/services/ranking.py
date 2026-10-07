@@ -4,11 +4,13 @@ Não há nota composta nem posição: a ordem padrão é alfabética e cada crit
 a sua definição, para o leitor saber exatamente o que está sendo ordenado.
 """
 
+import time
 from statistics import mean
 
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
+from app.config import settings
 from app.models import FonteIngestao, Parlamentar, ResumoParlamentar
 from ingestion.comum import chave_nome
 
@@ -119,6 +121,36 @@ def media_partido(session: Session, casa: str, ano: int) -> float | None:
     return round(mean(100 * i / t for i, t in linhas), 1) if linhas else None
 
 
+# Os resumos só mudam na ingestão diária. Em produção (serverless), cada instância guarda a
+# base da lista por alguns minutos: buscas por nome diferentes, que escapam do cache da
+# CDN, deixam de ler a tabela inteira do banco a cada letra digitada.
+_CACHE_SEGUNDOS = 600
+_cache: dict[int, tuple[float, tuple]] = {}
+
+
+def _base(session: Session, ano: int) -> tuple[list[dict], dict[int, str], object, list[int]]:
+    if settings.serverless:
+        guardado = _cache.get(ano)
+        if guardado and time.monotonic() - guardado[0] < _CACHE_SEGUNDOS:
+            return guardado[1]
+    linhas = session.execute(
+        select(Parlamentar, ResumoParlamentar)
+        .join(ResumoParlamentar, ResumoParlamentar.parlamentar_id == Parlamentar.id)
+        .where(Parlamentar.em_exercicio, ResumoParlamentar.ano == ano)
+    ).all()
+    todos = [_item(p, r) for p, r in linhas]
+    nomes = {p.id: chave_nome(f"{p.nome_parlamentar} {p.nome_civil or ''}") for p, _ in linhas}
+    atualizado_em = session.scalar(
+        select(func.max(FonteIngestao.concluido_em)).where(
+            FonteIngestao.fonte == "resumos", FonteIngestao.status == "ok"
+        )
+    )
+    base = (todos, nomes, atualizado_em, anos_disponiveis(session))
+    if settings.serverless:
+        _cache[ano] = (time.monotonic(), base)
+    return base
+
+
 def listar(
     session: Session,
     *,
@@ -131,14 +163,9 @@ def listar(
     ordem: str = "asc",
     pagina: int = 1,
 ) -> dict:
-    linhas = session.execute(
-        select(Parlamentar, ResumoParlamentar)
-        .join(ResumoParlamentar, ResumoParlamentar.parlamentar_id == Parlamentar.id)
-        .where(Parlamentar.em_exercicio, ResumoParlamentar.ano == ano)
-    ).all()
-    todos = [_item(p, r) for p, r in linhas]
+    todos, nomes, atualizado_em, anos = _base(session, ano)
 
-    filtrados = todos
+    filtrados = list(todos)  # a base pode estar em cache: nunca ordenar no lugar
     if casa:
         filtrados = [i for i in filtrados if i["casa"] == casa]
     if uf:
@@ -147,7 +174,6 @@ def listar(
         filtrados = [i for i in filtrados if (i["partido"] or "").upper() == partido.upper()]
     if busca:
         alvo = chave_nome(busca)
-        nomes = {p.id: chave_nome(f"{p.nome_parlamentar} {p.nome_civil or ''}") for p, _ in linhas}
         filtrados = [i for i in filtrados if alvo in nomes[i["id"]]]
 
     desc = ordem == "desc"
@@ -160,15 +186,10 @@ def listar(
         com.sort(key=lambda i: (i[ordenar], chave_nome(i["nome_parlamentar"])), reverse=desc)
         filtrados = com + sorted(sem, key=lambda i: chave_nome(i["nome_parlamentar"]))
 
-    atualizado_em = session.scalar(
-        select(func.max(FonteIngestao.concluido_em)).where(
-            FonteIngestao.fonte == "resumos", FonteIngestao.status == "ok"
-        )
-    )
     inicio = (pagina - 1) * POR_PAGINA
     return {
         "ano": ano,
-        "anos_disponiveis": anos_disponiveis(session),
+        "anos_disponiveis": anos,
         "ordenar": ordenar,
         "ordem": ordem,
         "criterios": [{"id": k, **v} for k, v in CRITERIOS.items()],

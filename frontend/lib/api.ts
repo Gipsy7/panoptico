@@ -5,6 +5,12 @@ const API_URL =
   process.env.NEXT_PUBLIC_API_URL ??
   "http://localhost:8000";
 
+// No servidor, o site se identifica para o firewall da API não aplicar a ele o limite por
+// IP (as renderizações de muitos visitantes saem dos mesmos IPs da Vercel). Não é segredo:
+// o limite existe contra robôs desatentos, não contra quem queira contorná-lo.
+const CABECALHOS: HeadersInit | undefined =
+  typeof window === "undefined" ? { "User-Agent": "panoptico-site" } : undefined;
+
 export type Casa = "camara" | "senado";
 
 export type ParlamentarResumo = {
@@ -50,7 +56,7 @@ export type Resultado<T> = { ok: true; dados: T } | { ok: false; status: number;
 async function getJson<T>(caminho: string): Promise<Resultado<T>> {
   let resposta: Response;
   try {
-    resposta = await fetch(`${API_URL}${caminho}`);
+    resposta = await fetch(`${API_URL}${caminho}`, { headers: CABECALHOS });
   } catch {
     return { ok: false, status: 503, mensagem: "Não foi possível falar com o servidor agora." };
   }
