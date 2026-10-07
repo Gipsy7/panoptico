@@ -8,6 +8,12 @@ export const metadata: Metadata = {
 };
 
 const CHAVE_PIX = "4c02a34c-095e-4990-9bdb-0fe161608f8c";
+// BR Code estático (padrão do Banco Central), sem valor definido: quem doa escolhe o valor.
+// O QR code em public/pix-qr.svg foi gerado a partir deste mesmo texto; se a chave mudar,
+// é preciso gerar os dois de novo (o final "6304XXXX" é um CRC16 do restante).
+const PIX_COPIA_E_COLA =
+  "00020126580014br.gov.bcb.pix01364c02a34c-095e-4990-9bdb-0fe161608f8c" +
+  "5204000053039865802BR5916MIKAEL FRANCISCO6008BLUMENAU62070503***63044E2F";
 
 const CUSTOS = [
   {
@@ -61,10 +67,33 @@ export default function ApoiePage() {
       <section className="flex flex-col gap-3">
         <h2 className="text-2xl">Doe por Pix</h2>
         <p className="text-muted-foreground">
-          Qualquer valor ajuda. A chave é aleatória: copie e cole na opção &quot;Pix com
-          chave&quot; do app do seu banco.
+          Qualquer valor ajuda. Aponte a câmera do app do seu banco para o código ou, no
+          celular, copie o código &quot;Pix copia e cola&quot;.
         </p>
-        <CopiarPix chave={CHAVE_PIX} />
+        <div className="flex flex-col gap-6 sm:flex-row sm:items-start">
+          {/* eslint-disable-next-line @next/next/no-img-element -- SVG estático e pequeno */}
+          <img
+            src="/pix-qr.svg"
+            alt="QR code para doar ao Panóptico por Pix"
+            width={200}
+            height={200}
+            className="size-50 border border-border"
+          />
+          <div className="flex flex-col gap-5">
+            <div className="flex flex-col gap-2">
+              <span className="text-sm text-muted-foreground">Pix copia e cola</span>
+              <CopiarPix texto={PIX_COPIA_E_COLA} rotulo="Copiar código" />
+            </div>
+            <div className="flex flex-col gap-2">
+              <span className="text-sm text-muted-foreground">Ou pela chave aleatória</span>
+              <span className="numero text-sm break-all select-all">{CHAVE_PIX}</span>
+              <CopiarPix texto={CHAVE_PIX} rotulo="Copiar chave" />
+            </div>
+            <p className="text-sm text-muted-foreground">
+              Na confirmação, o app mostra o nome do responsável pelo projeto, Mikael Francisco.
+            </p>
+          </div>
+        </div>
       </section>
 
       <section className="nota flex flex-col gap-2 text-sm text-muted-foreground">

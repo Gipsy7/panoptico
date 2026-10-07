@@ -2,29 +2,28 @@
 
 import { useState } from "react";
 
-/** Mostra a chave Pix e copia com um toque. Sem JavaScript, a chave continua selecionável. */
-export function CopiarPix({ chave }: { chave: string }) {
-  const [copiada, setCopiada] = useState(false);
+/** Botão que copia um texto do Pix (chave ou código copia e cola) com um toque. */
+export function CopiarPix({ texto, rotulo }: { texto: string; rotulo: string }) {
+  const [copiado, setCopiado] = useState(false);
 
   async function copiar() {
     try {
-      await navigator.clipboard.writeText(chave);
-      setCopiada(true);
-      setTimeout(() => setCopiada(false), 2500);
+      await navigator.clipboard.writeText(texto);
+      setCopiado(true);
+      setTimeout(() => setCopiado(false), 2500);
     } catch {
-      // Navegador sem permissão de área de transferência: a chave está visível para copiar à mão.
+      // Navegador sem permissão de área de transferência: o texto está visível para copiar à mão.
     }
   }
 
   return (
-    <div className="flex flex-col gap-3">
-      <p className="numero text-base break-all select-all sm:text-lg">{chave}</p>
+    <>
       <button type="button" onClick={copiar} className="botao-linha self-start">
-        {copiada ? "Chave copiada" : "Copiar chave Pix"}
+        {copiado ? "Copiado" : rotulo}
       </button>
-      <p aria-live="polite" className="sr-only">
-        {copiada ? "Chave Pix copiada para a área de transferência." : ""}
-      </p>
-    </div>
+      <span aria-live="polite" className="sr-only">
+        {copiado ? "Copiado para a área de transferência." : ""}
+      </span>
+    </>
   );
 }
