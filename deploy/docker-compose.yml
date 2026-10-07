@@ -1,0 +1,79 @@
+# Produção numa VPS única. Uso (de dentro desta pasta):
+#   cp .env.exemplo .env   # e preencha
+#   docker compose up -d --build
+# A ingestão roda sob demanda (perfil "ingestao"), chamada pelo cron via ingestao_diaria.sh.
+
+services:
+  db:
+    image: postgres:18-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: panoptico
+      POSTGRES_USER: panoptico
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?defina POSTGRES_PASSWORD no .env}
+    volumes:
+      - pgdata:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U panoptico -d panoptico"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build: ../backend
+    restart: unless-stopped
+    environment: &backend_env
+      DATABASE_URL: postgresql+psycopg://panoptico:${POSTGRES_PASSWORD}@db:5432/panoptico
+      CORS_ORIGINS: '["https://${DOMINIO}"]'
+    volumes:
+      - raw:/app/data
+    depends_on:
+      db:
+        condition: service_healthy
+
+  web:
+    build:
+      context: ../frontend
+      args:
+        NEXT_PUBLIC_API_URL: https://${DOMINIO:?defina DOMINIO no .env}/api
+        NEXT_PUBLIC_SITE_URL: https://${DOMINIO}
+        NEXT_PUBLIC_CONTATO_EMAIL: ${CONTATO_EMAIL:-}
+    restart: unless-stopped
+    environment:
+      API_URL_INTERNA: http://api:8000
+    depends_on:
+      - api
+
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    environment:
+      DOMINIO: ${DOMINIO}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - web
+      - api
+
+  ingestao:
+    build: ../backend
+    profiles: ["ingestao"]
+    environment: *backend_env
+    command: ["python", "-m", "ingestion.run_all"]
+    volumes:
+      - raw:/app/data
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  pgdata:
+  raw:
+  caddy_data:
+  caddy_config:

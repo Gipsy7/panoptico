@@ -1,0 +1,4 @@
+# Scripts e configs que rodam no servidor Linux
+*.sh text eol=lf
+Caddyfile text eol=lf
+Dockerfile text eol=lf

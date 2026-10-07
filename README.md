@@ -38,7 +38,12 @@ cd backend && uv run pytest && uv run ruff check
 cd frontend && npm run lint
 ```
 
+## Deploy
+
+Ver [docs/DEPLOY.md](docs/DEPLOY.md) (VPS única com docker compose, HTTPS automático e ingestão diária).
+
 ## Ingestão
 
-- `uv run python -m ingestion.run_all` baixa e processa tudo.
+- `uv run python -m ingestion.run_all` baixa e processa tudo (parlamentares, gastos, votações, projetos, municípios e emendas) e apaga os brutos antigos.
+- Primeira carga dos projetos da Câmara: `uv run python -m ingestion.camara.proposicoes --ano 2023 2024 2025 2026`.
 - `uv run python -m ingestion.camara.deputados --de-raw data/raw/camara_deputados/<arquivo>.json` reprocessa um arquivo bruto sem rede.

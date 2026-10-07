@@ -27,3 +27,7 @@ next-env.d.ts
 .idea/
 .DS_Store
 Thumbs.db
+
+# Deploy
+deploy/.env
+deploy/backups/

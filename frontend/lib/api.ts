@@ -1,4 +1,9 @@
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
+// No navegador, a API pública; no servidor (renderização), o endereço interno quando houver
+// (em produção, a rede do docker compose), para não sair e voltar pela internet.
+const API_URL =
+  (typeof window === "undefined" ? process.env.API_URL_INTERNA : undefined) ??
+  process.env.NEXT_PUBLIC_API_URL ??
+  "http://localhost:8000";
 
 export type Casa = "camara" | "senado";
 

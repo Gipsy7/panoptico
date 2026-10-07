@@ -4,7 +4,7 @@ import sys
 import traceback
 from collections.abc import Callable
 
-from ingestion import comum
+from ingestion import comum, limpar_raw
 from ingestion.camara import deputados
 from ingestion.camara import despesas as despesas_camara
 from ingestion.camara import proposicoes as proposicoes_camara
@@ -39,6 +39,7 @@ def main() -> int:
             falhas += 1
             print(f"[erro] {nome}", flush=True)
             traceback.print_exc()
+    print(f"[ok]   brutos antigos apagados: {len(limpar_raw.limpar())}", flush=True)
     return 1 if falhas else 0
 
 
