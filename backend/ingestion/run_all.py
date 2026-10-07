@@ -9,10 +9,12 @@ from ingestion.camara import deputados
 from ingestion.camara import despesas as despesas_camara
 from ingestion.camara import proposicoes as proposicoes_camara
 from ingestion.camara import votacoes as votacoes_camara
+from ingestion.ibge import municipios
 from ingestion.senado import despesas as despesas_senado
 from ingestion.senado import proposicoes as proposicoes_senado
 from ingestion.senado import senadores
 from ingestion.senado import votacoes as votacoes_senado
+from ingestion.transparencia import emendas
 
 
 def _tarefas() -> list[tuple[str, Callable[[], int]]]:
@@ -23,6 +25,8 @@ def _tarefas() -> list[tuple[str, Callable[[], int]]]:
             tarefas.append((f"{modulo.FONTE} {ano}", lambda m=modulo, a=ano: m.executar(a)))
         tarefas.append((f"camara_proposicoes {ano}", lambda a=ano: proposicoes_camara.executar(a)))
     tarefas.append((proposicoes_senado.FONTE, proposicoes_senado.executar))
+    tarefas.append((municipios.FONTE, municipios.executar))
+    tarefas.append((emendas.FONTE, emendas.executar))
     return tarefas
 
 

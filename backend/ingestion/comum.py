@@ -10,6 +10,7 @@ import gzip
 import json
 import re
 import time
+import unicodedata
 from collections.abc import Callable
 from datetime import UTC, datetime
 from pathlib import Path
@@ -144,6 +145,12 @@ def upsert_parlamentares(
         .values(em_exercicio=False, atualizado_em=agora)
     )
     return len(linhas)
+
+
+def chave_nome(nome: str | None) -> str:
+    """Chave para comparar nomes: 'Dr. Flávio' -> 'DR FLAVIO'."""
+    sem_acento = unicodedata.normalize("NFKD", nome or "").encode("ascii", "ignore").decode()
+    return " ".join(re.sub(r"[^A-Z ]", " ", sem_acento.upper()).split())
 
 
 PARTICULAS = {"da", "das", "de", "do", "dos", "e"}

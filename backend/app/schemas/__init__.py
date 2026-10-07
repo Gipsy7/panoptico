@@ -38,6 +38,7 @@ class Localizacao(BaseModel):
     uf: str
     estado: str
     municipio: str | None
+    codigo_ibge: str | None = None
 
 
 class RepresentantesResposta(BaseModel):
@@ -133,6 +134,45 @@ class PresencaResposta(BaseModel):
     percentual: float | None
     media_casa_percentual: float | None
     ausencia_detalhada: bool
+    fonte_nome: str
+    fonte_url: str
+    atualizado_em: datetime | None
+
+
+class MunicipioInfo(BaseModel):
+    ibge: str
+    nome: str
+    uf: str
+
+
+class EmendaAno(BaseModel):
+    ano: int
+    total: float
+
+
+class EmendaParlamentar(BaseModel):
+    parlamentar: ParlamentarResumo
+    total: float
+    do_estado: bool
+
+
+class EmendaOutroAutor(BaseModel):
+    autor_nome: str
+    total: float
+
+
+class EmendasMunicipioResposta(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    municipio: MunicipioInfo
+    desde: int
+    total: float
+    total_prefeitura: float
+    total_entidades: float
+    por_ano: list[EmendaAno]
+    parlamentares: list[EmendaParlamentar]
+    outros_autores: list[EmendaOutroAutor]
+    numero_autores: int
     fonte_nome: str
     fonte_url: str
     atualizado_em: datetime | None

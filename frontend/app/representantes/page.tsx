@@ -3,9 +3,15 @@ import { Suspense } from "react";
 
 import { AvisoErro } from "@/components/aviso-erro";
 import { FonteRodape } from "@/components/fonte-rodape";
+import { EmendasMunicipioSecao } from "@/components/emendas-municipio";
 import { ParlamentarCard } from "@/components/parlamentar-card";
-import { type ParlamentarResumo, getRepresentantes } from "@/lib/api";
-import { formatarCep } from "@/lib/formato";
+import {
+  type EmendasMunicipio,
+  type ParlamentarResumo,
+  getEmendasMunicipio,
+  getRepresentantes,
+} from "@/lib/api";
+import { formatarCep, formatarReais } from "@/lib/formato";
 
 export const metadata: Metadata = { title: "Seus representantes" };
 
@@ -42,6 +48,10 @@ async function Lista({ cep, uf }: Busca) {
   }
 
   const { localizacao, deputados, senadores, atualizado_em } = resultado.dados;
+  const emendasResultado = localizacao.codigo_ibge
+    ? await getEmendasMunicipio(localizacao.codigo_ibge)
+    : null;
+  const emendas = emendasResultado?.ok ? emendasResultado.dados : null;
   const lugar = localizacao.municipio
     ? `${localizacao.municipio}/${localizacao.uf}`
     : localizacao.estado;
@@ -62,12 +72,16 @@ async function Lista({ cep, uf }: Busca) {
         titulo="Senadores"
         explicacao="Cada estado elege 3 senadores."
         parlamentares={senadores}
+        emendas={emendas}
       />
       <Secao
         titulo="Deputados federais"
         explicacao={`${localizacao.estado} tem ${deputados.length} deputados federais na Câmara.`}
         parlamentares={deputados}
+        emendas={emendas}
       />
+
+      {emendas && <EmendasMunicipioSecao dados={emendas} />}
 
       <FonteRodape fonte="Dados Abertos da Câmara e do Senado" atualizadoEm={atualizado_em} />
     </div>
@@ -78,11 +92,20 @@ function Secao({
   titulo,
   explicacao,
   parlamentares,
+  emendas,
 }: {
   titulo: string;
   explicacao: string;
   parlamentares: ParlamentarResumo[];
+  emendas: EmendasMunicipio | null;
 }) {
+  const enviado = new Map(emendas?.parlamentares.map((e) => [e.parlamentar.id, e.total]));
+  const destaque = (id: number) => {
+    const valor = enviado.get(id);
+    return valor && emendas
+      ? `Enviou ${formatarReais(valor, true)} para ${emendas.municipio.nome}`
+      : undefined;
+  };
   return (
     <section className="flex flex-col gap-3" aria-labelledby={`secao-${titulo}`}>
       <div>
@@ -97,7 +120,7 @@ function Secao({
         <ul className="grid gap-2 sm:grid-cols-2">
           {parlamentares.map((p) => (
             <li key={p.id}>
-              <ParlamentarCard parlamentar={p} />
+              <ParlamentarCard parlamentar={p} destaque={destaque(p.id)} />
             </li>
           ))}
         </ul>

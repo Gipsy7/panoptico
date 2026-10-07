@@ -27,7 +27,11 @@ def representantes(
         except cep_service.CepIndisponivel as e:
             raise HTTPException(502, "O serviço de CEP está fora do ar. Tente pela UF.") from e
         localizacao = Localizacao(
-            cep=local.cep, uf=local.uf, estado=UFS[local.uf], municipio=local.municipio
+            cep=local.cep,
+            uf=local.uf,
+            estado=UFS[local.uf],
+            municipio=local.municipio,
+            codigo_ibge=local.codigo_ibge or None,
         )
     elif uf:
         sigla = uf.upper()

@@ -3,7 +3,13 @@ import Link from "next/link";
 
 import type { ParlamentarResumo } from "@/lib/api";
 
-export function ParlamentarCard({ parlamentar }: { parlamentar: ParlamentarResumo }) {
+export function ParlamentarCard({
+  parlamentar,
+  destaque,
+}: {
+  parlamentar: ParlamentarResumo;
+  destaque?: string;
+}) {
   return (
     <Link
       href={`/parlamentar/${parlamentar.id}`}
@@ -15,6 +21,7 @@ export function ParlamentarCard({ parlamentar }: { parlamentar: ParlamentarResum
         <p className="text-sm text-muted-foreground">
           {[parlamentar.partido, parlamentar.uf].filter(Boolean).join(" · ")}
         </p>
+        {destaque && <p className="text-xs font-medium text-primary">{destaque}</p>}
       </div>
     </Link>
   );

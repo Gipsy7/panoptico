@@ -71,6 +71,7 @@ def test_representantes_por_cep(client, session):
         "uf": uf,
         "estado": corpo["localizacao"]["estado"],
         "municipio": "Cidade Teste",
+        "codigo_ibge": "1234567",
     }
     assert senado[0]["nome_parlamentar"] in [s["nome_parlamentar"] for s in corpo["senadores"]]
 

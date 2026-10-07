@@ -28,7 +28,13 @@ export type ParlamentarDetalhe = ParlamentarResumo & {
 };
 
 export type Representantes = {
-  localizacao: { cep: string | null; uf: string; estado: string; municipio: string | null };
+  localizacao: {
+    cep: string | null;
+    uf: string;
+    estado: string;
+    municipio: string | null;
+    codigo_ibge: string | null;
+  };
   deputados: ParlamentarResumo[];
   senadores: ParlamentarResumo[];
   atualizado_em: string | null;
@@ -143,4 +149,23 @@ export type Presenca = {
 export function getPresenca(id: string, ano?: string) {
   const query = ano ? `?ano=${encodeURIComponent(ano)}` : "";
   return getJson<Presenca>(`/parlamentares/${encodeURIComponent(id)}/presenca${query}`);
+}
+
+export type EmendasMunicipio = {
+  municipio: { ibge: string; nome: string; uf: string };
+  desde: number;
+  total: number;
+  total_prefeitura: number;
+  total_entidades: number;
+  por_ano: { ano: number; total: number }[];
+  parlamentares: { parlamentar: ParlamentarResumo; total: number; do_estado: boolean }[];
+  outros_autores: { autor_nome: string; total: number }[];
+  numero_autores: number;
+  fonte_nome: string;
+  fonte_url: string;
+  atualizado_em: string | null;
+};
+
+export function getEmendasMunicipio(ibge: string) {
+  return getJson<EmendasMunicipio>(`/municipios/${encodeURIComponent(ibge)}/emendas`);
 }
