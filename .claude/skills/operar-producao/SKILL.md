@@ -17,6 +17,15 @@ description: Como operar o Panóptico em produção — Vercel (site e API), Neo
 
 Conta Vercel: `gipsy7` (time `gipsy7s-projects`, plano Hobby). Repositório público. Guia humano completo: `docs/DEPLOY_GRATUITO.md`.
 
+## Publicar código: sempre pelo branch `dev`
+
+Nunca faça push direto no `main`. Envie para o `dev` (`git push origin dev`; se estiver no `main` local, `git push origin main:dev` ou mude de branch antes de commitar). O workflow **Publicar** roda os testes, aplica as migrações e, se o banco mudou, recarrega todos os dados (~15 min). Só então avança o `main`, e a Vercel publica. Isso evita o site no ar com código que espera tabelas ou dados que ainda não existem.
+
+- Acompanhe com `gh run list --workflow publicar.yml --limit 1` e `gh run watch <id> --exit-status` em background.
+- Forçar recarga sem migração: `gh workflow run publicar.yml --ref dev -f recarregar=true`.
+- Migrações só podem acrescentar (tabela nova, coluna opcional); remoções em duas publicações.
+- Se o passo "Avançar o main" falhar, o `main` tem commits que o `dev` não tem: traga-os para o `dev` (merge/rebase) e envie de novo. Nunca use `--force`.
+
 ## Segredos: nunca passe por eles
 
 A URL do banco existe em dois lugares: secret `DATABASE_URL` do GitHub (string **direta** do Neon) e variável `DATABASE_URL` do projeto `panoptico-api` na Vercel (string **com pooling**, host com `-pooler`). Quem coloca é o usuário. Não leia, não imprima, não copie esses valores (ao listar variáveis, mostre só os nomes). Se uma tarefa exigir o valor, peça para o usuário configurar no painel. O mesmo vale para a chave do Portal da Transparência no `backend/.env`.
@@ -47,7 +56,7 @@ Corpo do deploy de produção a partir do `main`:
 ```
 
 Pontos que pegam:
-- Todo push no `main` já dispara deploy dos dois projetos (integração com o GitHub). Deploy manual só é necessário depois de **mudar variáveis**, porque elas só valem a partir do próximo build.
+- O `main` (avançado pelo Publicar) dispara deploy dos dois projetos; o `dev` gera só deploys de preview. Deploy manual só é necessário depois de **mudar variáveis**, porque elas só valem a partir do próximo build.
 - `NEXT_PUBLIC_*` entram no build do site: mudou, redeploy do `panoptico`.
 - A API na Vercel roda sem pool (`settings.serverless`, ativado por `VERCEL=1`) e sem prepared statements, por causa do pooler do Neon.
 - `CORS_ORIGINS` é uma lista JSON (`["https://panoptico.social.br","https://www.panoptico.social.br"]`).

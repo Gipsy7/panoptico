@@ -2,7 +2,10 @@ name: CI
 
 on:
   push:
+    # No `dev`, os testes rodam dentro do workflow "Publicar".
+    branches-ignore: [dev]
   pull_request:
+  workflow_call:
 
 jobs:
   backend:

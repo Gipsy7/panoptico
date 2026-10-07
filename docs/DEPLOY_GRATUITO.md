@@ -84,6 +84,22 @@ Na zona DNS do domínio, crie os registros que a Vercel mostrar em **Settings �
 
 Use os valores exatos da tela da Vercel. A propagação leva de minutos a algumas horas, e o HTTPS é emitido sozinho.
 
+## Como publicar uma mudança
+
+Trabalhe no branch **`dev`** e envie (`git push origin dev`). O workflow **Publicar** (`.github/workflows/publicar.yml`) faz o resto:
+
+1. roda os testes;
+2. aplica as migrações no Neon;
+3. se alguma migração foi aplicada, recarrega todos os dados (leva cerca de 15 minutos);
+4. avança o `main`, e a Vercel publica.
+
+Assim o código novo nunca entra no ar antes de o banco estar pronto para ele, e o site não fica sem dados. Para forçar a recarga sem migração nova: **Actions → Publicar → Run workflow → recarregar**.
+
+Regras:
+- **Não envie direto para o `main`.** O Publicar só avança o `main` se for "fast-forward"; se o `main` tiver commits que o `dev` não tem, ele falha em vez de apagar trabalho.
+- **Migrações só acrescentam** (tabelas e colunas opcionais). Remover ou renomear coluna exige duas publicações: primeiro o código para de usar, depois a migração remove.
+- A ingestão diária e a recarga do Publicar não rodam ao mesmo tempo (mesmo grupo de concorrência), e cada fonte é trocada numa transação: durante a carga o site continua com os dados anteriores.
+
 ## Limites do plano gratuito
 
 - **Neon:** 0,5 GB. O banco tem ~260 MB; os gastos do gabinete são a maior tabela e só guardamos o ano anterior e o atual.

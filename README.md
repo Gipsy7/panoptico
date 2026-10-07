@@ -197,7 +197,7 @@ Os testes do backend usam um banco `panoptico_test` (criado pelo `scripts/criar_
 ## Como contribuir
 
 1. Abra uma [issue](https://github.com/Gipsy7/panoptico/issues) descrevendo o problema ou a ideia antes de começar algo grande.
-2. Faça um fork, crie um branch a partir de `main` e envie um pull request.
+2. Faça um fork, crie um branch a partir de `dev` e envie um pull request para o `dev`. O `main` é só o que está no ar: ele é atualizado pelo workflow "Publicar" depois que os testes, as migrações e os dados estão prontos.
 3. Antes de enviar, rode os testes e os linters (veja [Testes](#testes)). O CI precisa passar.
 
 **Combinados do projeto:**

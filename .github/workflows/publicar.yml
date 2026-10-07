@@ -1,0 +1,84 @@
+name: Publicar
+
+# Publica o que está no branch `dev` sem deixar o site sem dados:
+#   1. roda os testes;
+#   2. aplica as migrações no banco de produção;
+#   3. se alguma migração foi aplicada (ou se pedido), recarrega todos os dados;
+#   4. só então avança o `main`, que é o branch que a Vercel publica.
+# Assim o código novo nunca chega ao ar antes do banco estar pronto para ele.
+# Regra para isso funcionar: migrações só ACRESCENTAM (tabelas, colunas opcionais),
+# para o código antigo continuar funcionando com o banco novo enquanto a carga roda.
+
+on:
+  push:
+    branches: [dev]
+  workflow_dispatch:
+    inputs:
+      recarregar:
+        description: "Recarregar todos os dados antes de publicar, mesmo sem migração nova"
+        type: boolean
+        default: false
+
+concurrency:
+  group: publicar
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  testes:
+    uses: ./.github/workflows/ci.yml
+
+  banco:
+    needs: testes
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    # Não roda junto com a ingestão diária: as duas escrevem no mesmo banco.
+    concurrency:
+      group: ingestao
+      cancel-in-progress: false
+    defaults:
+      run:
+        working-directory: backend
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: astral-sh/setup-uv@v6
+        with:
+          version: "0.12.23"
+
+      - name: Instalar dependências
+        run: uv sync --locked --no-dev
+
+      - name: Migrações do banco
+        id: migracoes
+        run: |
+          antes="$(uv run alembic current 2>/dev/null | tail -n 1)"
+          uv run alembic upgrade head
+          depois="$(uv run alembic current 2>/dev/null | tail -n 1)"
+          echo "Versão do banco: '$antes' -> '$depois'"
+          if [ "$antes" != "$depois" ]; then
+            echo "mudou=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "mudou=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Recarregar os dados (só quando o banco mudou ou foi pedido)
+        if: steps.migracoes.outputs.mudou == 'true' || inputs.recarregar
+        run: uv run python -m ingestion.run_all
+
+  promover:
+    needs: banco
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # Só avança o main se for um "fast-forward": se alguém tiver mexido direto no main,
+      # o push falha em vez de apagar o trabalho.
+      - name: Avançar o main (a Vercel publica a partir dele)
+        run: git push origin HEAD:main
