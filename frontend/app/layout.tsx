@@ -93,6 +93,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
               <a href="https://github.com/Gipsy7/panoptico" className={LINK}>
                 Código aberto
               </a>
+              <Link href="/apoie" className={LINK}>
+                Apoie
+              </Link>
               {CONTATO && (
                 <a href={`mailto:${CONTATO}`} className={LINK}>
                   Contato
