@@ -7,6 +7,8 @@ import { GastosSecao } from "@/components/gastos-secao";
 import { Foto } from "@/components/parlamentar-card";
 import { PresencaSecao } from "@/components/presenca-secao";
 import { ProjetosSecao } from "@/components/projetos-secao";
+import { RemuneracaoSecao } from "@/components/remuneracao-secao";
+import { ResumoPerfil } from "@/components/resumo-perfil";
 import { getGastos, getParlamentar, getPresenca, getProjetos } from "@/lib/api";
 import { FONTE_CASA, NOME_CASA } from "@/lib/formato";
 
@@ -54,6 +56,13 @@ async function Perfil({ id, ano }: { id: string; ano?: string }) {
         </div>
       </header>
 
+      <ResumoPerfil
+        gastos={gastos.ok ? gastos.dados : undefined}
+        presenca={presenca.ok ? presenca.dados : undefined}
+        projetos={projetos.ok ? projetos.dados : undefined}
+        subsidio={p.remuneracao.subsidio_mensal}
+      />
+
       {gastos.ok ? (
         <GastosSecao gastos={gastos.dados} casa={p.casa} parlamentarId={p.id} />
       ) : (
@@ -63,6 +72,8 @@ async function Perfil({ id, ano }: { id: string; ano?: string }) {
       {presenca.ok && <PresencaSecao presenca={presenca.dados} casa={p.casa} />}
 
       {projetos.ok && <ProjetosSecao projetos={projetos.dados} casa={p.casa} />}
+
+      <RemuneracaoSecao remuneracao={p.remuneracao} />
 
       <section className="flex flex-col gap-2 rounded-xl bg-card p-4 ring-1 ring-foreground/10">
         <h2 className="font-semibold">Contato do gabinete</h2>
@@ -103,10 +114,6 @@ async function Perfil({ id, ano }: { id: string; ano?: string }) {
             </>
           )}
         </dl>
-      </section>
-
-      <section className="rounded-xl border border-dashed p-4 text-sm text-muted-foreground">
-        Em breve: remuneração.
       </section>
 
       <FonteRodape fonte={FONTE_CASA[p.casa]} url={p.fonte_url} atualizadoEm={p.atualizado_em} />

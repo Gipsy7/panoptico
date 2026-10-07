@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 from app.db import get_session
 from app.models import Parlamentar
 from app.schemas import GastosResposta, ParlamentarDetalhe, PresencaResposta, ProjetosResposta
-from app.services import gastos, presenca, projetos
+from app.services import gastos, presenca, projetos, remuneracao
 
 router = APIRouter()
 
@@ -21,8 +21,10 @@ def _buscar(session: Session, parlamentar_id: int) -> Parlamentar:
 @router.get("/parlamentares/{parlamentar_id}", response_model=ParlamentarDetalhe)
 def parlamentar(
     parlamentar_id: int, session: Annotated[Session, Depends(get_session)]
-) -> Parlamentar:
-    return _buscar(session, parlamentar_id)
+) -> ParlamentarDetalhe:
+    p = _buscar(session, parlamentar_id)
+    colunas = {c.key: getattr(p, c.key) for c in Parlamentar.__table__.columns}
+    return ParlamentarDetalhe.model_validate({**colunas, "remuneracao": remuneracao.vigente()})
 
 
 @router.get("/parlamentares/{parlamentar_id}/gastos", response_model=GastosResposta)

@@ -146,6 +146,19 @@ def upsert_parlamentares(
     return len(linhas)
 
 
+PARTICULAS = {"da", "das", "de", "do", "dos", "e"}
+
+
+def nome_proprio(nome: str | None) -> str | None:
+    """'MARIA DA SILVA' -> 'Maria da Silva'. Nomes já em caixa mista ficam como estão."""
+    if not nome or not nome.isupper():
+        return nome
+    palavras = nome.lower().split()
+    return " ".join(
+        p if i > 0 and p in PARTICULAS else p[:1].upper() + p[1:] for i, p in enumerate(palavras)
+    )
+
+
 def limpar_categoria(texto: str | None) -> str:
     """Padroniza o nome da categoria de gasto (a Câmara publica tudo em maiúsculas)."""
     t = re.sub(r"\s*,\s*", ", ", " ".join((texto or "").split())).rstrip(".").strip()

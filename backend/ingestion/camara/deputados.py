@@ -54,7 +54,7 @@ def normalizar(payload: dict[str, Any]) -> list[dict[str, Any]]:
                 {
                     "id_externo": str(d["id"]),
                     "nome_parlamentar": d["nome"],
-                    "nome_civil": detalhe.get("nomeCivil"),
+                    "nome_civil": comum.nome_proprio(detalhe.get("nomeCivil")),
                     "partido": d.get("siglaPartido"),
                     "uf": d["siglaUf"],
                     "foto_url": d.get("urlFoto"),

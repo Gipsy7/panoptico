@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 import respx
 from sqlalchemy import select
 
@@ -88,4 +90,14 @@ def test_parlamentar_detalhe(client, session):
     corpo = client.get(f"/parlamentares/{p.id}").json()
     assert corpo["nome_parlamentar"] == p.nome_parlamentar
     assert corpo["fonte_url"] and corpo["atualizado_em"]
+    assert corpo["remuneracao"]["subsidio_mensal"] > 0
     assert client.get("/parlamentares/999999").status_code == 404
+
+
+def test_remuneracao_vigente():
+    from datetime import date
+
+    from app.services import remuneracao
+
+    assert remuneracao.vigente(date(2024, 1, 31))["subsidio_mensal"] == Decimal("41650.92")
+    assert remuneracao.vigente(date(2025, 2, 1))["subsidio_mensal"] == Decimal("46366.19")

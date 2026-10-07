@@ -14,6 +14,13 @@ class ParlamentarResumo(BaseModel):
     foto_url: str | None
 
 
+class Remuneracao(BaseModel):
+    subsidio_mensal: float
+    vigente_desde: date
+    fonte_nome: str
+    fonte_url: str
+
+
 class ParlamentarDetalhe(ParlamentarResumo):
     nome_civil: str | None
     email: str | None
@@ -23,6 +30,7 @@ class ParlamentarDetalhe(ParlamentarResumo):
     em_exercicio_desde: date | None
     fonte_url: str
     atualizado_em: datetime
+    remuneracao: Remuneracao
 
 
 class Localizacao(BaseModel):

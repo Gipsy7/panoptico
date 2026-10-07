@@ -19,6 +19,12 @@ export type ParlamentarDetalhe = ParlamentarResumo & {
   em_exercicio: boolean;
   fonte_url: string;
   atualizado_em: string;
+  remuneracao: {
+    subsidio_mensal: number;
+    vigente_desde: string;
+    fonte_nome: string;
+    fonte_url: string;
+  };
 };
 
 export type Representantes = {

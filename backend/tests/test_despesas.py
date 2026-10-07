@@ -124,3 +124,10 @@ def test_gastos_endpoint(client, session):
     assert client.get(f"/parlamentares/{deps[0].id}/gastos?ano=1999").status_code == 404
     senador = session.scalars(select(Parlamentar).where(Parlamentar.casa == "senado")).first()
     assert client.get(f"/parlamentares/{senador.id}/gastos").status_code == 404
+
+
+def test_nome_proprio():
+    assert comum.nome_proprio("ADILSON BARROSO OLIVEIRA") == "Adilson Barroso Oliveira"
+    assert comum.nome_proprio("MARIA DAS DORES E SILVA") == "Maria das Dores e Silva"
+    assert comum.nome_proprio("Já Formatado") == "Já Formatado"
+    assert comum.nome_proprio(None) is None
