@@ -167,7 +167,8 @@ def test_rota_de_temas_do_perfil(client, session):
     corpo = client.get(f"/parlamentares/{deputado.id}/temas").json()
     assert corpo["temas"][0] == {"tema": "Saúde", "primeiro_autor": 1, "coautor": 1}
     assert corpo["homenagens"] == 1
-    assert client.get(f"/parlamentares/{senador.id}/temas").json()["disponivel"] is False
+    # Senador sem projetos classificados: lista vazia (o Senado também tem temas).
+    assert client.get(f"/parlamentares/{senador.id}/temas").json()["temas"] == []
 
 
 def test_rota_comparar(client, session):

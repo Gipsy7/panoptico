@@ -24,9 +24,9 @@ from app.models import (
 )
 from app.services import presenca, votos
 from ingestion import comum
+from ingestion.proposicoes_comum import TEMA_HOMENAGENS
 
 FONTE = "resumos"
-TEMA_HOMENAGENS = "Homenagens e Datas Comemorativas"
 
 
 def _projetos(session: Session) -> dict[int, dict[str, int]]:

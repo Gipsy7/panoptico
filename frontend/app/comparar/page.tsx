@@ -119,7 +119,7 @@ function Resultado({ dados }: { dados: Comparacao }) {
   const na = linhasDeNumeros(dados.numeros_a);
   const nb = linhasDeNumeros(dados.numeros_b);
   const criterios = dados.criterios.filter(
-    (c) => c.id !== "nome" && (c.id !== "governo" || a.casa === "camara" || b.casa === "camara"),
+    (c) => c.id !== "nome",
   );
 
   return (
@@ -282,7 +282,7 @@ function Resultado({ dados }: { dados: Comparacao }) {
             <table className="w-full text-left text-sm">
               <thead className="text-muted-foreground">
                 <tr>
-                  <th scope="col" className="p-3 font-normal">Tema (classificação da Câmara)</th>
+                  <th scope="col" className="p-3 font-normal">Tema (classificação oficial)</th>
                   <th scope="col" className="p-3 text-right font-normal">{primeiroNome(a)}</th>
                   <th scope="col" className="p-3 text-right font-normal">{primeiroNome(b)}</th>
                 </tr>
@@ -300,7 +300,9 @@ function Resultado({ dados }: { dados: Comparacao }) {
           </div>
           <p className="text-sm text-muted-foreground">
             Projetos como autor principal. Um projeto pode ter mais de um tema.
-            {a.casa === "senado" || b.casa === "senado" ? " O Senado ainda não tem os temas no Panóptico." : ""}
+            {a.casa !== b.casa
+              ? " Câmara e Senado usam classificações diferentes, então os nomes dos temas não coincidem."
+              : ""}
           </p>
         </section>
       )}

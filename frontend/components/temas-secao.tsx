@@ -1,8 +1,8 @@
-import type { Temas } from "@/lib/api";
+import type { Casa, Temas } from "@/lib/api";
 
 const LIMITE = 10;
 
-export function TemasSecao({ dados }: { dados: Temas }) {
+export function TemasSecao({ dados, casa }: { dados: Temas; casa: Casa }) {
   if (!dados.disponivel || dados.temas.length === 0) return null;
   const temas = dados.temas.slice(0, LIMITE);
   const maior = Math.max(...temas.map((t) => t.primeiro_autor), 1);
@@ -14,7 +14,7 @@ export function TemasSecao({ dados }: { dados: Temas }) {
           Projetos por tema
         </h2>
         <p className="text-xs text-muted-foreground">
-          Classificação oficial da Câmara. Um projeto pode ter mais de um tema.
+          Classificação oficial {casa === "camara" ? "da Câmara" : "do Senado"}. Um projeto pode ter mais de um tema.
         </p>
       </div>
       <ul className="flex flex-col gap-3">

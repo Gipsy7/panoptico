@@ -137,9 +137,7 @@ def votos_do_parlamentar(
     return {
         "ano": ano,
         "anos_disponiveis": anos,
-        "governo": placar(resumo["governo_iguais"], resumo["governo_total"])
-        if resumo and p.casa == "camara"
-        else None,
+        "governo": placar(resumo["governo_iguais"], resumo["governo_total"]) if resumo else None,
         "partido": placar(resumo["partido_iguais"], resumo["partido_total"])
         if resumo
         else placar(0, 0),

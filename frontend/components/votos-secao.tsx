@@ -53,8 +53,11 @@ export function VotosSecao({
       <p className="text-sm text-muted-foreground">
         Contam só as votações em que deu voto (Sim, Não, Abstenção ou Obstrução).
         {dados.governo &&
-          " Para o Governo, só quando ele orientou Sim, Não ou Obstrução; votações liberadas ficam de fora."}{" "}
-        A maioria do partido é como votaram os outros deputados do mesmo partido naquele dia.{" "}
+          " Para o Governo, só quando a liderança do Governo orientou Sim, Não ou Obstrução; votações liberadas ficam de fora."}
+        {casa === "senado" &&
+          " No Senado, a maioria das votações é secreta ou não tem orientação registrada, por isso os totais são pequenos."}{" "}
+        A maioria do partido é como votaram os outros {casa === "camara" ? "deputados" : "senadores"} do
+        mesmo partido naquele dia.{" "}
         <Link href="/sobre-as-fontes" className="underline underline-offset-2">
           Como calculamos
         </Link>
@@ -118,7 +121,7 @@ export function VotosSecao({
               <p className="line-clamp-2 text-xs text-muted-foreground">{v.descricao}</p>
               <dl className="grid grid-cols-3 gap-2 text-xs">
                 <Voto rotulo="Votou" valor={v.voto || "Sem voto registrado"} destaque />
-                {casa === "camara" && <Voto rotulo="Governo orientou" valor={v.orientacao_governo} />}
+                <Voto rotulo="Governo orientou" valor={v.orientacao_governo} />
                 <Voto rotulo={`Maioria ${v.partido ?? "do partido"}`} valor={v.maioria_partido} />
               </dl>
             </li>

@@ -42,17 +42,28 @@ def criar_cliente() -> httpx.Client:
     )
 
 
+def _espera(resposta: httpx.Response | None, tentativa: int) -> float:
+    """Quanto esperar antes de tentar de novo: o Retry-After da fonte, se houver."""
+    if resposta is not None:
+        retry_after = resposta.headers.get("Retry-After", "")
+        if retry_after.isdigit():
+            return min(int(retry_after), 60)
+    return float(2**tentativa)
+
+
 def _get(client: httpx.Client, url: str, params: dict | None, tentativas: int) -> httpx.Response:
+    """GET com novas tentativas para falhas de rede, erros 5xx e limite de taxa (429)."""
+    resposta = None
     for tentativa in range(1, tentativas + 1):
         try:
             resposta = client.get(url, params=params)
-            if resposta.status_code < 500:
+            if resposta.status_code < 500 and resposta.status_code != 429:
                 return resposta.raise_for_status()
         except httpx.TransportError:
             if tentativa == tentativas:
                 raise
         if tentativa < tentativas:
-            time.sleep(2**tentativa)
+            time.sleep(_espera(resposta, tentativa))
     return resposta.raise_for_status()
 
 

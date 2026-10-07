@@ -61,15 +61,19 @@ export default function SobreAsFontesPage() {
         </Item>
         <Item titulo="Como votou">
           Contam as votações nominais do Plenário em que o parlamentar deu voto (Sim, Não,
-          Abstenção ou Obstrução). &quot;Votou como o Governo orientou&quot; usa a orientação
-          oficial do Governo registrada pela Câmara, só quando ela foi Sim, Não ou Obstrução;
-          votações liberadas ficam de fora. &quot;Votou como a maioria do seu partido&quot;
-          compara com o voto mais comum entre os outros deputados do mesmo partido naquele dia
-          (pelo menos dois votando; empates ficam de fora).
+          Abstenção ou Obstrução). &quot;Votou como o Governo orientou&quot; usa a orientação da
+          liderança do Governo registrada por cada Casa, só quando ela foi Sim, Não ou Obstrução;
+          votações liberadas ficam de fora. No Senado, a maior parte das votações nominais é
+          secreta ou não tem orientação registrada, então os totais dos senadores são menores.
+          &quot;Votou como a maioria do seu partido&quot; compara com o voto mais comum entre os
+          outros parlamentares do mesmo partido naquele dia (pelo menos dois votando; empates ficam
+          de fora).
         </Item>
         <Item titulo="Temas">
-          Os temas são a classificação oficial da Câmara para cada proposição (uma proposição
-          pode ter vários). O Panóptico não classifica ninguém como a favor ou contra um tema:
+          Os temas são a classificação oficial de cada Casa para cada proposição (uma proposição
+          pode ter vários). Na Câmara, são os temas da própria Câmara; no Senado, usamos o segundo
+          nível da classificação do Senado (por exemplo &quot;Educação&quot; em &quot;Política
+          Social / Educação&quot;). Por isso os nomes dos temas não coincidem entre as Casas. O Panóptico não classifica ninguém como a favor ou contra um tema:
           um voto &quot;Sim&quot; pode tanto endurecer quanto suavizar uma lei, e por isso
           mostramos a ementa de cada votação.
         </Item>

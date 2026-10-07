@@ -14,6 +14,7 @@ from ingestion.ibge import municipios
 from ingestion.senado import despesas as despesas_senado
 from ingestion.senado import proposicoes as proposicoes_senado
 from ingestion.senado import senadores
+from ingestion.senado import temas as temas_senado
 from ingestion.senado import votacoes as votacoes_senado
 from ingestion.transparencia import emendas
 
@@ -28,6 +29,7 @@ def _tarefas() -> list[tuple[str, Callable[[], int]]]:
     tarefas.append((proposicoes_senado.FONTE, proposicoes_senado.executar))
     # Depois das votações: busca na API os temas das matérias votadas que faltarem.
     tarefas.append((temas_camara.FONTE, temas_camara.executar))
+    tarefas.append((temas_senado.FONTE, temas_senado.executar))
     tarefas.append((municipios.FONTE, municipios.executar))
     tarefas.append((emendas.FONTE, emendas.executar))
     # Por último: consolida os números de cada parlamentar a partir do que foi carregado.

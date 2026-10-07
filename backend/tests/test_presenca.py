@@ -113,7 +113,9 @@ def test_normalizar_senado():
         },
         {"codigoSessaoVotacao": 1, "dataSessao": "2026-09-01", "votos": []},
     ]  # fmt: skip
-    votacoes, votos = senado.normalizar(payload)
+    # Bruto antigo (só a lista de votações): continua válido, sem orientações.
+    votacoes, votos, orientacoes = senado.normalizar(payload)
+    assert orientacoes == []
     assert votacoes[0]["secreta"] is True
     assert votacoes[0]["proposicao_id_externo"] == "175624"
     assert votacoes[0]["proposicao_ementa"] == "Escolhe o Senhor X."

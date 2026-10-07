@@ -12,6 +12,11 @@ from app.models import Autoria, FonteIngestao, Proposicao
 # Só o que é legislação de fato; requerimentos, pareceres e emendas ficam de fora.
 TIPOS = {"PL", "PLP", "PEC", "PDL"}
 INICIO_LEGISLATURA = date(2023, 2, 1)
+# Rótulo comum às duas casas para homenagens e datas comemorativas (tema oficial da
+# Câmara; no Senado vem como "Honorífico / Homenagem").
+TEMA_HOMENAGENS = "Homenagens e Datas Comemorativas"
+# Marcador para matéria do Senado que não tem classificação (não aparece no site).
+SEM_CLASSIFICACAO = "Sem classificação"
 
 
 def virou_lei(situacao: str | None) -> bool:

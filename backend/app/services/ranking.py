@@ -44,8 +44,9 @@ CRITERIOS = {
     },
     "governo": {
         "nome": "Votou como o Governo orientou",
-        "definicao": "Percentual das votações em que o Governo orientou Sim, Não ou Obstrução "
-        "e o deputado votou igual. Só Câmara.",
+        "definicao": "Percentual das votações em que a liderança do Governo orientou Sim, Não "
+        "ou Obstrução e o parlamentar votou igual. No Senado há orientação registrada em menos "
+        "votações, então a base de comparação é menor.",
     },
 }
 POR_PAGINA = 50
@@ -69,7 +70,7 @@ def _item(p: Parlamentar, r: ResumoParlamentar) -> dict:
         "presenca": _pct(r.presenca_votou, r.presenca_total),
         "governo_iguais": r.governo_iguais,
         "governo_total": r.governo_total,
-        "governo": _pct(r.governo_iguais, r.governo_total) if p.casa == "camara" else None,
+        "governo": _pct(r.governo_iguais, r.governo_total),
         "partido_iguais": r.partido_iguais,
         "partido_total": r.partido_total,
         "partido_pct": _pct(r.partido_iguais, r.partido_total),

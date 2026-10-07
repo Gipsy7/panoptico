@@ -87,3 +87,9 @@ O subsídio é igual para deputados e senadores e é fixado por decreto legislat
 
 - Com o carregamento em partes (streaming), o status já foi enviado quando o "não encontrado" é detectado. O Next injeta `noindex` nessas páginas, então buscadores não as indexam.
 - Devolver um 404 de verdade exigiria consultar a API antes de toda renderização de perfil (via `proxy`), deixando todos os perfis mais lentos. Ficou como está.
+
+## 2026-10-07: temas e alinhamento com o Governo no Senado
+
+- **Temas:** o Senado classifica cada processo numa hierarquia própria ("Política Social / Educação / Educação Básica"). Usamos o 2º nível, de granularidade parecida com os temas da Câmara, e o 1º quando só ele existe. "Honorífico / Homenagem" recebe o mesmo rótulo da Câmara ("Homenagens e Datas Comemorativas"), para a exclusão das homenagens valer igual nas duas casas.
+- A classificação só vem no detalhe de cada processo (duas chamadas por matéria). A carga `senado_temas` é **incremental**: só busca matérias ainda sem tema. Matéria sem classificação fica marcada como "Sem classificação", que não aparece no site. A API limita a taxa (429): duas conexões em paralelo, novas tentativas com `Retry-After`, e falhas ficam para a próxima carga.
+- **Orientação do Governo:** vem de `/plenario/votacao/orientacaoBancada/{data}` e é ligada à votação pelo `sequencialVotacao`. Só existe em parte das votações abertas (em 2026, 11 de 19), e votações secretas não têm. O alinhamento dos senadores usa a mesma regra da Câmara, sobre uma base menor; o site avisa isso.

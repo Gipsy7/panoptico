@@ -222,7 +222,7 @@ function Cartao({ p, ordenar }: { p: ParlamentarNaLista; ordenar: CriterioId }) 
     { id: "normas", rotulo: "Viraram norma", valor: String(p.normas) },
     { id: "emendas", rotulo: "Emendas pagas", valor: formatarReais(p.emendas, true) },
   ];
-  if (p.casa === "camara") {
+  {
     numeros.push({
       id: "governo",
       rotulo: "Como o Governo",

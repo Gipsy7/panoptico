@@ -18,6 +18,7 @@ from sqlalchemy import and_, func, select
 from sqlalchemy.orm import Session, aliased
 
 from app.models import Orientacao, Parlamentar, ProposicaoTema, Votacao, Voto
+from ingestion.proposicoes_comum import SEM_CLASSIFICACAO
 
 VOTO_EFETIVO = ("Sim", "Não", "Abstenção", "Obstrução")
 ORIENTACAO_VALIDA = ("Sim", "Não", "Obstrução")
@@ -107,7 +108,11 @@ def _temas_por_proposicao(session: Session, casa: str, ids: set[str]) -> dict[st
     temas: dict[str, list[str]] = defaultdict(list)
     for id_externo, tema in session.execute(
         select(ProposicaoTema.proposicao_id_externo, ProposicaoTema.tema)
-        .where(ProposicaoTema.casa == casa, ProposicaoTema.proposicao_id_externo.in_(ids))
+        .where(
+            ProposicaoTema.casa == casa,
+            ProposicaoTema.proposicao_id_externo.in_(ids),
+            ProposicaoTema.tema != SEM_CLASSIFICACAO,
+        )
         .order_by(ProposicaoTema.tema)
     ):
         temas[id_externo].append(tema)
@@ -218,6 +223,7 @@ def temas_disponiveis(session: Session, parlamentar: Parlamentar, ano: int) -> l
             .where(
                 Voto.parlamentar_id == parlamentar.id,
                 func.extract("year", Votacao.data) == ano,
+                ProposicaoTema.tema != SEM_CLASSIFICACAO,
             )
             .distinct()
             .order_by(ProposicaoTema.tema)

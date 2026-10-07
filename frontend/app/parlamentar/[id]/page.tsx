@@ -136,7 +136,7 @@ async function Perfil({
 
       {projetos.ok && <ProjetosSecao projetos={projetos.dados} casa={p.casa} />}
 
-      {temas.ok && <TemasSecao dados={temas.dados} />}
+      {temas.ok && <TemasSecao dados={temas.dados} casa={p.casa} />}
 
       <RemuneracaoSecao remuneracao={p.remuneracao} />
 
