@@ -113,4 +113,42 @@ Endpoints conferidos em 2026-10-06.
 - **Fotos:** a URL de fotos do DivulgaCandContas recusa acesso automatizado (403), mas os zips por UF em `cdn.tse.jus.br/estatistica/sead/eleicoes/eleicoes{ano}/fotos/foto_cand{ano}_{UF}_div.zip` funcionam. O arquivo se chama `F{UF}{SQ}_div.jpg`. Os federais usam as fotos da Câmara e do Senado.
 - **Frequência:** só muda quando há eleição. Carga manual pelo workflow "Ingestão TSE".
 
+## Tesouro Nacional: SICONFI (contas anuais dos municípios)
+
+- **API:** `https://apidatalake.tesouro.gov.br/ords/siconfi/tt/dca?an_exercicio={ano}&no_anexo={anexo}&id_ente={ibge}`. Exige `id_ente`: não há consulta em lote, então é uma por município, anexo e ano (cerca de 0,8 s cada, a partir do Brasil).
+- **Anexos usados:** `DCA-Anexo I-C` (receitas; `cod_conta = TotalReceitas`, coluna "Receitas Brutas Realizadas") e `DCA-Anexo I-E` (despesa por função; coluna "Despesas Pagas", só as linhas de função no formato "10 - Saúde").
+- **Armadilhas:**
+  - o código `TotalDespesas` se repete em várias linhas, por isso o total é a soma das funções;
+  - texto em UTF-8 com alguns caracteres quebrados;
+  - nem todo município entrega: em 2024, 5.326 de 5.571 tinham declaração;
+  - a partir das máquinas do GitHub (EUA), a maioria das consultas falha (em investigação).
+- **Frequência:** anual, entregue até abril. Carga mensal.
+
+## SAPL (Interlegis): câmaras municipais
+
+- **Endereço:** em geral `https://sapl.{câmara}/api/`, vindo do catálogo de canais (tipo `sapl`). É a mesma API REST em todas as câmaras (Django REST, paginada; `page_size` até 100).
+- **Rotas usadas:**
+  - `parlamentares/legislatura/`, `parlamentares/mandato/?legislatura={id}`, `parlamentares/parlamentar/{id}/`, `parlamentares/filiacao/` e `parlamentares/partido/`;
+  - `base/autor/?tipo=1` (autores que são parlamentares);
+  - `materia/autoria/?autor={id}` e `materia/materialegislativa/{id}/`.
+- **Armadilhas:**
+  - links de foto e de documento vêm com `http://` (forçamos `https`);
+  - `materia/autoria/?materia__ano=` não filtra (devolve tudo); `?autor=` filtra;
+  - o texto da autoria ("Requerimento nº 324 de 2026") já traz tipo e ano, o que evita baixar cada matéria;
+  - votações nominais existem, mas poucas câmaras registram.
+- **Frequência:** semanal, um estado por máquina, uma requisição por vez em cada câmara.
+
+## Canais oficiais dos municípios (varredura do Panóptico)
+
+- **O que é:** varredura dos domínios oficiais de cada cidade: prefeitura em `{cidade}.{uf}.gov.br`; câmara em `{cidade}.{uf}.leg.br`, `camara{cidade}...` e `cm{cidade}...`; e os links do próprio site da prefeitura. Confere se a página é da cidade e reconhece o sistema (SAPL; fornecedores de transparência como Betha, IPM, CR2, Fiorilli e Elotech).
+- **Resultado:**
+  - `data/canais_oficiais.csv`, versionado e revisado por pull request;
+  - `data/canais_curados.csv`, com as correções feitas à mão (capitais), que substituem a varredura.
+- **Armadilhas:**
+  - muitas cidades dividem o mesmo servidor, que bloqueia rajadas (resposta 444; visto em SC): uma requisição por vez por servidor;
+  - certificados vencidos;
+  - links malformados (`http://[facebook_entidade]`);
+  - modelos de site de fornecedor apontando para o portal de outra cidade.
+- **Frequência:** varredura inicial única; depois, revisão pontual quando uma carga falhar.
+
 ## A confirmar (fases seguintes)

@@ -38,8 +38,8 @@ CATALOGO = [
     },
     {
         "dado": "Temas das proposições (classificação oficial)",
-        "orgao": "Câmara dos Deputados",
-        "fontes": ["camara_temas"],
+        "orgao": "Câmara dos Deputados e Senado Federal",
+        "fontes": ["camara_temas", "senado_temas"],
         "url": "https://dadosabertos.camara.leg.br/",
     },
     {
@@ -49,10 +49,36 @@ CATALOGO = [
         "url": "https://portaldatransparencia.gov.br/emendas",
     },
     {
-        "dado": "Candidaturas, bens declarados e contas de campanha",
+        "dado": "Eleitos (do vereador ao presidente), bens, contas de campanha, votos, "
+        "redes e fotos",
         "orgao": "Tribunal Superior Eleitoral",
-        "fontes": ["tse_candidaturas", "tse_bens", "tse_campanha"],
+        "fontes": [
+            "tse_candidaturas",
+            "tse_bens",
+            "tse_campanha",
+            "tse_redes",
+            "tse_votos",
+            "tse_fotos",
+        ],
         "url": "https://dadosabertos.tse.jus.br/",
+    },
+    {
+        "dado": "Contas anuais das prefeituras (receita, despesa e áreas)",
+        "orgao": "Tesouro Nacional (SICONFI)",
+        "fontes": ["siconfi_contas"],
+        "url": "https://siconfi.tesouro.gov.br/",
+    },
+    {
+        "dado": "Vereadores no cargo hoje e projetos (câmaras com SAPL)",
+        "orgao": "Câmaras municipais (sistema SAPL do Interlegis)",
+        "fontes": ["sapl_camaras"],
+        "url": "https://www.interlegis.leg.br/",
+    },
+    {
+        "dado": "Sites oficiais das prefeituras e câmaras (catálogo aberto)",
+        "orgao": "Varredura do Panóptico nos domínios .gov.br e .leg.br",
+        "fontes": ["canais_oficiais"],
+        "url": "https://github.com/Gipsy7/panoptico/tree/dev/data",
     },
     {
         "dado": "Lista de municípios",

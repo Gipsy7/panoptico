@@ -72,11 +72,30 @@ export default function SobreAsFontesPage() {
           faz parte, então não calculamos percentual nem média, e a presença e o alinhamento
           continuam contando só o Plenário.
         </Item>
-        <Item titulo="Vereadores e deputados estaduais">
-          Os eleitos para a câmara municipal (eleição de 2024) e para a assembleia legislativa
-          (eleição de 2022), como publicado pelo TSE, com bens declarados e contas de campanha.
-          Suplentes que assumiram depois não aparecem. Gastos e votos de vereadores e deputados
-          estaduais ainda não estão no site.
+        <Item titulo="Eleitos: do vereador ao presidente">
+          Presidente, governador, prefeito (com os vices), deputados estaduais e vereadores eleitos,
+          como publicado pelo TSE: foto da candidatura, votos recebidos, dados pessoais declarados
+          (idade, escolaridade, ocupação; gênero e cor ou raça são autodeclarados), redes
+          informadas, bens declarados e contas de campanha. Mudanças depois da eleição
+          (renúncia, cassação, posse de suplente) não aparecem nesta lista.
+        </Item>
+        <Item titulo="Câmara hoje">
+          Nas câmaras que usam o SAPL (sistema legislativo do Interlegis), mostramos quem está no
+          cargo agora, como a própria câmara publica: titulares e suplentes, partido atual,
+          contato e projetos do ano atual e do anterior. Requerimentos, indicações e moções
+          aparecem só como contagem. Cada vereador é ligado ao eleito do TSE pelo nome.
+        </Item>
+        <Item titulo="Contas da cidade">
+          O que a prefeitura declarou ao Tesouro Nacional na Declaração de Contas Anuais
+          (SICONFI): receita realizada, despesa paga e despesa paga por função de governo (saúde,
+          educação...). A função &quot;Legislativa&quot; é o custo da câmara municipal. Os dados são
+          anuais; nem todo município entrega no prazo.
+        </Item>
+        <Item titulo="Canais oficiais da cidade">
+          Os sites da prefeitura, da câmara e dos portais da transparência foram encontrados por
+          uma varredura automática dos domínios oficiais (.gov.br e .leg.br) e conferidos por
+          amostragem; as capitais foram conferidas uma a uma. O catálogo é aberto no GitHub e
+          aceita correções.
         </Item>
         <Item titulo="Como votou">
           Contam as votações nominais do Plenário em que o parlamentar deu voto (Sim, Não,
