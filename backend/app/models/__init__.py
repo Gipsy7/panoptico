@@ -1,4 +1,5 @@
 from app.models.base import Base
+from app.models.camara_municipal import MandatoLocal, ProjetoLocal
 from app.models.canal_oficial import CanalOficial
 from app.models.candidatura import BemDeclarado, CampanhaResumo, Candidatura, Foto, RedeSocial
 from app.models.contas_municipio import ContasMunicipio
@@ -26,10 +27,12 @@ __all__ = [
     "EmendaPagamento",
     "FonteIngestao",
     "Foto",
+    "MandatoLocal",
     "Municipio",
     "Orientacao",
     "Parlamentar",
     "Proposicao",
+    "ProjetoLocal",
     "ProposicaoTema",
     "RedeSocial",
     "ResumoParlamentar",

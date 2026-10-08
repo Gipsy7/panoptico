@@ -242,6 +242,59 @@ export function getExecutivo(uf: string, municipio?: string | null) {
   return getJson<Executivo>(`/executivo?${params}`);
 }
 
+export type VereadorItem = {
+  id: number;
+  nome: string;
+  partido: string | null;
+  foto_url: string | null;
+  foto_tse: boolean;
+  titular: boolean;
+  em_exercicio: boolean;
+  candidatura_id: number | null;
+  proposicoes: number;
+  projetos: number;
+};
+
+export type Camara = {
+  sapl_url: string;
+  itens: VereadorItem[];
+  fonte_nome: string;
+  fonte_url: string;
+  atualizado_em: string | null;
+};
+
+export type VereadorDetalhe = VereadorItem & {
+  municipio_ibge: string;
+  nome_completo: string | null;
+  email: string | null;
+  telefone: string | null;
+  inicio: string | null;
+  fim: string | null;
+  proposicoes_por_tipo: { tipo: string; total: number }[];
+  lista_projetos: {
+    tipo: string;
+    numero: number | null;
+    ano: number;
+    ementa: string;
+    data_apresentacao: string | null;
+    em_tramitacao: boolean | null;
+    primeiro_autor: boolean;
+    url: string;
+  }[];
+  sapl_url: string;
+  fonte_nome: string;
+  fonte_url: string;
+  atualizado_em: string | null;
+};
+
+export function getCamara(ibge: string) {
+  return getJson<Camara>(`/municipios/${encodeURIComponent(ibge)}/camara`);
+}
+
+export function getVereador(id: string) {
+  return getJson<VereadorDetalhe>(`/vereadores/${encodeURIComponent(id)}`);
+}
+
 export type ContasMunicipio = {
   ano: number;
   populacao: number | null;

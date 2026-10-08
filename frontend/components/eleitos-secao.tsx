@@ -9,12 +9,31 @@ export function EleitosSecao({
   titulo,
   explicacao,
   dados,
+  recolhido = false,
 }: {
   id: string;
   titulo: string;
   explicacao: string;
   dados: ListaEleitos;
+  /** Quando a câmara já mostra quem está no cargo hoje, a lista do TSE fica recolhida. */
+  recolhido?: boolean;
 }) {
+  if (recolhido) {
+    return (
+      <details className="painel">
+        <summary className="cursor-pointer font-medium">
+          {titulo} na eleição ({dados.itens.length}), segundo o TSE
+        </summary>
+        <ul className="mt-3 grid border-t border-border sm:grid-cols-2 sm:gap-x-10">
+          {dados.itens.map((e) => (
+            <li key={e.id} className="border-b border-border">
+              <CartaoEleito eleito={e} />
+            </li>
+          ))}
+        </ul>
+      </details>
+    );
+  }
   return (
     <section aria-labelledby={id} className="revelar flex flex-col gap-3">
       <div>

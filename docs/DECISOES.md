@@ -109,6 +109,15 @@ O subsídio é igual para deputados e senadores e é fixado por decreto legislat
 - **Bens:** valor como declarado, sem correção. A página avisa que bens costumam ser declarados pelo valor de compra. Sem palavras como "enriqueceu": mostramos os dois totais e o ano.
 - **2024:** o TSE passou a mascarar o CPF, então as candidaturas municipais de 2024 não se ligam aos parlamentares federais.
 
+## 2026-10-08: contas dos municípios (SICONFI) e câmaras (SAPL)
+
+- **SICONFI:** da Declaração de Contas Anuais, guardamos por município e ano a receita realizada, a despesa paga e a despesa paga por função de governo (só o primeiro nível, ex.: "Saúde"). A despesa total é a soma das funções, porque o código "TotalDespesas" se repete em várias linhas do anexo. A função "Legislativa" é o custo da câmara. A API não tem consulta em lote: é uma por município, por isso a carga é mensal. Guardamos o ano atual fechado e o anterior.
+- **SAPL:** um conector para todas as câmaras que usam o sistema do Interlegis (`sapl.{câmara}`).
+  - **Vereadores:** os da legislatura atual, com titular ou suplente, em exercício, partido pela filiação ativa, foto e contato.
+  - **Proposições:** requerimentos, indicações e moções viram só contagem por tipo, lida do próprio texto da autoria, sem baixar cada uma. Os projetos (de lei, resolução, decreto legislativo, emenda à Lei Orgânica) do ano atual e do anterior são guardados com a ementa.
+  - **Ligação ao TSE:** cada vereador é ligado ao eleito do TSE por nome exato e único.
+- **Na página da cidade:** onde há SAPL, a câmara mostra quem está no cargo hoje, e a lista de eleitos do TSE fica recolhida.
+
 ## 2026-10-08: canais oficiais dos municípios
 
 - Não existe lista nacional dos sites de prefeituras, câmaras e portais da transparência. Uma **varredura inicial** (`ingestion/canais/varredura.py`, workflow manual) testa os endereços padrão (`{cidade}.{uf}.gov.br`, `{cidade}.{uf}.leg.br`, `camara{cidade}...`), aproveita os links do próprio site da prefeitura, confere se a página é daquela cidade e reconhece o sistema usado (SAPL, fornecedores de transparência).

@@ -6,6 +6,7 @@ import { Revelacao } from "@/components/revelacao";
 import { CompartilharWhatsApp } from "@/components/compartilhar";
 import { FonteRodape } from "@/components/fonte-rodape";
 import { EmendasMunicipioSecao } from "@/components/emendas-municipio";
+import { CamaraSecao } from "@/components/camara-secao";
 import { CanaisSecao } from "@/components/canais-secao";
 import { ContasSecao } from "@/components/contas-secao";
 import { EleitosSecao } from "@/components/eleitos-secao";
@@ -15,6 +16,7 @@ import {
   type EmendasMunicipio,
   type ParlamentarResumo,
   getDeputadosEstaduais,
+  getCamara,
   getCanais,
   getContas,
   getExecutivo,
@@ -65,14 +67,16 @@ async function Lista({ cep, uf, municipio }: Busca) {
   }
 
   const { localizacao, deputados, senadores, atualizado_em } = resultado.dados;
-  const [emendasResultado, vereadoresResultado, estaduaisResultado, executivoResultado, canaisResultado, contasResultado] = await Promise.all([
+  const [emendasResultado, vereadoresResultado, estaduaisResultado, executivoResultado, canaisResultado, contasResultado, camaraResultado] = await Promise.all([
     localizacao.codigo_ibge ? getEmendasMunicipio(localizacao.codigo_ibge) : null,
     localizacao.codigo_ibge ? getVereadores(localizacao.codigo_ibge) : null,
     getDeputadosEstaduais(localizacao.uf),
     getExecutivo(localizacao.uf, localizacao.codigo_ibge),
     localizacao.codigo_ibge ? getCanais(localizacao.codigo_ibge) : null,
     localizacao.codigo_ibge ? getContas(localizacao.codigo_ibge) : null,
+    localizacao.codigo_ibge ? getCamara(localizacao.codigo_ibge) : null,
   ]);
+  const camara = camaraResultado?.ok ? camaraResultado.dados : null;
   const contas = contasResultado?.ok ? contasResultado.dados : null;
   const canais = canaisResultado?.ok ? canaisResultado.dados.itens : [];
   const executivo = executivoResultado.ok ? executivoResultado.dados : null;
@@ -129,8 +133,11 @@ async function Lista({ cep, uf, municipio }: Busca) {
 
       {emendas && <EmendasMunicipioSecao dados={emendas} />}
 
+      {camara && localizacao.municipio && <CamaraSecao dados={camara} cidade={localizacao.municipio} />}
+
       {vereadores && vereadores.itens.length > 0 && (
         <EleitosSecao
+          recolhido={Boolean(camara)}
           id="vereadores-titulo"
           titulo={`Vereadores de ${localizacao.municipio}`}
           explicacao={`Eleitos em ${vereadores.ano_eleicao} para a câmara municipal, segundo o TSE. Um suplente pode ter assumido alguma vaga depois.`}

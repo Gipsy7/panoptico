@@ -311,6 +311,58 @@ class EmendaFavorecido(BaseModel):
     autores: list[EmendaAutorDoFavorecido]
 
 
+class VereadorItem(BaseModel):
+    id: int
+    nome: str
+    partido: str | None
+    foto_url: str | None
+    foto_tse: bool
+    titular: bool
+    em_exercicio: bool
+    candidatura_id: int | None
+    proposicoes: int
+    projetos: int
+
+
+class CamaraResposta(BaseModel):
+    sapl_url: str
+    itens: list[VereadorItem]
+    fonte_nome: str
+    fonte_url: str
+    atualizado_em: datetime | None
+
+
+class ContagemTipo(BaseModel):
+    tipo: str
+    total: int
+
+
+class ProjetoLocalItem(BaseModel):
+    tipo: str
+    numero: int | None
+    ano: int
+    ementa: str
+    data_apresentacao: date | None
+    em_tramitacao: bool | None
+    primeiro_autor: bool
+    url: str
+
+
+class VereadorDetalhe(VereadorItem):
+    municipio_ibge: str
+    nome_completo: str | None
+    email: str | None
+    telefone: str | None
+    inicio: date | None
+    fim: date | None
+    proposicoes_por_tipo: list[ContagemTipo]
+    lista_projetos: list[ProjetoLocalItem]
+    sapl_url: str
+    fonte_nome: str
+    fonte_url: str
+    atualizado_em: datetime | None
+
+
 class AreaDespesa(BaseModel):
     nome: str
     valor: float
