@@ -9,7 +9,7 @@ from app.models.parlamentar import Parlamentar
 from app.models.proposicao import Autoria, Proposicao
 from app.models.proposicao_tema import ProposicaoTema
 from app.models.resumo_parlamentar import ResumoParlamentar
-from app.models.votacao import Orientacao, Votacao, Voto
+from app.models.votacao import Orientacao, Votacao, VotacaoComissao, Voto, VotoComissao
 
 __all__ = [
     "Autoria",
@@ -28,5 +28,7 @@ __all__ = [
     "ProposicaoTema",
     "ResumoParlamentar",
     "Votacao",
+    "VotacaoComissao",
     "Voto",
+    "VotoComissao",
 ]

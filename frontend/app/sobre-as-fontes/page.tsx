@@ -66,6 +66,12 @@ export default function SobreAsFontesPage() {
           mandato atual: quanto arrecadou, de onde veio (fundo eleitoral e fundo partidário são
           dinheiro público) e com o que gastou. Não mostramos o nome de doadores pessoas físicas.
         </Item>
+        <Item titulo="Votos nas comissões">
+          Votações nominais nas comissões da Câmara e do Senado, com o voto do parlamentar e a
+          comissão. Ficam separadas do Plenário: cada parlamentar vota só nas comissões de que
+          faz parte, então não calculamos percentual nem média, e a presença e o alinhamento
+          continuam contando só o Plenário.
+        </Item>
         <Item titulo="Vereadores e deputados estaduais">
           Os eleitos para a câmara municipal (eleição de 2024) e para a assembleia legislativa
           (eleição de 2022), como publicado pelo TSE, com bens declarados e contas de campanha.

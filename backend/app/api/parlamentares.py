@@ -13,9 +13,20 @@ from app.schemas import (
     PresencaResposta,
     ProjetosResposta,
     TemasResposta,
+    VotosComissoesResposta,
     VotosResposta,
 )
-from app.services import gastos, presenca, projetos, ranking, remuneracao, temas, tse, votos
+from app.services import (
+    comissoes,
+    gastos,
+    presenca,
+    projetos,
+    ranking,
+    remuneracao,
+    temas,
+    tse,
+    votos,
+)
 
 router = APIRouter()
 
@@ -85,6 +96,17 @@ def candidatura_do_parlamentar(
     parlamentar_id: int, session: Annotated[Session, Depends(get_session)]
 ) -> dict:
     return tse.resumo(session, _buscar(session, parlamentar_id))
+
+
+@router.get(
+    "/parlamentares/{parlamentar_id}/votos-comissoes", response_model=VotosComissoesResposta
+)
+def votos_nas_comissoes(
+    parlamentar_id: int,
+    session: Annotated[Session, Depends(get_session)],
+    pagina: Annotated[int, Query(ge=1)] = 1,
+) -> dict:
+    return comissoes.lista(session, _buscar(session, parlamentar_id), pagina)
 
 
 @router.get("/parlamentares/{parlamentar_id}/projetos", response_model=ProjetosResposta)

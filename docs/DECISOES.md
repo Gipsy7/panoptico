@@ -109,6 +109,13 @@ O subsídio é igual para deputados e senadores e é fixado por decreto legislat
 - **Bens:** valor como declarado, sem correção. A página avisa que bens costumam ser declarados pelo valor de compra. Sem palavras como "enriqueceu": mostramos os dois totais e o ano.
 - **2024:** o TSE passou a mascarar o CPF, então as candidaturas municipais de 2024 não se ligam aos parlamentares federais.
 
+## 2026-10-07: votos nas comissões
+
+- Votações nominais de comissão ficam em tabelas próprias (`votacao_comissao`, `voto_comissao`), separadas do Plenário. **Presença, alinhamento com o Governo, maioria do partido e convergência continuam contando só o Plenário**, onde todos votam a mesma pauta. Nas comissões, cada parlamentar vota só nas que integra, então um percentual ou uma média enganariam.
+- **Câmara:** os mesmos arquivos anuais de votações, filtrando o que não é `PLEN`. O nome da comissão vem de `orgaos.csv`. São poucas: cerca de 140 votações nominais em 2025, porque a maioria das decisões de comissão é simbólica.
+- **Senado:** endpoint `votacaoComissao/parlamentar/{codigo}`, consultado para cada senador em exercício e juntado pelo código da votação. Se mais da metade das consultas falhar, a carga aborta para não apagar o ano.
+- No perfil aparecem só os fatos: em quantas votações de comissão votou, em quais comissões e a lista dos votos.
+
 ## 2026-10-07: vereadores e deputados estaduais (TSE)
 
 - **Quem entra:** só os **eleitos** para câmaras municipais (2024) e assembleias (2022), segundo o resultado do TSE. Os suplentes ficam de fora: são dezenas por vaga, e o TSE não informa quem assumiu depois. A página avisa que um suplente pode estar no exercício.

@@ -1,4 +1,4 @@
-"""Votações nominais do Plenário da Câmara (arquivos anuais em CSV).
+"""Votações nominais da Câmara, no Plenário e nas comissões (arquivos anuais em CSV).
 
 Baixa quatro CSVs do ano (votações, votos, proposições votadas e orientações das
 bancadas) e grava todos num único .zip bruto, para que a carga seja uma transação só.
@@ -28,6 +28,7 @@ ARQUIVOS = {
     "votos.csv": BASE + "/votacoesVotos/csv/votacoesVotos-{ano}.csv",
     "proposicoes.csv": BASE + "/votacoesProposicoes/csv/votacoesProposicoes-{ano}.csv",
     "orientacoes.csv": BASE + "/votacoesOrientacoes/csv/votacoesOrientacoes-{ano}.csv",
+    "orgaos.csv": BASE + "/orgaos/csv/orgaos.csv",  # nome das comissões pela sigla
 }
 # Quando a votação cita mais de uma proposição, a matéria principal é a que não é
 # requerimento nem recurso sobre ela (ex.: "PL 364/2019" e "REC 5/2024").
@@ -104,17 +105,54 @@ def normalizar(conteudo: bytes) -> tuple[list[dict], list[dict], list[dict]]:
     return [v for k, v in plenario.items() if k in nominais], votos, orientacoes
 
 
+def normalizar_comissoes(conteudo: bytes) -> tuple[list[dict], list[dict]]:
+    """Votações nominais fora do Plenário (comissões e comissões especiais): (votações, votos)."""
+    with zipfile.ZipFile(io.BytesIO(conteudo)) as z:
+        nomes = {linha["sigla"]: linha["nome"] for linha in _csv(z, "orgaos.csv")}
+        comissoes = {
+            linha["id"]: {
+                "id_externo": linha["id"],
+                "orgao_sigla": linha["siglaOrgao"],
+                "orgao_nome": nomes.get(linha["siglaOrgao"]),
+                "data": date.fromisoformat(linha["data"][:10]),
+                "descricao": " ".join(linha["descricao"].split()),
+            }
+            for linha in _csv(z, "votacoes.csv")
+            if linha["siglaOrgao"] not in ("PLEN", "") and linha["data"]
+        }
+        votos = [
+            {
+                "id_externo_votacao": linha["idVotacao"],
+                "id_deputado": linha["deputado_id"],
+                "voto": linha["voto"],
+            }
+            for linha in _csv(z, "votos.csv")
+            if linha["idVotacao"] in comissoes
+        ]
+        nominais = {v["id_externo_votacao"] for v in votos}
+        for id_votacao, proposicao in _proposicoes_principais(z, nominais).items():
+            comissoes[id_votacao].update(proposicao)
+    return [v for k, v in comissoes.items() if k in nominais], votos
+
+
 def executar(ano: int, de_raw: Path | None = None) -> int:
     def carregar(session: Session, conteudo: bytes, ingestao: FonteIngestao) -> int:
         votacoes, votos, orientacoes = normalizar(conteudo)
         deputados = comum.mapa_parlamentares(session, CASA)
-        votos = [
-            {**v, "parlamentar_id": deputados[v["id_deputado"]]}
-            for v in votos
-            if v["id_deputado"] in deputados
-        ]
-        return vc.recarregar_votacoes(
-            session, CASA, ano, votacoes, votos, ingestao, orientacoes=orientacoes
+
+        def ligar(lista: list[dict]) -> list[dict]:
+            return [
+                {**v, "parlamentar_id": deputados[v["id_deputado"]]}
+                for v in lista
+                if v["id_deputado"] in deputados
+            ]
+
+        total = vc.recarregar_votacoes(
+            session, CASA, ano, votacoes, ligar(votos), ingestao, orientacoes=orientacoes
+        )
+        comissoes, votos_comissoes = normalizar_comissoes(conteudo)
+        return total + vc.recarregar_comissoes(
+            session, CASA, ano, comissoes, ligar(votos_comissoes), ingestao
         )
 
     return comum.executar_ingestao(

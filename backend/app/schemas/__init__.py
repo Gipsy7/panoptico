@@ -367,6 +367,34 @@ class VotoItem(BaseModel):
     url: str | None
 
 
+class VotoComissaoItem(BaseModel):
+    data: date
+    orgao_sigla: str
+    orgao_nome: str | None
+    descricao: str
+    proposicao: str | None
+    proposicao_ementa: str | None
+    voto: str
+    url: str | None
+
+
+class ComissaoResumo(BaseModel):
+    sigla: str
+    nome: str | None
+    votacoes: int
+
+
+class VotosComissoesResposta(BaseModel):
+    total: int
+    pagina: int
+    por_pagina: int
+    comissoes: list[ComissaoResumo]
+    itens: list[VotoComissaoItem]
+    fonte_nome: str
+    fonte_url: str
+    atualizado_em: datetime | None
+
+
 class VotosResposta(BaseModel):
     ano: int
     anos_disponiveis: list[int]

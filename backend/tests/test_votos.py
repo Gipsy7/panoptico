@@ -189,3 +189,34 @@ def test_rota_comparar(client, session):
 
     assert client.get(f"/comparar?a={a.id}&b={a.id}").status_code == 422
     assert client.get(f"/comparar?a={a.id}&b=999999").status_code == 404
+
+
+def test_votos_nas_comissoes_ficam_fora_do_plenario(client, session):
+    from datetime import date
+
+    from app.models import FonteIngestao, Parlamentar, Votacao
+    from ingestion import votacoes_comum as vc
+    from tests.test_api import _popular
+
+    _popular(session)
+    deputado = session.query(Parlamentar).filter_by(casa="camara").first()
+    ingestao = FonteIngestao(fonte="t", url="u", arquivo_raw="r")
+    session.add(ingestao)
+    session.flush()
+    votacoes = [
+        {"id_externo": "c1", "orgao_sigla": "CCJC", "orgao_nome": "Comissão de Constituição",
+         "data": date(2026, 3, 1), "descricao": "Aprovado o parecer"},
+    ]  # fmt: skip
+    votos = [{"id_externo_votacao": "c1", "parlamentar_id": deputado.id, "voto": "Sim"}]
+    assert vc.recarregar_comissoes(session, "camara", 2026, votacoes, votos, ingestao) == 1
+    # Ano sem votação nominal em comissão só limpa, sem erro.
+    assert vc.recarregar_comissoes(session, "camara", 2025, [], [], ingestao) == 0
+    session.flush()
+
+    corpo = client.get(f"/parlamentares/{deputado.id}/votos-comissoes").json()
+    assert corpo["total"] == 1
+    assert corpo["comissoes"] == [
+        {"sigla": "CCJC", "nome": "Comissão de Constituição", "votacoes": 1}
+    ]
+    assert corpo["itens"][0]["voto"] == "Sim"
+    assert session.query(Votacao).count() == 0  # o Plenário não foi tocado

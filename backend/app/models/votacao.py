@@ -56,3 +56,38 @@ class Orientacao(Base):
     )
     bancada: Mapped[str] = mapped_column(String(30), primary_key=True)
     orientacao: Mapped[str] = mapped_column(String(30))
+
+
+class VotacaoComissao(Base):
+    """Votação nominal numa comissão (Câmara ou Senado). Fica separada das do Plenário de
+    propósito: presença, alinhamento e convergência contam só o Plenário."""
+
+    __tablename__ = "votacao_comissao"
+    __table_args__ = (
+        UniqueConstraint("casa", "id_externo", name="uq_votacao_comissao_casa_id_externo"),
+        Index("ix_votacao_comissao_casa_data", "casa", "data"),
+    )
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    casa: Mapped[str] = mapped_column(String(10))
+    id_externo: Mapped[str] = mapped_column(String(30))
+    orgao_sigla: Mapped[str] = mapped_column(String(30))
+    orgao_nome: Mapped[str | None] = mapped_column(Text)
+    data: Mapped[date] = mapped_column(Date)
+    descricao: Mapped[str] = mapped_column(Text)
+    proposicao: Mapped[str | None] = mapped_column(String(40))
+    proposicao_id_externo: Mapped[str | None] = mapped_column(String(30))
+    proposicao_ementa: Mapped[str | None] = mapped_column(Text)
+    ingestao_id: Mapped[int | None] = mapped_column(ForeignKey("fonte_ingestao.id"))
+
+
+class VotoComissao(Base):
+    __tablename__ = "voto_comissao"
+
+    votacao_id: Mapped[int] = mapped_column(
+        ForeignKey("votacao_comissao.id", ondelete="CASCADE"), primary_key=True
+    )
+    parlamentar_id: Mapped[int] = mapped_column(
+        ForeignKey("parlamentar.id", ondelete="CASCADE"), primary_key=True, index=True
+    )
+    voto: Mapped[str] = mapped_column(String(60))

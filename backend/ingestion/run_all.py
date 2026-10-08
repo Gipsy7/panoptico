@@ -16,6 +16,7 @@ from ingestion.senado import proposicoes as proposicoes_senado
 from ingestion.senado import senadores
 from ingestion.senado import temas as temas_senado
 from ingestion.senado import votacoes as votacoes_senado
+from ingestion.senado import votacoes_comissoes as comissoes_senado
 from ingestion.transparencia import emendas
 
 
@@ -23,7 +24,13 @@ def _tarefas() -> list[tuple[str, Callable[[], int]]]:
     # Parlamentares primeiro: as demais cargas dependem deles.
     tarefas = [(deputados.FONTE, deputados.executar), (senadores.FONTE, senadores.executar)]
     for ano in comum.anos_padrao():
-        for modulo in (despesas_camara, despesas_senado, votacoes_camara, votacoes_senado):
+        for modulo in (
+            despesas_camara,
+            despesas_senado,
+            votacoes_camara,
+            votacoes_senado,
+            comissoes_senado,
+        ):
             tarefas.append((f"{modulo.FONTE} {ano}", lambda m=modulo, a=ano: m.executar(a)))
         tarefas.append((f"camara_proposicoes {ano}", lambda a=ano: proposicoes_camara.executar(a)))
     tarefas.append((proposicoes_senado.FONTE, proposicoes_senado.executar))

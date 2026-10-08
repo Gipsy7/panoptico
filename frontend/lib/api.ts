@@ -207,6 +207,32 @@ export function getEleito(id: string) {
   return getJson<EleitoDetalhe>(`/eleitos/${encodeURIComponent(id)}`);
 }
 
+export type VotosComissoes = {
+  total: number;
+  pagina: number;
+  por_pagina: number;
+  comissoes: { sigla: string; nome: string | null; votacoes: number }[];
+  itens: {
+    data: string;
+    orgao_sigla: string;
+    orgao_nome: string | null;
+    descricao: string;
+    proposicao: string | null;
+    proposicao_ementa: string | null;
+    voto: string;
+    url: string | null;
+  }[];
+  fonte_nome: string;
+  fonte_url: string;
+  atualizado_em: string | null;
+};
+
+export function getVotosComissoes(id: string, pagina?: string) {
+  const params = new URLSearchParams();
+  if (pagina) params.set("pagina", pagina);
+  return getJson<VotosComissoes>(`/parlamentares/${encodeURIComponent(id)}/votos-comissoes?${params}`);
+}
+
 export function getCandidatura(id: string) {
   return getJson<CandidaturaTse>(`/parlamentares/${encodeURIComponent(id)}/candidatura`);
 }

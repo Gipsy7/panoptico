@@ -7,6 +7,7 @@ import { Revelacao } from "@/components/revelacao";
 import { CompartilharWhatsApp } from "@/components/compartilhar";
 import { FonteRodape } from "@/components/fonte-rodape";
 import { CandidaturaSecao } from "@/components/candidatura-secao";
+import { ComissoesSecao } from "@/components/comissoes-secao";
 import { GastosSecao } from "@/components/gastos-secao";
 import { Foto } from "@/components/parlamentar-card";
 import { PresencaSecao } from "@/components/presenca-secao";
@@ -23,6 +24,7 @@ import {
   getProjetos,
   getTemas,
   getVotos,
+  getVotosComissoes,
 } from "@/lib/api";
 import { FONTE_CASA, NOME_CASA } from "@/lib/formato";
 
@@ -55,6 +57,7 @@ export default function ParlamentarPage({
             ano={texto(sp.ano)}
             tema={texto(sp.tema)}
             paginaVotos={texto(sp.pagina_votos)}
+            paginaComissoes={texto(sp.pagina_comissoes)}
           />
         );
       })}
@@ -67,13 +70,15 @@ async function Perfil({
   ano,
   tema,
   paginaVotos,
+  paginaComissoes,
 }: {
   id: string;
   ano?: string;
   tema?: string;
   paginaVotos?: string;
+  paginaComissoes?: string;
 }) {
-  const [resultado, gastos, projetos, presenca, temas, votos, candidatura] = await Promise.all([
+  const [resultado, gastos, projetos, presenca, temas, votos, candidatura, comissoes] = await Promise.all([
     getParlamentar(id),
     getGastos(id, ano),
     getProjetos(id),
@@ -81,6 +86,7 @@ async function Perfil({
     getTemas(id),
     getVotos(id, { ano, tema, pagina: paginaVotos }),
     getCandidatura(id),
+    getVotosComissoes(id, paginaComissoes),
   ]);
   if (!resultado.ok) {
     if (resultado.status === 404 || resultado.status === 422) notFound();
@@ -136,6 +142,8 @@ async function Perfil({
       {presenca.ok && <PresencaSecao presenca={presenca.dados} casa={p.casa} />}
 
       {votos.ok && <VotosSecao dados={votos.dados} casa={p.casa} parlamentarId={p.id} />}
+
+      {comissoes.ok && <ComissoesSecao dados={comissoes.dados} parlamentarId={p.id} />}
 
       {projetos.ok && <ProjetosSecao projetos={projetos.dados} casa={p.casa} />}
 
