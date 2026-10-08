@@ -229,3 +229,18 @@ def test_comparar_na_mesma_casa(client, session):
     assert (
         client.get("/comparar/local", params={"a": ids["Ana"], "b": ids["Ana"]}).status_code == 422
     )
+
+
+def test_casar_nome_em_niveis_e_so_quando_unico():
+    eleitos = [(1, "Alex de Madureira"), (2, "Dr Valdomiro Lopes"), (3, "Capitão Conte Lopes"),
+               (4, "Alex Santana"), (5, "Leo Siqueira"), (6, "Caruso")]  # fmt: skip
+    assert sapl.casar_nome(["Alex Madureira"], eleitos) == 1
+    assert sapl.casar_nome(["Valdomiro Lopes"], eleitos) == 2
+    assert sapl.casar_nome(["Conte Lopes"], eleitos) == 3
+    assert sapl.casar_nome(["Camilo Santana"], eleitos) is None  # sobrenome solto não basta
+    assert sapl.casar_nome(["Leonardo Siqueira"], eleitos) is None
+    assert sapl.casar_nome(["Jorge Caruso"], eleitos) is None  # uma palavra só não basta
+    # Ambíguo: "Lopes" e outra palavra em dois eleitos.
+    assert (
+        sapl.casar_nome(["Lopes Silva"], [(1, "Ana Lopes Silva"), (2, "Rui Lopes Silva")]) is None
+    )

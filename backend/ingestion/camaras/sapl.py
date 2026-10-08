@@ -187,6 +187,44 @@ def coletar_presenca(
     return resultado
 
 
+TITULOS = {"DR", "DRA", "PROF", "PROFA", "PROFESSOR", "PROFESSORA"}
+
+
+def _palavras(nome: str | None) -> list[str]:
+    """Palavras do nome sem partículas ("de", "do") e sem títulos ("Dr.", "Profª")."""
+    return [
+        p
+        for p in comum.chave_nome(nome).split()
+        if p.lower() not in comum.PARTICULAS and p not in TITULOS and len(p) > 1
+    ]
+
+
+def casar_nome(nomes: list[str | None], eleitos: list[tuple[int, str]]) -> int | None:
+    """Liga o parlamentar ao eleito do TSE pelo nome, em três níveis, e só quando a
+    correspondência é única em cada nível:
+    1. nome idêntico ("Catarina Guerra");
+    2. o mesmo sem partículas e títulos ("Alex Madureira" e "Alex de Madureira");
+    3. todas as palavras de um (ao menos duas) contidas no outro ("Valdomiro Lopes" e
+       "Dr Valdomiro Lopes"). Nunca por sobrenome solto ("Camilo Santana" não é "Alex
+       Santana")."""
+    regras = [
+        lambda a, b: comum.chave_nome(a) == comum.chave_nome(b),
+        lambda a, b: _palavras(a) == _palavras(b) and len(_palavras(a)) >= 2,
+        lambda a, b: (
+            min(len(_palavras(a)), len(_palavras(b))) >= 2
+            and (set(_palavras(a)) <= set(_palavras(b)) or set(_palavras(b)) <= set(_palavras(a)))
+        ),
+    ]
+    for regra in regras:
+        for nome in nomes:
+            if not nome:
+                continue
+            ids = {id_ for id_, eleito in eleitos if eleito and regra(nome, eleito)}
+            if len(ids) == 1:
+                return next(iter(ids))
+    return None
+
+
 def tipo_parlamentar(tipos: list[dict]) -> int:
     """Id do tipo de autor "Parlamentar". Costuma ser 1, mas cada instalação numera do seu
     jeito (na Assembleia de Roraima, 1 é "Bloco Parlamentar")."""
@@ -312,17 +350,10 @@ def gravar(session: Session, ibge: str | None, camara: dict, uf: str | None = No
             *filtro, Candidatura.situacao_turno.like("ELEITO%")
         )
     ).all()
-    por_nome: dict[str, set[int]] = {}
-    for id_, urna, civil in eleitos:
-        for nome in (urna, civil):
-            por_nome.setdefault(comum.chave_nome(nome), set()).add(id_)
+    nomes_eleitos = [(id_, nome) for id_, urna, civil in eleitos for nome in (urna, civil)]
 
     def candidatura(v: dict) -> int | None:
-        for nome in (v["nome"], v["nome_completo"]):
-            ids = por_nome.get(comum.chave_nome(nome), set())
-            if len(ids) == 1:
-                return next(iter(ids))
-        return None
+        return casar_nome([v["nome"], v["nome_completo"]], nomes_eleitos)
 
     session.execute(delete(MandatoLocal).where(anteriores))
     casa = "camara" if ibge else "assembleia"

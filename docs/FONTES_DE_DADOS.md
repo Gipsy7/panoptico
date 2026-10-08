@@ -176,6 +176,21 @@ Endpoints conferidos em 2026-10-06.
 - **Volume:** cerca de 120 requisições de proposições por carga e uma por mês fechado de cada deputado nos gastos; a carga leva uns 11 minutos.
 - **Frequência:** semanal, junto com as câmaras.
 
+## ALESP: Assembleia Legislativa de São Paulo
+
+- **Endereço:** arquivos em `https://www.al.sp.gov.br/repositorioDados/`, listados no catálogo `https://www.al.sp.gov.br/dados-abertos/` (cada recurso traz a URL do "arquivo completo"). Atualização diária.
+- **Arquivos usados:**
+  - `deputados/deputados.xml` (só quem está em exercício: `Situacao` = `EXE`);
+  - `processo_legislativo/proposituras.zip` (130 MB descompactado, desde 1996) e `documento_autor.zip` (145 MB);
+  - `processo_legislativo/naturezasSpl.xml` (código da natureza: 1 PL, 2 PLC, 3 PR, 4 PDL, 5 PEC, 6 moção, 7 requerimento, 8 requerimento de informação, 9 indicação);
+  - `deputados/despesas_gabinetes.xml` (164 MB, sem compactação, desde 2015).
+- **Armadilhas:**
+  - a autoria usa o `IdSPL` do deputado (casa 94 de 94); `IdDeputado` casa só em parte; os gastos usam a `Matricula`;
+  - a categoria do gasto vem com uma letra na frente ("A - COMBUSTÍVEIS E LUBRIFICANTES");
+  - a rota `/api/deputadoPresenca` citada no catálogo responde 404; a presença em Plenário só existe num formulário do site, e a página de votações em Plenário responde 403 a acesso automatizado;
+  - há presença e votações das **comissões** (`comissoes_permanentes_presencas.xml`, `comissoes_permanentes_votacoes.xml`, 65 MB), ainda não usadas.
+- **Frequência:** semanal, junto com as câmaras.
+
 ## Canais oficiais dos municípios (varredura do Panóptico)
 
 - **O que é:** varredura dos domínios oficiais de cada cidade: prefeitura em `{cidade}.{uf}.gov.br`; câmara em `{cidade}.{uf}.leg.br`, `camara{cidade}...` e `cm{cidade}...`; e os links do próprio site da prefeitura. Confere se a página é da cidade e reconhece o sistema (SAPL; fornecedores de transparência como Betha, IPM, CR2, Fiorilli e Elotech).

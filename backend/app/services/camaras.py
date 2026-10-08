@@ -25,7 +25,10 @@ FONTES = {
     "assembleia": ("sapl_assembleias", "Sistema legislativo da assembleia (SAPL)"),
 }
 # Assembleias com conector próprio (não usam o SAPL).
-FONTES_PROPRIAS = {"MG": ("almg", "Dados abertos da Assembleia de Minas Gerais (ALMG)")}
+FONTES_PROPRIAS = {
+    "MG": ("almg", "Dados abertos da Assembleia de Minas Gerais (ALMG)"),
+    "SP": ("alesp", "Dados abertos da Assembleia de São Paulo (ALESP)"),
+}
 
 
 def _fonte(casa: str, uf: str) -> tuple[str, str]:

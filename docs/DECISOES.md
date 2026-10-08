@@ -109,6 +109,14 @@ O subsídio é igual para deputados e senadores e é fixado por decreto legislat
 - **Bens:** valor como declarado, sem correção. A página avisa que bens costumam ser declarados pelo valor de compra. Sem palavras como "enriqueceu": mostramos os dois totais e o ano.
 - **2024:** o TSE passou a mascarar o CPF, então as candidaturas municipais de 2024 não se ligam aos parlamentares federais.
 
+## 2026-10-08: Assembleia de São Paulo (ALESP)
+
+- Conector pelos arquivos XML de dados abertos da ALESP (atualizados todo dia), nas mesmas tabelas das outras casas: os 94 deputados em exercício, projetos (PL, PLC, PR, PDL e PEC, com ementa) e moções, requerimentos e indicações (contagem), do ano atual e do anterior, e os gastos do gabinete somados por mês e categoria.
+- **Sem votos e sem presença em Plenário:** não estão nos dados abertos. O site da ALESP mostra a presença num formulário e recusa acesso automatizado à página de votações; não contornamos. O perfil diz que a assembleia não publica isso em dados abertos.
+- **Suplentes:** o arquivo não diz se o deputado é titular ou suplente; todos aparecem como no cargo.
+- **Ligação ao eleito do TSE (vale para todas as casas):** além do nome idêntico, aceita o mesmo nome sem partículas e títulos ("Alex Madureira" e "Alex de Madureira") e um nome de ao menos duas palavras contido no outro ("Valdomiro Lopes" e "Dr Valdomiro Lopes"), sempre só quando a correspondência é única. Sobrenome solto nunca basta. Na ALESP, a ligação passou de 76 para 87 dos 94 deputados.
+- Os arquivos grandes (até 164 MB) são baixados para o disco, lidos em fluxo e apagados.
+
 ## 2026-10-08: Assembleia de Minas Gerais (ALMG)
 
 - Conector próprio pela API de dados abertos da ALMG, gravando nas mesmas tabelas das outras casas: deputados em exercício, projetos (PL, PLC, PEC e projetos de resolução, com ementa) e requerimentos e indicações (contagem), do ano atual e do anterior.

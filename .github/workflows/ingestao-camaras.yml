@@ -109,3 +109,24 @@ jobs:
         run: uv sync --locked --no-dev
       - name: Assembleia de Minas Gerais (ALMG)
         run: uv run python -m ingestion.assembleias.almg
+
+  # Assembleia de São Paulo: arquivos XML de dados abertos (não usa o SAPL).
+  alesp:
+    needs: catalogo
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    defaults:
+      run:
+        working-directory: backend
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      PYTHONUNBUFFERED: "1"
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v10.2.0
+        with:
+          version: "0.12.23"
+      - name: Instalar dependências
+        run: uv sync --locked --no-dev
+      - name: Assembleia de São Paulo (ALESP)
+        run: uv run python -m ingestion.assembleias.alesp

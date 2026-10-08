@@ -94,7 +94,8 @@ export default function SobreAsFontesPage() {
           outros estados, por enquanto, aparece a lista de eleitos do TSE. Em Minas Gerais, os
           dados vêm da API aberta da própria assembleia (ALMG): deputados no cargo, projetos e
           gastos do gabinete (verba indenizatória, com a média da assembleia). A ALMG não publica
-          o voto de cada deputado nem a lista de presença.
+          o voto de cada deputado nem a lista de presença. Em São Paulo, o mesmo vem dos arquivos de
+          dados abertos da ALESP; votos e presença em Plenário não estão neles.
         </Item>
         <Item titulo="Contas da cidade">
           O que a prefeitura declarou ao Tesouro Nacional na Declaração de Contas Anuais
