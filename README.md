@@ -36,6 +36,7 @@ Os dados sobre o trabalho dos parlamentares já são públicos, mas estão espal
   - quem enviou;
   - para quais áreas (saúde, educação…);
   - quem recebeu, com o CNPJ.
+- **Canais oficiais da sua cidade**: sites da prefeitura e da câmara e os portais da transparência, num catálogo aberto (`data/canais_oficiais.csv`) que qualquer pessoa pode corrigir por pull request.
 - **Compartilhamento**: perfis e comparações têm imagem de pré-visualização e botão de WhatsApp.
 
 ## Princípios
@@ -105,6 +106,7 @@ flowchart LR
 | Projetos de lei e autores | Câmara e Senado | Arquivos anuais e API |
 | Emendas parlamentares e quem recebeu | [Portal da Transparência (CGU)](https://portaldatransparencia.gov.br/emendas) | Arquivo em lote |
 | Candidaturas (inclusive presidente, governadores e prefeitos), bens declarados e contas de campanha (2018, 2022 e 2024) | [Dados abertos do TSE](https://dadosabertos.tse.jus.br/) | Arquivos em lote, carga manual por eleição |
+| Sites oficiais dos municípios | Varredura dos domínios `.gov.br` e `.leg.br` de cada cidade | Catálogo versionado, revisado por PR |
 | Municípios | [IBGE](https://servicodados.ibge.gov.br/api/docs/localidades) | API REST |
 | CEP → cidade e estado | [ViaCEP](https://viacep.com.br/) | Consulta na hora, sem gravar |
 | Salário (subsídio) | [Decreto Legislativo nº 172/2022](https://www2.camara.leg.br/legin/fed/decleg/2022/decretolegislativo-172-21-dezembro-2022-793529-publicacaooriginal-166604-pl.html) | Transcrito no código |
@@ -242,7 +244,7 @@ Os testes do backend usam um banco `panoptico_test` (criado pelo `scripts/criar_
 
 ### Próximos passos
 
-- Atividade de vereadores e deputados estaduais (gastos e votos), câmara por câmara, começando pelas capitais
+- Atividade de vereadores e prefeituras a partir do catálogo de canais oficiais: um conector por sistema (SAPL nas câmaras, fornecedores de portal de transparência), mais SICONFI e Tribunais de Contas
 - Situação na Justiça só com fatos oficiais (cassações e indeferimentos no TSE, processos com número e status), sem nota ou "índice de confiabilidade"
 - Busca por nome que inclua vereadores e deputados estaduais
 - Teste com pessoas reais e auditoria de acessibilidade

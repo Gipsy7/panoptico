@@ -242,6 +242,12 @@ export function getExecutivo(uf: string, municipio?: string | null) {
   return getJson<Executivo>(`/executivo?${params}`);
 }
 
+export type Canal = { tipo: string; url: string; sistema: string | null; verificado_em: string | null };
+
+export function getCanais(ibge: string) {
+  return getJson<{ itens: Canal[] }>(`/municipios/${encodeURIComponent(ibge)}/canais`);
+}
+
 export function getVereadores(ibge: string) {
   return getJson<ListaEleitos>(`/municipios/${encodeURIComponent(ibge)}/vereadores`);
 }

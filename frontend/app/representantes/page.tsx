@@ -6,6 +6,7 @@ import { Revelacao } from "@/components/revelacao";
 import { CompartilharWhatsApp } from "@/components/compartilhar";
 import { FonteRodape } from "@/components/fonte-rodape";
 import { EmendasMunicipioSecao } from "@/components/emendas-municipio";
+import { CanaisSecao } from "@/components/canais-secao";
 import { EleitosSecao } from "@/components/eleitos-secao";
 import { ExecutivoSecao } from "@/components/executivo-secao";
 import { ParlamentarCard } from "@/components/parlamentar-card";
@@ -13,6 +14,7 @@ import {
   type EmendasMunicipio,
   type ParlamentarResumo,
   getDeputadosEstaduais,
+  getCanais,
   getExecutivo,
   getEmendasMunicipio,
   getVereadores,
@@ -61,12 +63,14 @@ async function Lista({ cep, uf, municipio }: Busca) {
   }
 
   const { localizacao, deputados, senadores, atualizado_em } = resultado.dados;
-  const [emendasResultado, vereadoresResultado, estaduaisResultado, executivoResultado] = await Promise.all([
+  const [emendasResultado, vereadoresResultado, estaduaisResultado, executivoResultado, canaisResultado] = await Promise.all([
     localizacao.codigo_ibge ? getEmendasMunicipio(localizacao.codigo_ibge) : null,
     localizacao.codigo_ibge ? getVereadores(localizacao.codigo_ibge) : null,
     getDeputadosEstaduais(localizacao.uf),
     getExecutivo(localizacao.uf, localizacao.codigo_ibge),
+    localizacao.codigo_ibge ? getCanais(localizacao.codigo_ibge) : null,
   ]);
+  const canais = canaisResultado?.ok ? canaisResultado.dados.itens : [];
   const executivo = executivoResultado.ok ? executivoResultado.dados : null;
   const vereadores = vereadoresResultado?.ok ? vereadoresResultado.dados : null;
   const estaduais = estaduaisResultado.ok ? estaduaisResultado.dados : null;
@@ -127,6 +131,8 @@ async function Lista({ cep, uf, municipio }: Busca) {
           dados={vereadores}
         />
       )}
+
+      {localizacao.municipio && <CanaisSecao canais={canais} cidade={localizacao.municipio} />}
 
       {estaduais && estaduais.itens.length > 0 && (
         <EleitosSecao

@@ -5,8 +5,8 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.db import get_session
-from app.models import Municipio
-from app.schemas import EmendasMunicipioResposta, MunicipioInfo
+from app.models import CanalOficial, Municipio
+from app.schemas import CanaisResposta, EmendasMunicipioResposta, MunicipioInfo
 from app.services import emendas
 
 router = APIRouter()
@@ -18,6 +18,21 @@ def emendas_do_municipio(ibge: str, session: Annotated[Session, Depends(get_sess
     if municipio is None:
         raise HTTPException(404, "Município não encontrado.")
     return emendas.resumo_municipio(session, municipio)
+
+
+ORDEM_CANAIS = ["prefeitura", "camara", "transparencia_prefeitura", "transparencia_camara"]
+
+
+@router.get("/municipios/{ibge}/canais", response_model=CanaisResposta)
+def canais_do_municipio(ibge: str, session: Annotated[Session, Depends(get_session)]) -> dict:
+    """Sites oficiais da cidade, do catálogo revisado (data/canais_oficiais.csv)."""
+    if session.get(Municipio, ibge) is None:
+        raise HTTPException(404, "Município não encontrado.")
+    canais = session.scalars(select(CanalOficial).where(CanalOficial.municipio_ibge == ibge)).all()
+    canais = sorted(
+        canais, key=lambda c: ORDEM_CANAIS.index(c.tipo) if c.tipo in ORDEM_CANAIS else 99
+    )
+    return {"itens": canais}
 
 
 @router.get("/municipios", response_model=list[MunicipioInfo])

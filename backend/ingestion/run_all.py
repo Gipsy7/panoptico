@@ -10,6 +10,7 @@ from ingestion.camara import despesas as despesas_camara
 from ingestion.camara import proposicoes as proposicoes_camara
 from ingestion.camara import temas as temas_camara
 from ingestion.camara import votacoes as votacoes_camara
+from ingestion.canais import catalogo as canais
 from ingestion.ibge import municipios
 from ingestion.senado import despesas as despesas_senado
 from ingestion.senado import proposicoes as proposicoes_senado
@@ -38,6 +39,7 @@ def _tarefas() -> list[tuple[str, Callable[[], int]]]:
     tarefas.append((temas_camara.FONTE, temas_camara.executar))
     tarefas.append((temas_senado.FONTE, temas_senado.executar))
     tarefas.append((municipios.FONTE, municipios.executar))
+    tarefas.append((canais.FONTE, canais.executar))  # catálogo versionado; não acessa sites
     tarefas.append((emendas.FONTE, emendas.executar))
     # Por último: consolida os números de cada parlamentar a partir do que foi carregado.
     tarefas.append((resumos.FONTE, resumos.executar))

@@ -1,4 +1,5 @@
 from app.models.base import Base
+from app.models.canal_oficial import CanalOficial
 from app.models.candidatura import BemDeclarado, CampanhaResumo, Candidatura, Foto, RedeSocial
 from app.models.despesa import Despesa
 from app.models.emenda import Emenda
@@ -15,6 +16,7 @@ __all__ = [
     "Autoria",
     "Base",
     "BemDeclarado",
+    "CanalOficial",
     "CampanhaResumo",
     "Candidatura",
     "Despesa",

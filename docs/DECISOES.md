@@ -109,6 +109,13 @@ O subsídio é igual para deputados e senadores e é fixado por decreto legislat
 - **Bens:** valor como declarado, sem correção. A página avisa que bens costumam ser declarados pelo valor de compra. Sem palavras como "enriqueceu": mostramos os dois totais e o ano.
 - **2024:** o TSE passou a mascarar o CPF, então as candidaturas municipais de 2024 não se ligam aos parlamentares federais.
 
+## 2026-10-08: canais oficiais dos municípios
+
+- Não existe lista nacional dos sites de prefeituras, câmaras e portais da transparência. Uma **varredura inicial** (`ingestion/canais/varredura.py`, workflow manual) testa os endereços padrão (`{cidade}.{uf}.gov.br`, `{cidade}.{uf}.leg.br`, `camara{cidade}...`), aproveita os links do próprio site da prefeitura, confere se a página é daquela cidade e reconhece o sistema usado (SAPL, fornecedores de transparência).
+- O resultado vira o **catálogo versionado** `data/canais_oficiais.csv`, revisado por pull request. As cargas seguintes vão direto aos endereços dele, sem varrer de novo. Qualquer pessoa pode corrigir uma cidade.
+- **Educação com os servidores:** uma requisição por vez por servidor, com pausa, e identificação do Panóptico. Muitas cidades dividem o mesmo servidor, que bloqueia rajadas (visto em SC, com resposta 444). Só domínios oficiais como ponto de partida; um site oficial pode redirecionar para outro domínio `.br`.
+- No teste com 40 cidades do RS: 33 prefeituras, 24 câmaras e 31 portais da transparência encontrados.
+
 ## 2026-10-08: fotos dos eleitos (TSE)
 
 - Os eleitos que só existem no TSE (vereadores, prefeitos, deputados estaduais, governadores, presidente) ganham a foto da candidatura. Ela vem dos zips de fotos do TSE por UF (`cdn.tse.jus.br/.../fotos/foto_cand{ano}_{UF}_div.zip`): a URL do DivulgaCandContas recusa acesso automático, o CDN de arquivos não.

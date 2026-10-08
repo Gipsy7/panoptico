@@ -311,6 +311,19 @@ class EmendaFavorecido(BaseModel):
     autores: list[EmendaAutorDoFavorecido]
 
 
+class CanalItem(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    tipo: str
+    url: str
+    sistema: str | None
+    verificado_em: date | None
+
+
+class CanaisResposta(BaseModel):
+    itens: list[CanalItem]
+
+
 class EmendasMunicipioResposta(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
