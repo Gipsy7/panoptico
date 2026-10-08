@@ -16,14 +16,26 @@ Os dados sobre o trabalho dos parlamentares já são públicos, mas estão espal
 
 ## O que dá para ver
 
-- **Seus representantes pelo CEP** (ou escolhendo estado e cidade): os 3 senadores e os deputados federais do seu estado.
-- **Perfil de cada parlamentar**, com os números principais no topo e os detalhes abaixo:
-  - **Gastos do gabinete** (cota parlamentar): total do ano, média da Casa, gastos por categoria e os maiores gastos, com link para a nota fiscal quando a fonte publica.
-  - **Presença em votações**: em quantas votações nominais do Plenário votou, contadas a partir do início do mandato atual, e as ausências justificadas quando a fonte informa.
-  - **Projetos de lei** desde 2023: separa autor principal de coautor e mostra os que viraram lei.
+- **Seus representantes pelo CEP** (ou escolhendo estado e cidade):
+  - os 3 senadores e os deputados federais do estado;
+  - os **deputados estaduais** eleitos;
+  - os **vereadores** eleitos da cidade.
+- **Perfil de cada parlamentar federal**, com os números principais no topo e os detalhes abaixo:
+  - **Gastos do gabinete** (cota parlamentar): total do ano, média da Casa, gastos por categoria e os maiores gastos. Quando não há nenhum reembolso, o site diz isso e explica as causas possíveis.
+  - **Presença em votações**: em quantas votações nominais do Plenário votou, desde o início do mandato atual.
+  - **Como votou**: cada votação do Plenário, por tema oficial, com a orientação do Governo e a maioria do partido ao lado.
+  - **Votos nas comissões**: as votações nominais de comissão de que participou.
+  - **Projetos de lei** desde 2023: autor principal e coautor, os que viraram lei e os temas.
+  - **Bens e campanha** (TSE): bens declarados na eleição mais recente, comparados com a anterior, e de onde veio e para onde foi o dinheiro da campanha que deu o mandato.
   - **Salário**: o subsídio, igual para todos, com a norma que o fixa.
-- **Dinheiro enviado para a sua cidade**: emendas parlamentares individuais pagas à prefeitura, aos fundos municipais e a entidades sem fins lucrativos do município, e quem enviou.
-- **Compartilhamento**: cada perfil tem imagem de pré-visualização e botão de WhatsApp.
+- **Perfil de vereadores e deputados estaduais**: dados do TSE (bens declarados e contas de campanha).
+- **Comparador**: dois parlamentares lado a lado, com números, votos em comum por tema e projetos assinados juntos.
+- **Lista de todos os parlamentares federais**, ordenável por um critério factual de cada vez (gastos, presença, projetos, emendas, alinhamento com o Governo). Não há nota nem ranking.
+- **Dinheiro enviado para a sua cidade**: emendas individuais pagas à prefeitura, aos fundos municipais e a entidades, com:
+  - quem enviou;
+  - para quais áreas (saúde, educação…);
+  - quem recebeu, com o CNPJ.
+- **Compartilhamento**: perfis e comparações têm imagem de pré-visualização e botão de WhatsApp.
 
 ## Princípios
 
@@ -77,7 +89,7 @@ flowchart LR
    - registra a execução em `fonte_ingestao` (de onde veio, quando, quantos registros, se deu certo).
 
    Uma falha numa fonte não impede as outras. Qualquer carga pode ser refeita a partir do bruto com `--de-raw`, sem rede.
-2. **Banco** (PostgreSQL): parlamentares, despesas, votações e votos, proposições e autorias, emendas e pagamentos, municípios. As migrações ficam em [backend/alembic/](backend/alembic/).
+2. **Banco** (PostgreSQL): parlamentares, despesas, votações e votos (Plenário e comissões), proposições, autorias e temas, emendas e pagamentos, municípios, e as candidaturas, os bens e as contas de campanha do TSE. As migrações ficam em [backend/alembic/](backend/alembic/).
 3. **API** ([backend/app/](backend/app/)): FastAPI, só leitura, com respostas que já trazem a fonte e a data de cada dado. Documentação interativa em `/docs`.
 4. **Site** ([frontend/](frontend/)): Next.js com renderização no servidor e carregamento em partes, para abrir rápido em conexão fraca. Pensado primeiro para o celular.
 
@@ -88,9 +100,10 @@ flowchart LR
 | Deputados federais em exercício | [Dados Abertos da Câmara](https://dadosabertos.camara.leg.br/) | API REST |
 | Senadores em exercício | [Dados Abertos do Senado](https://legis.senado.leg.br/dadosabertos/) | API REST |
 | Gastos do gabinete (CEAP / CEAPS) | Câmara e Senado | Arquivo anual (CSV) e API |
-| Votações nominais do Plenário | Câmara e Senado | Arquivos anuais e API |
+| Votações nominais (Plenário e comissões) e orientação do Governo | Câmara e Senado | Arquivos anuais e API |
 | Projetos de lei e autores | Câmara e Senado | Arquivos anuais e API |
 | Emendas parlamentares e quem recebeu | [Portal da Transparência (CGU)](https://portaldatransparencia.gov.br/emendas) | Arquivo em lote |
+| Candidaturas, bens declarados e contas de campanha (2018, 2022 e 2024) | [Dados abertos do TSE](https://dadosabertos.tse.jus.br/) | Arquivos em lote, carga manual por eleição |
 | Municípios | [IBGE](https://servicodados.ibge.gov.br/api/docs/localidades) | API REST |
 | CEP → cidade e estado | [ViaCEP](https://viacep.com.br/) | Consulta na hora, sem gravar |
 | Salário (subsídio) | [Decreto Legislativo nº 172/2022](https://www2.camara.leg.br/legin/fed/decleg/2022/decretolegislativo-172-21-dezembro-2022-793529-publicacaooriginal-166604-pl.html) | Transcrito no código |
@@ -104,7 +117,9 @@ O resumo está abaixo; o detalhe e o porquê de cada escolha estão em [docs/DEC
 - **Média da Casa**: média entre os parlamentares em exercício. Quem não gastou ou não apresentou nada entra com zero.
 - **Presença**: o período começa no início do ano ou do mandato atual, o que vier depois, para não comparar um suplente com votações de antes da posse. Quem preside a sessão conta como presente.
 - **Projetos**: PL, PLP, PEC e PDL desde fevereiro de 2023. O número principal conta só os projetos em que o parlamentar é o autor principal, porque PECs costumam ter dezenas de coautores.
-- **Emendas na cidade**: valores pagos a favorecidos da própria cidade (prefeitura, fundos municipais e entidades sem fins lucrativos). Bancos intermediários e empresas ficam de fora, porque ficam sediados numa cidade e executam em outra.
+- **Emendas na cidade**: valores pagos a favorecidos da própria cidade (prefeitura, fundos municipais e entidades sem fins lucrativos). Bancos intermediários e empresas ficam de fora, porque ficam sediados numa cidade e executam em outra. A área é a função orçamentária da emenda.
+- **Votos**: presença, alinhamento com o Governo e com a maioria do partido contam só o Plenário. As comissões aparecem como lista, sem percentual, porque cada parlamentar vota só nas comissões de que faz parte.
+- **TSE**: bens pelo valor declarado, sem correção. Os parlamentares federais são ligados às candidaturas pelo CPF, que nunca é exibido. Vereadores e deputados estaduais são os eleitos segundo o TSE; suplentes que assumiram depois não aparecem. Nomes de doadores pessoas físicas não são mostrados.
 
 ### Stack
 
@@ -226,9 +241,10 @@ Os testes do backend usam um banco `panoptico_test` (criado pelo `scripts/criar_
 
 ### Próximos passos
 
-- Vereadores e deputados estaduais, começando pelas capitais
-- Bens declarados e prestação de contas de campanha (TSE)
-- Processos e investigações, só com fonte oficial e curadoria
+- Atividade de vereadores e deputados estaduais (gastos e votos), câmara por câmara, começando pelas capitais
+- Situação na Justiça só com fatos oficiais (cassações e indeferimentos no TSE, processos com número e status), sem nota ou "índice de confiabilidade"
+- Busca por nome que inclua vereadores e deputados estaduais
+- Teste com pessoas reais e auditoria de acessibilidade
 
 ## Licença
 
