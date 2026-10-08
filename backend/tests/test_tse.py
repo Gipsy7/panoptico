@@ -6,7 +6,7 @@ from decimal import Decimal
 
 from sqlalchemy import insert, select, update
 
-from app.models import BemDeclarado, CampanhaResumo, Candidatura, Parlamentar
+from app.models import BemDeclarado, CampanhaResumo, Candidatura, Municipio, Parlamentar
 from ingestion.tse import bens, campanha, candidaturas, comum_tse
 from tests.test_api import _ingestao, _popular
 
@@ -136,3 +136,48 @@ def test_carga_bens_e_campanha_ligadas_pelo_cpf(client, session):
     assert corpo["bens"]["total"] == 750000.0 and corpo["bens"]["anterior"] is None
     # Governador não é o cargo do mandato de deputado: não há campanha "do mandato".
     assert corpo["campanha"] is None
+
+
+def test_eleito_local_so_eleitos_de_camaras_e_assembleias():
+    base = {"cargo": "VEREADOR", "situacao_turno": "ELEITO POR QP"}
+    assert candidaturas.eleito_local(base)
+    assert not candidaturas.eleito_local({**base, "situacao_turno": "SUPLENTE"})
+    assert not candidaturas.eleito_local({**base, "cargo": "PREFEITO"})
+    assert candidaturas.eleito_local({"cargo": "DEPUTADO DISTRITAL", "situacao_turno": "ELEITO"})
+
+
+def test_vereadores_e_estaduais_pela_api(client, session):
+    session.add_all(
+        [
+            Municipio(ibge="2405306", nome="Januário Cicco", uf="RN", nome_chave="JANUARIO CICCO"),
+            Municipio(ibge="4202404", nome="Blumenau", uf="SC", nome_chave="BLUMENAU"),
+        ]
+    )
+    session.flush()
+    registros = [
+        {"ano_eleicao": 2024, "sq_candidato": "1", "cargo": "VEREADOR", "uf": "RN", "unidade": "Boa Saúde",
+         "codigo_ue": "16970", "nome": "A", "nome_urna": "Ana", "partido": "PT", "numero": "13000",
+         "situacao_turno": "ELEITO POR QP", "situacao_candidatura": "APTO", "cpf": None},
+        {"ano_eleicao": 2024, "sq_candidato": "2", "cargo": "VEREADOR", "uf": "SC", "unidade": "Blumenau",
+         "codigo_ue": "80470", "nome": "B", "nome_urna": "Bruno", "partido": "PL", "numero": "22000",
+         "situacao_turno": "SUPLENTE", "situacao_candidatura": "APTO", "cpf": None},
+        {"ano_eleicao": 2024, "sq_candidato": "3", "cargo": "VEREADOR", "uf": "SC", "unidade": "Blumenau",
+         "codigo_ue": "80470", "nome": "C", "nome_urna": "Carla", "partido": "MDB", "numero": "15000",
+         "situacao_turno": "ELEITO POR MÉDIA", "situacao_candidatura": "APTO", "cpf": None},
+    ]  # fmt: skip
+    assert candidaturas.carregar_registros(session, registros, 2024, _ingestao(session).id) == 2
+    session.flush()
+
+    # "Boa Saúde" é o nome antigo de Januário Cicco no TSE.
+    assert [
+        v["nome_urna"] for v in client.get("/municipios/2405306/vereadores").json()["itens"]
+    ] == ["Ana"]
+    blumenau = client.get("/municipios/4202404/vereadores").json()
+    assert blumenau["ano_eleicao"] == 2024
+    assert [(v["nome_urna"], v["situacao"]) for v in blumenau["itens"]] == [
+        ("Carla", "Eleito pela média (sobra de vagas)")
+    ]
+    detalhe = client.get(f"/eleitos/{blumenau['itens'][0]['id']}").json()
+    assert (detalhe["cargo"], detalhe["unidade"], detalhe["bens"]) == ("Vereador", "Blumenau", None)
+    assert client.get("/estados/SC/deputados-estaduais").json()["itens"] == []
+    assert client.get("/estados/XX/deputados-estaduais").status_code == 404

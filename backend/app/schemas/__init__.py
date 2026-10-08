@@ -143,6 +143,36 @@ class CandidaturaResposta(BaseModel):
     atualizado_em: datetime | None
 
 
+class EleitoItem(BaseModel):
+    id: int
+    nome_urna: str
+    partido: str | None
+    numero: str | None
+    situacao: str | None
+    uf: str
+    parlamentar_id: int | None
+
+
+class ListaEleitos(BaseModel):
+    ano_eleicao: int | None
+    itens: list[EleitoItem]
+    fonte_nome: str
+    fonte_url: str
+    atualizado_em: datetime | None
+
+
+class EleitoDetalhe(EleitoItem):
+    cargo: str
+    unidade: str
+    municipio_ibge: str | None
+    ano_eleicao: int
+    bens: BensDeclarados | None
+    campanha: Campanha | None
+    fonte_nome: str
+    fonte_url: str
+    atualizado_em: datetime | None
+
+
 class ProjetoItem(BaseModel):
     sigla_tipo: str
     numero: int

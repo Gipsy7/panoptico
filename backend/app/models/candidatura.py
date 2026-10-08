@@ -27,6 +27,8 @@ class Candidatura(Base):
     __table_args__ = (
         UniqueConstraint("ano_eleicao", "sq_candidato"),
         Index("ix_candidatura_cpf", "cpf"),
+        Index("ix_candidatura_municipio_ibge", "municipio_ibge"),
+        Index("ix_candidatura_cargo_uf", "cargo", "uf"),
     )
 
     id: Mapped[int] = mapped_column(primary_key=True)

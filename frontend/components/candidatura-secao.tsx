@@ -5,7 +5,11 @@ import { formatarReais } from "@/lib/formato";
 const LIMITE_VISIVEL = 8;
 
 /** Bens declarados ao TSE e contas da campanha que deu o mandato atual. */
-export function CandidaturaSecao({ dados }: { dados: CandidaturaTse }) {
+export function CandidaturaSecao({
+  dados,
+}: {
+  dados: Pick<CandidaturaTse, "bens" | "campanha" | "fonte_nome" | "fonte_url" | "atualizado_em">;
+}) {
   const { bens, campanha } = dados;
   if (!bens && !campanha) return null;
 

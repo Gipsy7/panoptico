@@ -21,14 +21,21 @@ from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.orm import Session
 
 from app.db import SessionLocal
-from app.models import Candidatura, FonteIngestao, Parlamentar
+from app.models import Candidatura, FonteIngestao, Municipio, Parlamentar
 from ingestion import comum
+from ingestion.transparencia.emendas import resolver_municipios
 from ingestion.tse import comum_tse
 
 FONTE = "tse_candidaturas"
 URL = f"{comum_tse.BASE}/consulta_cand/consulta_cand_{{ano}}.zip"
 URL_DEPUTADO = "https://dadosabertos.camara.leg.br/api/v2/deputados/{id}"
 CARGOS_SENADO = {"SENADOR", "1º SUPLENTE", "2º SUPLENTE"}
+CARGOS_LOCAIS = {"VEREADOR", "DEPUTADO ESTADUAL", "DEPUTADO DISTRITAL"}
+# Nomes do TSE que diferem do IBGE além do que a comparação aproximada resolve.
+GRAFIAS_TSE = {
+    ("RN", "BOA SAUDE"): "Januário Cicco",
+    ("RR", "SAO LUIZ"): "São Luiz do Anauá",
+}
 
 
 def normalizar(linhas: Any) -> list[dict[str, Any]]:
@@ -125,33 +132,71 @@ def carregar_registros(
             select(Parlamentar.cpf, Parlamentar.id).where(Parlamentar.cpf.is_not(None))
         ).all()
     )
-    escolhidos = [
-        {
-            **{k: v for k, v in r.items() if k != "codigo_ue"},
-            "parlamentar_id": por_cpf[r["cpf"]],
-            "ingestao_id": ingestao_id,
-        }
-        for r in registros
-        if r["cpf"] in por_cpf
-    ]
+    escolhidos = [r for r in registros if r["cpf"] in por_cpf or eleito_local(r)]
     if not escolhidos:
         return 0
-    for inicio in range(0, len(escolhidos), 2000):
-        lote = escolhidos[inicio : inicio + 2000]
+    municipios = mapa_municipios(session, [r for r in escolhidos if r["cargo"] == "VEREADOR"])
+    linhas = [
+        {
+            **{k: v for k, v in r.items() if k != "codigo_ue"},
+            "municipio_ibge": municipios.get((r["uf"], r["codigo_ue"])),
+            "parlamentar_id": por_cpf.get(r["cpf"]) if r["cpf"] else None,
+            "ingestao_id": ingestao_id,
+        }
+        for r in escolhidos
+    ]
+    for inicio in range(0, len(linhas), 2000):
+        lote = linhas[inicio : inicio + 2000]
         stmt = insert(Candidatura).values(lote)
         colunas = {c: stmt.excluded[c] for c in lote[0] if c not in ("ano_eleicao", "sq_candidato")}
         session.execute(
             stmt.on_conflict_do_update(index_elements=["ano_eleicao", "sq_candidato"], set_=colunas)
         )
     # Candidaturas do ano que deixaram de ser de interesse (ex.: parlamentar saiu).
-    session.execute(
-        delete(Candidatura).where(
-            Candidatura.ano_eleicao == ano,
-            Candidatura.parlamentar_id.is_not(None),
-            Candidatura.sq_candidato.not_in([r["sq_candidato"] for r in escolhidos]),
+    novas = {r["sq_candidato"] for r in linhas}
+    existentes = session.scalars(
+        select(Candidatura.sq_candidato).where(Candidatura.ano_eleicao == ano)
+    ).all()
+    sobram = [sq for sq in existentes if sq not in novas]
+    for inicio in range(0, len(sobram), 5000):
+        session.execute(
+            delete(Candidatura).where(
+                Candidatura.ano_eleicao == ano,
+                Candidatura.sq_candidato.in_(sobram[inicio : inicio + 5000]),
+            )
         )
+    return len(linhas)
+
+
+def eleito_local(registro: dict[str, Any]) -> bool:
+    """Eleitos para câmara municipal ou assembleia (os suplentes ficam de fora: são dezenas
+    por vaga e o TSE não diz quem assumiu depois)."""
+    return registro["cargo"] in CARGOS_LOCAIS and (registro["situacao_turno"] or "").startswith(
+        "ELEITO"
     )
-    return len(escolhidos)
+
+
+def mapa_municipios(
+    session: Session, registros: list[dict[str, Any]]
+) -> dict[tuple[str, str], str]:
+    """(UF, código do TSE) -> código IBGE. O TSE usa um código próprio de município; a
+    ligação é pelo nome + UF, como nas emendas (mesmas grafias antigas)."""
+    unicos = {(r["uf"], r["codigo_ue"]): r["unidade"] for r in registros}
+    municipios = session.execute(select(Municipio.ibge, Municipio.uf, Municipio.nome_chave)).all()
+    resolvidos, fora = resolver_municipios(
+        [
+            {
+                "uf": uf,
+                "municipio_nome": GRAFIAS_TSE.get((uf, comum.chave_nome(nome)), nome),
+                "chave": (uf, codigo),
+            }
+            for (uf, codigo), nome in unicos.items()
+        ],
+        municipios,
+    )
+    if fora:
+        print(f"Aviso: {fora} municípios do TSE sem correspondência no IBGE")
+    return {r["chave"]: r["municipio_ibge"] for r in resolvidos}
 
 
 def executar(ano: int, de_raw: Path | None = None) -> int:

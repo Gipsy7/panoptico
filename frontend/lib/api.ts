@@ -169,6 +169,44 @@ export type CandidaturaTse = {
   atualizado_em: string | null;
 };
 
+export type Eleito = {
+  id: number;
+  nome_urna: string;
+  partido: string | null;
+  numero: string | null;
+  situacao: string | null;
+  uf: string;
+  parlamentar_id: number | null;
+};
+
+export type ListaEleitos = {
+  ano_eleicao: number | null;
+  itens: Eleito[];
+  fonte_nome: string;
+  fonte_url: string;
+  atualizado_em: string | null;
+};
+
+export type EleitoDetalhe = Eleito &
+  Pick<CandidaturaTse, "bens" | "campanha" | "fonte_nome" | "fonte_url" | "atualizado_em"> & {
+    cargo: string;
+    unidade: string;
+    municipio_ibge: string | null;
+    ano_eleicao: number;
+  };
+
+export function getVereadores(ibge: string) {
+  return getJson<ListaEleitos>(`/municipios/${encodeURIComponent(ibge)}/vereadores`);
+}
+
+export function getDeputadosEstaduais(uf: string) {
+  return getJson<ListaEleitos>(`/estados/${encodeURIComponent(uf)}/deputados-estaduais`);
+}
+
+export function getEleito(id: string) {
+  return getJson<EleitoDetalhe>(`/eleitos/${encodeURIComponent(id)}`);
+}
+
 export function getCandidatura(id: string) {
   return getJson<CandidaturaTse>(`/parlamentares/${encodeURIComponent(id)}/candidatura`);
 }

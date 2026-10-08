@@ -6,11 +6,14 @@ import { Revelacao } from "@/components/revelacao";
 import { CompartilharWhatsApp } from "@/components/compartilhar";
 import { FonteRodape } from "@/components/fonte-rodape";
 import { EmendasMunicipioSecao } from "@/components/emendas-municipio";
+import { EleitosSecao } from "@/components/eleitos-secao";
 import { ParlamentarCard } from "@/components/parlamentar-card";
 import {
   type EmendasMunicipio,
   type ParlamentarResumo,
+  getDeputadosEstaduais,
   getEmendasMunicipio,
+  getVereadores,
   getRepresentantes,
 } from "@/lib/api";
 import { formatarCep, formatarReais } from "@/lib/formato";
@@ -56,9 +59,13 @@ async function Lista({ cep, uf, municipio }: Busca) {
   }
 
   const { localizacao, deputados, senadores, atualizado_em } = resultado.dados;
-  const emendasResultado = localizacao.codigo_ibge
-    ? await getEmendasMunicipio(localizacao.codigo_ibge)
-    : null;
+  const [emendasResultado, vereadoresResultado, estaduaisResultado] = await Promise.all([
+    localizacao.codigo_ibge ? getEmendasMunicipio(localizacao.codigo_ibge) : null,
+    localizacao.codigo_ibge ? getVereadores(localizacao.codigo_ibge) : null,
+    getDeputadosEstaduais(localizacao.uf),
+  ]);
+  const vereadores = vereadoresResultado?.ok ? vereadoresResultado.dados : null;
+  const estaduais = estaduaisResultado.ok ? estaduaisResultado.dados : null;
   const emendas = emendasResultado?.ok ? emendasResultado.dados : null;
   const lugar = localizacao.municipio
     ? `${localizacao.municipio}/${localizacao.uf}`
@@ -103,6 +110,24 @@ async function Lista({ cep, uf, municipio }: Busca) {
       />
 
       {emendas && <EmendasMunicipioSecao dados={emendas} />}
+
+      {vereadores && vereadores.itens.length > 0 && (
+        <EleitosSecao
+          id="vereadores-titulo"
+          titulo={`Vereadores de ${localizacao.municipio}`}
+          explicacao={`Eleitos em ${vereadores.ano_eleicao} para a câmara municipal, segundo o TSE. Um suplente pode ter assumido alguma vaga depois.`}
+          dados={vereadores}
+        />
+      )}
+
+      {estaduais && estaduais.itens.length > 0 && (
+        <EleitosSecao
+          id="estaduais-titulo"
+          titulo={localizacao.uf === "DF" ? "Deputados distritais" : `Deputados estaduais de ${localizacao.estado}`}
+          explicacao={`Eleitos em ${estaduais.ano_eleicao} para a ${localizacao.uf === "DF" ? "Câmara Legislativa" : "Assembleia Legislativa"}, segundo o TSE. Quem hoje está em outro cargo aparece indicado.`}
+          dados={estaduais}
+        />
+      )}
 
       <Link
         href={`/parlamentares?uf=${localizacao.uf}`}

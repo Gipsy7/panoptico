@@ -66,6 +66,12 @@ export default function SobreAsFontesPage() {
           mandato atual: quanto arrecadou, de onde veio (fundo eleitoral e fundo partidário são
           dinheiro público) e com o que gastou. Não mostramos o nome de doadores pessoas físicas.
         </Item>
+        <Item titulo="Vereadores e deputados estaduais">
+          Os eleitos para a câmara municipal (eleição de 2024) e para a assembleia legislativa
+          (eleição de 2022), como publicado pelo TSE, com bens declarados e contas de campanha.
+          Suplentes que assumiram depois não aparecem. Gastos e votos de vereadores e deputados
+          estaduais ainda não estão no site.
+        </Item>
         <Item titulo="Como votou">
           Contam as votações nominais do Plenário em que o parlamentar deu voto (Sim, Não,
           Abstenção ou Obstrução). &quot;Votou como o Governo orientou&quot; usa a orientação da

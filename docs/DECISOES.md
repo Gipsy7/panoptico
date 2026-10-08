@@ -109,6 +109,14 @@ O subsídio é igual para deputados e senadores e é fixado por decreto legislat
 - **Bens:** valor como declarado, sem correção. A página avisa que bens costumam ser declarados pelo valor de compra. Sem palavras como "enriqueceu": mostramos os dois totais e o ano.
 - **2024:** o TSE passou a mascarar o CPF, então as candidaturas municipais de 2024 não se ligam aos parlamentares federais.
 
+## 2026-10-07: vereadores e deputados estaduais (TSE)
+
+- **Quem entra:** só os **eleitos** para câmaras municipais (2024) e assembleias (2022), segundo o resultado do TSE. Os suplentes ficam de fora: são dezenas por vaga, e o TSE não informa quem assumiu depois. A página avisa que um suplente pode estar no exercício.
+- **Quem hoje está em outro cargo:** um eleito deputado estadual que hoje é deputado federal (ligado pelo CPF) aparece na lista com "Hoje é deputado federal" e o link para o perfil federal.
+- **Município:** o TSE usa um código próprio de município. A ligação ao IBGE é por nome + UF, como nas emendas, mais uma pequena tabela de nomes que mudaram (Boa Saúde/RN virou Januário Cicco; São Luiz/RR é São Luiz do Anauá). Em 2024, todos os 5.545 municípios com vereadores eleitos casaram.
+- **Sem fotos:** o TSE não libera as fotos para uso automático, então os cartões mostram as iniciais.
+- **Atividade (gastos, votos):** fica para a etapa seguinte, câmara por câmara, porque cada uma publica de um jeito.
+
 ## 2026-10-07: emendas por área e por quem recebeu
 
 - **Área:** é a função orçamentária da emenda. O arquivo de pagamentos não traz a área, então ela vem do cadastro da emenda, pelo código.

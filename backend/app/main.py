@@ -1,7 +1,7 @@
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api import comparar, fontes, municipios, parlamentares, representantes, saude
+from app.api import comparar, eleitos, fontes, municipios, parlamentares, representantes, saude
 from app.config import settings
 
 app = FastAPI(
@@ -43,3 +43,4 @@ app.include_router(parlamentares.router)
 app.include_router(municipios.router)
 app.include_router(fontes.router)
 app.include_router(comparar.router)
+app.include_router(eleitos.router)

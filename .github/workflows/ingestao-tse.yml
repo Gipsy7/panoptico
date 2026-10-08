@@ -8,7 +8,7 @@ on:
       anos:
         description: "Anos de eleição, separados por espaço"
         type: string
-        default: "2018 2022"
+        default: "2018 2022 2024"
 
 concurrency:
   group: ingestao
