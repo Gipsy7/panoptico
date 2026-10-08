@@ -10,6 +10,8 @@ Os dados são anuais (entregues até abril do ano seguinte): a carga roda uma ve
 
 import argparse
 import re
+import time
+from collections import Counter
 from concurrent.futures import ThreadPoolExecutor
 from decimal import Decimal
 from pathlib import Path
@@ -28,17 +30,29 @@ URL = "https://apidatalake.tesouro.gov.br/ords/siconfi/tt/dca"
 FUNCAO = re.compile(r"^(\d{2}) - (.+)$")  # "10 - Saúde" (subfunções têm "10.301 - ...")
 
 
+STATUS: Counter = Counter()  # o que a API respondeu (diagnóstico no log)
+
+
 def _consultar(client: httpx.Client, ibge: str, ano: int, anexo: str) -> list[dict]:
-    try:
-        resposta = client.get(
-            URL,
-            params={"an_exercicio": ano, "no_anexo": anexo, "id_ente": ibge},
-            timeout=30,
-        )
-        resposta.raise_for_status()
-    except httpx.HTTPError:
-        return []
-    return resposta.json().get("items", [])
+    """Uma consulta. Se a API pedir calma (429), espera o que ela mandar e tenta de novo."""
+    for tentativa in range(4):
+        try:
+            resposta = client.get(
+                URL,
+                params={"an_exercicio": ano, "no_anexo": anexo, "id_ente": ibge},
+                timeout=30,
+            )
+        except httpx.HTTPError as erro:
+            STATUS[erro.__class__.__name__] += 1
+            return []
+        STATUS[resposta.status_code] += 1
+        if resposta.status_code == 429 and tentativa < 3:
+            time.sleep(float(resposta.headers.get("Retry-After") or 5 * (tentativa + 1)))
+            continue
+        if resposta.status_code != 200:
+            return []
+        return resposta.json().get("items", [])
+    return []
 
 
 def recortar(ibge: str, receitas: list[dict], despesas: list[dict]) -> dict[str, Any] | None:
@@ -88,7 +102,8 @@ def baixar(client: httpx.Client, ano: int, ibges: list[str]) -> list[dict]:
                 resultados.append(r)
             if i % 250 == 0:
                 print(
-                    f"  {ano}: {i} de {len(ibges)} consultados, {len(resultados)} com contas",
+                    f"  {ano}: {i} de {len(ibges)} consultados, {len(resultados)} com contas,"
+                    f" respostas {dict(STATUS)}",
                     flush=True,
                 )
     return resultados
