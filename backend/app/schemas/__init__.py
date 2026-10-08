@@ -161,6 +161,23 @@ class ListaEleitos(BaseModel):
     atualizado_em: datetime | None
 
 
+class Chapa(BaseModel):
+    cargo: str
+    unidade: str
+    ano_eleicao: int
+    titular: EleitoItem
+    vice: EleitoItem | None
+
+
+class Executivo(BaseModel):
+    presidente: Chapa | None
+    governador: Chapa | None
+    prefeito: Chapa | None
+    fonte_nome: str
+    fonte_url: str
+    atualizado_em: datetime | None
+
+
 class EleitoDetalhe(EleitoItem):
     cargo: str
     unidade: str

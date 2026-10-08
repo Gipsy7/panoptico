@@ -35,7 +35,11 @@ async function Perfil({ id }: { id: string }) {
     return <AvisoErro titulo="Não deu para carregar" mensagem={resultado.mensagem} />;
   }
   const e = resultado.dados;
-  const voltar = e.municipio_ibge ? `/representantes?municipio=${e.municipio_ibge}` : `/representantes?uf=${e.uf}`;
+  const voltar = e.municipio_ibge
+    ? `/representantes?municipio=${e.municipio_ibge}`
+    : e.uf === "BR"
+      ? "/"
+      : `/representantes?uf=${e.uf}`;
 
   return (
     <article className="flex flex-col gap-8">
@@ -57,9 +61,8 @@ async function Perfil({ id }: { id: string }) {
 
       <p className="nota text-sm text-muted-foreground">
         Por enquanto, mostramos o que o TSE publica sobre a eleição: bens declarados e contas de
-        campanha. Gastos e votos na {e.cargo === "Vereador" ? "câmara municipal" : "assembleia"}{" "}
-        ainda não estão no site. A lista é a dos eleitos; um suplente pode ter assumido a vaga
-        depois.
+        campanha. {atividade(e.cargo)} ainda não estão no site.
+        Mudanças depois da eleição (suplente que assumiu, renúncia, cassação) também não aparecem.
       </p>
 
       <CompartilharWhatsApp
@@ -74,8 +77,16 @@ async function Perfil({ id }: { id: string }) {
       )}
 
       <Link href={voltar} className="self-start text-sm underline underline-offset-4">
-        Ver os outros eleitos de {e.unidade}
+        {e.uf === "BR" ? "Voltar ao início" : `Ver os outros eleitos de ${e.unidade}`}
       </Link>
     </article>
   );
+}
+
+function atividade(cargo: string): string {
+  if (cargo === "Vereador") return "Gastos e votos na câmara municipal";
+  if (cargo.startsWith("Deputado")) return "Gastos e votos na assembleia";
+  if (cargo.includes("Prefeito")) return "Gastos e decisões da prefeitura";
+  if (cargo.includes("Governador")) return "Gastos e decisões do governo do estado";
+  return "Gastos e decisões do governo federal";
 }

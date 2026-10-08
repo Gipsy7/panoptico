@@ -23,6 +23,15 @@ CARGOS_DO_MANDATO = {
     "senado": {"SENADOR", "1º SUPLENTE", "2º SUPLENTE"},
 }
 CARGOS_ESTADUAIS = ("DEPUTADO ESTADUAL", "DEPUTADO DISTRITAL")
+CARGOS_EXECUTIVO = (
+    "PRESIDENTE",
+    "VICE-PRESIDENTE",
+    "GOVERNADOR",
+    "VICE-GOVERNADOR",
+    "PREFEITO",
+    "VICE-PREFEITO",
+)
+CARGOS_COM_PERFIL = ("VEREADOR", *CARGOS_ESTADUAIS, *CARGOS_EXECUTIVO)
 ITENS_DE_BENS = 30
 SITUACOES = {
     "ELEITO POR QP": "Eleito pelo quociente partidário",
@@ -146,43 +155,43 @@ def _eleito(c: Candidatura) -> dict:
     }
 
 
-def _lista(session: Session, *condicoes) -> list[dict]:
-    eleitos = session.scalars(
+def _lista(session: Session, *condicoes) -> tuple[int | None, list[dict]]:
+    """Eleitos da eleição mais recente que atende às condições. Guardamos eleições
+    anteriores (ex.: deputados estaduais de 2018), mas a lista mostra só o mandato atual."""
+    eleitos = Candidatura.situacao_turno.like("ELEITO%")
+    ano = session.scalar(select(func.max(Candidatura.ano_eleicao)).where(*condicoes, eleitos))
+    if ano is None:
+        return None, []
+    lista = session.scalars(
         select(Candidatura)
-        .where(*condicoes, Candidatura.situacao_turno.like("ELEITO%"))
+        .where(*condicoes, eleitos, Candidatura.ano_eleicao == ano)
         .order_by(Candidatura.nome_urna)
     ).all()
-    return [_eleito(c) for c in eleitos]
+    return ano, [_eleito(c) for c in lista]
 
 
-def vereadores(session: Session, municipio_ibge: str) -> dict:
-    itens = _lista(
-        session, Candidatura.cargo == "VEREADOR", Candidatura.municipio_ibge == municipio_ibge
-    )
-    ano = max(
-        session.scalars(
-            select(Candidatura.ano_eleicao).where(Candidatura.municipio_ibge == municipio_ibge)
-        ).all(),
-        default=None,
-    )
+def _resposta_lista(session: Session, ano: int | None, itens: list[dict], ano_padrao: int) -> dict:
     return {
         "ano_eleicao": ano,
         "itens": itens,
         "fonte_nome": FONTE_NOME,
-        "fonte_url": URL_CANDIDATOS.format(ano=ano or 2024),
+        "fonte_url": URL_CANDIDATOS.format(ano=ano or ano_padrao),
         "atualizado_em": _atualizado_em(session),
     }
+
+
+def vereadores(session: Session, municipio_ibge: str) -> dict:
+    ano, itens = _lista(
+        session, Candidatura.cargo == "VEREADOR", Candidatura.municipio_ibge == municipio_ibge
+    )
+    return _resposta_lista(session, ano, itens, 2024)
 
 
 def deputados_estaduais(session: Session, uf: str) -> dict:
-    itens = _lista(session, Candidatura.cargo.in_(CARGOS_ESTADUAIS), Candidatura.uf == uf.upper())
-    return {
-        "ano_eleicao": 2022,
-        "itens": itens,
-        "fonte_nome": FONTE_NOME,
-        "fonte_url": URL_CANDIDATOS.format(ano=2022),
-        "atualizado_em": _atualizado_em(session),
-    }
+    ano, itens = _lista(
+        session, Candidatura.cargo.in_(CARGOS_ESTADUAIS), Candidatura.uf == uf.upper()
+    )
+    return _resposta_lista(session, ano, itens, 2022)
 
 
 def eleito(session: Session, candidatura: Candidatura) -> dict:
@@ -195,6 +204,53 @@ def eleito(session: Session, candidatura: Candidatura) -> dict:
         "ano_eleicao": candidatura.ano_eleicao,
         "bens": _bens(session, candidatura, None) if _tem_bens(session, candidatura.id) else None,
         "campanha": _campanha(session, candidatura),
+        "fonte_nome": FONTE_NOME,
+        "fonte_url": FONTE_URL,
+        "atualizado_em": _atualizado_em(session),
+    }
+
+
+def _chapa(session: Session, titular: Candidatura | None) -> dict | None:
+    if titular is None:
+        return None
+    vice = session.scalars(
+        select(Candidatura).where(Candidatura.chapa_titular_id == titular.id)
+    ).first()
+    return {
+        "cargo": titular.cargo.capitalize(),
+        "unidade": titular.unidade,
+        "ano_eleicao": titular.ano_eleicao,
+        "titular": _eleito(titular),
+        "vice": _eleito(vice) if vice else None,
+    }
+
+
+def _eleito_para(session: Session, *condicoes) -> Candidatura | None:
+    return session.scalars(
+        select(Candidatura)
+        .where(*condicoes, Candidatura.situacao_turno == "ELEITO")
+        .order_by(Candidatura.ano_eleicao.desc())
+    ).first()
+
+
+def executivo(session: Session, uf: str, municipio_ibge: str | None) -> dict:
+    """Presidente, governador do estado e prefeito da cidade, cada um com o vice."""
+    return {
+        "presidente": _chapa(session, _eleito_para(session, Candidatura.cargo == "PRESIDENTE")),
+        "governador": _chapa(
+            session,
+            _eleito_para(session, Candidatura.cargo == "GOVERNADOR", Candidatura.uf == uf.upper()),
+        ),
+        "prefeito": _chapa(
+            session,
+            _eleito_para(
+                session,
+                Candidatura.cargo == "PREFEITO",
+                Candidatura.municipio_ibge == municipio_ibge,
+            ),
+        )
+        if municipio_ibge
+        else None,
         "fonte_nome": FONTE_NOME,
         "fonte_url": FONTE_URL,
         "atualizado_em": _atualizado_em(session),

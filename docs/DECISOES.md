@@ -109,6 +109,13 @@ O subsídio é igual para deputados e senadores e é fixado por decreto legislat
 - **Bens:** valor como declarado, sem correção. A página avisa que bens costumam ser declarados pelo valor de compra. Sem palavras como "enriqueceu": mostramos os dois totais e o ano.
 - **2024:** o TSE passou a mascarar o CPF, então as candidaturas municipais de 2024 não se ligam aos parlamentares federais.
 
+## 2026-10-08: Executivo (presidente, governadores, prefeitos)
+
+- Vêm do TSE, como os vereadores: os eleitos para presidente e governador (2022) e prefeito (2024), com o vice. O vice é ligado ao titular pela chapa: mesmo ano, mesma disputa (UF e unidade) e mesmo número.
+- Quem disputou o segundo turno fica com o resultado final.
+- A campanha aparece no titular. Nas eleições majoritárias, as contas são prestadas pela chapa.
+- Mudanças depois da eleição (renúncia, cassação, posse do vice) ainda não aparecem. A página avisa.
+
 ## 2026-10-07: votos nas comissões
 
 - Votações nominais de comissão ficam em tabelas próprias (`votacao_comissao`, `voto_comissao`), separadas do Plenário. **Presença, alinhamento com o Governo, maioria do partido e convergência continuam contando só o Plenário**, onde todos votam a mesma pauta. Nas comissões, cada parlamentar vota só nas que integra, então um percentual ou uma média enganariam.

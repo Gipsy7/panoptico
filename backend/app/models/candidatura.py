@@ -45,6 +45,10 @@ class Candidatura(Base):
     situacao_turno: Mapped[str | None] = mapped_column(String(40))  # ELEITO, SUPLENTE...
     situacao_candidatura: Mapped[str | None] = mapped_column(String(40))  # APTO, INAPTO...
     cpf: Mapped[str | None] = mapped_column(String(11))
+    # Para vices: a candidatura do titular da mesma chapa.
+    chapa_titular_id: Mapped[int | None] = mapped_column(
+        ForeignKey("candidatura.id", ondelete="SET NULL")
+    )
     parlamentar_id: Mapped[int | None] = mapped_column(
         ForeignKey("parlamentar.id", ondelete="SET NULL"), index=True
     )

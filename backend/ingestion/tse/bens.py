@@ -51,7 +51,11 @@ def executar(ano: int, de_raw: Path | None = None) -> int:
             return 0
         bens = normalizar(comum_tse.linhas(payload, "bem_candidato_"), candidaturas)
         session.execute(
-            delete(BemDeclarado).where(BemDeclarado.candidatura_id.in_(candidaturas.values()))
+            delete(BemDeclarado).where(
+                BemDeclarado.candidatura_id.in_(
+                    select(Candidatura.id).where(Candidatura.ano_eleicao == ano)
+                )
+            )
         )
         for inicio in range(0, len(bens), 5000):
             session.execute(insert(BemDeclarado), bens[inicio : inicio + 5000])

@@ -111,7 +111,11 @@ def executar(ano: int, de_raw: Path | None = None) -> int:
             candidaturas,
         )
         session.execute(
-            delete(CampanhaResumo).where(CampanhaResumo.candidatura_id.in_(candidaturas.values()))
+            delete(CampanhaResumo).where(
+                CampanhaResumo.candidatura_id.in_(
+                    select(Candidatura.id).where(Candidatura.ano_eleicao == ano)
+                )
+            )
         )
         if resumos:
             session.execute(insert(CampanhaResumo), resumos)

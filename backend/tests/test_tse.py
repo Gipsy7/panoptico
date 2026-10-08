@@ -138,11 +138,13 @@ def test_carga_bens_e_campanha_ligadas_pelo_cpf(client, session):
     assert corpo["campanha"] is None
 
 
-def test_eleito_local_so_eleitos_de_camaras_e_assembleias():
+def test_eleito_local_so_eleitos_de_camaras_assembleias_e_executivo():
     base = {"cargo": "VEREADOR", "situacao_turno": "ELEITO POR QP"}
     assert candidaturas.eleito_local(base)
     assert not candidaturas.eleito_local({**base, "situacao_turno": "SUPLENTE"})
-    assert not candidaturas.eleito_local({**base, "cargo": "PREFEITO"})
+    assert candidaturas.eleito_local({**base, "cargo": "PREFEITO", "situacao_turno": "ELEITO"})
+    # Senadores e deputados federais entram pelo CPF, não por esta regra.
+    assert not candidaturas.eleito_local({**base, "cargo": "SENADOR", "situacao_turno": "ELEITO"})
     assert candidaturas.eleito_local({"cargo": "DEPUTADO DISTRITAL", "situacao_turno": "ELEITO"})
 
 
@@ -181,3 +183,48 @@ def test_vereadores_e_estaduais_pela_api(client, session):
     assert (detalhe["cargo"], detalhe["unidade"], detalhe["bens"]) == ("Vereador", "Blumenau", None)
     assert client.get("/estados/SC/deputados-estaduais").json()["itens"] == []
     assert client.get("/estados/XX/deputados-estaduais").status_code == 404
+
+
+def test_executivo_liga_vice_ao_titular(client, session):
+    session.add(Municipio(ibge="4202404", nome="Blumenau", uf="SC", nome_chave="BLUMENAU"))
+    session.flush()
+    base = {"ano_eleicao": 2024, "uf": "SC", "unidade": "Blumenau", "codigo_ue": "80470",
+            "partido": "PL", "situacao_candidatura": "APTO", "cpf": None}  # fmt: skip
+    registros = [
+        {**base, "sq_candidato": "p1", "cargo": "PREFEITO", "nome": "P", "nome_urna": "Prefeito Eleito", "numero": "22", "situacao_turno": "ELEITO"},
+        {**base, "sq_candidato": "v1", "cargo": "VICE-PREFEITO", "nome": "V", "nome_urna": "Vice Eleita", "numero": "22", "situacao_turno": "ELEITO"},
+        {**base, "sq_candidato": "p2", "cargo": "PREFEITO", "nome": "Q", "nome_urna": "Outro", "numero": "13", "situacao_turno": "NÃO ELEITO"},
+    ]  # fmt: skip
+    assert candidaturas.carregar_registros(session, registros, 2024, _ingestao(session).id) == 2
+    session.flush()
+
+    corpo = client.get("/executivo?uf=SC&municipio=4202404").json()
+    assert corpo["prefeito"]["titular"]["nome_urna"] == "Prefeito Eleito"
+    assert corpo["prefeito"]["vice"]["nome_urna"] == "Vice Eleita"
+    assert corpo["presidente"] is None and corpo["governador"] is None
+    assert (
+        client.get(f"/eleitos/{corpo['prefeito']['vice']['id']}").json()["cargo"] == "Vice-prefeito"
+    )
+    assert client.get("/executivo?uf=XX").status_code == 404
+
+
+def test_lista_de_estaduais_mostra_so_a_eleicao_mais_recente(client, session):
+    base = {"cargo": "DEPUTADO ESTADUAL", "uf": "RR", "unidade": "Roraima", "codigo_ue": "RR",
+            "nome": "X", "partido": "PL", "numero": "22", "situacao_turno": "ELEITO POR QP",
+            "situacao_candidatura": "APTO", "cpf": None}  # fmt: skip
+    ingestao = _ingestao(session).id
+    candidaturas.carregar_registros(
+        session,
+        [{**base, "ano_eleicao": 2018, "sq_candidato": "a", "nome_urna": "Antigo"}],
+        2018,
+        ingestao,
+    )
+    candidaturas.carregar_registros(
+        session,
+        [{**base, "ano_eleicao": 2022, "sq_candidato": "b", "nome_urna": "Atual"}],
+        2022,
+        ingestao,
+    )
+    session.flush()
+    corpo = client.get("/estados/RR/deputados-estaduais").json()
+    assert (corpo["ano_eleicao"], [i["nome_urna"] for i in corpo["itens"]]) == (2022, ["Atual"])

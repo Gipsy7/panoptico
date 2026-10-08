@@ -18,7 +18,7 @@ from typing import Any
 import httpx
 from sqlalchemy import delete, select, update
 from sqlalchemy.dialects.postgresql import insert
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, aliased
 
 from app.db import SessionLocal
 from app.models import Candidatura, FonteIngestao, Municipio, Parlamentar
@@ -30,7 +30,25 @@ FONTE = "tse_candidaturas"
 URL = f"{comum_tse.BASE}/consulta_cand/consulta_cand_{{ano}}.zip"
 URL_DEPUTADO = "https://dadosabertos.camara.leg.br/api/v2/deputados/{id}"
 CARGOS_SENADO = {"SENADOR", "1º SUPLENTE", "2º SUPLENTE"}
-CARGOS_LOCAIS = {"VEREADOR", "DEPUTADO ESTADUAL", "DEPUTADO DISTRITAL"}
+# Eleitos guardados mesmo sem ligação a um parlamentar federal.
+CARGOS_ELEITOS = {
+    "VEREADOR",
+    "DEPUTADO ESTADUAL",
+    "DEPUTADO DISTRITAL",
+    "PRESIDENTE",
+    "VICE-PRESIDENTE",
+    "GOVERNADOR",
+    "VICE-GOVERNADOR",
+    "PREFEITO",
+    "VICE-PREFEITO",
+}
+CARGOS_MUNICIPAIS = {"VEREADOR", "PREFEITO", "VICE-PREFEITO"}
+# Vice -> titular da mesma chapa.
+TITULAR_DO_VICE = {
+    "VICE-PRESIDENTE": "PRESIDENTE",
+    "VICE-GOVERNADOR": "GOVERNADOR",
+    "VICE-PREFEITO": "PREFEITO",
+}
 # Nomes do TSE que diferem do IBGE além do que a comparação aproximada resolve.
 GRAFIAS_TSE = {
     ("RN", "BOA SAUDE"): "Januário Cicco",
@@ -135,7 +153,9 @@ def carregar_registros(
     escolhidos = [r for r in registros if r["cpf"] in por_cpf or eleito_local(r)]
     if not escolhidos:
         return 0
-    municipios = mapa_municipios(session, [r for r in escolhidos if r["cargo"] == "VEREADOR"])
+    municipios = mapa_municipios(
+        session, [r for r in escolhidos if r["cargo"] in CARGOS_MUNICIPAIS]
+    )
     linhas = [
         {
             **{k: v for k, v in r.items() if k != "codigo_ue"},
@@ -165,15 +185,36 @@ def carregar_registros(
                 Candidatura.sq_candidato.in_(sobram[inicio : inicio + 5000]),
             )
         )
+    ligar_chapas(session, ano)
     return len(linhas)
 
 
 def eleito_local(registro: dict[str, Any]) -> bool:
     """Eleitos para câmara municipal ou assembleia (os suplentes ficam de fora: são dezenas
     por vaga e o TSE não diz quem assumiu depois)."""
-    return registro["cargo"] in CARGOS_LOCAIS and (registro["situacao_turno"] or "").startswith(
+    return registro["cargo"] in CARGOS_ELEITOS and (registro["situacao_turno"] or "").startswith(
         "ELEITO"
     )
+
+
+def ligar_chapas(session: Session, ano: int) -> None:
+    """Liga cada vice ao titular da mesma chapa: mesmo ano, cargo correspondente, mesma
+    disputa (UF e unidade) e mesmo número."""
+    titular = aliased(Candidatura)
+    for vice, cargo_titular in TITULAR_DO_VICE.items():
+        session.execute(
+            update(Candidatura)
+            .where(
+                Candidatura.ano_eleicao == ano,
+                Candidatura.cargo == vice,
+                titular.ano_eleicao == ano,
+                titular.cargo == cargo_titular,
+                titular.uf == Candidatura.uf,
+                titular.unidade == Candidatura.unidade,
+                titular.numero == Candidatura.numero,
+            )
+            .values(chapa_titular_id=titular.id)
+        )
 
 
 def mapa_municipios(

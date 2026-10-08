@@ -17,6 +17,7 @@ Os dados sobre o trabalho dos parlamentares já são públicos, mas estão espal
 ## O que dá para ver
 
 - **Seus representantes pelo CEP** (ou escolhendo estado e cidade):
+  - o **presidente, o governador e o prefeito** eleitos, cada um com o vice;
   - os 3 senadores e os deputados federais do estado;
   - os **deputados estaduais** eleitos;
   - os **vereadores** eleitos da cidade.
@@ -28,7 +29,7 @@ Os dados sobre o trabalho dos parlamentares já são públicos, mas estão espal
   - **Projetos de lei** desde 2023: autor principal e coautor, os que viraram lei e os temas.
   - **Bens e campanha** (TSE): bens declarados na eleição mais recente, comparados com a anterior, e de onde veio e para onde foi o dinheiro da campanha que deu o mandato.
   - **Salário**: o subsídio, igual para todos, com a norma que o fixa.
-- **Perfil de vereadores e deputados estaduais**: dados do TSE (bens declarados e contas de campanha).
+- **Perfil de vereadores, deputados estaduais, prefeitos, governadores e presidente**: dados do TSE (bens declarados e contas de campanha).
 - **Comparador**: dois parlamentares lado a lado, com números, votos em comum por tema e projetos assinados juntos.
 - **Lista de todos os parlamentares federais**, ordenável por um critério factual de cada vez (gastos, presença, projetos, emendas, alinhamento com o Governo). Não há nota nem ranking.
 - **Dinheiro enviado para a sua cidade**: emendas individuais pagas à prefeitura, aos fundos municipais e a entidades, com:
@@ -103,7 +104,7 @@ flowchart LR
 | Votações nominais (Plenário e comissões) e orientação do Governo | Câmara e Senado | Arquivos anuais e API |
 | Projetos de lei e autores | Câmara e Senado | Arquivos anuais e API |
 | Emendas parlamentares e quem recebeu | [Portal da Transparência (CGU)](https://portaldatransparencia.gov.br/emendas) | Arquivo em lote |
-| Candidaturas, bens declarados e contas de campanha (2018, 2022 e 2024) | [Dados abertos do TSE](https://dadosabertos.tse.jus.br/) | Arquivos em lote, carga manual por eleição |
+| Candidaturas (inclusive presidente, governadores e prefeitos), bens declarados e contas de campanha (2018, 2022 e 2024) | [Dados abertos do TSE](https://dadosabertos.tse.jus.br/) | Arquivos em lote, carga manual por eleição |
 | Municípios | [IBGE](https://servicodados.ibge.gov.br/api/docs/localidades) | API REST |
 | CEP → cidade e estado | [ViaCEP](https://viacep.com.br/) | Consulta na hora, sem gravar |
 | Salário (subsídio) | [Decreto Legislativo nº 172/2022](https://www2.camara.leg.br/legin/fed/decleg/2022/decretolegislativo-172-21-dezembro-2022-793529-publicacaooriginal-166604-pl.html) | Transcrito no código |

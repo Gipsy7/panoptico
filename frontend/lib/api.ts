@@ -195,6 +195,29 @@ export type EleitoDetalhe = Eleito &
     ano_eleicao: number;
   };
 
+export type Chapa = {
+  cargo: string;
+  unidade: string;
+  ano_eleicao: number;
+  titular: Eleito;
+  vice: Eleito | null;
+};
+
+export type Executivo = {
+  presidente: Chapa | null;
+  governador: Chapa | null;
+  prefeito: Chapa | null;
+  fonte_nome: string;
+  fonte_url: string;
+  atualizado_em: string | null;
+};
+
+export function getExecutivo(uf: string, municipio?: string | null) {
+  const params = new URLSearchParams({ uf });
+  if (municipio) params.set("municipio", municipio);
+  return getJson<Executivo>(`/executivo?${params}`);
+}
+
 export function getVereadores(ibge: string) {
   return getJson<ListaEleitos>(`/municipios/${encodeURIComponent(ibge)}/vereadores`);
 }

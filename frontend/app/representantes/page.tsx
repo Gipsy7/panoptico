@@ -7,11 +7,13 @@ import { CompartilharWhatsApp } from "@/components/compartilhar";
 import { FonteRodape } from "@/components/fonte-rodape";
 import { EmendasMunicipioSecao } from "@/components/emendas-municipio";
 import { EleitosSecao } from "@/components/eleitos-secao";
+import { ExecutivoSecao } from "@/components/executivo-secao";
 import { ParlamentarCard } from "@/components/parlamentar-card";
 import {
   type EmendasMunicipio,
   type ParlamentarResumo,
   getDeputadosEstaduais,
+  getExecutivo,
   getEmendasMunicipio,
   getVereadores,
   getRepresentantes,
@@ -59,11 +61,13 @@ async function Lista({ cep, uf, municipio }: Busca) {
   }
 
   const { localizacao, deputados, senadores, atualizado_em } = resultado.dados;
-  const [emendasResultado, vereadoresResultado, estaduaisResultado] = await Promise.all([
+  const [emendasResultado, vereadoresResultado, estaduaisResultado, executivoResultado] = await Promise.all([
     localizacao.codigo_ibge ? getEmendasMunicipio(localizacao.codigo_ibge) : null,
     localizacao.codigo_ibge ? getVereadores(localizacao.codigo_ibge) : null,
     getDeputadosEstaduais(localizacao.uf),
+    getExecutivo(localizacao.uf, localizacao.codigo_ibge),
   ]);
+  const executivo = executivoResultado.ok ? executivoResultado.dados : null;
   const vereadores = vereadoresResultado?.ok ? vereadoresResultado.dados : null;
   const estaduais = estaduaisResultado.ok ? estaduaisResultado.dados : null;
   const emendas = emendasResultado?.ok ? emendasResultado.dados : null;
@@ -83,7 +87,7 @@ async function Lista({ cep, uf, municipio }: Busca) {
         </p>
         <h1 className="text-3xl tracking-tight">Você está em {lugar}</h1>
         <p className="text-muted-foreground">
-          Quem representa {localizacao.estado} no Congresso Nacional:
+          Quem governa e quem representa {lugar}, do Executivo à câmara municipal:
         </p>
       </div>
 
@@ -95,6 +99,10 @@ async function Lista({ cep, uf, municipio }: Busca) {
         }
         texto={`Veja quem representa ${lugar} no Congresso e quanto cada um enviou para a cidade:`}
       />
+
+      {executivo && (
+        <ExecutivoSecao dados={executivo} estado={localizacao.estado} cidade={localizacao.municipio} />
+      )}
 
       <Secao
         titulo="Senadores"
