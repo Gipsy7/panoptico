@@ -1,7 +1,7 @@
 # ruff: noqa: E501  (recortes de respostas reais do SAPL)
 from datetime import date
 
-from app.models import Candidatura, Municipio
+from app.models import Candidatura, Municipio, VotacaoLocal
 from ingestion.camaras import sapl
 from tests.test_api import _ingestao
 
@@ -86,10 +86,19 @@ def test_assembleia_liga_ao_deputado_estadual_da_ultima_eleicao(client, session)
         "vereadores": [
             {"id_externo": "7", "nome": "Catarina Guerra", "nome_completo": None, "partido": "UNIÃO",
              "foto_url": None, "email": None, "telefone": None, "titular": True, "em_exercicio": True,
-             "inicio": "2023-02-01", "fim": "2027-01-31", "proposicoes_por_tipo": {"Indicação": 37}, "projetos": []},
+             "inicio": "2023-02-01", "fim": "2027-01-31", "proposicoes_por_tipo": {"Indicação": 37}, "projetos": [],
+             "sessoes": 10, "presencas": 8},
+            {"id_externo": "8", "nome": "Outro Deputado", "nome_completo": None, "partido": "PL",
+             "foto_url": None, "email": None, "telefone": None, "titular": True, "em_exercicio": True,
+             "inicio": "2023-02-01", "fim": "2027-01-31", "proposicoes_por_tipo": {}, "projetos": [],
+             "sessoes": 10, "presencas": 6},
         ],
+        "votacoes": [{"id_externo": "107", "materia": "Veto nº 1 de 2025", "resultado": "Aprovado", "sim": 15,
+                      "nao": 0, "abstencoes": 0, "data": "2025-06-26", "materia_id": 17398}],
+        "votos": [{"votacao": "107", "parlamentar": "7", "voto": "Sim"},
+                  {"votacao": "107", "parlamentar": "8", "voto": "Não Votou"}],
     }  # fmt: skip
-    assert sapl.gravar(session, None, casa, uf="RR") == 1
+    assert sapl.gravar(session, None, casa, uf="RR") == 2
     session.flush()
     corpo = client.get("/estados/rr/assembleia").json()
     assert corpo["fonte_nome"] == "Sistema legislativo da assembleia (SAPL)"
@@ -104,4 +113,71 @@ def test_assembleia_liga_ao_deputado_estadual_da_ultima_eleicao(client, session)
         and detalhe["uf"] == "RR"
         and detalhe["municipio_ibge"] is None
     )
+    # Presença: 8 de 10; média da casa = (80% + 60%) / 2 = 70%.
+    assert detalhe["presenca"] == {"sessoes": 10, "presencas": 8, "media_casa": 70.0}
+    assert detalhe["votacoes"] == 1
+    votos = client.get(f"/vereadores/{item['id']}/votacoes").json()
+    assert votos["casa_registra"] and votos["total"] == 1 and votos["votou"] == 1
+    outro = corpo["itens"][1]
+    assert outro["votacoes"] == 0  # "Não Votou" não conta como voto
+    assert votos["itens"][0]["voto"] == "Sim"
+    assert votos["itens"][0]["url"] == "https://sapl.al.rr.leg.br/materia/17398"
+    # Regravar não duplica votações.
+    sapl.gravar(session, None, casa, uf="RR")
+    session.flush()
+    assert session.query(VotacaoLocal).count() == 1
     assert client.get("/estados/SP/assembleia").status_code == 404
+
+
+def test_ler_registro_de_votacao():
+    texto = "Ordem: Ordem do Dia/Expediente: 1 - Requerimento nº 62 de 2025 em 33ª Ordinária da 3ª Sessão Legislativa da 16ª Legislatura - Votação: Aprovado"
+    assert sapl.ler_registro(texto) == ("Requerimento nº 62 de 2025", "Aprovado")
+    assert sapl.ler_registro("sem padrão") == ("sem padrão", None)
+
+
+class _SaplFalso:
+    """Respostas recortadas da Assembleia do Acre, indexadas por rota e filtros."""
+
+    def __init__(self, respostas):
+        self.respostas = respostas
+
+    def todos(self, caminho, **params):
+        return self.respostas.get((caminho, tuple(sorted(params.items()))), [])
+
+
+def test_votacoes_e_presenca():
+    registro = {
+        "id": 107,
+        "__str__": "Ordem: Ordem do Dia/Expediente: 1 - Veto nº 1 de 2025 em 10ª Ordinária da 3ª Sessão Legislativa da 16ª Legislatura - Votação: Aprovado",
+        "numero_votos_sim": 15,
+        "numero_votos_nao": 0,
+        "numero_abstencoes": 0,
+        "data_hora": "2025-06-26T12:42:52-03:00",
+        "materia": 17398,
+    }
+    simbolica = {**registro, "id": 108}
+    falso = _SaplFalso({
+        ("sessao/registrovotacao/", (("data_hora__year", 2025),)): [registro, simbolica],
+        ("sessao/votoparlamentar/", (("data_hora__year", 2025),)): [
+            {"votacao": 107, "parlamentar": 248, "voto": "Sim"},
+            {"votacao": 107, "parlamentar": 999, "voto": "Não"},  # fora do cargo hoje
+        ],
+        ("sessao/sessaoplenaria/", (("data_inicio__year", 2025),)): [
+            {"id": 1, "data_inicio": "2025-02-03"}, {"id": 2, "data_inicio": "2025-05-03"},
+            {"id": 3, "data_inicio": "2025-08-03"}, {"id": 4, "data_inicio": "2025-09-03"},  # sem presença lançada
+        ],
+        ("sessao/sessaoplenariapresenca/", (("parlamentar", 248),)): [{"sessao_plenaria": 1}, {"sessao_plenaria": 2}, {"sessao_plenaria": 3}],
+        ("sessao/sessaoplenariapresenca/", (("parlamentar", 250),)): [{"sessao_plenaria": 3}],
+    })  # fmt: skip
+    resultado = sapl.coletar_votacoes(falso, {2025}, {248, 250})
+    assert [v["id_externo"] for v in resultado["votacoes"]] == ["107"]  # a simbólica não entra
+    assert resultado["votacoes"][0]["materia"] == "Veto nº 1 de 2025"
+    assert resultado["votos"] == [{"votacao": "107", "parlamentar": "248", "voto": "Sim"}]
+    # 250 assumiu em julho: só conta a sessão 3 (a 4 não tem presença lançada).
+    presenca = sapl.coletar_presenca(
+        falso, {2025}, date(2026, 1, 1), {248: (None, None), 250: ("2025-07-01", None)}
+    )
+    assert presenca == {248: (3, 3), 250: (1, 1)}
+    assert sapl.coletar_presenca(_SaplFalso({}), {2025}, date(2026, 1, 1), {248: (None, None)}) == {
+        248: (None, None)
+    }

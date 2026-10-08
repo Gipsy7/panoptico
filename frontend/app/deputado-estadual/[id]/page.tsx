@@ -13,11 +13,11 @@ export async function generateMetadata({ params }: PageProps<"/deputado-estadual
   return { title: v.nome, description: descricao, openGraph: { title: `${v.nome} · Deputado estadual`, description: descricao } };
 }
 
-export default function Pagina({ params }: PageProps<"/deputado-estadual/[id]">) {
+export default function Pagina({ params, searchParams }: PageProps<"/deputado-estadual/[id]">) {
   return (
     <Revelacao fallback={<p className="text-muted-foreground">Carregando…</p>}>
-      {params.then(({ id }) => (
-        <PerfilMandatoLocal id={id} />
+      {Promise.all([params, searchParams]).then(([{ id }, busca]) => (
+        <PerfilMandatoLocal id={id} paginaVotos={typeof busca.votos === "string" ? busca.votos : undefined} />
       ))}
     </Revelacao>
   );

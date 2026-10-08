@@ -3,7 +3,8 @@ import { formatarGastos, formatarReais } from "@/lib/formato";
 
 const PCT = new Intl.NumberFormat("pt-BR", { maximumFractionDigits: 0 });
 
-type Item = { rotulo: string; valor: string; detalhe: string; ancora: string };
+export type ItemResumo = { rotulo: string; valor: string; detalhe: string; ancora: string };
+type Item = ItemResumo;
 
 export function ResumoPerfil({
   gastos,
@@ -51,6 +52,12 @@ export function ResumoPerfil({
     ancora: "#remuneracao-titulo",
   });
 
+  return <ResumoNumeros itens={itens} />;
+}
+
+/** Os números-chave do topo do perfil, cada um levando à seção com o detalhe. */
+export function ResumoNumeros({ itens }: { itens: ItemResumo[] }) {
+  if (itens.length === 0) return null;
   return (
     <nav aria-label="Resumo do perfil">
       <ul className="grid grid-cols-2 gap-2 sm:grid-cols-4">

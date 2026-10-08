@@ -49,6 +49,11 @@ class MandatoLocal(Base):
     # Quantas proposições apresentou como autor no período guardado, por tipo
     # (requerimentos, indicações, moções...): só a contagem, sem guardar cada uma.
     proposicoes_por_tipo: Mapped[dict] = mapped_column(JSON, default=dict)
+    # Presença em sessões plenárias no período (ano atual e anterior), durante o mandato:
+    # sessões com alguma presença registrada e em quantas a pessoa estava. Nulo quando a
+    # casa não registra presença no SAPL.
+    sessoes: Mapped[int | None] = mapped_column(SmallInteger)
+    presencas: Mapped[int | None] = mapped_column(SmallInteger)
     candidatura_id: Mapped[int | None] = mapped_column(
         ForeignKey("candidatura.id", ondelete="SET NULL")
     )
@@ -79,3 +84,41 @@ class ProjetoLocal(Base):
     em_tramitacao: Mapped[bool | None]
     primeiro_autor: Mapped[bool] = mapped_column(Boolean, default=True)
     url: Mapped[str] = mapped_column(Text)
+
+
+class VotacaoLocal(Base):
+    """Votação nominal registrada no SAPL de uma câmara ou assembleia (ano atual e anterior).
+    Votações simbólicas não têm voto por parlamentar e não entram."""
+
+    __tablename__ = "votacao_local"
+    __table_args__ = (Index("ix_votacao_local_casa_uf_municipio", "casa", "uf", "municipio_ibge"),)
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    casa: Mapped[str] = mapped_column(String(12))
+    uf: Mapped[str] = mapped_column(String(2))
+    municipio_ibge: Mapped[str | None] = mapped_column(
+        ForeignKey("municipio.ibge", ondelete="CASCADE")
+    )
+    id_externo: Mapped[str] = mapped_column(String(20))  # registrovotacao no SAPL
+    materia: Mapped[str] = mapped_column(Text)  # "Requerimento nº 62 de 2025"
+    resultado: Mapped[str | None] = mapped_column(String(60))
+    sim: Mapped[int] = mapped_column(SmallInteger, default=0)
+    nao: Mapped[int] = mapped_column(SmallInteger, default=0)
+    abstencoes: Mapped[int] = mapped_column(SmallInteger, default=0)
+    data: Mapped[date | None] = mapped_column(Date)
+    url: Mapped[str | None] = mapped_column(Text)
+
+
+class VotoLocal(Base):
+    """Voto de um parlamentar no cargo hoje numa votação nominal da casa."""
+
+    __tablename__ = "voto_local"
+    __table_args__ = (Index("ix_voto_local_mandato", "mandato_id"),)
+
+    votacao_id: Mapped[int] = mapped_column(
+        ForeignKey("votacao_local.id", ondelete="CASCADE"), primary_key=True
+    )
+    mandato_id: Mapped[int] = mapped_column(
+        ForeignKey("mandato_local.id", ondelete="CASCADE"), primary_key=True
+    )
+    voto: Mapped[str] = mapped_column(String(30))  # "Sim", "Não", "Abstenção", "Não Votou"...

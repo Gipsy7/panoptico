@@ -318,6 +318,9 @@ class EmendaFavorecido(BaseModel):
 
 
 class VereadorItem(BaseModel):
+    sessoes: int | None
+    presencas: int | None
+    votacoes: int
     id: int
     nome: str
     partido: str | None
@@ -354,7 +357,37 @@ class ProjetoLocalItem(BaseModel):
     url: str
 
 
+class PresencaLocal(BaseModel):
+    sessoes: int
+    presencas: int
+    media_casa: float | None
+
+
+class VotoLocalItem(BaseModel):
+    data: date | None
+    materia: str
+    resultado: str | None
+    sim: int
+    nao: int
+    abstencoes: int
+    voto: str
+    url: str | None
+
+
+class VotacoesLocais(BaseModel):
+    casa_registra: bool
+    total: int  # votações em que aparece (inclusive "Não votou")
+    votou: int  # em quantas registrou voto
+    pagina: int
+    por_pagina: int
+    itens: list[VotoLocalItem]
+    fonte_nome: str
+    fonte_url: str
+    atualizado_em: datetime | None
+
+
 class VereadorDetalhe(VereadorItem):
+    presenca: PresencaLocal | None
     casa: str  # "camara" (vereador) ou "assembleia" (deputado estadual)
     uf: str
     municipio_ibge: str | None

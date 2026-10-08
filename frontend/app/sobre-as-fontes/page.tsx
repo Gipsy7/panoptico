@@ -83,7 +83,10 @@ export default function SobreAsFontesPage() {
           Nas câmaras que usam o SAPL (sistema legislativo do Interlegis), mostramos quem está no
           cargo agora, como a própria câmara publica: titulares e suplentes, partido atual,
           contato e projetos do ano atual e do anterior. Requerimentos, indicações e moções
-          aparecem só como contagem. Cada vereador é ligado ao eleito do TSE pelo nome.
+          aparecem só como contagem. Onde a câmara registra, também aparecem a presença nas
+          sessões (só as sessões com a lista de presença lançada, durante o mandato, com a média
+          da câmara) e o voto de cada um nas votações nominais; as votações simbólicas não anotam
+          o voto de cada um e não aparecem. Cada vereador é ligado ao eleito do TSE pelo nome.
         </Item>
         <Item titulo="Assembleia hoje">
           O mesmo para os deputados estaduais, nas nove assembleias que usam o SAPL (Acre,

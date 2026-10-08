@@ -147,12 +147,16 @@ Endpoints conferidos em 2026-10-06.
 - **Rotas usadas:**
   - `parlamentares/legislatura/`, `parlamentares/mandato/?legislatura={id}`, `parlamentares/parlamentar/{id}/`, `parlamentares/filiacao/` e `parlamentares/partido/`;
   - `base/tipoautor/` e `base/autor/?tipo={id do tipo "Parlamentar"}` (o id muda de uma instalação para outra);
-  - `materia/autoria/?autor={id}` e `materia/materialegislativa/{id}/`.
+  - `materia/autoria/?autor={id}` e `materia/materialegislativa/{id}/`;
+  - votações: `sessao/registrovotacao/?data_hora__year={ano}` (matéria, placar e resultado no `__str__`) e `sessao/votoparlamentar/?data_hora__year={ano}` (voto de cada parlamentar: "Sim", "Não", "Abstenção", "Não Votou");
+  - presença: `sessao/sessaoplenaria/?data_inicio__year={ano}` e `sessao/sessaoplenariapresenca/?parlamentar={id}`.
 - **Armadilhas:**
   - links de foto e de documento vêm com `http://` (forçamos `https`);
   - `materia/autoria/?materia__ano=` não filtra (devolve tudo); `?autor=` filtra;
   - o texto da autoria ("Requerimento nº 324 de 2026") já traz tipo e ano, o que evita baixar cada matéria;
-  - votações nominais existem, mas poucas câmaras registram.
+  - votações nominais: cerca de 60% das câmaras da amostra registram; as simbólicas não têm voto por parlamentar;
+  - na lista de presença, o filtro por ano da sessão (`sessao_plenaria__data_inicio__year`) é ignorado e devolve tudo; o filtro por parlamentar funciona;
+  - nem toda sessão tem a lista de presença lançada: contamos só as sessões com alguma presença registrada.
 - **Assembleias com SAPL** (levantamento das 27 casas em 2026-10-08): AC, AL, AM, MT, PB, PI, RO, RR e TO, em `https://sapl.al.{uf}.leg.br/`. As demais (AP, BA, CE, DF, ES, GO, MA, MG, MS, PA, PE, PR, RJ, RN, RS, SC, SE e SP) usam sistemas próprios; ALMG e ALESP têm dados abertos próprios, a examinar.
 - **Frequência:** semanal, um estado por máquina, uma requisição por vez em cada câmara; as assembleias numa máquina à parte.
 

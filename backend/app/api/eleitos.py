@@ -7,7 +7,14 @@ from sqlalchemy.orm import Session
 
 from app.db import get_session
 from app.models import Candidatura, MandatoLocal, Municipio
-from app.schemas import CamaraResposta, EleitoDetalhe, Executivo, ListaEleitos, VereadorDetalhe
+from app.schemas import (
+    CamaraResposta,
+    EleitoDetalhe,
+    Executivo,
+    ListaEleitos,
+    VereadorDetalhe,
+    VotacoesLocais,
+)
 from app.services import camaras, tse
 from app.services.representantes import UFS
 
@@ -88,3 +95,16 @@ def eleito(candidatura_id: int, session: Annotated[Session, Depends(get_session)
     if candidatura is None or candidatura.cargo not in tse.CARGOS_COM_PERFIL:
         raise HTTPException(404, "Eleito não encontrado.")
     return tse.eleito(session, candidatura)
+
+
+@router.get("/vereadores/{mandato_id}/votacoes", response_model=VotacoesLocais)
+def votacoes_do_vereador(
+    mandato_id: int,
+    session: Annotated[Session, Depends(get_session)],
+    pagina: Annotated[int, Query(ge=1)] = 1,
+) -> dict:
+    """Como votou nas votações nominais da câmara ou da assembleia (ano atual e anterior)."""
+    mandato = session.get(MandatoLocal, mandato_id)
+    if mandato is None:
+        raise HTTPException(404, "Vereador não encontrado.")
+    return camaras.votacoes(session, mandato, pagina)

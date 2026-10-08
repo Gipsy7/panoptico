@@ -75,13 +75,13 @@ CATALOGO = [
         "url": "https://transparencia.tce.sp.gov.br/conjunto-de-dados",
     },
     {
-        "dado": "Vereadores no cargo hoje e projetos (câmaras com SAPL)",
+        "dado": "Vereadores no cargo hoje, projetos, votações e presença (câmaras com SAPL)",
         "orgao": "Câmaras municipais (sistema SAPL do Interlegis)",
         "fontes": ["sapl_camaras"],
         "url": "https://www.interlegis.leg.br/",
     },
     {
-        "dado": "Deputados estaduais no cargo hoje e projetos (assembleias com SAPL)",
+        "dado": "Deputados estaduais no cargo, projetos, votos e presença (assembleias com SAPL)",
         "orgao": "Assembleias legislativas de AC, AL, AM, MT, PB, PI, RO, RR e TO (SAPL)",
         "fontes": ["sapl_assembleias"],
         "url": "https://www.interlegis.leg.br/",

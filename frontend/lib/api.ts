@@ -255,6 +255,11 @@ export type VereadorItem = {
   candidatura_id: number | null;
   proposicoes: number;
   projetos: number;
+  /** Sessões com presença registrada no período e em quantas estava (nulo se a casa não registra). */
+  sessoes: number | null;
+  presencas: number | null;
+  /** Votações nominais em que votou (ano atual e anterior). */
+  votacoes: number;
 };
 
 export type Camara = {
@@ -269,6 +274,7 @@ export type VereadorDetalhe = VereadorItem & {
   /** "camara" (vereador) ou "assembleia" (deputado estadual). */
   casa: "camara" | "assembleia";
   uf: string;
+  presenca: { sessoes: number; presencas: number; media_casa: number | null } | null;
   municipio_ibge: string | null;
   nome_completo: string | null;
   email: string | null;
@@ -294,6 +300,34 @@ export type VereadorDetalhe = VereadorItem & {
 
 export function getCamara(ibge: string) {
   return getJson<Camara>(`/municipios/${encodeURIComponent(ibge)}/camara`);
+}
+
+export type VotacoesLocais = {
+  casa_registra: boolean;
+  /** Votações em que aparece, inclusive como "Não votou". */
+  total: number;
+  /** Em quantas registrou voto. */
+  votou: number;
+  pagina: number;
+  por_pagina: number;
+  itens: {
+    data: string | null;
+    materia: string;
+    resultado: string | null;
+    sim: number;
+    nao: number;
+    abstencoes: number;
+    voto: string;
+    url: string | null;
+  }[];
+  fonte_nome: string;
+  fonte_url: string;
+  atualizado_em: string | null;
+};
+
+export function getVotacoesLocais(id: string, pagina?: string) {
+  const params = pagina ? `?pagina=${encodeURIComponent(pagina)}` : "";
+  return getJson<VotacoesLocais>(`/vereadores/${encodeURIComponent(id)}/votacoes${params}`);
 }
 
 export function getAssembleia(uf: string) {

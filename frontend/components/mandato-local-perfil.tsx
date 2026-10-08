@@ -1,17 +1,19 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
+import { PresencaLocalSecao, VotacoesLocaisSecao } from "@/components/atividade-local";
 import { AvisoErro } from "@/components/aviso-erro";
 import { FotoVereador } from "@/components/camara-secao";
 import { CandidaturaSecao } from "@/components/candidatura-secao";
 import { CompartilharWhatsApp } from "@/components/compartilhar";
 import { QuemESecao } from "@/components/dados-pessoais";
 import { FonteRodape } from "@/components/fonte-rodape";
-import { getEleito, getVereador } from "@/lib/api";
+import { type ItemResumo, ResumoNumeros } from "@/components/resumo-perfil";
+import { getEleito, getVereador, getVotacoesLocais } from "@/lib/api";
 import { formatarData } from "@/lib/formato";
 
 /** Perfil de quem está no cargo numa câmara ou assembleia, com os dados da própria casa. */
-export async function PerfilMandatoLocal({ id }: { id: string }) {
+export async function PerfilMandatoLocal({ id, paginaVotos }: { id: string; paginaVotos?: string }) {
   const resultado = await getVereador(id);
   if (!resultado.ok) {
     if (resultado.status === 404) notFound();
@@ -22,7 +24,30 @@ export async function PerfilMandatoLocal({ id }: { id: string }) {
   const cargo = camara ? "Vereador" : v.uf === "DF" ? "Deputado distrital" : "Deputado estadual";
   const nomeCasa = camara ? "câmara" : "assembleia";
   const rota = `/${camara ? "vereador" : "deputado-estadual"}/${v.id}`;
-  const eleicao = v.candidatura_id ? await getEleito(String(v.candidatura_id)) : null;
+  const [eleicao, votacoes] = await Promise.all([
+    v.candidatura_id ? getEleito(String(v.candidatura_id)) : null,
+    getVotacoesLocais(String(v.id), paginaVotos),
+  ]);
+  const resumo: ItemResumo[] = [
+    { rotulo: "Projetos", valor: String(v.projetos), detalhe: "ano atual e anterior", ancora: "#atuacao-titulo" },
+    { rotulo: "Proposições", valor: String(v.proposicoes), detalhe: "requerimentos, indicações…", ancora: "#atuacao-titulo" },
+  ];
+  if (v.presenca) {
+    resumo.push({
+      rotulo: "Presença nas sessões",
+      valor: `${v.presenca.presencas} de ${v.presenca.sessoes}`,
+      detalhe: v.presenca.media_casa !== null ? `Média: ${Math.round(v.presenca.media_casa)}%` : "sessões",
+      ancora: "#presenca-titulo",
+    });
+  }
+  if (votacoes.ok && votacoes.dados.casa_registra) {
+    resumo.push({
+      rotulo: "Votações nominais",
+      valor: `${votacoes.dados.votou} de ${votacoes.dados.total}`,
+      detalhe: "em que registrou voto",
+      ancora: "#votacoes-titulo",
+    });
+  }
 
   return (
     <article className="flex flex-col gap-8">
@@ -46,6 +71,8 @@ export async function PerfilMandatoLocal({ id }: { id: string }) {
         </div>
       </header>
 
+      <ResumoNumeros itens={resumo} />
+
       {eleicao?.ok && (
         <QuemESecao
           pessoais={eleicao.dados.pessoais}
@@ -58,10 +85,14 @@ export async function PerfilMandatoLocal({ id }: { id: string }) {
         texto={`Veja os projetos e as proposições de ${v.nome}, ${cargo.toLowerCase()}, com dados da própria ${nomeCasa}:`}
       />
 
+      <PresencaLocalSecao v={v} nomeCasa={nomeCasa} />
+
+      {votacoes.ok && <VotacoesLocaisSecao dados={votacoes.dados} nomeCasa={nomeCasa} caminho={rota} />}
+
       <section aria-labelledby="atuacao-titulo" className="revelar flex flex-col gap-4">
         <div>
           <h2 id="atuacao-titulo" className="text-2xl">
-            Na {nomeCasa}
+            Projetos e proposições
           </h2>
           <p className="text-xs text-muted-foreground">Ano atual e anterior, como a {nomeCasa} publica</p>
         </div>

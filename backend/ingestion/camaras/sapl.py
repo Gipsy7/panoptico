@@ -4,7 +4,9 @@ Um conector para todas: a API do SAPL é a mesma em cada câmara. Os endereços 
 catálogo versionado de canais oficiais (tipo "sapl"). Para cada câmara:
 1. a legislatura atual e os mandatos dela (titular ou suplente, datas);
 2. os dados de cada vereador (nome, foto, contato) e a filiação partidária atual;
-3. as autorias de cada vereador: o texto da autoria já diz o tipo e o ano ("Requerimento
+3. as votações nominais do ano atual e do anterior, com o voto de cada um, e a presença
+   nas sessões plenárias;
+4. as autorias de cada vereador: o texto da autoria já diz o tipo e o ano ("Requerimento
    nº 324 de 2026"), então requerimentos, indicações e moções viram só contagem; os
    projetos de lei (e afins) do ano atual e do anterior são guardados com a ementa.
 
@@ -25,7 +27,15 @@ from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.orm import Session
 
 from app.db import SessionLocal
-from app.models import Candidatura, FonteIngestao, MandatoLocal, Municipio, ProjetoLocal
+from app.models import (
+    Candidatura,
+    FonteIngestao,
+    MandatoLocal,
+    Municipio,
+    ProjetoLocal,
+    VotacaoLocal,
+    VotoLocal,
+)
 from ingestion import comum
 from ingestion.canais import catalogo
 
@@ -33,6 +43,9 @@ FONTE = "sapl_camaras"
 PAUSA = 0.4
 POR_PAGINA = 100
 AUTORIA = re.compile(r" - (?P<tipo>.+?) n\S*\s*(?P<numero>\d+)\s+de\s+(?P<ano>\d{4})\s*$", re.I)
+# "Ordem: Ordem do Dia/Expediente: 1 - Requerimento nº 62 de 2025 em 33ª Ordinária da 3ª
+# Sessão Legislativa da 16ª Legislatura - Votação: Aprovado"
+REGISTRO = re.compile(r" - (?P<materia>.+?) em \d+\S* .*?(?: - Votação: (?P<resultado>.+))?$")
 TIPOS_PROJETO = re.compile(
     r"projeto de lei|projeto de resolu|projeto de decreto|emenda (à|a) lei org|proposta de emenda",
     re.I,
@@ -88,6 +101,89 @@ def ler_autoria(texto: str) -> tuple[str, int, int] | None:
     if not achado:
         return None
     return achado.group("tipo").strip(), int(achado.group("numero")), int(achado.group("ano"))
+
+
+def ler_registro(texto: str) -> tuple[str, str | None]:
+    """Matéria e resultado a partir do texto do registro de votação."""
+    achado = REGISTRO.search(texto or "")
+    if not achado:
+        return (texto or "").strip()[:300], None
+    resultado = achado.group("resultado")
+    return achado.group("materia").strip(), resultado.strip() if resultado else None
+
+
+def _data(valor: str | None) -> str | None:
+    return valor[:10] if valor else None
+
+
+def coletar_votacoes(sapl: "Sapl", anos: set[int], parlamentares: set[int]) -> dict:
+    """Votações nominais do período e os votos de quem está no cargo hoje."""
+    registros = {}
+    for ano in sorted(anos):
+        for r in sapl.todos("sessao/registrovotacao/", data_hora__year=ano):
+            registros[r["id"]] = r
+    votos = []
+    if registros:
+        for ano in sorted(anos):
+            for v in sapl.todos("sessao/votoparlamentar/", data_hora__year=ano):
+                if v.get("votacao") in registros and v.get("parlamentar") in parlamentares:
+                    votos.append(
+                        {
+                            "votacao": str(v["votacao"]),
+                            "parlamentar": str(v["parlamentar"]),
+                            "voto": (v.get("voto") or "").strip()[:30],
+                        }
+                    )
+    com_voto = {v["votacao"] for v in votos}
+    votacoes = []
+    for id_, r in registros.items():
+        if str(id_) not in com_voto:  # votação simbólica: ninguém votou nominalmente
+            continue
+        materia, resultado = ler_registro(r.get("__str__", ""))
+        votacoes.append(
+            {
+                "id_externo": str(id_),
+                "materia": materia,
+                "resultado": resultado,
+                "sim": r.get("numero_votos_sim") or 0,
+                "nao": r.get("numero_votos_nao") or 0,
+                "abstencoes": r.get("numero_abstencoes") or 0,
+                "data": _data(r.get("data_hora")),
+                "materia_id": r.get("materia"),
+            }
+        )
+    return {"votacoes": votacoes, "votos": votos}
+
+
+def coletar_presenca(
+    sapl: "Sapl", anos: set[int], hoje: date, mandatos: dict[int, tuple[str | None, str | None]]
+) -> dict[int, tuple[int | None, int | None]]:
+    """Para cada parlamentar: (sessões no período durante o mandato, presenças). Contam só
+    as sessões com alguma presença registrada, porque nem toda sessão tem a lista lançada.
+    O filtro de ano da lista de presença é ignorado pela API; o de parlamentar funciona."""
+    datas = {}
+    for ano in sorted(anos):
+        for sessao in sapl.todos("sessao/sessaoplenaria/", data_inicio__year=ano):
+            if sessao.get("data_inicio") and sessao["data_inicio"] <= hoje.isoformat():
+                datas[sessao["id"]] = sessao["data_inicio"]
+    presentes: dict[int, set[int]] = {}
+    for parlamentar in mandatos:
+        presentes[parlamentar] = {
+            p["sessao_plenaria"]
+            for p in sapl.todos("sessao/sessaoplenariapresenca/", parlamentar=parlamentar)
+            if p.get("sessao_plenaria") in datas
+        }
+    registradas = set().union(*presentes.values()) if presentes else set()
+    if not registradas:
+        return {p: (None, None) for p in mandatos}
+    resultado = {}
+    for parlamentar, (inicio, fim) in mandatos.items():
+        no_mandato = {
+            s for s in registradas
+            if (not inicio or datas[s] >= inicio) and (not fim or datas[s] <= fim)
+        }  # fmt: skip
+        resultado[parlamentar] = (len(no_mandato), len(presentes[parlamentar] & no_mandato))
+    return resultado
 
 
 def tipo_parlamentar(tipos: list[dict]) -> int:
@@ -180,7 +276,14 @@ def coletar(base: str, hoje: date) -> dict | None:
                     "projetos": projetos,
                 }
             )
-    return {"base": base, "legislatura": legislatura, "vereadores": vereadores}
+        ids = {int(v["id_externo"]) for v in vereadores}
+        votacoes = coletar_votacoes(sapl, anos, ids)
+        presenca = coletar_presenca(
+            sapl, anos, hoje, {int(v["id_externo"]): (v["inicio"], v["fim"]) for v in vereadores}
+        )
+        for v in vereadores:
+            v["sessoes"], v["presencas"] = presenca[int(v["id_externo"])]
+    return {"base": base, "legislatura": legislatura, "vereadores": vereadores, **votacoes}
 
 
 def gravar(session: Session, ibge: str | None, camara: dict, uf: str | None = None) -> int:
@@ -221,6 +324,15 @@ def gravar(session: Session, ibge: str | None, camara: dict, uf: str | None = No
         return None
 
     session.execute(delete(MandatoLocal).where(anteriores))
+    casa = "camara" if ibge else "assembleia"
+    session.execute(
+        delete(VotacaoLocal).where(
+            VotacaoLocal.municipio_ibge == ibge
+            if ibge
+            else (VotacaoLocal.casa == "assembleia") & (VotacaoLocal.uf == uf)
+        )
+    )
+    mandato_por_parlamentar: dict[str, int] = {}
     for v in camara["vereadores"]:
         linha = {k: val for k, val in v.items() if k != "projetos"}
         for campo in ("inicio", "fim"):
@@ -229,7 +341,7 @@ def gravar(session: Session, ibge: str | None, camara: dict, uf: str | None = No
             insert(MandatoLocal)
             .values(
                 **linha,
-                casa="camara" if ibge else "assembleia",
+                casa=casa,
                 uf=uf,
                 municipio_ibge=ibge,
                 candidatura_id=candidatura(v),
@@ -237,6 +349,7 @@ def gravar(session: Session, ibge: str | None, camara: dict, uf: str | None = No
             )
             .returning(MandatoLocal.id)
         ).scalar_one()
+        mandato_por_parlamentar[v["id_externo"]] = mandato_id
         for p in v["projetos"]:
             session.execute(
                 insert(ProjetoLocal)
@@ -252,6 +365,32 @@ def gravar(session: Session, ibge: str | None, camara: dict, uf: str | None = No
                 )
                 .on_conflict_do_nothing()
             )
+    votacao_por_externo: dict[str, int] = {}
+    for votacao in camara.get("votacoes", []):
+        materia_id = votacao.get("materia_id")
+        votacao_por_externo[votacao["id_externo"]] = session.execute(
+            insert(VotacaoLocal)
+            .values(
+                **{k: v for k, v in votacao.items() if k not in ("materia_id", "data")},
+                data=date.fromisoformat(votacao["data"]) if votacao["data"] else None,
+                url=camara["base"].rstrip("/") + f"/materia/{materia_id}" if materia_id else None,
+                casa=casa,
+                uf=uf,
+                municipio_ibge=ibge,
+            )
+            .returning(VotacaoLocal.id)
+        ).scalar_one()
+    votos = [
+        {
+            "votacao_id": votacao_por_externo[v["votacao"]],
+            "mandato_id": mandato_por_parlamentar[v["parlamentar"]],
+            "voto": v["voto"],
+        }
+        for v in camara.get("votos", [])
+        if v["votacao"] in votacao_por_externo and v["parlamentar"] in mandato_por_parlamentar
+    ]
+    for inicio in range(0, len(votos), 5000):
+        session.execute(insert(VotoLocal).on_conflict_do_nothing(), votos[inicio : inicio + 5000])
     return len(camara["vereadores"])
 
 

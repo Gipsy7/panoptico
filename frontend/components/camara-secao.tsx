@@ -41,7 +41,13 @@ export function CamaraSecao({
                   {[v.partido, v.titular ? null : "suplente"].filter(Boolean).join(" · ")}
                 </p>
                 <p className="text-xs text-muted-foreground">
-                  {v.projetos} {v.projetos === 1 ? "projeto" : "projetos"} · {v.proposicoes} proposições
+                  {[
+                    `${v.projetos} ${v.projetos === 1 ? "projeto" : "projetos"}`,
+                    `${v.proposicoes} proposições`,
+                    v.sessoes ? `em ${v.presencas ?? 0} de ${v.sessoes} sessões` : null,
+                  ]
+                    .filter(Boolean)
+                    .join(" · ")}{" "}
                   (ano atual e anterior)
                 </p>
               </div>

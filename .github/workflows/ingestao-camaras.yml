@@ -63,11 +63,16 @@ jobs:
       - name: Câmaras com SAPL em ${{ matrix.uf }}
         run: uv run python -m ingestion.camaras.sapl --uf ${{ matrix.uf }}
 
-  # As assembleias legislativas que usam o SAPL (lista em ingestion/assembleias/sapl.py).
+  # As assembleias legislativas que usam o SAPL (lista em ingestion/assembleias/sapl.py),
+  # uma por máquina: as maiores têm milhares de votos e proposições.
   assembleias:
     needs: catalogo
     runs-on: ubuntu-latest
     timeout-minutes: 240
+    strategy:
+      fail-fast: false
+      matrix:
+        uf: ["AC", "AL", "AM", "MT", "PB", "PI", "RO", "RR", "TO"]
     defaults:
       run:
         working-directory: backend
@@ -81,5 +86,5 @@ jobs:
           version: "0.12.23"
       - name: Instalar dependências
         run: uv sync --locked --no-dev
-      - name: Assembleias com SAPL
-        run: uv run python -m ingestion.assembleias.sapl
+      - name: Assembleia de ${{ matrix.uf }} (SAPL)
+        run: uv run python -m ingestion.assembleias.sapl --uf ${{ matrix.uf }}

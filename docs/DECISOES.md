@@ -109,6 +109,15 @@ O subsídio é igual para deputados e senadores e é fixado por decreto legislat
 - **Bens:** valor como declarado, sem correção. A página avisa que bens costumam ser declarados pelo valor de compra. Sem palavras como "enriqueceu": mostramos os dois totais e o ano.
 - **2024:** o TSE passou a mascarar o CPF, então as candidaturas municipais de 2024 não se ligam aos parlamentares federais.
 
+## 2026-10-08: votações e presença nas câmaras e assembleias (SAPL)
+
+- **Só votações nominais.** Votações simbólicas não anotam o voto de cada um e não entram. Um registro de votação sem nenhum voto nominal é tratado como simbólico.
+- **"Não votou" não é voto.** O SAPL lista quem estava na votação e não votou ("Não Votou"). O perfil diz "registrou voto em X das Y votações nominais em que aparece na lista", e a contagem de votos não inclui essas linhas.
+- **Presença:** contam só as sessões plenárias com a lista de presença lançada no sistema (nem toda sessão tem), dentro do mandato de cada um (um suplente que assumiu em julho não é cobrado pelas sessões de março). Se a casa não lança presença no SAPL, o perfil diz isso em vez de mostrar zero.
+- **Média da casa:** média do percentual de presença entre quem está em exercício e teve sessão no período.
+- **Período:** ano atual e anterior, como os projetos. Só os votos de quem está no cargo hoje são guardados.
+- Numa amostra de 40 câmaras com SAPL, 24 registram votos nominais. Na Assembleia do Acre, a carga conferiu com a fonte: 709 votos (o total da API), 42 votações nominais e 160 sessões com presença.
+
 ## 2026-10-08: perfis com a mesma estrutura
 
 - Federais, estaduais, vereadores e Executivo seguem a mesma ordem: cabeçalho, números-chave, "Quem é" (dados declarados ao TSE e votos recebidos), atividade e, por fim, "Eleição" (bens e campanha). Antes, nos federais, os dados pessoais ficavam no fim da página, dentro de "Eleição", e pareciam não existir.
