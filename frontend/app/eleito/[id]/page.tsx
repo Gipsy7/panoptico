@@ -70,7 +70,19 @@ async function Perfil({ id }: { id: string }) {
         texto={`Veja os bens e a campanha de ${e.nome_urna} (${e.cargo.toLowerCase()}, ${e.unidade}), com dados oficiais do TSE:`}
       />
 
-      <CandidaturaSecao dados={e} />
+      {e.depois && (
+        <p className="text-sm">
+          Eleito depois para{" "}
+          <Link href={`/eleito/${e.depois.id}`} className="font-medium underline underline-offset-2">
+            {e.depois.cargo.toLowerCase()} de {e.depois.unidade}
+          </Link>{" "}
+          em {e.depois.ano}.
+        </p>
+      )}
+
+      <CandidaturaSecao
+        dados={{ ...e, votos: e.votos != null ? { ano: e.ano_eleicao, total: e.votos } : null }}
+      />
 
       {!e.bens && !e.campanha && (
         <p className="text-muted-foreground">O TSE não tem bens nem contas de campanha registrados para esta candidatura.</p>

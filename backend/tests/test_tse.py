@@ -228,3 +228,91 @@ def test_lista_de_estaduais_mostra_so_a_eleicao_mais_recente(client, session):
     session.flush()
     corpo = client.get("/estados/RR/deputados-estaduais").json()
     assert (corpo["ano_eleicao"], [i["nome_urna"] for i in corpo["itens"]]) == (2022, ["Atual"])
+
+
+def test_votos_somam_zonas_do_ultimo_turno():
+    from ingestion.tse import votos
+
+    linhas = [
+        {"SQ_CANDIDATO": "p", "NR_TURNO": "1", "QT_VOTOS_NOMINAIS_VALIDOS": "100"},
+        {"SQ_CANDIDATO": "p", "NR_TURNO": "1", "QT_VOTOS_NOMINAIS_VALIDOS": "50"},
+        {"SQ_CANDIDATO": "p", "NR_TURNO": "2", "QT_VOTOS_NOMINAIS_VALIDOS": "300"},
+        {"SQ_CANDIDATO": "v", "NR_TURNO": "1", "QT_VOTOS_NOMINAIS_VALIDOS": "7"},
+        {"SQ_CANDIDATO": "fora", "NR_TURNO": "1", "QT_VOTOS_NOMINAIS_VALIDOS": "9"},
+    ]
+    assert votos.somar(linhas, {"p", "v"}) == {"p": 300, "v": 7}
+
+
+def test_redes_so_enderecos_web_sem_repetir():
+    from ingestion.tse import redes
+
+    linhas = [
+        {"SQ_CANDIDATO": "1", "DS_URL": "https://instagram.com/fulano"},
+        {"SQ_CANDIDATO": "1", "DS_URL": "HTTPS://INSTAGRAM.COM/FULANO"},
+        {"SQ_CANDIDATO": "1", "DS_URL": "fulano@email.com"},
+        {"SQ_CANDIDATO": "2", "DS_URL": "https://site.com"},
+    ]
+    assert redes.normalizar(linhas, {"1": 10}) == [
+        {"candidatura_id": 10, "url": "https://instagram.com/fulano"}
+    ]
+
+
+def test_idade_e_titulo():
+    from datetime import date
+
+    from app.services import tse
+
+    assert tse._idade(date(1981, 9, 18), hoje=date(2026, 9, 17)) == 44
+    assert tse._idade(date(1981, 9, 18), hoje=date(2026, 9, 18)) == 45
+    assert comum_tse.titulo("030193680906") == "030193680906"
+    assert comum_tse.titulo("-4") is None
+    assert comum_tse.data("21/02/1959") == date(1959, 2, 21)
+
+
+def test_titulo_liga_candidatura_sem_cpf_ao_parlamentar(session):
+    _popular(session)
+    deputado = session.scalars(select(Parlamentar).where(Parlamentar.casa == "camara")).first()
+    session.execute(
+        update(Parlamentar).where(Parlamentar.id == deputado.id).values(cpf="11111111111")
+    )
+    ingestao = _ingestao(session).id
+    base = {"uf": "SC", "unidade": "SC", "codigo_ue": "SC", "nome": "X", "nome_urna": "X",
+            "partido": "PL", "numero": "2222", "situacao_candidatura": "APTO",
+            "titulo": "000011112222"}  # fmt: skip
+    candidaturas.carregar_registros(
+        session,
+        [
+            {
+                **base,
+                "ano_eleicao": 2022,
+                "sq_candidato": "f",
+                "cargo": "DEPUTADO FEDERAL",
+                "situacao_turno": "ELEITO POR QP",
+                "cpf": "11111111111",
+            }
+        ],
+        2022,
+        ingestao,
+    )
+    candidaturas.carregar_registros(
+        session,
+        [
+            {
+                **base,
+                "ano_eleicao": 2024,
+                "sq_candidato": "m",
+                "cargo": "PREFEITO",
+                "situacao_turno": "NÃO ELEITO",
+                "cpf": None,
+                "codigo_ue": "1",
+                "unidade": "Cidade",
+            }
+        ],
+        2024,
+        ingestao,
+    )
+    session.flush()
+    ligadas = session.scalars(
+        select(Candidatura.ano_eleicao).where(Candidatura.parlamentar_id == deputado.id)
+    ).all()
+    assert sorted(ligadas) == [2022, 2024]

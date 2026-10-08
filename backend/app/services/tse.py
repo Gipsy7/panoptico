@@ -4,13 +4,20 @@ Servem dois públicos: o perfil dos parlamentares federais (todas as candidatura
 pelo CPF) e os eleitos para câmaras municipais e assembleias, que só existem no TSE.
 """
 
-from datetime import datetime
+from datetime import date, datetime
 from decimal import Decimal
 
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
-from app.models import BemDeclarado, CampanhaResumo, Candidatura, FonteIngestao, Parlamentar
+from app.models import (
+    BemDeclarado,
+    CampanhaResumo,
+    Candidatura,
+    FonteIngestao,
+    Parlamentar,
+    RedeSocial,
+)
 
 FONTE_NOME = "Tribunal Superior Eleitoral (dados abertos)"
 FONTE_URL = "https://dadosabertos.tse.jus.br/"
@@ -137,13 +144,17 @@ def resumo(session: Session, parlamentar: Parlamentar) -> dict:
         if com_bens
         else None,
         "campanha": _campanha(session, do_mandato) if do_mandato else None,
+        "pessoais": _pessoais(session, list(candidaturas)),
+        "votos": {"ano": do_mandato.ano_eleicao, "total": do_mandato.votos}
+        if do_mandato and do_mandato.votos is not None
+        else None,
         "fonte_nome": FONTE_NOME,
         "fonte_url": FONTE_URL,
         "atualizado_em": _atualizado_em(session),
     }
 
 
-def _eleito(c: Candidatura) -> dict:
+def _eleito(c: Candidatura, depois: Candidatura | None = None) -> dict:
     return {
         "id": c.id,
         "nome_urna": c.nome_urna,
@@ -152,7 +163,75 @@ def _eleito(c: Candidatura) -> dict:
         "situacao": _situacao(c.situacao_turno),
         "uf": c.uf,
         "parlamentar_id": c.parlamentar_id,
+        "votos": c.votos,
+        # Eleito depois para outro cargo (ligado pelo título de eleitor), ex.: deputado
+        # estadual de 2022 eleito prefeito em 2024.
+        "depois": {
+            "id": depois.id,
+            "cargo": depois.cargo.capitalize(),
+            "unidade": depois.unidade,
+            "ano": depois.ano_eleicao,
+        }
+        if depois
+        else None,
     }
+
+
+def _idade(nascimento: date | None, hoje: date | None = None) -> int | None:
+    if nascimento is None:
+        return None
+    hoje = hoje or date.today()
+    return (
+        hoje.year - nascimento.year - ((hoje.month, hoje.day) < (nascimento.month, nascimento.day))
+    )
+
+
+def _texto(valor: str | None) -> str | None:
+    return valor.capitalize() if valor else None
+
+
+def _pessoais(session: Session, candidaturas: list[Candidatura]) -> dict | None:
+    """Dados pessoais declarados ao TSE na candidatura mais recente, e as redes informadas
+    em qualquer uma delas."""
+    if not candidaturas:
+        return None
+    c = candidaturas[0]
+    redes = session.scalars(
+        select(RedeSocial.url)
+        .where(RedeSocial.candidatura_id.in_([x.id for x in candidaturas]))
+        .distinct()
+    ).all()
+    return {
+        "ano": c.ano_eleicao,
+        "idade": _idade(c.data_nascimento),
+        "genero": _texto(c.genero),
+        "cor_raca": _texto(c.cor_raca),
+        "grau_instrucao": _texto(c.grau_instrucao),
+        "ocupacao": _texto(c.ocupacao),
+        "estado_civil": _texto(c.estado_civil),
+        "redes": sorted(redes),
+    }
+
+
+def _eleitos_depois(session: Session, candidaturas: list[Candidatura]) -> dict[int, Candidatura]:
+    """Para cada candidatura, a primeira eleição vencida depois dela pela mesma pessoa."""
+    por_titulo = {c.titulo: c for c in candidaturas if c.titulo}
+    if not por_titulo:
+        return {}
+    depois = session.scalars(
+        select(Candidatura)
+        .where(
+            Candidatura.titulo.in_(list(por_titulo)),
+            Candidatura.situacao_turno.like("ELEITO%"),
+        )
+        .order_by(Candidatura.ano_eleicao)
+    ).all()
+    resultado: dict[int, Candidatura] = {}
+    for d in depois:
+        origem = por_titulo[d.titulo]
+        if d.ano_eleicao > origem.ano_eleicao and origem.id not in resultado:
+            resultado[origem.id] = d
+    return resultado
 
 
 def _lista(session: Session, *condicoes) -> tuple[int | None, list[dict]]:
@@ -167,7 +246,8 @@ def _lista(session: Session, *condicoes) -> tuple[int | None, list[dict]]:
         .where(*condicoes, eleitos, Candidatura.ano_eleicao == ano)
         .order_by(Candidatura.nome_urna)
     ).all()
-    return ano, [_eleito(c) for c in lista]
+    depois = _eleitos_depois(session, list(lista))
+    return ano, [_eleito(c, depois.get(c.id)) for c in lista]
 
 
 def _resposta_lista(session: Session, ano: int | None, itens: list[dict], ano_padrao: int) -> dict:
@@ -197,7 +277,8 @@ def deputados_estaduais(session: Session, uf: str) -> dict:
 def eleito(session: Session, candidatura: Candidatura) -> dict:
     """Perfil de um eleito que só existe no TSE (vereador, deputado estadual)."""
     return {
-        **_eleito(candidatura),
+        **_eleito(candidatura, _eleitos_depois(session, [candidatura]).get(candidatura.id)),
+        "pessoais": _pessoais(session, [candidatura]),
         "cargo": candidatura.cargo.capitalize(),
         "unidade": candidatura.unidade,
         "municipio_ibge": candidatura.municipio_ibge,

@@ -81,6 +81,13 @@ def normalizar(linhas: Any) -> list[dict[str, Any]]:
                 "situacao_turno": comum_tse.texto(linha.get("DS_SIT_TOT_TURNO")),
                 "situacao_candidatura": comum_tse.texto(linha.get("DS_SITUACAO_CANDIDATURA")),
                 "cpf": comum_tse.cpf(linha.get("NR_CPF_CANDIDATO")),
+                "titulo": comum_tse.titulo(linha.get("NR_TITULO_ELEITORAL_CANDIDATO")),
+                "data_nascimento": comum_tse.data(linha.get("DT_NASCIMENTO")),
+                "genero": comum_tse.texto(linha.get("DS_GENERO")),
+                "cor_raca": comum_tse.texto(linha.get("DS_COR_RACA")),
+                "grau_instrucao": comum_tse.texto(linha.get("DS_GRAU_INSTRUCAO")),
+                "ocupacao": comum_tse.texto(linha.get("DS_OCUPACAO")),
+                "estado_civil": comum_tse.texto(linha.get("DS_ESTADO_CIVIL")),
             },
         )
     return [registro for _, registro in por_sq.values()]
@@ -150,7 +157,20 @@ def carregar_registros(
             select(Parlamentar.cpf, Parlamentar.id).where(Parlamentar.cpf.is_not(None))
         ).all()
     )
-    escolhidos = [r for r in registros if r["cpf"] in por_cpf or eleito_local(r)]
+    # Pelo título de eleitor, candidaturas sem CPF (2024) também se ligam ao parlamentar,
+    # desde que uma eleição anterior já tenha ligado aquele título a ele.
+    por_titulo = dict(
+        session.execute(
+            select(Candidatura.titulo, Candidatura.parlamentar_id)
+            .where(Candidatura.titulo.is_not(None), Candidatura.parlamentar_id.is_not(None))
+            .distinct()
+        ).all()
+    )
+
+    def parlamentar_de(r: dict[str, Any]) -> int | None:
+        return por_cpf.get(r["cpf"]) or por_titulo.get(r.get("titulo"))
+
+    escolhidos = [r for r in registros if parlamentar_de(r) or eleito_local(r)]
     if not escolhidos:
         return 0
     municipios = mapa_municipios(
@@ -160,7 +180,7 @@ def carregar_registros(
         {
             **{k: v for k, v in r.items() if k != "codigo_ue"},
             "municipio_ibge": municipios.get((r["uf"], r["codigo_ue"])),
-            "parlamentar_id": por_cpf.get(r["cpf"]) if r["cpf"] else None,
+            "parlamentar_id": parlamentar_de(r),
             "ingestao_id": ingestao_id,
         }
         for r in escolhidos

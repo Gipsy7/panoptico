@@ -1,3 +1,4 @@
+import { DadosPessoais } from "@/components/dados-pessoais";
 import { FonteRodape } from "@/components/fonte-rodape";
 import type { CandidaturaTse } from "@/lib/api";
 import { formatarReais } from "@/lib/formato";
@@ -8,21 +9,23 @@ const LIMITE_VISIVEL = 8;
 export function CandidaturaSecao({
   dados,
 }: {
-  dados: Pick<CandidaturaTse, "bens" | "campanha" | "fonte_nome" | "fonte_url" | "atualizado_em">;
+  dados: Pick<CandidaturaTse, "bens" | "campanha" | "fonte_nome" | "fonte_url" | "atualizado_em" | "pessoais" | "votos">;
 }) {
   const { bens, campanha } = dados;
-  if (!bens && !campanha) return null;
+  if (!bens && !campanha && !dados.pessoais) return null;
 
   return (
     <section aria-labelledby="tse-titulo" className="revelar flex flex-col gap-6">
       <div>
         <h2 id="tse-titulo" className="text-2xl">
-          Bens e campanha
+          Eleição
         </h2>
         <p className="text-xs text-muted-foreground">
           Declarados pelo próprio candidato à Justiça Eleitoral (TSE)
         </p>
       </div>
+
+      <DadosPessoais pessoais={dados.pessoais ?? null} votos={dados.votos} />
 
       {bens && (
         <div className="flex flex-col gap-3">

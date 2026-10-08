@@ -27,9 +27,9 @@ Os dados sobre o trabalho dos parlamentares já são públicos, mas estão espal
   - **Como votou**: cada votação do Plenário, por tema oficial, com a orientação do Governo e a maioria do partido ao lado.
   - **Votos nas comissões**: as votações nominais de comissão de que participou.
   - **Projetos de lei** desde 2023: autor principal e coautor, os que viraram lei e os temas.
-  - **Bens e campanha** (TSE): bens declarados na eleição mais recente, comparados com a anterior, e de onde veio e para onde foi o dinheiro da campanha que deu o mandato.
+  - **Eleição** (TSE): votos recebidos, idade, escolaridade, ocupação e redes declaradas, bens declarados na eleição mais recente comparados com a anterior, e de onde veio e para onde foi o dinheiro da campanha que deu o mandato.
   - **Salário**: o subsídio, igual para todos, com a norma que o fixa.
-- **Perfil de vereadores, deputados estaduais, prefeitos, governadores e presidente**: dados do TSE (bens declarados e contas de campanha).
+- **Perfil de vereadores, deputados estaduais, prefeitos, governadores e presidente**: dados do TSE (votos recebidos, dados pessoais declarados, redes sociais, bens e contas de campanha), e quando a pessoa foi eleita depois para outro cargo.
 - **Comparador**: dois parlamentares lado a lado, com números, votos em comum por tema e projetos assinados juntos.
 - **Lista de todos os parlamentares federais**, ordenável por um critério factual de cada vez (gastos, presença, projetos, emendas, alinhamento com o Governo). Não há nota nem ranking.
 - **Dinheiro enviado para a sua cidade**: emendas individuais pagas à prefeitura, aos fundos municipais e a entidades, com:
@@ -120,7 +120,7 @@ O resumo está abaixo; o detalhe e o porquê de cada escolha estão em [docs/DEC
 - **Projetos**: PL, PLP, PEC e PDL desde fevereiro de 2023. O número principal conta só os projetos em que o parlamentar é o autor principal, porque PECs costumam ter dezenas de coautores.
 - **Emendas na cidade**: valores pagos a favorecidos da própria cidade (prefeitura, fundos municipais e entidades sem fins lucrativos). Bancos intermediários e empresas ficam de fora, porque ficam sediados numa cidade e executam em outra. A área é a função orçamentária da emenda.
 - **Votos**: presença, alinhamento com o Governo e com a maioria do partido contam só o Plenário. As comissões aparecem como lista, sem percentual, porque cada parlamentar vota só nas comissões de que faz parte.
-- **TSE**: bens pelo valor declarado, sem correção. Os parlamentares federais são ligados às candidaturas pelo CPF, que nunca é exibido. Vereadores e deputados estaduais são os eleitos segundo o TSE; suplentes que assumiram depois não aparecem. Nomes de doadores pessoas físicas não são mostrados.
+- **TSE**: bens pelo valor declarado, sem correção. Os parlamentares federais são ligados às candidaturas pelo CPF e pelo título de eleitor (em 2024 o TSE mascarou o CPF), que nunca são exibidos. Vereadores e deputados estaduais são os eleitos segundo o TSE; suplentes que assumiram depois não aparecem. Nomes de doadores pessoas físicas não são mostrados.
 
 ### Stack
 

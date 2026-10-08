@@ -52,8 +52,17 @@ function CartaoEleito({ eleito }: { eleito: Eleito }) {
         <p className="text-sm text-muted-foreground">
           {[eleito.partido, eleito.uf].filter(Boolean).join(" · ")}
         </p>
-        {eleito.parlamentar_id && (
+        {eleito.votos != null && (
+          <p className="text-xs text-muted-foreground">{eleito.votos.toLocaleString("pt-BR")} votos</p>
+        )}
+        {eleito.parlamentar_id ? (
           <p className="text-xs font-medium text-bronze-texto">Hoje é deputado federal</p>
+        ) : (
+          eleito.depois && (
+            <p className="text-xs font-medium text-bronze-texto">
+              Eleito {eleito.depois.cargo.toLowerCase()} de {eleito.depois.unidade} em {eleito.depois.ano}
+            </p>
+          )
         )}
       </div>
     </Link>

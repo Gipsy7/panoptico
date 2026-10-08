@@ -109,6 +109,13 @@ O subsídio é igual para deputados e senadores e é fixado por decreto legislat
 - **Bens:** valor como declarado, sem correção. A página avisa que bens costumam ser declarados pelo valor de compra. Sem palavras como "enriqueceu": mostramos os dois totais e o ano.
 - **2024:** o TSE passou a mascarar o CPF, então as candidaturas municipais de 2024 não se ligam aos parlamentares federais.
 
+## 2026-10-08: dados pessoais, votos e redes (TSE)
+
+- **Dados pessoais:** idade, escolaridade, ocupação, gênero, cor ou raça e estado civil, como o candidato declarou ao TSE na candidatura mais recente. Gênero e cor ou raça são autodeclarados, e a página diz isso. O e-mail de campanha não é exibido.
+- **Título de eleitor:** guardado só para ligar candidaturas entre eleições, nunca exibido. Em 2024 o TSE mascarou o CPF, mas não o título. Com ele, a candidatura municipal de 2024 de um parlamentar federal se liga ao perfil, e um eleito aparece com "eleito depois para…" (ex.: deputado estadual de 2022 eleito prefeito em 2024).
+- **Votos recebidos:** votos nominais válidos somados de todas as zonas, no último turno disputado.
+- **Redes:** só endereços web informados ao TSE, sem repetição.
+
 ## 2026-10-08: Executivo (presidente, governadores, prefeitos)
 
 - Vêm do TSE, como os vereadores: os eleitos para presidente e governador (2022) e prefeito (2024), com o vice. O vice é ligado ao titular pela chapa: mesmo ano, mesma disputa (UF e unidade) e mesmo número.

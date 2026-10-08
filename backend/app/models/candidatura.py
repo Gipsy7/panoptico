@@ -1,7 +1,9 @@
+from datetime import date
 from decimal import Decimal
 
 from sqlalchemy import (
     JSON,
+    Date,
     ForeignKey,
     Index,
     Numeric,
@@ -45,6 +47,16 @@ class Candidatura(Base):
     situacao_turno: Mapped[str | None] = mapped_column(String(40))  # ELEITO, SUPLENTE...
     situacao_candidatura: Mapped[str | None] = mapped_column(String(40))  # APTO, INAPTO...
     cpf: Mapped[str | None] = mapped_column(String(11))
+    # Título de eleitor: como o CPF, só para casar registros entre eleições (em 2024 o TSE
+    # mascarou o CPF, mas não o título); nunca exibido.
+    titulo: Mapped[str | None] = mapped_column(String(12), index=True)
+    data_nascimento: Mapped[date | None] = mapped_column(Date)
+    genero: Mapped[str | None] = mapped_column(String(40))
+    cor_raca: Mapped[str | None] = mapped_column(String(40))
+    grau_instrucao: Mapped[str | None] = mapped_column(String(60))
+    ocupacao: Mapped[str | None] = mapped_column(String(150))
+    estado_civil: Mapped[str | None] = mapped_column(String(40))
+    votos: Mapped[int | None]  # votos nominais válidos no turno que definiu o resultado
     # Para vices: a candidatura do titular da mesma chapa.
     chapa_titular_id: Mapped[int | None] = mapped_column(
         ForeignKey("candidatura.id", ondelete="SET NULL")
@@ -84,3 +96,15 @@ class CampanhaResumo(Base):
     despesas_total: Mapped[Decimal] = mapped_column(Numeric(16, 2))
     despesas_por_tipo: Mapped[dict] = mapped_column(JSON)
     numero_doadores: Mapped[int]
+
+
+class RedeSocial(Base):
+    """Endereço de rede social ou site informado pelo candidato ao TSE."""
+
+    __tablename__ = "rede_social"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    candidatura_id: Mapped[int] = mapped_column(
+        ForeignKey("candidatura.id", ondelete="CASCADE"), index=True
+    )
+    url: Mapped[str] = mapped_column(Text)

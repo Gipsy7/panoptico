@@ -1,5 +1,5 @@
 from app.models.base import Base
-from app.models.candidatura import BemDeclarado, CampanhaResumo, Candidatura
+from app.models.candidatura import BemDeclarado, CampanhaResumo, Candidatura, RedeSocial
 from app.models.despesa import Despesa
 from app.models.emenda import Emenda
 from app.models.emenda_pagamento import EmendaPagamento
@@ -26,6 +26,7 @@ __all__ = [
     "Parlamentar",
     "Proposicao",
     "ProposicaoTema",
+    "RedeSocial",
     "ResumoParlamentar",
     "Votacao",
     "VotacaoComissao",

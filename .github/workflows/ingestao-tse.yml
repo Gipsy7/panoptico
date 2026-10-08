@@ -47,6 +47,12 @@ jobs:
       - name: Contas de campanha
         run: uv run python -m ingestion.tse.campanha --ano $ANOS
 
+      - name: Redes sociais informadas
+        run: uv run python -m ingestion.tse.redes --ano $ANOS
+
+      - name: Votos recebidos
+        run: uv run python -m ingestion.tse.votos --ano $ANOS
+
       # Só os brutos pequenos: as contas de campanha têm centenas de MB e ficam de fora.
       - name: Guardar dados brutos
         if: always()
@@ -56,5 +62,6 @@ jobs:
           path: |
             backend/data/raw/tse_candidaturas/
             backend/data/raw/tse_bens/
+            backend/data/raw/tse_redes/
           retention-days: 7
           if-no-files-found: ignore

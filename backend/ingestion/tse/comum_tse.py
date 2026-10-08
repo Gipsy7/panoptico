@@ -4,6 +4,7 @@ import csv
 import io
 import zipfile
 from collections.abc import Iterator
+from datetime import date
 from decimal import Decimal
 from pathlib import Path
 
@@ -45,3 +46,17 @@ def valor(texto_valor: str | None) -> Decimal:
 def cpf(valor_cpf: str | None) -> str | None:
     digitos = "".join(c for c in (valor_cpf or "") if c.isdigit())
     return digitos.zfill(11) if len(digitos) >= 9 else None
+
+
+def titulo(valor_titulo: str | None) -> str | None:
+    digitos = "".join(c for c in (valor_titulo or "") if c.isdigit())
+    return digitos.zfill(12) if len(digitos) >= 8 else None
+
+
+def data(valor_data: str | None) -> date | None:
+    """'21/02/1959' -> date(1959, 2, 21)."""
+    try:
+        dia, mes, ano = (valor_data or "").strip().split("/")
+        return date(int(ano), int(mes), int(dia))
+    except ValueError:
+        return None

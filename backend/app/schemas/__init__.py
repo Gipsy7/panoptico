@@ -134,10 +134,35 @@ class Campanha(BaseModel):
     fonte_url: str
 
 
+class EleitoDepois(BaseModel):
+    id: int
+    cargo: str
+    unidade: str
+    ano: int
+
+
+class Pessoais(BaseModel):
+    ano: int
+    idade: int | None
+    genero: str | None
+    cor_raca: str | None
+    grau_instrucao: str | None
+    ocupacao: str | None
+    estado_civil: str | None
+    redes: list[str]
+
+
+class VotosRecebidos(BaseModel):
+    ano: int
+    total: int
+
+
 class CandidaturaResposta(BaseModel):
     candidaturas: list[CandidaturaItem]
     bens: BensDeclarados | None
     campanha: Campanha | None
+    pessoais: Pessoais | None = None
+    votos: VotosRecebidos | None = None
     fonte_nome: str
     fonte_url: str
     atualizado_em: datetime | None
@@ -151,6 +176,8 @@ class EleitoItem(BaseModel):
     situacao: str | None
     uf: str
     parlamentar_id: int | None
+    votos: int | None = None
+    depois: EleitoDepois | None = None
 
 
 class ListaEleitos(BaseModel):
@@ -179,6 +206,7 @@ class Executivo(BaseModel):
 
 
 class EleitoDetalhe(EleitoItem):
+    pessoais: Pessoais | None
     cargo: str
     unidade: str
     municipio_ibge: str | None

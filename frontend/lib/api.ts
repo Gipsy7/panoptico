@@ -164,6 +164,8 @@ export type CandidaturaTse = {
     numero_doadores: number;
     fonte_url: string;
   } | null;
+  pessoais?: Pessoais | null;
+  votos?: { ano: number; total: number } | null;
   fonte_nome: string;
   fonte_url: string;
   atualizado_em: string | null;
@@ -177,6 +179,19 @@ export type Eleito = {
   situacao: string | null;
   uf: string;
   parlamentar_id: number | null;
+  votos?: number | null;
+  depois?: { id: number; cargo: string; unidade: string; ano: number } | null;
+};
+
+export type Pessoais = {
+  ano: number;
+  idade: number | null;
+  genero: string | null;
+  cor_raca: string | null;
+  grau_instrucao: string | null;
+  ocupacao: string | null;
+  estado_civil: string | null;
+  redes: string[];
 };
 
 export type ListaEleitos = {
@@ -189,6 +204,7 @@ export type ListaEleitos = {
 
 export type EleitoDetalhe = Eleito &
   Pick<CandidaturaTse, "bens" | "campanha" | "fonte_nome" | "fonte_url" | "atualizado_em"> & {
+    pessoais: Pessoais | null;
     cargo: string;
     unidade: string;
     municipio_ibge: string | null;
