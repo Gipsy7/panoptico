@@ -91,7 +91,10 @@ export default function SobreAsFontesPage() {
         <Item titulo="Assembleia hoje">
           O mesmo para os deputados estaduais, nas nove assembleias que usam o SAPL (Acre,
           Alagoas, Amazonas, Mato Grosso, Paraíba, Piauí, Rondônia, Roraima e Tocantins). Nos
-          outros estados, por enquanto, aparece a lista de eleitos do TSE.
+          outros estados, por enquanto, aparece a lista de eleitos do TSE. Em Minas Gerais, os
+          dados vêm da API aberta da própria assembleia (ALMG): deputados no cargo, projetos e
+          gastos do gabinete (verba indenizatória, com a média da assembleia). A ALMG não publica
+          o voto de cada deputado nem a lista de presença.
         </Item>
         <Item titulo="Contas da cidade">
           O que a prefeitura declarou ao Tesouro Nacional na Declaração de Contas Anuais

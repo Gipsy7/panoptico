@@ -1,4 +1,5 @@
 from datetime import date
+from decimal import Decimal
 
 from sqlalchemy import (
     JSON,
@@ -6,6 +7,7 @@ from sqlalchemy import (
     Date,
     ForeignKey,
     Index,
+    Numeric,
     SmallInteger,
     String,
     Text,
@@ -122,3 +124,18 @@ class VotoLocal(Base):
         ForeignKey("mandato_local.id", ondelete="CASCADE"), primary_key=True
     )
     voto: Mapped[str] = mapped_column(String(30))  # "Sim", "Não", "Abstenção", "Não Votou"...
+
+
+class GastoLocal(Base):
+    """Gastos do gabinete reembolsados a um parlamentar estadual ou municipal (verba
+    indenizatória), por mês e categoria, onde a casa publica (hoje, a ALMG)."""
+
+    __tablename__ = "gasto_local"
+    __table_args__ = (Index("ix_gasto_local_mandato_ano", "mandato_id", "ano"),)
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    mandato_id: Mapped[int] = mapped_column(ForeignKey("mandato_local.id", ondelete="CASCADE"))
+    ano: Mapped[int] = mapped_column(SmallInteger)
+    mes: Mapped[int] = mapped_column(SmallInteger)
+    categoria: Mapped[str] = mapped_column(String(200))
+    valor: Mapped[Decimal] = mapped_column(Numeric(14, 2))

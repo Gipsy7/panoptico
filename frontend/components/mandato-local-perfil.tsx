@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
-import { PresencaLocalSecao, VotacoesLocaisSecao } from "@/components/atividade-local";
+import { GastosLocaisSecao, PresencaLocalSecao, VotacoesLocaisSecao } from "@/components/atividade-local";
 import { AvisoErro } from "@/components/aviso-erro";
 import { FotoVereador } from "@/components/camara-secao";
 import { CandidaturaSecao } from "@/components/candidatura-secao";
@@ -10,7 +10,7 @@ import { QuemESecao } from "@/components/dados-pessoais";
 import { FonteRodape } from "@/components/fonte-rodape";
 import { type ItemResumo, ResumoNumeros } from "@/components/resumo-perfil";
 import { getEleito, getVereador, getVotacoesLocais } from "@/lib/api";
-import { formatarData } from "@/lib/formato";
+import { formatarData, formatarReais } from "@/lib/formato";
 
 /** Perfil de quem está no cargo numa câmara ou assembleia, com os dados da própria casa. */
 export async function PerfilMandatoLocal({ id, paginaVotos }: { id: string; paginaVotos?: string }) {
@@ -28,10 +28,19 @@ export async function PerfilMandatoLocal({ id, paginaVotos }: { id: string; pagi
     v.candidatura_id ? getEleito(String(v.candidatura_id)) : null,
     getVotacoesLocais(String(v.id), paginaVotos),
   ]);
-  const resumo: ItemResumo[] = [
+  const resumo: ItemResumo[] = [];
+  if (v.gastos) {
+    resumo.push({
+      rotulo: `Gastos do gabinete em ${v.gastos.ano}`,
+      valor: formatarReais(v.gastos.total, true),
+      detalhe: v.gastos.media_casa !== null ? `Média: ${formatarReais(v.gastos.media_casa, true)}` : "",
+      ancora: "#gastos-titulo",
+    });
+  }
+  resumo.push(
     { rotulo: "Projetos", valor: String(v.projetos), detalhe: "ano atual e anterior", ancora: "#atuacao-titulo" },
     { rotulo: "Proposições", valor: String(v.proposicoes), detalhe: "requerimentos, indicações…", ancora: "#atuacao-titulo" },
-  ];
+  );
   if (v.presenca) {
     resumo.push({
       rotulo: "Presença nas sessões",
@@ -88,6 +97,8 @@ export async function PerfilMandatoLocal({ id, paginaVotos }: { id: string; pagi
         caminho={rota}
         texto={`Veja os projetos e as proposições de ${v.nome}, ${cargo.toLowerCase()}, com dados da própria ${nomeCasa}:`}
       />
+
+      <GastosLocaisSecao v={v} nomeCasa={nomeCasa} />
 
       <PresencaLocalSecao v={v} nomeCasa={nomeCasa} />
 

@@ -2,6 +2,7 @@
 hoje."""
 
 from datetime import datetime
+from decimal import Decimal
 from typing import Any
 
 from sqlalchemy import func, select
@@ -11,6 +12,7 @@ from app.models import (
     Candidatura,
     FonteIngestao,
     Foto,
+    GastoLocal,
     MandatoLocal,
     ProjetoLocal,
     VotacaoLocal,
@@ -22,12 +24,20 @@ FONTES = {
     "camara": ("sapl_camaras", "Sistema legislativo da câmara (SAPL)"),
     "assembleia": ("sapl_assembleias", "Sistema legislativo da assembleia (SAPL)"),
 }
+# Assembleias com conector próprio (não usam o SAPL).
+FONTES_PROPRIAS = {"MG": ("almg", "Dados abertos da Assembleia de Minas Gerais (ALMG)")}
 
 
-def _atualizado_em(session: Session, casa: str) -> datetime | None:
+def _fonte(casa: str, uf: str) -> tuple[str, str]:
+    if casa == "assembleia" and uf in FONTES_PROPRIAS:
+        return FONTES_PROPRIAS[uf]
+    return FONTES[casa]
+
+
+def _atualizado_em(session: Session, casa: str, uf: str = "") -> datetime | None:
     return session.scalar(
         select(func.max(FonteIngestao.concluido_em)).where(
-            FonteIngestao.fonte == FONTES[casa][0], FonteIngestao.status == "ok"
+            FonteIngestao.fonte == _fonte(casa, uf)[0], FonteIngestao.status == "ok"
         )
     )
 
@@ -76,6 +86,38 @@ def presenca(session: Session, m: MandatoLocal) -> dict | None:
     }
 
 
+def gastos(session: Session, m: MandatoLocal) -> dict | None:
+    """Gastos do gabinete no ano mais recente com dados, por categoria, e a média da casa
+    (entre quem está em exercício; quem não gastou nada entra com zero)."""
+    ano = session.scalar(select(func.max(GastoLocal.ano)).where(GastoLocal.mandato_id == m.id))
+    if ano is None:
+        return None
+    categorias = session.execute(
+        select(GastoLocal.categoria, func.sum(GastoLocal.valor))
+        .where(GastoLocal.mandato_id == m.id, GastoLocal.ano == ano)
+        .group_by(GastoLocal.categoria)
+        .order_by(func.sum(GastoLocal.valor).desc())
+    ).all()
+    meses = session.scalar(
+        select(func.max(GastoLocal.mes)).where(GastoLocal.mandato_id == m.id, GastoLocal.ano == ano)
+    )
+    colegas = session.scalars(
+        select(MandatoLocal.id).where(_da_mesma_casa(m), MandatoLocal.em_exercicio)
+    ).all()
+    soma_casa = session.scalar(
+        select(func.coalesce(func.sum(GastoLocal.valor), 0)).where(
+            GastoLocal.mandato_id.in_(colegas), GastoLocal.ano == ano
+        )
+    )
+    return {
+        "ano": ano,
+        "ate_mes": meses,
+        "total": sum((v for _, v in categorias), Decimal(0)),
+        "media_casa": soma_casa / len(colegas) if colegas else None,
+        "por_categoria": [{"categoria": c, "valor": v} for c, v in categorias],
+    }
+
+
 def votacoes(session: Session, m: MandatoLocal, pagina: int = 1) -> dict:
     """Como votou nas votações nominais da casa, das mais recentes para as mais antigas."""
     total = session.scalar(select(func.count()).where(VotoLocal.mandato_id == m.id)) or 0
@@ -116,9 +158,9 @@ def votacoes(session: Session, m: MandatoLocal, pagina: int = 1) -> dict:
             }
             for v, voto in linhas
         ],
-        "fonte_nome": FONTES[m.casa][1],
+        "fonte_nome": _fonte(m.casa, m.uf)[1],
         "fonte_url": m.sapl_url,
-        "atualizado_em": _atualizado_em(session, m.casa),
+        "atualizado_em": _atualizado_em(session, m.casa, m.uf),
     }
 
 
@@ -171,9 +213,9 @@ def _casa(session: Session, casa: str, filtro: Any) -> dict | None:
     return {
         "sapl_url": mandatos[0].sapl_url,
         "itens": [_item(m, projetos.get(m.id, 0), com_foto, votos.get(m.id, 0)) for m in mandatos],
-        "fonte_nome": FONTES[casa][1],
+        "fonte_nome": _fonte(casa, mandatos[0].uf)[1],
         "fonte_url": mandatos[0].sapl_url,
-        "atualizado_em": _atualizado_em(session, casa),
+        "atualizado_em": _atualizado_em(session, casa, mandatos[0].uf),
     }
 
 
@@ -200,6 +242,7 @@ def vereador(session: Session, mandato: MandatoLocal) -> dict:
             _contar_votos(session, [mandato.id]).get(mandato.id, 0),
         ),
         "presenca": presenca(session, mandato),
+        "gastos": gastos(session, mandato),
         "casa": mandato.casa,
         "uf": mandato.uf,
         "municipio_ibge": mandato.municipio_ibge,
@@ -228,9 +271,9 @@ def vereador(session: Session, mandato: MandatoLocal) -> dict:
             for p in projetos
         ],
         "sapl_url": mandato.sapl_url,
-        "fonte_nome": FONTES[mandato.casa][1],
+        "fonte_nome": _fonte(mandato.casa, mandato.uf)[1],
         "fonte_url": mandato.sapl_url,
-        "atualizado_em": _atualizado_em(session, mandato.casa),
+        "atualizado_em": _atualizado_em(session, mandato.casa, mandato.uf),
     }
 
 
@@ -304,7 +347,7 @@ def comparar(session: Session, a: MandatoLocal, b: MandatoLocal) -> dict:
             }
             for v, x, y in divergencias[:20]
         ],  # fmt: skip
-        "fonte_nome": FONTES[a.casa][1],
+        "fonte_nome": _fonte(a.casa, a.uf)[1],
         "fonte_url": a.sapl_url,
-        "atualizado_em": _atualizado_em(session, a.casa),
+        "atualizado_em": _atualizado_em(session, a.casa, a.uf),
     }

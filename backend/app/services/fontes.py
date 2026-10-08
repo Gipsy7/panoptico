@@ -87,6 +87,12 @@ CATALOGO = [
         "url": "https://www.interlegis.leg.br/",
     },
     {
+        "dado": "Deputados estaduais de MG: no cargo, projetos e gastos do gabinete",
+        "orgao": "Assembleia Legislativa de Minas Gerais (dados abertos)",
+        "fontes": ["almg"],
+        "url": "https://dadosabertos.almg.gov.br/",
+    },
+    {
         "dado": "Sites oficiais das prefeituras e câmaras (catálogo aberto)",
         "orgao": "Varredura do Panóptico nos domínios .gov.br e .leg.br",
         "fontes": ["canais_oficiais"],

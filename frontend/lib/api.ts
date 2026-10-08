@@ -275,6 +275,14 @@ export type VereadorDetalhe = VereadorItem & {
   casa: "camara" | "assembleia";
   uf: string;
   presenca: { sessoes: number; presencas: number; media_casa: number | null } | null;
+  /** Gastos do gabinete (verba indenizatória), onde a casa publica. */
+  gastos: {
+    ano: number;
+    ate_mes: number | null;
+    total: number;
+    media_casa: number | null;
+    por_categoria: { categoria: string; valor: number }[];
+  } | null;
   municipio_ibge: string | null;
   nome_completo: string | null;
   email: string | null;

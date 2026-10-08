@@ -2,7 +2,7 @@ import Link from "next/link";
 
 import { FonteRodape } from "@/components/fonte-rodape";
 import type { VereadorDetalhe, VotacoesLocais } from "@/lib/api";
-import { formatarData } from "@/lib/formato";
+import { MESES, formatarData, formatarReais } from "@/lib/formato";
 
 const PCT = new Intl.NumberFormat("pt-BR", { maximumFractionDigits: 1 });
 
@@ -19,7 +19,7 @@ export function PresencaLocalSecao({ v, nomeCasa }: { v: VereadorDetalhe; nomeCa
       </div>
       {!p ? (
         <p className="text-sm text-muted-foreground">
-          A {nomeCasa} não registra a presença nas sessões no sistema legislativo.
+          A {nomeCasa} não publica a lista de presença nas sessões em dados abertos.
         </p>
       ) : (
         <>
@@ -73,8 +73,8 @@ export function VotacoesLocaisSecao({
       </div>
       {!dados.casa_registra ? (
         <p className="text-sm text-muted-foreground">
-          A {nomeCasa} não registra votos nominais no sistema legislativo. As votações
-          simbólicas, em que não se anota o voto de cada um, não aparecem.
+          A {nomeCasa} não publica o voto de cada parlamentar em dados abertos. Por isso,
+          aqui não aparece como cada um votou.
         </p>
       ) : dados.total === 0 ? (
         <p className="text-sm text-muted-foreground">Nenhum voto nominal registrado neste período.</p>
@@ -126,6 +126,58 @@ export function VotacoesLocaisSecao({
         </>
       )}
       <FonteRodape fonte={dados.fonte_nome} url={dados.fonte_url} atualizadoEm={dados.atualizado_em} />
+    </section>
+  );
+}
+
+/** Gastos do gabinete reembolsados (verba indenizatória), com a média da casa. */
+export function GastosLocaisSecao({ v, nomeCasa }: { v: VereadorDetalhe; nomeCasa: string }) {
+  const g = v.gastos;
+  if (!g) return null;
+  const maior = g.por_categoria[0]?.valor ?? 0;
+  return (
+    <section aria-labelledby="gastos-titulo" className="revelar flex flex-col gap-3">
+      <div>
+        <h2 id="gastos-titulo" className="text-2xl">
+          Gastos do gabinete
+        </h2>
+        <p className="text-xs text-muted-foreground">Verba indenizatória (reembolsos ao gabinete)</p>
+      </div>
+      <dl className="grid grid-cols-2 gap-3">
+        <div className="figura">
+          <dt className="text-sm text-muted-foreground">
+            Total em {g.ano}
+            {g.ate_mes ? ` (até ${MESES[g.ate_mes - 1]})` : ""}
+          </dt>
+          <dd className="numero text-3xl">{formatarReais(g.total, true)}</dd>
+        </div>
+        {g.media_casa !== null && (
+          <div className="figura">
+            <dt className="text-sm text-muted-foreground">Média por parlamentar da {nomeCasa}</dt>
+            <dd className="numero text-3xl">{formatarReais(g.media_casa, true)}</dd>
+          </div>
+        )}
+      </dl>
+      <ul className="flex flex-col gap-2.5">
+        {g.por_categoria.map((c) => (
+          <li key={c.categoria} className="flex flex-col gap-1">
+            <div className="flex items-baseline justify-between gap-3 text-sm">
+              <span className="min-w-0">{c.categoria}</span>
+              <span className="shrink-0 tabular-nums">{formatarReais(c.valor, true)}</span>
+            </div>
+            <div aria-hidden className="h-1.5 w-full rounded-full bg-muted">
+              <div
+                className="h-1.5 rounded-full bg-chart-1"
+                style={{ width: `${maior > 0 ? Math.max(1, (100 * c.valor) / maior) : 0}%` }}
+              />
+            </div>
+          </li>
+        ))}
+      </ul>
+      <p className="text-xs text-muted-foreground">
+        Valores reembolsados como a {nomeCasa} publica, por mês de fechamento. A média inclui quem
+        está no cargo hoje; quem não pediu reembolso entra com zero.
+      </p>
     </section>
   );
 }

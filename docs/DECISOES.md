@@ -109,6 +109,15 @@ O subsídio é igual para deputados e senadores e é fixado por decreto legislat
 - **Bens:** valor como declarado, sem correção. A página avisa que bens costumam ser declarados pelo valor de compra. Sem palavras como "enriqueceu": mostramos os dois totais e o ano.
 - **2024:** o TSE passou a mascarar o CPF, então as candidaturas municipais de 2024 não se ligam aos parlamentares federais.
 
+## 2026-10-08: Assembleia de Minas Gerais (ALMG)
+
+- Conector próprio pela API de dados abertos da ALMG, gravando nas mesmas tabelas das outras casas: deputados em exercício, projetos (PL, PLC, PEC e projetos de resolução, com ementa) e requerimentos e indicações (contagem), do ano atual e do anterior.
+- **Gastos do gabinete (verba indenizatória):** total reembolsado por mês e categoria, guardado em `gasto_local`. O perfil mostra o ano mais recente com a média da casa (entre quem está no cargo; quem não pediu reembolso entra com zero), como nos federais.
+- **Sem votos e sem presença:** a API da ALMG não traz o voto de cada deputado nem a lista de presença (as reuniões de Plenário só têm o resultado de cada matéria). O perfil diz que a assembleia não publica isso em dados abertos.
+- **Autoria:** o primeiro da lista é o autor principal; os demais contam como coautores. Proposições do Governador e de tribunais não têm deputado autor.
+- **Foto:** a do TSE, pela ligação ao eleito (72 dos 77 ligados; os outros 5 são, em geral, suplentes que assumiram e não constam como eleitos no TSE).
+- Conferido: o reembolso de combustível do deputado Adalclever Lopes em maio de 2025 (R$ 1.978,65) e os links dos projetos (`almg.gov.br/projetos-de-lei/PL/{número}/{ano}`).
+
 ## 2026-10-08: comparação de vereadores e deputados estaduais
 
 - **Só na mesma casa** (dois vereadores da mesma câmara, dois deputados da mesma assembleia), por decisão do projeto: só aí a pauta e as votações são as mesmas e os números se comparam. Casas diferentes respondem 422 com a explicação.

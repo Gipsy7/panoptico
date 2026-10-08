@@ -43,6 +43,7 @@ Os dados sobre o trabalho dos parlamentares já são públicos, mas estão espal
 - **Para quem a cidade pagou** (por enquanto, cidades de SP, pelo TCE-SP): os maiores fornecedores da prefeitura e da câmara no ano.
 - **Câmara municipal hoje** (nas câmaras que usam o SAPL): quem está no cargo agora, inclusive suplentes, com partido atual, contato, projetos, quantos requerimentos, indicações e moções apresentou, presença nas sessões (com a média da câmara) e como votou nas votações nominais, onde a câmara registra.
 - **Assembleia legislativa hoje** (nas nove que usam o SAPL: AC, AL, AM, MT, PB, PI, RO, RR e TO): o mesmo para os deputados estaduais, com perfil em `/deputado-estadual/{id}`.
+- **Assembleia de Minas Gerais** (dados abertos da ALMG): deputados no cargo, projetos, requerimentos e **gastos do gabinete** (verba indenizatória), com a média da assembleia. A ALMG não publica o voto de cada deputado nem a presença.
 - **Canais oficiais da sua cidade**: sites da prefeitura e da câmara e os portais da transparência, num catálogo aberto (`data/canais_oficiais.csv`, gerado pela varredura, e `data/canais_curados.csv`, com as correções feitas à mão) que qualquer pessoa pode corrigir por pull request.
 - **Compartilhamento**: perfis e comparações têm imagem de pré-visualização e botão de WhatsApp.
 
@@ -117,6 +118,7 @@ flowchart LR
 | Contas anuais dos municípios | [SICONFI (Tesouro Nacional)](https://siconfi.tesouro.gov.br/) | API, uma consulta por município, mensal |
 | Pagamentos das prefeituras e câmaras por fornecedor (SP) | [TCE-SP](https://transparencia.tce.sp.gov.br/conjunto-de-dados) | Arquivo anual em lote, mensal |
 | Vereadores e deputados estaduais no cargo, projetos, votações nominais e presença | SAPL (Interlegis) de cada câmara e de nove assembleias | API, semanal, endereços do catálogo de canais |
+| Deputados estaduais de MG: projetos e gastos do gabinete | [Dados abertos da ALMG](https://dadosabertos.almg.gov.br/) | API, semanal |
 | Municípios | [IBGE](https://servicodados.ibge.gov.br/api/docs/localidades) | API REST |
 | CEP → cidade e estado | [ViaCEP](https://viacep.com.br/) | Consulta na hora, sem gravar |
 | Salário (subsídio) | [Decreto Legislativo nº 172/2022](https://www2.camara.leg.br/legin/fed/decleg/2022/decretolegislativo-172-21-dezembro-2022-793529-publicacaooriginal-166604-pl.html) | Transcrito no código |
@@ -254,7 +256,7 @@ Os testes do backend usam um banco `panoptico_test` (criado pelo `scripts/criar_
 
 ### Próximos passos
 
-- Conectores próprios para as 18 assembleias sem SAPL (começando por ALMG e ALESP, que têm dados abertos)
+- Conectores próprios para as 17 assembleias sem SAPL que faltam (a próxima é a ALESP, de São Paulo)
 - Despesas por fornecedor de outros Tribunais de Contas (RS e MG têm dados abertos)
 - Situação na Justiça só com fatos oficiais (cassações e indeferimentos no TSE, processos com número e status), sem nota ou "índice de confiabilidade"
 - Teste com pessoas reais e auditoria de acessibilidade

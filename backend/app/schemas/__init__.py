@@ -386,8 +386,22 @@ class VotacoesLocais(BaseModel):
     atualizado_em: datetime | None
 
 
+class CategoriaGasto(BaseModel):
+    categoria: str
+    valor: float
+
+
+class GastosLocais(BaseModel):
+    ano: int
+    ate_mes: int | None
+    total: float
+    media_casa: float | None
+    por_categoria: list[CategoriaGasto]
+
+
 class VereadorDetalhe(VereadorItem):
     presenca: PresencaLocal | None
+    gastos: GastosLocais | None
     casa: str  # "camara" (vereador) ou "assembleia" (deputado estadual)
     uf: str
     municipio_ibge: str | None
