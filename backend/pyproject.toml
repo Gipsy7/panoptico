@@ -2,6 +2,7 @@
 name = "panoptico-backend"
 version = "0.1.0"
 description = "API e ingestão de dados do Panóptico"
+license = "AGPL-3.0-only"
 authors = [
     { name = "Gipsy7", email = "mikael_dev@hotmail.com" }
 ]

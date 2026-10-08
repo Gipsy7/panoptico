@@ -109,6 +109,10 @@ O subsídio é igual para deputados e senadores e é fixado por decreto legislat
 - **Bens:** valor como declarado, sem correção. A página avisa que bens costumam ser declarados pelo valor de compra. Sem palavras como "enriqueceu": mostramos os dois totais e o ano.
 - **2024:** o TSE passou a mascarar o CPF, então as candidaturas municipais de 2024 não se ligam aos parlamentares federais.
 
+## 2026-10-08: licença AGPL-3.0
+
+- O código é AGPL-3.0, e não MIT: quem publicar um site derivado precisa abrir o código também, o que protege um projeto cívico contra versões fechadas. Os dados continuam sob as regras de cada fonte oficial.
+
 ## 2026-10-08: busca por nome em todos os níveis
 
 - A busca da página inicial (`/busca?nome=`) procura parlamentares federais em exercício, quem está no cargo hoje nas câmaras e assembleias com SAPL e os eleitos do TSE na eleição mais recente de cada cargo (presidente, governadores, deputados estaduais, prefeitos, vereadores e vices).

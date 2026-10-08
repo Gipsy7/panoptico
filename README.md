@@ -259,4 +259,6 @@ Os testes do backend usam um banco `panoptico_test` (criado pelo `scripts/criar_
 
 ## Licença
 
-A definir.
+O código é livre, sob a [GNU Affero General Public License v3.0](LICENSE) (AGPL-3.0). Qualquer pessoa pode usar, estudar, modificar e redistribuir. Quem publicar um site com uma versão modificada precisa oferecer o código-fonte dessa versão aos usuários, sob a mesma licença. Assim, as melhorias de um projeto de transparência continuam abertas para todos.
+
+Os dados exibidos vêm de fontes públicas oficiais e seguem as regras de cada fonte (ver [docs/FONTES_DE_DADOS.md](docs/FONTES_DE_DADOS.md)).
