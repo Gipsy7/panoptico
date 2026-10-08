@@ -1,13 +1,14 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 
 import { AvisoErro } from "@/components/aviso-erro";
 import { CandidaturaSecao } from "@/components/candidatura-secao";
 import { CompartilharWhatsApp } from "@/components/compartilhar";
+import { QuemESecao } from "@/components/dados-pessoais";
 import { FotoOuIniciais } from "@/components/eleitos-secao";
 import { Revelacao } from "@/components/revelacao";
-import { getEleito } from "@/lib/api";
+import { getCanais, getEleito } from "@/lib/api";
 
 export async function generateMetadata({ params }: PageProps<"/eleito/[id]">): Promise<Metadata> {
   const { id } = await params;
@@ -35,6 +36,11 @@ async function Perfil({ id }: { id: string }) {
     return <AvisoErro titulo="Não deu para carregar" mensagem={resultado.mensagem} />;
   }
   const e = resultado.dados;
+  if (e.mandato_local) {
+    redirect(`/${e.mandato_local.casa === "camara" ? "vereador" : "deputado-estadual"}/${e.mandato_local.id}`);
+  }
+  const canais = e.municipio_ibge ? await getCanais(e.municipio_ibge) : null;
+  const temSapl = Boolean(canais?.ok && canais.dados.itens.some((c) => c.tipo === "sapl"));
   const voltar = e.municipio_ibge
     ? `/representantes?municipio=${e.municipio_ibge}`
     : e.uf === "BR"
@@ -59,11 +65,35 @@ async function Perfil({ id }: { id: string }) {
         </div>
       </header>
 
-      <p className="nota text-sm text-muted-foreground">
-        Por enquanto, mostramos o que o TSE publica sobre a eleição: bens declarados e contas de
-        campanha. {atividade(e.cargo)} ainda não estão no site.
-        Mudanças depois da eleição (suplente que assumiu, renúncia, cassação) também não aparecem.
-      </p>
+      <QuemESecao pessoais={e.pessoais} votos={e.votos != null ? { ano: e.ano_eleicao, total: e.votos } : null} />
+
+      <section aria-labelledby="atividade-titulo" className="flex flex-col gap-3">
+        <h2 id="atividade-titulo" className="text-2xl">
+          No cargo
+        </h2>
+        <p className="text-sm text-muted-foreground">
+          {e.cargo !== "Vereador"
+            ? `${atividade(e.cargo)} ainda não estão no site. Por enquanto, aparece o que o TSE publica sobre a eleição.`
+            : temSapl
+              ? `A câmara de ${e.unidade} publica quem está no cargo hoje, mas este nome não aparece na lista dela: a pessoa pode ter deixado o cargo ou usar lá outro nome. Veja a lista da câmara na página da cidade.`
+              : `A câmara de ${e.unidade} não publica votações e projetos num formato de dados abertos que o Panóptico consiga ler (o sistema SAPL, do Interlegis). Por isso, aqui aparece só o que o TSE publica sobre a eleição.`}{" "}
+          Mudanças depois da eleição (suplente que assumiu, renúncia, cassação) também não aparecem.
+        </p>
+        {canais?.ok && canais.dados.itens.length > 0 && (
+          <div className="flex flex-col gap-1">
+            <p className="text-sm">Os canais oficiais da cidade:</p>
+            <ul className="flex flex-wrap gap-x-4 gap-y-1 text-sm">
+              {canais.dados.itens.map((c) => (
+                <li key={c.tipo}>
+                  <a href={c.url} target="_blank" rel="noopener noreferrer" className="underline underline-offset-2">
+                    {NOME_CANAL[c.tipo] ?? c.tipo}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+      </section>
 
       <CompartilharWhatsApp
         caminho={`/eleito/${e.id}`}
@@ -80,9 +110,7 @@ async function Perfil({ id }: { id: string }) {
         </p>
       )}
 
-      <CandidaturaSecao
-        dados={{ ...e, votos: e.votos != null ? { ano: e.ano_eleicao, total: e.votos } : null }}
-      />
+      <CandidaturaSecao dados={e} />
 
       {!e.bens && !e.campanha && (
         <p className="text-muted-foreground">O TSE não tem bens nem contas de campanha registrados para esta candidatura.</p>
@@ -94,6 +122,14 @@ async function Perfil({ id }: { id: string }) {
     </article>
   );
 }
+
+const NOME_CANAL: Record<string, string> = {
+  prefeitura: "Prefeitura",
+  camara: "Câmara municipal",
+  sapl: "Sistema legislativo da câmara",
+  transparencia_prefeitura: "Transparência da prefeitura",
+  transparencia_camara: "Transparência da câmara",
+};
 
 function atividade(cargo: string): string {
   if (cargo === "Vereador") return "Gastos e votos na câmara municipal";

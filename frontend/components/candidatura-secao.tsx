@@ -1,18 +1,18 @@
-import { DadosPessoais } from "@/components/dados-pessoais";
 import { FonteRodape } from "@/components/fonte-rodape";
 import type { CandidaturaTse } from "@/lib/api";
 import { formatarReais } from "@/lib/formato";
 
 const LIMITE_VISIVEL = 8;
 
-/** Bens declarados ao TSE e contas da campanha que deu o mandato atual. */
+/** Bens declarados ao TSE e contas da campanha que deu o mandato atual. Os dados pessoais
+ * ficam em "Quem é" (QuemESecao), no topo do perfil. */
 export function CandidaturaSecao({
   dados,
 }: {
-  dados: Pick<CandidaturaTse, "bens" | "campanha" | "fonte_nome" | "fonte_url" | "atualizado_em" | "pessoais" | "votos">;
+  dados: Pick<CandidaturaTse, "bens" | "campanha" | "fonte_nome" | "fonte_url" | "atualizado_em">;
 }) {
   const { bens, campanha } = dados;
-  if (!bens && !campanha && !dados.pessoais) return null;
+  if (!bens && !campanha) return null;
 
   return (
     <section aria-labelledby="tse-titulo" className="revelar flex flex-col gap-6">
@@ -24,8 +24,6 @@ export function CandidaturaSecao({
           Declarados pelo próprio candidato à Justiça Eleitoral (TSE)
         </p>
       </div>
-
-      <DadosPessoais pessoais={dados.pessoais ?? null} votos={dados.votos} />
 
       {bens && (
         <div className="flex flex-col gap-3">

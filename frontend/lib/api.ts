@@ -212,6 +212,8 @@ export type ListaEleitos = {
 
 export type EleitoDetalhe = Eleito &
   Pick<CandidaturaTse, "bens" | "campanha" | "fonte_nome" | "fonte_url" | "atualizado_em"> & {
+    /** Quando a própria casa (SAPL) lista a pessoa no cargo: o perfil com a atividade. */
+    mandato_local: { id: number; casa: "camara" | "assembleia" } | null;
     pessoais: Pessoais | null;
     cargo: string;
     unidade: string;

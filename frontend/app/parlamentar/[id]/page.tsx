@@ -7,6 +7,7 @@ import { Revelacao } from "@/components/revelacao";
 import { CompartilharWhatsApp } from "@/components/compartilhar";
 import { FonteRodape } from "@/components/fonte-rodape";
 import { CandidaturaSecao } from "@/components/candidatura-secao";
+import { QuemESecao } from "@/components/dados-pessoais";
 import { ComissoesSecao } from "@/components/comissoes-secao";
 import { GastosSecao } from "@/components/gastos-secao";
 import { Foto } from "@/components/parlamentar-card";
@@ -118,6 +119,8 @@ async function Perfil({
         projetos={projetos.ok ? projetos.dados : undefined}
         subsidio={p.remuneracao.subsidio_mensal}
       />
+
+      {candidatura.ok && <QuemESecao pessoais={candidatura.dados.pessoais} votos={candidatura.dados.votos} />}
 
       <div className="flex flex-wrap gap-2">
         <Link

@@ -5,6 +5,7 @@ import { AvisoErro } from "@/components/aviso-erro";
 import { FotoVereador } from "@/components/camara-secao";
 import { CandidaturaSecao } from "@/components/candidatura-secao";
 import { CompartilharWhatsApp } from "@/components/compartilhar";
+import { QuemESecao } from "@/components/dados-pessoais";
 import { FonteRodape } from "@/components/fonte-rodape";
 import { getEleito, getVereador } from "@/lib/api";
 import { formatarData } from "@/lib/formato";
@@ -44,6 +45,13 @@ export async function PerfilMandatoLocal({ id }: { id: string }) {
           )}
         </div>
       </header>
+
+      {eleicao?.ok && (
+        <QuemESecao
+          pessoais={eleicao.dados.pessoais}
+          votos={eleicao.dados.votos != null ? { ano: eleicao.dados.ano_eleicao, total: eleicao.dados.votos } : null}
+        />
+      )}
 
       <CompartilharWhatsApp
         caminho={rota}
@@ -117,12 +125,7 @@ export async function PerfilMandatoLocal({ id }: { id: string }) {
       </section>
 
       {eleicao?.ok && (
-        <CandidaturaSecao
-          dados={{
-            ...eleicao.dados,
-            votos: eleicao.dados.votos != null ? { ano: eleicao.dados.ano_eleicao, total: eleicao.dados.votos } : null,
-          }}
-        />
+        <CandidaturaSecao dados={eleicao.dados} />
       )}
 
       <Link

@@ -206,7 +206,13 @@ class Executivo(BaseModel):
     atualizado_em: datetime | None
 
 
+class MandatoLocalRef(BaseModel):
+    id: int
+    casa: str  # "camara" ou "assembleia"
+
+
 class EleitoDetalhe(EleitoItem):
+    mandato_local: MandatoLocalRef | None
     pessoais: Pessoais | None
     cargo: str
     unidade: str

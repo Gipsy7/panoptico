@@ -95,6 +95,9 @@ def test_assembleia_liga_ao_deputado_estadual_da_ultima_eleicao(client, session)
     assert corpo["fonte_nome"] == "Sistema legislativo da assembleia (SAPL)"
     item = corpo["itens"][0]
     assert session.get(Candidatura, item["candidatura_id"]).ano_eleicao == 2022
+    # O perfil do TSE aponta para o perfil da casa, que tem a atividade.
+    eleito = client.get(f"/eleitos/{item['candidatura_id']}").json()
+    assert eleito["mandato_local"] == {"id": item["id"], "casa": "assembleia"}
     detalhe = client.get(f"/vereadores/{item['id']}").json()
     assert (
         detalhe["casa"] == "assembleia"

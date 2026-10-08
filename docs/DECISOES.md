@@ -109,6 +109,12 @@ O subsídio é igual para deputados e senadores e é fixado por decreto legislat
 - **Bens:** valor como declarado, sem correção. A página avisa que bens costumam ser declarados pelo valor de compra. Sem palavras como "enriqueceu": mostramos os dois totais e o ano.
 - **2024:** o TSE passou a mascarar o CPF, então as candidaturas municipais de 2024 não se ligam aos parlamentares federais.
 
+## 2026-10-08: perfis com a mesma estrutura
+
+- Federais, estaduais, vereadores e Executivo seguem a mesma ordem: cabeçalho, números-chave, "Quem é" (dados declarados ao TSE e votos recebidos), atividade e, por fim, "Eleição" (bens e campanha). Antes, nos federais, os dados pessoais ficavam no fim da página, dentro de "Eleição", e pareciam não existir.
+- **Um perfil por pessoa:** quando a câmara ou a assembleia lista a pessoa no cargo (`mandato_local` ligado à candidatura), o perfil do TSE redireciona para o perfil da casa, que tem a atividade e também mostra a eleição.
+- **Sem dado da casa:** o perfil diz o motivo como fato. Se a câmara não usa SAPL, "não publica votações e projetos num formato de dados abertos que o Panóptico consiga ler", com os canais oficiais da cidade. Se usa SAPL mas o nome não está na lista dela, a pessoa pode ter deixado o cargo ou usar lá outro nome.
+
 ## 2026-10-08: licença AGPL-3.0
 
 - O código é AGPL-3.0, e não MIT: quem publicar um site derivado precisa abrir o código também, o que protege um projeto cívico contra versões fechadas. Os dados continuam sob as regras de cada fonte oficial.

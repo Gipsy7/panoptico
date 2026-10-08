@@ -16,6 +16,7 @@ from app.models import (
     Candidatura,
     FonteIngestao,
     Foto,
+    MandatoLocal,
     Parlamentar,
     RedeSocial,
 )
@@ -278,8 +279,15 @@ def deputados_estaduais(session: Session, uf: str) -> dict:
 
 
 def eleito(session: Session, candidatura: Candidatura) -> dict:
-    """Perfil de um eleito que só existe no TSE (vereador, deputado estadual)."""
+    """Perfil de um eleito pelo TSE. Se a própria casa (SAPL) lista a pessoa no cargo, diz
+    qual é o mandato, para o site mostrar um perfil só, com a atividade."""
+    mandato = session.execute(
+        select(MandatoLocal.id, MandatoLocal.casa).where(
+            MandatoLocal.candidatura_id == candidatura.id
+        )
+    ).first()
     return {
+        "mandato_local": {"id": mandato.id, "casa": mandato.casa} if mandato else None,
         **_eleito(
             candidatura,
             _eleitos_depois(session, [candidatura]).get(candidatura.id),

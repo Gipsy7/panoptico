@@ -1,5 +1,25 @@
 import type { Pessoais } from "@/lib/api";
 
+/** "Quem é": dados declarados ao TSE e votos recebidos, logo depois do cabeçalho, igual em
+ * todos os perfis (federal, estadual, vereador, Executivo). */
+export function QuemESecao({
+  pessoais,
+  votos,
+}: {
+  pessoais: Pessoais | null | undefined;
+  votos?: { ano: number; total: number } | null;
+}) {
+  if (!pessoais && !votos) return null;
+  return (
+    <section aria-labelledby="quem-e-titulo" className="revelar flex flex-col gap-3">
+      <h2 id="quem-e-titulo" className="text-2xl">
+        Quem é
+      </h2>
+      <DadosPessoais pessoais={pessoais ?? null} votos={votos} />
+    </section>
+  );
+}
+
 /** Dados declarados ao TSE na candidatura mais recente, e os votos recebidos. */
 export function DadosPessoais({
   pessoais,
