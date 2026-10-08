@@ -181,3 +181,51 @@ def test_votacoes_e_presenca():
     assert sapl.coletar_presenca(_SaplFalso({}), {2025}, date(2026, 1, 1), {248: (None, None)}) == {
         248: (None, None)
     }
+
+
+def _deputado(id_externo, nome):
+    return {"id_externo": id_externo, "nome": nome, "nome_completo": None, "partido": "PL", "foto_url": None,
+            "email": None, "telefone": None, "titular": True, "em_exercicio": True, "inicio": "2023-02-01",
+            "fim": "2027-01-31", "proposicoes_por_tipo": {"Indicação": 2}, "projetos": [], "sessoes": 4, "presencas": 4}  # fmt: skip
+
+
+def _votacao(id_externo, data):
+    return {"id_externo": id_externo, "materia": f"Veto nº {id_externo} de 2025", "resultado": "Aprovado",
+            "sim": 2, "nao": 0, "abstencoes": 0, "data": data, "materia_id": None}  # fmt: skip
+
+
+def test_comparar_na_mesma_casa(client, session):
+    casa = {
+        "base": "https://sapl.al.ac.leg.br/",
+        "vereadores": [_deputado("1", "Ana"), _deputado("2", "Bia")],
+        "votacoes": [_votacao("10", "2025-03-01"), _votacao("11", "2025-04-01"), _votacao("12", "2025-05-01")],
+        "votos": [
+            {"votacao": "10", "parlamentar": "1", "voto": "Sim"}, {"votacao": "10", "parlamentar": "2", "voto": "Sim"},
+            {"votacao": "11", "parlamentar": "1", "voto": "Sim"}, {"votacao": "11", "parlamentar": "2", "voto": "Não"},
+            # Uma delas não votou: não entra na conta.
+            {"votacao": "12", "parlamentar": "1", "voto": "Sim"}, {"votacao": "12", "parlamentar": "2", "voto": "Não Votou"},
+        ],
+    }  # fmt: skip
+    sapl.gravar(session, None, casa, uf="AC")
+    sapl.gravar(
+        session,
+        None,
+        {**casa, "vereadores": [_deputado("1", "Rui")], "votacoes": [], "votos": []},
+        uf="RR",
+    )
+    session.flush()
+    ids = {
+        i["nome"]: i["id"]
+        for uf in ("AC", "RR")
+        for i in client.get(f"/estados/{uf}/assembleia").json()["itens"]
+    }
+    corpo = client.get("/comparar/local", params={"a": ids["Ana"], "b": ids["Bia"]}).json()
+    assert (corpo["votacoes_em_comum"], corpo["iguais"]) == (2, 1)
+    assert corpo["divergencias"][0]["materia"] == "Veto nº 11 de 2025"
+    assert corpo["proposicoes_por_tipo"] == [{"tipo": "Indicação", "a": 2, "b": 2}]
+    assert (
+        client.get("/comparar/local", params={"a": ids["Ana"], "b": ids["Rui"]}).status_code == 422
+    )
+    assert (
+        client.get("/comparar/local", params={"a": ids["Ana"], "b": ids["Ana"]}).status_code == 422
+    )

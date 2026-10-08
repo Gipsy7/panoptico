@@ -686,3 +686,38 @@ class BuscaItem(BaseModel):
 
 class BuscaResposta(BaseModel):
     itens: list[BuscaItem]
+
+
+class LadoLocal(VereadorItem):
+    presenca: PresencaLocal | None
+    proposicoes_por_tipo: dict[str, int]
+    pessoais: Pessoais | None
+    votos_recebidos: int | None
+
+
+class TipoComparado(BaseModel):
+    tipo: str
+    a: int
+    b: int
+
+
+class DivergenciaLocal(BaseModel):
+    data: date | None
+    materia: str
+    resultado: str | None
+    url: str | None
+    voto_a: str
+    voto_b: str
+
+
+class ComparacaoLocal(BaseModel):
+    casa: str
+    a: LadoLocal
+    b: LadoLocal
+    proposicoes_por_tipo: list[TipoComparado]
+    votacoes_em_comum: int
+    iguais: int
+    divergencias: list[DivergenciaLocal]
+    fonte_nome: str
+    fonte_url: str
+    atualizado_em: datetime | None

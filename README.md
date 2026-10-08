@@ -33,6 +33,7 @@ Os dados sobre o trabalho dos parlamentares já são públicos, mas estão espal
 - **Todos os perfis têm a mesma ordem**: cabeçalho, números-chave, "Quem é" (dados declarados ao TSE e votos recebidos), atividade no cargo e, por fim, a eleição (bens e campanha). Quando a câmara ou a assembleia publica a pessoa no cargo, o perfil do TSE leva ao perfil da casa, com a atividade; quando a câmara não publica dados abertos, o perfil diz isso e mostra os canais oficiais da cidade.
 - **Busca por nome** em todos os níveis, na página inicial: parlamentares federais, presidente, governadores, prefeitos, deputados estaduais e vereadores (sem diferença de acento; também pelo nome completo).
 - **Comparador**: dois parlamentares lado a lado, com números, votos em comum por tema e projetos assinados juntos.
+- **Comparador na mesma casa** (`/comparar/local`): dois vereadores da mesma câmara, ou dois deputados da mesma assembleia, com projetos, proposições, presença, votos em comum e dados declarados ao TSE.
 - **Lista de todos os parlamentares federais**, ordenável por um critério factual de cada vez (gastos, presença, projetos, emendas, alinhamento com o Governo). Não há nota nem ranking.
 - **Dinheiro enviado para a sua cidade**: emendas individuais pagas à prefeitura, aos fundos municipais e a entidades, com:
   - quem enviou;

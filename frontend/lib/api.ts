@@ -640,3 +640,35 @@ export type ResultadoBusca = {
 export function getBusca(nome: string) {
   return getJson<{ itens: ResultadoBusca[] }>(`/busca?nome=${encodeURIComponent(nome)}`);
 }
+
+export type LadoLocal = VereadorItem & {
+  presenca: { sessoes: number; presencas: number; media_casa: number | null } | null;
+  proposicoes_por_tipo: Record<string, number>;
+  pessoais: Pessoais | null;
+  votos_recebidos: number | null;
+};
+
+export type ComparacaoLocal = {
+  casa: "camara" | "assembleia";
+  a: LadoLocal;
+  b: LadoLocal;
+  proposicoes_por_tipo: { tipo: string; a: number; b: number }[];
+  votacoes_em_comum: number;
+  iguais: number;
+  divergencias: {
+    data: string | null;
+    materia: string;
+    resultado: string | null;
+    url: string | null;
+    voto_a: string;
+    voto_b: string;
+  }[];
+  fonte_nome: string;
+  fonte_url: string;
+  atualizado_em: string | null;
+};
+
+/** Dois da mesma câmara ou assembleia, lado a lado. */
+export function getComparacaoLocal(a: string, b: string) {
+  return getJson<ComparacaoLocal>(`/comparar/local?a=${encodeURIComponent(a)}&b=${encodeURIComponent(b)}`);
+}

@@ -80,6 +80,10 @@ export async function PerfilMandatoLocal({ id, paginaVotos }: { id: string; pagi
         />
       )}
 
+      <Link href={`/comparar/local?a=${v.id}`} className="botao-linha self-start">
+        Comparar com outro {camara ? "vereador desta câmara" : "deputado desta assembleia"}
+      </Link>
+
       <CompartilharWhatsApp
         caminho={rota}
         texto={`Veja os projetos e as proposições de ${v.nome}, ${cargo.toLowerCase()}, com dados da própria ${nomeCasa}:`}

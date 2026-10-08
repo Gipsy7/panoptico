@@ -109,6 +109,13 @@ O subsídio é igual para deputados e senadores e é fixado por decreto legislat
 - **Bens:** valor como declarado, sem correção. A página avisa que bens costumam ser declarados pelo valor de compra. Sem palavras como "enriqueceu": mostramos os dois totais e o ano.
 - **2024:** o TSE passou a mascarar o CPF, então as candidaturas municipais de 2024 não se ligam aos parlamentares federais.
 
+## 2026-10-08: comparação de vereadores e deputados estaduais
+
+- **Só na mesma casa** (dois vereadores da mesma câmara, dois deputados da mesma assembleia), por decisão do projeto: só aí a pauta e as votações são as mesmas e os números se comparam. Casas diferentes respondem 422 com a explicação.
+- Lado a lado: projetos, proposições (também por tipo), presença, votações nominais, votos recebidos, idade, escolaridade e ocupação.
+- **Votos em comum:** só as votações nominais em que os dois registraram voto ("Não votou" fica de fora); o fato aparece como "votaram igual em X de Y", com a lista das divergências mais recentes.
+- Entrada pelo perfil ("Comparar com outro vereador desta câmara"), escolhendo da lista dos colegas em exercício.
+
 ## 2026-10-08: votações e presença nas câmaras e assembleias (SAPL)
 
 - **Só votações nominais.** Votações simbólicas não anotam o voto de cada um e não entram. Um registro de votação sem nenhum voto nominal é tratado como simbólico.

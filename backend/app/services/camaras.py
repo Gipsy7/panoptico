@@ -5,9 +5,18 @@ from datetime import datetime
 from typing import Any
 
 from sqlalchemy import func, select
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, aliased
 
-from app.models import FonteIngestao, Foto, MandatoLocal, ProjetoLocal, VotacaoLocal, VotoLocal
+from app.models import (
+    Candidatura,
+    FonteIngestao,
+    Foto,
+    MandatoLocal,
+    ProjetoLocal,
+    VotacaoLocal,
+    VotoLocal,
+)
+from app.services import tse
 
 FONTES = {
     "camara": ("sapl_camaras", "Sistema legislativo da câmara (SAPL)"),
@@ -222,4 +231,80 @@ def vereador(session: Session, mandato: MandatoLocal) -> dict:
         "fonte_nome": FONTES[mandato.casa][1],
         "fonte_url": mandato.sapl_url,
         "atualizado_em": _atualizado_em(session, mandato.casa),
+    }
+
+
+def mesma_casa(a: MandatoLocal, b: MandatoLocal) -> bool:
+    if a.casa != b.casa:
+        return False
+    return a.municipio_ibge == b.municipio_ibge if a.casa == "camara" else a.uf == b.uf
+
+
+def _lado(session: Session, m: MandatoLocal) -> dict:
+    projetos = session.scalar(select(func.count()).where(ProjetoLocal.mandato_id == m.id)) or 0
+    candidatura = session.get(Candidatura, m.candidatura_id) if m.candidatura_id else None
+    com_foto = (
+        set(
+            session.scalars(
+                select(Foto.candidatura_id).where(Foto.candidatura_id == m.candidatura_id)
+            )
+        )
+        if m.candidatura_id
+        else set()
+    )
+    return {
+        **_item(m, projetos, com_foto, _contar_votos(session, [m.id]).get(m.id, 0)),
+        "presenca": presenca(session, m),
+        "proposicoes_por_tipo": m.proposicoes_por_tipo,
+        "pessoais": tse._pessoais(session, [candidatura]) if candidatura else None,
+        "votos_recebidos": candidatura.votos if candidatura else None,
+    }
+
+
+def comparar(session: Session, a: MandatoLocal, b: MandatoLocal) -> dict:
+    """Dois parlamentares da mesma casa lado a lado e as votações nominais em que os dois
+    registraram voto: em quantas votaram igual e onde divergiram."""
+    va, vb = aliased(VotoLocal), aliased(VotoLocal)
+    pares = session.execute(
+        select(VotacaoLocal, va.voto, vb.voto)
+        .join(va, va.votacao_id == VotacaoLocal.id)
+        .join(vb, vb.votacao_id == VotacaoLocal.id)
+        .where(
+            va.mandato_id == a.id,
+            vb.mandato_id == b.id,
+            func.lower(va.voto).not_in(NAO_VOTOU),
+            func.lower(vb.voto).not_in(NAO_VOTOU),
+        )
+        .order_by(VotacaoLocal.data.desc().nulls_last(), VotacaoLocal.id.desc())
+    ).all()
+    divergencias = [(v, x, y) for v, x, y in pares if x != y]
+    tipos = sorted(set(a.proposicoes_por_tipo) | set(b.proposicoes_por_tipo))
+    return {
+        "casa": a.casa,
+        "a": _lado(session, a),
+        "b": _lado(session, b),
+        "proposicoes_por_tipo": [
+            {
+                "tipo": t,
+                "a": a.proposicoes_por_tipo.get(t, 0),
+                "b": b.proposicoes_por_tipo.get(t, 0),
+            }
+            for t in tipos
+        ],
+        "votacoes_em_comum": len(pares),
+        "iguais": len(pares) - len(divergencias),
+        "divergencias": [
+            {
+                "data": v.data,
+                "materia": v.materia,
+                "resultado": v.resultado,
+                "url": v.url,
+                "voto_a": x,
+                "voto_b": y,
+            }
+            for v, x, y in divergencias[:20]
+        ],  # fmt: skip
+        "fonte_nome": FONTES[a.casa][1],
+        "fonte_url": a.sapl_url,
+        "atualizado_em": _atualizado_em(session, a.casa),
     }
