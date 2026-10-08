@@ -10,6 +10,7 @@ sem nomes (servidores, autônomos, beneficiários: cidadãos comuns).
 import argparse
 import csv
 import io
+import re
 import zipfile
 from collections import defaultdict
 from decimal import Decimal
@@ -40,11 +41,24 @@ def tipo_de_orgao(nome: str) -> str:
     return "outros"
 
 
+PREFIXOS_ORGAO = re.compile(
+    r"^(PREFEITURA MUNICIPAL DE|PREFEITURA DO MUNICIPIO DE|PREFEITURA DE|MUNICIPIO DE|"
+    r"CAMARA MUNICIPAL DE|CAMARA DE VEREADORES DE|CAMARA DE) "
+)
+
+
 def e_folha(credor: str, orgao: str) -> bool:
-    """O órgão pagando a si mesmo (ex.: "CAMARA MUNICIPAL DE CAMPINAS" na câmara de
-    Campinas) ou um credor "FOLHA DE PAGAMENTO": é a folha de salários, não um fornecedor."""
+    """O órgão pagando a si mesmo é a folha de salários, não um fornecedor. Visto como
+    "CAMARA MUNICIPAL DE CAMPINAS" na câmara de Campinas, "MUNICIPIO DE CAMPINAS" (com o
+    CNPJ da prefeitura) na prefeitura, ou um credor "FOLHA DE PAGAMENTO". O instituto de
+    previdência ("... DO MUNICIPIO DE CAMPINAS") não é o órgão e continua como fornecedor."""
     credor, orgao = comum.chave_nome(credor), comum.chave_nome(orgao)
-    return "FOLHA" in credor or (len(credor) > 10 and (credor in orgao or orgao in credor))
+    if "FOLHA" in credor:
+        return True
+    if len(credor) > 10 and (credor in orgao or orgao in credor):
+        return True
+    nucleo_credor = PREFIXOS_ORGAO.sub("", credor)
+    return nucleo_credor != credor and nucleo_credor == PREFIXOS_ORGAO.sub("", orgao)
 
 
 def valor(texto: str) -> Decimal:

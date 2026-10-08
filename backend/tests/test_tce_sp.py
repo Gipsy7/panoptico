@@ -29,6 +29,13 @@ def test_folha_de_pagamento_nao_e_fornecedor():
     assert sp.e_folha("CAMARA MUNICIPAL DE CAMPINAS", "CÂMARA MUNICIPAL DE CAMPINAS")
     assert sp.e_folha("CAMARA MUNICIPAL - FOLHA DE PAGAMENTO", "CÂMARA MUNICIPAL DE BADY BASSITT")
     assert not sp.e_folha("BMS CONSTRUCOES", "CÂMARA MUNICIPAL DE BADY BASSITT")
+    # A prefeitura pagando ao "município" (o próprio CNPJ) também é folha; a previdência não.
+    assert sp.e_folha("MUNICIPIO DE CAMPINAS", "PREFEITURA MUNICIPAL DE CAMPINAS")
+    assert not sp.e_folha(
+        "INSTITUTO DE PREVIDENCIA SOCIAL DO MUNICIPIO DE CAMPINAS - CAMPREV",
+        "PREFEITURA MUNICIPAL DE CAMPINAS",
+    )
+    assert not sp.e_folha("MUNICIPIO DE VALINHOS", "PREFEITURA MUNICIPAL DE CAMPINAS")
 
 
 def test_tipo_de_orgao():
