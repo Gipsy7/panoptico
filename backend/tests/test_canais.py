@@ -131,3 +131,9 @@ def test_curados_substituem_a_varredura(tmp_path):
         "camara": "https://www.saopaulo.sp.leg.br/",
         "prefeitura": "https://prefeitura.sp.gov.br/",
     }
+
+
+def test_migracoes_atuais_nao_pedem_recarga():
+    from ingestion.precisa_recarga import precisa
+
+    assert precisa("0014", "0017") is False

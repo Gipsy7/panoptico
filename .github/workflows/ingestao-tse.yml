@@ -27,7 +27,7 @@ on:
         default: ""
 
 concurrency:
-  group: ingestao
+  group: ingestao-tse
   cancel-in-progress: false
 
 jobs:

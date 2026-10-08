@@ -19,7 +19,7 @@ Conta Vercel: `gipsy7` (time `gipsy7s-projects`, plano Hobby). Repositório púb
 
 ## Publicar código: sempre pelo branch `dev`
 
-Nunca faça push direto no `main`. Envie para o `dev` (`git push origin dev`; se estiver no `main` local, `git push origin main:dev` ou mude de branch antes de commitar). O workflow **Publicar** roda os testes, aplica as migrações e, se o banco mudou, recarrega todos os dados (~15 min). Só então avança o `main`, e a Vercel publica. Isso evita o site no ar com código que espera tabelas ou dados que ainda não existem.
+Nunca faça push direto no `main`. Envie para o `dev` (`git push origin dev`; se estiver no `main` local, `git push origin main:dev` ou mude de branch antes de commitar). O workflow **Publicar** roda os testes, aplica as migrações e recarrega os dados federais (~20 min) só se uma migração declarar `RECARREGAR_DADOS = True` (tabelas que a ingestão diária preenche); senão, publica em poucos minutos. Cada carga tem a sua fila de execução (ver "Filas no banco" em `docs/DEPLOY_GRATUITO.md`); disparar outra execução na mesma fila cancela a pendente. Só então avança o `main`, e a Vercel publica. Isso evita o site no ar com código que espera tabelas ou dados que ainda não existem.
 
 - Acompanhe com `gh run list --workflow publicar.yml --limit 1` e `gh run watch <id> --exit-status` em background.
 - Forçar recarga sem migração: `gh workflow run publicar.yml --ref dev -f recarregar=true`.

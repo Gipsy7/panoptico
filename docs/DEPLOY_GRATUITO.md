@@ -6,6 +6,10 @@
 | API (FastAPI) | Vercel, projeto `panoptico-api` | https://api.panoptico.social.br |
 | Banco | Neon (plano gratuito, 0,5 GB) | — |
 | Atualização diária dos dados | GitHub Actions (`.github/workflows/ingestao.yml`) | 6h de Brasília |
+| Câmaras municipais (SAPL) | `.github/workflows/ingestao-camaras.yml`, um estado por máquina | domingo, 8h |
+| Contas dos municípios (SICONFI) | `.github/workflows/ingestao-mensal.yml` | dia 15, 7h |
+| TSE (eleitos, bens, contas, votos, fotos) | `.github/workflows/ingestao-tse.yml` | manual, uma vez por eleição |
+| Varredura dos canais oficiais | `.github/workflows/varredura-canais.yml` | manual |
 
 Nenhum segredo fica no repositório. A URL do banco vai só para o **secret do GitHub** e para a **variável de ambiente da Vercel**.
 
@@ -90,7 +94,7 @@ Trabalhe no branch **`dev`** e envie (`git push origin dev`). O workflow **Publi
 
 1. roda os testes;
 2. aplica as migrações no Neon;
-3. se alguma migração foi aplicada, recarrega todos os dados (leva cerca de 15 minutos);
+3. recarrega os dados federais (cerca de 20 minutos) **só se uma das migrações aplicadas declarar `RECARREGAR_DADOS = True`**, isto é, se mexer em tabelas que a ingestão diária preenche. Tabelas novas com carga própria (TSE, SICONFI, SAPL) não pedem recarga, e a publicação fica em poucos minutos;
 4. avança o `main`, e a Vercel publica.
 
 Assim o código novo nunca entra no ar antes de o banco estar pronto para ele, e o site não fica sem dados. Para forçar a recarga sem migração nova: **Actions → Publicar → Run workflow → recarregar**.
@@ -123,3 +127,11 @@ No plano pago do Neon, configure também no console:
 - **Spending limit** baixo, por exemplo US$ 10. Hoje ele só manda e-mail aos 80% e aos 100% e não suspende o banco.
 - **Um único branch:** cada compute ligado custa à parte.
 - **`DATABASE_URL` nunca em código ou log:** o repositório é público.
+
+## Filas no banco
+
+Cada tipo de carga tem a sua fila (`concurrency` no workflow), e por isso cargas diferentes podem rodar ao mesmo tempo:
+- `ingestao-federal`: a ingestão diária e a recarga do Publicar, que escrevem nas mesmas tabelas;
+- `ingestao-tse`, `ingestao-mensal` e `ingestao-camaras`: cada uma com as suas tabelas.
+
+As migrações usam uma trava no próprio Postgres (`pg_advisory_xact_lock` em `alembic/env.py`): se dois workflows migrarem ao mesmo tempo, o segundo espera e não encontra nada a fazer. Atenção: o GitHub mantém só **uma** execução pendente por fila; disparar outra na mesma fila cancela a que estava esperando.

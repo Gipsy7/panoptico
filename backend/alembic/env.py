@@ -1,6 +1,6 @@
 from logging.config import fileConfig
 
-from sqlalchemy import engine_from_config, pool
+from sqlalchemy import engine_from_config, pool, text
 
 from alembic import context
 from app.config import settings
@@ -67,6 +67,9 @@ def run_migrations_online() -> None:
         context.configure(connection=connection, target_metadata=target_metadata)
 
         with context.begin_transaction():
+            # Vários workflows aplicam migrações (publicação e cargas). A trava no próprio
+            # Postgres faz o segundo esperar o primeiro terminar e então não ter nada a fazer.
+            connection.execute(text("SELECT pg_advisory_xact_lock(7263540)"))
             context.run_migrations()
 
 

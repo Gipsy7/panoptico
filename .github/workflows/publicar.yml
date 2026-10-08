@@ -2,8 +2,9 @@ name: Publicar
 
 # Publica o que está no branch `dev` sem deixar o site sem dados:
 #   1. roda os testes;
-#   2. aplica as migrações no banco de produção;
-#   3. se alguma migração foi aplicada (ou se pedido), recarrega todos os dados;
+#   2. aplica as migrações no banco de produção (rápido);
+#   3. só se uma migração pedir (RECARREGAR_DADOS = True) ou se pedido à mão, recarrega
+#      os dados federais; tabelas novas com carga própria não precisam disso;
 #   4. só então avança o `main`, que é o branch que a Vercel publica.
 # Assim o código novo nunca chega ao ar antes do banco estar pronto para ele.
 # Regra para isso funcionar: migrações só ACRESCENTAM (tabelas, colunas opcionais),
@@ -30,13 +31,55 @@ jobs:
   testes:
     uses: ./.github/workflows/ci.yml
 
-  banco:
+  migracoes:
     needs: testes
     runs-on: ubuntu-latest
-    timeout-minutes: 60
-    # Não roda junto com a ingestão diária: as duas escrevem no mesmo banco.
+    timeout-minutes: 15
+    outputs:
+      recarregar: ${{ steps.decidir.outputs.recarregar }}
+    defaults:
+      run:
+        working-directory: backend
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: astral-sh/setup-uv@v6
+        with:
+          version: "0.12.23"
+
+      - name: Instalar dependências
+        run: uv sync --locked --no-dev
+
+      # O Alembic trava no próprio Postgres: se uma carga estiver migrando ao mesmo tempo,
+      # este passo espera e depois não tem nada a fazer.
+      - name: Migrações do banco
+        id: decidir
+        env:
+          RECARREGAR: ${{ inputs.recarregar }}
+        run: |
+          antes="$(uv run alembic current 2>/dev/null | tail -n 1 | awk '{print $1}')"
+          uv run alembic upgrade head
+          depois="$(uv run alembic current 2>/dev/null | tail -n 1 | awk '{print $1}')"
+          echo "Versão do banco: '$antes' -> '$depois'"
+          recarregar=false
+          if [ "$RECARREGAR" = "true" ]; then
+            recarregar=true
+          elif [ "$antes" != "$depois" ]; then
+            recarregar="$(uv run python -m ingestion.precisa_recarga "$antes" "$depois")"
+          fi
+          echo "Recarregar os dados federais: $recarregar"
+          echo "recarregar=$recarregar" >> "$GITHUB_OUTPUT"
+
+  recarga:
+    needs: migracoes
+    if: needs.migracoes.outputs.recarregar == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    # Não roda junto com a ingestão diária: as duas escrevem nas mesmas tabelas federais.
     concurrency:
-      group: ingestao
+      group: ingestao-federal
       cancel-in-progress: false
     defaults:
       run:
@@ -53,25 +96,13 @@ jobs:
       - name: Instalar dependências
         run: uv sync --locked --no-dev
 
-      - name: Migrações do banco
-        id: migracoes
-        run: |
-          antes="$(uv run alembic current 2>/dev/null | tail -n 1)"
-          uv run alembic upgrade head
-          depois="$(uv run alembic current 2>/dev/null | tail -n 1)"
-          echo "Versão do banco: '$antes' -> '$depois'"
-          if [ "$antes" != "$depois" ]; then
-            echo "mudou=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "mudou=false" >> "$GITHUB_OUTPUT"
-          fi
-
-      - name: Recarregar os dados (só quando o banco mudou ou foi pedido)
-        if: steps.migracoes.outputs.mudou == 'true' || inputs.recarregar
+      - name: Recarregar os dados federais
         run: uv run python -m ingestion.run_all
 
   promover:
-    needs: banco
+    needs: [migracoes, recarga]
+    # Avança quando a recarga deu certo ou não foi necessária.
+    if: always() && needs.migracoes.result == 'success' && (needs.recarga.result == 'success' || needs.recarga.result == 'skipped')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
