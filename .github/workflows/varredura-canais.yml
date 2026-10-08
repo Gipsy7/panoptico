@@ -1,0 +1,60 @@
+name: Varredura dos canais oficiais
+
+# Varredura inicial (e, de tempos em tempos, de revisão) dos sites oficiais de cada
+# município. O resultado vai para data/canais_oficiais.csv num branch próprio, para ser
+# revisado e incorporado por pull request.
+on:
+  workflow_dispatch:
+    inputs:
+      ufs:
+        description: "Estados, separados por espaço (vazio = todos)"
+        type: string
+        default: ""
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  varredura:
+    runs-on: ubuntu-latest
+    timeout-minutes: 350
+    defaults:
+      run:
+        working-directory: backend
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      UFS: ${{ inputs.ufs }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: astral-sh/setup-uv@v6
+        with:
+          version: "0.12.23"
+
+      - name: Instalar dependências
+        run: uv sync --locked --no-dev
+
+      - name: Varrer
+        run: |
+          if [ -n "$UFS" ]; then
+            uv run python -W ignore -m ingestion.canais.varredura --uf $UFS | tee ../varredura.log
+          else
+            uv run python -W ignore -m ingestion.canais.varredura | tee ../varredura.log
+          fi
+
+      - name: Abrir pull request com o catálogo
+        working-directory: .
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          ramo="varredura-canais-${{ github.run_id }}"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -b "$ramo"
+          git add data/canais_oficiais.csv
+          git commit -m "Catálogo de canais oficiais (varredura ${{ github.run_id }})"
+          git push origin "$ramo"
+          gh pr create --base dev --head "$ramo" \
+            --title "Catálogo de canais oficiais (varredura)" \
+            --body-file varredura.log || echo "PR não criado (permissão do repositório); o branch $ramo está publicado."

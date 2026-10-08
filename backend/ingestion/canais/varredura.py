@@ -1,0 +1,350 @@
+"""Varredura inicial dos canais oficiais de cada município (prefeitura, câmara e portais de
+transparência), feita uma vez. O resultado vira o catálogo versionado
+`data/canais_oficiais.csv`, e as cargas seguintes vão direto aos endereços dele.
+
+Como funciona, para cada cidade:
+1. Testa os endereços padrão da prefeitura (`{cidade}.{uf}.gov.br`) e da câmara
+   (`{cidade}.{uf}.leg.br`, `camara{cidade}.{uf}.gov.br`, `cm{cidade}...`).
+2. Lê a página inicial da prefeitura (e da câmara, se achada) e aproveita os links para a
+   câmara e para o portal da transparência.
+3. Confere se a página é mesmo daquela cidade (o nome aparece no título ou no texto).
+4. Reconhece o sistema usado: SAPL do Interlegis (pela API) e os fornecedores de portal de
+   transparência mais comuns (pelo endereço do link).
+
+Educação com os servidores: poucas conexões ao mesmo tempo, uma por site, identificação
+do Panóptico no User-Agent e só domínios oficiais (.gov.br e .leg.br) como ponto de
+partida. Um site oficial pode redirecionar para outro domínio .br; aceitamos o destino.
+"""
+
+import argparse
+import asyncio
+import csv
+import re
+import unicodedata
+from dataclasses import dataclass, field
+from datetime import date
+from html.parser import HTMLParser
+from pathlib import Path
+from urllib.parse import urljoin, urlparse
+
+import httpx
+from sqlalchemy import select
+
+from app.config import BACKEND_DIR
+from app.db import SessionLocal
+from app.models import Municipio
+from ingestion.comum import USER_AGENT, chave_nome
+
+CATALOGO = BACKEND_DIR.parent / "data" / "canais_oficiais.csv"
+COLUNAS = ["ibge", "municipio", "uf", "tipo", "url", "sistema", "verificado_em"]
+
+# Fornecedores de portal de transparência, reconhecidos pelo endereço do portal.
+SISTEMAS = [
+    ("betha", re.compile(r"betha\.cloud|bethacloud|betha\.com\.br", re.I)),
+    ("ipm", re.compile(r"atende\.net|ipm\.com\.br|ipmsistemas", re.I)),
+    ("fiorilli", re.compile(r"fiorilli|sctransparencia|scpi", re.I)),
+    ("elotech", re.compile(r"elotech|oxy\.elotech", re.I)),
+    ("govbr", re.compile(r"govbr\.com\.br|portaltransparencia\.govbr", re.I)),
+    ("e-gov (sintese)", re.compile(r"e-gov\.betha|sintese|tdm\.com\.br", re.I)),
+    ("aspec", re.compile(r"aspec\.com\.br", re.I)),
+    ("portalfacil", re.compile(r"portalfacil", re.I)),
+    ("cr2", re.compile(r"cr2\.co|cr2transparencia", re.I)),
+    ("instar", re.compile(r"instar\.com\.br|transparencia\.app", re.I)),
+    ("pronim (govbr)", re.compile(r"pronim|cidade360", re.I)),
+    ("cittaweb", re.compile(r"cittaweb", re.I)),
+    ("multi24", re.compile(r"multi24", re.I)),
+    ("abase", re.compile(r"abase\.com\.br", re.I)),
+    ("digifred", re.compile(r"digifred", re.I)),
+    ("epublica", re.compile(r"epublica", re.I)),
+]
+# Links com "transparência" que não são o portal (campanhas, radares externos, covid).
+NAO_E_PORTAL = re.compile(r"covid|vacina|radardatransparencia|atricon|ouvidoria|lgpd", re.I)
+OFICIAL = (".gov.br", ".leg.br")
+
+
+def slugs(nome: str) -> list[str]:
+    """Formas do nome usadas em domínios: 'São Bento do Sul' -> 'saobentodosul',
+    'sao-bento-do-sul', 'saobentodsul' não (abreviações não são adivinháveis)."""
+    base = unicodedata.normalize("NFKD", nome).encode("ascii", "ignore").decode().lower()
+    base = re.sub(r"[^a-z0-9 ]", " ", base.replace("'", "")).split()
+    juntos = "".join(base)
+    com_hifen = "-".join(base)
+    return list(dict.fromkeys([juntos, com_hifen]))
+
+
+def candidatos(nome: str, uf: str) -> dict[str, list[str]]:
+    uf = uf.lower()
+    prefeitura, camara = [], []
+    for s in slugs(nome):
+        prefeitura += [f"https://{s}.{uf}.gov.br/", f"https://www.{s}.{uf}.gov.br/"]
+        camara += [
+            f"https://{s}.{uf}.leg.br/",
+            f"https://www.{s}.{uf}.leg.br/",
+            f"https://camara{s}.{uf}.gov.br/",
+            f"https://www.camara{s}.{uf}.gov.br/",
+            f"https://cm{s}.{uf}.gov.br/",
+            f"https://www.cm{s}.{uf}.gov.br/",
+        ]
+    return {"prefeitura": prefeitura, "camara": camara}
+
+
+class _Links(HTMLParser):
+    def __init__(self) -> None:
+        super().__init__()
+        self.links: list[tuple[str, str]] = []
+        self.titulo = ""
+        self._no_titulo = False
+        self._href: str | None = None
+
+    def handle_starttag(self, tag, attrs):
+        if tag == "title":
+            self._no_titulo = True
+        if tag == "a":
+            self._href = dict(attrs).get("href")
+            if self._href:
+                self.links.append((self._href, ""))
+
+    def handle_endtag(self, tag):
+        if tag == "title":
+            self._no_titulo = False
+        if tag == "a":
+            self._href = None
+
+    def handle_data(self, data):
+        if self._no_titulo:
+            self.titulo += data
+        elif self._href and self.links:
+            href, texto = self.links[-1]
+            self.links[-1] = (href, texto + data)
+
+
+@dataclass
+class Pagina:
+    url: str
+    titulo: str
+    texto: str
+    links: list[tuple[str, str]] = field(default_factory=list)
+
+
+def _da_cidade(pagina: Pagina, nome: str) -> bool:
+    chave = chave_nome(nome)
+    return chave in chave_nome(pagina.titulo) or chave in chave_nome(pagina.texto[:20000])
+
+
+def _oficial(url: str) -> bool:
+    host = urlparse(url).hostname or ""
+    return host.endswith(OFICIAL)
+
+
+def melhor_portal(pagina: Pagina) -> str | None:
+    """O link mais provável para o portal da transparência: o texto diz "transparência",
+    não é a própria página inicial nem uma campanha, e um fornecedor conhecido vale mais."""
+    inicio = pagina.url.rstrip("/")
+    melhores: list[tuple[int, str]] = []
+    for href, texto in pagina.links:
+        absoluto = urljoin(pagina.url, href)
+        alvo = f"{absoluto} {texto}".lower()
+        if "transpar" not in alvo or not absoluto.startswith("http"):
+            continue
+        if absoluto.rstrip("/") == inicio or NAO_E_PORTAL.search(alvo):
+            continue
+        pontos = 0
+        if "portal da transpar" in alvo or "portal transpar" in alvo:
+            pontos += 3
+        if "transpar" in texto.lower():
+            pontos += 2
+        if sistema_de(absoluto):
+            pontos += 2
+        melhores.append((pontos, absoluto))
+    return max(melhores, key=lambda x: x[0])[1] if melhores else None
+
+
+def sistema_de(url: str) -> str | None:
+    for nome, padrao in SISTEMAS:
+        if padrao.search(url):
+            return nome
+    return None
+
+
+class Varredura:
+    def __init__(self, conexoes: int = 24, tempo: float = 12.0, pausa: float = 1.5) -> None:
+        self.limite = asyncio.Semaphore(conexoes)
+        # Muitas cidades dividem o mesmo servidor (o mesmo IP): uma requisição por vez por
+        # servidor, com pausa, senão o servidor nos bloqueia (visto em SC: resposta 444).
+        self.pausa = pausa
+        self.por_servidor: dict[str, asyncio.Lock] = {}
+        self.ips: dict[str, str] = {}
+        self.cliente = httpx.AsyncClient(
+            timeout=httpx.Timeout(tempo),
+            headers={"User-Agent": USER_AGENT, "Accept": "text/html,application/json"},
+            follow_redirects=True,
+            verify=False,  # muitos sites municipais têm certificado vencido ou incompleto
+        )
+
+    async def fechar(self) -> None:
+        await self.cliente.aclose()
+
+    async def _servidor(self, url: str) -> asyncio.Lock | None:
+        host = urlparse(url).hostname or ""
+        if host not in self.ips:
+            try:
+                info = await asyncio.get_running_loop().getaddrinfo(host, 443)
+                self.ips[host] = info[0][4][0]
+            except OSError:
+                self.ips[host] = ""  # domínio não existe: nem tenta conectar
+        ip = self.ips[host]
+        if not ip:
+            return None
+        return self.por_servidor.setdefault(ip, asyncio.Lock())
+
+    async def _get(self, url: str) -> httpx.Response | None:
+        trava = await self._servidor(url)
+        if trava is None:
+            return None
+        async with trava, self.limite:
+            try:
+                return await self.cliente.get(url)
+            except (httpx.HTTPError, UnicodeDecodeError, ValueError):
+                return None
+            finally:
+                await asyncio.sleep(self.pausa)
+
+    async def pagina(self, url: str) -> Pagina | None:
+        resposta = await self._get(url)
+        if resposta is None:
+            return None
+        tipo = resposta.headers.get("content-type", "")
+        if resposta.status_code != 200 or "html" not in tipo:
+            return None
+        html = resposta.text[:400_000]
+        leitor = _Links()
+        try:
+            leitor.feed(html)
+        except Exception:  # HTML quebrado: segue com o que deu para ler
+            pass
+        texto = re.sub(r"<[^>]+>", " ", html)
+        return Pagina(str(resposta.url), leitor.titulo.strip(), texto, leitor.links)
+
+    async def e_sapl(self, url: str) -> bool:
+        resposta = await self._get(urljoin(url, "/api/parlamentares/parlamentar/?page_size=1"))
+        return (
+            resposta is not None
+            and resposta.status_code == 200
+            and "results" in resposta.text[:2000]
+        )
+
+    async def primeira(self, urls: list[str], nome: str) -> Pagina | None:
+        for url in urls:
+            pagina = await self.pagina(url)
+            if pagina and _da_cidade(pagina, nome):
+                return pagina
+        return None
+
+    async def cidade(self, ibge: str, nome: str, uf: str) -> list[dict]:
+        hoje = date.today().isoformat()
+        achados: list[dict] = []
+
+        def anotar(tipo: str, url: str, sistema: str | None = None) -> None:
+            if not any(a["tipo"] == tipo for a in achados):
+                achados.append(
+                    {
+                        "ibge": ibge,
+                        "municipio": nome,
+                        "uf": uf,
+                        "tipo": tipo,
+                        "url": url,
+                        "sistema": sistema or "",
+                        "verificado_em": hoje,
+                    }  # fmt: skip
+                )
+
+        tentativas = candidatos(nome, uf)
+        prefeitura = await self.primeira(tentativas["prefeitura"], nome)
+        if prefeitura:
+            anotar("prefeitura", prefeitura.url)
+
+        # Câmara: primeiro o link no site da prefeitura, depois os endereços padrão.
+        links_camara = []
+        if prefeitura:
+            for href, texto in prefeitura.links:
+                absoluto = urljoin(prefeitura.url, href)
+                alvo = (absoluto + " " + texto).lower()
+                if _oficial(absoluto) and (".leg.br" in absoluto or "camara" in alvo):
+                    if urlparse(absoluto).hostname != urlparse(prefeitura.url).hostname:
+                        links_camara.append(
+                            f"{urlparse(absoluto).scheme}://{urlparse(absoluto).hostname}/"
+                        )
+        camara = await self.primeira(list(dict.fromkeys(links_camara + tentativas["camara"])), nome)
+        if camara:
+            anotar("camara", camara.url, "sapl" if await self.e_sapl(camara.url) else None)
+
+        # Portais da transparência: o melhor link "transparência" dos sites oficiais.
+        for origem, pagina in (("prefeitura", prefeitura), ("camara", camara)):
+            if pagina and (portal := melhor_portal(pagina)):
+                anotar(f"transparencia_{origem}", portal, sistema_de(portal))
+        return achados
+
+
+async def varrer(municipios: list[tuple[str, str, str]], conexoes: int) -> list[dict]:
+    varredura = Varredura(conexoes)
+    feitos = 0
+
+    async def uma(m: tuple[str, str, str]) -> list[dict]:
+        nonlocal feitos
+        resultado = await varredura.cidade(*m)
+        feitos += 1
+        if feitos % 100 == 0:
+            print(f"  {feitos} de {len(municipios)} cidades")
+        return resultado
+
+    try:
+        resultados = await asyncio.gather(*(uma(m) for m in municipios))
+    finally:
+        await varredura.fechar()
+    return [linha for lista in resultados for linha in lista]
+
+
+def gravar_catalogo(linhas: list[dict], destino: Path = CATALOGO) -> None:
+    destino.parent.mkdir(parents=True, exist_ok=True)
+    linhas = sorted(linhas, key=lambda x: (x["uf"], x["municipio"], x["tipo"]))
+    with destino.open("w", encoding="utf-8", newline="") as arquivo:
+        escritor = csv.DictWriter(arquivo, fieldnames=COLUNAS)
+        escritor.writeheader()
+        escritor.writerows(linhas)
+
+
+def resumo(linhas: list[dict], total: int) -> str:
+    por_tipo: dict[str, set[str]] = {}
+    sistemas: dict[str, int] = {}
+    for linha in linhas:
+        por_tipo.setdefault(linha["tipo"], set()).add(linha["ibge"])
+        if linha["sistema"]:
+            chave = f"{linha['tipo']}: {linha['sistema']}"
+            sistemas[chave] = sistemas.get(chave, 0) + 1
+    partes = [f"{tipo}: {len(ids)} de {total} cidades" for tipo, ids in sorted(por_tipo.items())]
+    partes += [f"{k}: {v}" for k, v in sorted(sistemas.items(), key=lambda x: -x[1])]
+    return "\n".join(partes)
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Varredura dos canais oficiais dos municípios")
+    parser.add_argument("--uf", nargs="*", help="Só estes estados (padrão: todos)")
+    parser.add_argument("--limite", type=int, help="Só as N primeiras cidades (teste)")
+    parser.add_argument("--conexoes", type=int, default=24)
+    parser.add_argument("--saida", type=Path, default=CATALOGO)
+    args = parser.parse_args()
+
+    with SessionLocal() as session:
+        consulta = select(Municipio.ibge, Municipio.nome, Municipio.uf).order_by(
+            Municipio.uf, Municipio.nome
+        )
+        if args.uf:
+            consulta = consulta.where(Municipio.uf.in_([u.upper() for u in args.uf]))
+        municipios = [tuple(m) for m in session.execute(consulta).all()]
+    if args.limite:
+        municipios = municipios[: args.limite]
+    print(f"Varrendo {len(municipios)} cidades...")
+    linhas = asyncio.run(varrer(municipios, args.conexoes))
+    gravar_catalogo(linhas, args.saida)
+    print(resumo(linhas, len(municipios)))
+    print(f"Catálogo: {args.saida}")
