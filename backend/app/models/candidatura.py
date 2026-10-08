@@ -6,6 +6,7 @@ from sqlalchemy import (
     Date,
     ForeignKey,
     Index,
+    LargeBinary,
     Numeric,
     SmallInteger,
     String,
@@ -108,3 +109,15 @@ class RedeSocial(Base):
         ForeignKey("candidatura.id", ondelete="CASCADE"), index=True
     )
     url: Mapped[str] = mapped_column(Text)
+
+
+class Foto(Base):
+    """Foto do candidato no TSE, reduzida para WebP (só eleitos sem foto oficial de outra
+    fonte). Servida pela API com cache longo na CDN."""
+
+    __tablename__ = "foto"
+
+    candidatura_id: Mapped[int] = mapped_column(
+        ForeignKey("candidatura.id", ondelete="CASCADE"), primary_key=True
+    )
+    webp: Mapped[bytes] = mapped_column(LargeBinary)

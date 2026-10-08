@@ -11,6 +11,13 @@ const API_URL =
 const CABECALHOS: HeadersInit | undefined =
   typeof window === "undefined" ? { "User-Agent": "panoptico-site" } : undefined;
 
+// Endereço público da API (o navegador baixa as fotos direto dela, com cache na CDN).
+const API_PUBLICA = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
+
+export function urlFotoTse(candidaturaId: number) {
+  return `${API_PUBLICA}/fotos/${candidaturaId}.webp`;
+}
+
 export type Casa = "camara" | "senado";
 
 export type ParlamentarResumo = {
@@ -173,6 +180,7 @@ export type CandidaturaTse = {
 
 export type Eleito = {
   id: number;
+  foto?: boolean;
   nome_urna: string;
   partido: string | null;
   numero: string | null;

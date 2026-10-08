@@ -15,6 +15,7 @@ from app.models import (
     CampanhaResumo,
     Candidatura,
     FonteIngestao,
+    Foto,
     Parlamentar,
     RedeSocial,
 )
@@ -154,9 +155,10 @@ def resumo(session: Session, parlamentar: Parlamentar) -> dict:
     }
 
 
-def _eleito(c: Candidatura, depois: Candidatura | None = None) -> dict:
+def _eleito(c: Candidatura, depois: Candidatura | None = None, foto: bool = False) -> dict:
     return {
         "id": c.id,
+        "foto": foto,
         "nome_urna": c.nome_urna,
         "partido": c.partido,
         "numero": c.numero,
@@ -247,7 +249,8 @@ def _lista(session: Session, *condicoes) -> tuple[int | None, list[dict]]:
         .order_by(Candidatura.nome_urna)
     ).all()
     depois = _eleitos_depois(session, list(lista))
-    return ano, [_eleito(c, depois.get(c.id)) for c in lista]
+    fotos = _com_foto(session, [c.id for c in lista])
+    return ano, [_eleito(c, depois.get(c.id), c.id in fotos) for c in lista]
 
 
 def _resposta_lista(session: Session, ano: int | None, itens: list[dict], ano_padrao: int) -> dict:
@@ -277,7 +280,11 @@ def deputados_estaduais(session: Session, uf: str) -> dict:
 def eleito(session: Session, candidatura: Candidatura) -> dict:
     """Perfil de um eleito que só existe no TSE (vereador, deputado estadual)."""
     return {
-        **_eleito(candidatura, _eleitos_depois(session, [candidatura]).get(candidatura.id)),
+        **_eleito(
+            candidatura,
+            _eleitos_depois(session, [candidatura]).get(candidatura.id),
+            bool(_com_foto(session, [candidatura.id])),
+        ),
         "pessoais": _pessoais(session, [candidatura]),
         "cargo": candidatura.cargo.capitalize(),
         "unidade": candidatura.unidade,
@@ -301,8 +308,8 @@ def _chapa(session: Session, titular: Candidatura | None) -> dict | None:
         "cargo": titular.cargo.capitalize(),
         "unidade": titular.unidade,
         "ano_eleicao": titular.ano_eleicao,
-        "titular": _eleito(titular),
-        "vice": _eleito(vice) if vice else None,
+        "titular": _eleito(titular, foto=bool(_com_foto(session, [titular.id]))),
+        "vice": _eleito(vice, foto=bool(_com_foto(session, [vice.id]))) if vice else None,
     }
 
 
@@ -336,3 +343,13 @@ def executivo(session: Session, uf: str, municipio_ibge: str | None) -> dict:
         "fonte_url": FONTE_URL,
         "atualizado_em": _atualizado_em(session),
     }
+
+
+def _com_foto(session: Session, ids: list[int]) -> set[int]:
+    if not ids:
+        return set()
+    return set(session.scalars(select(Foto.candidatura_id).where(Foto.candidatura_id.in_(ids))))
+
+
+def foto(session: Session, candidatura_id: int) -> bytes | None:
+    return session.scalar(select(Foto.webp).where(Foto.candidatura_id == candidatura_id))

@@ -2,7 +2,7 @@
 
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, Path, Query
+from fastapi import APIRouter, Depends, HTTPException, Path, Query, Response
 from sqlalchemy.orm import Session
 
 from app.db import get_session
@@ -41,6 +41,19 @@ def executivo(
     if uf.upper() not in UFS:
         raise HTTPException(404, "Estado não encontrado.")
     return tse.executivo(session, uf, municipio)
+
+
+@router.get("/fotos/{candidatura_id}.webp", response_class=Response)
+def foto(candidatura_id: int, session: Annotated[Session, Depends(get_session)]) -> Response:
+    """Foto do TSE. Não muda depois da eleição: a CDN guarda por um ano."""
+    webp = tse.foto(session, candidatura_id)
+    if webp is None:
+        raise HTTPException(404, "Sem foto.")
+    return Response(
+        content=webp,
+        media_type="image/webp",
+        headers={"Cache-Control": "public, max-age=31536000, immutable"},
+    )
 
 
 @router.get("/eleitos/{candidatura_id}", response_model=EleitoDetalhe)

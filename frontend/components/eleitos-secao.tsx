@@ -1,7 +1,7 @@
 import Link from "next/link";
 
 import { FonteRodape } from "@/components/fonte-rodape";
-import type { Eleito, ListaEleitos } from "@/lib/api";
+import { type Eleito, type ListaEleitos, urlFotoTse } from "@/lib/api";
 
 /** Vereadores de uma cidade ou deputados estaduais de um estado, como eleitos no TSE. */
 export function EleitosSecao({
@@ -46,7 +46,7 @@ function CartaoEleito({ eleito }: { eleito: Eleito }) {
       href={href}
       className="group flex items-center gap-4 py-3 transition-colors duration-300 hover:bg-accent/50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-bronze"
     >
-      <Iniciais nome={eleito.nome_urna} />
+      <FotoOuIniciais eleito={eleito} />
       <div className="min-w-0">
         <p className="truncate text-base font-semibold">{eleito.nome_urna}</p>
         <p className="text-sm text-muted-foreground">
@@ -69,7 +69,24 @@ function CartaoEleito({ eleito }: { eleito: Eleito }) {
   );
 }
 
-/** O TSE não libera as fotos para uso automático: no lugar, as iniciais. */
+/** Foto do TSE quando houver; senão, as iniciais. */
+export function FotoOuIniciais({ eleito, tamanho = 44 }: { eleito: Eleito; tamanho?: number }) {
+  if (!eleito.foto) return <Iniciais nome={eleito.nome_urna} tamanho={tamanho} />;
+  return (
+    // eslint-disable-next-line @next/next/no-img-element -- WebP pequeno, já reduzido e com cache longo na CDN
+    <img
+      src={urlFotoTse(eleito.id)}
+      alt={`Foto de ${eleito.nome_urna}`}
+      width={tamanho}
+      height={Math.round((tamanho * 4) / 3)}
+      loading="lazy"
+      className="shrink-0 rounded-[2px] bg-muted object-cover"
+      style={{ width: tamanho, height: Math.round((tamanho * 4) / 3) }}
+    />
+  );
+}
+
+/** Sem foto: as iniciais no lugar. */
 export function Iniciais({ nome, tamanho = 44 }: { nome: string; tamanho?: number }) {
   const partes = nome.split(/\s+/).filter(Boolean);
   const iniciais = ((partes[0]?.[0] ?? "") + (partes.length > 1 ? partes.at(-1)![0] : "")).toUpperCase();

@@ -170,6 +170,7 @@ class CandidaturaResposta(BaseModel):
 
 class EleitoItem(BaseModel):
     id: int
+    foto: bool = False
     nome_urna: str
     partido: str | None
     numero: str | None

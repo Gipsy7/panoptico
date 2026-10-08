@@ -109,6 +109,13 @@ O subsídio é igual para deputados e senadores e é fixado por decreto legislat
 - **Bens:** valor como declarado, sem correção. A página avisa que bens costumam ser declarados pelo valor de compra. Sem palavras como "enriqueceu": mostramos os dois totais e o ano.
 - **2024:** o TSE passou a mascarar o CPF, então as candidaturas municipais de 2024 não se ligam aos parlamentares federais.
 
+## 2026-10-08: fotos dos eleitos (TSE)
+
+- Os eleitos que só existem no TSE (vereadores, prefeitos, deputados estaduais, governadores, presidente) ganham a foto da candidatura. Ela vem dos zips de fotos do TSE por UF (`cdn.tse.jus.br/.../fotos/foto_cand{ano}_{UF}_div.zip`): a URL do DivulgaCandContas recusa acesso automático, o CDN de arquivos não.
+- Os zips trazem todos os candidatos (552 MB só SC em 2024). Cada um é baixado, só as fotos dos eleitos guardados são lidas (o nome do arquivo traz o SQ), reduzidas para WebP de 240 px (cerca de 4,5 KB) e gravadas no banco, e o zip é apagado antes do próximo.
+- As fotos são servidas por `/fotos/{id}.webp` com cache de um ano na CDN, porque a foto de uma eleição não muda. Parlamentares federais continuam com a foto oficial da Câmara e do Senado.
+- A carga das fotos é opcional no workflow "Ingestão TSE", porque baixa cerca de 15 GB.
+
 ## 2026-10-08: dados pessoais, votos e redes (TSE)
 
 - **Dados pessoais:** idade, escolaridade, ocupação, gênero, cor ou raça e estado civil, como o candidato declarou ao TSE na candidatura mais recente. Gênero e cor ou raça são autodeclarados, e a página diz isso. O e-mail de campanha não é exibido.

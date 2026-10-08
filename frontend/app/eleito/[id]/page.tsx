@@ -5,7 +5,7 @@ import { notFound } from "next/navigation";
 import { AvisoErro } from "@/components/aviso-erro";
 import { CandidaturaSecao } from "@/components/candidatura-secao";
 import { CompartilharWhatsApp } from "@/components/compartilhar";
-import { Iniciais } from "@/components/eleitos-secao";
+import { FotoOuIniciais } from "@/components/eleitos-secao";
 import { Revelacao } from "@/components/revelacao";
 import { getEleito } from "@/lib/api";
 
@@ -44,7 +44,7 @@ async function Perfil({ id }: { id: string }) {
   return (
     <article className="flex flex-col gap-8">
       <header className="flex items-start gap-4">
-        <Iniciais nome={e.nome_urna} tamanho={72} />
+        <FotoOuIniciais eleito={e} tamanho={72} />
         <div className="flex min-w-0 flex-col gap-1">
           <h1 className="text-3xl tracking-tight">{e.nome_urna}</h1>
           <p className="text-muted-foreground">

@@ -316,3 +316,23 @@ def test_titulo_liga_candidatura_sem_cpf_ao_parlamentar(session):
         select(Candidatura.ano_eleicao).where(Candidatura.parlamentar_id == deputado.id)
     ).all()
     assert sorted(ligadas) == [2022, 2024]
+
+
+def test_fotos_reduz_e_liga_pelo_nome_do_arquivo():
+    from PIL import Image
+
+    from ingestion.tse import fotos
+
+    buffer = io.BytesIO()
+    Image.new("RGB", (300, 400), "white").save(buffer, format="JPEG")
+    pacote = io.BytesIO()
+    with zipfile.ZipFile(pacote, "w") as z:
+        z.writestr("FSC240001597409_div.jpg", buffer.getvalue())
+        z.writestr("FSC999_div.jpg", buffer.getvalue())  # candidatura que não guardamos
+        z.writestr("leiame.pdf", b"x")
+    with zipfile.ZipFile(io.BytesIO(pacote.getvalue())) as z:
+        extraidas = fotos.extrair(z, {"240001597409": 7})
+    assert [f["candidatura_id"] for f in extraidas] == [7]
+    with Image.open(io.BytesIO(extraidas[0]["webp"])) as reduzida:
+        assert (reduzida.format, reduzida.size) == ("WEBP", (240, 320))
+    assert fotos.reduzir(b"nao e imagem") is None

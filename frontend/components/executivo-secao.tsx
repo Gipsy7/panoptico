@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-import { Iniciais } from "@/components/eleitos-secao";
+import { FotoOuIniciais } from "@/components/eleitos-secao";
 import { FonteRodape } from "@/components/fonte-rodape";
 import type { Chapa, Executivo } from "@/lib/api";
 
@@ -29,7 +29,7 @@ export function ExecutivoSecao({ dados, estado, cidade }: { dados: Executivo; es
             <li key={rotulo} className="flex flex-col gap-2 border-b border-border py-3">
               <span className="sobretitulo">{rotulo}</span>
               <Link href={`/eleito/${chapa.titular.id}`} className="group flex items-center gap-3 hover:opacity-80">
-                <Iniciais nome={chapa.titular.nome_urna} />
+                <FotoOuIniciais eleito={chapa.titular} />
                 <span className="min-w-0">
                   <span className="block truncate font-semibold group-hover:underline">{chapa.titular.nome_urna}</span>
                   <span className="block text-sm text-muted-foreground">

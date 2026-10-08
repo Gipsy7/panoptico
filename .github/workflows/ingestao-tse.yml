@@ -9,6 +9,10 @@ on:
         description: "Anos de eleição, separados por espaço"
         type: string
         default: "2018 2022 2024"
+      fotos:
+        description: "Também baixar as fotos dos eleitos de 2022 e 2024 (cerca de 15 GB de zips; demora)"
+        type: boolean
+        default: false
 
 concurrency:
   group: ingestao
@@ -17,7 +21,7 @@ concurrency:
 jobs:
   tse:
     runs-on: ubuntu-latest
-    timeout-minutes: 90
+    timeout-minutes: 240
     defaults:
       run:
         working-directory: backend
@@ -52,6 +56,10 @@ jobs:
 
       - name: Votos recebidos
         run: uv run python -m ingestion.tse.votos --ano $ANOS
+
+      - name: Fotos dos eleitos (só quando pedido)
+        if: ${{ inputs.fotos }}
+        run: uv run python -m ingestion.tse.fotos --ano 2022 2024
 
       # Só os brutos pequenos: as contas de campanha têm centenas de MB e ficam de fora.
       - name: Guardar dados brutos
