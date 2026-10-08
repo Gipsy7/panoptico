@@ -26,6 +26,9 @@ def test_legislatura_atual_mandato_e_https():
         {"id": 2, "data_inicio": "2025-01-01", "data_fim": "2028-12-31"},
     ]
     assert sapl.legislatura_atual(legislaturas, date(2026, 10, 8))["id"] == 2
+    # Casa que parou de atualizar o SAPL: nada de mostrar a legislatura antiga.
+    assert sapl.legislatura_atual(legislaturas[:1], date(2026, 10, 8)) is None
+    assert sapl.legislatura_atual(legislaturas[:1], date(2025, 2, 1))["id"] == 1  # transição
     assert sapl.em_exercicio(
         {"data_inicio_mandato": "2025-01-01", "data_fim_mandato": "2028-12-31"}, date(2026, 1, 1)
     )
@@ -244,3 +247,25 @@ def test_casar_nome_em_niveis_e_so_quando_unico():
     assert (
         sapl.casar_nome(["Lopes Silva"], [(1, "Ana Lopes Silva"), (2, "Rui Lopes Silva")]) is None
     )
+
+
+def test_item_sumido_ou_pagina_que_some_nao_derrubam_a_casa():
+    import httpx
+
+    def servidor(request):
+        if "parlamentar/17" in request.url.path:
+            return httpx.Response(404)
+        if request.url.params.get("page") == "2":
+            return httpx.Response(404)  # a lista encolheu entre as páginas
+        return httpx.Response(200, json={"results": [{"id": 1}], "pagination": {"next_page": 2}})
+
+    with httpx.Client(transport=httpx.MockTransport(servidor)) as client:
+        casa = sapl.Sapl("https://sapl.x.leg.br/", client)
+        sapl.PAUSA, pausa = 0, sapl.PAUSA
+        try:
+            assert casa.talvez("parlamentares/parlamentar/17/") is None
+            assert casa.todos("materia/autoria/", autor=1) == [{"id": 1}]
+        finally:
+            sapl.PAUSA = pausa
+    longo = "Ordem: 1 - Requerimento nº 1 de 2025 em 1ª Ordinária - Votação: " + "Aprovado " * 20
+    assert len(sapl.ler_registro(longo)[1]) == 60

@@ -82,7 +82,7 @@ CATALOGO = [
     },
     {
         "dado": "Deputados estaduais no cargo, projetos, votos e presença (assembleias com SAPL)",
-        "orgao": "Assembleias legislativas de AC, AL, AM, MT, PB, PI, RO, RR e TO (SAPL)",
+        "orgao": "Assembleias legislativas de AC, AL, AM, PB, PI, RO, RR e TO (SAPL)",
         "fontes": ["sapl_assembleias"],
         "url": "https://www.interlegis.leg.br/",
     },

@@ -109,6 +109,12 @@ O subsídio é igual para deputados e senadores e é fixado por decreto legislat
 - **Bens:** valor como declarado, sem correção. A página avisa que bens costumam ser declarados pelo valor de compra. Sem palavras como "enriqueceu": mostramos os dois totais e o ano.
 - **2024:** o TSE passou a mascarar o CPF, então as candidaturas municipais de 2024 não se ligam aos parlamentares federais.
 
+## 2026-10-08: cargas do SAPL mais robustas
+
+- **Só a legislatura em vigor** (com 90 dias de folga depois do fim). Sem ela, a casa não é carregada e os dados antigos são removidos: o SAPL da Assembleia de Mato Grosso parou em 2018 e, antes da correção, a carga mostraria deputados de 2015–2018 como se estivessem no cargo.
+- **Um item com erro não derruba a casa:** parlamentar ou matéria que sumiu (404) ou deu erro no servidor é pulado, com registro no log; página que some no meio da paginação encerra a lista ali; falha só nos votos ou na presença deixa a casa sem esses dados, mas com o resto. Na primeira carga com votos, 46 de 982 câmaras e 7 de 9 assembleias tinham falhado por um desses motivos ou por um texto de resultado longo demais (corrigido).
+- **Job vermelho quando a assembleia não carrega**, para a falha não passar despercebida.
+
 ## 2026-10-08: Assembleia de São Paulo (ALESP)
 
 - Conector pelos arquivos XML de dados abertos da ALESP (atualizados todo dia), nas mesmas tabelas das outras casas: os 94 deputados em exercício, projetos (PL, PLC, PR, PDL e PEC, com ementa) e moções, requerimentos e indicações (contagem), do ano atual e do anterior, e os gastos do gabinete somados por mês e categoria.
@@ -162,7 +168,7 @@ O subsídio é igual para deputados e senadores e é fixado por decreto legislat
 
 ## 2026-10-08: assembleias legislativas (SAPL) e portais da transparência
 
-- **Assembleias:** levantamento das 27 casas. Nove usam o SAPL (AC, AL, AM, MT, PB, PI, RO, RR e TO) e entram com o mesmo conector das câmaras: deputados estaduais no cargo hoje (inclusive suplentes que assumiram), partido atual, contato, projetos e proposições do ano atual e do anterior. As outras 18 publicam em sistemas próprios e ficam com a lista de eleitos do TSE até ganharem conector, uma a uma.
+- **Assembleias:** levantamento das 27 casas. Nove têm SAPL (AC, AL, AM, MT, PB, PI, RO, RR e TO), mas o de Mato Grosso parou em 2018 (só a legislatura 2015–2018 cadastrada) e ficou de fora; entram oito e entram com o mesmo conector das câmaras: deputados estaduais no cargo hoje (inclusive suplentes que assumiram), partido atual, contato, projetos e proposições do ano atual e do anterior. As outras 18 publicam em sistemas próprios e ficam com a lista de eleitos do TSE até ganharem conector, uma a uma.
 - **Mesma tabela:** os deputados estaduais ficam em `mandato_local` com `casa = "assembleia"` e a UF, sem município. A ligação ao eleito do TSE usa a eleição estadual mais recente, porque o mesmo nome aparece em 2018 e 2022.
 - **Tipo de autor "Parlamentar" no SAPL:** é procurado pelo nome. O id 1 é o mais comum, mas na Assembleia de Roraima o 1 é "Bloco Parlamentar". Com o id fixo, a contagem de projetos vinha zerada nessas instalações (câmaras inclusive).
 - **Propostas de emenda à Constituição estadual** contam como projeto.

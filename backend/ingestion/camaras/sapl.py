@@ -18,7 +18,7 @@ import argparse
 import re
 import time
 from concurrent.futures import ThreadPoolExecutor
-from datetime import UTC, date, datetime
+from datetime import UTC, date, datetime, timedelta
 from typing import Any
 
 import httpx
@@ -62,10 +62,27 @@ class Sapl:
         time.sleep(PAUSA)
         return comum.get_json(self.client, self.base + caminho, params=params or None)
 
+    def talvez(self, caminho: str) -> dict | None:
+        """Um item que pode ter sumido ou estar com erro no servidor: None em vez de
+        derrubar a casa inteira (visto: mandato apontando para parlamentar apagado)."""
+        try:
+            return self.get(caminho)
+        except httpx.HTTPStatusError as erro:
+            if erro.response.status_code in (404, 410) or erro.response.status_code >= 500:
+                print(f"  {self.base}{caminho}: {erro.response.status_code}, pulado", flush=True)
+                return None
+            raise
+
     def todos(self, caminho: str, **params: Any) -> list[dict]:
         itens, pagina = [], 1
         while True:
-            dados = self.get(caminho, page_size=POR_PAGINA, page=pagina, **params)
+            try:
+                dados = self.get(caminho, page_size=POR_PAGINA, page=pagina, **params)
+            except httpx.HTTPStatusError as erro:
+                # A lista encolheu entre uma página e outra: a página seguinte some (404).
+                if pagina > 1 and erro.response.status_code == 404:
+                    return itens
+                raise
             itens += dados.get("results", [])
             if not dados.get("pagination", {}).get("next_page"):
                 return itens
@@ -80,12 +97,15 @@ def _https(url: str | None) -> str | None:
 
 
 def legislatura_atual(legislaturas: list[dict], hoje: date) -> dict | None:
+    """A legislatura em vigor (com 90 dias de folga depois do fim, para a transição). Sem
+    ela, a casa não atualiza o SAPL (visto: Assembleia de Mato Grosso parada em 2018), e
+    mostrar a última cadastrada poria gente de mandatos antigos como se estivesse no cargo."""
     vigentes = [
         lg for lg in legislaturas
-        if date.fromisoformat(lg["data_inicio"]) <= hoje <= date.fromisoformat(lg["data_fim"])
+        if date.fromisoformat(lg["data_inicio"]) <= hoje
+        <= date.fromisoformat(lg["data_fim"]) + timedelta(days=90)
     ]  # fmt: skip
-    candidatas = vigentes or legislaturas
-    return max(candidatas, key=lambda lg: lg["data_inicio"]) if candidatas else None
+    return max(vigentes, key=lambda lg: lg["data_inicio"]) if vigentes else None
 
 
 def em_exercicio(mandato: dict, hoje: date) -> bool:
@@ -110,7 +130,8 @@ def ler_registro(texto: str) -> tuple[str, str | None]:
     if not achado:
         return (texto or "").strip()[:300], None
     resultado = achado.group("resultado")
-    return achado.group("materia").strip(), resultado.strip() if resultado else None
+    # A coluna do resultado tem 60 caracteres; alguns SAPL anexam texto longo ao resultado.
+    return achado.group("materia").strip(), resultado.strip()[:60] if resultado else None
 
 
 def _data(valor: str | None) -> str | None:
@@ -252,7 +273,9 @@ def coletar(base: str, hoje: date) -> dict | None:
         anos = {hoje.year, hoje.year - 1}
         vereadores = []
         for parlamentar_id in sorted({m["parlamentar"] for m in mandatos}):
-            dados = sapl.get(f"parlamentares/parlamentar/{parlamentar_id}/")
+            dados = sapl.talvez(f"parlamentares/parlamentar/{parlamentar_id}/")
+            if dados is None:
+                continue
             dos_mandatos = [m for m in mandatos if m["parlamentar"] == parlamentar_id]
             atual = [
                 f
@@ -269,7 +292,9 @@ def coletar(base: str, hoje: date) -> dict | None:
                     tipo = lida[0]
                     contagem[tipo] = contagem.get(tipo, 0) + 1
                     if TIPOS_PROJETO.search(tipo):
-                        materia = sapl.get(f"materia/materialegislativa/{autoria['materia']}/")
+                        materia = sapl.talvez(f"materia/materialegislativa/{autoria['materia']}/")
+                        if materia is None:
+                            continue
                         projetos.append(
                             {
                                 "id_externo": str(materia["id"]),
@@ -295,7 +320,7 @@ def coletar(base: str, hoje: date) -> dict | None:
                     "email": (dados.get("email") or "").strip() or None,
                     "telefone": (
                         dados.get("telefone_celular") or dados.get("telefone") or ""
-                    ).strip()
+                    ).strip()[:60]
                     or None,
                     "titular": any(m.get("titular") for m in dos_mandatos),
                     "em_exercicio": any(em_exercicio(m, hoje) for m in dos_mandatos),
@@ -316,13 +341,44 @@ def coletar(base: str, hoje: date) -> dict | None:
                 }
             )
         ids = {int(v["id_externo"]) for v in vereadores}
-        votacoes = coletar_votacoes(sapl, anos, ids)
-        presenca = coletar_presenca(
-            sapl, anos, hoje, {int(v["id_externo"]): (v["inicio"], v["fim"]) for v in vereadores}
-        )
+        # Votos e presença são extras: se falharem, a casa entra sem eles.
+        try:
+            votacoes = coletar_votacoes(sapl, anos, ids)
+        except httpx.HTTPError as erro:
+            print(f"  {base}: votações não lidas ({erro.__class__.__name__})", flush=True)
+            votacoes = {"votacoes": [], "votos": []}
+        try:
+            presenca = coletar_presenca(
+                sapl,
+                anos,
+                hoje,
+                {int(v["id_externo"]): (v["inicio"], v["fim"]) for v in vereadores},
+            )
+        except httpx.HTTPError as erro:
+            print(f"  {base}: presença não lida ({erro.__class__.__name__})", flush=True)
+            presenca = {int(v["id_externo"]): (None, None) for v in vereadores}
         for v in vereadores:
             v["sessoes"], v["presencas"] = presenca[int(v["id_externo"])]
     return {"base": base, "legislatura": legislatura, "vereadores": vereadores, **votacoes}
+
+
+def esquecer(session: Session, ibge: str | None, uf: str | None) -> int:
+    """Remove a casa (câmara de `ibge` ou assembleia de `uf`) quando o SAPL dela não tem
+    legislatura em vigor: dado parado não pode aparecer como composição atual."""
+    filtro = (
+        MandatoLocal.municipio_ibge == ibge
+        if ibge
+        else (MandatoLocal.casa == "assembleia") & (MandatoLocal.uf == uf)
+    )
+    removidos = session.execute(delete(MandatoLocal).where(filtro)).rowcount
+    session.execute(
+        delete(VotacaoLocal).where(
+            VotacaoLocal.municipio_ibge == ibge
+            if ibge
+            else (VotacaoLocal.casa == "assembleia") & (VotacaoLocal.uf == uf)
+        )
+    )
+    return removidos
 
 
 def gravar(session: Session, ibge: str | None, camara: dict, uf: str | None = None) -> int:
@@ -446,6 +502,10 @@ def executar(
         try:
             camara = coletar(base, hoje)
             if not camara:
+                with SessionLocal() as session:
+                    if esquecer(session, ibge, None):
+                        print(f"  {base}: sem legislatura em vigor; dados antigos removidos")
+                    session.commit()
                 return 0
             with SessionLocal() as session:
                 total = gravar(session, ibge, camara)

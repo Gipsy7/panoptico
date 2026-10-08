@@ -72,7 +72,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        uf: ["AC", "AL", "AM", "MT", "PB", "PI", "RO", "RR", "TO"]
+        uf: ["AC", "AL", "AM", "PB", "PI", "RO", "RR", "TO"]
     defaults:
       run:
         working-directory: backend

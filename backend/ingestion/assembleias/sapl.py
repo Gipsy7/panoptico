@@ -19,7 +19,6 @@ ASSEMBLEIAS = {
     "AC": "https://sapl.al.ac.leg.br/",
     "AL": "https://sapl.al.al.leg.br/",
     "AM": "https://sapl.al.am.leg.br/",
-    "MT": "https://sapl.al.mt.leg.br/",
     "PB": "https://sapl.al.pb.leg.br/",
     "PI": "https://sapl.al.pi.leg.br/",
     "RO": "https://sapl.al.ro.leg.br/",
@@ -37,6 +36,11 @@ def executar(ufs: list[str] | None = None) -> int:
         try:
             casa = sapl.coletar(base, hoje)
             if not casa:
+                with SessionLocal() as session:
+                    sapl.esquecer(session, None, uf)
+                    session.commit()
+                print(f"  {uf}: o SAPL não tem legislatura em vigor; nada carregado", flush=True)
+                falhas += 1
                 continue
             with SessionLocal() as session:
                 quantos = sapl.gravar(session, None, casa, uf=uf)
@@ -66,4 +70,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=f"Ingestão: {FONTE}")
     parser.add_argument("--uf", nargs="*", help="Só estas assembleias")
     args = parser.parse_args()
-    executar([u.upper() for u in args.uf] if args.uf else None)
+    ufs = [u.upper() for u in args.uf] if args.uf else None
+    if executar(ufs) == 0:
+        # Uma máquina por assembleia: se ela não carregou, o job fica vermelho no Actions.
+        raise SystemExit("Nenhum deputado carregado.")
