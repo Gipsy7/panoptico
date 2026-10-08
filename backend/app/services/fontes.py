@@ -49,6 +49,12 @@ CATALOGO = [
         "url": "https://portaldatransparencia.gov.br/emendas",
     },
     {
+        "dado": "Candidaturas, bens declarados e contas de campanha",
+        "orgao": "Tribunal Superior Eleitoral",
+        "fontes": ["tse_candidaturas", "tse_bens", "tse_campanha"],
+        "url": "https://dadosabertos.tse.jus.br/",
+    },
+    {
         "dado": "Lista de municípios",
         "orgao": "IBGE",
         "fontes": ["ibge_municipios"],

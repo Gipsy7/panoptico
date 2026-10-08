@@ -1,4 +1,5 @@
 from app.models.base import Base
+from app.models.candidatura import BemDeclarado, CampanhaResumo, Candidatura
 from app.models.despesa import Despesa
 from app.models.emenda import Emenda
 from app.models.emenda_pagamento import EmendaPagamento
@@ -13,6 +14,9 @@ from app.models.votacao import Orientacao, Votacao, Voto
 __all__ = [
     "Autoria",
     "Base",
+    "BemDeclarado",
+    "CampanhaResumo",
+    "Candidatura",
     "Despesa",
     "Emenda",
     "EmendaPagamento",

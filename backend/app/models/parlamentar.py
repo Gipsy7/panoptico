@@ -23,6 +23,8 @@ class Parlamentar(Base):
     email: Mapped[str | None] = mapped_column(String(200))
     telefone: Mapped[str | None] = mapped_column(String(100))
     pagina_url: Mapped[str | None] = mapped_column(String(500))
+    # Só para casar com o TSE (candidaturas e bens); nunca exibido.
+    cpf: Mapped[str | None] = mapped_column(String(11))
     em_exercicio: Mapped[bool] = mapped_column(Boolean, default=True)
     # Início do período atual de exercício (posse, posse de suplente ou retorno).
     em_exercicio_desde: Mapped[date | None] = mapped_column(Date)

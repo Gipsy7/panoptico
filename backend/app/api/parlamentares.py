@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session
 from app.db import get_session
 from app.models import Parlamentar
 from app.schemas import (
+    CandidaturaResposta,
     GastosResposta,
     ListaParlamentaresResposta,
     ParlamentarDetalhe,
@@ -14,7 +15,7 @@ from app.schemas import (
     TemasResposta,
     VotosResposta,
 )
-from app.services import gastos, presenca, projetos, ranking, remuneracao, temas, votos
+from app.services import gastos, presenca, projetos, ranking, remuneracao, temas, tse, votos
 
 router = APIRouter()
 
@@ -77,6 +78,13 @@ def gastos_do_parlamentar(
     elif ano not in anos:
         raise HTTPException(404, f"Sem gastos carregados para {ano}.")
     return gastos.resumo(session, p, ano)
+
+
+@router.get("/parlamentares/{parlamentar_id}/candidatura", response_model=CandidaturaResposta)
+def candidatura_do_parlamentar(
+    parlamentar_id: int, session: Annotated[Session, Depends(get_session)]
+) -> dict:
+    return tse.resumo(session, _buscar(session, parlamentar_id))
 
 
 @router.get("/parlamentares/{parlamentar_id}/projetos", response_model=ProjetosResposta)

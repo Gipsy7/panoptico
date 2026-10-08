@@ -9,6 +9,8 @@ import argparse
 import gzip
 import json
 import re
+import shutil
+import tempfile
 import time
 import unicodedata
 from collections.abc import Callable
@@ -28,6 +30,8 @@ from app.models import Despesa, FonteIngestao, Parlamentar
 
 RAW_DIR = BACKEND_DIR / "data" / "raw"
 USER_AGENT = "Panoptico/0.1 (+https://panoptico.social.br)"
+# Brutos maiores que isto não são lidos para a memória: carregar_raw devolve o caminho.
+LIMITE_EM_MEMORIA = 200_000_000
 
 Baixar = Callable[[httpx.Client], Any]
 Normalizar = Callable[[Any], list[dict[str, Any]]]
@@ -75,12 +79,27 @@ def get_bytes(client: httpx.Client, url: str, tentativas: int = 3) -> bytes:
     return _get(client, url, None, tentativas).content
 
 
+def baixar_para_arquivo(client: httpx.Client, url: str) -> Path:
+    """Baixa em fluxo para um arquivo temporário, sem passar o conteúdo pela memória (para
+    arquivos de centenas de MB, como as contas de campanha do TSE)."""
+    with client.stream("GET", url, timeout=600) as resposta:
+        resposta.raise_for_status()
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".zip") as destino:
+            for bloco in resposta.iter_bytes(1 << 20):
+                destino.write(bloco)
+    return Path(destino.name)
+
+
 def salvar_raw(fonte: str, payload: Any, prefixo: str = "", extensao: str = ".zip") -> Path:
     """Grava o bruto. Bytes são gravados como vieram (comprimidos com gzip se a extensão
     terminar em .gz); qualquer outro payload vira JSON."""
     destino = RAW_DIR / fonte
     destino.mkdir(parents=True, exist_ok=True)
     nome = f"{prefixo}{datetime.now():%Y-%m-%d_%H%M%S}"
+    if isinstance(payload, Path):  # já baixado em disco (baixar_para_arquivo)
+        arquivo = destino / f"{nome}{extensao}"
+        shutil.move(payload, arquivo)
+        return arquivo
     if isinstance(payload, bytes):
         arquivo = destino / f"{nome}{extensao}"
         arquivo.write_bytes(gzip.compress(payload) if extensao.endswith(".gz") else payload)
@@ -96,6 +115,8 @@ def carregar_raw(arquivo: Path) -> Any:
         return json.loads(arquivo.read_text(encoding="utf-8"))
     if arquivo.suffix == ".gz":
         return gzip.decompress(arquivo.read_bytes())
+    if arquivo.stat().st_size > LIMITE_EM_MEMORIA:
+        return arquivo
     return arquivo.read_bytes()
 
 
@@ -219,6 +240,8 @@ def executar_ingestao(
         with criar_cliente() as client:
             payload = baixar(client)
         arquivo = salvar_raw(fonte, payload, prefixo_raw, extensao_raw)
+        if isinstance(payload, Path):  # o arquivo foi movido para o raw
+            payload = arquivo
     else:
         arquivo = Path(de_raw)
         payload = carregar_raw(arquivo)

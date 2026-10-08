@@ -90,6 +90,59 @@ class ProjetoTipo(BaseModel):
     coautor: int
 
 
+class CandidaturaItem(BaseModel):
+    ano: int
+    cargo: str
+    unidade: str
+    partido: str | None
+    numero: str | None
+    situacao: str | None
+
+
+class BemItem(BaseModel):
+    tipo: str
+    descricao: str
+    valor: float
+
+
+class BensAnterior(BaseModel):
+    candidatura: CandidaturaItem
+    total: float
+
+
+class BensDeclarados(BaseModel):
+    candidatura: CandidaturaItem
+    total: float
+    quantidade: int
+    itens: list[BemItem]
+    anterior: BensAnterior | None
+    fonte_url: str
+
+
+class ValorNomeado(BaseModel):
+    nome: str
+    valor: float
+
+
+class Campanha(BaseModel):
+    candidatura: CandidaturaItem
+    receitas_total: float
+    receitas_por_origem: list[ValorNomeado]
+    despesas_total: float
+    despesas_por_tipo: list[ValorNomeado]
+    numero_doadores: int
+    fonte_url: str
+
+
+class CandidaturaResposta(BaseModel):
+    candidaturas: list[CandidaturaItem]
+    bens: BensDeclarados | None
+    campanha: Campanha | None
+    fonte_nome: str
+    fonte_url: str
+    atualizado_em: datetime | None
+
+
 class ProjetoItem(BaseModel):
     sigla_tipo: str
     numero: int

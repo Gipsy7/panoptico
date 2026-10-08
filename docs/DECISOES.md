@@ -100,6 +100,15 @@ O subsídio é igual para deputados e senadores e é fixado por decreto legislat
 - A maioria tem despesas só em 2026, porque em 2025 eram ministros ou estavam licenciados, ou porque assumiram o mandato depois. Os demais (por exemplo, Jorge Kajuru, Priscila Costa e Gilmar Machado) não têm nenhum reembolso registrado na fonte em nenhum dos dois anos.
 - No site, zero aparece como "Nenhum reembolso", e o perfil explica as causas possíveis. Não escrevemos "economizou", porque a fonte não diz o motivo.
 
+## 2026-10-07: bens e campanha (TSE)
+
+- **Que candidaturas entram:** todas as candidaturas de cada parlamentar em 2018 e 2022 com o mesmo CPF, em qualquer cargo. Um senador eleito em 2018 que disputou o governo em 2022 tem a declaração de bens mais recente nessa candidatura. É ela que aparece, comparada com a anterior.
+- **Campanha mostrada:** a que deu o mandato atual, ou seja, a candidatura mais recente ao cargo da Casa (deputado federal; senador ou suplente).
+- **Origem do dinheiro:** "Fundo eleitoral" (FEFC) e "Fundo partidário" vêm de `DS_FONTE_RECEITA` e são dinheiro público. O resto é agrupado pela origem declarada (pessoas físicas, recursos próprios, partido, outros candidatos).
+- **Doadores:** não mostramos nomes de doadores pessoas físicas. São cidadãos comuns, e o dado completo continua no arquivo oficial. Mostramos quantos foram.
+- **Bens:** valor como declarado, sem correção. A página avisa que bens costumam ser declarados pelo valor de compra. Sem palavras como "enriqueceu": mostramos os dois totais e o ano.
+- **2024:** o TSE passou a mascarar o CPF, então as candidaturas municipais de 2024 não se ligam aos parlamentares federais.
+
 ## 2026-10-07: emendas por área e por quem recebeu
 
 - **Área:** é a função orçamentária da emenda. O arquivo de pagamentos não traz a área, então ela vem do cadastro da emenda, pelo código.

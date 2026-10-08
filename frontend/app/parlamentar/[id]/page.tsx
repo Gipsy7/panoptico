@@ -6,6 +6,7 @@ import { AvisoErro } from "@/components/aviso-erro";
 import { Revelacao } from "@/components/revelacao";
 import { CompartilharWhatsApp } from "@/components/compartilhar";
 import { FonteRodape } from "@/components/fonte-rodape";
+import { CandidaturaSecao } from "@/components/candidatura-secao";
 import { GastosSecao } from "@/components/gastos-secao";
 import { Foto } from "@/components/parlamentar-card";
 import { PresencaSecao } from "@/components/presenca-secao";
@@ -18,6 +19,7 @@ import {
   getGastos,
   getParlamentar,
   getPresenca,
+  getCandidatura,
   getProjetos,
   getTemas,
   getVotos,
@@ -71,13 +73,14 @@ async function Perfil({
   tema?: string;
   paginaVotos?: string;
 }) {
-  const [resultado, gastos, projetos, presenca, temas, votos] = await Promise.all([
+  const [resultado, gastos, projetos, presenca, temas, votos, candidatura] = await Promise.all([
     getParlamentar(id),
     getGastos(id, ano),
     getProjetos(id),
     getPresenca(id, ano),
     getTemas(id),
     getVotos(id, { ano, tema, pagina: paginaVotos }),
+    getCandidatura(id),
   ]);
   if (!resultado.ok) {
     if (resultado.status === 404 || resultado.status === 422) notFound();
@@ -137,6 +140,8 @@ async function Perfil({
       {projetos.ok && <ProjetosSecao projetos={projetos.dados} casa={p.casa} />}
 
       {temas.ok && <TemasSecao dados={temas.dados} casa={p.casa} />}
+
+      {candidatura.ok && <CandidaturaSecao dados={candidatura.dados} />}
 
       <RemuneracaoSecao remuneracao={p.remuneracao} />
 

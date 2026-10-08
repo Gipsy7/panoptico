@@ -59,6 +59,13 @@ export default function SobreAsFontesPage() {
           intermediários. O autor é identificado pelo nome usado no orçamento; quem não está em
           exercício aparece em &quot;outros autores&quot;.
         </Item>
+        <Item titulo="Bens e campanha">
+          Dados que o próprio candidato declarou à Justiça Eleitoral (TSE) nas eleições de 2018 e
+          2022, ligados ao parlamentar pelo CPF. Os bens são os da candidatura mais recente,
+          comparados com a anterior, pelo valor declarado e sem correção. A campanha é a que deu o
+          mandato atual: quanto arrecadou, de onde veio (fundo eleitoral e fundo partidário são
+          dinheiro público) e com o que gastou. Não mostramos o nome de doadores pessoas físicas.
+        </Item>
         <Item titulo="Como votou">
           Contam as votações nominais do Plenário em que o parlamentar deu voto (Sim, Não,
           Abstenção ou Obstrução). &quot;Votou como o Governo orientou&quot; usa a orientação da

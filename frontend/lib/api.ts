@@ -136,6 +136,43 @@ export type Projetos = {
   atualizado_em: string | null;
 };
 
+type CandidaturaItem = {
+  ano: number;
+  cargo: string;
+  unidade: string;
+  partido: string | null;
+  numero: string | null;
+  situacao: string | null;
+};
+
+export type CandidaturaTse = {
+  candidaturas: CandidaturaItem[];
+  bens: {
+    candidatura: CandidaturaItem;
+    total: number;
+    quantidade: number;
+    itens: { tipo: string; descricao: string; valor: number }[];
+    anterior: { candidatura: CandidaturaItem; total: number } | null;
+    fonte_url: string;
+  } | null;
+  campanha: {
+    candidatura: CandidaturaItem;
+    receitas_total: number;
+    receitas_por_origem: { nome: string; valor: number }[];
+    despesas_total: number;
+    despesas_por_tipo: { nome: string; valor: number }[];
+    numero_doadores: number;
+    fonte_url: string;
+  } | null;
+  fonte_nome: string;
+  fonte_url: string;
+  atualizado_em: string | null;
+};
+
+export function getCandidatura(id: string) {
+  return getJson<CandidaturaTse>(`/parlamentares/${encodeURIComponent(id)}/candidatura`);
+}
+
 export function getProjetos(id: string) {
   return getJson<Projetos>(`/parlamentares/${encodeURIComponent(id)}/projetos`);
 }
