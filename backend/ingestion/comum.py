@@ -79,15 +79,33 @@ def get_bytes(client: httpx.Client, url: str, tentativas: int = 3) -> bytes:
     return _get(client, url, None, tentativas).content
 
 
-def baixar_para_arquivo(client: httpx.Client, url: str) -> Path:
+def baixar_para_arquivo(client: httpx.Client, url: str, tentativas: int = 8) -> Path:
     """Baixa em fluxo para um arquivo temporário, sem passar o conteúdo pela memória (para
-    arquivos de centenas de MB, como as contas de campanha do TSE)."""
-    with client.stream("GET", url, timeout=600) as resposta:
-        resposta.raise_for_status()
-        with tempfile.NamedTemporaryFile(delete=False, suffix=".zip") as destino:
-            for bloco in resposta.iter_bytes(1 << 20):
-                destino.write(bloco)
-    return Path(destino.name)
+    arquivos de centenas de MB, como as contas de campanha do TSE). Se a conexão cair no
+    meio (visto no TCE-SP, com arquivos de 2 GB), retoma de onde parou com Range."""
+    with tempfile.NamedTemporaryFile(delete=False, suffix=".zip") as destino:
+        caminho = Path(destino.name)
+    for tentativa in range(tentativas):
+        feito = caminho.stat().st_size
+        cabecalhos = {"Range": f"bytes={feito}-"} if feito else {}
+        try:
+            with client.stream("GET", url, timeout=600, headers=cabecalhos) as resposta:
+                if resposta.status_code == 416:  # já estava completo
+                    return caminho
+                resposta.raise_for_status()
+                if feito and resposta.status_code != 206:
+                    feito = 0  # o servidor ignorou o Range: recomeça do zero
+                with caminho.open("r+b" if feito else "wb") as arquivo:
+                    arquivo.seek(feito)
+                    for bloco in resposta.iter_bytes():  # grava conforme chega
+                        arquivo.write(bloco)
+            return caminho
+        except (httpx.TransportError, httpx.RemoteProtocolError) as erro:
+            if tentativa == tentativas - 1:
+                raise
+            print(f"  download interrompido ({erro.__class__.__name__}); retomando", flush=True)
+            time.sleep(5 * (tentativa + 1))
+    return caminho
 
 
 def salvar_raw(fonte: str, payload: Any, prefixo: str = "", extensao: str = ".zip") -> Path:

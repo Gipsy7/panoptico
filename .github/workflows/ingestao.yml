@@ -24,9 +24,9 @@ jobs:
     env:
       DATABASE_URL: ${{ secrets.DATABASE_URL }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: astral-sh/setup-uv@v6
+      - uses: astral-sh/setup-uv@v10
         with:
           version: "0.12.23"
 
@@ -46,7 +46,7 @@ jobs:
       # Arquivos brutos guardados por alguns dias para reprocessar sem baixar de novo.
       - name: Guardar dados brutos
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: brutos-${{ github.run_id }}
           path: backend/data/raw/

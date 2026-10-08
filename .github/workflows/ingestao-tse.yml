@@ -45,9 +45,9 @@ jobs:
       FOTOS_UFS: ${{ inputs.fotos_ufs }}
       PYTHONUNBUFFERED: "1" # mostra o progresso das fotos no log enquanto roda
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: astral-sh/setup-uv@v6
+      - uses: astral-sh/setup-uv@v10
         with:
           version: "0.12.23"
 
@@ -89,7 +89,7 @@ jobs:
       # Só os brutos pequenos: as contas de campanha têm centenas de MB e ficam de fora.
       - name: Guardar dados brutos
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: brutos-tse-${{ github.run_id }}
           path: |
