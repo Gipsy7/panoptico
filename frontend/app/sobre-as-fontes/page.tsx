@@ -91,6 +91,14 @@ export default function SobreAsFontesPage() {
           educação...). A função &quot;Legislativa&quot; é o custo da câmara municipal. Os dados são
           anuais; nem todo município entrega no prazo.
         </Item>
+        <Item titulo="Para quem a cidade pagou">
+          Nas cidades de São Paulo, os pagamentos da prefeitura, da câmara e de autarquias e
+          fundos municipais, como as cidades informam ao Tribunal de Contas do Estado. Mostramos
+          o total pago a cada um dos maiores fornecedores no ano; o restante aparece somado.
+          Pagamentos a pessoas físicas (servidores, autônomos, beneficiários) aparecem somados e
+          sem nomes. Outros estados entram à medida que seus Tribunais de Contas publiquem
+          dados abertos equivalentes.
+        </Item>
         <Item titulo="Canais oficiais da cidade">
           Os sites da prefeitura, da câmara e dos portais da transparência foram encontrados por
           uma varredura automática dos domínios oficiais (.gov.br e .leg.br) e conferidos por

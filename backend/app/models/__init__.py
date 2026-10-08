@@ -4,6 +4,7 @@ from app.models.canal_oficial import CanalOficial
 from app.models.candidatura import BemDeclarado, CampanhaResumo, Candidatura, Foto, RedeSocial
 from app.models.contas_municipio import ContasMunicipio
 from app.models.despesa import Despesa
+from app.models.despesa_fornecedor import DespesaFornecedor
 from app.models.emenda import Emenda
 from app.models.emenda_pagamento import EmendaPagamento
 from app.models.fonte_ingestao import FonteIngestao
@@ -23,6 +24,7 @@ __all__ = [
     "Candidatura",
     "ContasMunicipio",
     "Despesa",
+    "DespesaFornecedor",
     "Emenda",
     "EmendaPagamento",
     "FonteIngestao",

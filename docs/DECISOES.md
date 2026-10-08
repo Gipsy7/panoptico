@@ -109,6 +109,11 @@ O subsídio é igual para deputados e senadores e é fixado por decreto legislat
 - **Bens:** valor como declarado, sem correção. A página avisa que bens costumam ser declarados pelo valor de compra. Sem palavras como "enriqueceu": mostramos os dois totais e o ano.
 - **2024:** o TSE passou a mascarar o CPF, então as candidaturas municipais de 2024 não se ligam aos parlamentares federais.
 
+## 2026-10-08: para quem a cidade pagou (Tribunais de Contas)
+
+- Os portais de transparência dos fornecedores (Betha, CR2, Pronim...) foram feitos para pessoas: o Betha exige reCAPTCHA nas consultas e o CR2 é um app sem API pública. Não contornamos captcha, então o detalhe das despesas vem dos **Tribunais de Contas estaduais**, que recebem os dados de todas as prefeituras e câmaras e publicam em lote.
+- **Primeiro: TCE-SP** (644 municípios). Do arquivo anual (15 GB descompactado), guardamos só o **total pago por fornecedor**, por município e órgão (prefeitura, câmara, outros), e só os 25 maiores de cada órgão; o restante vira "Demais fornecedores". Pagamentos a **pessoas físicas** são somados sem nomes, e a **folha de salários** (o órgão pagando a si mesmo) vira uma linha própria, para não parecer fornecedor. Guardamos o ano atual publicado e o anterior. A capital fica de fora: é fiscalizada pelo TCM-SP. Resultado de 2024: 644 municípios, 41,5 mil linhas, 6,5 MB.
+
 ## 2026-10-08: contas dos municípios (SICONFI) e câmaras (SAPL)
 
 - **SICONFI:** da Declaração de Contas Anuais, guardamos por município e ano a receita realizada, a despesa paga e a despesa paga por função de governo (só o primeiro nível, ex.: "Saúde"). A despesa total é a soma das funções, porque o código "TotalDespesas" se repete em várias linhas do anexo. A função "Legislativa" é o custo da câmara. A API não tem consulta em lote: é uma por município, por isso a carga é mensal. Guardamos o ano atual fechado e o anterior.

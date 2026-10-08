@@ -363,6 +363,27 @@ class VereadorDetalhe(VereadorItem):
     atualizado_em: datetime | None
 
 
+class FornecedorItem(BaseModel):
+    fornecedor: str
+    documento: str | None
+    valor_pago: float
+    pagamentos: int
+
+
+class FornecedoresOrgao(BaseModel):
+    orgao: str
+    total_pago: float
+    itens: list[FornecedorItem]
+
+
+class FornecedoresResposta(BaseModel):
+    ano: int
+    orgaos: list[FornecedoresOrgao]
+    fonte_nome: str
+    fonte_url: str
+    atualizado_em: datetime | None
+
+
 class AreaDespesa(BaseModel):
     nome: str
     valor: float

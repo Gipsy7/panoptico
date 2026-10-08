@@ -10,9 +10,10 @@ from app.schemas import (
     CanaisResposta,
     ContasMunicipioResposta,
     EmendasMunicipioResposta,
+    FornecedoresResposta,
     MunicipioInfo,
 )
-from app.services import contas, emendas
+from app.services import contas, emendas, fornecedores
 
 router = APIRouter()
 
@@ -33,6 +34,17 @@ def contas_do_municipio(ibge: str, session: Annotated[Session, Depends(get_sessi
     resultado = contas.resumo(session, ibge)
     if resultado is None:
         raise HTTPException(404, "Sem contas entregues ao Tesouro para este município.")
+    return resultado
+
+
+@router.get("/municipios/{ibge}/fornecedores", response_model=FornecedoresResposta)
+def fornecedores_do_municipio(ibge: str, session: Annotated[Session, Depends(get_session)]) -> dict:
+    """Para quem a prefeitura e a câmara pagaram (onde o Tribunal de Contas publica)."""
+    if session.get(Municipio, ibge) is None:
+        raise HTTPException(404, "Município não encontrado.")
+    resultado = fornecedores.resumo(session, ibge)
+    if resultado is None:
+        raise HTTPException(404, "Sem dados de fornecedores para este município.")
     return resultado
 
 

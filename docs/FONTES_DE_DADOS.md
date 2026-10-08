@@ -124,6 +124,23 @@ Endpoints conferidos em 2026-10-06.
   - a API limita a taxa de consultas (responde 429; cerca de 1 em cada 5 consultas a partir do GitHub). A carga espera o tempo do `Retry-After` e tenta de novo; um ano completo leva uns 65 minutos.
 - **Frequência:** anual, entregue até abril. Carga mensal.
 
+## TCE-SP: despesas das prefeituras e câmaras paulistas
+
+- **URL (lote, sem chave):** `https://transparencia.tce.sp.gov.br/sites/default/files/conjunto-dados/despesas-{ano}.zip`. Em 2024 o arquivo é um CSV de 15 GB descompactado; o zip de 2025 tem 2,1 GB.
+- **Formato:** `;`, latin-1, decimal com vírgula. Uma linha por evento de despesa: `tp_despesa` = Empenhado, Valor Liquidado, Valor Pago, Anulação ou Reforço. Usamos só "Valor Pago".
+- **Campos:**
+  - `codigo_municipio_ibge` e `ds_orgao` (prefeitura, câmara, autarquias e fundos);
+  - `tp_identificador_despesa` (CNPJ, pessoa física ou especial) e `nr_identificador_despesa`;
+  - `ds_despesa` (nome do credor) e `vl_despesa`.
+- **Armadilhas:**
+  - a pessoa física vem com nome: somamos sem guardar o nome;
+  - o órgão é texto livre, e classificamos por "CÂMARA" e "PREFEITURA";
+  - o ano corrente só sai no ano seguinte;
+  - a capital não está no arquivo: é fiscalizada pelo TCM-SP;
+  - a folha de salários aparece como pagamento ao próprio órgão ("CAMARA MUNICIPAL DE CAMPINAS") ou a um credor "FOLHA DE PAGAMENTO", e vira uma linha "Folha de pagamento (salários)".
+- **Outros TCEs:** RS (`dados.tce.rs.gov.br`) e MG (`dadosabertos.tce.mg.gov.br`) têm portais de dados abertos; a examinar.
+- **Portais de fornecedores (Betha, CR2...):** não servem para carga automática. O Betha exige reCAPTCHA nas consultas, e o CR2 é um app sem API pública. Não contornamos captcha.
+
 ## SAPL (Interlegis): câmaras municipais
 
 - **Endereço:** em geral `https://sapl.{câmara}/api/`, vindo do catálogo de canais (tipo `sapl`). É a mesma API REST em todas as câmaras (Django REST, paginada; `page_size` até 100).

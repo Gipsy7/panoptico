@@ -9,6 +9,7 @@ import { EmendasMunicipioSecao } from "@/components/emendas-municipio";
 import { CamaraSecao } from "@/components/camara-secao";
 import { CanaisSecao } from "@/components/canais-secao";
 import { ContasSecao } from "@/components/contas-secao";
+import { FornecedoresSecao } from "@/components/fornecedores-secao";
 import { EleitosSecao } from "@/components/eleitos-secao";
 import { ExecutivoSecao } from "@/components/executivo-secao";
 import { ParlamentarCard } from "@/components/parlamentar-card";
@@ -19,6 +20,7 @@ import {
   getCamara,
   getCanais,
   getContas,
+  getFornecedores,
   getExecutivo,
   getEmendasMunicipio,
   getVereadores,
@@ -67,7 +69,7 @@ async function Lista({ cep, uf, municipio }: Busca) {
   }
 
   const { localizacao, deputados, senadores, atualizado_em } = resultado.dados;
-  const [emendasResultado, vereadoresResultado, estaduaisResultado, executivoResultado, canaisResultado, contasResultado, camaraResultado] = await Promise.all([
+  const [emendasResultado, vereadoresResultado, estaduaisResultado, executivoResultado, canaisResultado, contasResultado, camaraResultado, fornecedoresResultado] = await Promise.all([
     localizacao.codigo_ibge ? getEmendasMunicipio(localizacao.codigo_ibge) : null,
     localizacao.codigo_ibge ? getVereadores(localizacao.codigo_ibge) : null,
     getDeputadosEstaduais(localizacao.uf),
@@ -75,7 +77,9 @@ async function Lista({ cep, uf, municipio }: Busca) {
     localizacao.codigo_ibge ? getCanais(localizacao.codigo_ibge) : null,
     localizacao.codigo_ibge ? getContas(localizacao.codigo_ibge) : null,
     localizacao.codigo_ibge ? getCamara(localizacao.codigo_ibge) : null,
+    localizacao.codigo_ibge ? getFornecedores(localizacao.codigo_ibge) : null,
   ]);
+  const fornecedores = fornecedoresResultado?.ok ? fornecedoresResultado.dados : null;
   const camara = camaraResultado?.ok ? camaraResultado.dados : null;
   const contas = contasResultado?.ok ? contasResultado.dados : null;
   const canais = canaisResultado?.ok ? canaisResultado.dados.itens : [];
@@ -130,6 +134,10 @@ async function Lista({ cep, uf, municipio }: Busca) {
       />
 
       {contas && localizacao.municipio && <ContasSecao dados={contas} cidade={localizacao.municipio} />}
+
+      {fornecedores && localizacao.municipio && (
+        <FornecedoresSecao dados={fornecedores} cidade={localizacao.municipio} />
+      )}
 
       {emendas && <EmendasMunicipioSecao dados={emendas} />}
 

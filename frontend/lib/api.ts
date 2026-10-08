@@ -295,6 +295,22 @@ export function getVereador(id: string) {
   return getJson<VereadorDetalhe>(`/vereadores/${encodeURIComponent(id)}`);
 }
 
+export type Fornecedores = {
+  ano: number;
+  orgaos: {
+    orgao: string;
+    total_pago: number;
+    itens: { fornecedor: string; documento: string | null; valor_pago: number; pagamentos: number }[];
+  }[];
+  fonte_nome: string;
+  fonte_url: string;
+  atualizado_em: string | null;
+};
+
+export function getFornecedores(ibge: string) {
+  return getJson<Fornecedores>(`/municipios/${encodeURIComponent(ibge)}/fornecedores`);
+}
+
 export type ContasMunicipio = {
   ano: number;
   populacao: number | null;

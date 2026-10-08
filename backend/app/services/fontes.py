@@ -69,6 +69,12 @@ CATALOGO = [
         "url": "https://siconfi.tesouro.gov.br/",
     },
     {
+        "dado": "Para quem a prefeitura e a câmara pagaram (São Paulo)",
+        "orgao": "Tribunal de Contas do Estado de São Paulo",
+        "fontes": ["tce_sp"],
+        "url": "https://transparencia.tce.sp.gov.br/conjunto-de-dados",
+    },
+    {
         "dado": "Vereadores no cargo hoje e projetos (câmaras com SAPL)",
         "orgao": "Câmaras municipais (sistema SAPL do Interlegis)",
         "fontes": ["sapl_camaras"],

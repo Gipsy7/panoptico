@@ -37,6 +37,7 @@ Os dados sobre o trabalho dos parlamentares já são públicos, mas estão espal
   - para quais áreas (saúde, educação…);
   - quem recebeu, com o CNPJ.
 - **Contas da sua cidade** (SICONFI, Tesouro Nacional): quanto a prefeitura arrecadou e gastou no ano, em que áreas e quanto custou a câmara municipal.
+- **Para quem a cidade pagou** (por enquanto, cidades de SP, pelo TCE-SP): os maiores fornecedores da prefeitura e da câmara no ano.
 - **Câmara municipal hoje** (nas câmaras que usam o SAPL): quem está no cargo agora, inclusive suplentes, com partido atual, contato, projetos e quantos requerimentos, indicações e moções apresentou.
 - **Canais oficiais da sua cidade**: sites da prefeitura e da câmara e os portais da transparência, num catálogo aberto (`data/canais_oficiais.csv`, gerado pela varredura, e `data/canais_curados.csv`, com as correções feitas à mão) que qualquer pessoa pode corrigir por pull request.
 - **Compartilhamento**: perfis e comparações têm imagem de pré-visualização e botão de WhatsApp.
@@ -110,6 +111,7 @@ flowchart LR
 | Candidaturas (inclusive presidente, governadores e prefeitos), bens declarados e contas de campanha (2018, 2022 e 2024) | [Dados abertos do TSE](https://dadosabertos.tse.jus.br/) | Arquivos em lote, carga manual por eleição |
 | Sites oficiais dos municípios | Varredura dos domínios `.gov.br` e `.leg.br` de cada cidade | Catálogo versionado, revisado por PR |
 | Contas anuais dos municípios | [SICONFI (Tesouro Nacional)](https://siconfi.tesouro.gov.br/) | API, uma consulta por município, mensal |
+| Pagamentos das prefeituras e câmaras por fornecedor (SP) | [TCE-SP](https://transparencia.tce.sp.gov.br/conjunto-de-dados) | Arquivo anual em lote, mensal |
 | Vereadores no cargo e projetos | SAPL (Interlegis) de cada câmara | API, semanal, endereços do catálogo de canais |
 | Municípios | [IBGE](https://servicodados.ibge.gov.br/api/docs/localidades) | API REST |
 | CEP → cidade e estado | [ViaCEP](https://viacep.com.br/) | Consulta na hora, sem gravar |

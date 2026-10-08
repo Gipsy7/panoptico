@@ -1,7 +1,8 @@
 name: Ingestão mensal
 
-# Fontes que mudam pouco (contas anuais dos municípios no SICONFI): uma vez por mês, fora
-# da ingestão diária, porque exigem milhares de consultas (uma por município).
+# Fontes que mudam pouco: contas anuais dos municípios (SICONFI) e despesas por fornecedor
+# dos Tribunais de Contas (TCE-SP). Uma vez por mês, fora da ingestão diária, porque exigem
+# milhares de consultas ou arquivos de vários GB.
 on:
   schedule:
     - cron: "0 10 15 * *" # dia 15 de cada mês, 7h em Brasília
@@ -11,6 +12,10 @@ on:
         description: "Anos das contas (vazio = os dois últimos anos fechados)"
         type: string
         default: ""
+      so_tce:
+        description: "Só as despesas por fornecedor dos Tribunais de Contas (pula o SICONFI)"
+        type: boolean
+        default: false
 
 concurrency:
   group: ingestao-mensal
@@ -42,6 +47,7 @@ jobs:
 
       # Um ano por vez: se um falhar (API fora do ar), o outro já ficou gravado.
       - name: Contas dos municípios (SICONFI)
+        if: ${{ !inputs.so_tce }}
         run: |
           anos="$ANOS"
           if [ -z "$anos" ]; then
@@ -50,4 +56,16 @@ jobs:
           fi
           for a in $anos; do
             uv run python -m ingestion.siconfi.contas --ano "$a"
+          done
+
+      # Arquivos de 2 GB compactados (15 GB ou mais descompactados), lidos em fluxo.
+      - name: Despesas por fornecedor (TCE-SP)
+        run: |
+          anos="$ANOS"
+          if [ -z "$anos" ]; then
+            ano=$(date +%Y)
+            anos="$((ano - 2)) $((ano - 1))"
+          fi
+          for a in $anos; do
+            uv run python -m ingestion.tce.sp --ano "$a"
           done
