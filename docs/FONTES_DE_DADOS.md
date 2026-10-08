@@ -141,19 +141,20 @@ Endpoints conferidos em 2026-10-06.
 - **Outros TCEs:** RS (`dados.tce.rs.gov.br`) e MG (`dadosabertos.tce.mg.gov.br`) têm portais de dados abertos; a examinar.
 - **Portais de fornecedores (Betha, CR2...):** não servem para carga automática. O Betha exige reCAPTCHA nas consultas, e o CR2 é um app sem API pública. Não contornamos captcha.
 
-## SAPL (Interlegis): câmaras municipais
+## SAPL (Interlegis): câmaras municipais e assembleias
 
 - **Endereço:** em geral `https://sapl.{câmara}/api/`, vindo do catálogo de canais (tipo `sapl`). É a mesma API REST em todas as câmaras (Django REST, paginada; `page_size` até 100).
 - **Rotas usadas:**
   - `parlamentares/legislatura/`, `parlamentares/mandato/?legislatura={id}`, `parlamentares/parlamentar/{id}/`, `parlamentares/filiacao/` e `parlamentares/partido/`;
-  - `base/autor/?tipo=1` (autores que são parlamentares);
+  - `base/tipoautor/` e `base/autor/?tipo={id do tipo "Parlamentar"}` (o id muda de uma instalação para outra);
   - `materia/autoria/?autor={id}` e `materia/materialegislativa/{id}/`.
 - **Armadilhas:**
   - links de foto e de documento vêm com `http://` (forçamos `https`);
   - `materia/autoria/?materia__ano=` não filtra (devolve tudo); `?autor=` filtra;
   - o texto da autoria ("Requerimento nº 324 de 2026") já traz tipo e ano, o que evita baixar cada matéria;
   - votações nominais existem, mas poucas câmaras registram.
-- **Frequência:** semanal, um estado por máquina, uma requisição por vez em cada câmara.
+- **Assembleias com SAPL** (levantamento das 27 casas em 2026-10-08): AC, AL, AM, MT, PB, PI, RO, RR e TO, em `https://sapl.al.{uf}.leg.br/`. As demais (AP, BA, CE, DF, ES, GO, MA, MG, MS, PA, PE, PR, RJ, RN, RS, SC, SE e SP) usam sistemas próprios; ALMG e ALESP têm dados abertos próprios, a examinar.
+- **Frequência:** semanal, um estado por máquina, uma requisição por vez em cada câmara; as assembleias numa máquina à parte.
 
 ## Canais oficiais dos municípios (varredura do Panóptico)
 
@@ -166,6 +167,8 @@ Endpoints conferidos em 2026-10-06.
   - certificados vencidos;
   - links malformados (`http://[facebook_entidade]`);
   - modelos de site de fornecedor apontando para o portal de outra cidade.
+- **Portal da transparência por sonda:** quando o link não está no HTML, testa `transparencia.{domínio}`, `/portal-da-transparencia`, `/transparencia` e `/portaltransparencia`, e só aceita página com "transparência" no título (muitos sites devolvem a página inicial, status 200, para qualquer endereço). `python -m ingestion.canais.varredura --completar` faz só essa sonda nas cidades do catálogo sem portal.
+- **Santa Catarina bloqueada:** o servidor compartilhado da maioria das prefeituras de SC responde 403 (nginx) a qualquer acesso automatizado, mesmo com identificação de navegador. Não contornamos.
 - **Frequência:** varredura inicial única; depois, revisão pontual quando uma carga falhar.
 
 ## A confirmar (fases seguintes)

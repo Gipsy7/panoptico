@@ -77,6 +77,7 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 2700508,Barra de Santo Antônio,AL,camara,https://barradesantoantonio.al.leg.br/,,2026-10-08
 2700508,Barra de Santo Antônio,AL,prefeitura,https://barradesantoantonio.al.gov.br/,,2026-10-08
 2700508,Barra de Santo Antônio,AL,transparencia_camara,https://transparencia.barradesantoantonio.al.leg.br,,2026-10-08
+2700508,Barra de Santo Antônio,AL,transparencia_prefeitura,https://barradesantoantonio.al.gov.br/portal-da-transparencia,,2026-10-08
 2700607,Barra de São Miguel,AL,camara,https://barradesaomiguel.al.leg.br/,,2026-10-08
 2700607,Barra de São Miguel,AL,prefeitura,https://barradesaomiguel.al.gov.br/,,2026-10-08
 2700607,Barra de São Miguel,AL,transparencia_prefeitura,https://barradesaomiguel.al.gov.br/transparencia/,,2026-10-08
@@ -153,6 +154,7 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 2702553,Estrela de Alagoas,AL,transparencia_prefeitura,https://transparencia.estreladealagoas.al.gov.br,,2026-10-08
 2702603,Feira Grande,AL,camara,https://feiragrande.al.leg.br/,,2026-10-08
 2702603,Feira Grande,AL,prefeitura,https://feiragrande.al.gov.br/,,2026-10-08
+2702603,Feira Grande,AL,transparencia_camara,https://feiragrande.al.leg.br/portal-da-transparencia,,2026-10-08
 2702702,Feliz Deserto,AL,camara,https://felizdeserto.al.leg.br/,,2026-10-08
 2702702,Feliz Deserto,AL,prefeitura,https://felizdeserto.al.gov.br/,,2026-10-08
 2702702,Feliz Deserto,AL,transparencia_prefeitura,https://felizdeserto.al.gov.br/transparencia-3/,,2026-10-08
@@ -235,9 +237,11 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 2705101,Matriz de Camaragibe,AL,transparencia_prefeitura,https://matrizdecamaragibe.al.gov.br/portaltransparencia,,2026-10-08
 2705200,Messias,AL,camara,https://messias.al.leg.br/,,2026-10-08
 2705200,Messias,AL,prefeitura,https://messias.al.gov.br/,,2026-10-08
+2705200,Messias,AL,transparencia_prefeitura,https://transparencia.messias.al.gov.br/,,2026-10-08
 2705309,Minador do Negrão,AL,camara,https://minadordonegrao.al.leg.br/,,2026-10-08
 2705408,Monteirópolis,AL,camara,https://monteiropolis.al.leg.br/,,2026-10-08
 2705408,Monteirópolis,AL,prefeitura,https://monteiropolis.al.gov.br/,,2026-10-08
+2705408,Monteirópolis,AL,transparencia_prefeitura,https://transparencia.monteiropolis.al.gov.br/,,2026-10-08
 2705507,Murici,AL,camara,https://murici.al.leg.br/,,2026-10-08
 2705507,Murici,AL,prefeitura,https://www.murici.al.gov.br/,,2026-10-08
 2705507,Murici,AL,transparencia_camara,https://transparencia.murici.al.leg.br,,2026-10-08
@@ -302,6 +306,7 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 2707503,Porto Real do Colégio,AL,transparencia_prefeitura,https://transparencia.portorealdocolegio.al.gov.br,,2026-10-08
 2707404,Porto de Pedras,AL,camara,https://www.portodepedras.al.leg.br/home/,,2026-10-08
 2707404,Porto de Pedras,AL,prefeitura,https://portodepedras.al.gov.br/,,2026-10-08
+2707404,Porto de Pedras,AL,transparencia_camara,https://www.portodepedras.al.leg.br/transparencia/,,2026-10-08
 2707404,Porto de Pedras,AL,transparencia_prefeitura,https://transparencia.portodepedras.al.gov.br,,2026-10-08
 2707206,Poço das Trincheiras,AL,camara,https://pocodastrincheiras.al.leg.br/,,2026-10-08
 2707206,Poço das Trincheiras,AL,prefeitura,https://pocodastrincheiras.al.gov.br/,,2026-10-08
@@ -321,6 +326,7 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 2707909,Santa Luzia do Norte,AL,transparencia_camara,https://www.santaluziadonorte.al.leg.br/transparencia,,2026-10-08
 2708006,Santana do Ipanema,AL,camara,https://santanadoipanema.al.leg.br/,,2026-10-08
 2708006,Santana do Ipanema,AL,prefeitura,https://santanadoipanema.al.gov.br/,,2026-10-08
+2708006,Santana do Ipanema,AL,transparencia_prefeitura,https://santanadoipanema.al.gov.br/portal-da-transparencia,,2026-10-08
 2708105,Santana do Mundaú,AL,camara,https://santanadomundau.al.leg.br/,,2026-10-08
 2708105,Santana do Mundaú,AL,prefeitura,https://santanadomundau.al.gov.br/,,2026-10-08
 2708105,Santana do Mundaú,AL,transparencia_prefeitura,https://portalsantanadomundau.tcgestaopublica.com.br/Principal,,2026-10-08
@@ -390,6 +396,7 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 1300144,Apuí,AM,prefeitura,https://apui.am.gov.br/,,2026-10-08
 1300144,Apuí,AM,sapl,https://sapl.apui.am.leg.br/,sapl,2026-10-08
 1300144,Apuí,AM,transparencia_camara,https://transparenciamunicipalaam.org.br/p/apui,,2026-10-08
+1300144,Apuí,AM,transparencia_prefeitura,https://apui.am.gov.br/portal-da-transparencia/,,2026-10-08
 1300201,Atalaia do Norte,AM,camara,https://www.atalaiadonorte.am.leg.br,,2026-10-08
 1300201,Atalaia do Norte,AM,prefeitura,https://atalaiadonorte.am.gov.br/,,2026-10-08
 1300201,Atalaia do Norte,AM,sapl,https://sapl.atalaiadonorte.am.leg.br/,sapl,2026-10-08
@@ -538,6 +545,7 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 1303601,Santa Isabel do Rio Negro,AM,prefeitura,https://santaisabeldorionegro.am.gov.br/,,2026-10-08
 1303601,Santa Isabel do Rio Negro,AM,sapl,https://sapl.santaisabeldorionegro.am.leg.br/,sapl,2026-10-08
 1303601,Santa Isabel do Rio Negro,AM,transparencia_camara,https://www.santaisabeldorionegro.am.leg.br/transparencia,,2026-10-08
+1303601,Santa Isabel do Rio Negro,AM,transparencia_prefeitura,https://santaisabeldorionegro.am.gov.br/portal-da-transparencia/,,2026-10-08
 1304005,Silves,AM,prefeitura,https://silves.am.gov.br/,,2026-10-08
 1304005,Silves,AM,transparencia_prefeitura,https://silves.am.gov.br/transparencia/,,2026-10-08
 1303809,São Gabriel da Cachoeira,AM,camara,https://saogabrieldacachoeira.am.leg.br/,,2026-10-08
@@ -666,6 +674,7 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 2901155,América Dourada,BA,prefeitura,https://www.americadourada.ba.gov.br/,,2026-10-08
 2901155,América Dourada,BA,transparencia_prefeitura,https://www.americadourada.ba.gov.br/portal-da-transparencia,,2026-10-08
 2901205,Anagé,BA,prefeitura,https://anage.ba.gov.br/,,2026-10-08
+2901205,Anagé,BA,transparencia_prefeitura,https://anage.ba.gov.br/transparencia,,2026-10-08
 2901304,Andaraí,BA,camara,https://camaraandarai.ba.gov.br/,,2026-10-08
 2901304,Andaraí,BA,prefeitura,https://www.andarai.ba.gov.br/,,2026-10-08
 2901304,Andaraí,BA,transparencia_camara,https://portaldatransparencia.camaraandarai.ba.gov.br,,2026-10-08
@@ -691,6 +700,7 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 2901700,Antônio Cardoso,BA,transparencia_prefeitura,https://transparencia.antoniocardoso.ba.gov.br/homepage,,2026-10-08
 2901809,Antônio Gonçalves,BA,camara,https://cmantoniogoncalves.ba.gov.br/,,2026-10-08
 2901809,Antônio Gonçalves,BA,prefeitura,https://www.antoniogoncalves.ba.gov.br/,,2026-10-08
+2901809,Antônio Gonçalves,BA,transparencia_camara,https://cmantoniogoncalves.ba.gov.br/portal-da-transparencia/,,2026-10-08
 2901809,Antônio Gonçalves,BA,transparencia_prefeitura,https://transparencia.antoniogoncalves.ba.gov.br,,2026-10-08
 2901908,Aporá,BA,camara,https://www.camaraapora.ba.gov.br/,,2026-10-08
 2901908,Aporá,BA,prefeitura,https://www.apora.ba.gov.br/,,2026-10-08
@@ -1149,6 +1159,7 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 2913903,Ipiaú,BA,transparencia_camara,https://transparencia.camaraipiau.ba.gov.br/homepage,,2026-10-08
 2914000,Ipirá,BA,camara,https://camaraipira.ba.gov.br/,,2026-10-08
 2914000,Ipirá,BA,prefeitura,https://www.ipira.ba.gov.br/,,2026-10-08
+2914000,Ipirá,BA,transparencia_camara,https://camaraipira.ba.gov.br/transparencia,,2026-10-08
 2914000,Ipirá,BA,transparencia_prefeitura,https://ipira.ba.gov.br/transparencia/,,2026-10-08
 2914109,Ipupiara,BA,camara,https://camaraipupiara.ba.gov.br/,,2026-10-08
 2914109,Ipupiara,BA,transparencia_camara,https://portalgov.srv.br/transparencia/public/camara-ipupiara,,2026-10-08
@@ -1269,6 +1280,7 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 2917003,Itiúba,BA,transparencia_camara,https://transparencia.camaraitiuba.ba.gov.br/homepage,,2026-10-08
 2917102,Itororó,BA,camara,https://www.cmitororo.ba.gov.br/,,2026-10-08
 2917102,Itororó,BA,prefeitura,https://www.itororo.ba.gov.br/,,2026-10-08
+2917102,Itororó,BA,transparencia_camara,https://transparencia.cmitororo.ba.gov.br/,,2026-10-08
 2917102,Itororó,BA,transparencia_prefeitura,https://transparencia.itororo.ba.gov.br,,2026-10-08
 2917201,Ituaçu,BA,camara,https://www.camaraituacu.ba.gov.br/,,2026-10-08
 2917201,Ituaçu,BA,transparencia_camara,http://impublicacoes.org/transparencia131/chart.php?id=ba_cm_ituacu,,2026-10-08
@@ -1460,6 +1472,7 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 2922409,Mutuípe,BA,transparencia_camara,https://transparencia.camaramutuipe.ba.gov.br/homepage,,2026-10-08
 2922409,Mutuípe,BA,transparencia_prefeitura,https://transparencia.mutuipe.ba.gov.br/homepage,,2026-10-08
 2922508,Nazaré,BA,prefeitura,https://nazare.ba.gov.br/,,2026-10-08
+2922508,Nazaré,BA,transparencia_prefeitura,https://nazare.ba.gov.br/transparencia,,2026-10-08
 2922607,Nilo Peçanha,BA,prefeitura,https://www.nilopecanha.ba.gov.br/,,2026-10-08
 2922607,Nilo Peçanha,BA,transparencia_prefeitura,https://transparencia.nilopecanha.ba.gov.br,,2026-10-08
 2922656,Nordestina,BA,camara,https://camaranordestina.ba.gov.br/,,2026-10-08
@@ -1496,6 +1509,7 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 2923209,Oliveira dos Brejinhos,BA,camara,https://camaraoliveiradosbrejinhos.ba.gov.br/,,2026-10-08
 2923209,Oliveira dos Brejinhos,BA,prefeitura,https://www.oliveiradosbrejinhos.ba.gov.br/,,2026-10-08
 2923209,Oliveira dos Brejinhos,BA,transparencia_camara,https://camaraoliveiradosbrejinhos.ba.gov.br/transparencia,,2026-10-08
+2923209,Oliveira dos Brejinhos,BA,transparencia_prefeitura,https://transparencia.oliveiradosbrejinhos.ba.gov.br/,,2026-10-08
 2923308,Ouriçangas,BA,camara,https://camaraouricangas.ba.gov.br/,,2026-10-08
 2923308,Ouriçangas,BA,transparencia_camara,https://camaraouricangas.ba.gov.br/transparencia,,2026-10-08
 2923357,Ourolândia,BA,prefeitura,https://www.ourolandia.ba.gov.br/,,2026-10-08
@@ -1563,6 +1577,7 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 2924900,Planaltino,BA,transparencia_prefeitura,https://transparencia.planaltino.ba.gov.br/homepage,,2026-10-08
 2925006,Planalto,BA,camara,https://www.cmplanalto.ba.gov.br/,,2026-10-08
 2925006,Planalto,BA,prefeitura,https://www.planalto.ba.gov.br/,,2026-10-08
+2925006,Planalto,BA,transparencia_camara,https://transparencia.cmplanalto.ba.gov.br/,,2026-10-08
 2925006,Planalto,BA,transparencia_prefeitura,https://transparencia.planalto.ba.gov.br,,2026-10-08
 2925204,Pojuca,BA,camara,https://camarapojuca.ba.gov.br/,,2026-10-08
 2925204,Pojuca,BA,prefeitura,https://www.pojuca.ba.gov.br/,,2026-10-08
@@ -1638,6 +1653,7 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 2926905,Rio do Pires,BA,camara,https://camarariodopires.ba.gov.br/,,2026-10-08
 2926905,Rio do Pires,BA,prefeitura,https://riodopires.ba.gov.br/,,2026-10-08
 2926905,Rio do Pires,BA,transparencia_camara,https://cmriodopires-ba.portaltp.com.br/,,2026-10-08
+2926905,Rio do Pires,BA,transparencia_prefeitura,https://riodopires.ba.gov.br/transparencia,,2026-10-08
 2927101,Rodelas,BA,camara,https://www.camararodelas.ba.gov.br/,,2026-10-08
 2927101,Rodelas,BA,prefeitura,https://www.rodelas.ba.gov.br/,,2026-10-08
 2927101,Rodelas,BA,transparencia_camara,https://transparencia.camararodelas.ba.gov.br/homepage,,2026-10-08
@@ -2071,6 +2087,7 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 2303907,Chaval,CE,prefeitura,https://chaval.ce.gov.br/,,2026-10-08
 2303907,Chaval,CE,sapl,https://sapl.chaval.ce.leg.br/,sapl,2026-10-08
 2303907,Chaval,CE,transparencia_camara,https://www.chaval.ce.leg.br/transparencia,,2026-10-08
+2303907,Chaval,CE,transparencia_prefeitura,https://chaval.ce.gov.br/transparencia/,,2026-10-08
 2303956,Chorozinho,CE,camara,https://www.chorozinho.ce.leg.br,,2026-10-08
 2303956,Chorozinho,CE,prefeitura,https://chorozinho.ce.gov.br/,,2026-10-08
 2303956,Chorozinho,CE,sapl,https://sapl.chorozinho.ce.leg.br/,sapl,2026-10-08
@@ -2114,6 +2131,7 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 2304350,Forquilha,CE,transparencia_camara,https://camaraforquilha.ce.gov.br/transparencia,,2026-10-08
 2304350,Forquilha,CE,transparencia_prefeitura,https://forquilha.ce.gov.br/acessoainformacao.php,,2026-10-08
 2304400,Fortaleza,CE,prefeitura,https://fortaleza.ce.gov.br/,,2026-10-08
+2304400,Fortaleza,CE,transparencia_prefeitura,https://transparencia.fortaleza.ce.gov.br/,,2026-10-08
 2304459,Fortim,CE,camara,https://fortim.ce.leg.br/,,2026-10-08
 2304459,Fortim,CE,prefeitura,https://fortim.ce.gov.br/,,2026-10-08
 2304459,Fortim,CE,sapl,https://sapl.fortim.ce.leg.br/,sapl,2026-10-08
@@ -2657,6 +2675,7 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 3203007,Iúna,ES,transparencia_camara,https://cmiuna-es.portaltp.com.br/,,2026-10-08
 3203007,Iúna,ES,transparencia_prefeitura,https://iuna-es.portaltp.com.br/,,2026-10-08
 3203056,Jaguaré,ES,camara,https://cmjaguare.es.gov.br/,,2026-10-08
+3203056,Jaguaré,ES,transparencia_camara,https://cmjaguare.es.gov.br/transparencia/,,2026-10-08
 3203106,Jerônimo Monteiro,ES,camara,https://jeronimomonteiro.es.leg.br/,,2026-10-08
 3203106,Jerônimo Monteiro,ES,transparencia_camara,http://cmjeronimomonteiro-es.portaltp.com.br/,,2026-10-08
 3203130,João Neiva,ES,camara,https://www.joaoneiva.es.leg.br,,2026-10-08
@@ -2680,6 +2699,7 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 3203601,Mucurici,ES,transparencia_camara,https://www.mucurici.es.leg.br/transparencia,,2026-10-08
 3203601,Mucurici,ES,transparencia_prefeitura,https://mucurici-es.portaltp.com.br/,,2026-10-08
 3203809,Muqui,ES,prefeitura,https://muqui.es.gov.br/,,2026-10-08
+3203809,Muqui,ES,transparencia_prefeitura,https://muqui.es.gov.br/transparencia/,,2026-10-08
 3203908,Nova Venécia,ES,prefeitura,https://www.novavenecia.es.gov.br/,,2026-10-08
 3203908,Nova Venécia,ES,transparencia_prefeitura,https://novavenecia-es.portaltp.com.br/,,2026-10-08
 3204252,Ponto Belo,ES,prefeitura,https://pontobelo.es.gov.br/,,2026-10-08
@@ -2723,6 +2743,7 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 5200134,Acreúna,GO,camara,https://www.acreuna.go.leg.br,,2026-10-08
 5200134,Acreúna,GO,prefeitura,https://acreuna.go.gov.br/,,2026-10-08
 5200134,Acreúna,GO,transparencia_camara,https://www.acreuna.go.leg.br/transparencia,,2026-10-08
+5200134,Acreúna,GO,transparencia_prefeitura,https://transparencia.acreuna.go.gov.br/,,2026-10-08
 5200159,Adelândia,GO,prefeitura,https://adelandia.go.gov.br/,,2026-10-08
 5200159,Adelândia,GO,transparencia_prefeitura,https://adelandia.go.gov.br/transparencia/,,2026-10-08
 5200308,Alexânia,GO,camara,https://alexania.go.leg.br/,,2026-10-08
@@ -2741,6 +2762,7 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 5200803,Alvorada do Norte,GO,transparencia_camara,https://alvoradadonorte.go.leg.br/transparencia/,,2026-10-08
 5200803,Alvorada do Norte,GO,transparencia_prefeitura,https://alvoradadonorte.go.gov.br/transparencia/,,2026-10-08
 5200829,Amaralina,GO,camara,https://www.amaralina.go.leg.br/,,2026-10-08
+5200829,Amaralina,GO,transparencia_camara,https://transparencia.amaralina.go.leg.br/,,2026-10-08
 5200852,Americano do Brasil,GO,camara,https://americanodobrasil.go.leg.br/,,2026-10-08
 5200852,Americano do Brasil,GO,prefeitura,https://americanodobrasil.go.gov.br/,,2026-10-08
 5200852,Americano do Brasil,GO,transparencia_camara,https://americanodobrasil.go.leg.br/transparencia/,,2026-10-08
@@ -2932,6 +2954,7 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 5205471,Chapadão do Céu,GO,transparencia_prefeitura,https://chapadaodoceu.go.gov.br/transparencia,,2026-10-08
 5205497,Cidade Ocidental,GO,camara,https://cidadeocidental.go.leg.br/,,2026-10-08
 5205497,Cidade Ocidental,GO,prefeitura,https://cidadeocidental.go.gov.br/,,2026-10-08
+5205497,Cidade Ocidental,GO,transparencia_camara,https://transparencia.cidadeocidental.go.leg.br/,,2026-10-08
 5205497,Cidade Ocidental,GO,transparencia_prefeitura,https://cidadeocidental.go.gov.br/transparencia/,,2026-10-08
 5205513,Cocalzinho de Goiás,GO,camara,https://cocalzinhodegoias.go.leg.br/,,2026-10-08
 5205513,Cocalzinho de Goiás,GO,transparencia_camara,https://cocalzinhodegoias.go.leg.br/transparencia/,,2026-10-08
@@ -3100,6 +3123,7 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 5209952,Indiara,GO,camara,https://indiara.go.leg.br/,,2026-10-08
 5209952,Indiara,GO,prefeitura,https://indiara.go.gov.br/,,2026-10-08
 5209952,Indiara,GO,transparencia_camara,https://acessoainformacao.indiara.go.leg.br/,,2026-10-08
+5209952,Indiara,GO,transparencia_prefeitura,https://indiara.go.gov.br/transparencia,,2026-10-08
 5210000,Inhumas,GO,camara,https://inhumas.go.leg.br/,,2026-10-08
 5210000,Inhumas,GO,prefeitura,https://inhumas.go.gov.br/,,2026-10-08
 5210000,Inhumas,GO,transparencia_camara,https://inhumas.go.leg.br/transparencia/,,2026-10-08
@@ -3196,6 +3220,7 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 5212303,Leopoldo de Bulhões,GO,transparencia_prefeitura,https://leopoldodebulhoes.go.gov.br/transparencia/,,2026-10-08
 5212501,Luziânia,GO,camara,https://luziania.go.leg.br/,,2026-10-08
 5212501,Luziânia,GO,sapl,https://sapl.luziania.go.leg.br/,sapl,2026-10-08
+5212501,Luziânia,GO,transparencia_camara,https://transparencia.luziania.go.leg.br/,,2026-10-08
 5212600,Mairipotaba,GO,camara,https://mairipotaba.go.leg.br/,,2026-10-08
 5212600,Mairipotaba,GO,prefeitura,https://mairipotaba.go.gov.br/,,2026-10-08
 5212600,Mairipotaba,GO,transparencia_camara,https://mairipotaba.go.leg.br/transparencia/,,2026-10-08
@@ -3493,6 +3518,7 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 5220686,Simolândia,GO,camara,https://www.simolandia.go.leg.br/,,2026-10-08
 5220686,Simolândia,GO,prefeitura,https://simolandia.go.gov.br/,,2026-10-08
 5220686,Simolândia,GO,transparencia_camara,https://www.simolandia.go.leg.br/transparencia/,,2026-10-08
+5220686,Simolândia,GO,transparencia_prefeitura,https://transparencia.simolandia.go.gov.br/,,2026-10-08
 5219803,São Domingos,GO,camara,https://saodomingos.go.leg.br/,,2026-10-08
 5219803,São Domingos,GO,prefeitura,https://saodomingos.go.gov.br/,,2026-10-08
 5219803,São Domingos,GO,transparencia_camara,https://saodomingos.go.leg.br/transparencia/,,2026-10-08
@@ -3503,6 +3529,7 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 5219902,São Francisco de Goiás,GO,transparencia_prefeitura,https://saofranciscodegoias.go.gov.br/transparencia/,,2026-10-08
 5220009,São João d'Aliança,GO,camara,https://saojoaodalianca.go.leg.br/,,2026-10-08
 5220009,São João d'Aliança,GO,prefeitura,https://www.saojoaodalianca.go.gov.br/,,2026-10-08
+5220009,São João d'Aliança,GO,transparencia_camara,https://transparencia.saojoaodalianca.go.leg.br/,,2026-10-08
 5220009,São João d'Aliança,GO,transparencia_prefeitura,https://www.saojoaodalianca.go.gov.br/transparencia,,2026-10-08
 5220058,São João da Paraúna,GO,camara,https://saojoaodaparauna.go.leg.br/,,2026-10-08
 5220058,São João da Paraúna,GO,prefeitura,https://www.saojoaodaparauna.go.gov.br/,,2026-10-08
@@ -3652,9 +3679,11 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 2101103,Axixá,MA,camara,https://cmaxixa.ma.gov.br/,,2026-10-08
 2101103,Axixá,MA,prefeitura,https://axixa.ma.gov.br/,,2026-10-08
 2101103,Axixá,MA,transparencia_camara,https://cmaxixa.ma.gov.br/transparencia,,2026-10-08
+2101103,Axixá,MA,transparencia_prefeitura,https://axixa.ma.gov.br/transparencia,,2026-10-08
 2100055,Açailândia,MA,camara,https://cmacailandia.ma.gov.br/,,2026-10-08
 2100055,Açailândia,MA,prefeitura,https://acailandia.ma.gov.br/,,2026-10-08
 2100055,Açailândia,MA,transparencia_camara,https://cmacailandia.ma.gov.br/portal-transparencia,,2026-10-08
+2100055,Açailândia,MA,transparencia_prefeitura,https://acailandia.ma.gov.br/transparencia,,2026-10-08
 2101202,Bacabal,MA,prefeitura,https://www.bacabal.ma.gov.br/,,2026-10-08
 2101202,Bacabal,MA,transparencia_prefeitura,https://www.bacabal.ma.gov.br/transparencia,,2026-10-08
 2101251,Bacabeira,MA,camara,https://www.cmbacabeira.ma.gov.br/,,2026-10-08
@@ -3705,6 +3734,7 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 2102150,Brejo de Areia,MA,camara,https://cmbrejodeareia.ma.gov.br/,,2026-10-08
 2102150,Brejo de Areia,MA,prefeitura,https://brejodeareia.ma.gov.br/,,2026-10-08
 2102150,Brejo de Areia,MA,transparencia_camara,https://cmbrejodeareia.ma.gov.br/transparencia,,2026-10-08
+2102150,Brejo de Areia,MA,transparencia_prefeitura,https://brejodeareia.ma.gov.br/transparencia,,2026-10-08
 2102200,Buriti,MA,camara,https://buriti.ma.leg.br/,,2026-10-08
 2102200,Buriti,MA,prefeitura,https://buriti.ma.gov.br/,,2026-10-08
 2102200,Buriti,MA,sapl,https://sapl.buriti.ma.leg.br/,sapl,2026-10-08
@@ -3723,6 +3753,7 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 2102374,Cachoeira Grande,MA,camara,https://cmcachoeiragrande.ma.gov.br/,,2026-10-08
 2102374,Cachoeira Grande,MA,prefeitura,https://cachoeiragrande.ma.gov.br/,,2026-10-08
 2102374,Cachoeira Grande,MA,transparencia_camara,https://cmcachoeiragrande.ma.gov.br/transparencia,,2026-10-08
+2102374,Cachoeira Grande,MA,transparencia_prefeitura,https://cachoeiragrande.ma.gov.br/transparencia,,2026-10-08
 2102408,Cajapió,MA,camara,https://www.cajapio.ma.leg.br/acl_users/credentials_cookie_auth/require_login?came_from=https%3A//www.cajapio.ma.leg.br/,,2026-10-08
 2102408,Cajapió,MA,prefeitura,https://cajapio.ma.gov.br/,,2026-10-08
 2102408,Cajapió,MA,transparencia_prefeitura,https://cajapio.ma.gov.br/transparencia/transparencia/,,2026-10-08
@@ -3758,6 +3789,7 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 2103158,Centro do Guilherme,MA,camara,https://cmcentrodoguilherme.ma.gov.br/,,2026-10-08
 2103158,Centro do Guilherme,MA,prefeitura,https://centrodoguilherme.ma.gov.br/,,2026-10-08
 2103158,Centro do Guilherme,MA,transparencia_camara,https://cmcentrodoguilherme.ma.gov.br/transparencia,,2026-10-08
+2103158,Centro do Guilherme,MA,transparencia_prefeitura,https://centrodoguilherme.ma.gov.br/transparencia,,2026-10-08
 2103208,Chapadinha,MA,camara,https://cmchapadinha.ma.gov.br/,,2026-10-08
 2103208,Chapadinha,MA,prefeitura,https://chapadinha.ma.gov.br/,,2026-10-08
 2103208,Chapadinha,MA,transparencia_camara,https://cmchapadinha.ma.gov.br/transparencia,,2026-10-08
@@ -3926,11 +3958,13 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 2106375,Maranhãozinho,MA,camara,https://cmmaranhaozinho.ma.gov.br/,,2026-10-08
 2106375,Maranhãozinho,MA,prefeitura,https://maranhaozinho.ma.gov.br/,,2026-10-08
 2106375,Maranhãozinho,MA,transparencia_camara,https://cmmaranhaozinho.ma.gov.br/transparencia,,2026-10-08
+2106375,Maranhãozinho,MA,transparencia_prefeitura,https://maranhaozinho.ma.gov.br/transparencia,,2026-10-08
 2106409,Mata Roma,MA,camara,https://www.mataroma.ma.leg.br,,2026-10-08
 2106409,Mata Roma,MA,transparencia_camara,https://www.mataroma.ma.leg.br/sitemap,,2026-10-08
 2106508,Matinha,MA,camara,https://cmmatinha.ma.gov.br/,,2026-10-08
 2106508,Matinha,MA,prefeitura,https://matinha.ma.gov.br/,,2026-10-08
 2106508,Matinha,MA,transparencia_camara,https://cmmatinha.ma.gov.br/acessoainformacao,,2026-10-08
+2106508,Matinha,MA,transparencia_prefeitura,https://matinha.ma.gov.br/transparencia,,2026-10-08
 2106607,Matões,MA,camara,https://www.matoes.ma.leg.br/acl_users/credentials_cookie_auth/require_login?came_from=https%3A//www.matoes.ma.leg.br/,,2026-10-08
 2106607,Matões,MA,prefeitura,https://matoes.ma.gov.br/,,2026-10-08
 2106607,Matões,MA,transparencia_camara,https://matoes.ma.leg.br/acesso-a-informacao,,2026-10-08
@@ -3982,6 +4016,7 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 2108058,Paulino Neves,MA,camara,https://camarapaulinoneves.ma.gov.br/,,2026-10-08
 2108058,Paulino Neves,MA,transparencia_camara,https://camarapaulinoneves.ma.gov.br/transparencia,,2026-10-08
 2107506,Paço do Lumiar,MA,prefeitura,https://pacodolumiar.ma.gov.br/,,2026-10-08
+2107506,Paço do Lumiar,MA,transparencia_prefeitura,https://pacodolumiar.ma.gov.br/transparencia,,2026-10-08
 2108207,Pedreiras,MA,camara,https://cmpedreiras.ma.gov.br/,,2026-10-08
 2108207,Pedreiras,MA,prefeitura,https://pedreiras.ma.gov.br/,,2026-10-08
 2108207,Pedreiras,MA,transparencia_camara,https://cmpedreiras.ma.gov.br/acessoainformacao,,2026-10-08
@@ -4018,6 +4053,7 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 2109205,Presidente Juscelino,MA,camara,https://www.cmpresidentejuscelino.ma.gov.br/,,2026-10-08
 2109205,Presidente Juscelino,MA,prefeitura,https://presidentejuscelino.ma.gov.br/,,2026-10-08
 2109205,Presidente Juscelino,MA,transparencia_camara,https://www.cmpresidentejuscelino.ma.gov.br/transparencia,,2026-10-08
+2109205,Presidente Juscelino,MA,transparencia_prefeitura,https://presidentejuscelino.ma.gov.br/transparencia,,2026-10-08
 2109239,Presidente Médici,MA,camara,https://cmpresidentemedici.ma.gov.br/,,2026-10-08
 2109239,Presidente Médici,MA,transparencia_camara,https://cmpresidentemedici.ma.gov.br/transparencia,,2026-10-08
 2109270,Presidente Sarney,MA,prefeitura,https://presidentesarney.ma.gov.br/,,2026-10-08
@@ -4049,6 +4085,7 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 2109809,Santa Helena,MA,transparencia_camara,https://cmsantahelena.ma.gov.br/transparencia,,2026-10-08
 2109809,Santa Helena,MA,transparencia_prefeitura,https://santahelena.ma.gov.br/transparencia,,2026-10-08
 2109908,Santa Inês,MA,prefeitura,https://santaines.ma.gov.br/,,2026-10-08
+2109908,Santa Inês,MA,transparencia_prefeitura,https://santaines.ma.gov.br/transparencia,,2026-10-08
 2110005,Santa Luzia,MA,camara,https://cmsantaluzia.ma.gov.br/,,2026-10-08
 2110005,Santa Luzia,MA,prefeitura,https://santaluzia.ma.gov.br/,,2026-10-08
 2110005,Santa Luzia,MA,transparencia_camara,https://cmsantaluzia.ma.gov.br/transparencia,,2026-10-08
@@ -4166,6 +4203,7 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 2112506,Tutóia,MA,camara,https://cmtutoia.ma.gov.br/,,2026-10-08
 2112506,Tutóia,MA,prefeitura,https://tutoia.ma.gov.br/,,2026-10-08
 2112506,Tutóia,MA,transparencia_camara,https://cmtutoia.ma.gov.br/transparencia,,2026-10-08
+2112506,Tutóia,MA,transparencia_prefeitura,https://tutoia.ma.gov.br/transparencia,,2026-10-08
 2112605,Urbano Santos,MA,camara,https://cmurbanosantos.ma.gov.br/,,2026-10-08
 2112605,Urbano Santos,MA,prefeitura,https://urbanosantos.ma.gov.br/,,2026-10-08
 2112605,Urbano Santos,MA,transparencia_camara,https://cmurbanosantos.ma.gov.br/transparencia/transparencia/,,2026-10-08
@@ -4330,8 +4368,10 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 3105103,Bambuí,MG,transparencia_camara,https://www.bambui.mg.leg.br/transparencia,,2026-10-08
 3105103,Bambuí,MG,transparencia_prefeitura,https://www.bambui.mg.gov.br/transparencia,,2026-10-08
 3105202,Bandeira,MG,prefeitura,https://bandeira.atende.net/cidadao,,2026-10-08
+3105202,Bandeira,MG,transparencia_prefeitura,https://bandeira.atende.net/transparencia,ipm,2026-10-08
 3105608,Barbacena,MG,camara,https://camarabarbacena.mg.gov.br/,,2026-10-08
 3105608,Barbacena,MG,prefeitura,https://www1.barbacena.mg.gov.br/,,2026-10-08
+3105608,Barbacena,MG,transparencia_camara,https://camarabarbacena.mg.gov.br/portal-da-transparencia/,,2026-10-08
 3105608,Barbacena,MG,transparencia_prefeitura,https://transparencia.betha.cloud/#/XeZsCiVEdRP_pW2Y3zfH4Q==,betha,2026-10-08
 3105509,Barão do Monte Alto,MG,camara,https://cmbaraodomontealto.mg.gov.br/,,2026-10-08
 3105509,Barão do Monte Alto,MG,prefeitura,https://www.baraodomontealto.mg.gov.br/,,2026-10-08
@@ -4346,6 +4386,7 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 3106705,Betim,MG,transparencia_prefeitura,https://servicos.betim.mg.gov.br/transparencia,,2026-10-08
 3106804,Bias Fortes,MG,camara,https://camarabiasfortes.mg.gov.br/,,2026-10-08
 3106804,Bias Fortes,MG,prefeitura,https://www.biasfortes.mg.gov.br/,,2026-10-08
+3106804,Bias Fortes,MG,transparencia_camara,https://camarabiasfortes.mg.gov.br/transparencia/,,2026-10-08
 3106903,Bicas,MG,camara,https://www.bicas.mg.leg.br,,2026-10-08
 3106903,Bicas,MG,sapl,https://sapl.bicas.mg.leg.br/,sapl,2026-10-08
 3106903,Bicas,MG,transparencia_camara,https://cm-bicas.publicacao.siplanweb.com.br/,,2026-10-08
@@ -4368,6 +4409,7 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 3107505,Bom Jardim de Minas,MG,prefeitura,https://www.bomjardimdeminas.mg.gov.br/,,2026-10-08
 3107505,Bom Jardim de Minas,MG,sapl,https://sapl.bomjardimdeminas.mg.leg.br/,sapl,2026-10-08
 3107505,Bom Jardim de Minas,MG,transparencia_camara,https://cm-bjminas.publicacao.siplanweb.com.br/,,2026-10-08
+3107505,Bom Jardim de Minas,MG,transparencia_prefeitura,https://www.bomjardimdeminas.mg.gov.br/transparencia/,,2026-10-08
 3107604,Bom Jesus da Penha,MG,camara,https://www.bomjesusdapenha.mg.leg.br,,2026-10-08
 3107604,Bom Jesus da Penha,MG,prefeitura,https://www.bomjesusdapenha.mg.gov.br/,,2026-10-08
 3107604,Bom Jesus da Penha,MG,sapl,https://sapl.bomjesusdapenha.mg.leg.br/,sapl,2026-10-08
@@ -4395,6 +4437,7 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 3108404,Botelhos,MG,transparencia_camara,https://transparencia.betha.cloud/#/iSI_RgHBIU5B-lnf3_-57w==,betha,2026-10-08
 3108404,Botelhos,MG,transparencia_prefeitura,https://transparencia.betha.cloud/#/6uFdUWlXWG57U1EJqXsv6w==/estrutura-organizacional,betha,2026-10-08
 3108503,Botumirim,MG,camara,https://www.botumirim.mg.leg.br/acl_users/credentials_cookie_auth/require_login?came_from=https%3A//www.botumirim.mg.leg.br/,,2026-10-08
+3108503,Botumirim,MG,transparencia_camara,https://www.botumirim.mg.leg.br/transparencia,,2026-10-08
 3108552,Brasilândia de Minas,MG,camara,https://sapl.brasilandiademinas.mg.leg.br/,,2026-10-08
 3108552,Brasilândia de Minas,MG,prefeitura,https://brasilandiademinas.mg.gov.br/,,2026-10-08
 3108552,Brasilândia de Minas,MG,sapl,https://sapl.brasilandiademinas.mg.leg.br/,sapl,2026-10-08
@@ -4488,6 +4531,7 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 3111507,Campos Altos,MG,prefeitura,https://camposaltos.mg.gov.br/,,2026-10-08
 3111507,Campos Altos,MG,sapl,https://sapl.camposaltos.mg.leg.br/,sapl,2026-10-08
 3111507,Campos Altos,MG,transparencia_camara,https://ilai.memory.com.br/#/entidades/login/98NY3E/2/,,2026-10-08
+3111507,Campos Altos,MG,transparencia_prefeitura,https://camposaltos.mg.gov.br/transparencia/,,2026-10-08
 3111606,Campos Gerais,MG,prefeitura,https://www.camposgerais.mg.gov.br/,,2026-10-08
 3111606,Campos Gerais,MG,transparencia_prefeitura,https://transparencia.betha.cloud/#/0kQyNTTv3OMgG6_DHd5_Fg==,betha,2026-10-08
 3111903,Cana Verde,MG,camara,https://www.canaverde.mg.leg.br/,,2026-10-08
@@ -4573,6 +4617,7 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 3114501,Carmópolis de Minas,MG,prefeitura,https://carmopolisdeminas.atende.net,,2026-10-08
 3114501,Carmópolis de Minas,MG,sapl,https://sapl.carmopolisdeminas.mg.leg.br/,sapl,2026-10-08
 3114501,Carmópolis de Minas,MG,transparencia_camara,https://www.carmopolisdeminas.mg.leg.br/transparencia,,2026-10-08
+3114501,Carmópolis de Minas,MG,transparencia_prefeitura,https://carmopolisdeminas.atende.net/transparencia,ipm,2026-10-08
 3114550,Carneirinho,MG,camara,https://www.carneirinho.mg.leg.br/,,2026-10-08
 3114550,Carneirinho,MG,prefeitura,https://www.carneirinho.mg.gov.br/,,2026-10-08
 3114550,Carneirinho,MG,sapl,https://sapl.carneirinho.mg.leg.br/,sapl,2026-10-08
@@ -4585,6 +4630,7 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 3114709,Carvalhópolis,MG,camara,https://camaracarvalhopolis.mg.gov.br/,,2026-10-08
 3114709,Carvalhópolis,MG,prefeitura,https://www.carvalhopolis.mg.gov.br/,,2026-10-08
 3114709,Carvalhópolis,MG,transparencia_camara,https://portal.sgpcloud.net:9129/transparenciaCamara/,,2026-10-08
+3114709,Carvalhópolis,MG,transparencia_prefeitura,https://www.carvalhopolis.mg.gov.br/servicos/portal-da-transparencia/,,2026-10-08
 3115003,Cascalho Rico,MG,camara,https://camaracascalhorico.mg.gov.br/,,2026-10-08
 3115003,Cascalho Rico,MG,prefeitura,https://cascalhorico.mg.gov.br/,,2026-10-08
 3115003,Cascalho Rico,MG,transparencia_camara,http://45.4.214.99:8444/#/transparencia,,2026-10-08
@@ -4684,6 +4730,7 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 3119005,Cordislândia,MG,camara,https://cordislandia.mg.leg.br/,,2026-10-08
 3119005,Cordislândia,MG,prefeitura,https://www.cordislandia.mg.gov.br/,,2026-10-08
 3119005,Cordislândia,MG,transparencia_camara,https://cmcordislandiaportaltransparencia.portalfacil.com.br/,portalfacil,2026-10-08
+3119005,Cordislândia,MG,transparencia_prefeitura,https://www.cordislandia.mg.gov.br/transparencia,,2026-10-08
 3119104,Corinto,MG,camara,https://www.corinto.mg.leg.br,,2026-10-08
 3119104,Corinto,MG,prefeitura,https://corinto.mg.gov.br/,,2026-10-08
 3119104,Corinto,MG,sapl,https://sapl.corinto.mg.leg.br/,sapl,2026-10-08
@@ -4693,8 +4740,10 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 3119302,Coromandel,MG,prefeitura,https://coromandel.mg.gov.br/,,2026-10-08
 3119302,Coromandel,MG,sapl,https://sapl.coromandel.mg.leg.br/,sapl,2026-10-08
 3119302,Coromandel,MG,transparencia_camara,https://transparencia.coromandel.mg.leg.br/,,2026-10-08
+3119302,Coromandel,MG,transparencia_prefeitura,https://transparencia.coromandel.mg.gov.br/,,2026-10-08
 3119401,Coronel Fabriciano,MG,camara,https://www.coronelfabriciano.mg.leg.br,,2026-10-08
 3119401,Coronel Fabriciano,MG,sapl,https://sapl.coronelfabriciano.mg.leg.br/,sapl,2026-10-08
+3119401,Coronel Fabriciano,MG,transparencia_camara,https://www.coronelfabriciano.mg.leg.br/transparencia,,2026-10-08
 3119609,Coronel Pacheco,MG,prefeitura,https://coronelpacheco.mg.gov.br/,,2026-10-08
 3119609,Coronel Pacheco,MG,transparencia_prefeitura,https://pm-cpacheco.publicacao.siplanweb.com.br/,,2026-10-08
 3119708,Coronel Xavier Chaves,MG,camara,https://camaracxc.mg.gov.br/site/,,2026-10-08
@@ -4713,6 +4762,7 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 3120508,Cristina,MG,camara,https://www.cristina.mg.leg.br,,2026-10-08
 3120508,Cristina,MG,transparencia_camara,http://www.adpmnet.com.br/index.php?option=com_contpubl&idorg=267&tpform=1,,2026-10-08
 3120300,Cristália,MG,camara,https://www.cristalia.mg.leg.br/acl_users/credentials_cookie_auth/require_login?came_from=https%3A//www.cristalia.mg.leg.br/,,2026-10-08
+3120300,Cristália,MG,transparencia_camara,https://www.cristalia.mg.leg.br/transparencia,,2026-10-08
 3120607,Crucilândia,MG,camara,https://camaracrucilandia.mg.gov.br/,,2026-10-08
 3120607,Crucilândia,MG,transparencia_camara,https://camaracrucilandia.mg.gov.br/Transparencia,,2026-10-08
 3120706,Cruzeiro da Fortaleza,MG,camara,https://camaracruzeirodafortaleza.mg.gov.br/,,2026-10-08
@@ -4733,6 +4783,7 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 3120003,Córrego Novo,MG,prefeitura,https://corregonovo.mg.gov.br/,,2026-10-08
 3120003,Córrego Novo,MG,transparencia_prefeitura,https://corregonovo.mg.gov.br/transparencia#1,,2026-10-08
 3119906,Córrego do Bom Jesus,MG,prefeitura,https://www.corregodobomjesus.mg.gov.br/,,2026-10-08
+3119906,Córrego do Bom Jesus,MG,transparencia_prefeitura,https://www.corregodobomjesus.mg.gov.br/servicos/portal-da-transparencia/,,2026-10-08
 3117836,Cônego Marinho,MG,prefeitura,https://conegomarinho.mg.gov.br/,,2026-10-08
 3117836,Cônego Marinho,MG,transparencia_prefeitura,https://pmconegomarinho.cidadesmg.com.br/portaltransparencia,,2026-10-08
 3121001,Datas,MG,camara,https://camaradatas.mg.gov.br/,,2026-10-08
@@ -4830,6 +4881,7 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 3123528,Durandé,MG,prefeitura,https://durande.mg.gov.br/,,2026-10-08
 3123528,Durandé,MG,sapl,https://sapl.durande.mg.leg.br/,sapl,2026-10-08
 3123528,Durandé,MG,transparencia_camara,https://cmdurande-mg.portaltp.com.br/,,2026-10-08
+3123528,Durandé,MG,transparencia_prefeitura,https://transparencia.durande.mg.gov.br/,,2026-10-08
 3123601,Elói Mendes,MG,prefeitura,https://eloimendes.mg.gov.br/,,2026-10-08
 3123601,Elói Mendes,MG,transparencia_prefeitura,https://eloimendes.mg.gov.br/portal-da-transparencia/,,2026-10-08
 3123700,Engenheiro Caldas,MG,prefeitura,https://engenheirocaldas.mg.gov.br/,,2026-10-08
@@ -4859,6 +4911,7 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 3124302,Espinosa,MG,prefeitura,https://espinosa.mg.gov.br/,,2026-10-08
 3124302,Espinosa,MG,transparencia_prefeitura,https://pmespinosa.cidadesmg.com.br/portaltransparencia/index.xhtml,,2026-10-08
 3124401,Espírito Santo do Dourado,MG,camara,https://www.espiritosantododourado.mg.leg.br,,2026-10-08
+3124401,Espírito Santo do Dourado,MG,transparencia_camara,https://www.espiritosantododourado.mg.leg.br/transparencia,,2026-10-08
 3124500,Estiva,MG,camara,https://www.estiva.mg.leg.br,,2026-10-08
 3124500,Estiva,MG,prefeitura,https://www.estiva.mg.gov.br/,,2026-10-08
 3124500,Estiva,MG,sapl,https://sapl.estiva.mg.leg.br/,sapl,2026-10-08
@@ -4919,6 +4972,7 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 3126604,Francisco Dumont,MG,transparencia_camara,https://cmfranciscodumont.cidadesmg.com.br/portaltransparencia,,2026-10-08
 3126604,Francisco Dumont,MG,transparencia_prefeitura,https://pmfranciscodumont.cidadesmg.com.br/portaltransparencia,,2026-10-08
 3126703,Francisco Sá,MG,camara,https://www.franciscosa.mg.leg.br,,2026-10-08
+3126703,Francisco Sá,MG,transparencia_camara,https://www.franciscosa.mg.leg.br/transparencia,,2026-10-08
 3126752,Franciscópolis,MG,camara,https://cmfranciscopolis.mg.gov.br/,,2026-10-08
 3126752,Franciscópolis,MG,prefeitura,https://www.franciscopolis.mg.gov.br/,,2026-10-08
 3126752,Franciscópolis,MG,transparencia_camara,https://cmfranciscopolis-transparencia.gpecloud.com.br/,,2026-10-08
@@ -4943,6 +4997,7 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 3127206,Funilândia,MG,camara,https://camarafunilandia.mg.gov.br/,,2026-10-08
 3127206,Funilândia,MG,prefeitura,https://funilandia.mg.gov.br/,,2026-10-08
 3127206,Funilândia,MG,transparencia_camara,https://ilai.memory.com.br/#/entidades/login/9A7F6Q/2,,2026-10-08
+3127206,Funilândia,MG,transparencia_prefeitura,https://funilandia.mg.gov.br/portal-da-transparencia,,2026-10-08
 3127305,Galiléia,MG,prefeitura,https://galileia.mg.gov.br/,,2026-10-08
 3127305,Galiléia,MG,transparencia_prefeitura,https://galileia-mg.portaltp.com.br/,,2026-10-08
 3127354,Glaucilândia,MG,prefeitura,https://www.glaucilandia.mg.gov.br/site/pagina_inicial,,2026-10-08
@@ -5144,6 +5199,7 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 3133758,Itaú de Minas,MG,transparencia_camara,https://www.itaudeminas.mg.leg.br/transparencia,,2026-10-08
 3133758,Itaú de Minas,MG,transparencia_prefeitura,https://itaudeminas.mg.gov.br/transparencia,,2026-10-08
 3133808,Itaúna,MG,prefeitura,https://www.itauna.mg.gov.br/,,2026-10-08
+3133808,Itaúna,MG,transparencia_prefeitura,https://www.itauna.mg.gov.br/transparencia,,2026-10-08
 3134004,Itinga,MG,camara,https://www.camaraitinga.mg.gov.br/,,2026-10-08
 3134004,Itinga,MG,prefeitura,https://www.itinga.mg.gov.br/,,2026-10-08
 3134004,Itinga,MG,transparencia_camara,https://cmitinga.cidadesmg.com.br/portaltransparencia/,,2026-10-08
@@ -5396,6 +5452,7 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 3142254,Miravânia,MG,transparencia_camara,https://www.miravania.mg.leg.br/transparencia,,2026-10-08
 3142254,Miravânia,MG,transparencia_prefeitura,https://miravania.mg.gov.br/tranparencia/,,2026-10-08
 3142205,Miraí,MG,prefeitura,https://mirai.mg.gov.br/,,2026-10-08
+3142205,Miraí,MG,transparencia_prefeitura,https://transparencia.mirai.mg.gov.br/,,2026-10-08
 3142304,Moeda,MG,prefeitura,https://moeda.mg.gov.br/,,2026-10-08
 3142304,Moeda,MG,transparencia_prefeitura,https://pmmoeda.cidadesmg.com.br/portaltransparencia/,,2026-10-08
 3142502,Monjolos,MG,camara,https://cmmonjolos.mg.gov.br/,,2026-10-08
@@ -5436,10 +5493,13 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 3143708,Morro do Pilar,MG,camara,https://camaramorrodopilar.mg.gov.br/,,2026-10-08
 3143708,Morro do Pilar,MG,prefeitura,https://morrodopilar.mg.gov.br/,,2026-10-08
 3143708,Morro do Pilar,MG,transparencia_camara,https://ilai.memory.com.br/#/entidades/login/9BPQNY/2/,,2026-10-08
+3143708,Morro do Pilar,MG,transparencia_prefeitura,https://morrodopilar.mg.gov.br/transparencia/,,2026-10-08
 3143807,Munhoz,MG,prefeitura,https://munhoz.mg.gov.br/,,2026-10-08
 3143807,Munhoz,MG,transparencia_prefeitura,http://www.transparenciafacil.com.br/0184302,,2026-10-08
 3143906,Muriaé,MG,camara,https://camaramuriae.mg.gov.br/,,2026-10-08
 3143906,Muriaé,MG,prefeitura,https://muriae.atende.net,,2026-10-08
+3143906,Muriaé,MG,transparencia_camara,https://camaramuriae.mg.gov.br/site/,,2026-10-08
+3143906,Muriaé,MG,transparencia_prefeitura,https://muriae.atende.net/transparencia,ipm,2026-10-08
 3144003,Mutum,MG,prefeitura,https://mutum.mg.gov.br/,,2026-10-08
 3144003,Mutum,MG,transparencia_prefeitura,https://transparencia-hd.com.br/?cod_empre=30,,2026-10-08
 3144102,Muzambinho,MG,camara,https://camaramuzambinho.mg.gov.br/,,2026-10-08
@@ -5479,6 +5539,7 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 3144805,Nova Lima,MG,sapl,https://sapl.novalima.mg.leg.br/,sapl,2026-10-08
 3144805,Nova Lima,MG,transparencia_camara,https://www.novalima.mg.leg.br/transparencia,,2026-10-08
 3144904,Nova Módica,MG,prefeitura,https://www.novamodica.mg.gov.br/,,2026-10-08
+3144904,Nova Módica,MG,transparencia_prefeitura,https://www.novamodica.mg.gov.br/transparencia/,,2026-10-08
 3145000,Nova Ponte,MG,prefeitura,https://novaponte.mg.gov.br/,,2026-10-08
 3145000,Nova Ponte,MG,transparencia_prefeitura,https://prefeitura.novaponte.sonner.com.br/portal,,2026-10-08
 3145059,Nova Porteirinha,MG,prefeitura,https://www.novaporteirinha.mg.gov.br/,,2026-10-08
@@ -5547,6 +5608,7 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 3147204,Paraguaçu,MG,transparencia_camara,https://www.paraguacu.mg.leg.br/transparencia,,2026-10-08
 3147204,Paraguaçu,MG,transparencia_prefeitura,https://pmparaguacu-transparencia.gpecloud.com.br/,,2026-10-08
 3147303,Paraisópolis,MG,prefeitura,https://www.paraisopolis.mg.gov.br/,,2026-10-08
+3147303,Paraisópolis,MG,transparencia_prefeitura,https://www.paraisopolis.mg.gov.br/servicos/portal-da-transparencia/,,2026-10-08
 3147402,Paraopeba,MG,camara,https://www.paraopeba.mg.leg.br,,2026-10-08
 3147402,Paraopeba,MG,sapl,https://sapl.paraopeba.mg.leg.br/,sapl,2026-10-08
 3147402,Paraopeba,MG,transparencia_camara,https://www.paraopeba.mg.leg.br/resolveuid/89bbc364371b493e8d818a88f76aba84,,2026-10-08
@@ -5573,6 +5635,7 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 3147907,Passos,MG,transparencia_prefeitura,http://passosportaltransparencia.portalfacil.com.br/,portalfacil,2026-10-08
 3147956,Patis,MG,camara,https://www.patis.mg.leg.br,,2026-10-08
 3147956,Patis,MG,prefeitura,https://patis.mg.gov.br/,,2026-10-08
+3147956,Patis,MG,transparencia_camara,https://www.patis.mg.leg.br/transparencia,,2026-10-08
 3147956,Patis,MG,transparencia_prefeitura,https://pmpatis.cidadesmg.com.br/portaltransparencia,,2026-10-08
 3148004,Patos de Minas,MG,camara,https://camarapatos.mg.gov.br,,2026-10-08
 3148004,Patos de Minas,MG,prefeitura,https://www.patosdeminas.mg.gov.br/,,2026-10-08
@@ -5626,6 +5689,7 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 3149309,Pedro Leopoldo,MG,transparencia_camara,https://sistemas.pedroleopoldo.mg.leg.br/portalcidadao/#efb33c382dcf9e4ae2294337ce2a566034ee25478c90493e56f55878a4d19d547154abb93a539ca141901243121b0442f68667740d76583a9b6fc842805a701255f50abffb83548323feb3d4a215dcba05fc4b5b868699999c1d78af95bbbed2ae7ab27d940f9f7a8b2debb75557ba1cd7f6303c3be5a0edaecf72a00208c722773c5ec1c75725b2,,2026-10-08
 3149309,Pedro Leopoldo,MG,transparencia_prefeitura,https://cidadao.pedroleopoldo.mg.gov.br/portalcidadao/#efb33c382dcf9e4ae2294337ce2a566034ee25478c90493e56f55878a4d19d547154abb93a539ca141901243121b0442f68667740d76583a9b6fc842805a701255f50abffb83548323feb3d4a215dcba05fc4b5b868699999c1d78af95bbbed2ae7ab27d940f9f7a8b2debb75557ba1cd7f6303c3be5a0edaecf72a00208c722773c5ec1c75725b2,,2026-10-08
 3149408,Pedro Teixeira,MG,prefeitura,https://www.pedroteixeira.mg.gov.br/,,2026-10-08
+3149408,Pedro Teixeira,MG,transparencia_prefeitura,https://www.pedroteixeira.mg.gov.br/transparencia/,,2026-10-08
 3149507,Pequeri,MG,camara,https://www.pequeri.mg.leg.br,,2026-10-08
 3149507,Pequeri,MG,prefeitura,https://pequeri.mg.gov.br/,,2026-10-08
 3149507,Pequeri,MG,sapl,https://sapl.pequeri.mg.leg.br/,sapl,2026-10-08
@@ -5655,6 +5719,7 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 3150505,Pimenta,MG,prefeitura,https://pimenta.mg.gov.br/prefeitura/,,2026-10-08
 3150505,Pimenta,MG,transparencia_prefeitura,https://inovarteinfo.com.br/prefeiturapimenta,,2026-10-08
 3150539,Pingo-d'Água,MG,camara,https://cmpingodagua.mg.gov.br/,,2026-10-08
+3150539,Pingo-d'Água,MG,transparencia_camara,https://cmpingodagua.mg.gov.br/portal-da-transparencia/,,2026-10-08
 3150570,Pintópolis,MG,camara,https://camarapintopolis.mg.gov.br/,,2026-10-08
 3150570,Pintópolis,MG,prefeitura,https://pintopolis.mg.gov.br/,,2026-10-08
 3150570,Pintópolis,MG,transparencia_camara,https://transparencia.cmpintopolis.contassconsultoria.com.br/,,2026-10-08
@@ -5665,6 +5730,8 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 3150604,Piracema,MG,transparencia_prefeitura,https://www.piracema.mg.gov.br/portal-da-transparencia,,2026-10-08
 3150703,Pirajuba,MG,camara,https://camarapirajuba.atende.net/,,2026-10-08
 3150703,Pirajuba,MG,prefeitura,https://pirajuba.atende.net,,2026-10-08
+3150703,Pirajuba,MG,transparencia_camara,https://camarapirajuba.atende.net/transparencia,ipm,2026-10-08
+3150703,Pirajuba,MG,transparencia_prefeitura,https://pirajuba.atende.net/transparencia,ipm,2026-10-08
 3150802,Piranga,MG,prefeitura,https://www.piranga.mg.gov.br/,,2026-10-08
 3150802,Piranga,MG,transparencia_prefeitura,https://pm-piranga.publicacao.siplanweb.com.br/,,2026-10-08
 3151008,Piranguinho,MG,prefeitura,https://www.piranguinho.mg.gov.br/,,2026-10-08
@@ -6048,6 +6115,7 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 3162948,São José da Barra,MG,prefeitura,https://www.saojosedabarra.mg.gov.br/,,2026-10-08
 3162948,São José da Barra,MG,sapl,https://sapl.saojosedabarra.mg.leg.br/,sapl,2026-10-08
 3162948,São José da Barra,MG,transparencia_camara,https://www.saojosedabarra.mg.leg.br/transparencia,,2026-10-08
+3162948,São José da Barra,MG,transparencia_prefeitura,https://saojosedabarra-mg.portaltp.com.br/,,2026-10-08
 3162955,São José da Lapa,MG,prefeitura,https://www.saojosedalapa.mg.gov.br/,,2026-10-08
 3163003,São José da Safira,MG,prefeitura,https://saojosedasafira.mg.gov.br/,,2026-10-08
 3163003,São José da Safira,MG,transparencia_prefeitura,http://saojosedasafira-mg.portaltp.com.br/,,2026-10-08
@@ -6205,6 +6273,7 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 3169406,Três Pontas,MG,transparencia_camara,https://camaratrespontas.atende.net/,ipm,2026-10-08
 3169604,Tupaciguara,MG,camara,https://camaratupaciguara.mg.gov.br/,,2026-10-08
 3169604,Tupaciguara,MG,prefeitura,https://www.tupaciguara.mg.gov.br/,,2026-10-08
+3169604,Tupaciguara,MG,transparencia_prefeitura,https://transparencia.tupaciguara.mg.gov.br/,,2026-10-08
 3169703,Turmalina,MG,camara,https://camaraturmalina.mg.gov.br/,,2026-10-08
 3169703,Turmalina,MG,prefeitura,https://turmalina.mg.gov.br/,,2026-10-08
 3169703,Turmalina,MG,transparencia_camara,https://cmturmalina.cidadesmg.com.br/portaltransparencia/,,2026-10-08
@@ -6219,6 +6288,7 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 3170057,Ubaporanga,MG,transparencia_prefeitura,https://ubaporanga-scpi.masterpublica.net/transparencia/,fiorilli,2026-10-08
 3170008,Ubaí,MG,camara,https://www.ubai.mg.leg.br,,2026-10-08
 3170008,Ubaí,MG,prefeitura,https://ubai.mg.gov.br/,,2026-10-08
+3170008,Ubaí,MG,transparencia_camara,https://www.ubai.mg.leg.br/transparencia,,2026-10-08
 3170008,Ubaí,MG,transparencia_prefeitura,https://ubai.mg.gov.br/portal-da-transparencia/,,2026-10-08
 3170107,Uberaba,MG,camara,https://www.uberaba.mg.leg.br,,2026-10-08
 3170107,Uberaba,MG,prefeitura,https://www.uberaba.mg.gov.br/portal/principal,,2026-10-08
@@ -6247,6 +6317,7 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 3170529,Urucuia,MG,camara,https://www.urucuia.mg.leg.br/,,2026-10-08
 3170529,Urucuia,MG,prefeitura,https://urucuia.mg.gov.br/,,2026-10-08
 3170529,Urucuia,MG,sapl,https://sapl.urucuia.mg.leg.br/,sapl,2026-10-08
+3170529,Urucuia,MG,transparencia_camara,https://www.urucuia.mg.leg.br/transparencia,,2026-10-08
 3170529,Urucuia,MG,transparencia_prefeitura,https://transparencia.pmurucuia.contassconsultoria.com.br/,,2026-10-08
 3170503,Urucânia,MG,camara,https://www.camaraurucania.mg.gov.br/,,2026-10-08
 3170503,Urucânia,MG,prefeitura,https://urucania.mg.gov.br/,,2026-10-08
@@ -6329,6 +6400,7 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 5000708,Anastácio,MS,camara,https://camaraanastacio.ms.gov.br/,,2026-10-08
 5000708,Anastácio,MS,prefeitura,https://anastacio.ms.gov.br/,,2026-10-08
 5000708,Anastácio,MS,transparencia_camara,https://www.instagram.com/camaradeanastacio/,,2026-10-08
+5000708,Anastácio,MS,transparencia_prefeitura,https://transparencia.anastacio.ms.gov.br/,,2026-10-08
 5000807,Anaurilândia,MS,camara,https://camaraanaurilandia.ms.gov.br/,,2026-10-08
 5000807,Anaurilândia,MS,prefeitura,https://anaurilandia.ms.gov.br/,,2026-10-08
 5000807,Anaurilândia,MS,transparencia_camara,https://transparencia-ocmblue.com.br/cam_anaurilandia,,2026-10-08
@@ -6618,9 +6690,11 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 5101704,Barra do Bugres,MT,camara,https://barradobugres.mt.leg.br/,,2026-10-08
 5101704,Barra do Bugres,MT,prefeitura,https://barradobugres.mt.gov.br/,,2026-10-08
 5101704,Barra do Bugres,MT,transparencia_camara,https://www.gp.srv.br/transparencia_barradobugres/servlet/home_portal_v2?2,,2026-10-08
+5101704,Barra do Bugres,MT,transparencia_prefeitura,https://barradobugres.mt.gov.br/transparencia-em-destaque-barra-do-bugres-conquista-o-selo-ouro-de-transparencia-publica/,,2026-10-08
 5101803,Barra do Garças,MT,camara,https://www.barradogarcas.mt.leg.br,,2026-10-08
 5101803,Barra do Garças,MT,prefeitura,https://www.barradogarcas.mt.gov.br/,,2026-10-08
 5101803,Barra do Garças,MT,sapl,https://sapl.barradogarcas.mt.leg.br/,sapl,2026-10-08
+5101803,Barra do Garças,MT,transparencia_camara,https://www.barradogarcas.mt.leg.br/transparencia,,2026-10-08
 5101803,Barra do Garças,MT,transparencia_prefeitura,https://www.gp.srv.br/transparencia_barradogarcas/servlet/selecao_unidade_gestora,,2026-10-08
 5101605,Barão de Melgaço,MT,camara,https://baraodemelgaco.mt.leg.br/,,2026-10-08
 5101605,Barão de Melgaço,MT,prefeitura,https://baraodemelgaco.mt.gov.br/,,2026-10-08
@@ -6887,6 +6961,7 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 5106315,Novo Santo Antônio,MT,transparencia_prefeitura,https://transparencia.betha.cloud/#/nAB1dG7LbSGm4GX68glSrQ==,betha,2026-10-08
 5106281,Novo São Joaquim,MT,camara,https://camaranovosaojoaquim.mt.gov.br/,,2026-10-08
 5106281,Novo São Joaquim,MT,prefeitura,https://novosaojoaquim.mt.gov.br/,,2026-10-08
+5106281,Novo São Joaquim,MT,transparencia_prefeitura,https://novosaojoaquim.mt.gov.br/portal-da-transparencia/,,2026-10-08
 5106307,Paranatinga,MT,camara,https://www.paranatinga.mt.leg.br,,2026-10-08
 5106307,Paranatinga,MT,prefeitura,https://www.paranatinga.mt.gov.br/,,2026-10-08
 5106307,Paranatinga,MT,sapl,https://sapl.paranatinga.mt.leg.br/,sapl,2026-10-08
@@ -7089,6 +7164,7 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 1500404,Alenquer,PA,camara,https://cmalenquer.pa.gov.br/,,2026-10-08
 1500404,Alenquer,PA,prefeitura,https://alenquer.pa.gov.br/,,2026-10-08
 1500404,Alenquer,PA,transparencia_camara,https://www.portalcr2.com.br/entidade/cm-alenquer,cr2,2026-10-08
+1500404,Alenquer,PA,transparencia_prefeitura,https://alenquer.pa.gov.br/portal-da-transparencia/,,2026-10-08
 1500503,Almeirim,PA,camara,https://cmalmeirim.pa.gov.br/,,2026-10-08
 1500503,Almeirim,PA,prefeitura,https://almeirim.pa.gov.br/,,2026-10-08
 1500503,Almeirim,PA,transparencia_camara,https://www.portalcr2.com.br/entidade/cm-almeirim,cr2,2026-10-08
@@ -7154,6 +7230,7 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 1501709,Bragança,PA,camara,https://braganca.pa.leg.br/,,2026-10-08
 1501709,Bragança,PA,prefeitura,https://braganca.pa.gov.br/,,2026-10-08
 1501709,Bragança,PA,transparencia_camara,https://www.portalcr2.com.br/entidade/cm-braganca,cr2,2026-10-08
+1501709,Bragança,PA,transparencia_prefeitura,https://braganca.pa.gov.br/portal-da-transparencia/,,2026-10-08
 1501725,Brasil Novo,PA,camara,https://cmbrasilnovo.pa.gov.br/,,2026-10-08
 1501725,Brasil Novo,PA,prefeitura,https://brasilnovo.pa.gov.br/,,2026-10-08
 1501725,Brasil Novo,PA,transparencia_camara,https://www.portalcr2.com.br/entidade/cm-brasil-novo,cr2,2026-10-08
@@ -7223,6 +7300,7 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 1502954,Eldorado do Carajás,PA,prefeitura,https://eldoradodocarajas.pa.gov.br/,,2026-10-08
 1502954,Eldorado do Carajás,PA,sapl,https://sapl.eldoradodocarajas.pa.leg.br/,sapl,2026-10-08
 1502954,Eldorado do Carajás,PA,transparencia_camara,https://www.portalcr2.com.br/entidade/cm-eldorado-do-carajas,cr2,2026-10-08
+1502954,Eldorado do Carajás,PA,transparencia_prefeitura,https://www.portalcr2.com.br/entidade/eldorado-do-carajas,cr2,2026-10-08
 1503002,Faro,PA,camara,https://camarafaro.pa.gov.br/,,2026-10-08
 1503002,Faro,PA,prefeitura,https://faro.pa.gov.br/,,2026-10-08
 1503002,Faro,PA,transparencia_camara,https://camarafaro.pa.gov.br/acessoainformacao,,2026-10-08
@@ -7264,6 +7342,7 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 1503754,Jacareacanga,PA,camara,https://camarajacareacanga.pa.gov.br/,,2026-10-08
 1503754,Jacareacanga,PA,prefeitura,https://jacareacanga.pa.gov.br/,,2026-10-08
 1503754,Jacareacanga,PA,transparencia_camara,https://www.portalcr2.com.br/entidade/cm-jacareacanga,cr2,2026-10-08
+1503754,Jacareacanga,PA,transparencia_prefeitura,https://jacareacanga.pa.gov.br/portal-da-transparencia/,,2026-10-08
 1503804,Jacundá,PA,prefeitura,https://jacunda.pa.gov.br/,,2026-10-08
 1503804,Jacundá,PA,transparencia_prefeitura,https://www.portalcr2.com.br/entidade/jacunda,cr2,2026-10-08
 1503903,Juruti,PA,camara,https://camarajuruti.pa.gov.br/,,2026-10-08
@@ -7302,6 +7381,7 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 1504604,Mocajuba,PA,transparencia_prefeitura,https://www.portalcr2.com.br/entidade/mocajuba,cr2,2026-10-08
 1504703,Moju,PA,camara,https://cmmoju.pa.gov.br/,,2026-10-08
 1504703,Moju,PA,prefeitura,https://moju.pa.gov.br/,,2026-10-08
+1504703,Moju,PA,transparencia_camara,https://cmmoju.pa.gov.br/portal-da-transparencia/,,2026-10-08
 1504703,Moju,PA,transparencia_prefeitura,https://www.portalcr2.com.br/entidade/moju,cr2,2026-10-08
 1504752,Mojuí dos Campos,PA,camara,https://camaramojuidoscampos.pa.gov.br/,,2026-10-08
 1504752,Mojuí dos Campos,PA,prefeitura,https://mojuidoscampos.pa.gov.br/,,2026-10-08
@@ -7334,6 +7414,7 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 1505031,Novo Progresso,PA,transparencia_prefeitura,https://www.portalcr2.com.br/entidade/novo-progresso,cr2,2026-10-08
 1505064,Novo Repartimento,PA,camara,https://cmnovorepartimento.pa.gov.br/,,2026-10-08
 1505064,Novo Repartimento,PA,prefeitura,https://www.novorepartimento.pa.gov.br/web/,,2026-10-08
+1505064,Novo Repartimento,PA,transparencia_camara,https://cmnovorepartimento.pa.gov.br/portal-da-transparencia-2/,,2026-10-08
 1505064,Novo Repartimento,PA,transparencia_prefeitura,https://novorepartimento.pa.gov.br/web/index_trans.php,,2026-10-08
 1505205,Oeiras do Pará,PA,camara,https://cmoeirasdopara.pa.gov.br/,,2026-10-08
 1505205,Oeiras do Pará,PA,prefeitura,https://oeirasdopara.pa.gov.br/novo/,,2026-10-08
@@ -7460,6 +7541,7 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 1507458,São Geraldo do Araguaia,PA,camara,https://saogeraldodoaraguaia.pa.leg.br/,,2026-10-08
 1507458,São Geraldo do Araguaia,PA,prefeitura,https://saogeraldodoaraguaia.pa.gov.br/,,2026-10-08
 1507458,São Geraldo do Araguaia,PA,transparencia_camara,https://www.portalcr2.com.br/entidade/cm-sao-geraldo-do-araguaia,cr2,2026-10-08
+1507458,São Geraldo do Araguaia,PA,transparencia_prefeitura,https://www.portalcr2.com.br/entidade/sao-geraldo-do-araguaia,cr2,2026-10-08
 1507466,São João da Ponta,PA,prefeitura,https://saojoaodaponta.pa.gov.br/,,2026-10-08
 1507466,São João da Ponta,PA,transparencia_prefeitura,https://www.portalcr2.com.br/entidade/sao-joao-da-ponta,cr2,2026-10-08
 1507474,São João de Pirabas,PA,prefeitura,https://saojoaodepirabas.pa.gov.br/,,2026-10-08
@@ -7568,6 +7650,7 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 2501005,Araruna,PB,prefeitura,https://araruna.pb.gov.br/,,2026-10-08
 2501005,Araruna,PB,transparencia_prefeitura,https://www.araruna.pb.gov.br/transparencia/,,2026-10-08
 2500809,Araçagi,PB,prefeitura,https://aracagi.pb.gov.br/,,2026-10-08
+2500809,Araçagi,PB,transparencia_prefeitura,https://aracagi.pb.gov.br/portal-da-transparencia,,2026-10-08
 2501104,Areia,PB,prefeitura,https://areia.pb.gov.br/,,2026-10-08
 2501104,Areia,PB,transparencia_prefeitura,https://areia.pb.gov.br/portal-da-transparencia/,,2026-10-08
 2501153,Areia de Baraúnas,PB,camara,https://areiadebaraunas.pb.leg.br/,,2026-10-08
@@ -7617,6 +7700,7 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 2501906,Belém,PB,camara,https://www.cmbelem.pb.gov.br/,,2026-10-08
 2501906,Belém,PB,prefeitura,https://belem.pb.gov.br/,,2026-10-08
 2501906,Belém,PB,transparencia_camara,https://www.cmbelem.pb.gov.br/portal-da-transparencia/,,2026-10-08
+2501906,Belém,PB,transparencia_prefeitura,https://belem.pb.gov.br/portal-da-transparencia,,2026-10-08
 2502003,Belém do Brejo do Cruz,PB,prefeitura,https://belemdobrejodocruz.pb.gov.br/,,2026-10-08
 2502003,Belém do Brejo do Cruz,PB,transparencia_prefeitura,https://belemdobrejodocruz.pb.gov.br/portal-da-transparencia,,2026-10-08
 2502052,Bernardino Batista,PB,camara,https://www.bernardinobatista.pb.leg.br,,2026-10-08
@@ -7630,6 +7714,7 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 2502102,Boa Ventura,PB,transparencia_prefeitura,https://boaventura.pb.gov.br/acesso-a-informacao/portal-da-transparencia,,2026-10-08
 2502151,Boa Vista,PB,camara,https://www.boavista.pb.leg.br/,,2026-10-08
 2502151,Boa Vista,PB,prefeitura,https://boavista.pb.gov.br/,,2026-10-08
+2502151,Boa Vista,PB,transparencia_camara,https://www.boavista.pb.leg.br/transparencia/,,2026-10-08
 2502151,Boa Vista,PB,transparencia_prefeitura,https://boavista.pb.gov.br/transparencia-fiscal,,2026-10-08
 2502201,Bom Jesus,PB,camara,https://bomjesus.pb.leg.br/,,2026-10-08
 2502201,Bom Jesus,PB,transparencia_camara,https://bomjesus.pb.leg.br/acessoainformacao,,2026-10-08
@@ -7835,6 +7920,7 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 2506806,Ingá,PB,prefeitura,https://inga.pb.gov.br/,,2026-10-08
 2506806,Ingá,PB,transparencia_prefeitura,https://siteseticons.com.br/portal/ws/empresa/MDg4MTAzNTAwMDAxMjU=/inicio,,2026-10-08
 2506905,Itabaiana,PB,prefeitura,https://itabaiana.pb.gov.br/,,2026-10-08
+2506905,Itabaiana,PB,transparencia_prefeitura,https://transparencia2.itabaiana.pb.gov.br/,,2026-10-08
 2507002,Itaporanga,PB,camara,https://camaraitaporanga.pb.gov.br/,,2026-10-08
 2507002,Itaporanga,PB,prefeitura,https://itaporanga.pb.gov.br/,,2026-10-08
 2507002,Itaporanga,PB,transparencia_camara,http://www.siteseticons.com.br/portal/ws/empresa/MDkxNDI5ODUwMDAxNjQ=,,2026-10-08
@@ -8198,6 +8284,7 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 2514503,São José de Piranhas,PB,transparencia_prefeitura,https://saojosedepiranhas.pb.gov.br/acessoainformacao.php,,2026-10-08
 2514552,São José de Princesa,PB,camara,https://camarasaojosedeprincesa.pb.gov.br/,,2026-10-08
 2514552,São José de Princesa,PB,prefeitura,https://saojosedeprincesa.pb.gov.br/,,2026-10-08
+2514552,São José de Princesa,PB,transparencia_camara,https://transparencia.camarasaojosedeprincesa.pb.gov.br/publico,,2026-10-08
 2514552,São José de Princesa,PB,transparencia_prefeitura,https://saojosedeprincesa.pb.gov.br/portal,,2026-10-08
 2514602,São José do Bonfim,PB,camara,https://www.saojosedobonfim.pb.leg.br,,2026-10-08
 2514602,São José do Bonfim,PB,prefeitura,https://saojosedobonfim.pb.gov.br/,,2026-10-08
@@ -8342,6 +8429,7 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 2601706,Belo Jardim,PE,camara,https://belojardim.pe.leg.br/,,2026-10-08
 2601706,Belo Jardim,PE,prefeitura,https://belojardim.pe.gov.br/,,2026-10-08
 2601706,Belo Jardim,PE,sapl,https://sapl.belojardim.pe.leg.br/,sapl,2026-10-08
+2601706,Belo Jardim,PE,transparencia_camara,https://transparencia.belojardim.pe.leg.br/,,2026-10-08
 2601706,Belo Jardim,PE,transparencia_prefeitura,https://belojardim.pe.gov.br/transparencia/,,2026-10-08
 2601508,Belém de Maria,PE,camara,https://belemdemaria.pe.leg.br/,,2026-10-08
 2601508,Belém de Maria,PE,prefeitura,https://belemdemaria.pe.gov.br/,,2026-10-08
@@ -8532,6 +8620,7 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 2606101,Glória do Goitá,PE,transparencia_prefeitura,https://www.gloriadogoita.pe.gov.br/servicos/portal-da-transparencia/,,2026-10-08
 2606200,Goiana,PE,camara,https://goiana.pe.leg.br/,,2026-10-08
 2606200,Goiana,PE,sapl,https://sapl.goiana.pe.leg.br/,sapl,2026-10-08
+2606200,Goiana,PE,transparencia_camara,https://transparencia.goiana.pe.leg.br/,,2026-10-08
 2606309,Granito,PE,camara,https://granito.pe.leg.br/,,2026-10-08
 2606309,Granito,PE,prefeitura,https://granito.pe.gov.br/,,2026-10-08
 2606309,Granito,PE,sapl,https://sapl.granito.pe.leg.br/,sapl,2026-10-08
@@ -8779,6 +8868,8 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 2611533,Quixaba,PE,transparencia_prefeitura,https://quixaba.pe.gov.br/transparencia,,2026-10-08
 2611606,Recife,PE,camara,https://recife.pe.leg.br/ceap/login.xhtml,,2026-10-08
 2611606,Recife,PE,prefeitura,https://www.recife.pe.gov.br/,,2026-10-08
+2611606,Recife,PE,transparencia_camara,https://transparencia.recife.pe.leg.br/,,2026-10-08
+2611606,Recife,PE,transparencia_prefeitura,https://transparencia.recife.pe.gov.br/codigos/web/geral/home.php,,2026-10-08
 2611705,Riacho das Almas,PE,camara,https://riachodasalmas.pe.leg.br/,,2026-10-08
 2611705,Riacho das Almas,PE,sapl,https://sapl.riachodasalmas.pe.leg.br/,sapl,2026-10-08
 2611705,Riacho das Almas,PE,transparencia_camara,http://transparencia.riachodasalmas.pe.leg.br/app/pe/riacho-das-almas/2,,2026-10-08
@@ -9033,6 +9124,7 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 2200806,Antônio Almeida,PI,transparencia_camara,https://www.antonioalmeida.pi.leg.br/transparencia,,2026-10-08
 2200806,Antônio Almeida,PI,transparencia_prefeitura,https://administracaotransparente.com.br/portaltransparencia/?p=antonio_almeida,,2026-10-08
 2200707,Anísio de Abreu,PI,prefeitura,https://anisiodeabreu.pi.gov.br/anisiodeabreu,,2026-10-08
+2200707,Anísio de Abreu,PI,transparencia_prefeitura,https://transparencia.anisiodeabreu.pi.gov.br/anisiodeabreu,,2026-10-08
 2200954,Aroeiras do Itaim,PI,camara,https://www.aroeirasdoitaim.pi.leg.br,,2026-10-08
 2200954,Aroeiras do Itaim,PI,prefeitura,https://aroeirasdoitaim.pi.gov.br/,,2026-10-08
 2200954,Aroeiras do Itaim,PI,transparencia_camara,https://www.aroeirasdoitaim.pi.leg.br/transparencia,,2026-10-08
@@ -9060,6 +9152,7 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 2201507,Batalha,PI,transparencia_camara,https://transparencia.batalha.pi.leg.br,,2026-10-08
 2201507,Batalha,PI,transparencia_prefeitura,https://transparencia.batalha.pi.gov.br/batalha/licitacoes/,,2026-10-08
 2201556,Bela Vista do Piauí,PI,prefeitura,https://belavistadopiaui.pi.gov.br/belavistadopiaui,,2026-10-08
+2201556,Bela Vista do Piauí,PI,transparencia_prefeitura,https://transparencia.belavistadopiaui.pi.gov.br/belavistadopiaui,,2026-10-08
 2201572,Belém do Piauí,PI,camara,https://www.belemdopiaui.pi.leg.br/,,2026-10-08
 2201572,Belém do Piauí,PI,prefeitura,https://www.belemdopiaui.pi.gov.br/,,2026-10-08
 2201572,Belém do Piauí,PI,transparencia_prefeitura,http://transparencia.belemdopiaui.pi.gov.br/,,2026-10-08
@@ -9279,6 +9372,8 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 2204659,Ilha Grande,PI,camara,https://www.ilhagrande.pi.leg.br,,2026-10-08
 2204659,Ilha Grande,PI,prefeitura,https://ilhagrande.pi.gov.br/ilhagrande,,2026-10-08
 2204659,Ilha Grande,PI,sapl,https://sapl.ilhagrande.pi.leg.br/,sapl,2026-10-08
+2204659,Ilha Grande,PI,transparencia_camara,https://www.ilhagrande.pi.leg.br/transparencia,,2026-10-08
+2204659,Ilha Grande,PI,transparencia_prefeitura,https://transparencia.ilhagrande.pi.gov.br/ilhagrande,,2026-10-08
 2204709,Inhuma,PI,prefeitura,https://inhuma.pi.gov.br/inhuma,,2026-10-08
 2204709,Inhuma,PI,transparencia_prefeitura,https://transparencia.inhuma.pi.gov.br/inhuma/licitacoes/,,2026-10-08
 2204808,Ipiranga do Piauí,PI,camara,https://www.ipirangadopiaui.pi.leg.br,,2026-10-08
@@ -9303,6 +9398,7 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 2205201,Jaicós,PI,camara,https://jaicos.pi.leg.br/jaicos,,2026-10-08
 2205201,Jaicós,PI,prefeitura,https://jaicos.pi.gov.br/jaicos,,2026-10-08
 2205201,Jaicós,PI,transparencia_camara,https://jaicos.pi.leg.br/camarajaicos/transparencia,,2026-10-08
+2205201,Jaicós,PI,transparencia_prefeitura,https://transparencia.jaicos.pi.gov.br/jaicos,,2026-10-08
 2205250,Jardim do Mulato,PI,camara,https://www.jardimdomulato.pi.leg.br,,2026-10-08
 2205250,Jardim do Mulato,PI,prefeitura,https://jardimdomulato.pi.gov.br/,,2026-10-08
 2205250,Jardim do Mulato,PI,sapl,https://sapl.jardimdomulato.pi.leg.br/,sapl,2026-10-08
@@ -9317,6 +9413,7 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 2205300,Jerumenha,PI,transparencia_camara,https://jerumenha.pi.leg.br/camarajerumenha/portaldatransparencia,,2026-10-08
 2205300,Jerumenha,PI,transparencia_prefeitura,https://transparencia.jerumenha.pi.gov.br/jerumenha/licitacoes/,,2026-10-08
 2205409,Joaquim Pires,PI,camara,https://joaquimpires.pi.leg.br/,,2026-10-08
+2205409,Joaquim Pires,PI,transparencia_camara,https://joaquimpires.pi.leg.br/transparencia,,2026-10-08
 2205508,José de Freitas,PI,camara,https://www.josedefreitas.pi.leg.br/,,2026-10-08
 2205508,José de Freitas,PI,prefeitura,https://josedefreitas.pi.gov.br/,,2026-10-08
 2205508,José de Freitas,PI,transparencia_camara,https://www.portalcr2.com.br/entidade/cm-jose-de-freitas,cr2,2026-10-08
@@ -9419,6 +9516,7 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 2207009,Oeiras,PI,camara,https://oeiras.pi.leg.br/,,2026-10-08
 2207009,Oeiras,PI,prefeitura,https://oeiras.pi.gov.br/oeiras,,2026-10-08
 2207009,Oeiras,PI,transparencia_camara,https://oeiras.pi.leg.br/acessoainformacao,,2026-10-08
+2207009,Oeiras,PI,transparencia_prefeitura,https://transparencia.oeiras.pi.gov.br/oeiras,,2026-10-08
 2207108,Olho D'Água do Piauí,PI,prefeitura,https://olhodaguadopiaui.pi.gov.br/,,2026-10-08
 2207108,Olho D'Água do Piauí,PI,transparencia_prefeitura,http://transparencia.olhodaguadopiaui.pi.gov.br/,,2026-10-08
 2207207,Padre Marcos,PI,camara,https://padremarcos.pi.leg.br/,,2026-10-08
@@ -9445,6 +9543,7 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 2207702,Parnaíba,PI,camara,https://www.parnaiba.pi.leg.br/,,2026-10-08
 2207702,Parnaíba,PI,prefeitura,https://parnaiba.pi.gov.br/,,2026-10-08
 2207702,Parnaíba,PI,transparencia_camara,http://transparencia.parnaiba.pi.leg.br/,,2026-10-08
+2207702,Parnaíba,PI,transparencia_prefeitura,https://transparencia.parnaiba.pi.gov.br/transparencia/,,2026-10-08
 2207777,Patos do Piauí,PI,camara,https://www.patosdopiaui.pi.leg.br,,2026-10-08
 2207777,Patos do Piauí,PI,transparencia_camara,https://simplestransparencia.com.br/#%21/,,2026-10-08
 2207793,Pau D'Arco do Piauí,PI,camara,https://www.paudarcodopiaui.pi.leg.br,,2026-10-08
@@ -9475,7 +9574,9 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 2208304,Piracuruca,PI,camara,https://piracuruca.pi.leg.br/camarapiracuruca,,2026-10-08
 2208304,Piracuruca,PI,prefeitura,https://piracuruca.pi.gov.br/piracuruca,,2026-10-08
 2208304,Piracuruca,PI,transparencia_camara,https://www.simplestransparencia.com/#!/,,2026-10-08
+2208304,Piracuruca,PI,transparencia_prefeitura,https://transparencia.piracuruca.pi.gov.br/piracuruca,,2026-10-08
 2208403,Piripiri,PI,prefeitura,https://www.piripiri.pi.gov.br/,,2026-10-08
+2208403,Piripiri,PI,transparencia_prefeitura,https://transparencia.piripiri.pi.gov.br/portaltransparencia/?p=piripiri,,2026-10-08
 2208502,Porto,PI,camara,https://porto.pi.leg.br/,,2026-10-08
 2208502,Porto,PI,prefeitura,https://porto.pi.gov.br/,,2026-10-08
 2208502,Porto,PI,transparencia_camara,https://transparencia.porto.pi.leg.br/v2,,2026-10-08
@@ -9513,7 +9614,9 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 2209351,Santana do Piauí,PI,prefeitura,https://santanadopiaui.pi.gov.br/,,2026-10-08
 2209351,Santana do Piauí,PI,sapl,https://sapl.santanadopiaui.pi.leg.br/,sapl,2026-10-08
 2209351,Santana do Piauí,PI,transparencia_camara,https://transparencia.aossoftware.com.br/CMSANTANAPI/,,2026-10-08
+2209351,Santana do Piauí,PI,transparencia_prefeitura,https://transparencia.santanadopiaui.pi.gov.br/santanadopiaui,,2026-10-08
 2209401,Santo Antônio de Lisboa,PI,prefeitura,https://santoantoniodelisboa.pi.gov.br/santoantoniodelisboa,,2026-10-08
+2209401,Santo Antônio de Lisboa,PI,transparencia_prefeitura,http://transparencia.santoantoniodelisboa.pi.gov.br/santoantoniodelisboa,,2026-10-08
 2209450,Santo Antônio dos Milagres,PI,camara,https://www.santoantoniodosmilagres.pi.leg.br,,2026-10-08
 2209450,Santo Antônio dos Milagres,PI,prefeitura,https://santoantoniodosmilagres.pi.gov.br/,,2026-10-08
 2209450,Santo Antônio dos Milagres,PI,transparencia_camara,https://www.santoantoniodosmilagres.pi.leg.br/transparencia-1,,2026-10-08
@@ -9538,6 +9641,7 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 2210938,Sussuapara,PI,camara,https://www.sussuapara.pi.leg.br,,2026-10-08
 2210938,Sussuapara,PI,transparencia_camara,https://www.sussuapara.pi.leg.br/transparencia,,2026-10-08
 2209559,São Braz do Piauí,PI,prefeitura,https://saobrazdopiaui.pi.gov.br/saobrazdopiaui,,2026-10-08
+2209559,São Braz do Piauí,PI,transparencia_prefeitura,https://transparencia.saobrazdopiaui.pi.gov.br/saobrazdopiaui,,2026-10-08
 2209658,São Francisco de Assis do Piauí,PI,camara,https://www.saofranciscodeassisdopiaui.pi.leg.br,,2026-10-08
 2209658,São Francisco de Assis do Piauí,PI,transparencia_camara,https://saofranciscodeassisdopiaui.transparenciainstitucional.com.br/,,2026-10-08
 2209708,São Francisco do Piauí,PI,camara,https://saofranciscodopiaui.pi.leg.br/,,2026-10-08
@@ -9553,6 +9657,7 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 2210052,São José do Divino,PI,camara,https://www.saojosedodivino.pi.leg.br,,2026-10-08
 2210052,São José do Divino,PI,prefeitura,https://saojosedodivino.pi.gov.br/,,2026-10-08
 2210052,São José do Divino,PI,sapl,https://sapl.saojosedodivino.pi.leg.br/,sapl,2026-10-08
+2210052,São José do Divino,PI,transparencia_camara,http://transparencia.saojosedodivino.pi.leg.br/saojosedodivino,,2026-10-08
 2210052,São José do Divino,PI,transparencia_prefeitura,https://transparencia.saojosedodivino.pi.gov.br/saojosedodivino/portaldatransparencia,,2026-10-08
 2210102,São José do Peixe,PI,camara,https://saojosedopeixe.pi.leg.br/,,2026-10-08
 2210102,São José do Peixe,PI,prefeitura,https://saojosedopeixe.pi.gov.br/,,2026-10-08
@@ -9590,7 +9695,9 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 2210409,São Miguel do Tapuio,PI,transparencia_camara,http://143.137.254.24:5656/SCPIWEB_CMSAOMIGUELDOTAPUIO/,fiorilli,2026-10-08
 2210409,São Miguel do Tapuio,PI,transparencia_prefeitura,https://saomigueldotapuio.pi.gov.br/transparencia,,2026-10-08
 2210508,São Pedro do Piauí,PI,prefeitura,https://saopedrodopiaui.pi.gov.br/saopedrodopiaui,,2026-10-08
+2210508,São Pedro do Piauí,PI,transparencia_prefeitura,https://transparencia.saopedrodopiaui.pi.gov.br/saopedrodopiaui,,2026-10-08
 2210953,Tamboril do Piauí,PI,prefeitura,https://tamborildopiaui.pi.gov.br/tamborildopiaui,,2026-10-08
+2210953,Tamboril do Piauí,PI,transparencia_prefeitura,https://transparencia.tamborildopiaui.pi.gov.br/tamborildopiaui,,2026-10-08
 2210979,Tanque do Piauí,PI,camara,https://www.tanquedopiaui.pi.leg.br,,2026-10-08
 2210979,Tanque do Piauí,PI,sapl,https://sapl.tanquedopiaui.pi.leg.br/,sapl,2026-10-08
 2210979,Tanque do Piauí,PI,transparencia_camara,https://transparencia.camaratanquedopiaui.pi.gov.br/,,2026-10-08
@@ -9609,6 +9716,7 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 2211506,Vera Mendes,PI,camara,https://www.veramendes.pi.leg.br/,,2026-10-08
 2211506,Vera Mendes,PI,prefeitura,https://veramendes.pi.gov.br/,,2026-10-08
 2211506,Vera Mendes,PI,transparencia_camara,https://portaldatransparencia.publicsoft.com.br/sistemas/ContabilidadePublica/accessdirect.php?link=Nbry,epublica,2026-10-08
+2211506,Vera Mendes,PI,transparencia_prefeitura,https://veramendes.pi.gov.br/portal-da-transparencia,,2026-10-08
 2211605,Vila Nova do Piauí,PI,camara,https://vilanovadopiaui.pi.leg.br/,,2026-10-08
 2211605,Vila Nova do Piauí,PI,transparencia_camara,https://vilanovadopiaui.pi.leg.br/index.php/transparencia/servidores,,2026-10-08
 2211357,Várzea Branca,PI,camara,https://varzeabranca.pi.leg.br/,,2026-10-08
@@ -9641,6 +9749,7 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 4101002,Ampére,PR,sapl,https://sapl.ampere.pr.leg.br/,sapl,2026-10-08
 4101002,Ampére,PR,transparencia_camara,https://www.ampere.pr.leg.br/transparencia,,2026-10-08
 4101051,Anahy,PR,prefeitura,https://anahy.atende.net/,,2026-10-08
+4101051,Anahy,PR,transparencia_prefeitura,https://anahy.atende.net/transparencia,ipm,2026-10-08
 4101101,Andirá,PR,prefeitura,https://andira.pr.gov.br/,,2026-10-08
 4101101,Andirá,PR,transparencia_prefeitura,https://andira.eloweb.net/portaltransparencia/,,2026-10-08
 4101200,Antonina,PR,prefeitura,https://www.antonina.pr.gov.br/site/,,2026-10-08
@@ -9654,6 +9763,7 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 4101408,Apucarana,PR,transparencia_camara,https://camaraapucarana.atende.net/,ipm,2026-10-08
 4101408,Apucarana,PR,transparencia_prefeitura,https://apucarana.atende.net/?pg=transparencia#!/,ipm,2026-10-08
 4101507,Arapongas,PR,prefeitura,https://arapongas.atende.net,,2026-10-08
+4101507,Arapongas,PR,transparencia_prefeitura,https://arapongas.atende.net/transparencia,ipm,2026-10-08
 4101606,Arapoti,PR,prefeitura,https://www.arapoti.pr.gov.br/,,2026-10-08
 4101606,Arapoti,PR,transparencia_prefeitura,https://arapoti.atende.net/transparencia,ipm,2026-10-08
 4101655,Arapuã,PR,prefeitura,https://arapua.pr.gov.br/,,2026-10-08
@@ -9758,12 +9868,14 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 4104204,Campo Largo,PR,prefeitura,https://www.campolargo.pr.gov.br/,,2026-10-08
 4104204,Campo Largo,PR,sapl,https://sapl.campolargo.pr.leg.br/,sapl,2026-10-08
 4104204,Campo Largo,PR,transparencia_camara,https://camaracampolargo.atende.net/transparencia/,ipm,2026-10-08
+4104204,Campo Largo,PR,transparencia_prefeitura,https://www.campolargo.pr.gov.br/transparencia,,2026-10-08
 4104253,Campo Magro,PR,camara,https://www.campomagro.pr.leg.br/,,2026-10-08
 4104253,Campo Magro,PR,prefeitura,https://www.campomagro.pr.gov.br/,,2026-10-08
 4104253,Campo Magro,PR,sapl,https://sapl.campomagro.pr.leg.br/,sapl,2026-10-08
 4104253,Campo Magro,PR,transparencia_camara,https://www.campomagro.pr.leg.br/institucional/portal-da-transparencia,,2026-10-08
 4104253,Campo Magro,PR,transparencia_prefeitura,https://www.campomagro.pr.gov.br/transparencias,,2026-10-08
 4104303,Campo Mourão,PR,prefeitura,https://www.campomourao.pr.gov.br/,,2026-10-08
+4104303,Campo Mourão,PR,transparencia_prefeitura,https://www.campomourao.pr.gov.br/transparencia,,2026-10-08
 4104105,Campo do Tenente,PR,camara,https://www.campodotenente.pr.leg.br,,2026-10-08
 4104105,Campo do Tenente,PR,sapl,https://sapl.campodotenente.pr.leg.br/,sapl,2026-10-08
 4104105,Campo do Tenente,PR,transparencia_camara,https://campodotenentepr.equiplano.com.br:7011/transparencia/,,2026-10-08
@@ -9782,6 +9894,7 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 4104808,Cascavel,PR,camara,https://camaracascavel.pr.gov.br/,,2026-10-08
 4104808,Cascavel,PR,prefeitura,https://prefa.cascavel.pr.gov.br/,,2026-10-08
 4104808,Cascavel,PR,transparencia_camara,https://camaracascavel.atende.net,ipm,2026-10-08
+4104808,Cascavel,PR,transparencia_prefeitura,https://prefa.cascavel.pr.gov.br/transparencia,,2026-10-08
 4104907,Castro,PR,camara,https://www.castro.pr.leg.br,,2026-10-08
 4104907,Castro,PR,sapl,https://sapl.castro.pr.leg.br/,sapl,2026-10-08
 4104907,Castro,PR,transparencia_camara,https://camaracastro.atende.net/transparencia/item/licitacoes-gerais,ipm,2026-10-08
@@ -9824,6 +9937,7 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 4105904,Colorado,PR,transparencia_camara,https://colorado.eloweb.net/portaltransparencia/4/,,2026-10-08
 4105904,Colorado,PR,transparencia_prefeitura,https://colorado.eloweb.net/portaltransparencia/1/,,2026-10-08
 4106001,Congonhinhas,PR,prefeitura,https://congonhinhas.pr.gov.br/,,2026-10-08
+4106001,Congonhinhas,PR,transparencia_prefeitura,https://congonhinhas.pr.gov.br/portal-da-transparencia/,,2026-10-08
 4106100,Conselheiro Mairinck,PR,prefeitura,https://conselheiromairinck.pr.gov.br/,,2026-10-08
 4106100,Conselheiro Mairinck,PR,transparencia_prefeitura,https://conselheiromairinck.pr.gov.br/transparencias,,2026-10-08
 4106209,Contenda,PR,camara,https://www.contenda.pr.leg.br,,2026-10-08
@@ -9835,6 +9949,7 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 4106308,Corbélia,PR,prefeitura,https://corbelia.atende.net/,,2026-10-08
 4106308,Corbélia,PR,sapl,https://sapl.corbelia.pr.leg.br/,sapl,2026-10-08
 4106308,Corbélia,PR,transparencia_camara,https://camaracorbelia.atende.net/transparencia,ipm,2026-10-08
+4106308,Corbélia,PR,transparencia_prefeitura,https://corbelia.atende.net/transparencia,ipm,2026-10-08
 4106407,Cornélio Procópio,PR,camara,https://www.cornelioprocopio.pr.leg.br,,2026-10-08
 4106407,Cornélio Procópio,PR,sapl,https://sapl.cornelioprocopio.pr.leg.br/,sapl,2026-10-08
 4106407,Cornélio Procópio,PR,transparencia_camara,https://transparencia.betha.cloud/#/1XnW9RIsContu-ezQxEtlw==,betha,2026-10-08
@@ -9859,6 +9974,7 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 4106852,Cruzmaltina,PR,sapl,https://sapl.cruzmaltina.pr.leg.br/,sapl,2026-10-08
 4106852,Cruzmaltina,PR,transparencia_prefeitura,https://cruzmaltina.eloweb.net/portaltransparencia?entidade=1,,2026-10-08
 4105300,Céu Azul,PR,prefeitura,https://ceuazul.pr.gov.br/,,2026-10-08
+4105300,Céu Azul,PR,transparencia_prefeitura,https://ceuazul.pr.gov.br/transparencia,,2026-10-08
 4107157,Diamante D'Oeste,PR,prefeitura,https://diamantedoeste.pr.gov.br/,,2026-10-08
 4107157,Diamante D'Oeste,PR,transparencia_prefeitura,https://www.portalcr2.com.br/entidade/diamante-doeste,cr2,2026-10-08
 4107108,Diamante do Norte,PR,camara,https://cmdiamantedonorte.pr.gov.br/,,2026-10-08
@@ -9960,6 +10076,7 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 4109203,Guaraci,PR,transparencia_camara,https://www.guaraci.pr.leg.br/transparencia,,2026-10-08
 4109203,Guaraci,PR,transparencia_prefeitura,https://guaraci.oxy.elotech.com.br/portaltransparencia/1,elotech,2026-10-08
 4109302,Guaraniaçu,PR,prefeitura,https://guaraniacu.atende.net/,,2026-10-08
+4109302,Guaraniaçu,PR,transparencia_prefeitura,https://guaraniacu.atende.net/transparencia,ipm,2026-10-08
 4109401,Guarapuava,PR,camara,https://www.guarapuava.pr.leg.br,,2026-10-08
 4109401,Guarapuava,PR,transparencia_camara,https://camaraguarapuava.atende.net/transparencia/,ipm,2026-10-08
 4109500,Guaraqueçaba,PR,camara,https://www.guaraquecaba.pr.leg.br/,,2026-10-08
@@ -10035,6 +10152,7 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 4111258,Itaperuçu,PR,camara,https://itaperucu.pr.leg.br/,,2026-10-08
 4111258,Itaperuçu,PR,prefeitura,https://itaperucu.pr.gov.br/,,2026-10-08
 4111258,Itaperuçu,PR,transparencia_camara,https://www.portalcr2.com.br/entidade/cm-itaperucu,cr2,2026-10-08
+4111258,Itaperuçu,PR,transparencia_prefeitura,https://itaperucu.pr.gov.br/portal-da-transparencia/,,2026-10-08
 4111308,Itaúna do Sul,PR,camara,https://www.itaunadosul.pr.leg.br,,2026-10-08
 4111308,Itaúna do Sul,PR,sapl,https://sapl.itaunadosul.pr.leg.br/,sapl,2026-10-08
 4111308,Itaúna do Sul,PR,transparencia_camara,http://itaunadosulpr.equiplano.com.br:7474/transparencia/,,2026-10-08
@@ -10071,6 +10189,7 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 4112009,Jaguariaíva,PR,transparencia_camara,https://transparencia.betha.cloud/#/0WL-B2wft5zRigXvxt9igQ==,betha,2026-10-08
 4112009,Jaguariaíva,PR,transparencia_prefeitura,https://transparencia.betha.cloud/#/H5O-RxfRurTWXzQsfU63HQ==,betha,2026-10-08
 4112207,Janiópolis,PR,prefeitura,https://janiopolis.pr.gov.br/,,2026-10-08
+4112207,Janiópolis,PR,transparencia_prefeitura,https://janiopolis.pr.gov.br/transparencia,,2026-10-08
 4112306,Japira,PR,camara,https://camarajapira.pr.gov.br/,,2026-10-08
 4112306,Japira,PR,prefeitura,https://japira.pr.gov.br/,,2026-10-08
 4112306,Japira,PR,transparencia_camara,https://camarajapira.pr.gov.br/transparencia/,,2026-10-08
@@ -10083,6 +10202,7 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 4112504,Jardim Alegre,PR,transparencia_prefeitura,https://jardimalegre.eloweb.net/portaltransparencia/,,2026-10-08
 4112603,Jardim Olinda,PR,camara,https://cmjardimolinda.pr.gov.br/,,2026-10-08
 4112603,Jardim Olinda,PR,prefeitura,https://jardimolinda.pr.gov.br/,,2026-10-08
+4112603,Jardim Olinda,PR,transparencia_camara,https://cmjardimolinda.pr.gov.br/portal-da-transparencia,,2026-10-08
 4112603,Jardim Olinda,PR,transparencia_prefeitura,https://jardimolinda.eloweb.net/portaltransparencia/1/,,2026-10-08
 4112702,Jataizinho,PR,camara,https://www.jataizinho.pr.leg.br,,2026-10-08
 4112702,Jataizinho,PR,prefeitura,https://jataizinho.pr.gov.br/,,2026-10-08
@@ -10097,6 +10217,7 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 4112900,Jundiaí do Sul,PR,transparencia_camara,https://www.jundiaidosul.pr.leg.br/transparencia/,,2026-10-08
 4112900,Jundiaí do Sul,PR,transparencia_prefeitura,https://jundiaidosul.pr.gov.br/portal-da-transparencia,,2026-10-08
 4112959,Juranda,PR,prefeitura,https://juranda.atende.net,,2026-10-08
+4112959,Juranda,PR,transparencia_prefeitura,https://juranda.atende.net/transparencia,ipm,2026-10-08
 4113007,Jussara,PR,camara,https://camarajussara.pr.gov.br/,,2026-10-08
 4113007,Jussara,PR,prefeitura,https://jussara.pr.gov.br/,,2026-10-08
 4113007,Jussara,PR,transparencia_camara,https://jussara.eloweb.net/portaltransparencia/?entidade=2,,2026-10-08
@@ -10143,6 +10264,8 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 4113908,Mallet,PR,transparencia_camara,http://www.cmmallet.pr.gov.br/sistema-transparencia/,,2026-10-08
 4114005,Mamborê,PR,camara,https://camaramambore.atende.net/cidadao,,2026-10-08
 4114005,Mamborê,PR,prefeitura,https://mambore.atende.net/,,2026-10-08
+4114005,Mamborê,PR,transparencia_camara,https://camaramambore.atende.net/transparencia,ipm,2026-10-08
+4114005,Mamborê,PR,transparencia_prefeitura,https://mambore.atende.net/transparencia,ipm,2026-10-08
 4114203,Mandaguari,PR,camara,https://www.camaramandaguari.pr.gov.br/,,2026-10-08
 4114203,Mandaguari,PR,transparencia_camara,https://mandaguari.oxy.elotech.com.br/portaltransparencia/6/,elotech,2026-10-08
 4114104,Mandaguaçu,PR,camara,https://www.mandaguacu.pr.leg.br,,2026-10-08
@@ -10187,6 +10310,7 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 4115358,Maripá,PR,camara,https://camaramaripa.pr.gov.br/,,2026-10-08
 4115358,Maripá,PR,prefeitura,https://maripa.atende.net/,,2026-10-08
 4115358,Maripá,PR,transparencia_camara,https://camaramaripa.atende.net/?pg=transparencia#!/grupo/1/item/1/tipo/1,ipm,2026-10-08
+4115358,Maripá,PR,transparencia_prefeitura,https://maripa.atende.net/transparencia,ipm,2026-10-08
 4115309,Mariópolis,PR,camara,https://www.mariopolis.pr.leg.br,,2026-10-08
 4115309,Mariópolis,PR,prefeitura,https://mariopolis.pr.gov.br/site/,,2026-10-08
 4115309,Mariópolis,PR,sapl,https://sapl.mariopolis.pr.leg.br/,sapl,2026-10-08
@@ -10275,6 +10399,7 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 4117453,Ouro Verde do Oeste,PR,prefeitura,https://www.ouroverdedooeste.pr.gov.br/,,2026-10-08
 4117453,Ouro Verde do Oeste,PR,sapl,https://sapl.ouroverdedooeste.pr.leg.br/,sapl,2026-10-08
 4117453,Ouro Verde do Oeste,PR,transparencia_camara,https://www.ouroverdedooeste.pr.leg.br/transparencia/portal-da-transparencia,,2026-10-08
+4117453,Ouro Verde do Oeste,PR,transparencia_prefeitura,https://www.ouroverdedooeste.pr.gov.br/transparencia,,2026-10-08
 4117602,Palmas,PR,camara,https://www.palmas.pr.leg.br,,2026-10-08
 4117602,Palmas,PR,sapl,https://sapl.palmas.pr.leg.br/,sapl,2026-10-08
 4117602,Palmas,PR,transparencia_camara,https://www.palmas.pr.leg.br/transparencia,,2026-10-08
@@ -10299,6 +10424,7 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 4118303,Paranapoema,PR,transparencia_prefeitura,https://paranapoema.eloweb.net/portaltransparencia/1/,,2026-10-08
 4118402,Paranavaí,PR,camara,https://www.cmparanavai.pr.gov.br/,,2026-10-08
 4118402,Paranavaí,PR,prefeitura,https://paranavai.pr.gov.br/,,2026-10-08
+4118402,Paranavaí,PR,transparencia_camara,https://www.cmparanavai.pr.gov.br/transparencia,,2026-10-08
 4118006,Paraíso do Norte,PR,prefeitura,https://paraisodonorte.pr.gov.br/,,2026-10-08
 4118451,Pato Bragado,PR,camara,https://www.patobragado.pr.leg.br,,2026-10-08
 4118451,Pato Bragado,PR,sapl,https://sapl.patobragado.pr.leg.br/,sapl,2026-10-08
@@ -10420,6 +10546,7 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 4121406,Realeza,PR,transparencia_prefeitura,https://realeza.pr.gov.br/transparencia,,2026-10-08
 4121505,Rebouças,PR,camara,https://www.reboucas.pr.leg.br/,,2026-10-08
 4121505,Rebouças,PR,prefeitura,https://reboucas.pr.gov.br/,,2026-10-08
+4121505,Rebouças,PR,transparencia_camara,https://www.reboucas.pr.leg.br/portal-da-transparencia,,2026-10-08
 4121505,Rebouças,PR,transparencia_prefeitura,https://cr2.co/lei-da-transparencia-municipal/,cr2,2026-10-08
 4121604,Renascença,PR,camara,https://www.renascenca.pr.leg.br,,2026-10-08
 4121604,Renascença,PR,prefeitura,https://renascenca.pr.gov.br/,,2026-10-08
@@ -10443,6 +10570,7 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 4122107,Rio Bom,PR,camara,https://www.riobom.pr.leg.br,,2026-10-08
 4122107,Rio Bom,PR,prefeitura,https://riobom.pr.gov.br/,,2026-10-08
 4122107,Rio Bom,PR,sapl,https://sapl.riobom.pr.leg.br/,sapl,2026-10-08
+4122107,Rio Bom,PR,transparencia_camara,https://www.riobom.pr.leg.br/transparencia,,2026-10-08
 4122107,Rio Bom,PR,transparencia_prefeitura,https://webapp1-riobom.cidade360.cloud/pronimtb/index.html,pronim (govbr),2026-10-08
 4122156,Rio Bonito do Iguaçu,PR,camara,https://www.riobonitodoiguacu.pr.leg.br,,2026-10-08
 4122156,Rio Bonito do Iguaçu,PR,sapl,https://sapl.riobonitodoiguacu.pr.leg.br/,sapl,2026-10-08
@@ -10453,6 +10581,7 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 4122206,Rio Branco do Sul,PR,prefeitura,https://riobrancodosul.pr.gov.br/,,2026-10-08
 4122206,Rio Branco do Sul,PR,sapl,https://sapl.riobrancodosul.pr.leg.br/,sapl,2026-10-08
 4122206,Rio Branco do Sul,PR,transparencia_camara,https://camarariobrancodosul.atende.net/transparencia/,ipm,2026-10-08
+4122206,Rio Branco do Sul,PR,transparencia_prefeitura,https://riobrancodosul.pr.gov.br/transparencia,,2026-10-08
 4122305,Rio Negro,PR,camara,https://www.rionegro.pr.leg.br,,2026-10-08
 4122305,Rio Negro,PR,sapl,https://sapl.rionegro.pr.leg.br/,sapl,2026-10-08
 4122305,Rio Negro,PR,transparencia_camara,https://camararionegro.atende.net/transparencia/item/ato-que-aprecia-as-contas-do-chefe-do-poder-executivo#conteudo,ipm,2026-10-08
@@ -10490,6 +10619,7 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 4123501,Santa Helena,PR,prefeitura,https://santahelena.atende.net,,2026-10-08
 4123501,Santa Helena,PR,sapl,https://sapl.santahelena.pr.leg.br/,sapl,2026-10-08
 4123501,Santa Helena,PR,transparencia_camara,https://camarasantahelena.atende.net/transparencia/,ipm,2026-10-08
+4123501,Santa Helena,PR,transparencia_prefeitura,https://santahelena.atende.net/transparencia,ipm,2026-10-08
 4123600,Santa Inês,PR,camara,https://cmsantaines.pr.gov.br/,,2026-10-08
 4123600,Santa Inês,PR,prefeitura,https://santaines.pr.gov.br/,,2026-10-08
 4123600,Santa Inês,PR,transparencia_camara,http://201.62.68.143:5656/transparencia/HomeESIC.aspx,,2026-10-08
@@ -10518,6 +10648,7 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 4124103,Santo Antônio da Platina,PR,prefeitura,https://www.santoantoniodaplatina.pr.gov.br/,,2026-10-08
 4124103,Santo Antônio da Platina,PR,sapl,https://sapl.santoantoniodaplatina.pr.leg.br/,sapl,2026-10-08
 4124103,Santo Antônio da Platina,PR,transparencia_camara,https://camarasantoantoniodaplatina.atende.net/,ipm,2026-10-08
+4124103,Santo Antônio da Platina,PR,transparencia_prefeitura,https://www.santoantoniodaplatina.pr.gov.br/transparencia,,2026-10-08
 4124301,Santo Antônio do Paraíso,PR,camara,https://www.santoantoniodoparaiso.pr.leg.br,,2026-10-08
 4124301,Santo Antônio do Paraíso,PR,sapl,https://sapl.santoantoniodoparaiso.pr.leg.br/,sapl,2026-10-08
 4124301,Santo Antônio do Paraíso,PR,transparencia_camara,https://www.santoantoniodoparaiso.pr.leg.br/portal-1,,2026-10-08
@@ -10530,6 +10661,7 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 4126207,Sapopema,PR,transparencia_prefeitura,https://www.sapopema.pr.gov.br/portal-da-transparencia,,2026-10-08
 4126256,Sarandi,PR,camara,https://www.sarandi.pr.leg.br,,2026-10-08
 4126256,Sarandi,PR,sapl,https://sapl.sarandi.pr.leg.br/,sapl,2026-10-08
+4126256,Sarandi,PR,transparencia_camara,https://www.sarandi.pr.leg.br/transparencia,,2026-10-08
 4126272,Saudade do Iguaçu,PR,camara,https://www.saudadedoiguacu.pr.leg.br,,2026-10-08
 4126272,Saudade do Iguaçu,PR,prefeitura,https://saudadedoiguacu.pr.gov.br/site/,,2026-10-08
 4126272,Saudade do Iguaçu,PR,sapl,https://sapl.saudadedoiguacu.pr.leg.br/,sapl,2026-10-08
@@ -10561,6 +10693,7 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 4125407,São José da Boa Vista,PR,prefeitura,https://saojosedaboavista.pr.gov.br/,,2026-10-08
 4125407,São José da Boa Vista,PR,sapl,https://sapl.saojosedaboavista.pr.leg.br/,sapl,2026-10-08
 4125407,São José da Boa Vista,PR,transparencia_camara,https://www.saojosedaboavista.pr.leg.br/transparencia,,2026-10-08
+4125407,São José da Boa Vista,PR,transparencia_prefeitura,https://saojosedaboavista.pr.gov.br/portal-da-transparencia/,,2026-10-08
 4125456,São José das Palmeiras,PR,camara,http://www.camarasjpalmeiras.com.br,,2026-10-08
 4125456,São José das Palmeiras,PR,transparencia_camara,https://saojosedaspalmeiraspr.equiplano.com.br:7382/transparencia/,,2026-10-08
 4124806,São João,PR,camara,https://www.saojoao.pr.leg.br,,2026-10-08
@@ -10714,6 +10847,7 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 3300936,Carapebus,RJ,sapl,https://sapl.carapebus.rj.leg.br/,sapl,2026-10-08
 3300936,Carapebus,RJ,transparencia_camara,https://www.carapebus.rj.leg.br/transparencia,,2026-10-08
 3301157,Cardoso Moreira,RJ,prefeitura,https://cardosomoreira.rj.gov.br/,,2026-10-08
+3301157,Cardoso Moreira,RJ,transparencia_prefeitura,https://transparencia.cardosomoreira.rj.gov.br/transparencia/,,2026-10-08
 3301207,Carmo,RJ,camara,https://www.carmo.rj.leg.br,,2026-10-08
 3301207,Carmo,RJ,prefeitura,https://www.carmo.rj.gov.br/?gate_success=1,,2026-10-08
 3301207,Carmo,RJ,transparencia_camara,https://www.carmo.rj.leg.br/transparencia,,2026-10-08
@@ -10758,6 +10892,7 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 3302254,Itatiaia,RJ,transparencia_prefeitura,https://itatiaia.rj.gov.br/portal-da-transparencia/,,2026-10-08
 3302270,Japeri,RJ,camara,https://www.camarajaperi.rj.gov.br/,,2026-10-08
 3302270,Japeri,RJ,prefeitura,https://japeri.rj.gov.br/,,2026-10-08
+3302270,Japeri,RJ,transparencia_camara,https://www.camarajaperi.rj.gov.br/transparencia,,2026-10-08
 3302270,Japeri,RJ,transparencia_prefeitura,https://japeri.rj.gov.br/links/,,2026-10-08
 3302403,Macaé,RJ,camara,https://cmmacae.rj.gov.br/,,2026-10-08
 3302403,Macaé,RJ,prefeitura,https://macae.rj.gov.br/,,2026-10-08
@@ -10886,6 +11021,7 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 3304904,São Gonçalo,RJ,camara,https://www.cmsg.rj.gov.br/,,2026-10-08
 3304904,São Gonçalo,RJ,prefeitura,https://www.saogoncalo.rj.gov.br/,,2026-10-08
 3304904,São Gonçalo,RJ,transparencia_camara,https://cmsaogoncalo-rj.portaltp.com.br/#new_tab,,2026-10-08
+3304904,São Gonçalo,RJ,transparencia_prefeitura,https://www.saogoncalo.rj.gov.br/transparencia/,,2026-10-08
 3305158,São José do Vale do Rio Preto,RJ,camara,https://www.saojosedovaledoriopreto.rj.leg.br,,2026-10-08
 3305158,São José do Vale do Rio Preto,RJ,sapl,https://sapl.saojosedovaledoriopreto.rj.leg.br/,sapl,2026-10-08
 3305158,São José do Vale do Rio Preto,RJ,transparencia_camara,http://168.205.102.154:8079/Transparenciacamara/,,2026-10-08
@@ -10928,6 +11064,7 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 2400109,Acari,RN,transparencia_camara,https://www.acari.rn.leg.br/transparencia,,2026-10-08
 2400109,Acari,RN,transparencia_prefeitura,https://transparencia.aossoftware.com.br/PMACARI/,,2026-10-08
 2400307,Afonso Bezerra,RN,camara,https://afonsobezerra.rn.leg.br/,,2026-10-08
+2400307,Afonso Bezerra,RN,transparencia_camara,https://afonsobezerra.rn.leg.br/portal-da-transparencia,,2026-10-08
 2400505,Alexandria,RN,camara,https://www.alexandria.rn.leg.br,,2026-10-08
 2400505,Alexandria,RN,prefeitura,https://alexandria.rn.gov.br/,,2026-10-08
 2400505,Alexandria,RN,sapl,https://sapl.alexandria.rn.leg.br/,sapl,2026-10-08
@@ -10940,9 +11077,12 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 2400703,Alto do Rodrigues,RN,camara,https://altodorodrigues.rn.leg.br/pagina-inicial/c%C3%A2mara-municipal-de-alto-do-rodrigues,,2026-10-08
 2400703,Alto do Rodrigues,RN,prefeitura,https://www.altodorodrigues.rn.gov.br/,,2026-10-08
 2400703,Alto do Rodrigues,RN,sapl,https://sapl.altodorodrigues.rn.leg.br/,sapl,2026-10-08
+2400703,Alto do Rodrigues,RN,transparencia_prefeitura,https://www.altodorodrigues.rn.gov.br/transparencia,,2026-10-08
 2400802,Angicos,RN,camara,https://www.angicos.rn.leg.br/,,2026-10-08
 2400802,Angicos,RN,prefeitura,https://www.angicos.rn.gov.br/,,2026-10-08
 2400802,Angicos,RN,sapl,https://sapl.angicos.rn.leg.br/,sapl,2026-10-08
+2400802,Angicos,RN,transparencia_camara,https://www.angicos.rn.leg.br/transparencia,,2026-10-08
+2400802,Angicos,RN,transparencia_prefeitura,https://www.angicos.rn.gov.br/transparencia,,2026-10-08
 2400901,Antônio Martins,RN,camara,https://antoniomartins.rn.leg.br/,,2026-10-08
 2400901,Antônio Martins,RN,prefeitura,https://antoniomartins.rn.gov.br/,,2026-10-08
 2400901,Antônio Martins,RN,transparencia_camara,https://antoniomartins.rn.leg.br/transparencia/,,2026-10-08
@@ -10962,6 +11102,8 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 2400208,Assú,RN,transparencia_prefeitura,https://transparencia.e-publica.net/epublica-portal/#/assu/portal,epublica,2026-10-08
 2401453,Baraúna,RN,camara,https://www.barauna.rn.leg.br/,,2026-10-08
 2401453,Baraúna,RN,prefeitura,https://www.barauna.rn.gov.br/,,2026-10-08
+2401453,Baraúna,RN,transparencia_camara,https://www.barauna.rn.leg.br/transparencia,,2026-10-08
+2401453,Baraúna,RN,transparencia_prefeitura,https://www.barauna.rn.gov.br/transparencia,,2026-10-08
 2401503,Barcelona,RN,prefeitura,https://barcelona.rn.gov.br/,,2026-10-08
 2401503,Barcelona,RN,transparencia_prefeitura,https://www.municipioonline.com.br/rn/prefeitura/barcelona,,2026-10-08
 2401404,Baía Formosa,RN,camara,https://baiaformosa.rn.leg.br/,,2026-10-08
@@ -11011,6 +11153,7 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 2402303,Caraúbas,RN,transparencia_prefeitura,https://pmcaraubasrn.transparencia.topsolutionsrn.com.br/,,2026-10-08
 2402501,Carnaubais,RN,camara,https://www.carnaubais.rn.leg.br/,,2026-10-08
 2402501,Carnaubais,RN,prefeitura,https://carnaubais.rn.gov.br/,,2026-10-08
+2402501,Carnaubais,RN,transparencia_camara,https://www.carnaubais.rn.leg.br/transparencia,,2026-10-08
 2402501,Carnaubais,RN,transparencia_prefeitura,https://carnaubais.rn.gov.br/acessoainformacao.php,,2026-10-08
 2402402,Carnaúba dos Dantas,RN,camara,https://www.carnaubadosdantas.rn.leg.br,,2026-10-08
 2402402,Carnaúba dos Dantas,RN,prefeitura,https://www.carnaubadosdantas.rn.gov.br/,,2026-10-08
@@ -11025,6 +11168,7 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 2402709,Cerro Corá,RN,camara,https://www.cerrocora.rn.leg.br/,,2026-10-08
 2402709,Cerro Corá,RN,prefeitura,https://cerrocora.rn.gov.br/,,2026-10-08
 2402709,Cerro Corá,RN,sapl,https://sapl.cerrocora.rn.leg.br/,sapl,2026-10-08
+2402709,Cerro Corá,RN,transparencia_camara,https://www.cerrocora.rn.leg.br/transparencia,,2026-10-08
 2402709,Cerro Corá,RN,transparencia_prefeitura,https://pmcerrocorarn.transparencia.topsolutionsrn.com.br,,2026-10-08
 2402808,Coronel Ezequiel,RN,camara,https://www.coronelezequiel.rn.leg.br,,2026-10-08
 2402808,Coronel Ezequiel,RN,prefeitura,https://coronelezequiel.rn.gov.br/,,2026-10-08
@@ -11066,6 +11210,8 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 2403707,Felipe Guerra,RN,transparencia_camara,http://topdown.servehttp.com:8080/transparencia/CMFelipeGuerra/despesas.aspx,,2026-10-08
 2403756,Fernando Pedroza,RN,camara,https://www.fernandopedroza.rn.leg.br/,,2026-10-08
 2403756,Fernando Pedroza,RN,prefeitura,https://www.fernandopedroza.rn.gov.br/,,2026-10-08
+2403756,Fernando Pedroza,RN,transparencia_camara,https://www.fernandopedroza.rn.leg.br/transparencia,,2026-10-08
+2403756,Fernando Pedroza,RN,transparencia_prefeitura,https://www.fernandopedroza.rn.gov.br/transparencia,,2026-10-08
 2403806,Florânia,RN,camara,https://florania.rn.leg.br/,,2026-10-08
 2403806,Florânia,RN,prefeitura,https://florania.rn.gov.br/,,2026-10-08
 2403806,Florânia,RN,transparencia_camara,https://florania.rn.leg.br/transparencias,,2026-10-08
@@ -11089,6 +11235,7 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 2404309,Governador Dix-Sept Rosado,RN,camara,https://www.governadordixseptrosado.rn.leg.br/,,2026-10-08
 2404309,Governador Dix-Sept Rosado,RN,prefeitura,https://governadordixseptrosado.rn.gov.br/,,2026-10-08
 2404309,Governador Dix-Sept Rosado,RN,sapl,https://sapl.governadordixseptrosado.rn.leg.br/,sapl,2026-10-08
+2404309,Governador Dix-Sept Rosado,RN,transparencia_camara,https://www.governadordixseptrosado.rn.leg.br/transparencia,,2026-10-08
 2404309,Governador Dix-Sept Rosado,RN,transparencia_prefeitura,https://transparencia.sispub.lemarq.inf.br/RNP049/2026,,2026-10-08
 2404408,Grossos,RN,camara,https://www.grossos.rn.leg.br,,2026-10-08
 2404408,Grossos,RN,prefeitura,https://grossos.rn.gov.br/,,2026-10-08
@@ -11100,6 +11247,8 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 2404507,Guamaré,RN,transparencia_prefeitura,https://guamare.rn.gov.br/acessoainformacao.php,,2026-10-08
 2404705,Ipanguaçu,RN,camara,https://www.ipanguacu.rn.leg.br/,,2026-10-08
 2404705,Ipanguaçu,RN,prefeitura,https://www.ipanguacu.rn.gov.br/,,2026-10-08
+2404705,Ipanguaçu,RN,transparencia_camara,https://www.ipanguacu.rn.leg.br/transparencia,,2026-10-08
+2404705,Ipanguaçu,RN,transparencia_prefeitura,https://www.ipanguacu.rn.gov.br/transparencia,,2026-10-08
 2404804,Ipueira,RN,camara,https://cmipueira.rn.gov.br/,,2026-10-08
 2404804,Ipueira,RN,prefeitura,https://ipueira.rn.gov.br/,,2026-10-08
 2404804,Ipueira,RN,transparencia_camara,https://transparencia.agilirn.com.br/camipueira-rn,,2026-10-08
@@ -11173,6 +11322,7 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 2406403,Lagoa de Velhos,RN,transparencia_prefeitura,https://pmlagoavelhosrn.transparencia.topsolutionsrn.com.br/,,2026-10-08
 2406700,Lajes,RN,camara,https://www.lajes.rn.leg.br/,,2026-10-08
 2406700,Lajes,RN,prefeitura,https://lajes.rn.gov.br/,,2026-10-08
+2406700,Lajes,RN,transparencia_camara,https://www.lajes.rn.leg.br/transparencia,,2026-10-08
 2406700,Lajes,RN,transparencia_prefeitura,https://lajes.rn.gov.br/transparencia.php,,2026-10-08
 2406809,Lajes Pintadas,RN,camara,https://www.lajespintadas.rn.leg.br,,2026-10-08
 2406809,Lajes Pintadas,RN,prefeitura,https://lajespintadas.rn.gov.br/,,2026-10-08
@@ -11253,6 +11403,7 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 2403251,Parnamirim,RN,camara,https://camaraparnamirim.rn.gov.br/,,2026-10-08
 2403251,Parnamirim,RN,prefeitura,https://parnamirim.rn.gov.br/,,2026-10-08
 2403251,Parnamirim,RN,transparencia_camara,https://cmparnamirimrn.transparencia.topsolutionsrn.com.br/,,2026-10-08
+2403251,Parnamirim,RN,transparencia_prefeitura,https://transparencia.parnamirim.rn.gov.br/,,2026-10-08
 2409100,Passa e Fica,RN,camara,https://cmpassaefica.rn.gov.br/,,2026-10-08
 2409100,Passa e Fica,RN,prefeitura,https://passaefica.rn.gov.br/,,2026-10-08
 2409100,Passa e Fica,RN,transparencia_camara,https://cmpassaefica.rn.gov.br/acessoainformacao,,2026-10-08
@@ -11273,6 +11424,7 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 2409506,Pedra Grande,RN,transparencia_prefeitura,http://site.pedragrande.rn.gov.br/transparencia/,,2026-10-08
 2409605,Pedra Preta,RN,camara,https://pedrapreta.rn.leg.br/,,2026-10-08
 2409605,Pedra Preta,RN,prefeitura,https://pedrapreta.rn.gov.br/,,2026-10-08
+2409605,Pedra Preta,RN,transparencia_camara,https://pedrapreta.rn.leg.br/transparencia,,2026-10-08
 2409605,Pedra Preta,RN,transparencia_prefeitura,https://transparencia.agilirn.com.br/prefpedrapreta-rn,,2026-10-08
 2409704,Pedro Avelino,RN,camara,https://www.pedroavelino.rn.leg.br,,2026-10-08
 2409704,Pedro Avelino,RN,prefeitura,https://pedroavelino.rn.gov.br/,,2026-10-08
@@ -11285,6 +11437,7 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 2409902,Pendências,RN,camara,https://www.pendencias.rn.leg.br/,,2026-10-08
 2409902,Pendências,RN,prefeitura,https://pendencias.rn.gov.br/,,2026-10-08
 2409902,Pendências,RN,sapl,https://sapl.pendencias.rn.leg.br/,sapl,2026-10-08
+2409902,Pendências,RN,transparencia_camara,https://www.pendencias.rn.leg.br/transparencia,,2026-10-08
 2409902,Pendências,RN,transparencia_prefeitura,https://pendencias.rn.gov.br/transparencia/,,2026-10-08
 2410009,Pilões,RN,camara,https://www.piloes.rn.leg.br,,2026-10-08
 2410009,Pilões,RN,prefeitura,https://piloes.rn.gov.br/,,2026-10-08
@@ -11296,6 +11449,8 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 2410207,Portalegre,RN,transparencia_prefeitura,https://portalegre.rn.gov.br/acessoainformacao.php,,2026-10-08
 2410256,Porto do Mangue,RN,camara,https://www.portodomangue.rn.leg.br/,,2026-10-08
 2410256,Porto do Mangue,RN,prefeitura,https://www.portodomangue.rn.gov.br/,,2026-10-08
+2410256,Porto do Mangue,RN,transparencia_camara,https://www.portodomangue.rn.leg.br/transparencia,,2026-10-08
+2410256,Porto do Mangue,RN,transparencia_prefeitura,https://www.portodomangue.rn.gov.br/transparencia,,2026-10-08
 2410108,Poço Branco,RN,camara,https://cmpocobranco.rn.gov.br/,,2026-10-08
 2410108,Poço Branco,RN,prefeitura,https://pocobranco.rn.gov.br/,,2026-10-08
 2410108,Poço Branco,RN,transparencia_camara,https://cmpocobranco.rn.gov.br/portal.php,,2026-10-08
@@ -11325,6 +11480,7 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 2408953,Rio do Fogo,RN,camara,https://www.riodofogo.rn.leg.br,,2026-10-08
 2408953,Rio do Fogo,RN,prefeitura,https://riodofogo.rn.gov.br/,,2026-10-08
 2408953,Rio do Fogo,RN,sapl,https://sapl.riodofogo.rn.leg.br/,sapl,2026-10-08
+2408953,Rio do Fogo,RN,transparencia_camara,https://www.riodofogo.rn.leg.br/transparencia,,2026-10-08
 2408953,Rio do Fogo,RN,transparencia_prefeitura,https://riodofogo.rn.gov.br/portal-da-transparencia/,,2026-10-08
 2411007,Rodolfo Fernandes,RN,camara,https://www.rodolfofernandes.rn.leg.br,,2026-10-08
 2411007,Rodolfo Fernandes,RN,prefeitura,https://rodolfofernandes.rn.gov.br/,,2026-10-08
@@ -11345,6 +11501,8 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 2411403,Santana do Matos,RN,camara,https://www.santanadomatos.rn.leg.br/,,2026-10-08
 2411403,Santana do Matos,RN,prefeitura,https://www.santanadomatos.rn.gov.br/,,2026-10-08
 2411403,Santana do Matos,RN,sapl,https://sapl.santanadomatos.rn.leg.br/,sapl,2026-10-08
+2411403,Santana do Matos,RN,transparencia_camara,https://www.santanadomatos.rn.leg.br/transparencia,,2026-10-08
+2411403,Santana do Matos,RN,transparencia_prefeitura,https://www.santanadomatos.rn.gov.br/transparencia,,2026-10-08
 2411429,Santana do Seridó,RN,camara,https://www.santanadoserido.rn.leg.br,,2026-10-08
 2411429,Santana do Seridó,RN,sapl,https://sapl.santanadoserido.rn.leg.br/,sapl,2026-10-08
 2411429,Santana do Seridó,RN,transparencia_camara,https://cmsantanadoserido.ageassessoria.com.br/,,2026-10-08
@@ -11368,6 +11526,7 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 2413359,Serra do Mel,RN,camara,https://www.serradomel.rn.leg.br/,,2026-10-08
 2413359,Serra do Mel,RN,prefeitura,https://serradomel.rn.gov.br/,,2026-10-08
 2413359,Serra do Mel,RN,sapl,https://sapl.serradomel.rn.leg.br/,sapl,2026-10-08
+2413359,Serra do Mel,RN,transparencia_camara,https://www.serradomel.rn.leg.br/portal-da-transparencia,,2026-10-08
 2413359,Serra do Mel,RN,transparencia_prefeitura,https://transparencia.sispub.lemarq.inf.br/RNP144/2025,,2026-10-08
 2413508,Serrinha,RN,prefeitura,https://www.serrinha.rn.gov.br/,,2026-10-08
 2413557,Serrinha dos Pintos,RN,camara,https://serrinhadospintos.rn.leg.br/,,2026-10-08
@@ -11483,6 +11642,7 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 2414605,Upanema,RN,transparencia_prefeitura,https://pmupanemarn.transparencia.topsolutionsrn.com.br/,,2026-10-08
 2414803,Vera Cruz,RN,camara,https://veracruz.rn.leg.br/,,2026-10-08
 2414803,Vera Cruz,RN,prefeitura,https://veracruz.rn.gov.br/,,2026-10-08
+2414803,Vera Cruz,RN,transparencia_camara,https://veracruz.rn.leg.br/transparencia,,2026-10-08
 2414803,Vera Cruz,RN,transparencia_prefeitura,https://veracruz.rn.gov.br/transparencia.php,,2026-10-08
 2415008,Vila Flor,RN,camara,https://vilaflor.rn.leg.br/,,2026-10-08
 2415008,Vila Flor,RN,prefeitura,https://vilaflor.rn.gov.br/,,2026-10-08
@@ -11557,6 +11717,7 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 1101104,Itapuã do Oeste,RO,transparencia_camara,https://transparencia.itapuadooeste.ro.gov.br/novo/LEGISLATIVO?page=1&perPage=10,,2026-10-08
 1100114,Jaru,RO,camara,https://www.jaru.ro.leg.br,,2026-10-08
 1100114,Jaru,RO,sapl,https://sapl.jaru.ro.leg.br/,sapl,2026-10-08
+1100114,Jaru,RO,transparencia_camara,https://transparencia.jaru.ro.leg.br/novo/legislativo,,2026-10-08
 1100122,Ji-Paraná,RO,camara,https://www.jiparana.ro.leg.br,,2026-10-08
 1100122,Ji-Paraná,RO,prefeitura,https://ji-parana.ro.gov.br/,,2026-10-08
 1100122,Ji-Paraná,RO,sapl,https://sapl.jiparana.ro.leg.br/,sapl,2026-10-08
@@ -11580,6 +11741,7 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 1101435,Nova União,RO,transparencia_camara,https://www.novauniao.ro.leg.br/transparencia,,2026-10-08
 1100502,Novo Horizonte do Oeste,RO,camara,https://www.novohorizontedooeste.ro.leg.br,,2026-10-08
 1100502,Novo Horizonte do Oeste,RO,sapl,https://sapl.novohorizontedooeste.ro.leg.br/,sapl,2026-10-08
+1100502,Novo Horizonte do Oeste,RO,transparencia_camara,https://www.novohorizontedooeste.ro.leg.br/transparencia,,2026-10-08
 1100155,Ouro Preto do Oeste,RO,camara,https://www.ouropretodooeste.ro.leg.br,,2026-10-08
 1100155,Ouro Preto do Oeste,RO,sapl,https://sapl.ouropretodooeste.ro.leg.br/,sapl,2026-10-08
 1100155,Ouro Preto do Oeste,RO,transparencia_camara,https://www.ouropretodooeste.ro.leg.br/transparencia/portal-da-transparencia,,2026-10-08
@@ -11668,6 +11830,7 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 1400282,Iracema,RR,transparencia_camara,https://www.iracema.rr.leg.br/transparencia,,2026-10-08
 1400282,Iracema,RR,transparencia_prefeitura,https://portal.iracema.rr.gov.br/,,2026-10-08
 1400308,Mucajaí,RR,camara,https://www.mucajai.rr.leg.br,,2026-10-08
+1400308,Mucajaí,RR,transparencia_camara,https://www.mucajai.rr.leg.br/transparencia,,2026-10-08
 1400407,Normandia,RR,camara,https://www.normandia.rr.leg.br,,2026-10-08
 1400407,Normandia,RR,prefeitura,https://normandia.rr.gov.br/,,2026-10-08
 1400407,Normandia,RR,transparencia_camara,https://www.normandia.rr.leg.br/transparencia,,2026-10-08
@@ -11694,6 +11857,7 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 4300109,Agudo,RS,prefeitura,https://www.agudo.rs.gov.br/,,2026-10-08
 4300109,Agudo,RS,sapl,https://sapl.agudo.rs.leg.br/,sapl,2026-10-08
 4300109,Agudo,RS,transparencia_camara,https://www.agudo.rs.leg.br/transparencia,,2026-10-08
+4300109,Agudo,RS,transparencia_prefeitura,https://www.agudo.rs.gov.br/portal-da-transparencia,,2026-10-08
 4300208,Ajuricaba,RS,prefeitura,https://www.ajuricaba.rs.gov.br/,,2026-10-08
 4300208,Ajuricaba,RS,transparencia_prefeitura,https://webapp1-ajuricaba.cidade360.cloud/pronimtb/,pronim (govbr),2026-10-08
 4300406,Alegrete,RS,prefeitura,https://www.alegrete.rs.gov.br/,,2026-10-08
@@ -11810,7 +11974,9 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 4303673,Campestre da Serra,RS,camara,https://www.camaracampestredaserra.rs.gov.br/,,2026-10-08
 4303673,Campestre da Serra,RS,prefeitura,https://www.campestredaserra.rs.gov.br/,,2026-10-08
 4303673,Campestre da Serra,RS,transparencia_camara,https://www.camaracampestredaserra.rs.gov.br/portal-da-transparencia,,2026-10-08
+4303673,Campestre da Serra,RS,transparencia_prefeitura,https://www.campestredaserra.rs.gov.br/portal-da-transparencia,,2026-10-08
 4303707,Campina das Missões,RS,prefeitura,https://www.campinadasmissoes.rs.gov.br/,,2026-10-08
+4303707,Campina das Missões,RS,transparencia_prefeitura,https://www.campinadasmissoes.rs.gov.br/portal-da-transparencia,,2026-10-08
 4303806,Campinas do Sul,RS,prefeitura,https://campinasdosul.rs.gov.br/,,2026-10-08
 4303806,Campinas do Sul,RS,transparencia_prefeitura,https://transparencia.campinasdosul.rs.gov.br:8282/sys523/publico/index.xhtml,,2026-10-08
 4303905,Campo Bom,RS,prefeitura,https://www.campobom.rs.gov.br/,,2026-10-08
@@ -11852,6 +12018,7 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 4304804,Carlos Barbosa,RS,camara,https://carlosbarbosa.rs.leg.br/,,2026-10-08
 4304804,Carlos Barbosa,RS,prefeitura,https://www.carlosbarbosa.rs.gov.br/,,2026-10-08
 4304804,Carlos Barbosa,RS,transparencia_camara,https://carlosbarbosa.rs.leg.br/menu/transparencia/6e9532732c20b961c08a89610019ae48,,2026-10-08
+4304804,Carlos Barbosa,RS,transparencia_prefeitura,https://www.carlosbarbosa.rs.gov.br/portal-da-transparencia,,2026-10-08
 4304853,Carlos Gomes,RS,camara,https://camaracarlosgomes.rs.gov.br/,,2026-10-08
 4304853,Carlos Gomes,RS,prefeitura,https://carlosgomes.rs.gov.br/site/,,2026-10-08
 4304853,Carlos Gomes,RS,transparencia_camara,http://transparencia.carlosgomes.rs.gov.br/sys523/publico/index.xhtml,,2026-10-08
@@ -11882,11 +12049,13 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 4305157,Cerro Grande,RS,camara,https://cerrogrande.rs.leg.br/,,2026-10-08
 4305157,Cerro Grande,RS,prefeitura,https://cerrogrande.rs.gov.br/,,2026-10-08
 4305157,Cerro Grande,RS,transparencia_camara,https://cerrogrande.rs.leg.br/transparencia-na-camara/,,2026-10-08
+4305157,Cerro Grande,RS,transparencia_prefeitura,https://cerrogrande.rs.gov.br/transparencia/,,2026-10-08
 4305173,Cerro Grande do Sul,RS,prefeitura,https://www.cerrograndedosul.rs.gov.br/,,2026-10-08
 4305173,Cerro Grande do Sul,RS,transparencia_prefeitura,https://transparencia.betha.cloud/#/r-tyM2fiLKOIkv_pf57uGg==,betha,2026-10-08
 4305306,Chapada,RS,camara,https://camarachapada.rs.gov.br/pt-br,,2026-10-08
 4305306,Chapada,RS,transparencia_camara,https://portal.chapada.rs.gov.br/TransparenciaJavaEnvironmentCM/com.tche.transparencia.wtransparencia,,2026-10-08
 4305355,Charqueadas,RS,prefeitura,https://www.charqueadas.rs.gov.br/,,2026-10-08
+4305355,Charqueadas,RS,transparencia_prefeitura,https://transparencia.charqueadas.rs.gov.br/,,2026-10-08
 4305371,Charrua,RS,camara,https://camaracharrua.rs.gov.br/,,2026-10-08
 4305371,Charrua,RS,prefeitura,https://charrua.rs.gov.br/,,2026-10-08
 4305371,Charrua,RS,transparencia_camara,http://143.255.0.18:8080/multi24/sistemas/transparencia/,multi24,2026-10-08
@@ -11904,6 +12073,7 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 4305504,Ciríaco,RS,camara,https://ciriaco.rs.leg.br/,,2026-10-08
 4305504,Ciríaco,RS,prefeitura,https://www.ciriaco.rs.gov.br/,,2026-10-08
 4305504,Ciríaco,RS,transparencia_camara,https://sistema.sinsoft.com.br/portal.camara.ciriaco-rs/Legislativo.aspx,,2026-10-08
+4305504,Ciríaco,RS,transparencia_prefeitura,https://www.ciriaco.rs.gov.br/portal-da-transparencia,,2026-10-08
 4305587,Colinas,RS,prefeitura,https://colinas.rs.gov.br/,,2026-10-08
 4305587,Colinas,RS,transparencia_prefeitura,http://177.11.34.207:7070/multi24/sistemas/transparencia/,multi24,2026-10-08
 4305603,Colorado,RS,camara,https://cmcolorado.rs.gov.br/,,2026-10-08
@@ -11915,6 +12085,7 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 4305801,Constantina,RS,camara,https://www.constantina.rs.leg.br,,2026-10-08
 4305801,Constantina,RS,prefeitura,https://constantina.rs.gov.br/,,2026-10-08
 4305801,Constantina,RS,sapl,https://sapl.constantina.rs.leg.br/,sapl,2026-10-08
+4305801,Constantina,RS,transparencia_camara,https://www.constantina.rs.leg.br/transparencia,,2026-10-08
 4305801,Constantina,RS,transparencia_prefeitura,https://transparencia.betha.cloud/#/159QqGVl71_EB_c3xVJKdg==,betha,2026-10-08
 4305835,Coqueiro Baixo,RS,camara,https://coqueirobaixo.rs.leg.br/,,2026-10-08
 4305835,Coqueiro Baixo,RS,transparencia_camara,http://transparencia.coqueirobaixo.com.br:8001/multi24/sistemas/transparencia/,multi24,2026-10-08
@@ -11945,11 +12116,13 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 4306304,David Canabarro,RS,camara,https://davidcanabarro.rs.leg.br/,,2026-10-08
 4306304,David Canabarro,RS,prefeitura,https://davidcanabarro.rs.gov.br/,,2026-10-08
 4306304,David Canabarro,RS,transparencia_camara,https://cmdavidcanabarro.cittaweb.com.br/transparencia,cittaweb,2026-10-08
+4306304,David Canabarro,RS,transparencia_prefeitura,https://davidcanabarro.rs.gov.br/portal-da-transparencia,,2026-10-08
 4306379,Dilermando de Aguiar,RS,prefeitura,https://dilermandodeaguiar.rs.gov.br/,,2026-10-08
 4306379,Dilermando de Aguiar,RS,transparencia_prefeitura,https://transparencia.betha.cloud/#/5-WlXYN0k2zCK5ZSd0ZQrw==/consultas/74851,betha,2026-10-08
 4306429,Dois Irmãos das Missões,RS,prefeitura,https://www.doisirmaosdasmissoes.rs.gov.br/,,2026-10-08
 4306429,Dois Irmãos das Missões,RS,transparencia_prefeitura,https://doisirmaosdasmissoes.atende.net/?pg=transparencia#!/,ipm,2026-10-08
 4306452,Dois Lajeados,RS,prefeitura,https://www.doislajeados.rs.gov.br/,,2026-10-08
+4306452,Dois Lajeados,RS,transparencia_prefeitura,https://www.doislajeados.rs.gov.br/portal-da-transparencia,,2026-10-08
 4306502,Dom Feliciano,RS,camara,https://www.camaradomfeliciano.rs.gov.br/,,2026-10-08
 4306502,Dom Feliciano,RS,prefeitura,https://domfeliciano.rs.gov.br/,,2026-10-08
 4306502,Dom Feliciano,RS,transparencia_camara,https://www.camaradomfeliciano.rs.gov.br/transparencia,,2026-10-08
@@ -12029,6 +12202,7 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 4308508,Frederico Westphalen,RS,camara,https://fredericowestphalen.rs.leg.br/,,2026-10-08
 4308508,Frederico Westphalen,RS,transparencia_camara,https://sim.digifred.net.br/cmfrederico/camara/camara#servico,digifred,2026-10-08
 4308607,Garibaldi,RS,prefeitura,https://www.garibaldi.rs.gov.br/,,2026-10-08
+4308607,Garibaldi,RS,transparencia_prefeitura,https://www.garibaldi.rs.gov.br/portal-da-transparencia,,2026-10-08
 4308656,Garruchos,RS,prefeitura,https://garruchos.rs.gov.br/,,2026-10-08
 4308656,Garruchos,RS,transparencia_prefeitura,https://webapp1-garruchos.cidade360.cloud/pronimtb/,pronim (govbr),2026-10-08
 4308706,Gaurama,RS,prefeitura,https://gaurama.rs.gov.br/site/,,2026-10-08
@@ -12161,9 +12335,11 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 4311627,Lindolfo Collor,RS,camara,https://lindolfocollor.rs.leg.br/,,2026-10-08
 4311627,Lindolfo Collor,RS,prefeitura,https://www.lindolfocollor.rs.gov.br/,,2026-10-08
 4311627,Lindolfo Collor,RS,transparencia_camara,https://multi24h.lindolfocollor.rs.gov.br/multi24/sistemas/transparencia/?entidade=4,multi24,2026-10-08
+4311627,Lindolfo Collor,RS,transparencia_prefeitura,https://www.lindolfocollor.rs.gov.br/portal-da-transparencia,,2026-10-08
 4311643,Linha Nova,RS,camara,https://www.camaralinhanova.rs.gov.br/web/,,2026-10-08
 4311643,Linha Nova,RS,prefeitura,https://www.linhanova.rs.gov.br/,,2026-10-08
 4311643,Linha Nova,RS,transparencia_camara,https://linhanova.cittaweb.com.br/citta/#/transparencia,cittaweb,2026-10-08
+4311643,Linha Nova,RS,transparencia_prefeitura,https://www.linhanova.rs.gov.br/portal-da-transparencia,,2026-10-08
 4311700,Machadinho,RS,camara,https://www.machadinho.rs.leg.br,,2026-10-08
 4311700,Machadinho,RS,transparencia_camara,https://www.machadinho.rs.leg.br/transparencia,,2026-10-08
 4311734,Mampituba,RS,camara,https://www.mampituba.rs.leg.br/,,2026-10-08
@@ -12209,6 +12385,7 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 4312377,Monte Alegre dos Campos,RS,camara,https://camaramontealegredoscampos.rs.gov.br/,,2026-10-08
 4312377,Monte Alegre dos Campos,RS,prefeitura,https://www.montealegredoscampos.rs.gov.br/,,2026-10-08
 4312377,Monte Alegre dos Campos,RS,transparencia_camara,https://camaramontealegredoscampos.rs.gov.br/contas-publicas,,2026-10-08
+4312377,Monte Alegre dos Campos,RS,transparencia_prefeitura,https://www.montealegredoscampos.rs.gov.br/portal-da-transparencia,,2026-10-08
 4312385,Monte Belo do Sul,RS,camara,https://www.montebelodosul.rs.leg.br,,2026-10-08
 4312385,Monte Belo do Sul,RS,transparencia_camara,https://montebelodosul.multi24h.com.br/multi24/sistemas/transparencia/,multi24,2026-10-08
 4312401,Montenegro,RS,camara,https://www.montenegro.rs.leg.br,,2026-10-08
@@ -12219,6 +12396,7 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 4312427,Mormaço,RS,camara,https://www.camaramormaco.rs.gov.br/,,2026-10-08
 4312427,Mormaço,RS,prefeitura,https://www.mormaco.rs.gov.br/,,2026-10-08
 4312427,Mormaço,RS,transparencia_camara,https://sim.digifred.net.br/cmmormaco/camara/camara,digifred,2026-10-08
+4312427,Mormaço,RS,transparencia_prefeitura,https://www.mormaco.rs.gov.br/transparencia/,,2026-10-08
 4312443,Morrinhos do Sul,RS,camara,https://www.morrinhosdosul.rs.leg.br,,2026-10-08
 4312443,Morrinhos do Sul,RS,transparencia_camara,https://e-gov.betha.com.br/transparencia/01037-132/recursos.faces?mun=iCifLeusXr4=,betha,2026-10-08
 4312450,Morro Redondo,RS,camara,https://camaramorroredondo.rs.gov.br/,,2026-10-08
@@ -12247,6 +12425,7 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 4312807,Nova Araçá,RS,camara,https://camaranovaaraca.rs.gov.br/,,2026-10-08
 4312807,Nova Araçá,RS,prefeitura,https://www.novaaraca.rs.gov.br/,,2026-10-08
 4312807,Nova Araçá,RS,transparencia_camara,https://novaaraca.cittaweb.com.br/citta/#/transparencia,cittaweb,2026-10-08
+4312807,Nova Araçá,RS,transparencia_prefeitura,https://www.novaaraca.rs.gov.br/portal-da-transparencia,,2026-10-08
 4312906,Nova Bassano,RS,camara,https://www.novabassano.rs.leg.br,,2026-10-08
 4312906,Nova Bassano,RS,sapl,https://sapl.novabassano.rs.leg.br/,sapl,2026-10-08
 4312906,Nova Bassano,RS,transparencia_camara,https://www.novabassano.rs.leg.br/transparencia/portal-da-transparencia,,2026-10-08
@@ -12370,9 +12549,11 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 4315131,Pouso Novo,RS,transparencia_camara,https://www.camarapousonovo.rs.gov.br/transparencia-municipes-podem-acompanhar-as-sessoes-ao-vivo-pelo-facebook/,,2026-10-08
 4315131,Pouso Novo,RS,transparencia_prefeitura,https://multi24.pousonovo.rs.gov.br/multi24/sistemas/transparencia/,multi24,2026-10-08
 4314753,Poço das Antas,RS,prefeitura,https://www.pocodasantas.rs.gov.br/,,2026-10-08
+4314753,Poço das Antas,RS,transparencia_prefeitura,https://sistemas.pocodasantas.rs.gov.br/multi24/sistemas/transparencia/,multi24,2026-10-08
 4315149,Presidente Lucena,RS,camara,https://camarapresidentelucena.rs.gov.br/,,2026-10-08
 4315149,Presidente Lucena,RS,prefeitura,https://www.presidentelucena.rs.gov.br/,,2026-10-08
 4315149,Presidente Lucena,RS,transparencia_camara,https://presidentelucena.multi24h.com.br/multi24/sistemas/transparencia/index?secao=bem_vindo,multi24,2026-10-08
+4315149,Presidente Lucena,RS,transparencia_prefeitura,https://www.presidentelucena.rs.gov.br/portal-da-transparencia,,2026-10-08
 4315156,Progresso,RS,camara,https://progresso.rs.leg.br/,,2026-10-08
 4315156,Progresso,RS,prefeitura,https://progresso.rs.gov.br/,,2026-10-08
 4315156,Progresso,RS,transparencia_camara,https://progresso.rs.leg.br/transparencia,,2026-10-08
@@ -12446,6 +12627,7 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 4316956,Santa Maria do Herval,RS,camara,https://www.santamariadoherval.rs.leg.br,,2026-10-08
 4316956,Santa Maria do Herval,RS,prefeitura,https://www.santamariadoherval.rs.gov.br/,,2026-10-08
 4316956,Santa Maria do Herval,RS,transparencia_camara,https://transparencia.santamariadoherval.rs.gov.br/multi24/sistemas/transparencia/,multi24,2026-10-08
+4316956,Santa Maria do Herval,RS,transparencia_prefeitura,https://www.santamariadoherval.rs.gov.br/portal-da-transparencia,,2026-10-08
 4317202,Santa Rosa,RS,prefeitura,https://prefeitura.santarosa.rs.gov.br/,,2026-10-08
 4317202,Santa Rosa,RS,transparencia_prefeitura,https://prefeitura.santarosa.rs.gov.br/?page_id=2463,,2026-10-08
 4317301,Santa Vitória do Palmar,RS,prefeitura,https://santavitoriadopalmar.rs.gov.br/,,2026-10-08
@@ -12462,6 +12644,7 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 4317806,Santo Augusto,RS,prefeitura,https://santoaugusto.rs.gov.br/,,2026-10-08
 4317806,Santo Augusto,RS,sapl,https://sapl.santoaugusto.rs.leg.br/,sapl,2026-10-08
 4317806,Santo Augusto,RS,transparencia_camara,https://www.santoaugusto.rs.leg.br/transparencia,,2026-10-08
+4317806,Santo Augusto,RS,transparencia_prefeitura,https://santoaugusto.rs.gov.br/transparencia/,,2026-10-08
 4317954,Santo Expedito do Sul,RS,camara,https://camarasantoexpeditodosul.rs.gov.br/,,2026-10-08
 4317954,Santo Expedito do Sul,RS,prefeitura,https://santoexpeditodosul.rs.gov.br/,,2026-10-08
 4317954,Santo Expedito do Sul,RS,transparencia_camara,http://sistema.sinsoft.com.br/portal.camara.santoexpeditodosul-rs/Legislativo.aspx,,2026-10-08
@@ -12479,6 +12662,7 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 4320354,Sentinela do Sul,RS,camara,https://www.sentineladosul.rs.leg.br,,2026-10-08
 4320354,Sentinela do Sul,RS,prefeitura,https://www.sentineladosul.rs.gov.br/,,2026-10-08
 4320354,Sentinela do Sul,RS,transparencia_camara,https://www.sentineladosul.rs.leg.br/transparencia/contabilidade,,2026-10-08
+4320354,Sentinela do Sul,RS,transparencia_prefeitura,https://www.sentineladosul.rs.gov.br/portal-da-transparencia,,2026-10-08
 4320404,Serafina Corrêa,RS,camara,https://www.serafinacorrea.rs.leg.br,,2026-10-08
 4320404,Serafina Corrêa,RS,sapl,https://sapl.serafinacorrea.rs.leg.br/,sapl,2026-10-08
 4320404,Serafina Corrêa,RS,transparencia_camara,https://sistemas.serafinacorrea.rs.gov.br/transparenciacm/,,2026-10-08
@@ -12517,6 +12701,7 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 4318200,São Francisco de Paula,RS,prefeitura,https://www.saofranciscodepaula.rs.gov.br/,,2026-10-08
 4318200,São Francisco de Paula,RS,transparencia_prefeitura,https://grp.saofranciscodepaula.rs.gov.br/transparencia/portal/#/,,2026-10-08
 4318309,São Gabriel,RS,prefeitura,https://www.saogabriel.rs.gov.br/,,2026-10-08
+4318309,São Gabriel,RS,transparencia_prefeitura,https://www.saogabriel.rs.gov.br/portal-da-transparencia,,2026-10-08
 4318408,São Jerônimo,RS,camara,https://www.saojeronimo.rs.leg.br,,2026-10-08
 4318408,São Jerônimo,RS,sapl,https://sapl.saojeronimo.rs.leg.br/,sapl,2026-10-08
 4318408,São Jerônimo,RS,transparencia_camara,https://www.saojeronimo.rs.leg.br/transparencia,,2026-10-08
@@ -12529,7 +12714,9 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 4318481,São José do Hortêncio,RS,camara,https://www.camarasaojosedohortencio.rs.gov.br/site/,,2026-10-08
 4318481,São José do Hortêncio,RS,prefeitura,https://saojosedohortencio.rs.gov.br/,,2026-10-08
 4318481,São José do Hortêncio,RS,transparencia_camara,http://portal.saojosedohortencio.rs.gov.br/multi24/sistemas/transparencia/,multi24,2026-10-08
+4318481,São José do Hortêncio,RS,transparencia_prefeitura,https://saojosedohortencio.rs.gov.br/portal-da-transparencia,,2026-10-08
 4318507,São José do Norte,RS,prefeitura,https://www.saojosedonorte.rs.gov.br/,,2026-10-08
+4318507,São José do Norte,RS,transparencia_prefeitura,https://www.saojosedonorte.rs.gov.br/portal-da-transparencia,,2026-10-08
 4318606,São José do Ouro,RS,camara,https://www.saojosedoouro.rs.leg.br/,,2026-10-08
 4318606,São José do Ouro,RS,prefeitura,https://saojosedoouro.rs.gov.br/,,2026-10-08
 4318606,São José do Ouro,RS,sapl,https://sapl.saojosedoouro.rs.leg.br/,sapl,2026-10-08
@@ -12549,6 +12736,7 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 4318804,São Lourenço do Sul,RS,prefeitura,https://www.saolourencodosul.rs.gov.br/,,2026-10-08
 4318804,São Lourenço do Sul,RS,transparencia_prefeitura,https://webapp1-saolourencodosul.cidade360.cloud/pronimtb/,pronim (govbr),2026-10-08
 4319000,São Marcos,RS,prefeitura,https://www.saomarcos.rs.gov.br/,,2026-10-08
+4319000,São Marcos,RS,transparencia_prefeitura,https://www.saomarcos.rs.gov.br/portal-da-transparencia,,2026-10-08
 4319125,São Martinho da Serra,RS,prefeitura,https://saomartinhodaserra.rs.gov.br/,,2026-10-08
 4319125,São Martinho da Serra,RS,transparencia_prefeitura,https://saomartinhodaserra.rs.gov.br/portal-da-transparencia,,2026-10-08
 4319307,São Paulo das Missões,RS,camara,https://www.saopaulodasmissoes.rs.leg.br,,2026-10-08
@@ -12571,6 +12759,7 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 4319711,São Valentim do Sul,RS,camara,https://www.saovalentimdosul.rs.leg.br,,2026-10-08
 4319711,São Valentim do Sul,RS,prefeitura,https://www.saovalentimdosul.rs.gov.br/,,2026-10-08
 4319711,São Valentim do Sul,RS,transparencia_camara,https://www.saovalentimdosul.rs.leg.br/transparencia,,2026-10-08
+4319711,São Valentim do Sul,RS,transparencia_prefeitura,https://www.saovalentimdosul.rs.gov.br/portal-da-transparencia,,2026-10-08
 4319752,São Vendelino,RS,camara,https://camarasaovendelino.rs.gov.br/,,2026-10-08
 4319752,São Vendelino,RS,prefeitura,https://www.saovendelino.rs.gov.br/site/,,2026-10-08
 4319752,São Vendelino,RS,transparencia_camara,http://servicos.saovendelino.rs.gov.br:8080/multi24/sistemas/transparencia/,multi24,2026-10-08
@@ -12642,6 +12831,7 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 4322350,União da Serra,RS,prefeitura,https://www.uniaodaserra.rs.gov.br/,,2026-10-08
 4322350,União da Serra,RS,sapl,https://sapl.uniaodaserra.rs.leg.br/,sapl,2026-10-08
 4322350,União da Serra,RS,transparencia_camara,https://uniaodaserra.cittaweb.com.br/citta/#/transparencia,cittaweb,2026-10-08
+4322350,União da Serra,RS,transparencia_prefeitura,https://www.uniaodaserra.rs.gov.br/portal-da-transparencia,,2026-10-08
 4322400,Uruguaiana,RS,camara,https://www.uruguaiana.rs.leg.br,,2026-10-08
 4322400,Uruguaiana,RS,prefeitura,https://www.uruguaiana.rs.gov.br/,,2026-10-08
 4322400,Uruguaiana,RS,sapl,https://sapl.uruguaiana.rs.leg.br/,sapl,2026-10-08
@@ -12688,6 +12878,7 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 4323309,Vila Flores,RS,prefeitura,https://www.vilaflores.rs.gov.br/,,2026-10-08
 4323309,Vila Flores,RS,sapl,https://sapl.vilaflores.rs.leg.br/,sapl,2026-10-08
 4323309,Vila Flores,RS,transparencia_camara,https://www.vilaflores.rs.leg.br/transparencia,,2026-10-08
+4323309,Vila Flores,RS,transparencia_prefeitura,https://www.vilaflores.rs.gov.br/portal-da-transparencia,,2026-10-08
 4323358,Vila Lângaro,RS,camara,https://www.camaravilalangaro.rs.gov.br/,,2026-10-08
 4323358,Vila Lângaro,RS,prefeitura,https://vilalangaro.rs.gov.br/,,2026-10-08
 4323358,Vila Lângaro,RS,transparencia_camara,http://sistema.sinsoft.com.br/portal.camara.vilalangaro-rs/Legislativo.aspx,,2026-10-08
@@ -12892,13 +13083,16 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 4200606,Águas Mornas,SC,camara,https://www.camaraaguasmornas.sc.gov.br/,,2026-10-08
 4200606,Águas Mornas,SC,transparencia_camara,http://e-gov.betha.com.br/transparencia/01030-010/con_gastodiretoporprojeto.faces?mun=zkvaYesxR7D_G50BTy42RDxAG4vb5jDd,betha,2026-10-08
 2800100,Amparo do São Francisco,SE,prefeitura,https://amparodosaofrancisco.se.gov.br/,,2026-10-08
+2800100,Amparo do São Francisco,SE,transparencia_prefeitura,https://amparodosaofrancisco.se.gov.br/portal-da-transparencia,,2026-10-08
 2800209,Aquidabã,SE,camara,https://camaradeaquidaba.se.gov.br/portal,,2026-10-08
 2800209,Aquidabã,SE,prefeitura,https://aquidaba.se.gov.br/,,2026-10-08
 2800209,Aquidabã,SE,transparencia_prefeitura,https://aquidaba.se.gov.br/portaltransparencia,,2026-10-08
 2800308,Aracaju,SE,camara,https://www.aracaju.se.leg.br,,2026-10-08
 2800308,Aracaju,SE,prefeitura,https://www.aracaju.se.gov.br/,,2026-10-08
 2800308,Aracaju,SE,transparencia_camara,https://www.aracaju.se.leg.br/transparencia,,2026-10-08
+2800308,Aracaju,SE,transparencia_prefeitura,https://transparencia.aracaju.se.gov.br/prefeitura/,,2026-10-08
 2800407,Arauá,SE,prefeitura,https://araua.se.gov.br/,,2026-10-08
+2800407,Arauá,SE,transparencia_prefeitura,https://araua.se.gov.br/portal-da-transparencia-federal/,,2026-10-08
 2800506,Areia Branca,SE,prefeitura,https://areiabranca.se.gov.br/,,2026-10-08
 2800506,Areia Branca,SE,transparencia_prefeitura,https://areiabranca.se.gov.br/portal-da-transparencia,,2026-10-08
 2800605,Barra dos Coqueiros,SE,camara,https://cmbarradoscoqueiros.se.gov.br/,,2026-10-08
@@ -12910,6 +13104,7 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 2800670,Boquim,SE,transparencia_camara,https://camaraboquim.se.gov.br/portal,,2026-10-08
 2800670,Boquim,SE,transparencia_prefeitura,https://boquim.se.gov.br/portal,,2026-10-08
 2800704,Brejo Grande,SE,prefeitura,https://brejogrande.se.gov.br/,,2026-10-08
+2800704,Brejo Grande,SE,transparencia_prefeitura,https://brejogrande.se.gov.br/2017/02/06/portal-da-transparencia/,,2026-10-08
 2801009,Campo do Brito,SE,prefeitura,https://campodobrito.se.gov.br/,,2026-10-08
 2801009,Campo do Brito,SE,transparencia_prefeitura,https://campodobrito.se.gov.br/portaltransparencia,,2026-10-08
 2801108,Canhoba,SE,prefeitura,https://canhoba.se.gov.br/,,2026-10-08
@@ -12953,15 +13148,18 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 2802809,Indiaroba,SE,camara,https://cmindiaroba.se.gov.br/,,2026-10-08
 2802809,Indiaroba,SE,prefeitura,https://indiaroba.se.gov.br/,,2026-10-08
 2802809,Indiaroba,SE,transparencia_camara,https://cmindiaroba.se.gov.br/portaltransparencia,,2026-10-08
+2802809,Indiaroba,SE,transparencia_prefeitura,https://indiaroba.se.gov.br/transparencia/,,2026-10-08
 2802908,Itabaiana,SE,camara,https://cmitabaiana.se.gov.br/,,2026-10-08
 2802908,Itabaiana,SE,prefeitura,https://itabaiana.se.gov.br/,,2026-10-08
 2802908,Itabaiana,SE,transparencia_camara,https://cmitabaiana.se.gov.br/portal-da-transparencia,,2026-10-08
 2802908,Itabaiana,SE,transparencia_prefeitura,https://itabaiana.se.gov.br/portal-da-transparencia,,2026-10-08
 2803005,Itabaianinha,SE,prefeitura,https://itabaianinha.se.gov.br/,,2026-10-08
+2803005,Itabaianinha,SE,transparencia_prefeitura,https://itabaianinha.se.gov.br/portal-da-transparencia,,2026-10-08
 2803104,Itabi,SE,camara,https://cmitabi.se.gov.br/portal,,2026-10-08
 2803104,Itabi,SE,prefeitura,https://itabi.se.gov.br/site,,2026-10-08
 2803104,Itabi,SE,transparencia_prefeitura,https://itabi.se.gov.br/portal/?alias=pmitabi,,2026-10-08
 2803302,Japaratuba,SE,prefeitura,https://japaratuba.se.gov.br/,,2026-10-08
+2803302,Japaratuba,SE,transparencia_prefeitura,https://japaratuba.se.gov.br/portal-da-transparencia-federal/,,2026-10-08
 2803401,Japoatã,SE,prefeitura,https://japoata.se.gov.br/site,,2026-10-08
 2803401,Japoatã,SE,transparencia_prefeitura,https://japoata.se.gov.br/portal,,2026-10-08
 2803500,Lagarto,SE,camara,https://www.lagarto.se.leg.br,,2026-10-08
@@ -12972,12 +13170,14 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 2803609,Laranjeiras,SE,prefeitura,https://laranjeiras.se.gov.br/,,2026-10-08
 2803609,Laranjeiras,SE,transparencia_prefeitura,https://transparencia.laranjeiras.se.gov.br/portal/?alias=pmlaranjeiras,,2026-10-08
 2803708,Macambira,SE,prefeitura,https://macambira.se.gov.br/,,2026-10-08
+2803708,Macambira,SE,transparencia_prefeitura,https://macambira.se.gov.br/portal-da-transparencia,,2026-10-08
 2803807,Malhada dos Bois,SE,prefeitura,https://malhadadosbois.se.gov.br/portal,,2026-10-08
 2803906,Malhador,SE,prefeitura,https://malhador.se.gov.br/,,2026-10-08
 2803906,Malhador,SE,transparencia_prefeitura,https://malhador.se.gov.br/portal-da-transparencia,,2026-10-08
 2804003,Maruim,SE,camara,https://www.camaramaruim.se.gov.br/,,2026-10-08
 2804003,Maruim,SE,prefeitura,https://maruim.se.gov.br/,,2026-10-08
 2804003,Maruim,SE,transparencia_camara,https://www.camaramaruim.se.gov.br/transparencia,,2026-10-08
+2804003,Maruim,SE,transparencia_prefeitura,https://maruim.se.gov.br/portal-da-transparencia,,2026-10-08
 2804102,Moita Bonita,SE,prefeitura,https://moitabonita.se.gov.br/,,2026-10-08
 2804102,Moita Bonita,SE,transparencia_prefeitura,https://moitabonita.se.gov.br/portaltransparencia,,2026-10-08
 2804300,Muribeca,SE,camara,https://camaramuribeca.se.gov.br/,,2026-10-08
@@ -12995,17 +13195,22 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 2804904,Pacatuba,SE,prefeitura,https://pacatuba.se.gov.br/,,2026-10-08
 2804904,Pacatuba,SE,transparencia_prefeitura,https://pacatuba.se.gov.br/portaltransparencia,,2026-10-08
 2805000,Pedra Mole,SE,prefeitura,https://pedramole.se.gov.br/,,2026-10-08
+2805000,Pedra Mole,SE,transparencia_prefeitura,https://pedramole.se.gov.br/transparencia/,,2026-10-08
 2805109,Pedrinhas,SE,camara,https://cmpedrinhas.se.gov.br/,,2026-10-08
 2805109,Pedrinhas,SE,prefeitura,https://pedrinhas.se.gov.br/,,2026-10-08
 2805109,Pedrinhas,SE,transparencia_camara,https://cmpedrinhas.se.gov.br/?p=transparencia,,2026-10-08
+2805109,Pedrinhas,SE,transparencia_prefeitura,https://pedrinhas.se.gov.br/portal-da-transparencia,,2026-10-08
 2805208,Pinhão,SE,prefeitura,https://pinhao.se.gov.br/,,2026-10-08
+2805208,Pinhão,SE,transparencia_prefeitura,https://pinhao.se.gov.br/transparencia/,,2026-10-08
 2805307,Pirambu,SE,camara,https://www.camaradepirambu.se.gov.br,,2026-10-08
 2805307,Pirambu,SE,prefeitura,https://pirambu.se.gov.br/,,2026-10-08
 2805307,Pirambu,SE,transparencia_camara,https://www.camaradepirambu.se.gov.br/portaltransparencia,,2026-10-08
+2805307,Pirambu,SE,transparencia_prefeitura,https://pirambu.se.gov.br/portal-da-transparencia-federal/,,2026-10-08
 2805604,Porto da Folha,SE,prefeitura,https://portodafolha.se.gov.br/site,,2026-10-08
 2805604,Porto da Folha,SE,transparencia_prefeitura,https://portodafolha.se.gov.br/portal,,2026-10-08
 2805406,Poço Redondo,SE,camara,https://camarapocoredondo.se.gov.br/portal,,2026-10-08
 2805406,Poço Redondo,SE,prefeitura,https://pocoredondo.se.gov.br/,,2026-10-08
+2805406,Poço Redondo,SE,transparencia_prefeitura,https://pocoredondo.se.gov.br/portal-da-transparencia-municipal/,,2026-10-08
 2805505,Poço Verde,SE,camara,https://www.camarapocoverde.se.gov.br,,2026-10-08
 2805505,Poço Verde,SE,prefeitura,https://pocoverde.se.gov.br/,,2026-10-08
 2805505,Poço Verde,SE,transparencia_camara,https://www.camarapocoverde.se.gov.br/portaltransparencia,,2026-10-08
@@ -13023,6 +13228,7 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 2806008,Ribeirópolis,SE,prefeitura,https://www.ribeiropolis.se.gov.br/,,2026-10-08
 2806008,Ribeirópolis,SE,transparencia_prefeitura,https://transparencia.ribeiropolis.se.gov.br/,,2026-10-08
 2806107,Rosário do Catete,SE,prefeitura,https://rosariodocatete.se.gov.br/,,2026-10-08
+2806107,Rosário do Catete,SE,transparencia_prefeitura,https://rosariodocatete.se.gov.br/portal-da-transparencia,,2026-10-08
 2806206,Salgado,SE,camara,https://camarasalgado.se.gov.br/,,2026-10-08
 2806206,Salgado,SE,prefeitura,https://salgado.se.gov.br/,,2026-10-08
 2806206,Salgado,SE,transparencia_camara,https://camarasalgado.se.gov.br/portaltransparencia,,2026-10-08
@@ -13036,7 +13242,9 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 2807204,Siriri,SE,camara,https://camarasiriri.se.gov.br/,,2026-10-08
 2807204,Siriri,SE,prefeitura,https://siriri.se.gov.br/,,2026-10-08
 2807204,Siriri,SE,transparencia_camara,https://camarasiriri.se.gov.br/portaltransparencia,,2026-10-08
+2807204,Siriri,SE,transparencia_prefeitura,https://siriri.se.gov.br/portal-da-transparencia,,2026-10-08
 2806701,São Cristóvão,SE,prefeitura,https://saocristovao.se.gov.br/,,2026-10-08
+2806701,São Cristóvão,SE,transparencia_prefeitura,https://transparencia.saocristovao.se.gov.br/,,2026-10-08
 2806800,São Domingos,SE,camara,https://cmsaodomingos.se.gov.br/,,2026-10-08
 2806800,São Domingos,SE,prefeitura,https://saodomingos.se.gov.br/,,2026-10-08
 2806800,São Domingos,SE,transparencia_camara,https://cmsaodomingos.se.gov.br/portaltransparencia,,2026-10-08
@@ -13094,6 +13302,7 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 3501707,Américo Brasiliense,SP,prefeitura,https://americobrasiliense.atende.net/,,2026-10-08
 3501707,Américo Brasiliense,SP,sapl,https://sapl.americobrasiliense.sp.leg.br/,sapl,2026-10-08
 3501707,Américo Brasiliense,SP,transparencia_camara,https://www.americobrasiliense.sp.leg.br/transparencia,,2026-10-08
+3501707,Américo Brasiliense,SP,transparencia_prefeitura,https://americobrasiliense.atende.net/transparencia,ipm,2026-10-08
 3501806,Américo de Campos,SP,camara,https://americodecampos.sp.leg.br/,,2026-10-08
 3501806,Américo de Campos,SP,prefeitura,https://www.americodecampos.sp.gov.br/,,2026-10-08
 3501806,Américo de Campos,SP,transparencia_camara,http://45.177.240.40:5656/transparenciaCAMARA,,2026-10-08
@@ -13175,6 +13384,8 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 3504404,Avanhandava,SP,transparencia_prefeitura,http://45.71.14.83:8079/transparencia,,2026-10-08
 3504503,Avaré,SP,camara,https://camaraavare.sp.gov.br/,,2026-10-08
 3504503,Avaré,SP,prefeitura,https://avare.sp.gov.br/,,2026-10-08
+3504503,Avaré,SP,transparencia_camara,https://scpi.avare.sp.gov.br/transparenciacamara/,fiorilli,2026-10-08
+3504503,Avaré,SP,transparencia_prefeitura,https://transparencia.avare.sp.gov.br/,,2026-10-08
 3504305,Avaí,SP,camara,https://camaraavai.sp.gov.br/,,2026-10-08
 3504305,Avaí,SP,prefeitura,https://www.avai.sp.gov.br/,,2026-10-08
 3504305,Avaí,SP,transparencia_camara,http://170.238.88.61:8079/transparenciacamara/,,2026-10-08
@@ -13214,6 +13425,7 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 3505500,Barretos,SP,prefeitura,https://www.barretos.sp.gov.br/,,2026-10-08
 3505500,Barretos,SP,sapl,https://sapl.barretos.sp.leg.br/,sapl,2026-10-08
 3505500,Barretos,SP,transparencia_camara,https://www.barretos.sp.leg.br/transparencia,,2026-10-08
+3505500,Barretos,SP,transparencia_prefeitura,https://transparencia.barretos.sp.gov.br/,,2026-10-08
 3505609,Barrinha,SP,camara,https://www.barrinha.sp.leg.br,,2026-10-08
 3505609,Barrinha,SP,prefeitura,https://portal.barrinha.sp.gov.br/,,2026-10-08
 3505609,Barrinha,SP,sapl,https://sapl.barrinha.sp.leg.br/,sapl,2026-10-08
@@ -13498,6 +13710,7 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 3514502,Duartina,SP,transparencia_camara,http://186.224.0.34:8079/transparenciacamara/,,2026-10-08
 3514502,Duartina,SP,transparencia_prefeitura,http://transparencia.duartina.sp.gov.br:8079/Transparencia/,,2026-10-08
 3514601,Dumont,SP,camara,https://camaradumont.sp.gov.br/,,2026-10-08
+3514601,Dumont,SP,transparencia_camara,https://camaradumont.sp.gov.br/transparencia,,2026-10-08
 3514700,Echaporã,SP,camara,https://camaraechapora.sp.gov.br/,,2026-10-08
 3514700,Echaporã,SP,prefeitura,https://echapora.sp.gov.br/,,2026-10-08
 3514700,Echaporã,SP,transparencia_camara,https://webapp1-echapora.cidade360.cloud/pronimtb_CM/,pronim (govbr),2026-10-08
@@ -14383,6 +14596,7 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 3541307,Presidente Epitácio,SP,transparencia_camara,https://webapp1-presidenteepitacio.cidade360.cloud/pronimtb_cm/,pronim (govbr),2026-10-08
 3541307,Presidente Epitácio,SP,transparencia_prefeitura,https://webapp1-presidenteepitacio.cidade360.cloud/pronimtb/,pronim (govbr),2026-10-08
 3541406,Presidente Prudente,SP,prefeitura,https://presidenteprudente.sp.gov.br/,,2026-10-08
+3541406,Presidente Prudente,SP,transparencia_prefeitura,https://presidenteprudente.sp.gov.br/transparencia/,,2026-10-08
 3541505,Presidente Venceslau,SP,prefeitura,https://www.presidentevenceslau.sp.gov.br/pagina/principal,,2026-10-08
 3541505,Presidente Venceslau,SP,transparencia_prefeitura,https://www.presidentevenceslau.sp.gov.br/transparencia/portal-transparencia,,2026-10-08
 3541604,Promissão,SP,camara,https://www.camarapromissao.sp.gov.br/,,2026-10-08
@@ -14414,6 +14628,7 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 3542206,Rancharia,SP,transparencia_prefeitura,https://transparencia-prefeitura.rancharia.sp.gov.br/transparencia/,,2026-10-08
 3542404,Regente Feijó,SP,camara,https://camararegentefeijo.sp.gov.br/,,2026-10-08
 3542404,Regente Feijó,SP,prefeitura,https://www.regentefeijo.sp.gov.br/,,2026-10-08
+3542404,Regente Feijó,SP,transparencia_camara,https://camararegentefeijo.sp.gov.br/portal-da-transparencia/,,2026-10-08
 3542404,Regente Feijó,SP,transparencia_prefeitura,http://webapp1-regentefeijo.cidade360.cloud/pronimtb/,pronim (govbr),2026-10-08
 3542503,Reginópolis,SP,camara,https://camarareginopolis.sp.gov.br/,,2026-10-08
 3542503,Reginópolis,SP,transparencia_camara,http://transparencia.reginopolis.sp.gov.br:8079/transparenciacamara/#,,2026-10-08
@@ -14558,6 +14773,7 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 3547700,Santo Anastácio,SP,prefeitura,https://www.santoanastacio.sp.gov.br/,,2026-10-08
 3547700,Santo Anastácio,SP,transparencia_prefeitura,https://transparencia.santoanastacio.sp.gov.br/transparencia/,,2026-10-08
 3547809,Santo André,SP,prefeitura,https://www.santoandre.sp.gov.br/,,2026-10-08
+3547809,Santo André,SP,transparencia_prefeitura,https://web.santoandre.sp.gov.br/transparencia,,2026-10-08
 3547908,Santo Antônio da Alegria,SP,camara,https://santoantoniodaalegria.sp.leg.br/,,2026-10-08
 3547908,Santo Antônio da Alegria,SP,prefeitura,https://santoantoniodaalegria.sp.gov.br/site/,,2026-10-08
 3547908,Santo Antônio da Alegria,SP,sapl,https://sapl.santoantoniodaalegria.sp.leg.br/,sapl,2026-10-08
@@ -14609,6 +14825,7 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 3552403,Sumaré,SP,camara,https://camarasumare.sp.gov.br/,,2026-10-08
 3552403,Sumaré,SP,prefeitura,https://www.sumare.sp.gov.br/,,2026-10-08
 3552403,Sumaré,SP,transparencia_camara,https://gpmodsumare.citynex.com.br/GPMODSMR/f?p=190:1:::::p0_fkeentidade:1,,2026-10-08
+3552403,Sumaré,SP,transparencia_prefeitura,https://www.sumare.sp.gov.br/transparencia,,2026-10-08
 3552502,Suzano,SP,camara,https://www.camarasuzano.sp.gov.br/,,2026-10-08
 3552502,Suzano,SP,transparencia_camara,https://www.camarasuzano.sp.gov.br/category/acesso-a-informacao/,,2026-10-08
 3548609,São Bento do Sapucaí,SP,prefeitura,https://saobentodosapucai.sp.gov.br/,,2026-10-08
@@ -14911,6 +15128,7 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 1702406,Arraias,TO,camara,https://arraias.to.leg.br/,,2026-10-08
 1702406,Arraias,TO,prefeitura,https://arraias.to.gov.br/,,2026-10-08
 1702406,Arraias,TO,transparencia_camara,https://arraias.to.leg.br/transparencia/,,2026-10-08
+1702406,Arraias,TO,transparencia_prefeitura,https://transparencia.arraias.to.gov.br/,,2026-10-08
 1702554,Augustinópolis,TO,camara,https://augustinopolis.to.leg.br/,,2026-10-08
 1702554,Augustinópolis,TO,prefeitura,https://augustinopolis.to.gov.br/,,2026-10-08
 1702554,Augustinópolis,TO,transparencia_camara,https://augustinopolis.to.leg.br/transparencia,,2026-10-08
@@ -14986,6 +15204,8 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 1705102,Chapada da Natividade,TO,transparencia_prefeitura,https://chapadadanatividade.to.gov.br/prefeitura/portal-da-transparencia,,2026-10-08
 1704600,Chapada de Areia,TO,camara,https://chapadadeareia.to.leg.br/,,2026-10-08
 1704600,Chapada de Areia,TO,prefeitura,https://chapadadeareia.to.gov.br/,,2026-10-08
+1704600,Chapada de Areia,TO,transparencia_camara,https://chapadadeareia.to.leg.br/transparencia,,2026-10-08
+1704600,Chapada de Areia,TO,transparencia_prefeitura,https://chapadadeareia.to.gov.br/transparencia,,2026-10-08
 1705508,Colinas do Tocantins,TO,camara,https://www.colinasdotocantins.to.leg.br/,,2026-10-08
 1705508,Colinas do Tocantins,TO,transparencia_camara,https://www.colinasdotocantins.to.leg.br/transparencia,,2026-10-08
 1716703,Colméia,TO,camara,https://colmeia.to.leg.br/,,2026-10-08
@@ -14999,6 +15219,7 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 1705607,Conceição do Tocantins,TO,camara,https://conceicaodotocantins.to.leg.br/,,2026-10-08
 1705607,Conceição do Tocantins,TO,prefeitura,https://conceicaodotocantins.to.gov.br/,,2026-10-08
 1705607,Conceição do Tocantins,TO,transparencia_camara,https://conceicaodotocantins.to.leg.br/transparencia,,2026-10-08
+1705607,Conceição do Tocantins,TO,transparencia_prefeitura,https://transparencia.conceicaodotocantins.to.gov.br/,,2026-10-08
 1706001,Couto Magalhães,TO,prefeitura,https://www.coutomagalhaes.to.gov.br/,,2026-10-08
 1706001,Couto Magalhães,TO,transparencia_prefeitura,https://www.coutomagalhaes.to.gov.br/transparencia,,2026-10-08
 1706100,Cristalândia,TO,camara,https://cristalandia.to.leg.br/,,2026-10-08
@@ -15262,6 +15483,7 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 1718758,Rio Sono,TO,camara,https://riosono.to.leg.br/,,2026-10-08
 1718758,Rio Sono,TO,prefeitura,https://riosono.to.gov.br/,,2026-10-08
 1718758,Rio Sono,TO,transparencia_camara,https://riosono.to.leg.br/transparencia,,2026-10-08
+1718758,Rio Sono,TO,transparencia_prefeitura,https://transparencia.riosono.to.gov.br/,,2026-10-08
 1718659,Rio da Conceição,TO,camara,https://www.riodaconceicao.to.leg.br,,2026-10-08
 1718659,Rio da Conceição,TO,prefeitura,https://riodaconceicao.to.gov.br/,,2026-10-08
 1718659,Rio da Conceição,TO,sapl,https://sapl.riodaconceicao.to.leg.br/,sapl,2026-10-08

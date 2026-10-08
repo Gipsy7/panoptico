@@ -8,7 +8,11 @@ Como funciona, para cada cidade:
 2. Lê a página inicial da prefeitura (e da câmara, se achada) e aproveita os links para a
    câmara e para o portal da transparência.
 3. Confere se a página é mesmo daquela cidade (o nome aparece no título ou no texto).
-4. Reconhece o sistema usado: SAPL do Interlegis (pela API) e os fornecedores de portal de
+4. Se nenhum link "transparência" apareceu (menus montados por JavaScript não aparecem no
+   HTML), sonda os endereços mais comuns: `/transparencia`, `/portal-da-transparencia` e o
+   subdomínio `transparencia.{prefeitura}`. Só aceita página com "transparência" no título,
+   porque muitos sites devolvem a página inicial (status 200) para qualquer endereço.
+5. Reconhece o sistema usado: SAPL do Interlegis (pela API) e os fornecedores de portal de
    transparência mais comuns (pelo endereço do link).
 
 Educação com os servidores: poucas conexões ao mesmo tempo, uma por site, identificação
@@ -275,6 +279,22 @@ class Varredura:
             and "results" in resposta.text[:2000]
         )
 
+    async def sondar_portal(self, url_site: str) -> str | None:
+        """Portal da transparência nos endereços mais comuns, quando a página inicial não
+        tem o link no HTML."""
+        host = (urlparse(url_site).hostname or "").removeprefix("www.")
+        base = f"{urlparse(url_site).scheme}://{urlparse(url_site).hostname}"
+        for url in (
+            f"https://transparencia.{host}/",
+            f"{base}/portal-da-transparencia",
+            f"{base}/transparencia",
+            f"{base}/portaltransparencia",
+        ):
+            pagina = await self.pagina(url)
+            if pagina and "transpar" in chave_nome(pagina.titulo).lower():
+                return pagina.url
+        return None
+
     async def primeira(self, urls: list[str], nome: str) -> Pagina | None:
         for url in urls:
             pagina = await self.pagina(url)
@@ -328,7 +348,10 @@ class Varredura:
 
         # Portais da transparência: o melhor link "transparência" dos sites oficiais.
         for origem, pagina in (("prefeitura", prefeitura), ("camara", camara)):
-            if pagina and (portal := melhor_portal(pagina, nome)):
+            if not pagina:
+                continue
+            portal = melhor_portal(pagina, nome) or await self.sondar_portal(pagina.url)
+            if portal:
                 anotar(f"transparencia_{origem}", portal, sistema_de(portal))
         return achados
 
@@ -354,6 +377,39 @@ async def varrer(municipios: list[tuple[str, str, str]], conexoes: int) -> list[
     finally:
         await varredura.fechar()
     return [linha for lista in resultados for linha in lista]
+
+
+async def completar_portais(linhas: list[dict], ufs: list[str] | None, conexoes: int) -> list[dict]:
+    """Sem refazer a varredura: para as cidades do catálogo com site da prefeitura ou da
+    câmara mas sem portal da transparência, sonda os endereços comuns."""
+    tem = {(x["ibge"], x["tipo"]) for x in linhas}
+    pendentes = [
+        x
+        for x in linhas
+        if x["tipo"] in ("prefeitura", "camara")
+        and (x["ibge"], f"transparencia_{x['tipo']}") not in tem
+        and (not ufs or x["uf"] in ufs)
+    ]
+    print(f"Sondando {len(pendentes)} sites sem portal da transparência...")
+    varredura = Varredura(conexoes)
+    hoje = date.today().isoformat()
+
+    async def um(site: dict) -> dict | None:
+        try:
+            portal = await varredura.sondar_portal(site["url"])
+        except Exception:
+            return None
+        if not portal or de_outra_cidade(portal, site["municipio"]):
+            return None
+        return {**site, "tipo": f"transparencia_{site['tipo']}", "url": portal,
+                "sistema": sistema_de(portal) or "", "verificado_em": hoje}  # fmt: skip
+
+    try:
+        novos = [x for x in await asyncio.gather(*(um(p) for p in pendentes)) if x]
+    finally:
+        await varredura.fechar()
+    print(f"Achados: {len(novos)}")
+    return linhas + novos
 
 
 def gravar_catalogo(linhas: list[dict], destino: Path = CATALOGO) -> None:
@@ -384,7 +440,19 @@ if __name__ == "__main__":
     parser.add_argument("--limite", type=int, help="Só as N primeiras cidades (teste)")
     parser.add_argument("--conexoes", type=int, default=24)
     parser.add_argument("--saida", type=Path, default=CATALOGO)
+    parser.add_argument(
+        "--completar",
+        action="store_true",
+        help="Não varre de novo: só sonda o portal da transparência de quem está sem",
+    )
     args = parser.parse_args()
+
+    if args.completar:
+        with CATALOGO.open(encoding="utf-8") as arquivo:
+            atuais = list(csv.DictReader(arquivo))
+        ufs = [u.upper() for u in args.uf] if args.uf else None
+        gravar_catalogo(asyncio.run(completar_portais(atuais, ufs, args.conexoes)), args.saida)
+        raise SystemExit
 
     with SessionLocal() as session:
         consulta = select(Municipio.ibge, Municipio.nome, Municipio.uf).order_by(

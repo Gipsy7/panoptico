@@ -17,6 +17,7 @@ import {
   type EmendasMunicipio,
   type ParlamentarResumo,
   getDeputadosEstaduais,
+  getAssembleia,
   getCamara,
   getCanais,
   getContas,
@@ -69,7 +70,7 @@ async function Lista({ cep, uf, municipio }: Busca) {
   }
 
   const { localizacao, deputados, senadores, atualizado_em } = resultado.dados;
-  const [emendasResultado, vereadoresResultado, estaduaisResultado, executivoResultado, canaisResultado, contasResultado, camaraResultado, fornecedoresResultado] = await Promise.all([
+  const [emendasResultado, vereadoresResultado, estaduaisResultado, executivoResultado, canaisResultado, contasResultado, camaraResultado, fornecedoresResultado, assembleiaResultado] = await Promise.all([
     localizacao.codigo_ibge ? getEmendasMunicipio(localizacao.codigo_ibge) : null,
     localizacao.codigo_ibge ? getVereadores(localizacao.codigo_ibge) : null,
     getDeputadosEstaduais(localizacao.uf),
@@ -78,7 +79,9 @@ async function Lista({ cep, uf, municipio }: Busca) {
     localizacao.codigo_ibge ? getContas(localizacao.codigo_ibge) : null,
     localizacao.codigo_ibge ? getCamara(localizacao.codigo_ibge) : null,
     localizacao.codigo_ibge ? getFornecedores(localizacao.codigo_ibge) : null,
+    getAssembleia(localizacao.uf),
   ]);
+  const assembleia = assembleiaResultado.ok ? assembleiaResultado.dados : null;
   const fornecedores = fornecedoresResultado?.ok ? fornecedoresResultado.dados : null;
   const camara = camaraResultado?.ok ? camaraResultado.dados : null;
   const contas = contasResultado?.ok ? contasResultado.dados : null;
@@ -141,7 +144,7 @@ async function Lista({ cep, uf, municipio }: Busca) {
 
       {emendas && <EmendasMunicipioSecao dados={emendas} />}
 
-      {camara && localizacao.municipio && <CamaraSecao dados={camara} cidade={localizacao.municipio} />}
+      {camara && localizacao.municipio && <CamaraSecao dados={camara} nome={`Câmara de ${localizacao.municipio}`} />}
 
       {vereadores && vereadores.itens.length > 0 && (
         <EleitosSecao
@@ -155,8 +158,13 @@ async function Lista({ cep, uf, municipio }: Busca) {
 
       {localizacao.municipio && <CanaisSecao canais={canais} cidade={localizacao.municipio} />}
 
+      {assembleia && (
+        <CamaraSecao dados={assembleia} casa="assembleia" nome={`Assembleia de ${localizacao.estado}`} />
+      )}
+
       {estaduais && estaduais.itens.length > 0 && (
         <EleitosSecao
+          recolhido={Boolean(assembleia)}
           id="estaduais-titulo"
           titulo={localizacao.uf === "DF" ? "Deputados distritais" : `Deputados estaduais de ${localizacao.estado}`}
           explicacao={`Eleitos em ${estaduais.ano_eleicao} para a ${localizacao.uf === "DF" ? "Câmara Legislativa" : "Assembleia Legislativa"}, segundo o TSE. Quem hoje está em outro cargo aparece indicado.`}

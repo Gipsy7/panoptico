@@ -264,7 +264,10 @@ export type Camara = {
 };
 
 export type VereadorDetalhe = VereadorItem & {
-  municipio_ibge: string;
+  /** "camara" (vereador) ou "assembleia" (deputado estadual). */
+  casa: "camara" | "assembleia";
+  uf: string;
+  municipio_ibge: string | null;
   nome_completo: string | null;
   email: string | null;
   telefone: string | null;
@@ -289,6 +292,10 @@ export type VereadorDetalhe = VereadorItem & {
 
 export function getCamara(ibge: string) {
   return getJson<Camara>(`/municipios/${encodeURIComponent(ibge)}/camara`);
+}
+
+export function getAssembleia(uf: string) {
+  return getJson<Camara>(`/estados/${encodeURIComponent(uf)}/assembleia`);
 }
 
 export function getVereador(id: string) {

@@ -109,6 +109,15 @@ O subsídio é igual para deputados e senadores e é fixado por decreto legislat
 - **Bens:** valor como declarado, sem correção. A página avisa que bens costumam ser declarados pelo valor de compra. Sem palavras como "enriqueceu": mostramos os dois totais e o ano.
 - **2024:** o TSE passou a mascarar o CPF, então as candidaturas municipais de 2024 não se ligam aos parlamentares federais.
 
+## 2026-10-08: assembleias legislativas (SAPL) e portais da transparência
+
+- **Assembleias:** levantamento das 27 casas. Nove usam o SAPL (AC, AL, AM, MT, PB, PI, RO, RR e TO) e entram com o mesmo conector das câmaras: deputados estaduais no cargo hoje (inclusive suplentes que assumiram), partido atual, contato, projetos e proposições do ano atual e do anterior. As outras 18 publicam em sistemas próprios e ficam com a lista de eleitos do TSE até ganharem conector, uma a uma.
+- **Mesma tabela:** os deputados estaduais ficam em `mandato_local` com `casa = "assembleia"` e a UF, sem município. A ligação ao eleito do TSE usa a eleição estadual mais recente, porque o mesmo nome aparece em 2018 e 2022.
+- **Tipo de autor "Parlamentar" no SAPL:** é procurado pelo nome. O id 1 é o mais comum, mas na Assembleia de Roraima o 1 é "Bloco Parlamentar". Com o id fixo, a contagem de projetos vinha zerada nessas instalações (câmaras inclusive).
+- **Propostas de emenda à Constituição estadual** contam como projeto.
+- **Portais da transparência:** quando a página inicial não tem o link no HTML (menus montados por JavaScript), a varredura sonda `transparencia.{domínio}`, `/portal-da-transparencia`, `/transparencia` e `/portaltransparencia`. Só aceita página com "transparência" no título, porque muitos sites devolvem a página inicial para qualquer endereço. Achou 224 portais em 679 sites sem; uma amostra de 12 conferida à mão acertou todos.
+- **Santa Catarina:** o servidor que hospeda a maioria dos sites municipais de SC recusa acesso automatizado (403), qualquer que seja a identificação. Não contornamos o bloqueio; as cidades de SC ficam com o que a varredura conseguiu antes e com correções curadas.
+
 ## 2026-10-08: para quem a cidade pagou (Tribunais de Contas)
 
 - Os portais de transparência dos fornecedores (Betha, CR2, Pronim...) foram feitos para pessoas: o Betha exige reCAPTCHA nas consultas e o CR2 é um app sem API pública. Não contornamos captcha, então o detalhe das despesas vem dos **Tribunais de Contas estaduais**, que recebem os dados de todas as prefeituras e câmaras e publicam em lote.

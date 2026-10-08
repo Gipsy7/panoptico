@@ -349,7 +349,9 @@ class ProjetoLocalItem(BaseModel):
 
 
 class VereadorDetalhe(VereadorItem):
-    municipio_ibge: str
+    casa: str  # "camara" (vereador) ou "assembleia" (deputado estadual)
+    uf: str
+    municipio_ibge: str | None
     nome_completo: str | None
     email: str | None
     telefone: str | None

@@ -30,6 +30,15 @@ def camara_do_municipio(ibge: str, session: Annotated[Session, Depends(get_sessi
     return resultado
 
 
+@router.get("/estados/{uf}/assembleia", response_model=CamaraResposta)
+def assembleia_do_estado(uf: str, session: Annotated[Session, Depends(get_session)]) -> dict:
+    """Deputados estaduais no cargo hoje, segundo a própria assembleia (só onde há conector)."""
+    resultado = camaras.assembleia(session, uf.upper())
+    if resultado is None:
+        raise HTTPException(404, "Sem dados da própria assembleia para este estado.")
+    return resultado
+
+
 @router.get("/vereadores/{mandato_id}", response_model=VereadorDetalhe)
 def vereador(mandato_id: int, session: Annotated[Session, Depends(get_session)]) -> dict:
     mandato = session.get(MandatoLocal, mandato_id)

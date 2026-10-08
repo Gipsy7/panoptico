@@ -17,15 +17,22 @@ from app.models.base import Base
 
 
 class MandatoLocal(Base):
-    """Vereador na legislatura atual de uma câmara municipal, como a própria câmara publica
-    (SAPL do Interlegis): quem está no cargo hoje, titular ou suplente, com o partido atual.
-    Ligado ao eleito do TSE pelo nome quando a correspondência é exata e única."""
+    """Vereador (câmara municipal) ou deputado estadual (assembleia) na legislatura atual,
+    como a própria casa publica (SAPL do Interlegis): quem está no cargo hoje, titular ou
+    suplente, com o partido atual. Ligado ao eleito do TSE pelo nome quando a
+    correspondência é exata e única."""
 
     __tablename__ = "mandato_local"
-    __table_args__ = (UniqueConstraint("municipio_ibge", "id_externo"),)
+    __table_args__ = (
+        UniqueConstraint("municipio_ibge", "id_externo"),
+        Index("ix_mandato_local_casa_uf", "casa", "uf"),
+    )
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    municipio_ibge: Mapped[str] = mapped_column(
+    casa: Mapped[str] = mapped_column(String(12), default="camara", server_default="camara")
+    uf: Mapped[str] = mapped_column(String(2))
+    # Vazio nas assembleias (a casa é do estado inteiro).
+    municipio_ibge: Mapped[str | None] = mapped_column(
         ForeignKey("municipio.ibge", ondelete="CASCADE"), index=True
     )
     id_externo: Mapped[str] = mapped_column(String(20))  # id do parlamentar no SAPL
@@ -59,7 +66,7 @@ class ProjetoLocal(Base):
     )
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    municipio_ibge: Mapped[str] = mapped_column(
+    municipio_ibge: Mapped[str | None] = mapped_column(
         ForeignKey("municipio.ibge", ondelete="CASCADE"), index=True
     )
     mandato_id: Mapped[int] = mapped_column(ForeignKey("mandato_local.id", ondelete="CASCADE"))

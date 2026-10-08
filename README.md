@@ -39,6 +39,7 @@ Os dados sobre o trabalho dos parlamentares já são públicos, mas estão espal
 - **Contas da sua cidade** (SICONFI, Tesouro Nacional): quanto a prefeitura arrecadou e gastou no ano, em que áreas e quanto custou a câmara municipal.
 - **Para quem a cidade pagou** (por enquanto, cidades de SP, pelo TCE-SP): os maiores fornecedores da prefeitura e da câmara no ano.
 - **Câmara municipal hoje** (nas câmaras que usam o SAPL): quem está no cargo agora, inclusive suplentes, com partido atual, contato, projetos e quantos requerimentos, indicações e moções apresentou.
+- **Assembleia legislativa hoje** (nas nove que usam o SAPL: AC, AL, AM, MT, PB, PI, RO, RR e TO): o mesmo para os deputados estaduais, com perfil em `/deputado-estadual/{id}`.
 - **Canais oficiais da sua cidade**: sites da prefeitura e da câmara e os portais da transparência, num catálogo aberto (`data/canais_oficiais.csv`, gerado pela varredura, e `data/canais_curados.csv`, com as correções feitas à mão) que qualquer pessoa pode corrigir por pull request.
 - **Compartilhamento**: perfis e comparações têm imagem de pré-visualização e botão de WhatsApp.
 
@@ -112,7 +113,7 @@ flowchart LR
 | Sites oficiais dos municípios | Varredura dos domínios `.gov.br` e `.leg.br` de cada cidade | Catálogo versionado, revisado por PR |
 | Contas anuais dos municípios | [SICONFI (Tesouro Nacional)](https://siconfi.tesouro.gov.br/) | API, uma consulta por município, mensal |
 | Pagamentos das prefeituras e câmaras por fornecedor (SP) | [TCE-SP](https://transparencia.tce.sp.gov.br/conjunto-de-dados) | Arquivo anual em lote, mensal |
-| Vereadores no cargo e projetos | SAPL (Interlegis) de cada câmara | API, semanal, endereços do catálogo de canais |
+| Vereadores e deputados estaduais no cargo e projetos | SAPL (Interlegis) de cada câmara e de nove assembleias | API, semanal, endereços do catálogo de canais |
 | Municípios | [IBGE](https://servicodados.ibge.gov.br/api/docs/localidades) | API REST |
 | CEP → cidade e estado | [ViaCEP](https://viacep.com.br/) | Consulta na hora, sem gravar |
 | Salário (subsídio) | [Decreto Legislativo nº 172/2022](https://www2.camara.leg.br/legin/fed/decleg/2022/decretolegislativo-172-21-dezembro-2022-793529-publicacaooriginal-166604-pl.html) | Transcrito no código |
@@ -250,7 +251,8 @@ Os testes do backend usam um banco `panoptico_test` (criado pelo `scripts/criar_
 
 ### Próximos passos
 
-- Atividade de vereadores e prefeituras a partir do catálogo de canais oficiais: um conector por sistema (SAPL nas câmaras, fornecedores de portal de transparência), mais SICONFI e Tribunais de Contas
+- Conectores próprios para as 18 assembleias sem SAPL (começando por ALMG e ALESP, que têm dados abertos)
+- Despesas por fornecedor de outros Tribunais de Contas (RS e MG têm dados abertos)
 - Situação na Justiça só com fatos oficiais (cassações e indeferimentos no TSE, processos com número e status), sem nota ou "índice de confiabilidade"
 - Busca por nome que inclua vereadores e deputados estaduais
 - Teste com pessoas reais e auditoria de acessibilidade

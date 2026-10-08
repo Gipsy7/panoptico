@@ -137,3 +137,28 @@ def test_migracoes_atuais_nao_pedem_recarga():
     from ingestion.precisa_recarga import precisa
 
     assert precisa("0014", "0017") is False
+
+
+def test_sonda_de_portal_exige_transparencia_no_titulo(monkeypatch):
+    import asyncio
+
+    paginas = {
+        # Site que devolve a página inicial para qualquer endereço: não serve.
+        "https://x.sp.gov.br/portal-da-transparencia": v.Pagina(
+            "https://x.sp.gov.br/", "Prefeitura de X", "transparência"
+        ),
+        "https://x.sp.gov.br/transparencia": v.Pagina(
+            "https://x.sp.gov.br/transparencia/", "Portal da Transparência - X", ""
+        ),
+    }
+
+    async def pagina(self, url):
+        return paginas.get(url)
+
+    monkeypatch.setattr(v.Varredura, "pagina", pagina)
+    varredura = v.Varredura()
+    try:
+        achado = asyncio.run(varredura.sondar_portal("https://x.sp.gov.br/"))
+    finally:
+        asyncio.run(varredura.fechar())
+    assert achado == "https://x.sp.gov.br/transparencia/"

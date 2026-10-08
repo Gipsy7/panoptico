@@ -4,24 +4,34 @@ import { Iniciais } from "@/components/eleitos-secao";
 import { FonteRodape } from "@/components/fonte-rodape";
 import { type Camara, type VereadorItem, urlFotoTse } from "@/lib/api";
 
-/** Vereadores no cargo hoje, segundo a própria câmara (SAPL). */
-export function CamaraSecao({ dados, cidade }: { dados: Camara; cidade: string }) {
+/** Quem está no cargo hoje, segundo a própria casa (SAPL): câmara municipal ou assembleia. */
+export function CamaraSecao({
+  dados,
+  nome,
+  casa = "camara",
+}: {
+  dados: Camara;
+  /** "Câmara de Blumenau", "Assembleia de Roraima". */
+  nome: string;
+  casa?: "camara" | "assembleia";
+}) {
+  const id = `${casa}-titulo`;
   return (
-    <section aria-labelledby="camara-titulo" className="revelar flex flex-col gap-3">
+    <section aria-labelledby={id} className="revelar flex flex-col gap-3">
       <div>
-        <h2 id="camara-titulo" className="text-2xl">
-          Câmara de {cidade} hoje <span className="text-muted-foreground">({dados.itens.length})</span>
+        <h2 id={id} className="text-2xl">
+          {nome} hoje <span className="text-muted-foreground">({dados.itens.length})</span>
         </h2>
         <p className="text-sm text-muted-foreground">
-          Quem está no cargo agora, como a própria câmara publica: inclui suplentes que assumiram
-          e o partido atual de cada um.
+          Quem está no cargo agora, como a própria {casa === "camara" ? "câmara" : "assembleia"}{" "}
+          publica: inclui suplentes que assumiram e o partido atual de cada um.
         </p>
       </div>
       <ul className="grid border-t border-border sm:grid-cols-2 sm:gap-x-10">
         {dados.itens.map((v) => (
           <li key={v.id} className="border-b border-border">
             <Link
-              href={`/vereador/${v.id}`}
+              href={`/${casa === "camara" ? "vereador" : "deputado-estadual"}/${v.id}`}
               className="group flex items-center gap-4 py-3 transition-colors duration-300 hover:bg-accent/50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-bronze"
             >
               <FotoVereador vereador={v} />

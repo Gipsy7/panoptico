@@ -1,17 +1,24 @@
-"""Câmaras municipais com dados da própria câmara (SAPL): quem está no cargo hoje."""
+"""Câmaras municipais e assembleias com dados da própria casa (SAPL): quem está no cargo
+hoje."""
 
 from datetime import datetime
+from typing import Any
 
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from app.models import FonteIngestao, Foto, MandatoLocal, ProjetoLocal
 
+FONTES = {
+    "camara": ("sapl_camaras", "Sistema legislativo da câmara (SAPL)"),
+    "assembleia": ("sapl_assembleias", "Sistema legislativo da assembleia (SAPL)"),
+}
 
-def _atualizado_em(session: Session) -> datetime | None:
+
+def _atualizado_em(session: Session, casa: str) -> datetime | None:
     return session.scalar(
         select(func.max(FonteIngestao.concluido_em)).where(
-            FonteIngestao.fonte == "sapl_camaras", FonteIngestao.status == "ok"
+            FonteIngestao.fonte == FONTES[casa][0], FonteIngestao.status == "ok"
         )
     )
 
@@ -32,17 +39,25 @@ def _item(m: MandatoLocal, projetos: int, com_foto_tse: set[int]) -> dict:
 
 
 def camara(session: Session, ibge: str) -> dict | None:
+    return _casa(session, "camara", MandatoLocal.municipio_ibge == ibge)
+
+
+def assembleia(session: Session, uf: str) -> dict | None:
+    return _casa(
+        session, "assembleia", (MandatoLocal.casa == "assembleia") & (MandatoLocal.uf == uf)
+    )
+
+
+def _casa(session: Session, casa: str, filtro: Any) -> dict | None:
     mandatos = session.scalars(
-        select(MandatoLocal)
-        .where(MandatoLocal.municipio_ibge == ibge, MandatoLocal.em_exercicio)
-        .order_by(MandatoLocal.nome)
+        select(MandatoLocal).where(filtro, MandatoLocal.em_exercicio).order_by(MandatoLocal.nome)
     ).all()
     if not mandatos:
         return None
     projetos = dict(
         session.execute(
             select(ProjetoLocal.mandato_id, func.count())
-            .where(ProjetoLocal.municipio_ibge == ibge)
+            .where(ProjetoLocal.mandato_id.in_([m.id for m in mandatos]))
             .group_by(ProjetoLocal.mandato_id)
         ).all()
     )
@@ -53,9 +68,9 @@ def camara(session: Session, ibge: str) -> dict | None:
     return {
         "sapl_url": mandatos[0].sapl_url,
         "itens": [_item(m, projetos.get(m.id, 0), com_foto) for m in mandatos],
-        "fonte_nome": "Sistema legislativo da câmara (SAPL)",
+        "fonte_nome": FONTES[casa][1],
         "fonte_url": mandatos[0].sapl_url,
-        "atualizado_em": _atualizado_em(session),
+        "atualizado_em": _atualizado_em(session, casa),
     }
 
 
@@ -76,6 +91,8 @@ def vereador(session: Session, mandato: MandatoLocal) -> dict:
     )
     return {
         **_item(mandato, len(projetos), com_foto),
+        "casa": mandato.casa,
+        "uf": mandato.uf,
         "municipio_ibge": mandato.municipio_ibge,
         "nome_completo": mandato.nome_completo,
         "email": mandato.email,
@@ -102,7 +119,7 @@ def vereador(session: Session, mandato: MandatoLocal) -> dict:
             for p in projetos
         ],
         "sapl_url": mandato.sapl_url,
-        "fonte_nome": "Sistema legislativo da câmara (SAPL)",
+        "fonte_nome": FONTES[mandato.casa][1],
         "fonte_url": mandato.sapl_url,
-        "atualizado_em": _atualizado_em(session),
+        "atualizado_em": _atualizado_em(session, mandato.casa),
     }

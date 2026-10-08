@@ -81,6 +81,12 @@ CATALOGO = [
         "url": "https://www.interlegis.leg.br/",
     },
     {
+        "dado": "Deputados estaduais no cargo hoje e projetos (assembleias com SAPL)",
+        "orgao": "Assembleias legislativas de AC, AL, AM, MT, PB, PI, RO, RR e TO (SAPL)",
+        "fontes": ["sapl_assembleias"],
+        "url": "https://www.interlegis.leg.br/",
+    },
+    {
         "dado": "Sites oficiais das prefeituras e câmaras (catálogo aberto)",
         "orgao": "Varredura do Panóptico nos domínios .gov.br e .leg.br",
         "fontes": ["canais_oficiais"],

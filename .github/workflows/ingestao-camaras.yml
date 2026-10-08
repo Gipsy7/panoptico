@@ -1,4 +1,4 @@
-name: Câmaras municipais (SAPL)
+name: Câmaras e assembleias (SAPL)
 
 # Vereadores no cargo hoje e projetos, nas câmaras que usam o SAPL (endereços do catálogo
 # data/canais_oficiais.csv). Uma vez por semana, um estado por máquina: os servidores são
@@ -62,3 +62,24 @@ jobs:
         run: uv sync --locked --no-dev
       - name: Câmaras com SAPL em ${{ matrix.uf }}
         run: uv run python -m ingestion.camaras.sapl --uf ${{ matrix.uf }}
+
+  # As assembleias legislativas que usam o SAPL (lista em ingestion/assembleias/sapl.py).
+  assembleias:
+    needs: catalogo
+    runs-on: ubuntu-latest
+    timeout-minutes: 240
+    defaults:
+      run:
+        working-directory: backend
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      PYTHONUNBUFFERED: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          version: "0.12.23"
+      - name: Instalar dependências
+        run: uv sync --locked --no-dev
+      - name: Assembleias com SAPL
+        run: uv run python -m ingestion.assembleias.sapl

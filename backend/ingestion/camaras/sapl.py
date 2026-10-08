@@ -20,12 +20,12 @@ from datetime import UTC, date, datetime
 from typing import Any
 
 import httpx
-from sqlalchemy import delete, select
+from sqlalchemy import delete, func, select
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.orm import Session
 
 from app.db import SessionLocal
-from app.models import Candidatura, FonteIngestao, MandatoLocal, ProjetoLocal
+from app.models import Candidatura, FonteIngestao, MandatoLocal, Municipio, ProjetoLocal
 from ingestion import comum
 from ingestion.canais import catalogo
 
@@ -34,7 +34,8 @@ PAUSA = 0.4
 POR_PAGINA = 100
 AUTORIA = re.compile(r" - (?P<tipo>.+?) n\S*\s*(?P<numero>\d+)\s+de\s+(?P<ano>\d{4})\s*$", re.I)
 TIPOS_PROJETO = re.compile(
-    r"projeto de lei|projeto de resolu|projeto de decreto|emenda (à|a) lei org", re.I
+    r"projeto de lei|projeto de resolu|projeto de decreto|emenda (à|a) lei org|proposta de emenda",
+    re.I,
 )
 
 
@@ -89,6 +90,15 @@ def ler_autoria(texto: str) -> tuple[str, int, int] | None:
     return achado.group("tipo").strip(), int(achado.group("numero")), int(achado.group("ano"))
 
 
+def tipo_parlamentar(tipos: list[dict]) -> int:
+    """Id do tipo de autor "Parlamentar". Costuma ser 1, mas cada instalação numera do seu
+    jeito (na Assembleia de Roraima, 1 é "Bloco Parlamentar")."""
+    for tipo in tipos:
+        if comum.chave_nome(tipo.get("descricao")) == "PARLAMENTAR":
+            return tipo["id"]
+    return 1
+
+
 def coletar(base: str, hoje: date) -> dict | None:
     """Tudo o que guardamos de uma câmara, num dicionário (vira o bruto)."""
     with comum.criar_cliente() as client:
@@ -101,7 +111,7 @@ def coletar(base: str, hoje: date) -> dict | None:
         filiacoes = sapl.todos("parlamentares/filiacao/")
         autores = {
             a["object_id"]: a["id"]
-            for a in sapl.todos("base/autor/", tipo=1)
+            for a in sapl.todos("base/autor/", tipo=tipo_parlamentar(sapl.todos("base/tipoautor/")))
             if a.get("object_id") is not None
         }
         anos = {hoje.year, hoje.year - 1}
@@ -173,13 +183,29 @@ def coletar(base: str, hoje: date) -> dict | None:
     return {"base": base, "legislatura": legislatura, "vereadores": vereadores}
 
 
-def gravar(session: Session, ibge: str, camara: dict) -> int:
-    """Substitui os vereadores e projetos da câmara; liga cada vereador ao eleito do TSE."""
+def gravar(session: Session, ibge: str | None, camara: dict, uf: str | None = None) -> int:
+    """Substitui os parlamentares e projetos da casa e liga cada um ao eleito do TSE.
+    Com `ibge`, é a câmara da cidade; sem, é a assembleia legislativa de `uf`."""
+    if ibge:
+        uf = session.scalar(select(Municipio.uf).where(Municipio.ibge == ibge))
+        filtro = [Candidatura.municipio_ibge == ibge, Candidatura.cargo == "VEREADOR"]
+        anteriores = MandatoLocal.municipio_ibge == ibge
+    else:
+        cargos = ("DEPUTADO ESTADUAL", "DEPUTADO DISTRITAL")
+        ultima = session.scalar(
+            select(func.max(Candidatura.ano_eleicao)).where(
+                Candidatura.uf == uf, Candidatura.cargo.in_(cargos)
+            )
+        )
+        filtro = [
+            Candidatura.uf == uf,
+            Candidatura.cargo.in_(cargos),
+            Candidatura.ano_eleicao == ultima,
+        ]
+        anteriores = (MandatoLocal.casa == "assembleia") & (MandatoLocal.uf == uf)
     eleitos = session.execute(
         select(Candidatura.id, Candidatura.nome_urna, Candidatura.nome).where(
-            Candidatura.municipio_ibge == ibge,
-            Candidatura.cargo == "VEREADOR",
-            Candidatura.situacao_turno.like("ELEITO%"),
+            *filtro, Candidatura.situacao_turno.like("ELEITO%")
         )
     ).all()
     por_nome: dict[str, set[int]] = {}
@@ -194,7 +220,7 @@ def gravar(session: Session, ibge: str, camara: dict) -> int:
                 return next(iter(ids))
         return None
 
-    session.execute(delete(MandatoLocal).where(MandatoLocal.municipio_ibge == ibge))
+    session.execute(delete(MandatoLocal).where(anteriores))
     for v in camara["vereadores"]:
         linha = {k: val for k, val in v.items() if k != "projetos"}
         for campo in ("inicio", "fim"):
@@ -203,6 +229,8 @@ def gravar(session: Session, ibge: str, camara: dict) -> int:
             insert(MandatoLocal)
             .values(
                 **linha,
+                casa="camara" if ibge else "assembleia",
+                uf=uf,
                 municipio_ibge=ibge,
                 candidatura_id=candidatura(v),
                 sapl_url=camara["base"],

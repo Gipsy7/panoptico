@@ -65,3 +65,40 @@ def test_gravar_liga_ao_eleito_e_expoe_na_api(client, session):
     detalhe = client.get(f"/vereadores/{adriana['id']}").json()
     assert detalhe["proposicoes_por_tipo"] == [{"tipo": "Requerimento", "total": 22}]
     assert client.get("/municipios/0000000/camara").status_code == 404
+
+
+def test_tipo_de_autor_parlamentar_pelo_nome():
+    # Na Assembleia de Roraima, o id 1 é "Bloco Parlamentar"; "Parlamentar" é o 2.
+    tipos = [{"id": 1, "descricao": "Bloco Parlamentar"}, {"id": 2, "descricao": "Parlamentar"}]
+    assert sapl.tipo_parlamentar(tipos) == 2
+    assert sapl.tipo_parlamentar([]) == 1
+
+
+def test_assembleia_liga_ao_deputado_estadual_da_ultima_eleicao(client, session):
+    ingestao = _ingestao(session).id
+    for ano, sq in ((2018, "1"), (2022, "2")):
+        session.add(Candidatura(ano_eleicao=ano, sq_candidato=sq, cargo="DEPUTADO ESTADUAL", uf="RR", unidade="Roraima",
+                                nome="Catarina Guerra", nome_urna="Catarina Guerra", situacao_turno="ELEITO POR QP",
+                                ingestao_id=ingestao))  # fmt: skip
+    session.flush()
+    casa = {
+        "base": "https://sapl.al.rr.leg.br/",
+        "vereadores": [
+            {"id_externo": "7", "nome": "Catarina Guerra", "nome_completo": None, "partido": "UNIÃO",
+             "foto_url": None, "email": None, "telefone": None, "titular": True, "em_exercicio": True,
+             "inicio": "2023-02-01", "fim": "2027-01-31", "proposicoes_por_tipo": {"Indicação": 37}, "projetos": []},
+        ],
+    }  # fmt: skip
+    assert sapl.gravar(session, None, casa, uf="RR") == 1
+    session.flush()
+    corpo = client.get("/estados/rr/assembleia").json()
+    assert corpo["fonte_nome"] == "Sistema legislativo da assembleia (SAPL)"
+    item = corpo["itens"][0]
+    assert session.get(Candidatura, item["candidatura_id"]).ano_eleicao == 2022
+    detalhe = client.get(f"/vereadores/{item['id']}").json()
+    assert (
+        detalhe["casa"] == "assembleia"
+        and detalhe["uf"] == "RR"
+        and detalhe["municipio_ibge"] is None
+    )
+    assert client.get("/estados/SP/assembleia").status_code == 404

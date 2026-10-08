@@ -85,6 +85,11 @@ export default function SobreAsFontesPage() {
           contato e projetos do ano atual e do anterior. Requerimentos, indicações e moções
           aparecem só como contagem. Cada vereador é ligado ao eleito do TSE pelo nome.
         </Item>
+        <Item titulo="Assembleia hoje">
+          O mesmo para os deputados estaduais, nas nove assembleias que usam o SAPL (Acre,
+          Alagoas, Amazonas, Mato Grosso, Paraíba, Piauí, Rondônia, Roraima e Tocantins). Nos
+          outros estados, por enquanto, aparece a lista de eleitos do TSE.
+        </Item>
         <Item titulo="Contas da cidade">
           O que a prefeitura declarou ao Tesouro Nacional na Declaração de Contas Anuais
           (SICONFI): receita realizada, despesa paga e despesa paga por função de governo (saúde,
