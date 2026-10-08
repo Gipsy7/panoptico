@@ -225,6 +225,13 @@ class Varredura:
         texto = re.sub(r"<[^>]+>", " ", html)
         return Pagina(str(resposta.url), leitor.titulo.strip(), texto, leitor.links)
 
+    async def achar_sapl(self, url_camara: str) -> str | None:
+        host = (urlparse(url_camara).hostname or "").removeprefix("www.")
+        for base in (f"https://sapl.{host}/", url_camara):
+            if await self.e_sapl(base):
+                return base
+        return None
+
     async def e_sapl(self, url: str) -> bool:
         resposta = await self._get(urljoin(url, "/api/parlamentares/parlamentar/?page_size=1"))
         return (
@@ -276,7 +283,11 @@ class Varredura:
                         )
         camara = await self.primeira(list(dict.fromkeys(links_camara + tentativas["camara"])), nome)
         if camara:
-            anotar("camara", camara.url, "sapl" if await self.e_sapl(camara.url) else None)
+            anotar("camara", camara.url)
+            # O SAPL (sistema legislativo do Interlegis) fica num subdomínio próprio,
+            # sapl.{câmara}, com API aberta: é por ele que vêm vereadores e projetos.
+            if sapl := await self.achar_sapl(camara.url):
+                anotar("sapl", sapl, "sapl")
 
         # Portais da transparência: o melhor link "transparência" dos sites oficiais.
         for origem, pagina in (("prefeitura", prefeitura), ("camara", camara)):

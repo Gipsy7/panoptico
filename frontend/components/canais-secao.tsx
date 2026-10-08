@@ -6,6 +6,7 @@ const ROTULOS: Record<string, string> = {
   camara: "Site da câmara municipal",
   transparencia_prefeitura: "Portal da transparência da prefeitura",
   transparencia_camara: "Portal da transparência da câmara",
+  sapl: "Sistema legislativo da câmara (projetos e vereadores)",
 };
 
 /** Sites oficiais da cidade, achados pela varredura e revisados (catálogo no repositório). */
