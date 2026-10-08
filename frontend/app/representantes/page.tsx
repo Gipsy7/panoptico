@@ -7,6 +7,7 @@ import { CompartilharWhatsApp } from "@/components/compartilhar";
 import { FonteRodape } from "@/components/fonte-rodape";
 import { EmendasMunicipioSecao } from "@/components/emendas-municipio";
 import { CanaisSecao } from "@/components/canais-secao";
+import { ContasSecao } from "@/components/contas-secao";
 import { EleitosSecao } from "@/components/eleitos-secao";
 import { ExecutivoSecao } from "@/components/executivo-secao";
 import { ParlamentarCard } from "@/components/parlamentar-card";
@@ -15,6 +16,7 @@ import {
   type ParlamentarResumo,
   getDeputadosEstaduais,
   getCanais,
+  getContas,
   getExecutivo,
   getEmendasMunicipio,
   getVereadores,
@@ -63,13 +65,15 @@ async function Lista({ cep, uf, municipio }: Busca) {
   }
 
   const { localizacao, deputados, senadores, atualizado_em } = resultado.dados;
-  const [emendasResultado, vereadoresResultado, estaduaisResultado, executivoResultado, canaisResultado] = await Promise.all([
+  const [emendasResultado, vereadoresResultado, estaduaisResultado, executivoResultado, canaisResultado, contasResultado] = await Promise.all([
     localizacao.codigo_ibge ? getEmendasMunicipio(localizacao.codigo_ibge) : null,
     localizacao.codigo_ibge ? getVereadores(localizacao.codigo_ibge) : null,
     getDeputadosEstaduais(localizacao.uf),
     getExecutivo(localizacao.uf, localizacao.codigo_ibge),
     localizacao.codigo_ibge ? getCanais(localizacao.codigo_ibge) : null,
+    localizacao.codigo_ibge ? getContas(localizacao.codigo_ibge) : null,
   ]);
+  const contas = contasResultado?.ok ? contasResultado.dados : null;
   const canais = canaisResultado?.ok ? canaisResultado.dados.itens : [];
   const executivo = executivoResultado.ok ? executivoResultado.dados : null;
   const vereadores = vereadoresResultado?.ok ? vereadoresResultado.dados : null;
@@ -120,6 +124,8 @@ async function Lista({ cep, uf, municipio }: Busca) {
         parlamentares={deputados}
         emendas={emendas}
       />
+
+      {contas && localizacao.municipio && <ContasSecao dados={contas} cidade={localizacao.municipio} />}
 
       {emendas && <EmendasMunicipioSecao dados={emendas} />}
 

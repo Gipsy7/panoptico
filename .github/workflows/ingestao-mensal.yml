@@ -1,0 +1,48 @@
+name: Ingestão mensal
+
+# Fontes que mudam pouco (contas anuais dos municípios no SICONFI): uma vez por mês, fora
+# da ingestão diária, porque exigem milhares de consultas (uma por município).
+on:
+  schedule:
+    - cron: "0 10 15 * *" # dia 15 de cada mês, 7h em Brasília
+  workflow_dispatch:
+    inputs:
+      anos:
+        description: "Anos das contas (vazio = os dois últimos anos fechados)"
+        type: string
+        default: ""
+
+concurrency:
+  group: ingestao
+  cancel-in-progress: false
+
+jobs:
+  mensal:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    defaults:
+      run:
+        working-directory: backend
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      ANOS: ${{ inputs.anos }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: astral-sh/setup-uv@v6
+        with:
+          version: "0.12.23"
+
+      - name: Instalar dependências
+        run: uv sync --locked --no-dev
+
+      - name: Migrações do banco
+        run: uv run alembic upgrade head
+
+      - name: Contas dos municípios (SICONFI)
+        run: |
+          if [ -n "$ANOS" ]; then
+            uv run python -m ingestion.siconfi.contas --ano $ANOS
+          else
+            uv run python -m ingestion.siconfi.contas
+          fi

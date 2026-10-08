@@ -311,6 +311,32 @@ class EmendaFavorecido(BaseModel):
     autores: list[EmendaAutorDoFavorecido]
 
 
+class AreaDespesa(BaseModel):
+    nome: str
+    valor: float
+    percentual: float
+
+
+class ContasAnterior(BaseModel):
+    ano: int
+    despesa_paga: float | None
+    receita_total: float | None
+
+
+class ContasMunicipioResposta(BaseModel):
+    ano: int
+    populacao: int | None
+    receita_total: float | None
+    despesa_paga: float | None
+    despesa_por_habitante: float | None
+    camara: float | None
+    por_area: list[AreaDespesa]
+    anterior: ContasAnterior | None
+    fonte_nome: str
+    fonte_url: str
+    atualizado_em: datetime | None
+
+
 class CanalItem(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 

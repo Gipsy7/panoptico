@@ -6,8 +6,13 @@ from sqlalchemy.orm import Session
 
 from app.db import get_session
 from app.models import CanalOficial, Municipio
-from app.schemas import CanaisResposta, EmendasMunicipioResposta, MunicipioInfo
-from app.services import emendas
+from app.schemas import (
+    CanaisResposta,
+    ContasMunicipioResposta,
+    EmendasMunicipioResposta,
+    MunicipioInfo,
+)
+from app.services import contas, emendas
 
 router = APIRouter()
 
@@ -18,6 +23,17 @@ def emendas_do_municipio(ibge: str, session: Annotated[Session, Depends(get_sess
     if municipio is None:
         raise HTTPException(404, "Município não encontrado.")
     return emendas.resumo_municipio(session, municipio)
+
+
+@router.get("/municipios/{ibge}/contas", response_model=ContasMunicipioResposta)
+def contas_do_municipio(ibge: str, session: Annotated[Session, Depends(get_session)]) -> dict:
+    """Contas anuais da prefeitura no SICONFI: receita, despesa e áreas."""
+    if session.get(Municipio, ibge) is None:
+        raise HTTPException(404, "Município não encontrado.")
+    resultado = contas.resumo(session, ibge)
+    if resultado is None:
+        raise HTTPException(404, "Sem contas entregues ao Tesouro para este município.")
+    return resultado
 
 
 ORDEM_CANAIS = ["prefeitura", "camara", "transparencia_prefeitura", "transparencia_camara"]

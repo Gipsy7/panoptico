@@ -242,6 +242,24 @@ export function getExecutivo(uf: string, municipio?: string | null) {
   return getJson<Executivo>(`/executivo?${params}`);
 }
 
+export type ContasMunicipio = {
+  ano: number;
+  populacao: number | null;
+  receita_total: number | null;
+  despesa_paga: number | null;
+  despesa_por_habitante: number | null;
+  camara: number | null;
+  por_area: { nome: string; valor: number; percentual: number }[];
+  anterior: { ano: number; despesa_paga: number | null; receita_total: number | null } | null;
+  fonte_nome: string;
+  fonte_url: string;
+  atualizado_em: string | null;
+};
+
+export function getContas(ibge: string) {
+  return getJson<ContasMunicipio>(`/municipios/${encodeURIComponent(ibge)}/contas`);
+}
+
 export type Canal = { tipo: string; url: string; sistema: string | null; verificado_em: string | null };
 
 export function getCanais(ibge: string) {
