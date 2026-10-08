@@ -109,6 +109,14 @@ O subsídio é igual para deputados e senadores e é fixado por decreto legislat
 - **Bens:** valor como declarado, sem correção. A página avisa que bens costumam ser declarados pelo valor de compra. Sem palavras como "enriqueceu": mostramos os dois totais e o ano.
 - **2024:** o TSE passou a mascarar o CPF, então as candidaturas municipais de 2024 não se ligam aos parlamentares federais.
 
+## 2026-10-08: busca por nome em todos os níveis
+
+- A busca da página inicial (`/busca?nome=`) procura parlamentares federais em exercício, quem está no cargo hoje nas câmaras e assembleias com SAPL e os eleitos do TSE na eleição mais recente de cada cargo (presidente, governadores, deputados estaduais, prefeitos, vereadores e vices).
+- **Sem repetir:** um eleito que a própria casa lista como no cargo aparece pelo dado da casa, que é o atual. Federais vêm só da Câmara e do Senado.
+- **Nome de urna e nome completo:** procura nos dois, sem diferença de acento, com todas as palavras digitadas. Quando o nome completo é diferente, aparece embaixo, para ninguém estranhar um "Batista Torres" na busca por "João Silva".
+- **Ordem:** Congresso, depois Executivo, assembleias, prefeituras e câmaras; até 20 resultados.
+- O comparador continua buscando só parlamentares federais, porque só eles têm os números comparáveis.
+
 ## 2026-10-08: assembleias legislativas (SAPL) e portais da transparência
 
 - **Assembleias:** levantamento das 27 casas. Nove usam o SAPL (AC, AL, AM, MT, PB, PI, RO, RR e TO) e entram com o mesmo conector das câmaras: deputados estaduais no cargo hoje (inclusive suplentes que assumiram), partido atual, contato, projetos e proposições do ano atual e do anterior. As outras 18 publicam em sistemas próprios e ficam com a lista de eleitos do TSE até ganharem conector, uma a uma.

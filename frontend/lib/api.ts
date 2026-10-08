@@ -589,3 +589,18 @@ export function getComparacao(a: string, b: string, ano?: string) {
   if (ano) params.set("ano", ano);
   return getJson<Comparacao>(`/comparar?${params}`);
 }
+
+export type ResultadoBusca = {
+  nome: string;
+  nome_completo: string | null;
+  cargo: string;
+  partido: string | null;
+  lugar: string;
+  /** Endereço do perfil no site. */
+  caminho: string;
+};
+
+/** Pessoas de todos os níveis com esse nome: Congresso, Executivo, assembleias e câmaras. */
+export function getBusca(nome: string) {
+  return getJson<{ itens: ResultadoBusca[] }>(`/busca?nome=${encodeURIComponent(nome)}`);
+}

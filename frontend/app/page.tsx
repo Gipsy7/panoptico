@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Suspense } from "react";
 
-import { BuscaParlamentar } from "@/components/busca-parlamentar";
+import { BuscaGeral } from "@/components/busca-geral";
 import { CepForm } from "@/components/cep-form";
 import { Marca } from "@/components/logo";
 import { Foto } from "@/components/parlamentar-card";
@@ -25,13 +25,13 @@ export default function Home() {
           </h1>
           <p className="max-w-lg text-lg leading-relaxed text-pretty text-muted-foreground">
             O panóptico era uma prisão em que um vigia via todos. Aqui é o contrário: todos podem
-            ver quem os representa no Congresso, com dados oficiais.
+            ver quem os representa, do Congresso à câmara da cidade, com dados oficiais.
           </p>
           <div id="cep" className="max-w-md scroll-mt-24 border-t border-foreground pt-6">
             <CepForm />
           </div>
           <div className="flex max-w-md flex-col gap-2">
-            <BuscaParlamentar rotulo="Ou procure um parlamentar pelo nome" />
+            <BuscaGeral rotulo="Ou procure pelo nome: parlamentar, governador, prefeito ou vereador" />
           </div>
         </div>
 

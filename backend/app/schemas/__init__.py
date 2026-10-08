@@ -634,3 +634,16 @@ class ComparacaoResposta(BaseModel):
     convergencia: Convergencia | None
     coautorias: Coautorias
     atualizado_em: datetime | None
+
+
+class BuscaItem(BaseModel):
+    nome: str
+    nome_completo: str | None
+    cargo: str
+    partido: str | None
+    lugar: str
+    caminho: str  # endereço do perfil no site
+
+
+class BuscaResposta(BaseModel):
+    itens: list[BuscaItem]

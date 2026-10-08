@@ -30,6 +30,7 @@ Os dados sobre o trabalho dos parlamentares já são públicos, mas estão espal
   - **Eleição** (TSE): votos recebidos, idade, escolaridade, ocupação e redes declaradas, bens declarados na eleição mais recente comparados com a anterior, e de onde veio e para onde foi o dinheiro da campanha que deu o mandato.
   - **Salário**: o subsídio, igual para todos, com a norma que o fixa.
 - **Perfil de vereadores, deputados estaduais, prefeitos, governadores e presidente**, com a foto da candidatura e dados do TSE (votos recebidos, dados pessoais declarados, redes sociais, bens e contas de campanha), e quando a pessoa foi eleita depois para outro cargo.
+- **Busca por nome** em todos os níveis, na página inicial: parlamentares federais, presidente, governadores, prefeitos, deputados estaduais e vereadores (sem diferença de acento; também pelo nome completo).
 - **Comparador**: dois parlamentares lado a lado, com números, votos em comum por tema e projetos assinados juntos.
 - **Lista de todos os parlamentares federais**, ordenável por um critério factual de cada vez (gastos, presença, projetos, emendas, alinhamento com o Governo). Não há nota nem ranking.
 - **Dinheiro enviado para a sua cidade**: emendas individuais pagas à prefeitura, aos fundos municipais e a entidades, com:
@@ -254,7 +255,6 @@ Os testes do backend usam um banco `panoptico_test` (criado pelo `scripts/criar_
 - Conectores próprios para as 18 assembleias sem SAPL (começando por ALMG e ALESP, que têm dados abertos)
 - Despesas por fornecedor de outros Tribunais de Contas (RS e MG têm dados abertos)
 - Situação na Justiça só com fatos oficiais (cassações e indeferimentos no TSE, processos com número e status), sem nota ou "índice de confiabilidade"
-- Busca por nome que inclua vereadores e deputados estaduais
 - Teste com pessoas reais e auditoria de acessibilidade
 
 ## Licença
