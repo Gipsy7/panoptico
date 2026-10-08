@@ -1,0 +1,28 @@
+ibge,municipio,uf,tipo,url,sistema,verificado_em
+1100205,Porto Velho,RO,camara,https://www.portovelho.ro.leg.br/,,2026-10-08
+1302603,Manaus,AM,camara,https://www.cmm.am.gov.br/,,2026-10-08
+1501402,Belém,PA,prefeitura,https://prefeitura.belem.pa.gov.br/,,2026-10-08
+1600303,Macapá,AP,camara,https://www.macapa.ap.leg.br/,,2026-10-08
+2111300,São Luís,MA,prefeitura,https://www.saoluis.ma.gov.br/,,2026-10-08
+2111300,São Luís,MA,camara,https://www.cmsaoluis.ma.gov.br/,,2026-10-08
+2211001,Teresina,PI,prefeitura,https://www.teresina.pi.gov.br/,,2026-10-08
+2304400,Fortaleza,CE,camara,https://www.cmfor.ce.gov.br/,,2026-10-08
+2408102,Natal,RN,prefeitura,https://www.natal.rn.gov.br/,,2026-10-08
+2507507,João Pessoa,PB,prefeitura,https://www.joaopessoa.pb.gov.br/,,2026-10-08
+2611606,Recife,PE,camara,https://www.recife.pe.leg.br/,,2026-10-08
+3106200,Belo Horizonte,MG,prefeitura,https://prefeitura.pbh.gov.br/,,2026-10-08
+3106200,Belo Horizonte,MG,camara,https://www.cmbh.mg.gov.br/,,2026-10-08
+3205309,Vitória,ES,camara,https://www.cmv.es.gov.br/,,2026-10-08
+3304557,Rio de Janeiro,RJ,prefeitura,https://prefeitura.rio/,,2026-10-08
+3304557,Rio de Janeiro,RJ,camara,https://www.camara.rio/,,2026-10-08
+3550308,São Paulo,SP,prefeitura,https://prefeitura.sp.gov.br/,,2026-10-08
+3550308,São Paulo,SP,transparencia_prefeitura,https://transparencia.prefeitura.sp.gov.br/,,2026-10-08
+4106902,Curitiba,PR,prefeitura,https://www.curitiba.pr.gov.br/,,2026-10-08
+4106902,Curitiba,PR,camara,https://www.cmc.pr.gov.br/,,2026-10-08
+4205407,Florianópolis,SC,prefeitura,https://www.pmf.sc.gov.br/,,2026-10-08
+4205407,Florianópolis,SC,camara,https://www.cmf.sc.gov.br/,,2026-10-08
+4314902,Porto Alegre,RS,prefeitura,https://prefeitura.poa.br/,,2026-10-08
+4314902,Porto Alegre,RS,camara,https://www.camarapoa.rs.gov.br/,,2026-10-08
+5002704,Campo Grande,MS,camara,https://www.camara.ms.gov.br/,,2026-10-08
+5103403,Cuiabá,MT,camara,https://www.camaracuiaba.mt.gov.br/,,2026-10-08
+4202404,Blumenau,SC,camara,https://www.cmb.sc.gov.br/,,2026-10-08

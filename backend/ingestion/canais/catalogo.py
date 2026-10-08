@@ -17,13 +17,28 @@ from ingestion.canais.varredura import CATALOGO
 FONTE = "canais_oficiais"
 
 
-def ler(caminho: Path = CATALOGO) -> list[dict]:
+CURADOS = CATALOGO.with_name("canais_curados.csv")
+
+
+def ler(caminho: Path = CATALOGO, curados: Path = CURADOS) -> list[dict]:
+    """O catálogo da varredura, com as correções feitas à mão (canais_curados.csv) por
+    cima: um canal curado substitui o da varredura do mesmo tipo na mesma cidade."""
+    linhas = _ler(caminho)
+    if not linhas:
+        return []
+    manuais = _ler(curados)
+    trocados = {(c["municipio_ibge"], c["tipo"]) for c in manuais}
+    return [x for x in linhas if (x["municipio_ibge"], x["tipo"]) not in trocados] + manuais
+
+
+def _ler(caminho: Path) -> list[dict]:
     if not caminho.exists():
         return []
     with caminho.open(encoding="utf-8", newline="") as arquivo:
         return [
             {
                 "municipio_ibge": linha["ibge"],
+                "uf": linha["uf"],
                 "tipo": linha["tipo"],
                 "url": linha["url"],
                 "sistema": linha["sistema"] or None,
@@ -41,7 +56,11 @@ def executar(caminho: Path = CATALOGO) -> int:
         return 0  # sem catálogo ainda: não apaga o que existe
     with SessionLocal() as session:
         validos = set(session.scalars(select(Municipio.ibge)))
-        linhas = [linha for linha in linhas if linha["municipio_ibge"] in validos]
+        linhas = [
+            {k: v for k, v in linha.items() if k != "uf"}
+            for linha in linhas
+            if linha["municipio_ibge"] in validos
+        ]
         session.execute(delete(CanalOficial))
         for inicio in range(0, len(linhas), 5000):
             session.execute(insert(CanalOficial), linhas[inicio : inicio + 5000])

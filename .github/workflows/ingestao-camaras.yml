@@ -1,49 +1,64 @@
 name: Câmaras municipais (SAPL)
 
 # Vereadores no cargo hoje e projetos, nas câmaras que usam o SAPL (endereços do catálogo
-# data/canais_oficiais.csv). Uma vez por semana: os servidores são das câmaras, e a
-# composição muda pouco.
+# data/canais_oficiais.csv). Uma vez por semana, um estado por máquina: os servidores são
+# das câmaras (cada uma recebe uma requisição por vez) e a composição muda pouco.
 on:
   schedule:
     - cron: "0 11 * * 0" # domingo, 8h em Brasília
   workflow_dispatch:
     inputs:
-      limite:
-        description: "Só as N primeiras câmaras (vazio = todas)"
+      ufs:
+        description: 'Estados como lista JSON (padrão: todos)'
         type: string
-        default: ""
+        default: '["AC","AL","AM","AP","BA","CE","ES","GO","MA","MG","MS","MT","PA","PB","PE","PI","PR","RJ","RN","RO","RR","RS","SC","SE","SP","TO"]'
 
 concurrency:
   group: ingestao
   cancel-in-progress: false
 
 jobs:
-  camaras:
+  catalogo:
     runs-on: ubuntu-latest
-    timeout-minutes: 300
+    timeout-minutes: 30
     defaults:
       run:
         working-directory: backend
     env:
       DATABASE_URL: ${{ secrets.DATABASE_URL }}
-      LIMITE: ${{ inputs.limite }}
     steps:
       - uses: actions/checkout@v4
-
       - uses: astral-sh/setup-uv@v6
         with:
           version: "0.12.23"
-
       - name: Instalar dependências
         run: uv sync --locked --no-dev
-
       - name: Migrações do banco
         run: uv run alembic upgrade head
+      - name: Catálogo de canais oficiais (do repositório para o banco)
+        run: uv run python -m ingestion.canais.catalogo
 
-      - name: Câmaras com SAPL
-        run: |
-          if [ -n "$LIMITE" ]; then
-            uv run python -m ingestion.camaras.sapl --limite "$LIMITE"
-          else
-            uv run python -m ingestion.camaras.sapl
-          fi
+  estado:
+    needs: catalogo
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    strategy:
+      fail-fast: false
+      max-parallel: 13 # metade dos estados por vez, para não pesar no banco
+      matrix:
+        uf: ${{ fromJSON(inputs.ufs || '["AC","AL","AM","AP","BA","CE","ES","GO","MA","MG","MS","MT","PA","PB","PE","PI","PR","RJ","RN","RO","RR","RS","SC","SE","SP","TO"]') }}
+    defaults:
+      run:
+        working-directory: backend
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      PYTHONUNBUFFERED: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          version: "0.12.23"
+      - name: Instalar dependências
+        run: uv sync --locked --no-dev
+      - name: Câmaras com SAPL em ${{ matrix.uf }}
+        run: uv run python -m ingestion.camaras.sapl --uf ${{ matrix.uf }}

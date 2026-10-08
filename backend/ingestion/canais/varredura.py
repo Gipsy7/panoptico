@@ -58,7 +58,9 @@ SISTEMAS = [
     ("epublica", re.compile(r"epublica", re.I)),
 ]
 # Links com "transparência" que não são o portal (campanhas, radares externos, covid).
-NAO_E_PORTAL = re.compile(r"covid|vacina|radardatransparencia|atricon|ouvidoria|lgpd", re.I)
+NAO_E_PORTAL = re.compile(
+    r"covid|vacina|radardatransparencia|atricon|ouvidoria|lgpd|/noticia|audiencia", re.I
+)
 OFICIAL = (".gov.br", ".leg.br")
 
 
@@ -144,7 +146,28 @@ def _oficial(url: str) -> bool:
     return host.endswith(OFICIAL)
 
 
-def melhor_portal(pagina: Pagina) -> str | None:
+def de_outra_cidade(url: str, nome: str) -> bool:
+    """Link para o domínio oficial de OUTRA cidade (visto: modelo de site de fornecedor
+    apontando para o portal de outro cliente). Domínios de fornecedores não entram aqui."""
+    host = urlparse(url).hostname or ""
+    if not host.endswith(OFICIAL):
+        return False
+    return not any(s.replace("-", "") in host.replace("-", "") for s in slugs(nome))
+
+
+def limpar_catalogo(linhas: list[dict]) -> list[dict]:
+    """Tira do catálogo os portais de transparência que caem nas armadilhas conhecidas."""
+    return [
+        linha
+        for linha in linhas
+        if not linha["tipo"].startswith("transparencia")
+        or not (
+            de_outra_cidade(linha["url"], linha["municipio"]) or NAO_E_PORTAL.search(linha["url"])
+        )
+    ]
+
+
+def melhor_portal(pagina: Pagina, nome: str = "") -> str | None:
     """O link mais provável para o portal da transparência: o texto diz "transparência",
     não é a própria página inicial nem uma campanha, e um fornecedor conhecido vale mais."""
     inicio = pagina.url.rstrip("/")
@@ -157,6 +180,8 @@ def melhor_portal(pagina: Pagina) -> str | None:
         if "transpar" not in alvo or not absoluto.startswith("http"):
             continue
         if absoluto.rstrip("/") == inicio or NAO_E_PORTAL.search(alvo):
+            continue
+        if nome and de_outra_cidade(absoluto, nome):
             continue
         pontos = 0
         if "portal da transpar" in alvo or "portal transpar" in alvo:
@@ -303,7 +328,7 @@ class Varredura:
 
         # Portais da transparência: o melhor link "transparência" dos sites oficiais.
         for origem, pagina in (("prefeitura", prefeitura), ("camara", camara)):
-            if pagina and (portal := melhor_portal(pagina)):
+            if pagina and (portal := melhor_portal(pagina, nome)):
                 anotar(f"transparencia_{origem}", portal, sistema_de(portal))
         return achados
 
@@ -333,7 +358,7 @@ async def varrer(municipios: list[tuple[str, str, str]], conexoes: int) -> list[
 
 def gravar_catalogo(linhas: list[dict], destino: Path = CATALOGO) -> None:
     destino.parent.mkdir(parents=True, exist_ok=True)
-    linhas = sorted(linhas, key=lambda x: (x["uf"], x["municipio"], x["tipo"]))
+    linhas = sorted(limpar_catalogo(linhas), key=lambda x: (x["uf"], x["municipio"], x["tipo"]))
     with destino.open("w", encoding="utf-8", newline="") as arquivo:
         escritor = csv.DictWriter(arquivo, fieldnames=COLUNAS)
         escritor.writeheader()

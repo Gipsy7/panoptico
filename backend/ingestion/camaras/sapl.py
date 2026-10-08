@@ -227,8 +227,14 @@ def gravar(session: Session, ibge: str, camara: dict) -> int:
     return len(camara["vereadores"])
 
 
-def executar(limite: int | None = None, trabalhadores: int = 8) -> int:
-    camaras = [(c["municipio_ibge"], c["url"]) for c in catalogo.ler() if c["tipo"] == "sapl"]
+def executar(
+    limite: int | None = None, trabalhadores: int = 8, ufs: list[str] | None = None
+) -> int:
+    camaras = [
+        (c["municipio_ibge"], c["url"])
+        for c in catalogo.ler()
+        if c["tipo"] == "sapl" and (not ufs or c["uf"] in ufs)
+    ]
     camaras = camaras[:limite] if limite else camaras
     hoje = date.today()
     total, falhas = 0, 0
@@ -272,5 +278,6 @@ def executar(limite: int | None = None, trabalhadores: int = 8) -> int:
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=f"Ingestão: {FONTE}")
     parser.add_argument("--limite", type=int, help="Só as N primeiras câmaras (teste)")
+    parser.add_argument("--uf", nargs="*", help="Só as câmaras destes estados")
     args = parser.parse_args()
-    executar(args.limite)
+    executar(args.limite, ufs=[u.upper() for u in args.uf] if args.uf else None)

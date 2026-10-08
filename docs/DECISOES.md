@@ -124,6 +124,10 @@ O subsídio é igual para deputados e senadores e é fixado por decreto legislat
 - O resultado vira o **catálogo versionado** `data/canais_oficiais.csv`, revisado por pull request. As cargas seguintes vão direto aos endereços dele, sem varrer de novo. Qualquer pessoa pode corrigir uma cidade.
 - **Educação com os servidores:** uma requisição por vez por servidor, com pausa, e identificação do Panóptico. Muitas cidades dividem o mesmo servidor, que bloqueia rajadas (visto em SC, com resposta 444). Só domínios oficiais como ponto de partida; um site oficial pode redirecionar para outro domínio `.br`.
 - No teste com 40 cidades do RS: 33 prefeituras, 24 câmaras e 31 portais da transparência encontrados.
+- **Primeira varredura nacional (8/10/2026):** 4.661 das 5.571 cidades com algum canal; 3.810 prefeituras, 3.738 câmaras, **982 câmaras com SAPL**, 3.510 portais da câmara e 3.458 da prefeitura.
+  - Na conferência manual de 20 cidades, os sites da prefeitura e da câmara estavam certos. Dois links de transparência estavam errados: um portal de outra cidade (modelo de site do fornecedor) e uma notícia. Os dois tipos de erro viraram filtros, que tiraram 127 links do catálogo.
+  - SC teve poucas prefeituras (54), porque o servidor que hospeda a maioria delas bloqueia as máquinas da varredura.
+- **Capitais e correções manuais:** `data/canais_curados.csv` substitui o canal da varredura do mesmo tipo na mesma cidade. As capitais usam endereços fora do padrão (`pbh.gov.br`, `prefeitura.rio`, `cmc.pr.gov.br`...), por isso foram conferidas uma a uma. A varredura tinha achado o site do governo do estado no lugar da prefeitura de São Paulo.
 
 ## 2026-10-08: fotos dos eleitos (TSE)
 
