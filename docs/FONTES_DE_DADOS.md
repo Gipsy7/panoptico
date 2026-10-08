@@ -121,7 +121,7 @@ Endpoints conferidos em 2026-10-06.
   - o código `TotalDespesas` se repete em várias linhas, por isso o total é a soma das funções;
   - texto em UTF-8 com alguns caracteres quebrados;
   - nem todo município entrega: em 2024, 5.326 de 5.571 tinham declaração;
-  - a partir das máquinas do GitHub (EUA), a maioria das consultas falha (em investigação).
+  - a API limita a taxa de consultas (responde 429; cerca de 1 em cada 5 consultas a partir do GitHub). A carga espera o tempo do `Retry-After` e tenta de novo; um ano completo leva uns 65 minutos.
 - **Frequência:** anual, entregue até abril. Carga mensal.
 
 ## SAPL (Interlegis): câmaras municipais
