@@ -1,30 +1,35 @@
 name: Varredura dos canais oficiais
 
 # Varredura inicial (e, de tempos em tempos, de revisão) dos sites oficiais de cada
-# município. O resultado vai para data/canais_oficiais.csv num branch próprio, para ser
-# revisado e incorporado por pull request.
+# município. Roda um estado por máquina, em paralelo; no fim, junta tudo em
+# data/canais_oficiais.csv num branch próprio e abre um pull request para revisão.
 on:
   workflow_dispatch:
     inputs:
       ufs:
-        description: "Estados, separados por espaço (vazio = todos)"
+        description: 'Estados como lista JSON, ex.: ["SC","RS"] (padrão: todos)'
         type: string
-        default: ""
+        default: '["AC","AL","AM","AP","BA","CE","DF","ES","GO","MA","MG","MS","MT","PA","PB","PE","PI","PR","RJ","RN","RO","RR","RS","SC","SE","SP","TO"]'
 
 permissions:
   contents: write
   pull-requests: write
 
 jobs:
-  varredura:
+  estado:
     runs-on: ubuntu-latest
-    timeout-minutes: 350
+    timeout-minutes: 340
+    strategy:
+      fail-fast: false
+      max-parallel: 27
+      matrix:
+        uf: ${{ fromJSON(inputs.ufs) }}
     defaults:
       run:
         working-directory: backend
     env:
       DATABASE_URL: ${{ secrets.DATABASE_URL }}
-      UFS: ${{ inputs.ufs }}
+      PYTHONUNBUFFERED: "1"
     steps:
       - uses: actions/checkout@v4
 
@@ -35,18 +40,64 @@ jobs:
       - name: Instalar dependências
         run: uv sync --locked --no-dev
 
-      - name: Varrer
+      - name: Varrer ${{ matrix.uf }}
         run: |
-          if [ -n "$UFS" ]; then
-            uv run python -W ignore -m ingestion.canais.varredura --uf $UFS | tee ../varredura.log
-          else
-            uv run python -W ignore -m ingestion.canais.varredura | tee ../varredura.log
-          fi
+          uv run python -W ignore -m ingestion.canais.varredura --uf ${{ matrix.uf }} \
+            --saida ../canais_${{ matrix.uf }}.csv | tee ../varredura_${{ matrix.uf }}.log
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: canais-${{ matrix.uf }}
+          path: |
+            canais_${{ matrix.uf }}.csv
+            varredura_${{ matrix.uf }}.log
+          retention-days: 14
+
+  juntar:
+    needs: estado
+    if: always()
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: canais-*
+          merge-multiple: true
+          path: partes
+
+      - name: Juntar os estados num catálogo só
+        run: |
+          python3 - <<'PY'
+          import csv, glob, pathlib
+          linhas, campos = [], None
+          for arquivo in sorted(glob.glob("partes/canais_*.csv")):
+              with open(arquivo, encoding="utf-8", newline="") as f:
+                  leitor = csv.DictReader(f)
+                  campos = campos or leitor.fieldnames
+                  linhas += list(leitor)
+          destino = pathlib.Path("data/canais_oficiais.csv")
+          destino.parent.mkdir(exist_ok=True)
+          linhas.sort(key=lambda x: (x["uf"], x["municipio"], x["tipo"]))
+          with destino.open("w", encoding="utf-8", newline="") as f:
+              escritor = csv.DictWriter(f, fieldnames=campos)
+              escritor.writeheader()
+              escritor.writerows(linhas)
+          print(len(linhas), "linhas")
+          PY
+          {
+            echo "Varredura automática dos canais oficiais. Resumo por estado:"
+            echo
+            for log in partes/varredura_*.log; do
+              echo "### $(basename "$log" .log | sed 's/varredura_//')"
+              grep -E "^(camara|prefeitura|sapl|transparencia)" "$log" || true
+              echo
+            done
+          } > resumo.md
 
       - name: Abrir pull request com o catálogo
-        working-directory: .
-        env:
-          GH_TOKEN: ${{ github.token }}
         run: |
           ramo="varredura-canais-${{ github.run_id }}"
           git config user.name "github-actions[bot]"
@@ -57,4 +108,4 @@ jobs:
           git push origin "$ramo"
           gh pr create --base dev --head "$ramo" \
             --title "Catálogo de canais oficiais (varredura)" \
-            --body-file varredura.log || echo "PR não criado (permissão do repositório); o branch $ramo está publicado."
+            --body-file resumo.md || echo "PR não criado (permissão do repositório); o branch $ramo está publicado."

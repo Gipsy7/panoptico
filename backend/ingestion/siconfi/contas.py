@@ -30,12 +30,15 @@ FUNCAO = re.compile(r"^(\d{2}) - (.+)$")  # "10 - Saúde" (subfunções têm "10
 
 def _consultar(client: httpx.Client, ibge: str, ano: int, anexo: str) -> list[dict]:
     try:
-        dados = comum.get_json(
-            client, URL, params={"an_exercicio": ano, "no_anexo": anexo, "id_ente": ibge}
+        resposta = client.get(
+            URL,
+            params={"an_exercicio": ano, "no_anexo": anexo, "id_ente": ibge},
+            timeout=30,
         )
+        resposta.raise_for_status()
     except httpx.HTTPError:
         return []
-    return dados.get("items", [])
+    return resposta.json().get("items", [])
 
 
 def recortar(ibge: str, receitas: list[dict], despesas: list[dict]) -> dict[str, Any] | None:
@@ -78,8 +81,17 @@ def baixar(client: httpx.Client, ano: int, ibges: list[str]) -> list[dict]:
             _consultar(client, ibge, ano, "DCA-Anexo I-E"),
         )
 
+    resultados = []
     with ThreadPoolExecutor(max_workers=6) as pool:
-        return [r for r in pool.map(um, ibges) if r]
+        for i, r in enumerate(pool.map(um, ibges), start=1):
+            if r:
+                resultados.append(r)
+            if i % 250 == 0:
+                print(
+                    f"  {ano}: {i} de {len(ibges)} consultados, {len(resultados)} com contas",
+                    flush=True,
+                )
+    return resultados
 
 
 def executar(ano: int, de_raw: Path | None = None) -> int:

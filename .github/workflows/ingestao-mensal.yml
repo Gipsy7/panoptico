@@ -19,13 +19,14 @@ concurrency:
 jobs:
   mensal:
     runs-on: ubuntu-latest
-    timeout-minutes: 180
+    timeout-minutes: 340
     defaults:
       run:
         working-directory: backend
     env:
       DATABASE_URL: ${{ secrets.DATABASE_URL }}
       ANOS: ${{ inputs.anos }}
+      PYTHONUNBUFFERED: "1" # progresso no log enquanto roda
     steps:
       - uses: actions/checkout@v4
 
@@ -39,10 +40,14 @@ jobs:
       - name: Migrações do banco
         run: uv run alembic upgrade head
 
+      # Um ano por vez: se um falhar (API fora do ar), o outro já ficou gravado.
       - name: Contas dos municípios (SICONFI)
         run: |
-          if [ -n "$ANOS" ]; then
-            uv run python -m ingestion.siconfi.contas --ano $ANOS
-          else
-            uv run python -m ingestion.siconfi.contas
+          anos="$ANOS"
+          if [ -z "$anos" ]; then
+            ano=$(date +%Y)
+            anos="$((ano - 2)) $((ano - 1))"
           fi
+          for a in $anos; do
+            uv run python -m ingestion.siconfi.contas --ano "$a"
+          done

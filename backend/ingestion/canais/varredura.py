@@ -126,6 +126,14 @@ class Pagina:
     links: list[tuple[str, str]] = field(default_factory=list)
 
 
+def _juntar(base: str, href: str) -> str | None:
+    """urljoin que não quebra com links malformados (ex.: "http://[facebook_entidade]")."""
+    try:
+        return urljoin(base, href)
+    except ValueError:
+        return None
+
+
 def _da_cidade(pagina: Pagina, nome: str) -> bool:
     chave = chave_nome(nome)
     return chave in chave_nome(pagina.titulo) or chave in chave_nome(pagina.texto[:20000])
@@ -142,7 +150,9 @@ def melhor_portal(pagina: Pagina) -> str | None:
     inicio = pagina.url.rstrip("/")
     melhores: list[tuple[int, str]] = []
     for href, texto in pagina.links:
-        absoluto = urljoin(pagina.url, href)
+        absoluto = _juntar(pagina.url, href)
+        if not absoluto:
+            continue
         alvo = f"{absoluto} {texto}".lower()
         if "transpar" not in alvo or not absoluto.startswith("http"):
             continue
@@ -167,7 +177,7 @@ def sistema_de(url: str) -> str | None:
 
 
 class Varredura:
-    def __init__(self, conexoes: int = 24, tempo: float = 12.0, pausa: float = 1.5) -> None:
+    def __init__(self, conexoes: int = 48, tempo: float = 12.0, pausa: float = 0.6) -> None:
         self.limite = asyncio.Semaphore(conexoes)
         # Muitas cidades dividem o mesmo servidor (o mesmo IP): uma requisição por vez por
         # servidor, com pausa, senão o servidor nos bloqueia (visto em SC: resposta 444).
@@ -274,7 +284,9 @@ class Varredura:
         links_camara = []
         if prefeitura:
             for href, texto in prefeitura.links:
-                absoluto = urljoin(prefeitura.url, href)
+                absoluto = _juntar(prefeitura.url, href)
+                if not absoluto:
+                    continue
                 alvo = (absoluto + " " + texto).lower()
                 if _oficial(absoluto) and (".leg.br" in absoluto or "camara" in alvo):
                     if urlparse(absoluto).hostname != urlparse(prefeitura.url).hostname:
@@ -302,7 +314,11 @@ async def varrer(municipios: list[tuple[str, str, str]], conexoes: int) -> list[
 
     async def uma(m: tuple[str, str, str]) -> list[dict]:
         nonlocal feitos
-        resultado = await varredura.cidade(*m)
+        try:
+            resultado = await varredura.cidade(*m)
+        except Exception as erro:  # uma cidade com site estranho não derruba a varredura
+            print(f"  {m[1]}/{m[2]}: {erro.__class__.__name__}: {str(erro)[:100]}")
+            resultado = []
         feitos += 1
         if feitos % 100 == 0:
             print(f"  {feitos} de {len(municipios)} cidades")
