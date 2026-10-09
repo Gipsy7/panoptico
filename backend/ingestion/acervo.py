@@ -27,6 +27,9 @@ from ingestion import comum
 REGISTRO = Path(__file__).with_name("fontes.toml")
 FREQUENCIAS = {"diaria": 1, "semanal": 7, "mensal": 30, "manual": None}
 ACESSOS = {"aberto", "brasil", "lento", "espelho", "pedido", "lai", "indisponivel"}
+SITUACOES = {"ativa", "catalogada"}
+GUARDAS = {"linhas", "somas"}
+BRUTOS = {"completo", "recorte"}
 
 
 @dataclass
@@ -38,6 +41,12 @@ class Fonte:
     args: dict = field(default_factory=dict)
     depende: list[str] = field(default_factory=list)
     acesso: str = "aberto"
+    # Coleta mínima (docs/DECISOES.md): só entra com uso declarado; sem uso, fica catalogada.
+    situacao: str = "ativa"
+    uso: str = ""  # a pergunta do cidadão ou a seção do site que a fonte alimenta
+    recorte: str = ""  # quais pessoas, órgãos e período são guardados
+    guarda: str = "linhas"  # "linhas" ou "somas"
+    bruto: str = "completo"  # "completo" ou "recorte" (recorte em Parquet + manifesto)
 
 
 def ler_registro(caminho: Path = REGISTRO) -> list[Fonte]:
@@ -52,6 +61,11 @@ def ler_registro(caminho: Path = REGISTRO) -> list[Fonte]:
             raise ValueError(f"{f.nome}: frequência desconhecida {f.frequencia!r}")
         if f.acesso not in ACESSOS:
             raise ValueError(f"{f.nome}: acesso desconhecido {f.acesso!r}")
+        for campo, valores in (("situacao", SITUACOES), ("guarda", GUARDAS), ("bruto", BRUTOS)):
+            if getattr(f, campo) not in valores:
+                raise ValueError(f"{f.nome}: {campo} desconhecido {getattr(f, campo)!r}")
+        if f.situacao == "ativa" and not f.uso.strip():
+            raise ValueError(f"{f.nome}: fonte ativa sem uso declarado (ou marque como catalogada)")
         faltam = [d for d in f.depende if d not in nomes]
         if faltam:
             raise ValueError(f"{f.nome}: depende de fontes fora do registro: {faltam}")
@@ -98,11 +112,12 @@ def ordenar(fontes: list[Fonte], escolhidas: set[str]) -> list[Fonte]:
 
 
 def vencidas(fontes: list[Fonte], ultimo_ok: dict[str, datetime], agora: datetime) -> set[str]:
-    """Fontes não manuais cuja última carga com sucesso é mais velha que a frequência."""
+    """Fontes ativas e não manuais cuja última carga com sucesso é mais velha que a
+    frequência."""
     resultado = set()
     for f in fontes:
         dias = FREQUENCIAS[f.frequencia]
-        if dias is None:
+        if dias is None or f.situacao != "ativa":
             continue
         ultimo = ultimo_ok.get(f.nome)
         # Folga de uma hora: a carga diária das 3h não fica "vencida" às 2h59 do dia seguinte.
@@ -135,6 +150,11 @@ def rodar(nomes: set[str], fontes: list[Fonte]) -> int:
     hoje = date.today()
     falharam: set[str] = set()
     for fonte in ordenar(fontes, nomes):
+        if fonte.situacao != "ativa":
+            print(
+                f"[pulada] {fonte.nome}: catalogada, sem coleta (falta uso declarado)", flush=True
+            )
+            continue
         bloqueio = [d for d in fonte.depende if d in falharam]
         if bloqueio:
             print(f"[pulada] {fonte.nome}: depende de {', '.join(bloqueio)}", flush=True)
@@ -185,15 +205,15 @@ def relatorio(fontes: list[Fonte]) -> None:
             )
         ).all()
     print(f"Banco: {_mb(banco)} MB    Brutos em {comum.RAW_DIR}")
-    print(f"\n{'fonte':28} {'freq.':8} {'acesso':8} {'última carga':17} {'status':7} "
-          f"{'registros':>10} {'bruto MB':>10}")  # fmt: skip
+    print(f"\n{'fonte':28} {'situação':10} {'freq.':8} {'acesso':8} {'guarda':6} "
+          f"{'última carga':17} {'status':7} {'registros':>10} {'bruto MB':>10}")  # fmt: skip
     total_bruto = 0
     for f in fontes:
         status, quando, registros = ultimas.get(f.nome, ("-", None, None))
         bruto = _tamanho_dir(comum.RAW_DIR / f.nome) if (comum.RAW_DIR / f.nome).exists() else 0
         total_bruto += bruto
         print(
-            f"{f.nome:28} {f.frequencia:8} {f.acesso:8} "
+            f"{f.nome:28} {f.situacao:10} {f.frequencia:8} {f.acesso:8} {f.guarda:6} "
             f"{quando.strftime('%d/%m/%Y %H:%M') if quando else '-':17} {status:7} "
             f"{registros if registros is not None else '-':>10} {_mb(bruto):>10}"
         )

@@ -109,6 +109,19 @@ O subsídio é igual para deputados e senadores e é fixado por decreto legislat
 - **Bens:** valor como declarado, sem correção. A página avisa que bens costumam ser declarados pelo valor de compra. Sem palavras como "enriqueceu": mostramos os dois totais e o ano.
 - **2024:** o TSE passou a mascarar o CPF, então as candidaturas municipais de 2024 não se ligam aos parlamentares federais.
 
+## 2026-10-08: coleta mínima
+
+Juntar as bases inteiras (CNPJ, PNCP, TSE, Portal da Transparência) levaria o acervo a 90–200 GB, e a maior parte nunca seria usada. A regra passa a ser pegar aos poucos, só o necessário, no formato mais compacto. Meta: ~10–30 GB.
+
+- **Só entra com uso.** Cada fonte declara em `ingestion/fontes.toml` a pergunta do cidadão ou a seção do site que alimenta (`uso`). Sem uso, fica `situacao = "catalogada"`: conhecida e documentada, mas o acervo não a coleta. A carga recusa fonte ativa sem uso.
+- **Parte das pessoas, não das bases.** O universo são as pessoas públicas (eleitos, ministros, magistrados de tribunais superiores, nomeados de alto escalão). De bases grandes guarda-se só o que se liga a elas (`recorte`). Exemplos:
+  - CNPJ: empresas com sócio político e fornecedores dos contratos, não as 60 milhões;
+  - PNCP: contratos inteiros só quando o fornecedor tem ligação com político, sanção ou doação; o resto em somas.
+- **Somas em vez de linhas** quando o site mostra somas (`guarda = "somas"`), como já é no SICONFI, nos gastos da ALESP e nas contas de campanha. O detalhe fica a um link da fonte oficial.
+- **Bruto completo só de fontes pequenas ou instáveis** (páginas de processo, PDFs de casos, SAPL). Dos arquivos grandes que o órgão mantém no ar, guarda-se o recorte em Parquet compactado e o manifesto (URL, data, sha256); para refazer, baixa-se de novo (`bruto = "recorte"`).
+- **Incremental:** pedir só o que mudou desde a última carga e não gravar de novo um arquivo igual ao anterior.
+- **Janela de tempo:** mandato atual e anterior por padrão. O histórico longo fica só onde ele é a informação (processos, casos, bens).
+
 ## 2026-10-08: acervo local e regras para Justiça e controle
 
 O plano é juntar tudo o que é público sobre quem exerce função pública: processos, sanções, contas julgadas pelo TCU, cassações, partidos, contratos e empresas. Isso passa de dezenas de GB e não cabe na produção atual.

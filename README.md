@@ -206,6 +206,8 @@ npm run dev                          # http://localhost:3000
 
 As fontes novas (Justiça, órgãos de controle, partidos, contratos) são juntadas primeiro num **acervo local**: um banco à parte, sem os limites da produção, com os brutos preservados. O registro das fontes fica em [backend/ingestion/fontes.toml](backend/ingestion/fontes.toml).
 
+A regra é a **coleta mínima**: uma fonte só é coletada quando declara para que serve no site (as outras ficam só catalogadas), e das bases grandes guarda-se só o que se liga às pessoas públicas, em somas quando o site mostra somas. Ver [docs/DECISOES.md](docs/DECISOES.md), "coleta mínima".
+
 ```bash
 psql -U postgres -f scripts/criar_acervo.sql         # uma vez
 cd backend

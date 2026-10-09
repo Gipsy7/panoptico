@@ -19,14 +19,22 @@ def test_registro_valido_e_nomes_iguais_aos_dos_modulos():
 
 def test_registro_recusa_erros(tmp_path):
     arquivo = tmp_path / "fontes.toml"
-    arquivo.write_text(
-        '[[fonte]]\nnome = "a"\nmodulo = "m"\nfrequencia = "diaria"\ndepende = ["b"]\n'
-    )
+
+    def registro(*campos):
+        linhas = ["[[fonte]]", "nome = 'a'", "modulo = 'm'", *campos]
+        arquivo.write_text("\n".join(linhas) + "\n")
+        return acervo.ler_registro(arquivo)
+
     with pytest.raises(ValueError, match="fora do registro"):
-        acervo.ler_registro(arquivo)
-    arquivo.write_text('[[fonte]]\nnome = "a"\nmodulo = "m"\nfrequencia = "anual"\n')
+        registro("uso = 'x'", "frequencia = 'diaria'", "depende = ['b']")
     with pytest.raises(ValueError, match="frequência"):
-        acervo.ler_registro(arquivo)
+        registro("uso = 'x'", "frequencia = 'anual'")
+    with pytest.raises(ValueError, match="guarda"):
+        registro("uso = 'x'", "frequencia = 'diaria'", "guarda = 'tudo'")
+    # Coleta mínima: fonte ativa precisa de uso declarado; catalogada não.
+    with pytest.raises(ValueError, match="sem uso declarado"):
+        registro("frequencia = 'diaria'")
+    assert registro("frequencia = 'diaria'", "situacao = 'catalogada'")[0].situacao == "catalogada"
 
 
 def test_anos():
@@ -89,3 +97,17 @@ def test_rodar_pula_quem_depende_de_falha(monkeypatch, capsys):
     assert acervo.rodar({"pessoas", "gastos", "ibge"}, fontes) == 2
     assert chamadas == ["pessoas", "ibge"]
     assert "[pulada] gastos: depende de pessoas" in capsys.readouterr().out
+
+
+def test_catalogada_nunca_roda(monkeypatch, capsys):
+    agora = datetime(2026, 10, 8, 3, tzinfo=UTC)
+    fontes = [
+        Fonte("cnpj", "m", "mensal", situacao="catalogada"),
+        Fonte("ibge", "m", "mensal", uso="x"),
+    ]
+    assert acervo.vencidas(fontes, {}, agora) == {"ibge"}
+    chamadas = []
+    monkeypatch.setattr(acervo, "_executar", lambda fonte, hoje: chamadas.append(fonte.nome) or 1)
+    assert acervo.rodar({"cnpj", "ibge"}, fontes) == 0
+    assert chamadas == ["ibge"]
+    assert "[pulada] cnpj: catalogada" in capsys.readouterr().out

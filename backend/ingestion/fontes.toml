@@ -10,21 +10,34 @@
 #   depende     fontes que precisam rodar antes (na mesma execução)
 #   acesso      degrau de acesso (ver docs/DECISOES.md): "aberto" | "brasil" | "lento"
 #               | "espelho" | "pedido" | "lai" | "indisponivel"
+#
+# Coleta mínima (docs/DECISOES.md): uma fonte só é coletada com uso declarado.
+#   situacao    "ativa" (padrão) | "catalogada" (conhecida, sem coleta até ter uso)
+#   uso         a pergunta do cidadão ou a seção do site que a fonte alimenta (obrigatório
+#               quando ativa)
+#   recorte     quais pessoas, órgãos e período são guardados
+#   guarda      "linhas" (padrão) | "somas" (só totais, como no site)
+#   bruto       "completo" (padrão) | "recorte" (arquivo grande lido em fluxo; fica o
+#               recorte em Parquet e o manifesto, e o original é baixado de novo se preciso)
 
 # Federais (as mesmas do run_all, na mesma ordem de dependência)
 [[fonte]]
 nome = "camara_deputados"
 modulo = "ingestion.camara.deputados"
+uso = "Perfil do deputado federal"
 frequencia = "diaria"
 
 [[fonte]]
 nome = "senado_senadores"
 modulo = "ingestion.senado.senadores"
+uso = "Perfil do senador"
 frequencia = "diaria"
 
 [[fonte]]
 nome = "camara_despesas"
 modulo = "ingestion.camara.despesas"
+uso = "Gastos do gabinete do deputado"
+recorte = "ano anterior e atual"
 frequencia = "diaria"
 anos = "padrao"
 depende = ["camara_deputados"]
@@ -32,6 +45,8 @@ depende = ["camara_deputados"]
 [[fonte]]
 nome = "senado_despesas"
 modulo = "ingestion.senado.despesas"
+uso = "Gastos do gabinete do senador"
+recorte = "ano anterior e atual"
 frequencia = "diaria"
 anos = "padrao"
 depende = ["senado_senadores"]
@@ -39,6 +54,8 @@ depende = ["senado_senadores"]
 [[fonte]]
 nome = "camara_votacoes"
 modulo = "ingestion.camara.votacoes"
+uso = "Presença e como votou (Câmara)"
+recorte = "ano anterior e atual"
 frequencia = "diaria"
 anos = "padrao"
 depende = ["camara_deputados"]
@@ -46,6 +63,8 @@ depende = ["camara_deputados"]
 [[fonte]]
 nome = "senado_votacoes"
 modulo = "ingestion.senado.votacoes"
+uso = "Presença e como votou (Senado)"
+recorte = "ano anterior e atual"
 frequencia = "diaria"
 anos = "padrao"
 depende = ["senado_senadores"]
@@ -53,6 +72,8 @@ depende = ["senado_senadores"]
 [[fonte]]
 nome = "senado_votacoes_comissoes"
 modulo = "ingestion.senado.votacoes_comissoes"
+uso = "Votos nas comissões do Senado"
+recorte = "ano anterior e atual"
 frequencia = "diaria"
 anos = "padrao"
 depende = ["senado_senadores"]
@@ -60,6 +81,8 @@ depende = ["senado_senadores"]
 [[fonte]]
 nome = "camara_proposicoes"
 modulo = "ingestion.camara.proposicoes"
+uso = "Projetos de lei do deputado"
+recorte = "desde 2023"
 frequencia = "diaria"
 anos = "desde_2023"
 depende = ["camara_deputados"]
@@ -67,41 +90,52 @@ depende = ["camara_deputados"]
 [[fonte]]
 nome = "senado_proposicoes"
 modulo = "ingestion.senado.proposicoes"
+uso = "Projetos de lei do senador"
+recorte = "mandatos em exercício"
 frequencia = "diaria"
 depende = ["senado_senadores"]
 
 [[fonte]]
 nome = "camara_temas"
 modulo = "ingestion.camara.temas"
+uso = "Temas das votações e projetos (Câmara)"
+recorte = "só o que foi votado ou apresentado"
 frequencia = "diaria"
 depende = ["camara_votacoes", "camara_proposicoes"]
 
 [[fonte]]
 nome = "senado_temas"
 modulo = "ingestion.senado.temas"
+uso = "Temas das votações e projetos (Senado)"
+recorte = "só o que foi votado ou apresentado"
 frequencia = "diaria"
 depende = ["senado_votacoes", "senado_proposicoes"]
 
 [[fonte]]
 nome = "ibge_municipios"
 modulo = "ingestion.ibge.municipios"
+uso = "Busca por cidade e CEP"
 frequencia = "mensal"
 
 [[fonte]]
 nome = "canais_oficiais"
 modulo = "ingestion.canais.catalogo"
+uso = "Canais oficiais da cidade"
 frequencia = "diaria"
 depende = ["ibge_municipios"]
 
 [[fonte]]
 nome = "transparencia_emendas"
 modulo = "ingestion.transparencia.emendas"
+uso = "Dinheiro enviado para a sua cidade"
+recorte = "emendas pagas a favorecidos da própria cidade"
 frequencia = "diaria"
 depende = ["camara_deputados", "senado_senadores", "ibge_municipios"]
 
 [[fonte]]
 nome = "resumos"
 modulo = "ingestion.resumos"
+uso = "Números-chave e lista de parlamentares"
 frequencia = "diaria"
 depende = ["camara_despesas", "senado_despesas", "camara_votacoes", "senado_votacoes", "camara_proposicoes", "senado_proposicoes", "transparencia_emendas"]
 
@@ -109,6 +143,8 @@ depende = ["camara_despesas", "senado_despesas", "camara_votacoes", "senado_vota
 [[fonte]]
 nome = "tse_candidaturas"
 modulo = "ingestion.tse.candidaturas"
+uso = "Representantes eleitos e \"Quem é\" (TSE)"
+recorte = "eleitos e parlamentares em exercício"
 frequencia = "manual"
 anos = [2018, 2022, 2024]
 depende = ["camara_deputados", "senado_senadores", "ibge_municipios"]
@@ -116,6 +152,8 @@ depende = ["camara_deputados", "senado_senadores", "ibge_municipios"]
 [[fonte]]
 nome = "tse_bens"
 modulo = "ingestion.tse.bens"
+uso = "Bens declarados"
+recorte = "candidaturas guardadas"
 frequencia = "manual"
 anos = [2018, 2022, 2024]
 depende = ["tse_candidaturas"]
@@ -123,6 +161,9 @@ depende = ["tse_candidaturas"]
 [[fonte]]
 nome = "tse_campanha"
 modulo = "ingestion.tse.campanha"
+uso = "De onde veio e para onde foi o dinheiro da campanha"
+recorte = "candidaturas guardadas"
+guarda = "somas"
 frequencia = "manual"
 anos = [2018, 2022, 2024]
 depende = ["tse_candidaturas"]
@@ -130,6 +171,8 @@ depende = ["tse_candidaturas"]
 [[fonte]]
 nome = "tse_redes"
 modulo = "ingestion.tse.redes"
+uso = "Redes sociais declaradas"
+recorte = "candidaturas guardadas"
 frequencia = "manual"
 anos = [2018, 2022, 2024]
 depende = ["tse_candidaturas"]
@@ -137,6 +180,9 @@ depende = ["tse_candidaturas"]
 [[fonte]]
 nome = "tse_votos"
 modulo = "ingestion.tse.votos"
+uso = "Votos recebidos"
+recorte = "candidaturas guardadas"
+guarda = "somas"
 frequencia = "manual"
 anos = [2018, 2022, 2024]
 depende = ["tse_candidaturas"]
@@ -145,6 +191,9 @@ depende = ["tse_candidaturas"]
 [[fonte]]
 nome = "siconfi_contas"
 modulo = "ingestion.siconfi.contas"
+uso = "Contas da sua cidade"
+recorte = "dois anos anteriores"
+guarda = "somas"
 frequencia = "mensal"
 anos = "dois_anteriores"
 depende = ["ibge_municipios"]
@@ -152,6 +201,9 @@ depende = ["ibge_municipios"]
 [[fonte]]
 nome = "tce_sp"
 modulo = "ingestion.tce.sp"
+uso = "Para quem a cidade pagou (SP)"
+recorte = "dois anos anteriores"
+guarda = "somas"
 frequencia = "mensal"
 anos = "dois_anteriores"
 depende = ["ibge_municipios"]
@@ -160,12 +212,16 @@ depende = ["ibge_municipios"]
 [[fonte]]
 nome = "sapl_camaras"
 modulo = "ingestion.camaras.sapl"
+uso = "Câmara municipal hoje"
+recorte = "legislatura em vigor; projetos do ano atual e anterior"
 frequencia = "semanal"
 depende = ["canais_oficiais"]
 
 [[fonte]]
 nome = "sapl_assembleias"
 modulo = "ingestion.assembleias.sapl"
+uso = "Assembleia legislativa hoje"
+recorte = "legislatura em vigor; projetos do ano atual e anterior"
 frequencia = "semanal"
 # Roraima só responde a IPs do Brasil: no acervo local entra junto com as outras.
 acesso = "brasil"
@@ -173,9 +229,13 @@ acesso = "brasil"
 [[fonte]]
 nome = "almg"
 modulo = "ingestion.assembleias.almg"
+uso = "Assembleia de Minas Gerais hoje"
+recorte = "deputados em exercício; ano atual e anterior"
 frequencia = "semanal"
 
 [[fonte]]
 nome = "alesp"
 modulo = "ingestion.assembleias.alesp"
+uso = "Assembleia de São Paulo hoje"
+recorte = "deputados em exercício; ano atual e anterior"
 frequencia = "semanal"
