@@ -43,7 +43,12 @@ def normalizar(linhas: Any) -> list[dict[str, Any]]:
     tem uma linha por fundamento)."""
     grupos: dict[tuple, dict[str, Any]] = {}
     for linha in linhas:
-        tipo = TIPOS.get((linha.get("DS_TP_MOTIVO") or "").strip().lower())
+        if "DS_TP_MOTIVO" in linha:
+            tipo = TIPOS.get((linha.get("DS_TP_MOTIVO") or "").strip().lower())
+        else:
+            # Arquivos antigos (2016) não têm o tipo nem o processo: só o motivo. Sem saber
+            # se foi cassação, fica a forma neutra ("julgamento sobre o registro").
+            tipo = "julgamento_candidatura"
         if tipo is None:
             continue
         numero = numero_cnj(linha.get("NR_PROCESSO"))
@@ -59,7 +64,7 @@ def normalizar(linhas: Any) -> list[dict[str, Any]]:
                 "gerado_em": comum_tse.data(linha.get("DT_GERACAO")),
             },
         )
-        fundamento = comum_tse.texto(linha.get("DS_MOTIVO"))
+        fundamento = comum_tse.texto(linha.get("DS_MOTIVO") or linha.get("DS_MOTIVO_CASSACAO"))
         if fundamento and fundamento not in grupo["fundamentos"]:
             grupo["fundamentos"].append(fundamento.rstrip("."))
     return list(grupos.values())
@@ -140,7 +145,7 @@ def executar(ano: int, de_raw: Path | None = None) -> int:
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=f"Ingestão: {FONTE}")
-    parser.add_argument("--ano", type=int, nargs="*", default=[2018, 2020, 2022, 2024])
+    parser.add_argument("--ano", type=int, nargs="*", default=[2016, 2018, 2020, 2022, 2024])
     parser.add_argument("--de-raw", type=Path, help="Reprocessa um arquivo bruto (um ano só)")
     args = parser.parse_args()
     for ano in args.ano:

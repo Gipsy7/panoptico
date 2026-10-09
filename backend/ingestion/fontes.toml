@@ -144,9 +144,9 @@ depende = ["camara_despesas", "senado_despesas", "camara_votacoes", "senado_vota
 nome = "tse_candidaturas"
 modulo = "ingestion.tse.candidaturas"
 uso = "Representantes eleitos e \"Quem é\" (TSE)"
-recorte = "eleitos e parlamentares; 2020 só de quem já temos (pelo título), depois das demais"
+recorte = "eleitos e parlamentares; 2016 e 2020 só de quem já temos (pelo título), depois das demais"
 frequencia = "manual"
-anos = [2018, 2022, 2024, 2020]
+anos = [2018, 2022, 2024, 2020, 2016]
 depende = ["camara_deputados", "senado_senadores", "ibge_municipios"]
 
 [[fonte]]
@@ -270,7 +270,7 @@ modulo = "ingestion.tse.cassacoes"
 uso = "Linha do tempo: cassação e julgamento de candidatura (com número do processo)"
 recorte = "só candidaturas de eleitos e parlamentares já ligadas a uma pessoa"
 frequencia = "mensal"
-anos = [2018, 2020, 2022, 2024]
+anos = [2016, 2018, 2020, 2022, 2024]
 depende = ["pessoas"]
 
 [[fonte]]

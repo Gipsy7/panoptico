@@ -109,6 +109,19 @@ O subsídio é igual para deputados e senadores e é fixado por decreto legislat
 - **Bens:** valor como declarado, sem correção. A página avisa que bens costumam ser declarados pelo valor de compra. Sem palavras como "enriqueceu": mostramos os dois totais e o ano.
 - **2024:** o TSE passou a mascarar o CPF, então as candidaturas municipais de 2024 não se ligam aos parlamentares federais.
 
+## 2026-10-09: eleição de 2016 como histórico
+
+- **Mesmo recorte de 2020:** só candidaturas cujo título de eleitor já aparece em outra eleição guardada. Na base local, 32.722 candidaturas, nenhuma pessoa nova.
+- **Ganhos:**
+  - pessoas com CPF: de 50.782 para 53.248;
+  - sanções da CGU ligadas: de 39 para 46;
+  - condenações do TCU: de 320 para 361.
+- **Julgamentos de candidatura de 2016:**
+  - O arquivo `motivo_cassacao_2016` tem um formato mais antigo: só `DS_MOTIVO_CASSACAO`, sem o tipo do motivo nem o número do processo.
+  - Sem saber se foi cassação, o evento usa a forma neutra ("O TSE registra julgamento sobre o registro da candidatura de 2016, com fundamento em: …"), sem número de processo.
+  - Na base local, 326 eventos de pessoas que acompanhamos.
+- **Arquivo do dia da CGU ainda não publicado:** o servidor da CGU responde 403 (e não 404) para arquivo que não existe. A carga recua para o dia anterior também nesse caso.
+
 ## 2026-10-09: Câmara Legislativa do Distrito Federal (CLDF)
 
 - **Conector pela API pública do Processo Legislativo Eletrônico**, nas mesmas tabelas das assembleias (UF "DF"):

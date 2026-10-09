@@ -89,3 +89,17 @@ def test_so_pessoas_que_temos_e_na_linha_do_tempo(client, session):
     ]  # sem data vai para o fim
     assert itens[1]["numero_processo"] is None
     assert itens[0]["data"] == str(date(2024, 10, 6))
+
+
+def test_formato_antigo_de_2016_sem_tipo_nem_processo():
+    texto = io.StringIO()
+    escritor = csv.writer(texto, delimiter=";")
+    escritor.writerow(["DT_GERACAO", "ANO_ELEICAO", "SQ_CANDIDATO", "DS_MOTIVO_CASSACAO"])
+    escritor.writerow(["18/02/2021", "2016", "10000002023", "Ausência de requisito de registro "])
+    saida = io.BytesIO()
+    with zipfile.ZipFile(saida, "w") as z:
+        z.writestr("motivo_cassacao_2016_AC.csv", texto.getvalue().encode("latin-1"))
+    registros = cassacoes.normalizar(comum_tse.linhas(saida.getvalue(), "motivo_cassacao_"))
+    assert registros[0]["tipo"] == "julgamento_candidatura"
+    assert registros[0]["numero_processo"] is None
+    assert registros[0]["fundamentos"] == ["Ausência de requisito de registro"]

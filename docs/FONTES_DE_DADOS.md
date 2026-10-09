@@ -133,6 +133,7 @@ Endpoints conferidos em 2026-10-06.
 - **Conferência (base local):** dos 23 eventos ligados a pessoas que temos, os de 2022 são Deltan Dallagnol (PR, Ficha limpa, processo 0601407-70.2022.6.16.0000) e Carla Zambelli (SP, abuso de poder político e uso indevido de meios de comunicação, 0601390-55.2022.6.26.0000), coerentes com os julgamentos noticiados.
 - **Cobre todos os candidatos, não só eleitos.** Em 2024 são 12.088 linhas e 10.705 candidaturas, a maioria de não eleitos. Pela coleta mínima, guardamos só as candidaturas de pessoas que já temos (eleitos e parlamentares).
 - **Não traz a data da decisão nem se cabe recurso.** O evento diz o que o TSE registra, com a data de geração do arquivo, e fica sem data na linha do tempo.
+- **2016 tem formato antigo:** colunas até `SQ_CANDIDATO` e só `DS_MOTIVO_CASSACAO` (sem `NR_PROCESSO` nem `DS_TP_MOTIVO`). São 18.029 linhas, geradas em 18/02/2021.
 - **Número do processo:** conferido pelo dígito verificador (módulo 97) e formatado como `NNNNNNN-DD.AAAA.J.TR.OOOO`. O `J` = 6 indica a Justiça Eleitoral, e o `TR` o tribunal regional.
 
 ## TSE: órgãos partidários
@@ -151,6 +152,7 @@ Endpoints conferidos em 2026-10-06.
 - **Origem:** 7.075 das 9.092 sanções a pessoas físicas no CEIS vêm do CNJ: são condenações por improbidade (Lei 8.429), registradas como "Impedimento/proibição de contratar".
 - **Fundamentação legal:** texto longo de cada norma, vários itens separados por `;` ou `;;`. Guardamos só "norma - artigo" de cada item.
 - **Número do processo:** pode ser número único do CNJ (formatado) ou número de processo administrativo (ex.: `10768.000360/2014-05`), guardado como veio.
+- **Arquivo do dia ainda não publicado:** o servidor de download responde 403 (não 404). A carga tenta os dias anteriores, até 7.
 - **Páginas de detalhe** (`/sancoes/ceis/{código}`) recusam acesso automático (405). O link da fonte é a página de download do cadastro, e o código da sanção vai no texto.
 
 ## TCU: contas julgadas irregulares e inabilitados

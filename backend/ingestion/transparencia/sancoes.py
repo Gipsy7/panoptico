@@ -185,7 +185,9 @@ def baixar_cadastros(client: httpx.Client, hoje: date) -> bytes:
                     )
                     break
                 except httpx.HTTPStatusError as erro:
-                    if erro.response.status_code != 404 or atraso == 7:
+                    # Arquivo do dia ainda não publicado: o servidor da CGU responde 403
+                    # (não 404) para arquivo que não existe. Tenta o dia anterior.
+                    if erro.response.status_code not in (403, 404) or atraso == 7:
                         raise
             z.writestr(f"{cadastro.upper()}.zip", conteudo)
     return saida.getvalue()
