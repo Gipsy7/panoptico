@@ -64,7 +64,8 @@ jobs:
         run: uv run python -m ingestion.camaras.sapl --uf ${{ matrix.uf }}
 
   # As assembleias legislativas que usam o SAPL (lista em ingestion/assembleias/sapl.py),
-  # uma por máquina: as maiores têm milhares de votos e proposições.
+  # uma por máquina: as maiores têm milhares de votos e proposições. Roraima fica de fora:
+  # o SAPL de lá responde 403 aos endereços do GitHub (do Brasil responde normalmente).
   assembleias:
     needs: catalogo
     runs-on: ubuntu-latest
@@ -72,7 +73,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        uf: ["AC", "AL", "AM", "PB", "PI", "RO", "RR", "TO"]
+        uf: ["AC", "AL", "AM", "PB", "PI", "RO", "TO"]
     defaults:
       run:
         working-directory: backend

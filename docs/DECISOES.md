@@ -109,6 +109,15 @@ O subsídio é igual para deputados e senadores e é fixado por decreto legislat
 - **Bens:** valor como declarado, sem correção. A página avisa que bens costumam ser declarados pelo valor de compra. Sem palavras como "enriqueceu": mostramos os dois totais e o ano.
 - **2024:** o TSE passou a mascarar o CPF, então as candidaturas municipais de 2024 não se ligam aos parlamentares federais.
 
+## 2026-10-08: carga do SAPL mais rápida e sem itens perdidos
+
+- **Paginação sempre ordenada (`o=id`).** Sem ordem, o SAPL pagina de forma instável e a mesma lista repete itens e perde outros: na Assembleia do Acre, 5 projetos recentes de 434 ficavam de fora. Votos, presença e o resto da casa saíram iguais na comparação.
+- **Autoria e presença do mais novo para o mais velho (`o=-id`)**, parando na primeira página toda anterior ao período. Antes vinha o histórico inteiro de cada vereador (até 3.800 autorias em João Pessoa). Se a instalação ignorar a ordem, a lista é lida inteira, como antes.
+- **Projetos em lote:** a lista de matérias filtrada por ano e tipo, em vez de uma requisição por projeto. João Pessoa sozinha segurava o job da Paraíba por 4h30, pedindo projeto a projeto a um servidor que respondia 503. O que não vier no lote é buscado sozinho.
+- **Mais tentativas (5) nos erros 5xx**, para um 503 no meio de uma paginação longa não derrubar a casa (Assembleia do Amazonas). Instalação sem a rota de autores (404) entra sem projetos.
+- **Roraima fora do Actions:** o SAPL da assembleia responde 403 aos endereços do GitHub e 200 a partir do Brasil. Não é falha da carga; o job só ficava verde antes porque não checava.
+- Na Assembleia do Acre, a coleta caiu de 380 s para 148 s.
+
 ## 2026-10-08: cargas do SAPL mais robustas
 
 - **Só a legislatura em vigor** (com 90 dias de folga depois do fim). Sem ela, a casa não é carregada e os dados antigos são removidos: o SAPL da Assembleia de Mato Grosso parou em 2018 e, antes da correção, a carga mostraria deputados de 2015–2018 como se estivessem no cargo.

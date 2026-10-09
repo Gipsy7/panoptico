@@ -17,6 +17,7 @@ e várias câmaras em paralelo. Roda uma vez por semana.
 import argparse
 import re
 import time
+from collections.abc import Callable
 from concurrent.futures import ThreadPoolExecutor
 from datetime import UTC, date, datetime, timedelta
 from typing import Any
@@ -42,7 +43,8 @@ from ingestion.canais import catalogo
 
 FONTE = "sapl_camaras"
 PAUSA = 0.4
-POR_PAGINA = 100
+POR_PAGINA = 100  # o máximo que o SAPL devolve por página
+TENTATIVAS = 5
 AUTORIA = re.compile(r" - (?P<tipo>.+?) n\S*\s*(?P<numero>\d+)\s+de\s+(?P<ano>\d{4})\s*$", re.I)
 # "Ordem: Ordem do Dia/Expediente: 1 - Requerimento nº 62 de 2025 em 33ª Ordinária da 3ª
 # Sessão Legislativa da 16ª Legislatura - Votação: Aprovado"
@@ -60,7 +62,10 @@ class Sapl:
 
     def get(self, caminho: str, **params: Any) -> dict:
         time.sleep(PAUSA)
-        return comum.get_json(self.client, self.base + caminho, params=params or None)
+        # Servidores de câmara oscilam (503 no meio de uma paginação longa): mais tentativas.
+        return comum.get_json(
+            self.client, self.base + caminho, params=params or None, tentativas=TENTATIVAS
+        )
 
     def talvez(self, caminho: str) -> dict | None:
         """Um item que pode ter sumido ou estar com erro no servidor: None em vez de
@@ -74,7 +79,22 @@ class Sapl:
             raise
 
     def todos(self, caminho: str, **params: Any) -> list[dict]:
-        itens, pagina = [], 1
+        # Sem ordem explícita, o SAPL pagina em ordem instável: a mesma lista lida página a
+        # página repete itens e perde outros (visto na Assembleia do Acre: 203 autorias
+        # lidas, 202 distintas, faltando uma de setembro).
+        return self._paginar(caminho, None, {"o": "id", **params})
+
+    def recentes(self, caminho: str, antigo: Callable[[dict], bool], **params: Any) -> list[dict]:
+        """Como `todos`, do mais novo para o mais velho (`o=-id`), parando na primeira
+        página em que tudo é `antigo`. Sem isso, a autoria e a presença de cada vereador
+        vêm desde sempre (milhares de itens em João Pessoa). Se o SAPL ignorar a ordem
+        (versões antigas), a página não vem decrescente e a lista é lida inteira."""
+        return self._paginar(caminho, antigo, {**params, "o": "-id"})
+
+    def _paginar(
+        self, caminho: str, antigo: Callable[[dict], bool] | None, params: dict
+    ) -> list[dict]:
+        itens, pagina, anterior = [], 1, None
         while True:
             try:
                 dados = self.get(caminho, page_size=POR_PAGINA, page=pagina, **params)
@@ -83,9 +103,17 @@ class Sapl:
                 if pagina > 1 and erro.response.status_code == 404:
                     return itens
                 raise
-            itens += dados.get("results", [])
+            resultados = dados.get("results", [])
+            itens += resultados
             if not dados.get("pagination", {}).get("next_page"):
                 return itens
+            if antigo and resultados:
+                ids = ([anterior] if anterior is not None else []) + [r["id"] for r in resultados]
+                if ids != sorted(ids, reverse=True):
+                    antigo = None  # ordem ignorada: não dá para parar no meio
+                elif len(ids) > 1 and all(antigo(r) for r in resultados):
+                    return itens
+                anterior = resultados[-1]["id"]
             pagina += 1
 
 
@@ -132,6 +160,16 @@ def ler_registro(texto: str) -> tuple[str, str | None]:
     resultado = achado.group("resultado")
     # A coluna do resultado tem 60 caracteres; alguns SAPL anexam texto longo ao resultado.
     return achado.group("materia").strip(), resultado.strip()[:60] if resultado else None
+
+
+def _autoria_antiga(primeiro_ano: int) -> Callable[[dict], bool]:
+    """Autoria de matéria anterior ao período (texto sem ano conta como recente)."""
+
+    def antiga(autoria: dict) -> bool:
+        lida = ler_autoria(autoria.get("__str__", ""))
+        return bool(lida) and lida[2] < primeiro_ano
+
+    return antiga
 
 
 def _data(valor: str | None) -> str | None:
@@ -188,11 +226,16 @@ def coletar_presenca(
         for sessao in sapl.todos("sessao/sessaoplenaria/", data_inicio__year=ano):
             if sessao.get("data_inicio") and sessao["data_inicio"] <= hoje.isoformat():
                 datas[sessao["id"]] = sessao["data_inicio"]
+    inicio_periodo = f"{min(anos)}-01-01"
     presentes: dict[int, set[int]] = {}
     for parlamentar in mandatos:
         presentes[parlamentar] = {
             p["sessao_plenaria"]
-            for p in sapl.todos("sessao/sessaoplenariapresenca/", parlamentar=parlamentar)
+            for p in sapl.recentes(
+                "sessao/sessaoplenariapresenca/",
+                lambda p: (p.get("data_sessao") or inicio_periodo) < inicio_periodo,
+                parlamentar=parlamentar,
+            )
             if p.get("sessao_plenaria") in datas
         }
     registradas = set().union(*presentes.values()) if presentes else set()
@@ -255,6 +298,27 @@ def tipo_parlamentar(tipos: list[dict]) -> int:
     return 1
 
 
+def projetos_do_periodo(sapl: "Sapl", anos: set[int]) -> dict[int, dict] | None:
+    """Projetos de lei (e afins) dos anos, em lote: a lista de matérias filtrada por ano e
+    tipo, em vez de uma requisição por projeto (milhares numa câmara de capital). None se
+    o SAPL ignorar o filtro (a primeira página traz outro ano ou tipo): aí vai item a item."""
+    tipos = [
+        t["id"]
+        for t in sapl.todos("materia/tipomaterialegislativa/")
+        if TIPOS_PROJETO.search(t.get("descricao") or "")
+    ]
+    materias: dict[int, dict] = {}
+    for ano in sorted(anos):
+        for tipo in tipos:
+            primeira = sapl.get("materia/materialegislativa/", ano=ano, tipo=tipo, page_size=1)
+            if any(m.get("ano") != ano or m.get("tipo") != tipo for m in primeira["results"]):
+                return None
+            if primeira["results"]:
+                for m in sapl.todos("materia/materialegislativa/", ano=ano, tipo=tipo):
+                    materias[m["id"]] = m
+    return materias
+
+
 def coletar(base: str, hoje: date) -> dict | None:
     """Tudo o que guardamos de uma câmara, num dicionário (vira o bruto)."""
     with comum.criar_cliente() as client:
@@ -265,12 +329,26 @@ def coletar(base: str, hoje: date) -> dict | None:
         mandatos = sapl.todos("parlamentares/mandato/", legislatura=legislatura["id"])
         partidos = {p["id"]: p["sigla"] for p in sapl.todos("parlamentares/partido/")}
         filiacoes = sapl.todos("parlamentares/filiacao/")
-        autores = {
-            a["object_id"]: a["id"]
-            for a in sapl.todos("base/autor/", tipo=tipo_parlamentar(sapl.todos("base/tipoautor/")))
-            if a.get("object_id") is not None
-        }
+        try:
+            autores = {
+                a["object_id"]: a["id"]
+                for a in sapl.todos(
+                    "base/autor/", tipo=tipo_parlamentar(sapl.todos("base/tipoautor/"))
+                )
+                if a.get("object_id") is not None
+            }
+        except httpx.HTTPStatusError as erro:
+            if erro.response.status_code != 404:
+                raise
+            # Instalação sem a rota de autores (visto em Três Barras do Paraná): a câmara
+            # entra sem projetos.
+            print(f"  {base}: sem lista de autores; projetos não lidos", flush=True)
+            autores = {}
         anos = {hoje.year, hoje.year - 1}
+        try:
+            materias = projetos_do_periodo(sapl, anos) if autores else {}
+        except httpx.HTTPStatusError:
+            materias = None  # sem o lote, cada projeto é buscado sozinho
         vereadores = []
         for parlamentar_id in sorted({m["parlamentar"] for m in mandatos}):
             dados = sapl.talvez(f"parlamentares/parlamentar/{parlamentar_id}/")
@@ -285,14 +363,18 @@ def coletar(base: str, hoje: date) -> dict | None:
             contagem: dict[str, int] = {}
             projetos = []
             if parlamentar_id in autores:
-                for autoria in sapl.todos("materia/autoria/", autor=autores[parlamentar_id]):
+                for autoria in sapl.recentes(
+                    "materia/autoria/", _autoria_antiga(min(anos)), autor=autores[parlamentar_id]
+                ):
                     lida = ler_autoria(autoria.get("__str__", ""))
                     if not lida or lida[2] not in anos:
                         continue
                     tipo = lida[0]
                     contagem[tipo] = contagem.get(tipo, 0) + 1
                     if TIPOS_PROJETO.search(tipo):
-                        materia = sapl.talvez(f"materia/materialegislativa/{autoria['materia']}/")
+                        materia = (materias or {}).get(autoria["materia"]) or sapl.talvez(
+                            f"materia/materialegislativa/{autoria['materia']}/"
+                        )
                         if materia is None:
                             continue
                         projetos.append(

@@ -147,6 +147,9 @@ class _SaplFalso:
     def todos(self, caminho, **params):
         return self.respostas.get((caminho, tuple(sorted(params.items()))), [])
 
+    def recentes(self, caminho, antigo, **params):
+        return self.todos(caminho, **params)
+
 
 def test_votacoes_e_presenca():
     registro = {
@@ -269,3 +272,68 @@ def test_item_sumido_ou_pagina_que_some_nao_derrubam_a_casa():
             sapl.PAUSA = pausa
     longo = "Ordem: 1 - Requerimento nº 1 de 2025 em 1ª Ordinária - Votação: " + "Aprovado " * 20
     assert len(sapl.ler_registro(longo)[1]) == 60
+
+
+def _servidor_paginado(paginas):
+    """Servidor falso: `paginas` é a lista de páginas (listas de itens); registra os pedidos."""
+    import httpx
+
+    pedidos = []
+
+    def servidor(request):
+        pedidos.append(dict(request.url.params))
+        n = int(request.url.params.get("page", 1))
+        proxima = n + 1 if n < len(paginas) else None
+        return httpx.Response(
+            200, json={"results": paginas[n - 1], "pagination": {"next_page": proxima}}
+        )
+
+    return httpx.Client(transport=httpx.MockTransport(servidor)), pedidos
+
+
+def test_recentes_para_na_pagina_antiga_e_le_tudo_se_a_ordem_for_ignorada():
+    def autoria(id_, ano):
+        return {"id": id_, "__str__": f"Autoria: Ana - Requerimento nº {id_} de {ano}"}
+
+    antiga = sapl._autoria_antiga(2025)
+    paginas = [[autoria(9, 2026), autoria(8, 2025)], [autoria(7, 2024), autoria(6, 2023)],
+               [autoria(5, 2022), autoria(4, 2022)]]  # fmt: skip
+    sapl.PAUSA, pausa = 0, sapl.PAUSA
+    try:
+        client, pedidos = _servidor_paginado(paginas)
+        with client:
+            itens = sapl.Sapl("https://sapl.x.leg.br/", client).recentes(
+                "materia/autoria/", antiga, autor=1
+            )
+        assert [i["id"] for i in itens] == [9, 8, 7, 6]  # a 3ª página não é pedida
+        assert pedidos[0]["o"] == "-id" and len(pedidos) == 2
+        # Versão que ignora a ordem: crescente, lê tudo.
+        client, pedidos = _servidor_paginado([list(reversed(p)) for p in reversed(paginas)])
+        with client:
+            itens = sapl.Sapl("https://sapl.x.leg.br/", client).recentes(
+                "materia/autoria/", antiga, autor=1
+            )
+        assert len(itens) == 6 and len(pedidos) == 3
+    finally:
+        sapl.PAUSA = pausa
+
+
+def test_projetos_em_lote_ou_item_a_item_quando_o_filtro_e_ignorado():
+    class Falso(_SaplFalso):
+        def __init__(self, materias):
+            super().__init__({("materia/tipomaterialegislativa/", ()): [
+                {"id": 1, "descricao": "Projeto de Lei Ordinária"}, {"id": 3, "descricao": "Requerimento"}]})  # fmt: skip
+            self.materias = materias
+
+        def get(self, caminho, **params):
+            return {"results": self.materias[:1]}
+
+        def todos(self, caminho, **params):
+            if caminho == "materia/materialegislativa/":
+                return self.materias
+            return super().todos(caminho, **params)
+
+    pl = {"id": 50, "ano": 2025, "tipo": 1, "numero": 2}
+    assert sapl.projetos_do_periodo(Falso([pl]), {2025}) == {50: pl}
+    # O SAPL devolveu um requerimento para o filtro tipo=1: não confia no lote.
+    assert sapl.projetos_do_periodo(Falso([{**pl, "tipo": 3}]), {2025}) is None
