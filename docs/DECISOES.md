@@ -118,6 +118,8 @@ O subsídio é igual para deputados e senadores e é fixado por decreto legislat
   - A sanção pode valer só no órgão que a aplicou: em 30 dos 187 casos, por exemplo, uma suspensão dada por Ubatuba não impede Embu das Artes de pagar.
   - O pagamento pode vir de contrato anterior à sanção.
   - A abrangência vai em cada linha. Só 27 casos têm sanção válida em todas as esferas, e esses são os primeiros a conferir.
+- **Segunda análise, `eleitos_com_contas_irregulares`:** eleitos em 2024 e 2026 que constam na lista do TCU de contas julgadas irregulares, ligados pelo CPF. Na base local, 207 pessoas (329 linhas): 192 de prefeitos eleitos em 2024, 77 de vereadores, 34 de vice-prefeitos e 26 de deputados eleitos em 2026.
+  - Leitura correta: contas irregulares não tornam ninguém inelegível por si só. A Lei da Ficha Limpa exige irregularidade insanável por ato doloso de improbidade, e quem decide é a Justiça Eleitoral, no registro da candidatura.
 
 ## 2026-10-09: eleição de 2026 (1º turno) no acervo
 
