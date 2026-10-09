@@ -716,3 +716,66 @@ export async function getLinhaDoTempo(tipo: TipoDePerfil, id: string): Promise<R
   if (!pessoa.ok) return pessoa;
   return getJson<LinhaDoTempo>(`/pessoas/${pessoa.dados.pessoa_id}/eventos`);
 }
+
+export type PartidoNaLista = {
+  sigla: string;
+  cota_fundo_partidario: number;
+  cota_fefc: number;
+  receita_total: number;
+  gasto: number;
+  repasse_candidatos: number;
+};
+
+export type Partidos = {
+  ano: number;
+  anos_disponiveis: number[];
+  partidos: PartidoNaLista[];
+  fonte_nome: string;
+  fonte_url: string;
+  atualizado_em: string | null;
+};
+
+export function getPartidos(ano?: string) {
+  const query = ano ? `?ano=${encodeURIComponent(ano)}` : "";
+  return getJson<Partidos>(`/partidos${query}`);
+}
+
+export type GrupoFefc = { nome: string; candidatos: number; valor: number };
+
+export type PartidoDetalhe = {
+  sigla: string;
+  ano: number;
+  anos_disponiveis: number[];
+  cota_fundo_partidario: number;
+  cota_fefc: number;
+  cotas_mensais: { mes: string; fundo_partidario: number; fefc: number }[];
+  receita_total: number;
+  gasto: number;
+  receitas_por_fonte: { nome: string; valor: number }[];
+  despesas_por_categoria: { nome: string; valor: number }[];
+  transferencias: {
+    recebidas_de_outros_diretorios: number;
+    enviadas_a_outros_diretorios: number;
+    repassadas_a_candidatos: number;
+    outras_enviadas: number;
+  };
+  fefc_fp: {
+    ano: number;
+    fefc_total_partido: number | null;
+    fefc_por_genero: GrupoFefc[];
+    fefc_por_cor_raca: GrupoFefc[];
+    fp_por_genero: GrupoFefc[];
+    fp_por_cor_raca: GrupoFefc[];
+    fonte_nome: string;
+    fonte_url: string;
+    atualizado_em: string | null;
+  } | null;
+  fonte_nome: string;
+  fonte_url: string;
+  atualizado_em: string | null;
+};
+
+export function getPartido(sigla: string, ano?: string) {
+  const query = ano ? `?ano=${encodeURIComponent(ano)}` : "";
+  return getJson<PartidoDetalhe>(`/partidos/${encodeURIComponent(sigla)}${query}`);
+}

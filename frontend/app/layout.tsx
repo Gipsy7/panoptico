@@ -81,6 +81,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
               </p>
             </div>
             <nav aria-label="Rodapé" className="flex flex-wrap gap-x-4 gap-y-1">
+              <Link href="/partidos" className={LINK}>
+                Dinheiro dos partidos
+              </Link>
               <Link href="/sobre-as-fontes" className={LINK}>
                 Sobre as fontes
               </Link>
