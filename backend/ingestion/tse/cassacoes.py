@@ -117,9 +117,17 @@ def executar(ano: int, de_raw: Path | None = None) -> int:
         return comum.get_bytes(client, URL.format(ano=ano))
 
     def carregar(session: Session, payload: Any, ingestao: FonteIngestao) -> int:
-        registros = normalizar(comum_tse.linhas(payload, "motivo_cassacao_"))
+        lidas = comum.ContaLinhas(comum_tse.linhas(payload, "motivo_cassacao_"))
+        registros = normalizar(lidas)
         if not registros:
             raise RuntimeError(f"Arquivo de cassações de {ano} vazio: nada alterado.")
+        comum.conferir_carga(
+            ingestao,
+            registros,
+            total_fonte=lidas.total,
+            nao_nulos=("sq_candidato",),
+            unica=("ano", "sq_candidato", "numero_processo", "tipo"),
+        )
         vinculos = {
             id_externo: (vinculo, pessoa)
             for id_externo, vinculo, pessoa in session.execute(
@@ -139,7 +147,15 @@ def executar(ano: int, de_raw: Path | None = None) -> int:
         return len(linhas)
 
     return comum.executar_ingestao(
-        FONTE, URL.format(ano=ano), baixar, carregar, de_raw=de_raw, prefixo_raw=f"{ano}_"
+        FONTE,
+        URL.format(ano=ano),
+        baixar,
+        carregar,
+        de_raw=de_raw,
+        prefixo_raw=f"{ano}_",
+        incremental=comum.Incremental(
+            sonda=URL.format(ano=ano), contexto=comum.contexto_candidaturas(ano)
+        ),
     )
 
 

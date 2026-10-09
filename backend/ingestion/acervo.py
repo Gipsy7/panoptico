@@ -134,7 +134,7 @@ def _ultimo_ok() -> dict[str, datetime]:
     with SessionLocal() as session:
         linhas = session.execute(
             select(FonteIngestao.fonte, func.max(FonteIngestao.concluido_em))
-            .where(FonteIngestao.status == "ok")
+            .where(FonteIngestao.status.in_(comum.STATUS_SUCESSO))
             .group_by(FonteIngestao.fonte)
         ).all()
     return {fonte: quando for fonte, quando in linhas if quando}
@@ -166,10 +166,15 @@ def rodar(nomes: set[str], fontes: list[Fonte]) -> int:
             falharam.add(fonte.nome)
             continue
         inicio = datetime.now(UTC)
+        sem_mudanca_antes = comum.cargas_sem_mudanca
         try:
             total = _executar(fonte, hoje)
             segundos = (datetime.now(UTC) - inicio).total_seconds()
-            print(f"[ok]     {fonte.nome}: {total} registros em {segundos:.0f}s", flush=True)
+            sem_mudanca = comum.cargas_sem_mudanca - sem_mudanca_antes
+            nota = f" ({sem_mudanca} sem mudança na fonte)" if sem_mudanca else ""
+            print(f"[ok]     {fonte.nome}: {total} registros em {segundos:.0f}s{nota}", flush=True)
+            for aviso in _alertas_da_carga(fonte.nome, inicio):
+                print(f"[alerta] {fonte.nome}: {aviso}", flush=True)
             anterior = historico.get(fonte.nome)
             if queda(anterior, total):
                 print(
@@ -188,6 +193,22 @@ def rodar(nomes: set[str], fontes: list[Fonte]) -> int:
             print(f"[erro]   {fonte.nome}", flush=True)
             traceback.print_exc()
     return len(falharam)
+
+
+def _alertas_da_carga(nome: str, desde: datetime) -> list[str]:
+    """Os avisos de qualidade que as cargas desta execução gravaram (fonte_ingestao.alertas)."""
+    try:
+        with SessionLocal() as session:
+            listas = session.scalars(
+                select(FonteIngestao.alertas).where(
+                    FonteIngestao.fonte == nome,
+                    FonteIngestao.iniciado_em >= desde,
+                    FonteIngestao.alertas.is_not(None),
+                )
+            ).all()
+    except Exception:  # um aviso que não sai não pode derrubar a fonte que carregou
+        return []
+    return [aviso for lista in listas for aviso in (lista or [])]
 
 
 def queda(anterior: int | None, atual: int | None, limite: float = QUEDA) -> bool:
@@ -221,15 +242,21 @@ def relatorio(fontes: list[Fonte]) -> None:
     fonte. É a base para decidir a infraestrutura de produção."""
     with SessionLocal() as session:
         ultimas: dict[str, tuple] = {}
-        for fonte, status, quando, registros in session.execute(
+        avisos: dict[str, tuple[int | None, list]] = {}
+        for fonte, status, quando, registros, total_fonte, alertas in session.execute(
             select(
                 FonteIngestao.fonte,
                 FonteIngestao.status,
                 FonteIngestao.concluido_em,
                 FonteIngestao.registros,
-            ).order_by(FonteIngestao.iniciado_em.desc())
+                FonteIngestao.total_fonte,
+                FonteIngestao.alertas,
+            ).order_by(FonteIngestao.iniciado_em.desc(), FonteIngestao.id.desc())
         ):
             ultimas.setdefault(fonte, (status, quando, registros))
+            # a conferência vale a da última carga que de fato carregou (a "sem_mudanca" copia)
+            if status == "ok":
+                avisos.setdefault(fonte, (total_fonte, alertas or []))
         banco = session.scalar(text("select pg_database_size(current_database())"))
         tabelas = session.execute(
             text(
@@ -239,19 +266,24 @@ def relatorio(fontes: list[Fonte]) -> None:
         ).all()
     print(f"Banco: {_mb(banco)} MB    Brutos em {comum.RAW_DIR}")
     print(f"\n{'fonte':28} {'situação':10} {'freq.':8} {'acesso':8} {'guarda':6} "
-          f"{'última carga':17} {'status':7} {'registros':>10} {'bruto MB':>10}")  # fmt: skip
+          f"{'última carga':17} {'status':11} {'registros':>10} {'na fonte':>10} "
+          f"{'bruto MB':>10}")  # fmt: skip
     total_bruto = 0
     historico = _ler_historico()
     for f in fontes:
         status, quando, registros = ultimas.get(f.nome, ("-", None, None))
         registros = historico.get(f.nome, registros)
+        total_fonte, alertas = avisos.get(f.nome, (None, []))
         bruto = _tamanho_dir(comum.RAW_DIR / f.nome) if (comum.RAW_DIR / f.nome).exists() else 0
         total_bruto += bruto
         print(
             f"{f.nome:28} {f.situacao:10} {f.frequencia:8} {f.acesso:8} {f.guarda:6} "
-            f"{quando.strftime('%d/%m/%Y %H:%M') if quando else '-':17} {status:7} "
-            f"{registros if registros is not None else '-':>10} {_mb(bruto):>10}"
+            f"{quando.strftime('%d/%m/%Y %H:%M') if quando else '-':17} {status:11} "
+            f"{registros if registros is not None else '-':>10} "
+            f"{total_fonte if total_fonte is not None else '-':>10} {_mb(bruto):>10}"
         )
+        for aviso in alertas:
+            print(f"    ! {aviso}")
     print(f"\nBrutos no total: {_mb(total_bruto)} MB")
     print("\nMaiores tabelas:")
     for nome, tamanho, linhas in tabelas:
@@ -265,10 +297,15 @@ def main(argv: list[str] | None = None) -> int:
     grupo = p_rodar.add_mutually_exclusive_group(required=True)
     grupo.add_argument("--fonte", nargs="+", help="Estas fontes (nomes do registro)")
     grupo.add_argument("--vencidas", action="store_true", help="As que passaram da frequência")
+    p_rodar.add_argument(
+        "--forcar", action="store_true", help="Ignora o cache de downloads: baixa e recarrega tudo"
+    )
     sub.add_parser("relatorio", help="Volume e última carga de cada fonte")
     args = parser.parse_args(argv)
 
     fontes = ler_registro()
+    if args.comando == "rodar" and args.forcar:
+        comum.forcar = True
     if args.comando == "relatorio":
         relatorio(fontes)
         return 0

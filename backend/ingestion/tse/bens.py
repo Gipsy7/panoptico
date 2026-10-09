@@ -62,7 +62,15 @@ def executar(ano: int, de_raw: Path | None = None) -> int:
         return len(bens)
 
     return comum.executar_ingestao(
-        FONTE, URL.format(ano=ano), baixar, carregar, de_raw=de_raw, prefixo_raw=f"{ano}_"
+        FONTE,
+        URL.format(ano=ano),
+        baixar,
+        carregar,
+        de_raw=de_raw,
+        prefixo_raw=f"{ano}_",
+        incremental=comum.Incremental(
+            sonda=URL.format(ano=ano), contexto=comum.contexto_candidaturas(ano)
+        ),
     )
 
 

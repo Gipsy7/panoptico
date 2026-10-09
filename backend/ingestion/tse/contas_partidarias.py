@@ -28,7 +28,7 @@ from pathlib import Path
 from typing import Any
 
 import httpx
-from sqlalchemy import delete, insert, select
+from sqlalchemy import delete, func, insert, select
 from sqlalchemy.orm import Session
 
 from app.models import (
@@ -274,6 +274,13 @@ def carregar(session: Session, payload: Any, ano: int) -> int:
     return len(somas) + len(cotas) + len(resumo.vinculadas)
 
 
+def _contexto(session: Session) -> str:
+    """Pessoas e os cadastros de sancionadas e sócios, de que a carga depende."""
+    sancoes = session.scalar(select(func.count()).select_from(SancaoEmpresa))
+    socios = session.scalar(select(func.count()).select_from(SocioPessoa))
+    return f"{comum.contexto_pessoas(session)};sancoes:{sancoes};socios:{socios}"
+
+
 def executar(ano: int, de_raw: Path | None = None) -> int:
     def baixar(client: httpx.Client) -> Path:
         return comum.baixar_para_arquivo(client, URL.format(ano=ano))
@@ -283,7 +290,13 @@ def executar(ano: int, de_raw: Path | None = None) -> int:
 
     try:
         return comum.executar_ingestao(
-            FONTE, URL.format(ano=ano), baixar, gravar, de_raw=de_raw, prefixo_raw=f"{ano}_"
+            FONTE,
+            URL.format(ano=ano),
+            baixar,
+            gravar,
+            de_raw=de_raw,
+            prefixo_raw=f"{ano}_",
+            incremental=comum.Incremental(sonda=URL.format(ano=ano), contexto=_contexto),
         )
     except httpx.HTTPStatusError as erro:
         if erro.response.status_code != 404:

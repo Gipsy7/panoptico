@@ -108,7 +108,13 @@ def executar(ano: int, de_raw: Path | None = None) -> int:
 
     try:
         return comum.executar_ingestao(
-            FONTE, URL.format(ano=ano), baixar, carregar, de_raw=de_raw, prefixo_raw=f"{ano}_"
+            FONTE,
+            URL.format(ano=ano),
+            baixar,
+            carregar,
+            de_raw=de_raw,
+            prefixo_raw=f"{ano}_",
+            incremental=comum.Incremental(sonda=URL.format(ano=ano)),
         )
     except httpx.HTTPStatusError as erro:
         if erro.response.status_code != 404:

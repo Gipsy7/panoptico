@@ -414,4 +414,10 @@ Endpoints conferidos em 2026-10-06.
 - **Frequência:** semanal, com cache de 30 dias por pessoa (~7,6 mil pessoas elegíveis, na prática ~30 s por pessoa, por causa da latência da API: carga em fatias). Carga parcial: `python -m ingestion.diarios.atos --municipios 4314902 --limite 50`.
 - **Uso:** fila de revisão de atos de pessoal (nomeação, exoneração, designação) ligados a quem acompanhamos.
 
+## Acervo: cargas incrementais e conferência
+
+- **Arquivos que mudam pouco** (TSE, CGU, TCU, TCE-SP, TCE-RS) não são baixados nem recarregados quando nada mudou: o acervo guarda ETag, Last-Modified e sha256 do último download (tabela `download_cache`) e pergunta ao servidor antes. Sem mudança, `fonte_ingestao` ganha uma linha com status `sem_mudanca` e o bruto não se repete. `python -m ingestion.acervo rodar --forcar` ignora o cache.
+- **Conferência por carga:** `fonte_ingestao.total_fonte` (total informado pela fonte ou linhas do arquivo) e `alertas` (campo-chave vazio, repetidos, total que não bate). Aparecem no `python -m ingestion.acervo relatorio` e como `[alerta]` ao rodar.
+- Detalhes e motivos em [DECISOES.md](DECISOES.md), "carga incremental e conferência da carga".
+
 ## A confirmar (fases seguintes)
