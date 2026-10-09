@@ -98,7 +98,9 @@ export default function SobreAsFontesPage() {
           o voto de cada deputado nem a lista de presença. Em São Paulo, o mesmo vem dos arquivos de
           dados abertos da ALESP; votos e presença em Plenário não estão neles. Em Pernambuco,
           da API de dados abertos da ALEPE: deputados no cargo e projetos, com indicações e
-          requerimentos como contagem; a API não traz votos, presença nem gastos do gabinete.
+          requerimentos como contagem; a API não traz votos, presença nem gastos do gabinete. No
+          Distrito Federal, da API pública do processo legislativo da Câmara Legislativa (CLDF):
+          deputados distritais no cargo e projetos; votos e presença não estão nela.
         </Item>
         <Item titulo="Contas da cidade">
           O que a prefeitura declarou ao Tesouro Nacional na Declaração de Contas Anuais

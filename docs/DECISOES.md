@@ -109,6 +109,17 @@ O subsídio é igual para deputados e senadores e é fixado por decreto legislat
 - **Bens:** valor como declarado, sem correção. A página avisa que bens costumam ser declarados pelo valor de compra. Sem palavras como "enriqueceu": mostramos os dois totais e o ano.
 - **2024:** o TSE passou a mascarar o CPF, então as candidaturas municipais de 2024 não se ligam aos parlamentares federais.
 
+## 2026-10-09: Câmara Legislativa do Distrito Federal (CLDF)
+
+- **Conector pela API pública do Processo Legislativo Eletrônico**, nas mesmas tabelas das assembleias (UF "DF"):
+  - os 24 deputados distritais ativos;
+  - projetos do ano atual e do anterior, com ementa;
+  - indicações, moções e requerimentos como contagem.
+- **Na base local:** os 24 com proposições e ligados ao eleito do TSE; 1.241 projetos.
+- **Consulta mês a mês:** o indicador de "última página" da API não é confiável (a paginação passava do fim e dava erro 500). Usamos o total de páginas informado.
+- **Pendentes:** as verbas indenizatórias estão no catálogo em XLSX, por ano. Entram numa próxima etapa, no mesmo formato dos gastos da ALESP e da ALMG.
+- **ALEP (PR):** API com certificado autoassinado. Não desligamos a verificação de segurança, porque isso tiraria a garantia de origem do dado. Fica pendente; o caminho é pedir à Assembleia que corrija o certificado.
+
 ## 2026-10-09: Assembleia de Pernambuco (ALEPE)
 
 - **Conector pela API de dados abertos da ALEPE**, nas mesmas tabelas das outras casas:

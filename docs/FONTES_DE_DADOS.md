@@ -260,7 +260,16 @@ Endpoints conferidos em 2026-10-06.
 - **Proposições (XML):** `docid`, `numero`, `ano`, `tipo` ("PROJETO DE LEI ORDINÁRIA", "PROPOSTA DE EMENDA A CONSTITUIÇÃO"…), `ementa`, `dataPublicacao` (`dd/mm/aaaa`) e `<autores>` com `nome` e `tipo` (`DEPUTADO`, `EXTERNO` para o Executivo, `COMISSAO`). O autor deputado vem pelo **mesmo nome parlamentar** da lista de deputados. Em 2026 (até outubro): 629 projetos, 1,7 MB de indicações e 1,4 MB de requerimentos.
 - **Armadilhas:** a ementa das indicações e dos requerimentos vem em HTML escapado duas vezes (`&lt;p&gt;Indicamos &amp;agrave;…`). A rota sem o tipo (`proposicoes/`) devolve erro em XML com as rotas válidas.
 - **Link de cada proposição:** `https://www.alepe.pe.gov.br/proposicao-texto-completo/?docid={docid}`.
-- **Levantamento das outras assembleias** (09/10/2026): ALERJ, ALRS, ALEP e ALBA não têm portal de dados abertos achável (endereços testados dão 404, 500 ou não conectam). Um estudo de 2025 ("Democracia em Formato JSON", preprint SciELO) compara as APIs das 26 assembleias e da CLDF; é o ponto de partida do levantamento casa a casa.
+- **Levantamento das outras assembleias** (09/10/2026): ALERJ, ALRS e ALBA não têm portal de dados abertos achável (endereços testados dão 404, 500 ou não resolvem). A API da ALEP (`webservices.assembleia.pr.leg.br/api/public/`) usa certificado HTTPS autoassinado: desligar a verificação tiraria a garantia de que o dado vem da Assembleia, então fica pendente. Um estudo de 2025 ("Democracia em Formato JSON", preprint SciELO) compara as APIs das 26 assembleias e da CLDF; é o ponto de partida do levantamento casa a casa.
+
+## CLDF: Câmara Legislativa do Distrito Federal
+
+- **Catálogo (CKAN):** `https://dados.cl.df.gov.br/api/3/action/package_list`: 28 conjuntos, entre eles `proposicoes`, `relacao-nominal-de-deputados-e-servidores`, `verbas-indenizatorias` (XLSX por ano; 2026 até agosto), `emendas-parlamentares` e `empresas-sancionadas`.
+- **API pública do Processo Legislativo Eletrônico** (documentada no conjunto `proposicoes`): `https://ple.cl.df.gov.br/pleservico/api/public`, sem autenticação.
+  - `GET /autor/listar`: 227 autores; 154 do tipo PARLAMENTAR, 24 com situação ATIVO, com o nome como "Deputado Fábio Felix" (às vezes com espaço no fim). O partido não vem preenchido.
+  - `POST /proposicao/filter?page=&size=&sort=`, com corpo `{"ano", "dataInicio", "dataFim", "tipoProposicao", "autoria"...}`. A autoria vem em texto ("Deputado X, Deputada Y", às vezes repetida). O campo `last` não indica de forma confiável a última página: usamos `totalPages`. Consultamos mês a mês; a soma dos meses bate com o total do ano (4.921 em 2025).
+  - `GET /proposicao/{id}`, `/autores`, `/tramitacoes` e `/documentos`.
+- **Sem votos e sem presença** na API.
 
 ## Canais oficiais dos municípios (varredura do Panóptico)
 

@@ -105,6 +105,12 @@ CATALOGO = [
         "url": "https://dadosabertos.alepe.pe.gov.br/",
     },
     {
+        "dado": "Deputados distritais (DF): no cargo e projetos",
+        "orgao": "Câmara Legislativa do Distrito Federal (API pública do processo legislativo)",
+        "fontes": ["cldf"],
+        "url": "https://dados.cl.df.gov.br/dataset/proposicoes",
+    },
+    {
         "dado": "Sites oficiais das prefeituras e câmaras (catálogo aberto)",
         "orgao": "Varredura do Panóptico nos domínios .gov.br e .leg.br",
         "fontes": ["canais_oficiais"],

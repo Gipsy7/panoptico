@@ -45,6 +45,7 @@ Os dados sobre o trabalho dos parlamentares já são públicos, mas estão espal
 - **Assembleia legislativa hoje** (nas que usam o SAPL: AC, AL, AM, PB, PI, RO e TO; a de RR bloqueia o acesso a partir do GitHub Actions): o mesmo para os deputados estaduais, com perfil em `/deputado-estadual/{id}`.
 - **Assembleia de São Paulo** (dados abertos da ALESP): deputados no cargo, projetos, moções, requerimentos e indicações, e **gastos do gabinete**, com a média da assembleia. Votos e presença em Plenário não estão nos dados abertos.
 - **Assembleia de Pernambuco** (API de dados abertos da ALEPE): deputados no cargo, projetos, indicações e requerimentos. A API não traz votos, presença nem gastos do gabinete.
+- **Câmara Legislativa do Distrito Federal** (API pública do processo legislativo da CLDF): deputados distritais no cargo, projetos, indicações, moções e requerimentos.
 - **Assembleia de Minas Gerais** (dados abertos da ALMG): deputados no cargo, projetos, requerimentos e **gastos do gabinete** (verba indenizatória), com a média da assembleia. A ALMG não publica o voto de cada deputado nem a presença.
 - **Canais oficiais da sua cidade**: sites da prefeitura e da câmara e os portais da transparência, num catálogo aberto (`data/canais_oficiais.csv`, gerado pela varredura, e `data/canais_curados.csv`, com as correções feitas à mão) que qualquer pessoa pode corrigir por pull request.
 - **Compartilhamento**: perfis e comparações têm imagem de pré-visualização e botão de WhatsApp.
@@ -122,6 +123,7 @@ flowchart LR
 | Vereadores e deputados estaduais no cargo, projetos, votações nominais e presença | SAPL (Interlegis) de cada câmara e de sete assembleias | API, semanal, endereços do catálogo de canais |
 | Deputados estaduais de SP: projetos e gastos do gabinete | [Dados abertos da ALESP](https://www.al.sp.gov.br/dados-abertos/) | Arquivos XML, semanal |
 | Deputados estaduais de PE: projetos | [Dados abertos da ALEPE](https://dadosabertos.alepe.pe.gov.br/) | API (XML e JSON), semanal |
+| Deputados distritais (DF): projetos | [API do processo legislativo da CLDF](https://dados.cl.df.gov.br/dataset/proposicoes) | API (JSON), semanal |
 | Deputados estaduais de MG: projetos e gastos do gabinete | [Dados abertos da ALMG](https://dadosabertos.almg.gov.br/) | API, semanal |
 | Municípios | [IBGE](https://servicodados.ibge.gov.br/api/docs/localidades) | API REST |
 | CEP → cidade e estado | [ViaCEP](https://viacep.com.br/) | Consulta na hora, sem gravar |
@@ -287,7 +289,7 @@ O plano completo, com a ordem das fases, está em [docs/DECISOES.md](docs/DECISO
 - Partidos (diretórios, contas, fundos) e as eleições de 2016, 2020 e 2026
 - Contratos públicos (PNCP), convênios, empresas e sócios (CNPJ)
 - As 66 câmaras cujo SAPL parou e as 910 cidades sem canal oficial encontrado
-- Conectores próprios para as 15 assembleias sem SAPL que faltam, depois de um levantamento casa a casa do que cada uma publica
+- Conectores próprios para as 14 assembleias sem SAPL que faltam, depois de um levantamento casa a casa do que cada uma publica
 - Votos e presença nas comissões da ALESP (já publicados em dados abertos)
 - Despesas por fornecedor de outros Tribunais de Contas (RS e MG têm dados abertos)
 - Teste com pessoas reais e auditoria de acessibilidade
