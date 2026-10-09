@@ -358,11 +358,23 @@ depende = ["pessoas"]
 [[fonte]]
 nome = "tse_contas_partidarias"
 modulo = "ingestion.tse.contas_partidarias"
-situacao = "catalogada"
-uso = "Página do partido (ainda não existe): receitas, fundo partidário e despesas por ano"
-recorte = "somas por partido, ano e categoria"
+uso = "Página do partido: de onde vem o dinheiro (fundo partidário, fundo eleitoral, doações), para onde vai e quanto passou por transferências entre diretórios"
+recorte = "somas por partido, esfera, UF, ano, fonte do recurso e categoria; cotas mensais do TSE; despesas pagas a fornecedor que já está na base (CNPJ de sancionada ou sócia, pessoa pelo CPF)"
 guarda = "somas"
+bruto = "recorte"
 frequencia = "mensal"
+anos = [2023, 2024, 2025, 2026]
+depende = ["pessoas", "cgu_sancoes", "cnpj_socios"]
+
+[[fonte]]
+nome = "tse_fefc_fp"
+modulo = "ingestion.tse.fefc_fp"
+uso = "Página do partido: como o fundo eleitoral e o fundo partidário foram divididos entre gêneros e cor ou raça"
+recorte = "somas por eleição, partido, esfera, gênero e cor ou raça (2024; 2026 quando o TSE publicar)"
+guarda = "somas"
+bruto = "recorte"
+frequencia = "mensal"
+anos = [2024, 2026]
 
 # Dinheiro público
 [[fonte]]
