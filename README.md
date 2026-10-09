@@ -221,6 +221,8 @@ uv run alembic upgrade head
 uv run python -m ingestion.acervo rodar --vencidas     # o que passou da frequência
 uv run python -m ingestion.acervo rodar --fonte tse_bens sapl_assembleias
 uv run python -m ingestion.acervo relatorio            # volume por fonte e últimas cargas
+uv run python -m analises                              # lista os cruzamentos (backend/analises/*.sql)
+uv run python -m analises fornecedores_sancionados --saida resultado.csv
 ```
 
 ### API

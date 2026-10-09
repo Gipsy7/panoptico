@@ -16,7 +16,15 @@ from app.models.emenda_pagamento import EmendaPagamento
 from app.models.fonte_ingestao import FonteIngestao
 from app.models.municipio import Municipio
 from app.models.parlamentar import Parlamentar
-from app.models.pessoa import Caso, CasoDocumento, Evento, Pessoa, PessoaVinculo, Processo
+from app.models.pessoa import (
+    Caso,
+    CasoDocumento,
+    Evento,
+    Pessoa,
+    PessoaVinculo,
+    Processo,
+    SancaoEmpresa,
+)
 from app.models.proposicao import Autoria, Proposicao
 from app.models.proposicao_tema import ProposicaoTema
 from app.models.resumo_parlamentar import ResumoParlamentar
@@ -54,6 +62,7 @@ __all__ = [
     "ProposicaoTema",
     "RedeSocial",
     "ResumoParlamentar",
+    "SancaoEmpresa",
     "Votacao",
     "VotacaoComissao",
     "Voto",

@@ -24,7 +24,14 @@ import httpx
 from sqlalchemy import delete, insert, select
 from sqlalchemy.orm import Session
 
-from app.models import Evento, FonteIngestao, Pessoa, PessoaVinculo
+from app.models import (
+    DespesaFornecedor,
+    Evento,
+    FonteIngestao,
+    Pessoa,
+    PessoaVinculo,
+    SancaoEmpresa,
+)
 from ingestion import comum
 from ingestion.normalizar import numero_cnj
 
@@ -91,6 +98,33 @@ def normalizar(cadastro: str, linhas: Any) -> list[dict[str, Any]]:
                 "inicio": _data(linha.get("DATA INÍCIO SANÇÃO")),
                 "fim": _data(linha.get("DATA FINAL SANÇÃO")),
                 "fundamentos": fundamentos(linha.get("FUNDAMENTAÇÃO LEGAL")),
+            }
+        )
+    return registros
+
+
+def normalizar_empresas(cadastro: str, linhas: Any) -> list[dict[str, Any]]:
+    """Sanções a pessoas jurídicas (CNPJ completo), para os cruzamentos com fornecedores."""
+    registros = []
+    for linha in linhas:
+        if (linha.get("TIPO DE PESSOA") or "").strip() != "J":
+            continue
+        cnpj = re.sub(r"\D", "", linha.get("CPF OU CNPJ DO SANCIONADO") or "")
+        if len(cnpj) != 14:
+            continue
+        processo = linha.get("NÚMERO DO PROCESSO")
+        registros.append(
+            {
+                "cadastro": cadastro,
+                "codigo": (linha.get("CÓDIGO DA SANÇÃO") or "").strip()[:20],
+                "cnpj": cnpj,
+                "nome": (linha.get("NOME DO SANCIONADO") or "").strip()[:300],
+                "categoria": (_texto(linha.get("CATEGORIA DA SANÇÃO")) or "Sanção")[:200],
+                "abrangencia": (_texto(linha.get("ABRAGÊNCIA DA SANÇÃO")) or "")[:120] or None,
+                "orgao": (_texto(linha.get("ÓRGÃO SANCIONADOR")) or "")[:300] or None,
+                "inicio": _data(linha.get("DATA INÍCIO SANÇÃO")),
+                "fim": _data(linha.get("DATA FINAL SANÇÃO")),
+                "processo": numero_cnj(processo) or (_texto(processo) or "")[:40] or None,
             }
         )
     return registros
@@ -206,6 +240,23 @@ def executar(de_raw: Path | None = None) -> int:
         ligados = ligar(registros, pessoas)
         total = gravar(session, ligados, ingestao.id, hoje)
         print(f"  {len(registros)} sanções a pessoas físicas; {total} de pessoas que temos")
+        fornecedores = set(
+            session.scalars(
+                select(DespesaFornecedor.documento)
+                .where(DespesaFornecedor.documento.is_not(None))
+                .distinct()
+            )
+        )
+        empresas = [
+            e
+            for c in ("CEIS", "CNEP")
+            for e in normalizar_empresas(c, ler_zip(payload, c))
+            if e["cnpj"] in fornecedores
+        ]
+        session.execute(delete(SancaoEmpresa))
+        if empresas:
+            session.execute(insert(SancaoEmpresa), empresas)
+        print(f"  {len(empresas)} sanções a empresas que aparecem como fornecedores")
         return total
 
     return comum.executar_ingestao(

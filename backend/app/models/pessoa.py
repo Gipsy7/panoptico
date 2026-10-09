@@ -127,3 +127,24 @@ class CasoDocumento(Base):
     data: Mapped[date | None] = mapped_column(Date)
     url: Mapped[str] = mapped_column(Text)
     resumo: Mapped[str] = mapped_column(Text)
+
+
+class SancaoEmpresa(Base):
+    """Sanção da CGU (CEIS, CNEP) a uma empresa que aparece como fornecedor nos dados que
+    já temos (coleta mínima: as demais não são guardadas). Serve aos cruzamentos de
+    backend/analises/; a abrangência diz onde a sanção vale."""
+
+    __tablename__ = "sancao_empresa"
+    __table_args__ = (UniqueConstraint("cadastro", "codigo"),)
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    cadastro: Mapped[str] = mapped_column(String(10))
+    codigo: Mapped[str] = mapped_column(String(20))
+    cnpj: Mapped[str] = mapped_column(String(14), index=True)
+    nome: Mapped[str] = mapped_column(String(300))
+    categoria: Mapped[str] = mapped_column(String(200))
+    abrangencia: Mapped[str | None] = mapped_column(String(120))
+    orgao: Mapped[str | None] = mapped_column(String(300))
+    inicio: Mapped[date | None] = mapped_column(Date)
+    fim: Mapped[date | None] = mapped_column(Date)
+    processo: Mapped[str | None] = mapped_column(String(40))

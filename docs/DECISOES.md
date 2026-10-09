@@ -109,6 +109,16 @@ O subsídio é igual para deputados e senadores e é fixado por decreto legislat
 - **Bens:** valor como declarado, sem correção. A página avisa que bens costumam ser declarados pelo valor de compra. Sem palavras como "enriqueceu": mostramos os dois totais e o ano.
 - **2024:** o TSE passou a mascarar o CPF, então as candidaturas municipais de 2024 não se ligam aos parlamentares federais.
 
+## 2026-10-09: análises (cruzamentos) e sanções a empresas
+
+- **Análises versionadas** em `backend/analises/<nome>.sql`, rodadas por `python -m analises <nome> [--saida arquivo.csv]`. O comentário do topo de cada consulta explica como ler o resultado. Uma análise que se mostrar sólida vira rota da API e depois seção do site; até lá, é material de conferência.
+- **Sanções a empresas (`sancao_empresa`):** a carga da CGU passa a guardar as sanções do CEIS e do CNEP a empresas, mas só as dos CNPJs que aparecem como fornecedores nos dados que já temos (coleta mínima). Na base local, 580.
+- **Primeira análise, `fornecedores_sancionados`:** fornecedores sancionados que receberam pagamentos de prefeituras ou câmaras (TCE-SP) no ano em que a sanção estava vigente. Na base local, 187 casos, somando R$ 279 milhões em 2024.
+- **Leitura correta:** pagar a uma empresa sancionada não é, por si só, irregular.
+  - A sanção pode valer só no órgão que a aplicou: em 30 dos 187 casos, por exemplo, uma suspensão dada por Ubatuba não impede Embu das Artes de pagar.
+  - O pagamento pode vir de contrato anterior à sanção.
+  - A abrangência vai em cada linha. Só 27 casos têm sanção válida em todas as esferas, e esses são os primeiros a conferir.
+
 ## 2026-10-09: eleição de 2026 (1º turno) no acervo
 
 - **Os arquivos de 2026 já existem** (gerados em 09/10/2026, depois do 1º turno de 04/10). Trazem 20.989 candidaturas e o CPF completo. Há 1.774 eleitos no 1º turno e 32 candidatos em 2º turno (governo e Presidência).
