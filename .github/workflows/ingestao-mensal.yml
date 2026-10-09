@@ -16,6 +16,10 @@ on:
         description: "Só as despesas por fornecedor dos Tribunais de Contas (pula SICONFI e partidos)"
         type: boolean
         default: false
+      so_partidos:
+        description: "Só as contas e fundos dos partidos (pula SICONFI e Tribunais de Contas)"
+        type: boolean
+        default: false
 
 concurrency:
   group: ingestao-mensal
@@ -47,7 +51,7 @@ jobs:
 
       # Um ano por vez: se um falhar (API fora do ar), o outro já ficou gravado.
       - name: Contas dos municípios (SICONFI)
-        if: ${{ !inputs.so_tce }}
+        if: ${{ !inputs.so_tce && !inputs.so_partidos }}
         run: |
           anos="$ANOS"
           if [ -z "$anos" ]; then
@@ -79,6 +83,7 @@ jobs:
 
       # Arquivos de 2 GB compactados (15 GB ou mais descompactados), lidos em fluxo.
       - name: Despesas por fornecedor (TCE-SP)
+        if: ${{ !inputs.so_partidos }}
         run: |
           anos="$ANOS"
           if [ -z "$anos" ]; then
@@ -91,6 +96,7 @@ jobs:
 
       # Arquivo anual de 1,35 GB compactado (14,7 GB descompactado), lido em fluxo.
       - name: Despesas por fornecedor (TCE-RS)
+        if: ${{ !inputs.so_partidos }}
         run: |
           anos="$ANOS"
           if [ -z "$anos" ]; then
