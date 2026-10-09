@@ -69,3 +69,15 @@ jobs:
           for a in $anos; do
             uv run python -m ingestion.tce.sp --ano "$a"
           done
+
+      # Arquivo anual de 1,35 GB compactado (14,7 GB descompactado), lido em fluxo.
+      - name: Despesas por fornecedor (TCE-RS)
+        run: |
+          anos="$ANOS"
+          if [ -z "$anos" ]; then
+            ano=$(date +%Y)
+            anos="$((ano - 2)) $((ano - 1))"
+          fi
+          for a in $anos; do
+            uv run python -m ingestion.tce.rs --ano "$a"
+          done

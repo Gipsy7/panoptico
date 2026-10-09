@@ -109,6 +109,16 @@ O subsídio é igual para deputados e senadores e é fixado por decreto legislat
 - **Bens:** valor como declarado, sem correção. A página avisa que bens costumam ser declarados pelo valor de compra. Sem palavras como "enriqueceu": mostramos os dois totais e o ano.
 - **2024:** o TSE passou a mascarar o CPF, então as candidaturas municipais de 2024 não se ligam aos parlamentares federais.
 
+## 2026-10-09: para quem a cidade pagou no RS (TCE-RS); TCE-MG bloqueado
+
+- **TCE-RS entra** com as mesmas regras do TCE-SP (`tce.sp.linhas_para_gravar`): total pago no ano por fornecedor, por município e órgão, os 25 maiores de cada órgão, "Demais fornecedores", pessoas físicas somadas sem nome e a folha de salários numa linha própria. Mesma tabela `despesa_fornecedor`, com `fonte = "tce_rs"`; anos 2024 e 2025.
+- **Só pagamentos feitos no ano.** O arquivo anual traz o histórico dos empenhos antigos com restos a pagar; sem o filtro por `ano_operacao`, entrariam pagamentos de anos anteriores (700 mil linhas de 2024 no arquivo de 2025). Os restos a pagar pagos no ano contam, porque foram dinheiro pago naquele ano.
+- **Município pelo cadastro de órgãos do TCE-RS**, que vai junto no bruto; o arquivo de empenhos não traz o código IBGE.
+- **Consórcios intermunicipais ficam de fora** (R$ 645 milhões em 2024 e R$ 729 milhões em 2025): atendem várias cidades, mas estão cadastrados só na sede. Autarquias, fundações e empresas públicas municipais entram como "outros".
+- **Folha:** credor sem CNPJ com nome de folha ("FOLHA DE PAGAMENTO", "SERVIDORES MUNICIPAIS", "INATIVOS") ou pagamento ao CNPJ do próprio órgão.
+- **Resultado:** 497 de 497 municípios em cada ano; 27,5 mil linhas em 2024 (R$ 76,0 bilhões) e 27,8 mil em 2025 (R$ 80,5 bilhões); a tabela inteira (SP e RS) ocupa 15 MB. Em 2025, o total de Agudo e de Porto Alegre (prefeitura e câmara) bate centavo a centavo com a soma do arquivo, e a parte dos empenhos do próprio ano bate com o `VL_PAGO` do balancete de despesa do TCE-RS.
+- **TCE-MG fica de fora:** a API dos dados abertos (e a do "Fiscalizando com o TCE") responde 401 sem login por reCAPTCHA. Não contornamos captcha; a fonte fica catalogada (`acesso = "pedido"`).
+
 ## 2026-10-09: vínculos por nome: idêntico é forte, aproximado vai para revisão
 
 - No acervo, 5.459 vereadores e deputados estaduais estavam ligados ao eleito do TSE só pelo nome (regra média) e, por isso, fora da publicação. Desses, **5.369 têm nome idêntico** ao de urna ou ao civil do eleito, e a ligação já exige que o nome seja único entre os eleitos da mesma casa.

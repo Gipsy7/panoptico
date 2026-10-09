@@ -112,7 +112,7 @@ export default function SobreAsFontesPage() {
           anuais; nem todo município entrega no prazo.
         </Item>
         <Item titulo="Para quem a cidade pagou">
-          Nas cidades de São Paulo, os pagamentos da prefeitura, da câmara e de autarquias e
+          Nas cidades de São Paulo e do Rio Grande do Sul, os pagamentos da prefeitura, da câmara e de autarquias e
           fundos municipais, como as cidades informam ao Tribunal de Contas do Estado. Mostramos
           o total pago a cada um dos maiores fornecedores no ano; o restante aparece somado.
           Pagamentos a pessoas físicas (servidores, autônomos, beneficiários) aparecem somados e
