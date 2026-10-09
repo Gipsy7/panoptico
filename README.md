@@ -31,6 +31,7 @@ Os dados sobre o trabalho dos parlamentares já são públicos, mas estão espal
   - **Salário**: o subsídio, igual para todos, com a norma que o fixa.
 - **Perfil de vereadores, deputados estaduais, prefeitos, governadores e presidente**, com a foto da candidatura e dados do TSE (votos recebidos, dados pessoais declarados, redes sociais, bens e contas de campanha), e quando a pessoa foi eleita depois para outro cargo.
 - **Todos os perfis têm a mesma ordem**: cabeçalho, números-chave, "Quem é" (dados declarados ao TSE e votos recebidos), atividade no cargo e, por fim, a eleição (bens e campanha). Quando a câmara ou a assembleia publica a pessoa no cargo, o perfil do TSE leva ao perfil da casa, com a atividade; quando a câmara não publica dados abertos, o perfil diz isso e mostra os canais oficiais da cidade.
+- **Linha do tempo** em todos os perfis (parlamentar federal, eleito, vereador e deputado estadual): eleições vencidas, cargos em partidos, julgamentos e cassações de candidatura (TSE), representações no Conselho de Ética, contas julgadas irregulares e inabilitação (TCU), sanções (CGU), processos e casos, agrupados por tipo. Cada registro mostra a situação informada pela fonte, o link oficial e a data em que foi conferido; processo sob sigilo não é detalhado. Só aparece quando o perfil está ligado à pessoa por dado seguro (CPF, título de eleitor ou revisão manual) e há algo a mostrar.
 - **Busca por nome** em todos os níveis, na página inicial: parlamentares federais, presidente, governadores, prefeitos, deputados estaduais e vereadores (sem diferença de acento; também pelo nome completo).
 - **Comparador**: dois parlamentares lado a lado, com números, votos em comum por tema e projetos assinados juntos.
 - **Comparador na mesma casa** (`/comparar/local`): dois vereadores da mesma câmara, ou dois deputados da mesma assembleia, com projetos, proposições, presença, votos em comum e dados declarados ao TSE.
@@ -239,8 +240,9 @@ uv run python -m analises fornecedores_sancionados --saida resultado.csv
 | `GET /parlamentares/{id}/projetos` | Projetos de lei desde 2023 |
 | `GET /municipios?uf=` | Municípios de um estado |
 | `GET /municipios/{ibge}/emendas` | Emendas recebidas pela cidade e quem enviou |
+| `GET /pessoas/de?tipo=&id=` | A pessoa por trás de um perfil do site (`tipo`: `parlamentar`, `candidatura`, `vereador` ou `deputado_estadual`); 404 se o perfil não estiver ligado por vínculo forte ou revisado |
 | `GET /pessoas/{id}` | A mesma pessoa em todas as fontes e os perfis dela no site (acervo) |
-| `GET /pessoas/{id}/eventos?tipo=&de=&ate=` | Linha do tempo da pessoa, com a fonte de cada fato (acervo) |
+| `GET /pessoas/{id}/eventos?tipo=&de=&ate=` | Linha do tempo da pessoa, com a fonte de cada fato e a data em que foi conferido (`conferido_em`) (acervo) |
 | `GET /casos` · `GET /casos/{slug}` | Casos montados com documentos oficiais e o papel de cada pessoa (acervo) |
 | `GET /fontes` | Fontes e data da última atualização |
 | `GET /saude` | Situação da API e do banco |

@@ -6,6 +6,10 @@ export function formatarCep(valor: string): string {
 }
 
 export function formatarData(iso: string): string {
+  // Data sem hora ("2022-10-02"): o Date a leria como meia-noite UTC, que no horário de
+  // Brasília ainda é o dia anterior. Formata direto, sem fuso.
+  const dia = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso);
+  if (dia) return `${dia[3]}/${dia[2]}/${dia[1]}`;
   return new Date(iso).toLocaleDateString("pt-BR", { timeZone: "America/Sao_Paulo" });
 }
 

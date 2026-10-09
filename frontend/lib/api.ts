@@ -680,3 +680,39 @@ export type ComparacaoLocal = {
 export function getComparacaoLocal(a: string, b: string) {
   return getJson<ComparacaoLocal>(`/comparar/local?a=${encodeURIComponent(a)}&b=${encodeURIComponent(b)}`);
 }
+
+export type ProcessoSituacao = {
+  tribunal: string | null;
+  sigiloso: boolean;
+  classe: string | null;
+  orgao_julgador: string | null;
+  data_ajuizamento: string | null;
+  ultimo_andamento: string | null;
+  data_ultimo_andamento: string | null;
+  consultado_em: string;
+};
+
+export type EventoItem = {
+  data: string | null;
+  tipo: string;
+  descricao: string;
+  orgao: string | null;
+  numero_processo: string | null;
+  situacao: string | null;
+  fonte_url: string | null;
+  conferido_em: string | null;
+  processo: ProcessoSituacao | null;
+};
+
+export type LinhaDoTempo = { pessoa_id: number; itens: EventoItem[] };
+
+/** Os perfis do site, como a API os chama em /pessoas/de. */
+export type TipoDePerfil = "parlamentar" | "candidatura" | "vereador" | "deputado_estadual";
+
+/** Linha do tempo da pessoa por trás de um perfil. 404 quando o perfil não está ligado a
+ * uma pessoa por vínculo forte ou revisado (aí a seção não aparece). */
+export async function getLinhaDoTempo(tipo: TipoDePerfil, id: string): Promise<Resultado<LinhaDoTempo>> {
+  const pessoa = await getJson<{ pessoa_id: number }>(`/pessoas/de?tipo=${tipo}&id=${encodeURIComponent(id)}`);
+  if (!pessoa.ok) return pessoa;
+  return getJson<LinhaDoTempo>(`/pessoas/${pessoa.dados.pessoa_id}/eventos`);
+}

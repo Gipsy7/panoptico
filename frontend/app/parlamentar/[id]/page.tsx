@@ -10,6 +10,7 @@ import { CandidaturaSecao } from "@/components/candidatura-secao";
 import { QuemESecao } from "@/components/dados-pessoais";
 import { ComissoesSecao } from "@/components/comissoes-secao";
 import { GastosSecao } from "@/components/gastos-secao";
+import { LinhaDoTempoSecao } from "@/components/linha-do-tempo-secao";
 import { Foto } from "@/components/parlamentar-card";
 import { PresencaSecao } from "@/components/presenca-secao";
 import { ProjetosSecao } from "@/components/projetos-secao";
@@ -22,6 +23,7 @@ import {
   getParlamentar,
   getPresenca,
   getCandidatura,
+  getLinhaDoTempo,
   getProjetos,
   getTemas,
   getVotos,
@@ -79,7 +81,7 @@ async function Perfil({
   paginaVotos?: string;
   paginaComissoes?: string;
 }) {
-  const [resultado, gastos, projetos, presenca, temas, votos, candidatura, comissoes] = await Promise.all([
+  const [resultado, gastos, projetos, presenca, temas, votos, candidatura, comissoes, linha] = await Promise.all([
     getParlamentar(id),
     getGastos(id, ano),
     getProjetos(id),
@@ -88,6 +90,7 @@ async function Perfil({
     getVotos(id, { ano, tema, pagina: paginaVotos }),
     getCandidatura(id),
     getVotosComissoes(id, paginaComissoes),
+    getLinhaDoTempo("parlamentar", id),
   ]);
   if (!resultado.ok) {
     if (resultado.status === 404 || resultado.status === 422) notFound();
@@ -151,6 +154,8 @@ async function Perfil({
       {projetos.ok && <ProjetosSecao projetos={projetos.dados} casa={p.casa} />}
 
       {temas.ok && <TemasSecao dados={temas.dados} casa={p.casa} />}
+
+      {linha.ok && <LinhaDoTempoSecao dados={linha.dados} />}
 
       {candidatura.ok && <CandidaturaSecao dados={candidatura.dados} />}
 

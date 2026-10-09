@@ -8,8 +8,9 @@ import { CandidaturaSecao } from "@/components/candidatura-secao";
 import { CompartilharWhatsApp } from "@/components/compartilhar";
 import { QuemESecao } from "@/components/dados-pessoais";
 import { FonteRodape } from "@/components/fonte-rodape";
+import { LinhaDoTempoSecao } from "@/components/linha-do-tempo-secao";
 import { type ItemResumo, ResumoNumeros } from "@/components/resumo-perfil";
-import { getEleito, getVereador, getVotacoesLocais } from "@/lib/api";
+import { getEleito, getLinhaDoTempo, getVereador, getVotacoesLocais } from "@/lib/api";
 import { formatarData, formatarReais } from "@/lib/formato";
 
 /** Perfil de quem está no cargo numa câmara ou assembleia, com os dados da própria casa. */
@@ -24,9 +25,10 @@ export async function PerfilMandatoLocal({ id, paginaVotos }: { id: string; pagi
   const cargo = camara ? "Vereador" : v.uf === "DF" ? "Deputado distrital" : "Deputado estadual";
   const nomeCasa = camara ? "câmara" : "assembleia";
   const rota = `/${camara ? "vereador" : "deputado-estadual"}/${v.id}`;
-  const [eleicao, votacoes] = await Promise.all([
+  const [eleicao, votacoes, linha] = await Promise.all([
     v.candidatura_id ? getEleito(String(v.candidatura_id)) : null,
     getVotacoesLocais(String(v.id), paginaVotos),
+    getLinhaDoTempo(camara ? "vereador" : "deputado_estadual", String(v.id)),
   ]);
   const resumo: ItemResumo[] = [];
   if (v.gastos) {
@@ -169,6 +171,8 @@ export async function PerfilMandatoLocal({ id, paginaVotos }: { id: string; pagi
         )}
         <FonteRodape fonte={v.fonte_nome} url={v.fonte_url} atualizadoEm={v.atualizado_em} />
       </section>
+
+      {linha.ok && <LinhaDoTempoSecao dados={linha.dados} />}
 
       {eleicao?.ok && (
         <CandidaturaSecao dados={eleicao.dados} />

@@ -1,8 +1,16 @@
-from datetime import date
+from datetime import UTC, date, datetime
 
 from sqlalchemy import select
 
-from app.models import Candidatura, MandatoLocal, Parlamentar, Pessoa, PessoaVinculo
+from app.models import (
+    Candidatura,
+    Evento,
+    FonteIngestao,
+    MandatoLocal,
+    Parlamentar,
+    Pessoa,
+    PessoaVinculo,
+)
 from ingestion import pessoas as carga
 from ingestion.identidade import Aresta, agrupar
 
@@ -143,3 +151,66 @@ def test_api_publica_so_vinculo_forte_e_monta_a_linha_do_tempo(client, session):
         == "2022-10-02"
     )
     assert client.get("/pessoas/999999").status_code == 404
+
+
+def test_pessoa_de_um_perfil_do_site(client, session):
+    parlamentar, c2022, _, c2024, mandato = _cenario(session)
+    carga.processar(session)
+    ana = _pessoa_de(session, "parlamentar", "camara:999")
+
+    def de(tipo, perfil_id):
+        return client.get("/pessoas/de", params={"tipo": tipo, "id": perfil_id})
+
+    assert de("parlamentar", parlamentar.id).json() == {"pessoa_id": ana}
+    assert de("candidatura", c2022.id).json() == {"pessoa_id": ana}
+    assert de("candidatura", c2024.id).json()["pessoa_id"] != ana
+    # Mandato na assembleia ligado só pelo nome: 404 até ser revisado.
+    assert de("deputado_estadual", mandato.id).status_code == 404
+    session.execute(
+        PessoaVinculo.__table__.update()
+        .where(PessoaVinculo.fonte == "mandato_local")
+        .values(revisado=True)
+    )
+    assert de("deputado_estadual", mandato.id).json() == {"pessoa_id": ana}
+    # O tipo tem de bater com a casa: o mandato é de assembleia, não de câmara.
+    assert de("vereador", mandato.id).status_code == 404
+    assert de("parlamentar", 987654).status_code == 404
+    assert de("prefeito", 1).status_code == 422
+
+
+def test_linha_do_tempo_diz_quando_o_dado_foi_conferido(client, session):
+    _cenario(session)
+    carga.processar(session)
+    ana = _pessoa_de(session, "parlamentar", "camara:999")
+    vinculo = session.scalar(
+        select(PessoaVinculo).where(
+            PessoaVinculo.fonte == "parlamentar", PessoaVinculo.id_externo == "camara:999"
+        )
+    )
+    ingestao = FonteIngestao(
+        fonte="cgu_sancoes", url="https://x", arquivo_raw="r", status="ok",
+        concluido_em=datetime(2026, 10, 9, 1, 30, tzinfo=UTC),  # 08/10 no horário de Brasília
+    )  # fmt: skip
+    session.add(ingestao)
+    session.flush()
+    session.add(
+        Evento(
+            pessoa_id=ana,
+            vinculo_id=vinculo.id,
+            data=date(2023, 5, 2),
+            tipo="sancao",
+            descricao="Sanção registrada no CEIS.",
+            orgao="CGU",
+            situacao="vigente até 01/01/2027",
+            fonte="cgu_sancoes",
+            id_externo="1",
+            fonte_url="https://x",
+            ingestao_id=ingestao.id,
+        )  # fmt: skip
+    )
+    session.flush()
+    itens = client.get(f"/pessoas/{ana}/eventos").json()["itens"]
+    sancao = next(i for i in itens if i["tipo"] == "sancao")
+    assert sancao["conferido_em"] == "2026-10-08"
+    # Candidaturas montadas sem carga registrada: sem data de conferência.
+    assert all(i["conferido_em"] is None for i in itens if i["tipo"] == "eleito")
