@@ -290,7 +290,15 @@ def coletar(base: str, hoje: date) -> dict | None:
         if legislatura is None:
             return None
         mandatos = sapl.todos("parlamentares/mandato/", legislatura=legislatura["id"])
-        partidos = {p["id"]: p["sigla"] for p in sapl.todos("parlamentares/partido/")}
+        try:
+            partidos = {p["id"]: p["sigla"] for p in sapl.todos("parlamentares/partido/")}
+        except httpx.HTTPStatusError as erro:
+            if erro.response.status_code not in (401, 403):
+                raise
+            # Rota de partidos fechada com senha (visto em Jataí): o resto é público e a
+            # câmara entra sem a sigla do partido.
+            print(f"  {base}: partidos exigem autenticação; sem sigla", flush=True)
+            partidos = {}
         filiacoes = sapl.todos("parlamentares/filiacao/")
         try:
             autores = {
@@ -325,10 +333,23 @@ def coletar(base: str, hoje: date) -> dict | None:
             ]
             contagem: dict[str, int] = {}
             projetos = []
-            if parlamentar_id in autores:
-                for autoria in sapl.recentes(
-                    "materia/autoria/", _autoria_antiga(min(anos)), autor=autores[parlamentar_id]
-                ):
+            autorias = []
+            try:
+                if parlamentar_id in autores:
+                    autorias = sapl.recentes(
+                        "materia/autoria/",
+                        _autoria_antiga(min(anos)),
+                        autor=autores[parlamentar_id],
+                    )
+            except httpx.HTTPStatusError as erro:
+                if erro.response.status_code < 500:
+                    raise
+                # Autorias com erro persistente no servidor (visto em União de Minas): a
+                # câmara entra sem projetos, como já acontece com votos e presença.
+                print(f"  {base}: autorias com erro {erro.response.status_code}; sem projetos")
+                autores = {}
+            if autorias:
+                for autoria in autorias:
                     lida = ler_autoria(autoria.get("__str__", ""))
                     if not lida or lida[2] not in anos:
                         continue

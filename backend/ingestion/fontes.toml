@@ -337,3 +337,15 @@ uso = "Página do partido (ainda não existe): receitas, fundo partidário e des
 recorte = "somas por partido, ano e categoria"
 guarda = "somas"
 frequencia = "mensal"
+
+# Dinheiro público
+[[fonte]]
+nome = "cnpj_socios"
+modulo = "ingestion.receita.socios"
+situacao = "catalogada"
+uso = "Perfil: empresas de que a pessoa é sócia; cruzamento com fornecedores e sanções"
+recorte = "só sócios pessoa física ligados por CPF mascarado + nome a pessoas da base"
+frequencia = "mensal"
+bruto = "recorte"
+# Endereço atual a confirmar: dadosabertos.rfb.gov.br não conecta (09/10/2026) e
+# arquivos.receitafederal.gov.br é um Nextcloud que exige o link de compartilhamento.
