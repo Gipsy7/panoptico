@@ -144,9 +144,9 @@ depende = ["camara_despesas", "senado_despesas", "camara_votacoes", "senado_vota
 nome = "tse_candidaturas"
 modulo = "ingestion.tse.candidaturas"
 uso = "Representantes eleitos e \"Quem é\" (TSE)"
-recorte = "eleitos e parlamentares em exercício"
+recorte = "eleitos e parlamentares; 2020 só de quem já temos (pelo título), depois das demais"
 frequencia = "manual"
-anos = [2018, 2022, 2024]
+anos = [2018, 2022, 2024, 2020]
 depende = ["camara_deputados", "senado_senadores", "ibge_municipios"]
 
 [[fonte]]
@@ -248,3 +248,21 @@ uso = "Pessoa pública única e linha do tempo (/pessoas/{id}/eventos)"
 recorte = "candidaturas, parlamentares e mandatos já carregados"
 frequencia = "semanal"
 depende = ["tse_candidaturas", "camara_deputados", "senado_senadores", "sapl_camaras", "sapl_assembleias", "almg", "alesp"]
+
+# Justiça e controle
+[[fonte]]
+nome = "tse_cassacoes"
+modulo = "ingestion.tse.cassacoes"
+uso = "Linha do tempo: cassação e julgamento de candidatura (com número do processo)"
+recorte = "só candidaturas de eleitos e parlamentares já ligadas a uma pessoa"
+frequencia = "mensal"
+anos = [2018, 2020, 2022, 2024]
+depende = ["pessoas"]
+
+[[fonte]]
+nome = "cgu_sancoes"
+modulo = "ingestion.transparencia.sancoes"
+uso = "Linha do tempo: sanções a pessoas públicas (improbidade, inidoneidade, expulsão do serviço público)"
+recorte = "só pessoas físicas ligadas por CPF (ou CPF mascarado + nome) a pessoas que temos"
+frequencia = "semanal"
+depende = ["pessoas"]

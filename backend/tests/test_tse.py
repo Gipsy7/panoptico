@@ -138,13 +138,18 @@ def test_carga_bens_e_campanha_ligadas_pelo_cpf(client, session):
     assert corpo["campanha"] is None
 
 
-def test_eleito_local_so_eleitos_de_camaras_assembleias_e_executivo():
+def test_eleito_local_guarda_todos_os_eleitos():
     base = {"cargo": "VEREADOR", "situacao_turno": "ELEITO POR QP"}
     assert candidaturas.eleito_local(base)
     assert not candidaturas.eleito_local({**base, "situacao_turno": "SUPLENTE"})
     assert candidaturas.eleito_local({**base, "cargo": "PREFEITO", "situacao_turno": "ELEITO"})
-    # Senadores e deputados federais entram pelo CPF, não por esta regra.
-    assert not candidaturas.eleito_local({**base, "cargo": "SENADOR", "situacao_turno": "ELEITO"})
+    # Federais eleitos também: quem perdeu o mandato não está mais em exercício, mas a
+    # cassação precisa de uma candidatura a que se ligar.
+    assert candidaturas.eleito_local({**base, "cargo": "SENADOR", "situacao_turno": "ELEITO"})
+    assert candidaturas.eleito_local({**base, "cargo": "DEPUTADO FEDERAL"})
+    assert not candidaturas.eleito_local(
+        {**base, "cargo": "1º SUPLENTE", "situacao_turno": "ELEITO"}
+    )
     assert candidaturas.eleito_local({"cargo": "DEPUTADO DISTRITAL", "situacao_turno": "ELEITO"})
 
 
@@ -228,6 +233,42 @@ def test_lista_de_estaduais_mostra_so_a_eleicao_mais_recente(client, session):
     session.flush()
     corpo = client.get("/estados/RR/deputados-estaduais").json()
     assert (corpo["ano_eleicao"], [i["nome_urna"] for i in corpo["itens"]]) == (2022, ["Atual"])
+
+
+def test_eleicao_antiga_so_guarda_quem_ja_temos_pelo_titulo(session):
+    base = {"cargo": "VEREADOR", "uf": "RR", "unidade": "Roraima", "codigo_ue": "RR",
+            "nome": "X", "nome_urna": "X", "partido": "PL", "numero": "22",
+            "situacao_turno": "ELEITO POR QP", "situacao_candidatura": "APTO", "cpf": None}  # fmt: skip
+    ingestao = _ingestao(session).id
+    candidaturas.carregar_registros(
+        session,
+        [{**base, "ano_eleicao": 2024, "sq_candidato": "a", "titulo": "111"}],
+        2024,
+        ingestao,
+    )
+    # 2020: só a candidatura cujo título já aparece em 2024, mesmo a outra sendo de eleito.
+    assert (
+        candidaturas.carregar_registros(
+            session,
+            [
+                {
+                    **base,
+                    "ano_eleicao": 2020,
+                    "sq_candidato": "b",
+                    "titulo": "111",
+                    "cpf": "12345678901",
+                },
+                {**base, "ano_eleicao": 2020, "sq_candidato": "c", "titulo": "222"},
+            ],
+            2020,
+            ingestao,
+        )
+        == 1
+    )
+    assert (
+        session.scalar(select(Candidatura.cpf).where(Candidatura.sq_candidato == "b"))
+        == "12345678901"
+    )
 
 
 def test_votos_somam_zonas_do_ultimo_turno():

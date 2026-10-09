@@ -109,6 +109,36 @@ O subsídio é igual para deputados e senadores e é fixado por decreto legislat
 - **Bens:** valor como declarado, sem correção. A página avisa que bens costumam ser declarados pelo valor de compra. Sem palavras como "enriqueceu": mostramos os dois totais e o ano.
 - **2024:** o TSE passou a mascarar o CPF, então as candidaturas municipais de 2024 não se ligam aos parlamentares federais.
 
+## 2026-10-09: sanções da CGU e eleição de 2020 como histórico
+
+- **Sanções (CEIS, CNEP, CEAF)** entram como eventos da linha do tempo. Só pessoas físicas ligadas a pessoas que temos, e só por chave forte:
+  - CPF completo (CEIS e CNEP);
+  - os 6 dígitos visíveis do CPF mascarado + nome igual (CEAF).
+
+  Sem CPF, o nome sozinho não liga. Empresas sancionadas ficam para a fase de fornecedores e sócios.
+- **Texto:** categoria da sanção, órgão que aplicou, norma e artigo, e o número do registro no cadastro. Situação "vigente até", "encerrada em" ou "sem data final informada", calculada no dia da carga.
+- **Problema:** em 2024 o TSE mascarou o CPF, e os ~70 mil políticos municipais vinham dessa eleição. Só ~2.300 pessoas tinham CPF, e só 7 sanções ligavam.
+- **Solução: a eleição de 2020 entra só como histórico** de quem já temos. Ficam as candidaturas cujo título de eleitor já aparece em outra eleição guardada (`SO_CONHECIDOS` em `ingestion/tse/candidaturas.py`, também para 2016). Ela traz o CPF completo.
+  - Na base local: 49.222 candidaturas de 2020, nenhuma pessoa nova.
+  - Pessoas com CPF passaram de ~2.300 para 50.782 (71%).
+  - Sanções ligadas: de 7 para 39.
+  - Julgamentos de candidatura na linha do tempo: de 23 para 566.
+- 2020 roda por último na carga do TSE, depois das eleições mais recentes, porque depende dos títulos delas.
+
+## 2026-10-09: cassações e julgamentos de candidatura do TSE na linha do tempo
+
+- **Fonte:** o arquivo `motivo_cassacao` do TSE, com número do processo e fundamentos (ver FONTES_DE_DADOS). É a primeira fonte da fase de Justiça e controle.
+- **Gravado como evento**, sem tabela própria: tipo `cassacao` ou `julgamento_candidatura`, com o número do processo e os fundamentos.
+- **Texto factual, na linguagem do TSE:**
+  - "O TSE registra a cassação do registro ou do diploma da candidatura de 2024. Fundamento: Abuso de poder econômico.";
+  - "O TSE registra julgamento sobre o registro da candidatura de 2022, com fundamento em: Ficha limpa (LC 64/90)."
+  - Não escrevemos "indeferimento": em 2022 todas as linhas vêm como "fundamentos legais de julgamento", inclusive abuso de poder político, que é fundamento de cassação, e o arquivo não diz qual foi a decisão.
+  - A situação diz a data do dado ("segundo o TSE em 08/10/2026").
+  - A fonte não traz a data da decisão nem se ainda cabe recurso, e o texto não afirma nenhuma das duas.
+- **Recorte:** só candidaturas de pessoas que já temos. Para isso, a carga de candidaturas passa a guardar **todos os eleitos**, inclusive deputados federais e senadores. Antes, os federais entravam só se estivessem em exercício, e quem foi eleito e perdeu o mandato (o caso típico de cassação) não estava no banco. São ~1.200 candidaturas a mais.
+- **2020 fica de fora** até as candidaturas de 2020 serem carregadas: sem elas o arquivo não ligaria ninguém.
+- **Número de processo inválido** (dígito verificador do CNJ não confere) não é publicado: o evento entra sem número.
+
 ## 2026-10-09: pessoa pública única e linha do tempo
 
 - **Tabela `pessoa`:** a mesma pessoa em todas as fontes. Cada registro de fonte (candidatura, parlamentar federal, mandato na câmara ou assembleia) entra em `pessoa_vinculo` com a regra que o ligou. Carga: `python -m ingestion.pessoas`, que lê o banco e não baixa nada.

@@ -30,8 +30,12 @@ FONTE = "tse_candidaturas"
 URL = f"{comum_tse.BASE}/consulta_cand/consulta_cand_{{ano}}.zip"
 URL_DEPUTADO = "https://dadosabertos.camara.leg.br/api/v2/deputados/{id}"
 CARGOS_SENADO = {"SENADOR", "1º SUPLENTE", "2º SUPLENTE"}
-# Eleitos guardados mesmo sem ligação a um parlamentar federal.
+# Eleitos guardados mesmo sem ligação a um parlamentar federal. Os federais entram
+# também: quem foi eleito e perdeu o mandato (cassação, renúncia) não está mais em
+# exercício, e é justamente quem a linha do tempo precisa mostrar.
 CARGOS_ELEITOS = {
+    "DEPUTADO FEDERAL",
+    "SENADOR",
     "VEREADOR",
     "DEPUTADO ESTADUAL",
     "DEPUTADO DISTRITAL",
@@ -43,6 +47,11 @@ CARGOS_ELEITOS = {
     "VICE-PREFEITO",
 }
 CARGOS_MUNICIPAIS = {"VEREADOR", "PREFEITO", "VICE-PREFEITO"}
+# Eleições antigas entram só como histórico de quem já acompanhamos (coleta mínima): a
+# candidatura fica se o título de eleitor já aparece em outra eleição guardada. A de 2020
+# traz o CPF completo, que o TSE mascarou em 2024, e assim os políticos municipais passam a
+# se ligar por CPF às sanções e aos processos. Rode depois das eleições mais recentes.
+SO_CONHECIDOS = {2016, 2020}
 # Vice -> titular da mesma chapa.
 TITULAR_DO_VICE = {
     "VICE-PRESIDENTE": "PRESIDENTE",
@@ -172,7 +181,17 @@ def carregar_registros(
     def parlamentar_de(r: dict[str, Any]) -> int | None:
         return por_cpf.get(r["cpf"]) or por_titulo.get(r.get("titulo"))
 
-    escolhidos = [r for r in registros if parlamentar_de(r) or eleito_local(r)]
+    if ano in SO_CONHECIDOS:
+        conhecidos = set(
+            session.scalars(
+                select(Candidatura.titulo).where(
+                    Candidatura.ano_eleicao != ano, Candidatura.titulo.is_not(None)
+                )
+            )
+        )
+        escolhidos = [r for r in registros if r.get("titulo") in conhecidos]
+    else:
+        escolhidos = [r for r in registros if parlamentar_de(r) or eleito_local(r)]
     if not escolhidos:
         return 0
     municipios = mapa_municipios(
@@ -212,7 +231,7 @@ def carregar_registros(
 
 
 def eleito_local(registro: dict[str, Any]) -> bool:
-    """Eleitos para câmara municipal ou assembleia (os suplentes ficam de fora: são dezenas
+    """Eleitos para os cargos de CARGOS_ELEITOS (os suplentes ficam de fora: são dezenas
     por vaga e o TSE não diz quem assumiu depois)."""
     return registro["cargo"] in CARGOS_ELEITOS and (registro["situacao_turno"] or "").startswith(
         "ELEITO"
