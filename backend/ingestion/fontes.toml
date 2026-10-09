@@ -449,6 +449,21 @@ recorte = "representações desde 2019, ligadas pelo nome único entre senadores
 frequencia = "semanal"
 depende = ["pessoas"]
 
+[[fonte]]
+nome = "querido_diario_atos"
+modulo = "ingestion.diarios.atos"
+uso = "Fila de revisão: sugestões de atos de nomeação, exoneração e designação que citam o nome completo de uma pessoa que acompanhamos, nos diários oficiais municipais (nada é publicado sem revisão humana)"
+recorte = "prefeitos, vice-prefeitos e vereadores em mandato em municípios cobertos pelo Querido Diário (510); só diários desde 2025-01-01; só trechos com o nome completo (3+ palavras) e uma palavra de ato; trecho de até 500 caracteres + link do diário"
+guarda = "linhas"
+bruto = "recorte"
+frequencia = "semanal"
+acesso = "espelho"
+depende = ["pessoas"]
+# API aberta do Querido Diário (OKBR), rota /gazettes: frase do nome entre aspas + município,
+# 1 requisição a cada 2 s, cache de 30 dias por pessoa (diario_consulta). Achado em texto
+# nunca é vínculo: diario_ato nasce com revisado = false. O bruto guardado é só o recorte
+# (as sugestões de cada execução), não os diários.
+
 # Executivo
 [[fonte]]
 nome = "eagendas"

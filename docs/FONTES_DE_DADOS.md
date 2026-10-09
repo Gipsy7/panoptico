@@ -385,4 +385,24 @@ Endpoints conferidos em 2026-10-06.
 - **Frequência:** diária (incremental). Primeira carga: de 2023 até hoje; `python -m ingestion.pncp.contratos --de AAAA-MM-DD --ate AAAA-MM-DD` faz cargas parciais.
 - **Uso:** quanto cada órgão contratou de cada fornecedor, e os contratos de empresas sancionadas e de empresas de sócios que acompanhamos. Se o conjunto-alvo crescer, os dias já lidos não têm as linhas novas: releia o período com `--de/--ate`.
 
+## Querido Diário: atos de nomeação e exoneração nos diários municipais (querido_diario_atos)
+
+- **O que é:** API aberta da Open Knowledge Brasil (`https://api.queridodiario.org.br`, documentação em `/docs`, versão 0.19.0) que reúne e indexa os diários oficiais municipais. Sem chave. Degrau "espelho" da escada de acesso: o texto vem da OKBR; o link guardado é o `url` do diário (PDF, em `data.queridodiario.ok.org.br`, cópia do diário oficial coletado).
+- **Rotas usadas:** `GET /cities?city_name=` (lista os 5.570 municípios; 510 têm `availability_date`, ou seja, diário já coletado) e `GET /gazettes` com `territory_ids` (IBGE de 7 dígitos), `querystring` (sintaxe "simple query string" do OpenSearch), `published_since`, `excerpt_size`, `number_of_excerpts`, `size`, `offset`, `sort_by` (`descending_date`). A resposta traz `total_gazettes` e, por diário, `date`, `url`, `txt_url`, `is_extra_edition` e `excerpts` (trechos).
+- **Limites:** a API não declara limite de taxa nem devolve cabeçalhos de limite (está atrás da Cloudflare); usamos 1 requisição a cada 2 segundos, o User-Agent do projeto (`comum.criar_cliente`) e as novas tentativas de `comum.get_json` (429 e 5xx, respeitando `Retry-After`). Sem contorno de bloqueio.
+- **Armadilhas:**
+  - **Trecho bagunçado.** O texto vem de PDF: as palavras saem fora de ordem e coladas ("Praça daDESIGNA", o verbo do ato longe do nome). O verbo em maiúsculas pode vir colado depois de minúsculas; a detecção aceita isso, mas só procura o verbo numa janela de 230 caracteres em volta do nome.
+  - **`+` não restringe o trecho.** `"Nome" +exonera` filtra os diários (os que têm as duas coisas), mas os trechos devolvidos são os do verbo, não os do nome. Por isso a busca é só pela frase do nome e a conferência do verbo é local.
+  - **Frase com aspas** casa o nome completo, sem diferença de caixa; sem aspas casaria qualquer parte do nome.
+  - **Assinatura não é ato.** O prefeito (e secretários) aparece em milhares de decretos, contratos e extratos só como signatário ("representado pelo Prefeito Sr. Fulano"). A busca por nome devolve esses diários primeiro; sem palavra de ato junto ao nome, o trecho é descartado.
+  - **Homônimos.** Nome comum num município grande pode ser de outra pessoa. É por isso que o achado é só sugestão.
+  - **Latência.** Uma busca nova leva de 6 a 40 segundos (a mesma busca repetida volta em décimos de segundo, do cache da API). Na amostra, 182 buscas levaram cerca de 90 minutos, ou seja, ~30 s por pessoa, não os 2 s da pausa. Uma passada nas ~7,6 mil pessoas elegíveis levaria dias; a carga semanal deve ser feita em fatias (`--limite`).
+  - **Título e assinatura.** O nome de um vereador aparece como lotação ("Gabinete Parlamentar do Vereador Fulano") em quase todo ato de pessoal da câmara dele, e o de secretários e do prefeito como signatários. Esses casos são descartados (nome logo depois de "Vereador", "Prefeito", "Secretário", "diária" etc. ou logo antes de "Presidente", "Secretário"...).
+- **Cobertura.** 510 municípios (SP 112, AL 94, BA 66, SE 29, MA 28, TO 26, RJ 26, PR 23...). A maioria dos 5.570 não tem diário na base.
+- **Campos usados:** `date`, `url`, `excerpts`; do município, `territory_id` e `availability_date`.
+- **O que guardamos (coleta mínima):** só pessoas que já acompanhamos (prefeitos, vice-prefeitos e vereadores eleitos em 2024 e vereadores em exercício, em municípios cobertos), nome com 3 palavras ou mais, diários desde 2025-01-01. Por diário, uma linha em `diario_ato` (pessoa sugerida, município, data, tipo detectado, trecho de até 500 caracteres em volta do nome, link do diário, `revisado = false`). O cache da busca fica em `diario_consulta` (30 dias por pessoa). Do bruto fica só o recorte: as sugestões de cada execução, em `data/raw/querido_diario_atos/`.
+- **Regra crítica:** nome em texto nunca vira vínculo nem evento publicável. Os achados esperam revisão humana.
+- **Frequência:** semanal, com cache de 30 dias por pessoa (~7,6 mil pessoas elegíveis, na prática ~30 s por pessoa, por causa da latência da API: carga em fatias). Carga parcial: `python -m ingestion.diarios.atos --municipios 4314902 --limite 50`.
+- **Uso:** fila de revisão de atos de pessoal (nomeação, exoneração, designação) ligados a quem acompanhamos.
+
 ## A confirmar (fases seguintes)
