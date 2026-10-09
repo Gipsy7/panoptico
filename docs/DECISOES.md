@@ -130,6 +130,10 @@ O subsídio é igual para deputados e senadores e é fixado por decreto legislat
   - Guarda: só os sócios pessoa física que se ligam por CPF mascarado + nome a pessoas que acompanhamos (`socio_pessoa`).
 - **Educação com o serviço comunitário:** uma consulta a cada 2 segundos, novas tentativas em 503 (ele oscila entre 0,1 s e 24 s e às vezes responde "no available server") e cache de 30 dias por CNPJ (`cnpj_consulta`). A carga grava aos poucos e retoma de onde parou.
 - **Análise `fornecedores_com_socio_acompanhado`:** fornecedores pagos por prefeituras e câmaras que têm como sócio uma pessoa que acompanhamos, com os mandatos dela e se o município pagador é o mesmo de um mandato (possível conflito de interesse, a conferir).
+  - Primeira execução (1.263 CNPJs consultados): 5 pessoas e 22 pagamentos.
+  - Os 2 casos no mesmo município foram um vice-prefeito no conselho de uma empresa de informática que atende a prefeitura (R$ 90,7 milhões em 2024) e um prefeito na diretoria da Santa Casa da cidade (R$ 49,6 milhões).
+  - Os outros 3 são um deputado federal no conselho de uma empresa de gestão de benefícios paga por várias prefeituras e câmaras de SP, um vice-prefeito na diretoria da Santa Casa de outra cidade e uma vereadora sócia de uma clínica paga por prefeituras vizinhas.
+  - **Antes de virar seção do site, a análise precisa mostrar a natureza do fornecedor** (empresa pública ou de economia mista, entidade filantrópica, empresa privada). Dirigente político numa empresa da prefeitura ou numa Santa Casa não é o mesmo que empresa privada de político.
 
 ## 2026-10-09: primeira carga completa do acervo e correções
 
