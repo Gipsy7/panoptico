@@ -93,7 +93,7 @@ CATALOGO = [
         "url": "https://dadosabertos.almg.gov.br/",
     },
     {
-        "dado": "Deputados estaduais de SP: no cargo, projetos e gastos do gabinete",
+        "dado": "Deputados estaduais de SP: no cargo, projetos, gastos e votos nas comissões",
         "orgao": "Assembleia Legislativa de São Paulo (dados abertos)",
         "fontes": ["alesp"],
         "url": "https://www.al.sp.gov.br/dados-abertos/",

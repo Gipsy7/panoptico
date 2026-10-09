@@ -109,6 +109,17 @@ O subsídio é igual para deputados e senadores e é fixado por decreto legislat
 - **Bens:** valor como declarado, sem correção. A página avisa que bens costumam ser declarados pelo valor de compra. Sem palavras como "enriqueceu": mostramos os dois totais e o ano.
 - **2024:** o TSE passou a mascarar o CPF, então as candidaturas municipais de 2024 não se ligam aos parlamentares federais.
 
+## 2026-10-09: votos nas comissões da ALESP
+
+- **Os votos nominais nas comissões permanentes da ALESP entram** pelo arquivo `comissoes_permanentes_votacoes.xml` dos dados abertos, nas tabelas que já recebem os votos das outras casas (`votacao_local` e `voto_local`), sem tabela nova. O Plenário continua de fora: não está nos dados abertos.
+- **Uma votação é uma matéria numa reunião.** O arquivo de votos não tem data: ela vem da reunião (`comissoes_permanentes_reunioes.xml`), e o nome da comissão de `comissoes.xml`. A matéria aparece como "Comissão de Constituição, Justiça e Redação: Projeto de Lei nº 682 de 2025", com link para a página da propositura; assim fica claro, no perfil, que é voto de comissão. Quando o documento votado não está no arquivo de proposituras (93 das 2.769 votações), aparece como "documento {id}", com o mesmo link.
+- **Ligação ao deputado:** o campo `IdDeputado` desse arquivo traz o `IdSPL` (casa 83 dos 88 votantes do período; os 5 restantes não estão mais no cargo).
+- **O voto é guardado como a ALESP escreveu** ("Favorável ao voto do relator", "Favorável à moção"), quando cabe na coluna (30 caracteres). Os textos mais longos ("Favorável ao projeto e à emenda nº 1, conclusivamente") viram o rótulo da letra que acompanha o voto (`TipoVoto`: F favorável ao parecer, P favorável à proposição, C contrário ao parecer, T contrário à proposição, S voto em separado, A abstenção, B em branco). "Não registrou voto" vira "Não votou" e não conta como voto, mesmo vindo com a letra F.
+- **Totais da votação** ("7 sim, 1 não" no perfil): favoráveis (F e P) e contrários (C e T) entre todos os que votaram, inclusive quem já saiu do cargo. Os dados abertos não trazem o resultado da votação, então ele fica em branco. Num voto favorável ao parecer, "sim" quer dizer sim ao parecer do relator, que pode ser contrário ao projeto.
+- **Coleta mínima:** só reuniões do ano atual e do anterior e só os votos de quem está em exercício. Votação sem nenhum deputado em exercício não entra. Reuniões que não estão no arquivo de reuniões (3, todas antigas) ficam sem data e de fora. Uma reunião marcada "SEM QUORUM" (Segurança Pública, 29/04/2026) tem 313 votos registrados; entram como a ALESP publicou.
+- **Presença nas reuniões de comissão** também está nos dados abertos (`comissoes_permanentes_presencas.xml`, 8 MB), mas não entra por ora: o percentual pediria saber de quais comissões cada um era membro em cada data (`comissoes_membros.xml`), e o campo de presença do perfil é o das sessões do Plenário.
+- Conferido na carga de 09/10/2026: 2.769 votações e 20.583 votos de 83 deputados, de 12/02/2025 a 21/07/2026, iguais à contagem feita direto no arquivo.
+
 ## 2026-10-09: sócios de fornecedores pela API do Querido Diário
 
 - **Projetos parecidos:** procuramos projetos que já fizessem isso, para não refazer do zero.
@@ -402,7 +413,7 @@ O plano é juntar tudo o que é público sobre quem exerce função pública: pr
 ## 2026-10-08: Assembleia de São Paulo (ALESP)
 
 - Conector pelos arquivos XML de dados abertos da ALESP (atualizados todo dia), nas mesmas tabelas das outras casas: os 94 deputados em exercício, projetos (PL, PLC, PR, PDL e PEC, com ementa) e moções, requerimentos e indicações (contagem), do ano atual e do anterior, e os gastos do gabinete somados por mês e categoria.
-- **Sem votos e sem presença em Plenário:** não estão nos dados abertos. O site da ALESP mostra a presença num formulário e recusa acesso automatizado à página de votações; não contornamos. O perfil diz que a assembleia não publica isso em dados abertos.
+- **Sem votos e sem presença em Plenário:** não estão nos dados abertos. O site da ALESP mostra a presença num formulário e recusa acesso automatizado à página de votações; não contornamos. O perfil diz que a assembleia não publica isso em dados abertos. (Os votos nas comissões entraram depois; ver "votos nas comissões da ALESP".)
 - **Suplentes:** o arquivo não diz se o deputado é titular ou suplente; todos aparecem como no cargo.
 - **Ligação ao eleito do TSE (vale para todas as casas):** além do nome idêntico, aceita o mesmo nome sem partículas e títulos ("Alex Madureira" e "Alex de Madureira") e um nome de ao menos duas palavras contido no outro ("Valdomiro Lopes" e "Dr Valdomiro Lopes"), sempre só quando a correspondência é única. Sobrenome solto nunca basta. Na ALESP, a ligação passou de 76 para 87 dos 94 deputados.
 - Os arquivos grandes (até 164 MB) são baixados para o disco, lidos em fluxo e apagados.
