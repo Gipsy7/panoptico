@@ -7,7 +7,7 @@ nome (vereador da câmara ligado ao eleito do TSE) fica de fora até ser revisad
 
 from datetime import date
 
-from sqlalchemy import func, or_, select, tuple_
+from sqlalchemy import Date, cast, func, or_, select, tuple_
 from sqlalchemy.orm import Session
 
 from app.models import (
@@ -15,6 +15,7 @@ from app.models import (
     Caso,
     CasoDocumento,
     Evento,
+    FonteIngestao,
     MandatoLocal,
     Parlamentar,
     Pessoa,
@@ -95,6 +96,47 @@ def _candidaturas(session: Session, vinculos: list[PessoaVinculo]) -> list[Candi
     )
 
 
+def chave_do_perfil(session: Session, tipo: str, perfil_id: int) -> tuple[str, str] | None:
+    """A chave estável (fonte, id_externo) do registro que o site abre como perfil:
+    /parlamentar, /eleito (candidatura), /vereador e /deputado-estadual."""
+    if tipo == "parlamentar":
+        p = session.get(Parlamentar, perfil_id)
+        return ("parlamentar", f"{p.casa}:{p.id_externo}") if p else None
+    if tipo == "candidatura":
+        c = session.get(Candidatura, perfil_id)
+        return ("candidatura", f"{c.ano_eleicao}:{c.sq_candidato}") if c else None
+    if tipo in ("vereador", "deputado_estadual"):
+        m = session.get(MandatoLocal, perfil_id)
+        if m is None or m.casa != ("camara" if tipo == "vereador" else "assembleia"):
+            return None
+        return ("mandato_local", f"{m.casa}:{m.uf}:{m.municipio_ibge or ''}:{m.id_externo}")
+    return None
+
+
+def pessoa_de(session: Session, tipo: str, perfil_id: int) -> int | None:
+    """A pessoa de um perfil do site, só se o vínculo for forte ou revisado."""
+    chave = chave_do_perfil(session, tipo, perfil_id)
+    if chave is None:
+        return None
+    fonte, id_externo = chave
+    return session.scalar(
+        select(PessoaVinculo.pessoa_id).where(
+            PessoaVinculo.fonte == fonte, PessoaVinculo.id_externo == id_externo, publicavel()
+        )
+    )
+
+
+def _concluidas(session: Session, ids: set[int]) -> dict[int, date]:
+    """Dia em que cada carga terminou: a data em que o dado foi conferido na fonte."""
+    if not ids:
+        return {}
+    momento = func.coalesce(FonteIngestao.concluido_em, FonteIngestao.iniciado_em)
+    dia = cast(func.timezone("America/Sao_Paulo", momento), Date)
+    return dict(
+        session.execute(select(FonteIngestao.id, dia).where(FonteIngestao.id.in_(ids))).all()
+    )
+
+
 def pessoa(session: Session, pessoa_id: int) -> dict | None:
     registro = session.get(Pessoa, pessoa_id)
     if registro is None:
@@ -149,25 +191,31 @@ def eventos(
     if session.get(Pessoa, pessoa_id) is None:
         return None
     vinculos = _vinculos(session, pessoa_id)
-    itens = []
-    for c in _candidaturas(session, vinculos):
-        if (c.situacao_turno or "").startswith("ELEITO"):
-            itens.append(
-                {
-                    "data": data_eleicao(c),
-                    "tipo": "eleito",
-                    "descricao": descricao_eleicao(c),
-                    "orgao": "TSE",
-                    "numero_processo": None,
-                    "situacao": c.situacao_turno,
-                    "fonte_url": tse.URL_CANDIDATOS.format(ano=c.ano_eleicao),
-                }
-            )
-    gravados = session.scalars(
-        select(Evento)
-        .join(PessoaVinculo, PessoaVinculo.id == Evento.vinculo_id)
-        .where(Evento.pessoa_id == pessoa_id, publicavel())
+    eleitas = [
+        c for c in _candidaturas(session, vinculos) if (c.situacao_turno or "").startswith("ELEITO")
+    ]
+    gravados = list(
+        session.scalars(
+            select(Evento)
+            .join(PessoaVinculo, PessoaVinculo.id == Evento.vinculo_id)
+            .where(Evento.pessoa_id == pessoa_id, publicavel())
+        )
     )
+    cargas = _concluidas(session, {r.ingestao_id for r in [*eleitas, *gravados] if r.ingestao_id})
+    itens = []
+    for c in eleitas:
+        itens.append(
+            {
+                "data": data_eleicao(c),
+                "tipo": "eleito",
+                "descricao": descricao_eleicao(c),
+                "orgao": "TSE",
+                "numero_processo": None,
+                "situacao": c.situacao_turno,
+                "fonte_url": tse.URL_CANDIDATOS.format(ano=c.ano_eleicao),
+                "conferido_em": cargas.get(c.ingestao_id),
+            }
+        )
     for e in gravados:
         itens.append(
             {
@@ -178,6 +226,7 @@ def eventos(
                 "numero_processo": e.numero_processo,
                 "situacao": e.situacao,
                 "fonte_url": e.fonte_url,
+                "conferido_em": cargas.get(e.ingestao_id),
             }
         )
     itens = [

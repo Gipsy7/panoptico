@@ -327,6 +327,15 @@ O subsídio é igual para deputados e senadores e é fixado por decreto legislat
 - **2020 fica de fora** até as candidaturas de 2020 serem carregadas: sem elas o arquivo não ligaria ninguém.
 - **Número de processo inválido** (dígito verificador do CNJ não confere) não é publicado: o evento entra sem número.
 
+## 2026-10-09: linha do tempo nos perfis
+
+- **Do perfil à pessoa:** `GET /pessoas/de?tipo=&id=` traduz o id do perfil (parlamentar, candidatura, vereador, deputado estadual) na chave estável de `pessoa_vinculo` e devolve a pessoa só se o vínculo for forte ou revisado. Sem migração. O tipo tem de bater com a casa (um mandato de assembleia não abre como vereador).
+- **Seção "Linha do tempo"** nos quatro perfis, antes da seção "Eleição", agrupada por tipo numa ordem fixa: eleições, cargos em partidos, registro e diploma de candidatura (TSE), processos, casos, Conselho de Ética, TCU e sanções. Cinco itens por grupo à vista, o resto em "ver os outros".
+- **Texto:** a descrição oficial como veio, órgão, número, situação e, quando houver, a situação no DataJud (processo sob sigilo: só "processo sob sigilo"). Todas as situações (arquivada, vigente, encerrada) têm o mesmo peso visual, sem cor. Textos oficiais longos mostram o começo e abrem por inteiro com um toque. Nota fixa: um registro não é, por si, uma condenação, e a situação pode ter mudado depois da data de conferência.
+- **Data de conferência:** cada evento passa a trazer `conferido_em`, o dia (horário de Brasília) em que terminou a carga que o leu (`fonte_ingestao`).
+- **Só eleições:** a seção aparece com elas e sem a nota sobre processos; sem nenhum registro, ou sem pessoa publicável (hoje, os vereadores e deputados estaduais ligados só pelo nome), a seção não aparece.
+- **Datas sem hora** (`2022-10-02`) passaram a ser formatadas sem fuso em `formatarData`: antes o navegador as lia como meia-noite UTC e mostrava o dia anterior no horário de Brasília (afetava também mandatos, remuneração e projetos).
+
 ## 2026-10-09: pessoa pública única e linha do tempo
 
 - **Tabela `pessoa`:** a mesma pessoa em todas as fontes. Cada registro de fonte (candidatura, parlamentar federal, mandato na câmara ou assembleia) entra em `pessoa_vinculo` com a regra que o ligou. Carga: `python -m ingestion.pessoas`, que lê o banco e não baixa nada.

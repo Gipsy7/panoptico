@@ -7,8 +7,9 @@ import { CandidaturaSecao } from "@/components/candidatura-secao";
 import { CompartilharWhatsApp } from "@/components/compartilhar";
 import { QuemESecao } from "@/components/dados-pessoais";
 import { FotoOuIniciais } from "@/components/eleitos-secao";
+import { LinhaDoTempoSecao } from "@/components/linha-do-tempo-secao";
 import { Revelacao } from "@/components/revelacao";
-import { getCanais, getEleito } from "@/lib/api";
+import { getCanais, getEleito, getLinhaDoTempo } from "@/lib/api";
 
 export async function generateMetadata({ params }: PageProps<"/eleito/[id]">): Promise<Metadata> {
   const { id } = await params;
@@ -39,7 +40,10 @@ async function Perfil({ id }: { id: string }) {
   if (e.mandato_local) {
     redirect(`/${e.mandato_local.casa === "camara" ? "vereador" : "deputado-estadual"}/${e.mandato_local.id}`);
   }
-  const canais = e.municipio_ibge ? await getCanais(e.municipio_ibge) : null;
+  const [canais, linha] = await Promise.all([
+    e.municipio_ibge ? getCanais(e.municipio_ibge) : null,
+    getLinhaDoTempo("candidatura", id),
+  ]);
   const temSapl = Boolean(canais?.ok && canais.dados.itens.some((c) => c.tipo === "sapl"));
   const voltar = e.municipio_ibge
     ? `/representantes?municipio=${e.municipio_ibge}`
@@ -77,7 +81,7 @@ async function Perfil({ id }: { id: string }) {
             : temSapl
               ? `A câmara de ${e.unidade} publica quem está no cargo hoje, mas este nome não aparece na lista dela: a pessoa pode ter deixado o cargo ou usar lá outro nome. Veja a lista da câmara na página da cidade.`
               : `A câmara de ${e.unidade} não publica votações e projetos num formato de dados abertos que o Panóptico consiga ler (o sistema SAPL, do Interlegis). Por isso, aqui aparece só o que o TSE publica sobre a eleição.`}{" "}
-          Mudanças depois da eleição (suplente que assumiu, renúncia, cassação) também não aparecem.
+          Mudanças depois da eleição (suplente que assumiu, renúncia, cassação) também não aparecem nesta parte.
         </p>
         {canais?.ok && canais.dados.itens.length > 0 && (
           <div className="flex flex-col gap-1">
@@ -109,6 +113,8 @@ async function Perfil({ id }: { id: string }) {
           em {e.depois.ano}.
         </p>
       )}
+
+      {linha.ok && <LinhaDoTempoSecao dados={linha.dados} />}
 
       <CandidaturaSecao dados={e} />
 
