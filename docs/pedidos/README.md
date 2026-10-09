@@ -9,6 +9,7 @@ Fontes que bloqueiam o acesso automático ou não publicam o dado em formato abe
 | STJ | Liberação de acesso automatizado, ou lista de ações penais originárias da Corte Especial (LAI) | a enviar | [stj_lai.md](stj_lai.md) |
 | CNJ | Lote do Cadastro de Condenações por Improbidade e Inelegibilidade (CNIA), ou autorização para consultar por CPF em volume | a enviar | [cnj_cnia.md](cnj_cnia.md) |
 | TSE | Tabela mensal de distribuição do Fundo Partidário em formato aberto (página bloqueada a robôs; o valor é obtido da prestação de contas dos partidos, que é o declarado por eles) | a enviar | — |
+| TCE-MG | Acesso à API de dados abertos (empenhos e pagamentos dos municípios) sem reCAPTCHA, ou arquivo anual em lote como o do TCE-RS (LAI) | a enviar | — |
 | ALMG e ALESP | Votos nominais e presença em Plenário em formato aberto (LAI) | a enviar | — |
 | Câmara dos Deputados | Justificativas de ausência em votações (LAI) | a enviar | — |
 
