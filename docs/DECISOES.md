@@ -607,3 +607,9 @@ O plano é juntar tudo o que é público sobre quem exerce função pública: pr
 - **Cortesia com a API:** uma requisição por vez, 0,5 s de pausa, espera com recuo no 429 e no 5xx, User-Agent do projeto. Não há tentativa de contornar o limite de requisições.
 - **Primeira carga real (01 a 07/10/2025, acervo local):** 41.598 contratos lidos em 352 s (~8,5 ms por contrato), idênticos ao `totalRegistros` da API em cada um dos 7 dias. Desses, 460 alienações (fora das somas), 15.743 empenhos, 1.159 de pessoa física (sem identificador) e 679 contratos inteiros de 374 CNPJs-alvo. Banco: `pncp_soma` 31.757 linhas e 7,6 MB (~250 bytes por linha com índices), `pncp_contrato` 0,45 MB, `pncp_orgao` 4.067 órgãos 0,7 MB.
 - **Estimativa da janela 2023 até hoje** (~4,98 milhões de contratos): ~12 horas de coleta contínua e ~1 GB no banco (~3,8 milhões de linhas de soma). Passa do limite do Neon gratuito (0,5 GB), então fica no acervo local; para publicar, publica-se só um resumo anual por órgão e fornecedor.
+
+## 2026-10-09: TCE-RS só a partir do Brasil
+
+- Na primeira carga mensal de produção, todas as conexões do GitHub Actions a `dados.tce.rs.gov.br` esgotaram o tempo (6 tentativas em 30 minutos); da máquina do acervo, no Brasil, o mesmo endereço responde em 0,15 s. É bloqueio por país, como na Assembleia de Roraima.
+- Sem contorno: a fonte fica no acervo local (`acesso = "brasil"` em `fontes.toml`), o passo saiu do workflow mensal e o site voltou a dizer só São Paulo.
+- Para levar o RS à produção, é preciso um executor no Brasil (a máquina do acervo ou uma VPS), uma decisão de infraestrutura que fica para o fim do plano.

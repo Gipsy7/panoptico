@@ -42,7 +42,7 @@ Os dados sobre o trabalho dos parlamentares já são públicos, mas estão espal
   - quem recebeu, com o CNPJ.
 - **Dinheiro dos partidos** (`/partidos`, TSE): cotas do Fundo Partidário e do fundo eleitoral, receitas, gastos e repasses a candidaturas de cada partido, com as transferências entre diretórios separadas para não contar duas vezes; o fundo eleitoral por gênero e cor ou raça (eleição de 2024).
 - **Contas da sua cidade** (SICONFI, Tesouro Nacional): quanto a prefeitura arrecadou e gastou no ano, em que áreas e quanto custou a câmara municipal.
-- **Para quem a cidade pagou** (por enquanto, cidades de SP e do RS, pelo TCE-SP e pelo TCE-RS): os maiores fornecedores da prefeitura e da câmara no ano. Minas Gerais aguarda resposta do TCE-MG, cuja API exige reCAPTCHA e não tem espelho aberto (pedido em `docs/pedidos/tce_mg.md`).
+- **Para quem a cidade pagou** (no site, por enquanto, cidades de SP, pelo TCE-SP): os maiores fornecedores da prefeitura e da câmara no ano. O RS (TCE-RS) já está no acervo local, mas o tribunal não responde a conexões de fora do Brasil, e a ingestão de produção roda no GitHub Actions (EUA). Minas Gerais aguarda resposta do TCE-MG, cuja API exige reCAPTCHA e não tem espelho aberto (pedido em `docs/pedidos/tce_mg.md`).
 - **Câmara municipal hoje** (nas câmaras que usam o SAPL): quem está no cargo agora, inclusive suplentes, com partido atual, contato, projetos, quantos requerimentos, indicações e moções apresentou, presença nas sessões (com a média da câmara) e como votou nas votações nominais, onde a câmara registra.
 - **Assembleia legislativa hoje** (nas que usam o SAPL: AC, AL, AM, PB, PI, RO e TO; a de RR bloqueia o acesso a partir do GitHub Actions): o mesmo para os deputados estaduais, com perfil em `/deputado-estadual/{id}`.
 - **Assembleia de São Paulo** (dados abertos da ALESP): deputados no cargo, projetos, moções, requerimentos e indicações, e **gastos do gabinete**, com a média da assembleia, e o **voto de cada deputado nas comissões permanentes** (ano atual e anterior). Votos e presença em Plenário não estão nos dados abertos.
@@ -124,7 +124,7 @@ flowchart LR
 | Sites oficiais dos municípios | Varredura dos domínios `.gov.br` e `.leg.br` de cada cidade | Catálogo versionado, revisado por PR |
 | Contas anuais dos partidos e FEFC/FP | [TSE dados abertos](https://dadosabertos.tse.jus.br/dataset/prestacao-de-contas-partidarias-2024) | zip anual (~60 MB), mensal (workflow de ingestão mensal) |
 | Contas anuais dos municípios | [SICONFI (Tesouro Nacional)](https://siconfi.tesouro.gov.br/) | API, uma consulta por município, mensal |
-| Pagamentos das prefeituras e câmaras por fornecedor (SP) | [TCE-SP](https://transparencia.tce.sp.gov.br/conjunto-de-dados) | Arquivo anual em lote, mensal |
+| Pagamentos das prefeituras e câmaras por fornecedor (SP) | [TCE-SP](https://transparencia.tce.sp.gov.br/conjunto-de-dados) | Arquivo anual em lote, mensal; só do Brasil (acervo local) |
 | Pagamentos das prefeituras e câmaras por fornecedor (RS) | [TCE-RS](https://dados.tce.rs.gov.br/) | Arquivo anual em lote, mensal |
 | Vereadores e deputados estaduais no cargo, projetos, votações nominais e presença | SAPL (Interlegis) de cada câmara e de sete assembleias | API, semanal, endereços do catálogo de canais |
 | Deputados estaduais de SP: projetos, gastos do gabinete e votos nas comissões | [Dados abertos da ALESP](https://www.al.sp.gov.br/dados-abertos/) | Arquivos XML, semanal |
