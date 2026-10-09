@@ -1,10 +1,9 @@
 """pncp_soma, pncp_contrato, pncp_orgao e pncp_dia: contratos do PNCP (coleta mínima)
 
-Só aditiva. O id de revisão é único (não "0027") porque outra migração foi escrita em
-paralelo a partir da 0026; a ordem final é acertada no merge.
+Só aditiva.
 
-Revision ID: pncp0027c1
-Revises: 0026
+Revision ID: 0028_pncp
+Revises: 0027_contas_partidarias
 Create Date: 2026-10-09
 """
 
@@ -14,8 +13,8 @@ import sqlalchemy as sa
 
 from alembic import op
 
-revision: str = "pncp0027c1"
-down_revision: str | None = "0026"
+revision: str = "0028_pncp"
+down_revision: str | None = "0027_contas_partidarias"
 branch_labels: str | Sequence[str] | None = None
 depends_on: str | Sequence[str] | None = None
 
