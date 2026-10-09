@@ -1,7 +1,7 @@
 name: Ingestão mensal
 
-# Fontes que mudam pouco: contas anuais dos municípios (SICONFI) e despesas por fornecedor
-# dos Tribunais de Contas (TCE-SP). Uma vez por mês, fora da ingestão diária, porque exigem
+# Fontes que mudam pouco: contas anuais dos municípios (SICONFI), contas anuais dos partidos
+# (TSE) e despesas por fornecedor dos Tribunais de Contas (TCE-SP e TCE-RS). Uma vez por mês, fora da ingestão diária, porque exigem
 # milhares de consultas ou arquivos de vários GB.
 on:
   schedule:
@@ -13,7 +13,7 @@ on:
         type: string
         default: ""
       so_tce:
-        description: "Só as despesas por fornecedor dos Tribunais de Contas (pula o SICONFI)"
+        description: "Só as despesas por fornecedor dos Tribunais de Contas (pula SICONFI e partidos)"
         type: boolean
         default: false
 
@@ -57,6 +57,25 @@ jobs:
           for a in $anos; do
             uv run python -m ingestion.siconfi.contas --ano "$a"
           done
+
+      # Prestação de contas anual dos partidos (zip de ~60 MB por exercício, lido em fluxo; ~11 MB
+      # no banco por ano). O exercício atual costuma dar 404 (ainda não publicado) e é pulado.
+      - name: Contas dos partidos (TSE)
+        if: ${{ !inputs.so_tce }}
+        run: |
+          anos="$ANOS"
+          if [ -z "$anos" ]; then
+            ano=$(date +%Y)
+            anos="$((ano - 1)) $ano"
+          fi
+          for a in $anos; do
+            uv run python -m ingestion.tse.contas_partidarias --ano "$a"
+          done
+
+      # Distribuição do FEFC e do Fundo Partidário por gênero e cor ou raça (eleição de 2024).
+      - name: Fundos por gênero e raça (TSE)
+        if: ${{ !inputs.so_tce }}
+        run: uv run python -m ingestion.tse.fefc_fp --ano 2024
 
       # Arquivos de 2 GB compactados (15 GB ou mais descompactados), lidos em fluxo.
       - name: Despesas por fornecedor (TCE-SP)

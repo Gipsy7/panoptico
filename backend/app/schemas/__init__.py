@@ -817,3 +817,75 @@ class CasoResumo(BaseModel):
     nome: str
     periodo: str | None
     pessoas: int
+
+
+class PartidoNaLista(BaseModel):
+    sigla: str
+    cota_fundo_partidario: float
+    cota_fefc: float
+    receita_total: float
+    gasto: float
+    repasse_candidatos: float
+
+
+class PartidosResposta(BaseModel):
+    ano: int
+    anos_disponiveis: list[int]
+    partidos: list[PartidoNaLista]
+    fonte_nome: str
+    fonte_url: str
+    atualizado_em: datetime | None
+
+
+class CotaMes(BaseModel):
+    mes: date
+    fundo_partidario: float
+    fefc: float
+
+
+class PartidoValorNomeado(BaseModel):
+    nome: str
+    valor: float
+
+
+class PartidoTransferencias(BaseModel):
+    recebidas_de_outros_diretorios: float
+    enviadas_a_outros_diretorios: float
+    repassadas_a_candidatos: float
+    outras_enviadas: float
+
+
+class PartidoGrupoFefc(BaseModel):
+    nome: str
+    candidatos: int
+    valor: float
+
+
+class PartidoFefcFpResposta(BaseModel):
+    ano: int
+    fefc_total_partido: float | None
+    fefc_por_genero: list[PartidoGrupoFefc]
+    fefc_por_cor_raca: list[PartidoGrupoFefc]
+    fp_por_genero: list[PartidoGrupoFefc]
+    fp_por_cor_raca: list[PartidoGrupoFefc]
+    fonte_nome: str
+    fonte_url: str
+    atualizado_em: datetime | None
+
+
+class PartidoDetalheResposta(BaseModel):
+    sigla: str
+    ano: int
+    anos_disponiveis: list[int]
+    cota_fundo_partidario: float
+    cota_fefc: float
+    cotas_mensais: list[CotaMes]
+    receita_total: float
+    gasto: float
+    receitas_por_fonte: list[PartidoValorNomeado]
+    despesas_por_categoria: list[PartidoValorNomeado]
+    transferencias: PartidoTransferencias
+    fefc_fp: PartidoFefcFpResposta | None
+    fonte_nome: str
+    fonte_url: str
+    atualizado_em: datetime | None

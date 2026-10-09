@@ -268,6 +268,16 @@ O subsídio é igual para deputados e senadores e é fixado por decreto legislat
 - **FEFC/FP:** `VR_PARTIDO_FEFC` se repete por linha de gênero ou cor; guarda-se com aviso (um valor por partido). Não igualamos o total do `fefc_fp` à cota da prestação anual, que diferem em R$ 0,8 mi.
 - **Migração `0027_contas_partidarias`:** o id é um texto único (não "0027") porque outra frente pode criar a 0027; a ordem se acerta no merge. Só cria tabelas.
 
+## 2026-10-09: página pública de finanças dos partidos
+
+- **Rotas** `GET /partidos?ano=` e `GET /partidos/{sigla}?ano=` (sigla sem diferenciar caixa; 404 para ano sem dados) e telas `/partidos` (tabela ordenável por link, sem JavaScript) e `/partidos/[sigla]`. Menu, rodapé e "Sobre as fontes" atualizados.
+- **Definições:** cotas = `partido_cota_mensal` (diretório nacional); receita total = tudo que entrou, inclusive transferências recebidas de outros diretórios (dito na página); **gasto = só natureza `gasto`**; repasse a candidaturas = `transferencia_candidato`, em coluna própria. Receitas por fonte excluem transferências partidárias; transferências aparecem num bloco separado.
+- **Texto:** valores declarados pelos partidos na prestação de contas ao TSE, sem juízo sobre as contas (a análise da Justiça Eleitoral vem depois e não está aqui).
+- **FEFC/FP por gênero e raça:** só quando há `partido_fefc_fp` para a eleição do mesmo ano; o total do FEFC do partido é um valor, não a soma das linhas.
+- **Fora desta etapa:** `partido_despesa_vinculada` (pagamentos ligados a pessoas e empresas da base) não é exposta; depende de revisão. Próximo passo.
+- **Produção:** passos "Contas dos partidos (TSE)" (ano anterior e atual; exercício não publicado dá 404 e é pulado) e "Fundos por gênero e raça (TSE)" (2024) no `ingestao-mensal.yml`, ambos pulados com `so_tce`. A carga só lê `pessoa`, `socio_pessoa` e `sancao_empresa` para ligar fornecedores; com elas vazias, grava as somas e nenhuma despesa vinculada. Tamanho medido: 31.819 somas = 11 MB por ano (mais 0,3 MB de cotas e FEFC/FP), cabe folgado em 0,5 GB.
+- **Conferido** contra o banco local (2024): cotas do Fundo Partidário PL 235.079.484,72, PT 146.299.310,67, União 116.629.382,21.
+
 ## 2026-10-09: cargos partidários e o primeiro bruto "recorte"
 
 - **Fonte:** arquivo de órgãos partidários do TSE. Tem cada membro de cada diretório ou comissão provisória, com cargo, datas e **título de eleitor**, desde os anos 1990.

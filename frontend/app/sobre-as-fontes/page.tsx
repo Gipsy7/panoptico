@@ -105,6 +105,17 @@ export default function SobreAsFontesPage() {
           Catarina, das páginas públicas da ALESC e do sistema e-Legis: deputados no cargo e
           proposições (a ALESC não tem API de dados abertos).
         </Item>
+        <Item titulo="Dinheiro dos partidos">
+          Prestação de contas anual dos partidos ao TSE (dados abertos): quanto o diretório
+          nacional recebeu do Fundo Partidário e do fundo eleitoral (FEFC) mês a mês, as receitas
+          por fonte e as despesas por tipo, somando diretórios nacional, estaduais e municipais.
+          São valores declarados pelos partidos; a análise das contas pela Justiça Eleitoral vem
+          depois e não está aqui. Transferências entre diretórios e repasses a candidaturas ficam
+          separadas do gasto, para não contar o mesmo dinheiro duas vezes. A divisão do fundo
+          eleitoral e do Fundo Partidário por gênero e cor ou raça vem de outro arquivo do TSE e
+          cobre a eleição de 2024. Não mostramos doadores pessoas físicas nem pagamentos a
+          fornecedores específicos.
+        </Item>
         <Item titulo="Contas da cidade">
           O que a prefeitura declarou ao Tesouro Nacional na Declaração de Contas Anuais
           (SICONFI): receita realizada, despesa paga e despesa paga por função de governo (saúde,

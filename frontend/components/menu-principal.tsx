@@ -6,6 +6,7 @@ import { useRef } from "react";
 const ITENS = [
   { href: "/parlamentares", rotulo: "Parlamentares" },
   { href: "/comparar", rotulo: "Comparar" },
+  { href: "/partidos", rotulo: "Partidos" },
   { href: "/sobre-as-fontes", rotulo: "Fontes" },
   { href: "/apoie", rotulo: "Apoie" },
 ];

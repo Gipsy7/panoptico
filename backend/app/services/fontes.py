@@ -63,6 +63,12 @@ CATALOGO = [
         "url": "https://dadosabertos.tse.jus.br/",
     },
     {
+        "dado": "Finanças dos partidos: fundos, receitas, gastos e repasses a candidaturas",
+        "orgao": "Tribunal Superior Eleitoral (prestação de contas anual dos partidos)",
+        "fontes": ["tse_contas_partidarias", "tse_fefc_fp"],
+        "url": "https://dadosabertos.tse.jus.br/dataset/prestacao-de-contas-anual-partidaria",
+    },
+    {
         "dado": "Contas anuais das prefeituras (receita, despesa e áreas)",
         "orgao": "Tesouro Nacional (SICONFI)",
         "fontes": ["siconfi_contas"],
