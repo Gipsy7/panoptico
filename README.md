@@ -41,7 +41,7 @@ Os dados sobre o trabalho dos parlamentares já são públicos, mas estão espal
   - para quais áreas (saúde, educação…);
   - quem recebeu, com o CNPJ.
 - **Contas da sua cidade** (SICONFI, Tesouro Nacional): quanto a prefeitura arrecadou e gastou no ano, em que áreas e quanto custou a câmara municipal.
-- **Para quem a cidade pagou** (por enquanto, cidades de SP e do RS, pelo TCE-SP e pelo TCE-RS): os maiores fornecedores da prefeitura e da câmara no ano.
+- **Para quem a cidade pagou** (por enquanto, cidades de SP e do RS, pelo TCE-SP e pelo TCE-RS): os maiores fornecedores da prefeitura e da câmara no ano. Minas Gerais aguarda resposta do TCE-MG, cuja API exige reCAPTCHA e não tem espelho aberto (pedido em `docs/pedidos/tce_mg.md`).
 - **Câmara municipal hoje** (nas câmaras que usam o SAPL): quem está no cargo agora, inclusive suplentes, com partido atual, contato, projetos, quantos requerimentos, indicações e moções apresentou, presença nas sessões (com a média da câmara) e como votou nas votações nominais, onde a câmara registra.
 - **Assembleia legislativa hoje** (nas que usam o SAPL: AC, AL, AM, PB, PI, RO e TO; a de RR bloqueia o acesso a partir do GitHub Actions): o mesmo para os deputados estaduais, com perfil em `/deputado-estadual/{id}`.
 - **Assembleia de São Paulo** (dados abertos da ALESP): deputados no cargo, projetos, moções, requerimentos e indicações, e **gastos do gabinete**, com a média da assembleia, e o **voto de cada deputado nas comissões permanentes** (ano atual e anterior). Votos e presença em Plenário não estão nos dados abertos.

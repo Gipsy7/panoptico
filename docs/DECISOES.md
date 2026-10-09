@@ -117,7 +117,7 @@ O subsídio é igual para deputados e senadores e é fixado por decreto legislat
 - **Consórcios intermunicipais ficam de fora** (R$ 645 milhões em 2024 e R$ 729 milhões em 2025): atendem várias cidades, mas estão cadastrados só na sede. Autarquias, fundações e empresas públicas municipais entram como "outros".
 - **Folha:** credor sem CNPJ com nome de folha ("FOLHA DE PAGAMENTO", "SERVIDORES MUNICIPAIS", "INATIVOS") ou pagamento ao CNPJ do próprio órgão.
 - **Resultado:** 497 de 497 municípios em cada ano; 27,5 mil linhas em 2024 (R$ 76,0 bilhões) e 27,8 mil em 2025 (R$ 80,5 bilhões); a tabela inteira (SP e RS) ocupa 15 MB. Em 2025, o total de Agudo e de Porto Alegre (prefeitura e câmara) bate centavo a centavo com a soma do arquivo, e a parte dos empenhos do próprio ano bate com o `VL_PAGO` do balancete de despesa do TCE-RS.
-- **TCE-MG fica de fora:** a API dos dados abertos (e a do "Fiscalizando com o TCE") responde 401 sem login por reCAPTCHA. Não contornamos captcha; a fonte fica catalogada (`acesso = "pedido"`).
+- **TCE-MG fica de fora:** a API dos dados abertos (e a do "Fiscalizando com o TCE") responde 401 sem login por reCAPTCHA. Não contornamos captcha; a fonte fica catalogada (`acesso = "pedido"`). Em 09/10/2026 procuramos canais abertos alternativos (dados.mg.gov.br, Base dos Dados, Brasil.IO, SICONFI, Portal SICOM, FTP); nenhum tem empenhos ou pagamentos por credor dos municípios mineiros (detalhes em FONTES_DE_DADOS). O pedido ao TCE-MG está redigido em `docs/pedidos/tce_mg.md`.
 
 ## 2026-10-09: vínculos por nome: idêntico é forte, aproximado vai para revisão
 

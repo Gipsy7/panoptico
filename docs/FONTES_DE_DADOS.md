@@ -258,6 +258,15 @@ Endpoints conferidos em 2026-10-06.
 
 - **Portal:** `https://dadosabertos.tce.mg.gov.br/` é um app Angular. Os arquivos saem da API `https://arabiasaudita.tce.mg.gov.br:8443/TCEMG-proxy-web/publico/apimoci/dados-abertos/dadosAbertos/...` (`buscarMunicipios`, `buscarOrgaos`, `baixarArquivo/{id}`).
 - **Bloqueio:** toda chamada sem sessão responde **401**, e o app então manda o usuário para `TCEMG-proxy-web/login/captcha.jsf` (reCAPTCHA). O "Fiscalizando com o TCE" (`fiscalizandocomtce.tce.mg.gov.br`) usa o mesmo proxy, também com 401 e reCAPTCHA (`captcha_simples.jsf`). Testado em 09/10/2026.
+- **Canais alternativos testados em 09/10/2026 (nenhum serve):**
+  - `https://www.tce.mg.gov.br/Dados-abertos` só leva a `dadosabertos.tce.mg.gov.br` e ao Portal SICOM; `https://portalsicom1.tce.mg.gov.br/` (WordPress, robots.txt só veda `/wp-admin/`) é documentação do sistema, sem dados. `sicom.tce.mg.gov.br` não resolve e `ftp.tce.mg.gov.br` recusa a conexão.
+  - `https://dadosabertos.tce.mg.gov.br/robots.txt` responde 404 (Tomcat). O certificado de `dadosabertos` e de `arabiasaudita:8443` vem sem a cadeia completa (o httpx recusa); `buscarMunicipios` sem sessão responde 401 sem corpo.
+  - Portal de dados abertos do Estado (`dados.mg.gov.br`, CKAN 2.9.5, API `package_search`): 23 conjuntos achados por busca de "empenho", "despesa", "municípios", "pagamento", "credor" etc., todos do **Poder Executivo estadual** (CGE: despesa por empenho do Estado, restos a pagar, diárias, repasses do Estado aos municípios; SEPLAG: SISOR). Nenhum traz empenho ou pagamento dos municípios; nenhum conjunto do TCE-MG. (Com `curl` puro o site responde 403; com o User-Agent do projeto, 200.)
+  - Base dos Dados (GraphQL público, 1.291 conjuntos varridos): não existe `br_tce_mg`; o que há é SICONFI (sem credor), `despesas_publicas` (só federal, CGU), `receitas_e_despesas_dos_municipios_de_sao_paulo` e `rs_tce_iegm`. Nada de municípios mineiros por credor.
+  - Brasil.IO: nenhum conjunto de despesa municipal (`gastos-diretos` é do governo federal; `gastos-deputados` é da Câmara). A API do Brasil.IO exige token.
+  - SICONFI/Tesouro: dados por conta e função, sem credor.
+  - Portais municipais em lote: sem padrão comum aos 853 municípios (fornecedores de sistemas diferentes); não avaliado município a município.
+- **Pedido:** redigido em `docs/pedidos/tce_mg.md` (LAI ao TCE-MG), a enviar.
 - **Situação:** não contornamos captcha. A fonte fica catalogada em `fontes.toml` (`tce_mg`, `acesso = "pedido"`) até o TCE-MG oferecer acesso sem captcha ou responder a um pedido.
 
 ## SAPL (Interlegis): câmaras municipais e assembleias
