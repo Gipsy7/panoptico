@@ -44,7 +44,7 @@ Os dados sobre o trabalho dos parlamentares já são públicos, mas estão espal
 - **Para quem a cidade pagou** (por enquanto, cidades de SP, pelo TCE-SP): os maiores fornecedores da prefeitura e da câmara no ano.
 - **Câmara municipal hoje** (nas câmaras que usam o SAPL): quem está no cargo agora, inclusive suplentes, com partido atual, contato, projetos, quantos requerimentos, indicações e moções apresentou, presença nas sessões (com a média da câmara) e como votou nas votações nominais, onde a câmara registra.
 - **Assembleia legislativa hoje** (nas que usam o SAPL: AC, AL, AM, PB, PI, RO e TO; a de RR bloqueia o acesso a partir do GitHub Actions): o mesmo para os deputados estaduais, com perfil em `/deputado-estadual/{id}`.
-- **Assembleia de São Paulo** (dados abertos da ALESP): deputados no cargo, projetos, moções, requerimentos e indicações, e **gastos do gabinete**, com a média da assembleia. Votos e presença em Plenário não estão nos dados abertos.
+- **Assembleia de São Paulo** (dados abertos da ALESP): deputados no cargo, projetos, moções, requerimentos e indicações, e **gastos do gabinete**, com a média da assembleia, e o **voto de cada deputado nas comissões permanentes** (ano atual e anterior). Votos e presença em Plenário não estão nos dados abertos.
 - **Assembleia de Pernambuco** (API de dados abertos da ALEPE): deputados no cargo, projetos, indicações e requerimentos. A API não traz votos, presença nem gastos do gabinete.
 - **Câmara Legislativa do Distrito Federal** (API pública do processo legislativo e dados abertos da CLDF): deputados distritais no cargo, projetos, indicações, moções e requerimentos, e **gastos do gabinete** (verbas indenizatórias) de quem aparece nos arquivos da CLDF.
 - **Assembleia de Santa Catarina** (páginas públicas do e-Legis da ALESC, que não tem API): deputados no cargo, projetos e a contagem de requerimentos, indicações, moções e pedidos de informação.
@@ -123,7 +123,7 @@ flowchart LR
 | Contas anuais dos municípios | [SICONFI (Tesouro Nacional)](https://siconfi.tesouro.gov.br/) | API, uma consulta por município, mensal |
 | Pagamentos das prefeituras e câmaras por fornecedor (SP) | [TCE-SP](https://transparencia.tce.sp.gov.br/conjunto-de-dados) | Arquivo anual em lote, mensal |
 | Vereadores e deputados estaduais no cargo, projetos, votações nominais e presença | SAPL (Interlegis) de cada câmara e de sete assembleias | API, semanal, endereços do catálogo de canais |
-| Deputados estaduais de SP: projetos e gastos do gabinete | [Dados abertos da ALESP](https://www.al.sp.gov.br/dados-abertos/) | Arquivos XML, semanal |
+| Deputados estaduais de SP: projetos, gastos do gabinete e votos nas comissões | [Dados abertos da ALESP](https://www.al.sp.gov.br/dados-abertos/) | Arquivos XML, semanal |
 | Deputados estaduais de PE: projetos | [Dados abertos da ALEPE](https://dadosabertos.alepe.pe.gov.br/) | API (XML e JSON), semanal |
 | Deputados distritais (DF): projetos | [API do processo legislativo da CLDF](https://dados.cl.df.gov.br/dataset/proposicoes) | API (JSON), semanal |
 | Deputados estaduais de SC: proposições | [e-Legis da ALESC](https://portalelegis.alesc.sc.gov.br/) | Páginas públicas, semanal |
@@ -298,7 +298,7 @@ O plano completo, com a ordem das fases, está em [docs/DECISOES.md](docs/DECISO
 - Contratos públicos (PNCP), convênios, empresas e sócios (CNPJ)
 - As 66 câmaras cujo SAPL parou e as 910 cidades sem canal oficial encontrado
 - Conectores próprios para as 13 assembleias sem SAPL que faltam, depois de um levantamento casa a casa do que cada uma publica
-- Votos e presença nas comissões da ALESP (já publicados em dados abertos)
+- Presença nas reuniões das comissões da ALESP (já publicada em dados abertos; os votos nas comissões já entraram)
 - Despesas por fornecedor de outros Tribunais de Contas (RS e MG têm dados abertos)
 - Teste com pessoas reais e auditoria de acessibilidade
 

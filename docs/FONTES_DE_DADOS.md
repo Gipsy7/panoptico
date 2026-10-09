@@ -254,12 +254,20 @@ Endpoints conferidos em 2026-10-06.
   - `deputados/deputados.xml` (só quem está em exercício: `Situacao` = `EXE`);
   - `processo_legislativo/proposituras.zip` (130 MB descompactado, desde 1996) e `documento_autor.zip` (145 MB);
   - `processo_legislativo/naturezasSpl.xml` (código da natureza: 1 PL, 2 PLC, 3 PR, 4 PDL, 5 PEC, 6 moção, 7 requerimento, 8 requerimento de informação, 9 indicação);
-  - `deputados/despesas_gabinetes.xml` (164 MB, sem compactação, desde 2015).
+  - `deputados/despesas_gabinetes.xml` (164 MB, sem compactação, desde 2015);
+  - `processo_legislativo/comissoes_permanentes_votacoes.xml` (65 MB, sem compactação, desde 2005; 226 mil votos): um voto por linha, com `IdReuniao`, `IdPauta`, `IdComissao`, `IdDocumento` (a matéria), `IdDeputado`, `Deputado` (nome), `Voto` (texto livre, às vezes com espaço no fim) e `TipoVoto` (F favorável ao parecer, P favorável à proposição, C contrário ao parecer, T contrário à proposição, S voto em separado, A abstenção, B em branco);
+  - `processo_legislativo/comissoes_permanentes_reunioes.xml` (3 MB): `IdReuniao`, `Data`, `IdComissao`, `Situacao` (REALIZADA, SEM QUORUM, CANCELADA...);
+  - `processo_legislativo/comissoes.xml`: `IdComissao`, `NomeComissao`, `SiglaComissao`.
 - **Armadilhas:**
   - a autoria usa o `IdSPL` do deputado (casa 94 de 94); `IdDeputado` casa só em parte; os gastos usam a `Matricula`;
   - a categoria do gasto vem com uma letra na frente ("A - COMBUSTÍVEIS E LUBRIFICANTES");
   - a rota `/api/deputadoPresenca` citada no catálogo responde 404; a presença em Plenário só existe num formulário do site, e a página de votações em Plenário responde 403 a acesso automatizado;
-  - há presença e votações das **comissões** (`comissoes_permanentes_presencas.xml`, `comissoes_permanentes_votacoes.xml`, 65 MB), ainda não usadas.
+  - nos votos de comissão, o campo `IdDeputado` traz o `IdSPL`, não o `IdDeputado` de `deputados.xml` (casa 83 dos 88 votantes de 2025–2026 pelo `IdSPL` e só 1 pelo `IdDeputado`; os 5 restantes não estão mais no cargo);
+  - o arquivo de votos não tem data: ela vem da reunião. 3 reuniões citadas nos votos (antigas) não estão no arquivo de reuniões;
+  - "Não registrou voto" vem com `TipoVoto` F (favorável): não pode ser contado como voto;
+  - uma votação é a matéria (`IdDocumento`) numa reunião (`IdReuniao`); a mesma matéria pode ser votada em várias reuniões e comissões. Em 2025–2026 (até 21/07/2026): 2.769 votações e 22.287 votos; 93 dos 2.467 documentos votados não estão em `proposituras.zip`;
+  - uma reunião marcada "SEM QUORUM" (29/04/2026, comissão 12451) tem 313 votos registrados;
+  - a presença nas reuniões das comissões está em `comissoes_permanentes_presencas.xml` (8 MB, `IdReuniao`, `DataReuniao`, `IdDeputado`, `SiglaComissao`; não aparece no catálogo, mas existe no repositório) e a composição das comissões em `comissoes_membros.xml`; ainda não usadas.
 - **Frequência:** semanal, junto com as câmaras.
 
 ## ALEPE: Assembleia Legislativa de Pernambuco

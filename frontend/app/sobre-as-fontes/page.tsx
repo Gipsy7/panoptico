@@ -96,7 +96,8 @@ export default function SobreAsFontesPage() {
           dados vêm da API aberta da própria assembleia (ALMG): deputados no cargo, projetos e
           gastos do gabinete (verba indenizatória, com a média da assembleia). A ALMG não publica
           o voto de cada deputado nem a lista de presença. Em São Paulo, o mesmo vem dos arquivos de
-          dados abertos da ALESP; votos e presença em Plenário não estão neles. Em Pernambuco,
+          dados abertos da ALESP, com o voto de cada deputado nas comissões permanentes (cada
+          votação aparece com o nome da comissão); votos e presença em Plenário não estão neles. Em Pernambuco,
           da API de dados abertos da ALEPE: deputados no cargo e projetos, com indicações e
           requerimentos como contagem; a API não traz votos, presença nem gastos do gabinete. No
           Distrito Federal, da API pública do processo legislativo da Câmara Legislativa (CLDF):
