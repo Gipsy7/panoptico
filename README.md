@@ -300,6 +300,7 @@ O plano completo, com a ordem das fases, está em [docs/DECISOES.md](docs/DECISO
 - Acervo local com identidade única de pessoa pública e linha do tempo de eventos
 - Justiça e controle, só com registros oficiais: cassações e indeferimentos no TSE, sanções da CGU, contas julgadas pelo TCU, processos no STF e no STJ (status pelo DataJud do CNJ), conselhos de ética e CPIs, e casos de corrupção montados só com documentos oficiais
 - Partidos: a página de finanças já existe; falta exibir os pagamentos a fornecedores ligados a pessoas e empresas da base (`partido_despesa_vinculada`, depende de revisão), os diretórios e as eleições de 2016, 2020 e 2026
+- Atos de nomeação e exoneração nos diários municipais (Querido Diário): a coleta de sugestões já existe no acervo (`python -m ingestion.diarios.atos`, tabela `diario_ato`, sempre `revisado = false`); falta a fila de revisão humana em `ingestion.revisar` antes de qualquer exibição
 - Contratos públicos (PNCP): a coleta em somas já existe no acervo (`python -m ingestion.pncp.contratos`); falta exibir. Convênios, empresas e sócios (CNPJ)
 - As 66 câmaras cujo SAPL parou e as 910 cidades sem canal oficial encontrado
 - Conectores próprios para as 13 assembleias sem SAPL que faltam, depois de um levantamento casa a casa do que cada uma publica

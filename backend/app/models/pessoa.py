@@ -176,3 +176,36 @@ class CnpjConsulta(Base):
     cnpj: Mapped[str] = mapped_column(String(14), primary_key=True)
     consultado_em: Mapped[date] = mapped_column(Date)
     socios: Mapped[int | None]
+
+
+class DiarioAto(Base):
+    """SUGESTÃO de ato de nomeação, exoneração ou designação encontrado por nome nos diários
+    oficiais municipais (Querido Diário). Achado em texto nunca é vínculo: nasce com
+    `revisado = False` e só pode virar evento publicável depois de conferido por uma pessoa
+    (homônimos são o risco principal). O trecho é curto (até 500 caracteres) e a URL é a do
+    diário oficial publicado."""
+
+    __tablename__ = "diario_ato"
+    __table_args__ = (UniqueConstraint("pessoa_id", "url"),)
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    pessoa_id: Mapped[int] = mapped_column(ForeignKey("pessoa.id", ondelete="CASCADE"), index=True)
+    municipio_ibge: Mapped[str] = mapped_column(String(7), index=True)
+    data: Mapped[date] = mapped_column(Date)
+    tipo_ato: Mapped[str] = mapped_column(String(20))  # nomeacao | exoneracao | designacao
+    trecho: Mapped[str] = mapped_column(String(500))
+    url: Mapped[str] = mapped_column(Text)
+    revisado: Mapped[bool] = mapped_column(Boolean, default=False, server_default="false")
+
+
+class DiarioConsulta(Base):
+    """Quando cada pessoa teve o nome buscado nos diários do município (cache de 30 dias)."""
+
+    __tablename__ = "diario_consulta"
+
+    pessoa_id: Mapped[int] = mapped_column(
+        ForeignKey("pessoa.id", ondelete="CASCADE"), primary_key=True
+    )
+    municipio_ibge: Mapped[str] = mapped_column(String(7), primary_key=True)
+    consultado_em: Mapped[date] = mapped_column(Date)
+    achados: Mapped[int] = mapped_column(default=0)
