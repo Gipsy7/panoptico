@@ -309,6 +309,21 @@ recorte = "só os números de processo que já aparecem nos eventos (não busca 
 frequencia = "semanal"
 depende = ["tse_cassacoes", "cgu_sancoes"]
 
+[[fonte]]
+nome = "cnj_cnia"
+modulo = "ingestion.cnj.cnia"
+situacao = "catalogada"
+uso = "Linha do tempo: condenações por improbidade e inelegibilidade (suspensão de direitos políticos com período, perda da função, ressarcimento, multa)"
+recorte = "busca por CPF só das pessoas da base; detalhe de cada condenação encontrada"
+frequencia = "mensal"
+acesso = "pedido"
+depende = ["pessoas"]
+# Cadastro Nacional de Condenações Cíveis por Improbidade (CNJ). Sem lote nem API: só a
+# consulta pública (consultar_requerido.php, POST Sajax, 15 por página, sem CAPTCHA;
+# robots.txt permite). Acrescenta ao CEIS as penas além da proibição de contratar e as
+# condenações antigas. ~50 mil buscas na primeira carga: ofício ao CNJ antes de rodar em
+# volume (docs/pedidos/cnj_cnia.md).
+
 # Bloqueiam acesso automático (403): pedidos em docs/pedidos/. Sem contorno.
 [[fonte]]
 nome = "stf_processos"
