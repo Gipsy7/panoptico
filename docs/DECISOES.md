@@ -109,6 +109,28 @@ O subsídio é igual para deputados e senadores e é fixado por decreto legislat
 - **Bens:** valor como declarado, sem correção. A página avisa que bens costumam ser declarados pelo valor de compra. Sem palavras como "enriqueceu": mostramos os dois totais e o ano.
 - **2024:** o TSE passou a mascarar o CPF, então as candidaturas municipais de 2024 não se ligam aos parlamentares federais.
 
+## 2026-10-09: pessoa pública única e linha do tempo
+
+- **Tabela `pessoa`:** a mesma pessoa em todas as fontes. Cada registro de fonte (candidatura, parlamentar federal, mandato na câmara ou assembleia) entra em `pessoa_vinculo` com a regra que o ligou. Carga: `python -m ingestion.pessoas`, que lê o banco e não baixa nada.
+- **Como liga, em duas fases:**
+  1. Chaves fortes formam blocos:
+     - CPF igual;
+     - título de eleitor igual;
+     - ligação já feita pela carga do TSE.
+  2. A ligação por nome (vereador ou deputado estadual da casa ↔ eleito do TSE) une blocos inteiros. Todos os registros do bloco menor recebem a regra média (`nome_casa`), porque a ligação deles à pessoa depende dela.
+- **Conflito de CPF:** duas pessoas com CPFs diferentes nunca são fundidas, mesmo com título ou nome igual. A carga conta e informa essas recusas.
+- **Na base local:** 73.438 registros viraram 71.370 pessoas, sem nenhuma recusa. Regras: 1.099 pela carga do TSE, 601 por CPF, 124 por título e 244 por nome (média).
+- **Ids estáveis:** um registro já ligado mantém a pessoa. Quando duas pessoas passam a ser a mesma, fica a de menor id e vínculos e eventos migram. A chave de cada registro é estável entre recargas (ex.: candidatura = `ano:sq_candidato`), não o id interno, que muda quando a carga do SAPL apaga e reinsere.
+- **Publicação:** a API só mostra o que veio por vínculo forte ou revisado à mão (`revisado`). O mandato na casa ligado pelo nome fica de fora até a revisão. A regra está num lugar só (`app/services/pessoas.py`, `publicavel`).
+- **Linha do tempo** (`/pessoas/{id}/eventos`):
+  - os eventos de eleição não são gravados; são montados na hora a partir das candidaturas ligadas (coleta mínima: 72 mil eventos duplicariam a tabela de candidaturas);
+  - a tabela `evento` fica para fatos que não existem em outra tabela (sanções, processos, cassações).
+- **Data da eleição:**
+  - a candidatura passa a guardar a data do turno que definiu o resultado (`data_eleicao`, do `DT_ELEICAO` do TSE);
+  - até a próxima carga do TSE, os cargos de turno único usam a data do 1º turno;
+  - os cargos com 2º turno ficam sem data, em vez de arriscar a errada.
+- **Recarga sem mudança não regrava nada.** A primeira versão reescrevia as 71 mil linhas a cada execução e chegava a 103 MB com o espaço morto; agora são 27 MB.
+
 ## 2026-10-08: coleta mínima
 
 Juntar as bases inteiras (CNPJ, PNCP, TSE, Portal da Transparência) levaria o acervo a 90–200 GB, e a maior parte nunca seria usada. A regra passa a ser pegar aos poucos, só o necessário, no formato mais compacto. Meta: ~10–30 GB.

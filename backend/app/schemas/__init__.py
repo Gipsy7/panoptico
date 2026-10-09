@@ -735,3 +735,30 @@ class ComparacaoLocal(BaseModel):
     fonte_nome: str
     fonte_url: str
     atualizado_em: datetime | None
+
+
+class PerfilDaPessoa(BaseModel):
+    tipo: str  # parlamentar | vereador | deputado_estadual | candidatura
+    id: int
+    descricao: str
+
+
+class PessoaResposta(BaseModel):
+    id: int
+    nome: str
+    perfis: list[PerfilDaPessoa]
+
+
+class EventoItem(BaseModel):
+    data: date | None
+    tipo: str
+    descricao: str
+    orgao: str | None
+    numero_processo: str | None
+    situacao: str | None
+    fonte_url: str | None
+
+
+class LinhaDoTempo(BaseModel):
+    pessoa_id: int
+    itens: list[EventoItem]

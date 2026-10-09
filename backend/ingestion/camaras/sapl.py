@@ -40,6 +40,7 @@ from app.models import (
 )
 from ingestion import comum
 from ingestion.canais import catalogo
+from ingestion.identidade import casar_nome
 
 FONTE = "sapl_camaras"
 PAUSA = 0.4
@@ -249,44 +250,6 @@ def coletar_presenca(
         }  # fmt: skip
         resultado[parlamentar] = (len(no_mandato), len(presentes[parlamentar] & no_mandato))
     return resultado
-
-
-TITULOS = {"DR", "DRA", "PROF", "PROFA", "PROFESSOR", "PROFESSORA"}
-
-
-def _palavras(nome: str | None) -> list[str]:
-    """Palavras do nome sem partículas ("de", "do") e sem títulos ("Dr.", "Profª")."""
-    return [
-        p
-        for p in comum.chave_nome(nome).split()
-        if p.lower() not in comum.PARTICULAS and p not in TITULOS and len(p) > 1
-    ]
-
-
-def casar_nome(nomes: list[str | None], eleitos: list[tuple[int, str]]) -> int | None:
-    """Liga o parlamentar ao eleito do TSE pelo nome, em três níveis, e só quando a
-    correspondência é única em cada nível:
-    1. nome idêntico ("Catarina Guerra");
-    2. o mesmo sem partículas e títulos ("Alex Madureira" e "Alex de Madureira");
-    3. todas as palavras de um (ao menos duas) contidas no outro ("Valdomiro Lopes" e
-       "Dr Valdomiro Lopes"). Nunca por sobrenome solto ("Camilo Santana" não é "Alex
-       Santana")."""
-    regras = [
-        lambda a, b: comum.chave_nome(a) == comum.chave_nome(b),
-        lambda a, b: _palavras(a) == _palavras(b) and len(_palavras(a)) >= 2,
-        lambda a, b: (
-            min(len(_palavras(a)), len(_palavras(b))) >= 2
-            and (set(_palavras(a)) <= set(_palavras(b)) or set(_palavras(b)) <= set(_palavras(a)))
-        ),
-    ]
-    for regra in regras:
-        for nome in nomes:
-            if not nome:
-                continue
-            ids = {id_ for id_, eleito in eleitos if eleito and regra(nome, eleito)}
-            if len(ids) == 1:
-                return next(iter(ids))
-    return None
 
 
 def tipo_parlamentar(tipos: list[dict]) -> int:

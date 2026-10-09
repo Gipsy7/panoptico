@@ -230,6 +230,8 @@ uv run python -m ingestion.acervo relatorio            # volume por fonte e últ
 | `GET /parlamentares/{id}/projetos` | Projetos de lei desde 2023 |
 | `GET /municipios?uf=` | Municípios de um estado |
 | `GET /municipios/{ibge}/emendas` | Emendas recebidas pela cidade e quem enviou |
+| `GET /pessoas/{id}` | A mesma pessoa em todas as fontes e os perfis dela no site (acervo) |
+| `GET /pessoas/{id}/eventos?tipo=&de=&ate=` | Linha do tempo da pessoa, com a fonte de cada fato (acervo) |
 | `GET /fontes` | Fontes e data da última atualização |
 | `GET /saude` | Situação da API e do banco |
 

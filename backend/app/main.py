@@ -8,6 +8,7 @@ from app.api import (
     fontes,
     municipios,
     parlamentares,
+    pessoas,
     representantes,
     saude,
 )
@@ -54,3 +55,4 @@ app.include_router(fontes.router)
 app.include_router(comparar.router)
 app.include_router(eleitos.router)
 app.include_router(busca.router)
+app.include_router(pessoas.router)

@@ -83,6 +83,8 @@ def normalizar(linhas: Any) -> list[dict[str, Any]]:
                 "cpf": comum_tse.cpf(linha.get("NR_CPF_CANDIDATO")),
                 "titulo": comum_tse.titulo(linha.get("NR_TITULO_ELEITORAL_CANDIDATO")),
                 "data_nascimento": comum_tse.data(linha.get("DT_NASCIMENTO")),
+                # Data do turno que definiu o resultado (o 2º, para quem disputou dois).
+                "data_eleicao": comum_tse.data(linha.get("DT_ELEICAO")),
                 "genero": comum_tse.texto(linha.get("DS_GENERO")),
                 "cor_raca": comum_tse.texto(linha.get("DS_COR_RACA")),
                 "grau_instrucao": comum_tse.texto(linha.get("DS_GRAU_INSTRUCAO")),

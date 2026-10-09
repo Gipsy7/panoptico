@@ -239,3 +239,12 @@ modulo = "ingestion.assembleias.alesp"
 uso = "Assembleia de São Paulo hoje"
 recorte = "deputados em exercício; ano atual e anterior"
 frequencia = "semanal"
+
+# Identidade única (lê o banco; não baixa nada)
+[[fonte]]
+nome = "pessoas"
+modulo = "ingestion.pessoas"
+uso = "Pessoa pública única e linha do tempo (/pessoas/{id}/eventos)"
+recorte = "candidaturas, parlamentares e mandatos já carregados"
+frequencia = "semanal"
+depende = ["tse_candidaturas", "camara_deputados", "senado_senadores", "sapl_camaras", "sapl_assembleias", "almg", "alesp"]

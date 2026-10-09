@@ -52,6 +52,7 @@ class Candidatura(Base):
     # mascarou o CPF, mas não o título); nunca exibido.
     titulo: Mapped[str | None] = mapped_column(String(12), index=True)
     data_nascimento: Mapped[date | None] = mapped_column(Date)
+    data_eleicao: Mapped[date | None] = mapped_column(Date)  # do turno que definiu o resultado
     genero: Mapped[str | None] = mapped_column(String(40))
     cor_raca: Mapped[str | None] = mapped_column(String(40))
     grau_instrucao: Mapped[str | None] = mapped_column(String(60))
