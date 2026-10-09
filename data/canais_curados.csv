@@ -26,3 +26,9 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 5002704,Campo Grande,MS,camara,https://www.camara.ms.gov.br/,,2026-10-08
 5103403,Cuiabá,MT,camara,https://www.camaracuiaba.mt.gov.br/,,2026-10-08
 4202404,Blumenau,SC,camara,https://www.cmb.sc.gov.br/,,2026-10-08
+4301909,Barra do Ribeiro,RS,sistema_legislativo,https://cmbarradoribeiro.cittatec.com.br/portal-legislativo/vereadores,cittatec,2026-10-09
+4307005,Erechim,RS,sistema_legislativo,https://cmerechim.cittatec.com.br/portal-legislativo/vereadores,cittatec,2026-10-09
+5215900,Palminópolis,GO,sistema_legislativo,https://cmpalminopolis.cittatec.com.br/portal-legislativo/vereadores,cittatec,2026-10-09
+4314407,Pelotas,RS,sistema_legislativo,https://cmpelotas.cittatec.com.br/portal-legislativo/vereadores,cittatec,2026-10-09
+4318002,São Borja,RS,sistema_legislativo,https://cmsaoborja.cittatec.com.br/portal-legislativo/vereadores,cittatec,2026-10-09
+4316105,Ronda Alta,RS,sistema_legislativo,https://cmrondaalta.cittatec.com.br/portal-legislativo/vereadores,cittatec,2026-10-09

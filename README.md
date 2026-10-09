@@ -44,6 +44,7 @@ Os dados sobre o trabalho dos parlamentares já são públicos, mas estão espal
 - **Contas da sua cidade** (SICONFI, Tesouro Nacional): quanto a prefeitura arrecadou e gastou no ano, em que áreas e quanto custou a câmara municipal.
 - **Para quem a cidade pagou** (no site, por enquanto, cidades de SP, pelo TCE-SP): os maiores fornecedores da prefeitura e da câmara no ano. O RS (TCE-RS) já está no acervo local, mas o tribunal não responde a conexões de fora do Brasil, e a ingestão de produção roda no GitHub Actions (EUA). Minas Gerais aguarda resposta do TCE-MG, cuja API exige reCAPTCHA e não tem espelho aberto (pedido em `docs/pedidos/tce_mg.md`).
 - **Câmara municipal hoje** (nas câmaras que usam o SAPL): quem está no cargo agora, inclusive suplentes, com partido atual, contato, projetos, quantos requerimentos, indicações e moções apresentou, presença nas sessões (com a média da câmara) e como votou nas votações nominais, onde a câmara registra.
+- **Câmaras que saíram do SAPL** (portal da Cittatec: Pelotas, Erechim, São Borja, Ronda Alta, Barra do Ribeiro e Palminópolis): vereadores no cargo e a contagem de proposições. `data/sistemas_camaras.csv` registra qual sistema cada uma das 66 câmaras com SAPL parado usa hoje, e `data/sapl_desativado.csv` as exclui da carga do SAPL.
 - **Assembleia legislativa hoje** (nas que usam o SAPL: AC, AL, AM, PB, PI, RO e TO; a de RR bloqueia o acesso a partir do GitHub Actions): o mesmo para os deputados estaduais, com perfil em `/deputado-estadual/{id}`.
 - **Assembleia de São Paulo** (dados abertos da ALESP): deputados no cargo, projetos, moções, requerimentos e indicações, e **gastos do gabinete**, com a média da assembleia, e o **voto de cada deputado nas comissões permanentes** (ano atual e anterior). Votos e presença em Plenário não estão nos dados abertos.
 - **Assembleia de Pernambuco** (API de dados abertos da ALEPE): deputados no cargo, projetos, indicações e requerimentos. A API não traz votos, presença nem gastos do gabinete.
@@ -130,6 +131,7 @@ flowchart LR
 | Pagamentos das prefeituras e câmaras por fornecedor (SP) | [TCE-SP](https://transparencia.tce.sp.gov.br/conjunto-de-dados) | Arquivo anual em lote, mensal; só do Brasil (acervo local) |
 | Pagamentos das prefeituras e câmaras por fornecedor (RS) | [TCE-RS](https://dados.tce.rs.gov.br/) | Arquivo anual em lote, mensal |
 | Vereadores e deputados estaduais no cargo, projetos, votações nominais e presença | SAPL (Interlegis) de cada câmara e de sete assembleias | API, semanal, endereços do catálogo de canais |
+| Vereadores de câmaras que saíram do SAPL (6 no portal da Cittatec) | Portal legislativo de cada câmara (`cm<cidade>.cittatec.com.br`) | API (JSON), semanal |
 | Deputados estaduais de SP: projetos, gastos do gabinete e votos nas comissões | [Dados abertos da ALESP](https://www.al.sp.gov.br/dados-abertos/) | Arquivos XML, semanal |
 | Deputados estaduais de PE: projetos | [Dados abertos da ALEPE](https://dadosabertos.alepe.pe.gov.br/) | API (XML e JSON), semanal |
 | Deputados distritais (DF): projetos | [API do processo legislativo da CLDF](https://dados.cl.df.gov.br/dataset/proposicoes) | API (JSON), semanal |
@@ -310,7 +312,7 @@ O plano completo, com a ordem das fases, está em [docs/DECISOES.md](docs/DECISO
 - Partidos: a página de finanças já existe; falta exibir os pagamentos a fornecedores ligados a pessoas e empresas da base (`partido_despesa_vinculada`, depende de revisão), os diretórios e as eleições de 2016, 2020 e 2026
 - Atos de nomeação e exoneração nos diários municipais (Querido Diário): a coleta de sugestões (`python -m ingestion.diarios.atos`, tabela `diario_ato`) e a revisão humana (`python -m ingestion.revisar --tipo diario`) existem; só o que for aceito vira evento na linha do tempo. Falta rodar a revisão sobre as sugestões do acervo
 - Contratos públicos (PNCP): a coleta em somas já existe no acervo (`python -m ingestion.pncp.contratos`); falta exibir. Convênios, empresas e sócios (CNPJ)
-- As 66 câmaras cujo SAPL parou e as 910 cidades sem canal oficial encontrado
+- As 60 câmaras cujo SAPL parou e que ainda não têm conector (sistema atual de cada uma em `data/sistemas_camaras.csv`; próximos: modelo PHP de AP/CE com 5 e CR2 com 4) e as 910 cidades sem canal oficial encontrado
 - Conectores próprios para as 10 assembleias sem SAPL que faltam, depois de um levantamento casa a casa do que cada uma publica
 - Presença nas reuniões das comissões da ALESP (já publicada em dados abertos; os votos nas comissões já entraram)
 - Despesas por fornecedor de outros Tribunais de Contas (o de MG exige reCAPTCHA nos dados abertos; falta pedir acesso)

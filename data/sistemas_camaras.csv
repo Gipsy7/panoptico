@@ -1,0 +1,67 @@
+cidade,uf,ibge,url,fornecedor,como_identificou,tem_api,observacao
+Queimada Nova,PI,2208650,https://queimadanova.pi.leg.br/,AOS Software,"""adtrcloud"" no HTML da página inicial",não,
+Santana do Piauí,PI,2209351,https://www.santanadopiaui.pi.leg.br,AOS Software,"""aossoftware"" no HTML da página inicial",não,
+Senador Guiomard,AC,1200450,https://www.senadorguiomard.ac.leg.br/,Betha,"""betha.cloud"" no HTML da página inicial",não,só o portal de transparência é Betha; sistema legislativo não confirmado
+Imbuia,SC,4207403,https://www.imbuia.sc.leg.br,Betha,"""betha.cloud"" no HTML da página inicial",não,só o portal de transparência é Betha; sistema legislativo não confirmado
+Beruri,AM,1300631,https://beruri.am.leg.br/,CR2 (portalcr2.com.br),"""portalcr2.com.br"" no HTML da página inicial",não,lista de parlamentares em HTML no portalcr2.com.br
+Itamarandiba,MG,3132503,https://itamarandiba.mg.leg.br/,CR2 (portalcr2.com.br),"""portalcr2.com.br"" no HTML da página inicial",não,lista de parlamentares em HTML no portalcr2.com.br
+Benevides,PA,1501501,https://www.benevides.pa.leg.br,CR2 (portalcr2.com.br),"""portalcr2.com.br"" no HTML da página inicial",não,lista de parlamentares em HTML no portalcr2.com.br
+São Miguel do Guamá,PA,1507607,https://www.saomigueldoguama.pa.leg.br/,CR2 (portalcr2.com.br),"""cr2.site"" no HTML da página inicial",não,lista de parlamentares em HTML no portalcr2.com.br
+Riozinho,RS,4315750,https://www.riozinho.rs.leg.br,Cespro,"""cespro.com.br"" no HTML da página inicial",não,
+Palminópolis,GO,5215900,https://www.palminopolis.go.leg.br/,Cittatec (Citta Conecta),"""cittatec.com.br"" no HTML da página inicial",sim,portal legislativo em cmXXX.cittatec.com.br com API JSON pública (open-data-leg)
+Barra do Ribeiro,RS,4301909,https://www.barradoribeiro.rs.leg.br/,Cittatec (Citta Conecta),"""cittatec.com.br"" no HTML da página inicial",sim,portal legislativo em cmXXX.cittatec.com.br com API JSON pública (open-data-leg)
+Erechim,RS,4307005,https://www.erechim.rs.leg.br/,Cittatec (Citta Conecta),"""cittatec.com.br"" no HTML da página inicial",sim,portal legislativo em cmXXX.cittatec.com.br com API JSON pública (open-data-leg)
+Pelotas,RS,4314407,https://www.pelotas.rs.leg.br/,Cittatec (Citta Conecta),"""cittatec.com.br"" no HTML da página inicial",sim,portal legislativo em cmXXX.cittatec.com.br com API JSON pública (open-data-leg)
+Ronda Alta,RS,4316105,https://www.rondaalta.rs.leg.br,Cittatec (Citta Conecta),"""cittatec.com.br"" no HTML da página inicial",sim,portal legislativo em cmXXX.cittatec.com.br com API JSON pública (open-data-leg)
+São Borja,RS,4318002,https://www.saoborja.rs.leg.br/,Cittatec (Citta Conecta),"""cittatec.com.br"" no HTML da página inicial",sim,portal legislativo em cmXXX.cittatec.com.br com API JSON pública (open-data-leg)
+Aracruz,ES,3200607,https://www.aracruz.es.leg.br,Câmara Sem Papel,"""camarasempapel"" no HTML da página inicial",não,
+Teófilo Otoni,MG,3168606,https://teofilootoni.mg.leg.br/,Digitaliza (servicosaocidadao),"""servicosaocidadao.net.br"" no HTML da página inicial",não,
+Manoel Vitorino,BA,2920403,https://www.manoelvitorino.ba.leg.br,Dofem / PortalGov,"""dofem.com.br"" no HTML da página inicial",não,
+São Raimundo das Mangabeiras,MA,2111607,https://www.saoraimundodasmangabeiras.ma.leg.br,Fiorilli,"""fiorilli"" no HTML da página inicial",não,
+Garopaba,SC,4205704,https://www.garopaba.sc.leg.br,IPM (atende.net),"""atende.net"" no HTML da página inicial",não,
+União,PI,2211100,https://uniao.pi.leg.br/,Inacessível (certificado TLS inválido),erro de certificado ao abrir a página inicial,não,o certificado do site não valida; não foi contornado
+Leópolis,PR,4113403,https://www.leopolis.pr.leg.br,Ingá Digital,"""ingadigital"" no HTML da página inicial",não,
+Pimenta Bueno,RO,1100189,https://www.pimentabueno.ro.leg.br/,Instar,"""instar.com.br"" no HTML da página inicial",não,
+Perdões,MG,3149903,https://www.perdoes.mg.leg.br/,Legislador,"""legislador.com.br"" no HTML da página inicial",não,
+Campos Belos,GO,5204904,https://www.camposbelos.go.leg.br/,Megasoft,"""megasoft"" no HTML da página inicial",não,
+Carolina,MA,2102804,https://www.carolina.ma.leg.br,Megasoft,"""megasoft"" no HTML da página inicial",não,
+Palmas,TO,1721000,https://palmas.to.leg.br/,Nexlegis,"""nexlegis"" no HTML da página inicial",não,
+Cachoeiro de Itapemirim,ES,3201209,https://www.cachoeirodeitapemirim.es.leg.br,NoPaperCloud (PLE),"""nopapercloud"" no HTML da página inicial",não,parlamentares.aspx em HTML
+Pirenópolis,GO,5217302,https://pirenopolis.go.leg.br/,Nucleogov / 7Focus (portal .leg.br),"""nucleogov"" no HTML da página inicial",não,sem lista de vereadores no HTML inicial
+Cariri do Tocantins,TO,1703867,https://www.cariridotocantins.to.leg.br/,Nucleogov / 7Focus (portal .leg.br),"""nucleogov"" no HTML da página inicial",não,sem lista de vereadores no HTML inicial
+Figueirópolis,TO,1707652,https://figueiropolis.to.leg.br/,Nucleogov / 7Focus (portal .leg.br),"""nucleogov"" no HTML da página inicial",não,sem lista de vereadores no HTML inicial
+Santa Rita do Tocantins,TO,1718899,https://www.santaritadotocantins.to.leg.br/,Nucleogov / 7Focus (portal .leg.br),"""nucleogov"" no HTML da página inicial",não,sem lista de vereadores no HTML inicial
+Uauá,BA,2932002,https://www.uaua.ba.leg.br,"Portal Modelo Interlegis (Plone), sistema legislativo não identificado",meta generator Plone na página inicial,não,portal Plone do Interlegis; a lista de parlamentares dele vem do SAPL parado
+Ipueiras,CE,2305902,https://www.ipueiras.ce.leg.br,"Portal Modelo Interlegis (Plone), sistema legislativo não identificado",meta generator Plone na página inicial,não,portal Plone do Interlegis; a lista de parlamentares dele vem do SAPL parado
+Irauçuba,CE,2306108,https://www.iraucuba.ce.leg.br,"Portal Modelo Interlegis (Plone), sistema legislativo não identificado",meta generator Plone na página inicial,não,portal Plone do Interlegis; a lista de parlamentares dele vem do SAPL parado
+Morada Nova,CE,2308708,https://www.moradanova.ce.leg.br,"Portal Modelo Interlegis (Plone), sistema legislativo não identificado",meta generator Plone na página inicial,não,portal Plone do Interlegis; a lista de parlamentares dele vem do SAPL parado
+Duque Bacelar,MA,2103901,https://www.duquebacelar.ma.leg.br,"Portal Modelo Interlegis (Plone), sistema legislativo não identificado",meta generator Plone na página inicial,não,portal Plone do Interlegis; a lista de parlamentares dele vem do SAPL parado
+Olinda Nova do Maranhão,MA,2107456,https://www.olindanovadomaranhao.ma.leg.br,"Portal Modelo Interlegis (Plone), sistema legislativo não identificado",meta generator Plone na página inicial,não,portal Plone do Interlegis; a lista de parlamentares dele vem do SAPL parado
+Bambuí,MG,3105103,https://www.bambui.mg.leg.br,"Portal Modelo Interlegis (Plone), sistema legislativo não identificado",meta generator Plone na página inicial,não,portal Plone do Interlegis; a lista de parlamentares dele vem do SAPL parado
+Santo Antônio do Monte,MG,3160405,https://www.santoantoniodomonte.mg.leg.br,"Portal Modelo Interlegis (Plone), sistema legislativo não identificado",meta generator Plone na página inicial,não,portal Plone do Interlegis; a lista de parlamentares dele vem do SAPL parado
+São Sebastião da Boa Vista,PA,1507706,https://www.saosebastiaodaboavista.pa.leg.br,"Portal Modelo Interlegis (Plone), sistema legislativo não identificado",meta generator Plone na página inicial,não,portal Plone do Interlegis; a lista de parlamentares dele vem do SAPL parado
+Tanque do Piauí,PI,2210979,https://www.tanquedopiaui.pi.leg.br,"Portal Modelo Interlegis (Plone), sistema legislativo não identificado",meta generator Plone na página inicial,não,portal Plone do Interlegis; a lista de parlamentares dele vem do SAPL parado
+Presidente Castelo Branco,PR,4120408,https://www.presidentecastelobranco.pr.leg.br,"Portal Modelo Interlegis (Plone), sistema legislativo não identificado",meta generator Plone na página inicial,não,portal Plone do Interlegis; a lista de parlamentares dele vem do SAPL parado
+Campo Novo de Rondônia,RO,1100700,https://www.camponovoderondonia.ro.leg.br,"Portal Modelo Interlegis (Plone), sistema legislativo não identificado",meta generator Plone na página inicial,não,portal Plone do Interlegis; a lista de parlamentares dele vem do SAPL parado
+Cerrito,RS,4305124,https://www.cerrito.rs.leg.br,"Portal Modelo Interlegis (Plone), sistema legislativo não identificado",meta generator Plone na página inicial,não,portal Plone do Interlegis; a lista de parlamentares dele vem do SAPL parado
+Vila Flores,RS,4323309,https://www.vilaflores.rs.leg.br,"Portal Modelo Interlegis (Plone), sistema legislativo não identificado",meta generator Plone na página inicial,não,portal Plone do Interlegis; a lista de parlamentares dele vem do SAPL parado
+Bocaina do Sul,SC,4202438,https://www.bocainadosul.sc.leg.br,"Portal Modelo Interlegis (Plone), sistema legislativo não identificado",meta generator Plone na página inicial,não,portal Plone do Interlegis; a lista de parlamentares dele vem do SAPL parado
+Gravatal,SC,4206207,https://www.gravatal.sc.leg.br,"Portal Modelo Interlegis (Plone), sistema legislativo não identificado",meta generator Plone na página inicial,não,portal Plone do Interlegis; a lista de parlamentares dele vem do SAPL parado
+Espírito Santo do Turvo,SP,3515194,https://www.espiritosantodoturvo.sp.leg.br/acl_users/credentials_cookie_auth/require_login?came_from=https%3A//www.espiritosantodoturvo.sp.leg.br/,"Portal Modelo Interlegis (Plone), sistema legislativo não identificado",meta generator Plone na página inicial,não,portal Plone do Interlegis; a lista de parlamentares dele vem do SAPL parado
+Ourinhos,SP,3534708,https://www.ourinhos.sp.leg.br,"Portal Modelo Interlegis (Plone), sistema legislativo não identificado",meta generator Plone na página inicial,não,portal Plone do Interlegis; a lista de parlamentares dele vem do SAPL parado
+Amapá,AP,1600105,https://amapa.ap.leg.br/,Portal PHP (vereadores.php),"""papelvereador.php"" no HTML da página inicial",não,mesmo modelo de site no AP e no CE: vereadores.php e papelvereador.php
+Ferreira Gomes,AP,1600238,https://ferreiragomes.ap.leg.br/,Portal PHP (vereadores.php),"""papelvereador.php"" no HTML da página inicial",não,mesmo modelo de site no AP e no CE: vereadores.php e papelvereador.php
+Tartarugalzinho,AP,1600709,https://tartarugalzinho.ap.leg.br/,Portal PHP (vereadores.php),"""papelvereador.php"" no HTML da página inicial",não,mesmo modelo de site no AP e no CE: vereadores.php e papelvereador.php
+Fortim,CE,2304459,https://fortim.ce.leg.br/,Portal PHP (vereadores.php),"""papelvereador.php"" no HTML da página inicial",não,mesmo modelo de site no AP e no CE: vereadores.php e papelvereador.php
+Poranga,CE,2311009,https://poranga.ce.leg.br/,Portal PHP (vereadores.php),"""papelvereador.php"" no HTML da página inicial",não,mesmo modelo de site no AP e no CE: vereadores.php e papelvereador.php
+Santa Cruz,PE,2612455,http://santacruz.pe.leg.br/,Portal de Serviços (portaldeservicos.app),"""portaldeservicos.app"" no HTML da página inicial",não,
+Itatuba,PB,2507200,https://www.itatuba.pb.leg.br,Publicsoft,"""publicsoft"" no HTML da página inicial",não,
+Estiva,MG,3124500,https://www.estiva.mg.leg.br,SGP Cloud,"""sgpcloud.net"" no HTML da página inicial",não,
+Frutal,MG,3127107,https://www.frutal.mg.leg.br,Siscam,"""siscam.com.br"" no HTML da página inicial",não,
+São José da Varginha,MG,3163102,https://www.saojosedavarginha.mg.leg.br/,Sistema Legislativo (sistemalegislativo.com.br),"""sistemalegislativo.com.br"" no HTML da página inicial",não,
+Varjão de Minas,MG,3170750,https://varjaodeminas.mg.leg.br/,Site próprio (não identificado),nenhum fornecedor reconhecido na página inicial,não,
+Nortelândia,MT,5106000,https://nortelandia.mt.leg.br/,Site próprio (não identificado),nenhum fornecedor reconhecido na página inicial,não,
+Santa Maria do Cambucá,PE,2612703,https://santamariadocambuca.pe.leg.br/,Site próprio (não identificado),nenhum fornecedor reconhecido na página inicial,não,
+Alvorada,TO,1700707,https://alvorada.to.leg.br/,Site próprio (não identificado),nenhum fornecedor reconhecido na página inicial,não,
+Ibotirama,BA,2913200,https://www.ibotirama.ba.leg.br,Sudoeste Informática,"""sudoesteinformatica"" no HTML da página inicial",não,
+Praia Grande,SP,3541000,https://www.praiagrande.sp.leg.br/onepage,e-Solution (IPM),"""e-Solution"" no HTML da página inicial",não,

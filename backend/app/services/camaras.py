@@ -34,9 +34,19 @@ FONTES_PROPRIAS = {
 }
 
 
-def _fonte(casa: str, uf: str) -> tuple[str, str]:
+# Câmaras que saíram do SAPL e têm conector próprio: o endereço de origem diz qual.
+FONTES_DE_CAMARA = {
+    "cittatec.com.br": ("cittatec_camaras", "Portal legislativo da câmara (Cittatec)"),
+}
+
+
+def _fonte(casa: str, uf: str, url: str = "") -> tuple[str, str]:
     if casa == "assembleia" and uf in FONTES_PROPRIAS:
         return FONTES_PROPRIAS[uf]
+    if casa == "camara":
+        for dominio, fonte in FONTES_DE_CAMARA.items():
+            if dominio in url:
+                return fonte
     return FONTES[casa]
 
 
@@ -164,7 +174,7 @@ def votacoes(session: Session, m: MandatoLocal, pagina: int = 1) -> dict:
             }
             for v, voto in linhas
         ],
-        "fonte_nome": _fonte(m.casa, m.uf)[1],
+        "fonte_nome": _fonte(m.casa, m.uf, m.sapl_url)[1],
         "fonte_url": m.sapl_url,
         "atualizado_em": _atualizado_em(session, m.casa, m.uf),
     }
@@ -219,7 +229,7 @@ def _casa(session: Session, casa: str, filtro: Any) -> dict | None:
     return {
         "sapl_url": mandatos[0].sapl_url,
         "itens": [_item(m, projetos.get(m.id, 0), com_foto, votos.get(m.id, 0)) for m in mandatos],
-        "fonte_nome": _fonte(casa, mandatos[0].uf)[1],
+        "fonte_nome": _fonte(casa, mandatos[0].uf, mandatos[0].sapl_url)[1],
         "fonte_url": mandatos[0].sapl_url,
         "atualizado_em": _atualizado_em(session, casa, mandatos[0].uf),
     }
@@ -277,7 +287,7 @@ def vereador(session: Session, mandato: MandatoLocal) -> dict:
             for p in projetos
         ],
         "sapl_url": mandato.sapl_url,
-        "fonte_nome": _fonte(mandato.casa, mandato.uf)[1],
+        "fonte_nome": _fonte(mandato.casa, mandato.uf, mandato.sapl_url)[1],
         "fonte_url": mandato.sapl_url,
         "atualizado_em": _atualizado_em(session, mandato.casa, mandato.uf),
     }
@@ -353,7 +363,7 @@ def comparar(session: Session, a: MandatoLocal, b: MandatoLocal) -> dict:
             }
             for v, x, y in divergencias[:20]
         ],  # fmt: skip
-        "fonte_nome": _fonte(a.casa, a.uf)[1],
+        "fonte_nome": _fonte(a.casa, a.uf, a.sapl_url)[1],
         "fonte_url": a.sapl_url,
         "atualizado_em": _atualizado_em(session, a.casa, a.uf),
     }

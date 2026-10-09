@@ -48,7 +48,14 @@ def fornecedores_do_municipio(ibge: str, session: Annotated[Session, Depends(get
     return resultado
 
 
-ORDEM_CANAIS = ["prefeitura", "camara", "sapl", "transparencia_prefeitura", "transparencia_camara"]
+ORDEM_CANAIS = [
+    "prefeitura",
+    "camara",
+    "sapl",
+    "sistema_legislativo",
+    "transparencia_prefeitura",
+    "transparencia_camara",
+]
 
 
 @router.get("/municipios/{ibge}/canais", response_model=CanaisResposta)

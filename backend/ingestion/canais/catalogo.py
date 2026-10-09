@@ -18,17 +18,38 @@ FONTE = "canais_oficiais"
 
 
 CURADOS = CATALOGO.with_name("canais_curados.csv")
+# Câmaras cujo SAPL parou (a casa trocou de sistema): saem do catálogo, para a carga semanal
+# do SAPL não insistir nelas e o site não apontar para um SAPL abandonado.
+SAPL_DESATIVADO = CATALOGO.with_name("sapl_desativado.csv")
 
 
-def ler(caminho: Path = CATALOGO, curados: Path = CURADOS) -> list[dict]:
+def ler(
+    caminho: Path = CATALOGO,
+    curados: Path = CURADOS,
+    desativados: Path | None = SAPL_DESATIVADO,
+) -> list[dict]:
     """O catálogo da varredura, com as correções feitas à mão (canais_curados.csv) por
-    cima: um canal curado substitui o da varredura do mesmo tipo na mesma cidade."""
+    cima: um canal curado substitui o da varredura do mesmo tipo na mesma cidade. O SAPL
+    das câmaras listadas em sapl_desativado.csv não entra."""
     linhas = _ler(caminho)
     if not linhas:
         return []
     manuais = _ler(curados)
     trocados = {(c["municipio_ibge"], c["tipo"]) for c in manuais}
-    return [x for x in linhas if (x["municipio_ibge"], x["tipo"]) not in trocados] + manuais
+    sem_sapl = _sapl_desativado(desativados) if desativados else set()
+    return [
+        x
+        for x in linhas
+        if (x["municipio_ibge"], x["tipo"]) not in trocados
+        and not (x["tipo"] == "sapl" and x["municipio_ibge"] in sem_sapl)
+    ] + manuais
+
+
+def _sapl_desativado(caminho: Path) -> set[str]:
+    if not caminho.exists():
+        return set()
+    with caminho.open(encoding="utf-8", newline="") as arquivo:
+        return {linha["ibge"] for linha in csv.DictReader(arquivo)}
 
 
 def _ler(caminho: Path) -> list[dict]:

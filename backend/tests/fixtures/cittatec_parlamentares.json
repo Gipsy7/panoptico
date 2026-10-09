@@ -1,0 +1,304 @@
+[
+ {
+  "id": 177,
+  "parlamentar": "ROSELI NUNES DE SOUZA",
+  "pessoa": {
+   "id": 77,
+   "nome": "ROSELI NUNES DE SOUZA",
+   "email": null,
+   "nascimento": null,
+   "fone": null,
+   "imagem": "https://citta-imagens-br.s3.amazonaws.com/conecta/ID-OMITIDO",
+   "biografia": null,
+   "imagemCustomizada": false
+  },
+  "partido": {
+   "id": 15,
+   "nome": "MOVIMENTO DEMOCRÁTICO BRASILEIRO",
+   "numero": 15,
+   "sigla": "MDB",
+   "url": "https://citta-imagens-br.s3.amazonaws.com/partidos/15/logo"
+  },
+  "imagem": "https://citta-imagens-br.s3.amazonaws.com/conecta/ID-OMITIDO",
+  "evento": {
+   "description": "Substituição",
+   "name": "SUBSTITUICAO"
+  },
+  "cargoMesa": {
+   "descricao": "Vice-Presidente",
+   "order": 2,
+   "name": "VICE_PRESIDENTE_1"
+  },
+  "dataInicio": "2026-01-02T09:00:17.037",
+  "dataFim": "2026-05-04T00:00:00",
+  "ativo": false,
+  "mandato": {
+   "nomeParlamentar": null,
+   "evento": null,
+   "justificativa": null,
+   "legislatura": {
+    "id": 3,
+    "nome": "LEGISLATURA",
+    "dataInicio": "2025-01-01",
+    "dataFim": "2028-12-31",
+    "legislaturaAtual": true,
+    "anoInicial": 2025,
+    "anoFinal": 2028
+   },
+   "dataFim": "2028-12-31",
+   "idPessoa": 77
+  },
+  "observacao": null,
+  "substituto": null
+ },
+ {
+  "id": 183,
+  "parlamentar": "PATRICIA RAMOS",
+  "pessoa": {
+   "id": 32,
+   "nome": "PATRICIA RAMOS",
+   "email": null,
+   "nascimento": null,
+   "fone": null,
+   "imagem": "https://citta-imagens-br.s3.amazonaws.com/conecta/ID-OMITIDO",
+   "biografia": null,
+   "imagemCustomizada": false
+  },
+  "partido": {
+   "id": 11,
+   "nome": "PROGRESSISTAS",
+   "numero": 11,
+   "sigla": "PROGRESSISTAS",
+   "url": "https://citta-imagens-br.s3.amazonaws.com/partidos/11/logo"
+  },
+  "imagem": "https://citta-imagens-br.s3.amazonaws.com/conecta/ID-OMITIDO",
+  "evento": null,
+  "cargoMesa": {
+   "descricao": "Primeiro(a) Secretário(a)",
+   "order": 4,
+   "name": "SECRETARIO_1"
+  },
+  "dataInicio": "2026-03-16T00:00:00",
+  "dataFim": "2028-12-31T23:59:59",
+  "ativo": true,
+  "mandato": {
+   "nomeParlamentar": "PATRICIA RAMOS",
+   "evento": null,
+   "justificativa": null,
+   "legislatura": {
+    "id": 3,
+    "nome": "LEGISLATURA",
+    "dataInicio": "2025-01-01",
+    "dataFim": "2028-12-31",
+    "legislaturaAtual": true,
+    "anoInicial": 2025,
+    "anoFinal": 2028
+   },
+   "dataFim": "2028-12-31",
+   "idPessoa": 32
+  },
+  "observacao": null,
+  "substituto": null
+ },
+ {
+  "id": 176,
+  "parlamentar": "VIVIANE LEITE VIEIRA",
+  "pessoa": {
+   "id": 79,
+   "nome": "VIVIANE LEITE VIEIRA",
+   "email": null,
+   "nascimento": null,
+   "fone": null,
+   "imagem": "https://citta-imagens-br.s3.amazonaws.com/conecta/ID-OMITIDO",
+   "biografia": null,
+   "imagemCustomizada": false
+  },
+  "partido": {
+   "id": 15,
+   "nome": "MOVIMENTO DEMOCRÁTICO BRASILEIRO",
+   "numero": 15,
+   "sigla": "MDB",
+   "url": "https://citta-imagens-br.s3.amazonaws.com/partidos/15/logo"
+  },
+  "imagem": "https://citta-imagens-br.s3.amazonaws.com/conecta/ID-OMITIDO",
+  "evento": null,
+  "cargoMesa": {
+   "descricao": "Primeiro(a) Secretário(a)",
+   "order": 4,
+   "name": "SECRETARIO_1"
+  },
+  "dataInicio": "2026-01-02T00:00:00",
+  "dataFim": "2026-03-15T23:23:00",
+  "ativo": false,
+  "mandato": {
+   "nomeParlamentar": null,
+   "evento": null,
+   "justificativa": null,
+   "legislatura": {
+    "id": 3,
+    "nome": "LEGISLATURA",
+    "dataInicio": "2025-01-01",
+    "dataFim": "2028-12-31",
+    "legislaturaAtual": true,
+    "anoInicial": 2025,
+    "anoFinal": 2028
+   },
+   "dataFim": "2028-12-31",
+   "idPessoa": 79
+  },
+  "observacao": null,
+  "substituto": null
+ },
+ {
+  "id": 179,
+  "parlamentar": "ANDREZA BUDELON",
+  "pessoa": {
+   "id": 76,
+   "nome": "ANDREZA BUDELON",
+   "email": null,
+   "nascimento": null,
+   "fone": null,
+   "imagem": "https://citta-imagens-br.s3.amazonaws.com/conecta/ID-OMITIDO",
+   "biografia": null,
+   "imagemCustomizada": false
+  },
+  "partido": {
+   "id": 45,
+   "nome": "PARTIDO DA SOCIAL DEMOCRACIA BRASILEIRA",
+   "numero": 45,
+   "sigla": "PSDB",
+   "url": "https://citta-imagens-br.s3.amazonaws.com/partidos/45/logo"
+  },
+  "imagem": "https://citta-imagens-br.s3.amazonaws.com/conecta/ID-OMITIDO",
+  "evento": null,
+  "cargoMesa": {
+   "descricao": "Parlamentar",
+   "order": 8,
+   "name": "PARLAMENTAR"
+  },
+  "dataInicio": "2026-01-02T09:01:04.038",
+  "dataFim": "2028-12-31T23:59:59",
+  "ativo": true,
+  "mandato": {
+   "nomeParlamentar": "ANDREZA BUDELON",
+   "evento": null,
+   "justificativa": null,
+   "legislatura": {
+    "id": 3,
+    "nome": "LEGISLATURA",
+    "dataInicio": "2025-01-01",
+    "dataFim": "2028-12-31",
+    "legislaturaAtual": true,
+    "anoInicial": 2025,
+    "anoFinal": 2028
+   },
+   "dataFim": "2028-12-31",
+   "idPessoa": 76
+  },
+  "observacao": null,
+  "substituto": null
+ },
+ {
+  "id": 180,
+  "parlamentar": "ANDRÉA DE OLIVEIRA RIBEIRO",
+  "pessoa": {
+   "id": 78,
+   "nome": "ANDRÉA DE OLIVEIRA RIBEIRO",
+   "email": null,
+   "nascimento": "1972-10-02",
+   "fone": null,
+   "imagem": "https://citta-imagens-br.s3.amazonaws.com/conecta/ID-OMITIDO",
+   "biografia": null,
+   "imagemCustomizada": false
+  },
+  "partido": {
+   "id": 13,
+   "nome": "PARTIDO DOS TRABALHADORES",
+   "numero": 13,
+   "sigla": "PT",
+   "url": "https://citta-imagens-br.s3.amazonaws.com/partidos/13/logo"
+  },
+  "imagem": "https://citta-imagens-br.s3.amazonaws.com/conecta/ID-OMITIDO",
+  "evento": {
+   "description": "Substituição",
+   "name": "SUBSTITUICAO"
+  },
+  "cargoMesa": {
+   "descricao": "Parlamentar",
+   "order": 8,
+   "name": "PARLAMENTAR"
+  },
+  "dataInicio": "2026-01-02T09:01:20.568",
+  "dataFim": "2026-06-18T12:12:00",
+  "ativo": false,
+  "mandato": {
+   "nomeParlamentar": null,
+   "evento": null,
+   "justificativa": null,
+   "legislatura": {
+    "id": 3,
+    "nome": "LEGISLATURA",
+    "dataInicio": "2025-01-01",
+    "dataFim": "2028-12-31",
+    "legislaturaAtual": true,
+    "anoInicial": 2025,
+    "anoFinal": 2028
+   },
+   "dataFim": "2028-12-31",
+   "idPessoa": 78
+  },
+  "observacao": null,
+  "substituto": {
+   "parlamentar": "MIGUEL AMARAL DE SOUZA"
+  }
+ },
+ {
+  "id": 189,
+  "parlamentar": "MIGUEL AMARAL DE SOUZA",
+  "pessoa": {
+   "id": 80,
+   "nome": "MIGUEL AMARAL DE SOUZA",
+   "email": null,
+   "nascimento": "1987-01-27",
+   "fone": "51997769524",
+   "imagem": "https://citta-imagens-br.s3.amazonaws.com/conecta/ID-OMITIDO",
+   "biografia": null,
+   "imagemCustomizada": true
+  },
+  "partido": {
+   "id": 13,
+   "nome": "PARTIDO DOS TRABALHADORES",
+   "numero": 13,
+   "sigla": "PT",
+   "url": "https://citta-imagens-br.s3.amazonaws.com/partidos/13/logo"
+  },
+  "imagem": "https://citta-imagens-br.s3.amazonaws.com/conecta/ID-OMITIDO",
+  "evento": null,
+  "cargoMesa": {
+   "descricao": "Parlamentar",
+   "order": 8,
+   "name": "PARLAMENTAR"
+  },
+  "dataInicio": "2026-06-18T12:12:00",
+  "dataFim": "2028-12-31T23:59:59",
+  "ativo": true,
+  "mandato": {
+   "nomeParlamentar": null,
+   "evento": null,
+   "justificativa": null,
+   "legislatura": {
+    "id": 3,
+    "nome": "LEGISLATURA",
+    "dataInicio": "2025-01-01",
+    "dataFim": "2028-12-31",
+    "legislaturaAtual": true,
+    "anoInicial": 2025,
+    "anoFinal": 2028
+   },
+   "dataFim": "2028-12-31",
+   "idPessoa": 80
+  },
+  "observacao": null,
+  "substituto": null
+ }
+]

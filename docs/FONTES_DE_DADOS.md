@@ -392,6 +392,17 @@ Endpoints conferidos em 2026-10-06.
 - **Tipos:** PL, PLC, PEC, PDL e PRS (projeto de resolução) guardam a ementa; IND (indicação), MOC (moção), REQ (requerimento) e UP (utilidade pública) viram contagem. OF, MSG e outros ficam de fora.
 - **Sem votos nominais** na API (as sessões trazem pauta e presenças, não o voto de cada deputado) e **sem verba de gabinete** nos dados abertos.
 
+## Câmaras que saíram do SAPL (levantamento de 09/10/2026)
+
+- **Por quê:** 66 câmaras têm o SAPL parado na legislatura 2021–2024 (trocaram de sistema), e a cidade ficava sem vereadores no site. `data/sistemas_camaras.csv` registra, para cada uma, o sistema atual: a página inicial foi aberta uma única vez (uma requisição por vez, pausa, `User-Agent` do Panóptico, sem contornar bloqueios) e o fornecedor reconhecido por marcas no HTML (domínios de links, `meta generator`, rodapé). A câmara de União (PI) não abriu: o certificado TLS do site não valida, e não contornamos.
+- **Distribuição** (66 câmaras): Cittatec 6; modelo de site PHP com `vereadores.php` (AP e CE) 5; CR2 4; Nucleogov/7Focus 4; site próprio sem fornecedor reconhecido 4; Betha, Megasoft e AOS Software 2 cada; os demais 1 cada (NoPaperCloud/PLE, Siscam, IPM, Fiorilli, Instar, Legislador, Nexlegis, Cespro, SGP Cloud, Publicsoft...). Outras 18 ainda mostram o **Portal Modelo do Interlegis (Plone)**, que é só a casca: a lista de parlamentares dele é lida do SAPL parado, e o sistema legislativo de verdade não aparece na página.
+- **Cittatec (Citta Conecta), o maior com API:** o portal (`cm<cidade>.cittatec.com.br`) é Angular, mas a página lê uma API JSON pública (descoberta no código da própria página; o cabeçalho `ID-Tenant` é o nome do subdomínio):
+  - `GET /api/conecta/public/clientes/<base64 do nome>/tenant` devolve `{"ID-Tenant": ...}`;
+  - `GET /api/open-data-leg/public/legislaturas`: legislaturas, uma com `legislaturaAtual`;
+  - `GET /api/open-data-leg/public/parlamentares/legislaturas/<id>`: **um registro por período de exercício** (nome de urna, nome civil, partido, e-mail, datas, `ativo`, `evento: SUBSTITUICAO`). A mesma pessoa pode aparecer em vários registros (Pelotas: 31 registros, 21 em exercício);
+  - `GET /api/open-data-leg/public/mandatos/proposicoes/parlamentares/<pessoa>?periodoMandato=<início>,<fim>`: quantidade de proposições por tipo.
+- **Armadilhas:** o endereço da foto embute o **CPF em base64** (`.../conecta/<CPF em base64>`), então a foto não é guardada. A lista de proposições mistura pareceres, memorandos, recursos e justificativas de ausência com as proposições do vereador; esses ficam de fora da contagem. Não há texto das proposições, votos nominais nem presença na API pública (os projetos individuais só pelo GraphQL de uso interno, que não usamos).
+
 ## Canais oficiais dos municípios (varredura do Panóptico)
 
 - **O que é:** varredura dos domínios oficiais de cada cidade: prefeitura em `{cidade}.{uf}.gov.br`; câmara em `{cidade}.{uf}.leg.br`, `camara{cidade}...` e `cm{cidade}...`; e os links do próprio site da prefeitura. Confere se a página é da cidade e reconhece o sistema (SAPL; fornecedores de transparência como Betha, IPM, CR2, Fiorilli e Elotech).

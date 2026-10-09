@@ -87,6 +87,12 @@ CATALOGO = [
         "url": "https://www.interlegis.leg.br/",
     },
     {
+        "dado": "Vereadores no cargo hoje e proposições (câmaras no portal da Cittatec)",
+        "orgao": "Câmaras de Pelotas, Erechim, São Borja, Ronda Alta e outras três (Cittatec)",
+        "fontes": ["cittatec_camaras"],
+        "url": "https://cmpelotas.cittatec.com.br/portal-legislativo/vereadores",
+    },
+    {
         "dado": "Deputados estaduais no cargo, projetos, votos e presença (assembleias com SAPL)",
         "orgao": "Assembleias legislativas de AC, AL, AM, PB, PI, RO, RR e TO (SAPL)",
         "fontes": ["sapl_assembleias"],

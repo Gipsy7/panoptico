@@ -250,6 +250,14 @@ frequencia = "semanal"
 depende = ["canais_oficiais"]
 
 [[fonte]]
+nome = "cittatec_camaras"
+modulo = "ingestion.camaras.cittatec"
+uso = "Câmaras que saíram do SAPL para o portal da Cittatec (Pelotas, Erechim, São Borja...)"
+recorte = "vereadores da legislatura em vigor e contagem de proposições do ano atual e anterior"
+frequencia = "semanal"
+depende = ["canais_oficiais"]
+
+[[fonte]]
 nome = "sapl_assembleias"
 modulo = "ingestion.assembleias.sapl"
 uso = "Assembleia legislativa hoje"
@@ -321,7 +329,7 @@ modulo = "ingestion.pessoas"
 uso = "Pessoa pública única e linha do tempo (/pessoas/{id}/eventos)"
 recorte = "candidaturas, parlamentares e mandatos já carregados"
 frequencia = "semanal"
-depende = ["tse_candidaturas", "camara_deputados", "senado_senadores", "sapl_camaras", "sapl_assembleias", "almg", "alesp", "alepe", "cldf", "alesc", "alerj", "alrs", "alba"]
+depende = ["tse_candidaturas", "camara_deputados", "senado_senadores", "sapl_camaras", "cittatec_camaras", "sapl_assembleias", "almg", "alesp", "alepe", "cldf", "alesc", "alerj", "alrs", "alba"]
 
 # Justiça e controle
 [[fonte]]
