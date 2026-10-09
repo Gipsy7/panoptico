@@ -542,3 +542,13 @@ O plano é juntar tudo o que é público sobre quem exerce função pública: pr
   - Sem essa linha, vale a área única do código. Se ainda houver mais de uma, o valor fica em "Mais de uma área", em vez de ser atribuído por palpite.
 - **"Encargos especiais"** inclui as transferências especiais ("emendas Pix"), que chegam ao caixa da prefeitura sem área definida. A página diz isso.
 - **"Quem recebeu"** lista prefeitura, fundos e entidades pelo CNPJ, com quem enviou. Não colocamos link para o Portal da Transparência, porque a página do favorecido recusa acesso automatizado e não conseguimos garantir que o link funcione.
+
+## 2026-10-09: PNCP, contratos em somas
+
+- **Somas por dia de publicação**, não por ano: o valor global muda com aditivos, e reler um dia troca só as linhas dele. A soma anual sai de `group by` no banco. A chave é dia × órgão (CNPJ) × município (IBGE) × tipo de pessoa × fornecedor (CNPJ) × tipo de contrato. O custo é tamanho: o dia quase não agrupa (a maioria dos pares órgão × fornecedor aparece uma vez), então a tabela cresce quase uma linha por contrato; ver a estimativa no relatório da carga. Se não couber, compacta-se o que tem mais de N dias em linhas anuais.
+- **Empenho não é contrato** (~37-40% dos registros): separado pelo tipo, para a soma de "contratos" não misturar com notas de empenho. **Alienação** (`receita` = true) fica fora de qualquer soma de gasto, mas é contada em `pncp_dia.receitas`.
+- **CPF nunca é guardado.** Pessoa física e fornecedor estrangeiro entram nas somas com fornecedor vazio, somados por órgão e tipo ("pessoa física"), sem nome. CPF que aparece na razão social de MEI e no objeto é removido dos contratos guardados inteiros.
+- **Linhas inteiras só do conjunto-alvo:** fornecedores CNPJ que são sócios de pessoas que acompanhamos (`socio_pessoa`) ou empresas sancionadas (`sancao_empresa`), 374 CNPJs na primeira execução. A fonte depende de `cgu_sancoes` e `cnpj_socios`. Quando o conjunto cresce, os dias antigos não têm as linhas novas até serem relidos (`--de/--ate`). Um contrato de alienação do alvo é guardado com a marca `receita`.
+- **Incremental:** o cursor é `pncp_dia` (um registro por dia lido, com o total da API e o lido). Cada coleta relê os últimos 7 dias e, pela rota de atualização, até 20 dias antigos com contrato alterado. Cada dia é confirmado sozinho, então uma falha no meio não perde o que já foi lido.
+- **Bruto:** só o manifesto por execução (total, páginas, bytes e sha256 por dia). O PNCP mantém os dados no ar; refazer é ler de novo.
+- **Cortesia com a API:** uma requisição por vez, 0,5 s de pausa, espera com recuo no 429 e no 5xx, User-Agent do projeto. Não há tentativa de contornar o limite de requisições.

@@ -308,4 +308,23 @@ Endpoints conferidos em 2026-10-06.
 - **Santa Catarina bloqueada:** o servidor compartilhado da maioria das prefeituras de SC responde 403 (nginx) a qualquer acesso automatizado, mesmo com identificação de navegador. Não contornamos.
 - **Frequência:** varredura inicial única; depois, revisão pontual quando uma carga falhar.
 
+## PNCP: contratos (Portal Nacional de Contratações Públicas)
+
+- **URL (sem chave):** `https://pncp.gov.br/api/consulta/v1/contratos` (por data de publicação) e `/v1/contratos/atualizacao` (por data de atualização, para pegar aditivos). Parâmetros obrigatórios: `dataInicial`, `dataFinal` (AAAAMMDD) e `pagina`; `tamanhoPagina` de 10 a 500 (501 dá 400; menos de 10 também dá 400).
+- **Limites:** período máximo de 365 dias (mais dá 422); página profunda dá 500 (ex.: a 4.000ª de um ano), então a coleta lê **um dia por vez**. Há limite de requisições: depois de uma rajada, a API responde 429 (página HTML "Limite de Requisições Excedido") por algum tempo. A coleta faz uma requisição por vez, com pausa, e espera com recuo crescente no 429 e no 5xx. Dia sem registros pode responder 204 sem corpo.
+- **Tamanho:** um dia típico tem ~8.400 contratos em 17 páginas de 500 (~0,8 MB cada, ~1,8 s). Por ano: 2023, 243 mil; 2024, 1,09 mi; 2025, 2,02 mi; 2026 (até 09/10), 1,63 mi.
+- **Sem filtro por fornecedor:** `niFornecedor` na consulta é ignorado; para achar os contratos de uma empresa é preciso ler tudo.
+- **Campos usados:** `numeroControlePNCP` (chave), `orgaoEntidade` (`cnpj`, `razaoSocial`, `poderId`, `esferaId`: F, E, M e também N, consórcios), `unidadeOrgao` (`ufSigla`, `municipioNome`, `codigoIbge`), `tipoPessoa` (PJ, PF, PE), `niFornecedor`, `nomeRazaoSocialFornecedor`, `tipoContrato` e `categoriaProcesso` (objetos `{id, nome}`), `objetoContrato`, `valorInicial`, `valorGlobal`, `valorAcumulado`, `dataAssinatura`, `dataVigenciaInicio/Fim`, `dataPublicacaoPncp`, `dataAtualizacaoGlobal`, `receita`, `numeroControlePncpCompra`, `processo`.
+- **Armadilhas:**
+  - **Empenho não é contrato:** ~37-40% dos registros têm `tipoContrato` "Empenho" (os demais: Contrato (termo inicial), Outros, Carta Contrato, Termo de Adesão, Comodato, Concessão). Ficam separados pelo tipo.
+  - **`receita` = true é alienação** (o órgão vende, não gasta): fora das somas.
+  - **CPF:** pessoa física traz o CPF completo em `niFornecedor`, e MEI (PJ) traz o CPF dentro da razão social. O CPF nunca é lido para o banco: PF e estrangeiro (`PE`) entram nas somas sem identificador, e CPF no nome dos contratos guardados inteiros é removido.
+  - **`valorGlobal` muda com aditivos:** o mesmo contrato volta com outro valor. A coleta relê os últimos 7 dias e, pela rota de atualização, os dias antigos com contrato alterado.
+  - A lista anda enquanto é lida (contrato novo empurra outro para a página seguinte): repetidos dentro do dia contam uma vez.
+  - Um `tipoPessoa` PE pode vir com número de 14 dígitos; sem confirmação de que é CNPJ brasileiro, fica sem identificador.
+- **O que guardamos (coleta mínima):** somas por dia de publicação × órgão (CNPJ) × município (IBGE) × tipo de pessoa × fornecedor (CNPJ) × tipo de contrato (`pncp_soma`; nome e esfera dos órgãos em `pncp_orgao`), e o contrato inteiro (`pncp_contrato`) só quando o fornecedor é CNPJ de `socio_pessoa` ou `sancao_empresa`. `pncp_dia` é o cursor e a conferência (total da API contra o lido, por dia). Do bruto fica só o manifesto de cada execução (`data/raw/pncp_contratos/*.manifesto.json`: total da API, páginas, bytes e sha256 por dia).
+- **Conferência:** quantidade somada + alienações = contratos lidos = `totalRegistros` da API no dia (`pncp_dia.lidos` contra `pncp_dia.total_api`; a coleta avisa quando diferem).
+- **Frequência:** diária (incremental). Primeira carga: de 2023 até hoje; `python -m ingestion.pncp.contratos --de AAAA-MM-DD --ate AAAA-MM-DD` faz cargas parciais.
+- **Uso:** quanto cada órgão contratou de cada fornecedor, e os contratos de empresas sancionadas e de empresas de sócios que acompanhamos. Se o conjunto-alvo crescer, os dias já lidos não têm as linhas novas: releia o período com `--de/--ate`.
+
 ## A confirmar (fases seguintes)

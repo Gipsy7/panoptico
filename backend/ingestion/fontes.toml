@@ -377,6 +377,20 @@ depende = ["pessoas", "cgu_sancoes"]
 # 30 dias: o endereço do arquivo da própria Receita mudou e não está acessível.
 
 [[fonte]]
+nome = "pncp_contratos"
+modulo = "ingestion.pncp.contratos"
+uso = "Perfil e cruzamentos: quanto cada órgão contratou de cada fornecedor, e os contratos de empresas sancionadas ou de sócios que acompanhamos"
+recorte = "somas (valor global e quantidade) por dia de publicação × órgão × município × fornecedor × tipo de contrato, de 2023 em diante, sem alienações e com empenhos separados; linhas inteiras só de fornecedores CNPJ de socio_pessoa e sancao_empresa; pessoa física sem identificador"
+frequencia = "diaria"
+guarda = "somas"
+bruto = "recorte"
+depende = ["cgu_sancoes", "cnpj_socios"]
+# Janela e cursor em pncp_dia: a primeira carga vai de 2023 a hoje (~6 milhões de contratos,
+# ~1 dia de coleta contínua); as seguintes relêem os últimos 7 dias e os dias antigos com
+# aditivo. Cargas parciais: python -m ingestion.pncp.contratos --de AAAA-MM-DD --ate AAAA-MM-DD.
+# Do bruto fica só o manifesto por execução (total da API, páginas, bytes, sha256 por dia).
+
+[[fonte]]
 nome = "senado_etica"
 modulo = "ingestion.senado.etica"
 uso = "Linha do tempo: representações no Conselho de Ética do Senado"
