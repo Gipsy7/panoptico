@@ -237,11 +237,19 @@ def _eleitos_depois(session: Session, candidaturas: list[Candidatura]) -> dict[i
     return resultado
 
 
+def mandato_em_curso():
+    """Só eleições cuja posse já aconteceu (a posse é no ano seguinte ao da eleição): os
+    eleitos de uma eleição recente ainda não assumiram e não aparecem como no cargo."""
+    return Candidatura.ano_eleicao < date.today().year
+
+
 def _lista(session: Session, *condicoes) -> tuple[int | None, list[dict]]:
     """Eleitos da eleição mais recente que atende às condições. Guardamos eleições
     anteriores (ex.: deputados estaduais de 2018), mas a lista mostra só o mandato atual."""
     eleitos = Candidatura.situacao_turno.like("ELEITO%")
-    ano = session.scalar(select(func.max(Candidatura.ano_eleicao)).where(*condicoes, eleitos))
+    ano = session.scalar(
+        select(func.max(Candidatura.ano_eleicao)).where(*condicoes, eleitos, mandato_em_curso())
+    )
     if ano is None:
         return None, []
     lista = session.scalars(
@@ -324,7 +332,7 @@ def _chapa(session: Session, titular: Candidatura | None) -> dict | None:
 def _eleito_para(session: Session, *condicoes) -> Candidatura | None:
     return session.scalars(
         select(Candidatura)
-        .where(*condicoes, Candidatura.situacao_turno == "ELEITO")
+        .where(*condicoes, Candidatura.situacao_turno == "ELEITO", mandato_em_curso())
         .order_by(Candidatura.ano_eleicao.desc())
     ).first()
 

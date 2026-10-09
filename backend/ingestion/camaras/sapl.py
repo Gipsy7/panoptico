@@ -455,18 +455,21 @@ def gravar(session: Session, ibge: str | None, camara: dict, uf: str | None = No
         filtro = [Candidatura.municipio_ibge == ibge, Candidatura.cargo == "VEREADOR"]
         anteriores = MandatoLocal.municipio_ibge == ibge
     else:
-        cargos = ("DEPUTADO ESTADUAL", "DEPUTADO DISTRITAL")
-        ultima = session.scalar(
-            select(func.max(Candidatura.ano_eleicao)).where(
-                Candidatura.uf == uf, Candidatura.cargo.in_(cargos)
-            )
-        )
         filtro = [
             Candidatura.uf == uf,
-            Candidatura.cargo.in_(cargos),
-            Candidatura.ano_eleicao == ultima,
+            Candidatura.cargo.in_(("DEPUTADO ESTADUAL", "DEPUTADO DISTRITAL")),
         ]
         anteriores = (MandatoLocal.casa == "assembleia") & (MandatoLocal.uf == uf)
+    # Só a eleição do mandato em curso: a mais recente cuja posse já aconteceu (a posse é no
+    # ano seguinte à eleição). Sem isso, os eleitos em 2026, que só assumem em 2027, e as
+    # eleições antigas guardadas como histórico (a mesma pessoa em várias eleições, o que
+    # tira a unicidade do nome) atrapalhariam a ligação.
+    ultima = session.scalar(
+        select(func.max(Candidatura.ano_eleicao)).where(
+            *filtro, Candidatura.ano_eleicao < date.today().year
+        )
+    )
+    filtro.append(Candidatura.ano_eleicao == ultima)
     eleitos = session.execute(
         select(Candidatura.id, Candidatura.nome_urna, Candidatura.nome).where(
             *filtro, Candidatura.situacao_turno.like("ELEITO%")

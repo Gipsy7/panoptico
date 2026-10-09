@@ -11,6 +11,7 @@ from sqlalchemy import and_, case, func, select, tuple_
 from sqlalchemy.orm import Session
 
 from app.models import Candidatura, MandatoLocal, Municipio, Parlamentar
+from app.services import tse
 from ingestion.comum import chave_nome
 
 LIMITE = 20
@@ -105,7 +106,7 @@ def buscar(session: Session, nome: str) -> list[dict]:
     eleito = Candidatura.situacao_turno.like("ELEITO%")
     ultima = (
         select(Candidatura.cargo, func.max(Candidatura.ano_eleicao))
-        .where(eleito)
+        .where(eleito, tse.mandato_em_curso())
         .group_by(Candidatura.cargo)
     )
     candidaturas = session.scalars(

@@ -377,3 +377,23 @@ def test_fotos_reduz_e_liga_pelo_nome_do_arquivo():
     with Image.open(io.BytesIO(extraidas[0]["webp"])) as reduzida:
         assert (reduzida.format, reduzida.size) == ("WEBP", (240, 320))
     assert fotos.reduzir(b"nao e imagem") is None
+
+
+def test_eleitos_de_eleicao_sem_posse_nao_aparecem_como_no_cargo(client, session):
+    from datetime import date
+
+    base = {"cargo": "DEPUTADO ESTADUAL", "uf": "RR", "unidade": "Roraima", "codigo_ue": "RR",
+            "nome": "X", "partido": "PL", "numero": "22", "situacao_turno": "ELEITO POR QP",
+            "situacao_candidatura": "APTO", "cpf": None}  # fmt: skip
+    ingestao = _ingestao(session).id
+    atual, futura = date.today().year - 4, date.today().year
+    for ano, sq, nome in ((atual, "a", "No cargo"), (futura, "b", "Ainda sem posse")):
+        candidaturas.carregar_registros(
+            session,
+            [{**base, "ano_eleicao": ano, "sq_candidato": sq, "nome_urna": nome}],
+            ano,
+            ingestao,
+        )
+    session.flush()
+    corpo = client.get("/estados/RR/deputados-estaduais").json()
+    assert (corpo["ano_eleicao"], [i["nome_urna"] for i in corpo["itens"]]) == (atual, ["No cargo"])

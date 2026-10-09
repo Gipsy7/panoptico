@@ -129,6 +129,11 @@ O subsídio é igual para deputados e senadores e é fixado por decreto legislat
   - 19.028 bens declarados;
   - 2 julgamentos de candidatura de pessoas que já acompanhávamos.
 - **A eleição de 2026 roda antes de 2020 e 2016**, que dependem dos títulos das eleições mais recentes.
+- **Mandato em curso:** com 2026 e as eleições antigas (2016, 2020) na base, "a eleição mais recente" deixou de ser a do mandato em curso.
+  - A ligação dos parlamentares das casas ao eleito do TSE passou a comparar os deputados atuais com os eleitos de 2026; na ALESC, só 25 de 40 se ligaram.
+  - Nos vereadores, a mesma pessoa em várias eleições tirava a unicidade do nome.
+  - Agora a ligação (`sapl.gravar`) e a API (listas de eleitos, Executivo e busca, por `tse.mandato_em_curso`) usam só eleições cuja posse já aconteceu: ano da eleição menor que o ano corrente.
+  - Em janeiro do ano seguinte à eleição geral, os eleitos aparecem antes da posse de fevereiro (deputados); é uma aproximação aceita.
 - **Não foi para produção:** os eleitos em 2026 só tomam posse em 2027. Mostrá-los no site como "eleitos" antes disso, e trocar a lista de deputados estaduais de 2022 pela de 2026, é decisão de produto a tomar com o usuário.
 - **CPF divergente no TSE:** 3 pessoas aparecem com o mesmo nome completo e o mesmo título, mas com CPFs diferentes em 2016 e em 2020, provavelmente por erro de digitação na fonte. A regra de conflito não funde (é a proteção contra juntar pessoas diferentes), e a candidatura de 2016 delas fica como pessoa à parte. Preferimos o duplicado ao risco de fusão errada.
 
