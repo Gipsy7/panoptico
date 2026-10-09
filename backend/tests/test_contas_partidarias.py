@@ -6,8 +6,10 @@ from datetime import date
 from decimal import Decimal
 
 import httpx
+import pytest
 import respx
 from sqlalchemy import func, select
+from sqlalchemy.orm import sessionmaker
 
 from app.models import (
     PartidoContaSoma,
@@ -244,8 +246,16 @@ def test_carga_sem_dados_aborta_sem_apagar(session):
     assert session.scalar(select(func.count()).select_from(PartidoContaSoma)) > 0
 
 
+@pytest.fixture
+def banco_de_teste(engine, tmp_path, monkeypatch):
+    """executar() abre a própria sessão (cache de download, fonte_ingestao): no banco de
+    teste, nunca no banco local de desenvolvimento."""
+    monkeypatch.setattr(contas.comum, "SessionLocal", sessionmaker(bind=engine))
+    monkeypatch.setattr(contas.comum, "RAW_DIR", tmp_path)
+
+
 @respx.mock
-def test_exercicio_nao_publicado_nao_e_erro():
+def test_exercicio_nao_publicado_nao_e_erro(banco_de_teste):
     respx.head(contas.URL.format(ano=2026)).respond(404)
     rota = respx.get(contas.URL.format(ano=2026)).respond(404)
     assert contas.executar(2026) == 0
@@ -257,7 +267,7 @@ def test_exercicio_nao_publicado_nao_e_erro():
 
 
 @respx.mock
-def test_erro_de_servidor_nao_e_engolido(monkeypatch):
+def test_erro_de_servidor_nao_e_engolido(banco_de_teste, monkeypatch):
     monkeypatch.setattr(contas.comum.time, "sleep", lambda _: None)
     respx.head(contas.URL.format(ano=2024)).respond(403)
     respx.get(contas.URL.format(ano=2024)).respond(403)
