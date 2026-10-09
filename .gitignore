@@ -12,6 +12,7 @@ __pycache__/
 # Dados (bruto e tratado ficam fora do git)
 backend/data/raw/*
 backend/data/processed/*
+backend/data/logs/
 !backend/data/raw/.gitkeep
 !backend/data/processed/.gitkeep
 
