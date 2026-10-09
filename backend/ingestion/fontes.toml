@@ -266,3 +266,11 @@ uso = "Linha do tempo: sanções a pessoas públicas (improbidade, inidoneidade,
 recorte = "só pessoas físicas ligadas por CPF (ou CPF mascarado + nome) a pessoas que temos"
 frequencia = "semanal"
 depende = ["pessoas"]
+
+[[fonte]]
+nome = "tcu_condenacoes"
+modulo = "ingestion.tcu.condenacoes"
+uso = "Linha do tempo: contas julgadas irregulares e inabilitação pelo TCU"
+recorte = "só pessoas físicas ligadas por CPF a pessoas que temos (inidôneos são empresas: fora)"
+frequencia = "semanal"
+depende = ["pessoas"]

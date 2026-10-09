@@ -109,6 +109,16 @@ O subsídio é igual para deputados e senadores e é fixado por decreto legislat
 - **Bens:** valor como declarado, sem correção. A página avisa que bens costumam ser declarados pelo valor de compra. Sem palavras como "enriqueceu": mostramos os dois totais e o ano.
 - **2024:** o TSE passou a mascarar o CPF, então as candidaturas municipais de 2024 não se ligam aos parlamentares federais.
 
+## 2026-10-09: condenações do TCU na linha do tempo
+
+- **Contas julgadas irregulares e inabilitação** entram como eventos (`tcu_contas_irregulares` e `tcu_inabilitacao`), ligadas só por CPF completo.
+- **Texto:** "O TCU julgou irregulares contas sob responsabilidade desta pessoa (processo TC 001.825/2015-1, Acórdão 4206/2023 – 2ª Câmara), com trânsito em julgado em 02/08/2023."
+  - A data do evento é a do trânsito em julgado.
+  - O link é o da deliberação no site do TCU.
+  - A situação diz em que dia a pessoa estava na lista, porque o TCU acrescenta e retira nomes.
+- **Na base local:** 41.914 registros de pessoas físicas; 320 ligados, de 206 pessoas que acompanhamos (319 de contas irregulares e 1 de inabilitação).
+- **A carga recusa uma lista incompleta:** se o número de registros lidos não bater com o total informado pelo TCU, nada é alterado.
+
 ## 2026-10-09: sanções da CGU e eleição de 2020 como histórico
 
 - **Sanções (CEIS, CNEP, CEAF)** entram como eventos da linha do tempo. Só pessoas físicas ligadas a pessoas que temos, e só por chave forte:

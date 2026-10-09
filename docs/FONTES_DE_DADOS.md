@@ -140,6 +140,19 @@ Endpoints conferidos em 2026-10-06.
 - **Número do processo:** pode ser número único do CNJ (formatado) ou número de processo administrativo (ex.: `10768.000360/2014-05`), guardado como veio.
 - **Páginas de detalhe** (`/sancoes/ceis/{código}`) recusam acesso automático (405). O link da fonte é a página de download do cadastro, e o código da sanção vai no texto.
 
+## TCU: contas julgadas irregulares e inabilitados
+
+- **Contas julgadas irregulares:** a lista pública de responsáveis (a mesma da emissão de certidões), obtida pela API do aplicativo de certidões. A busca na web não achou um conjunto de dados aberto para essa lista.
+  - Chamada: `POST https://certidoes.apps.tcu.gov.br/api/publico/responsaveis-contas-irregulares-com-paginacao?paginaAtual={n}&tamanhoPagina=1000`, com corpo `{}`.
+  - Sem chave e sem CAPTCHA (as certidões individuais têm CAPTCHA, e não as usamos).
+  - Volume: 47.963 registros de 28.549 responsáveis, em 48 páginas, menos de 1 s cada.
+  - Campos: número do processo (TC), nome, tipo e número do registro (**CPF completo** ou CNPJ), município e UF, data do trânsito em julgado, acórdão (`4206/2023-2C`; PL = Plenário, 1C e 2C = Câmaras) e link oficial para a deliberação (`linkDeliberacoesProcesso`).
+- **Inabilitados para cargo em comissão ou função de confiança:** `GET https://contas.tcu.gov.br/ords/condenacao/consulta/inabilitados?limit=500&offset={n}` (Oracle ORDS, no máximo 500 por página, `hasMore` diz se há mais). CPF completo, processo, deliberação (`AC-000738/2022-PL`), trânsito em julgado e data final.
+- **Inidôneos para licitar** (`.../consulta/inidoneos`): 94, todos empresas. Catalogados, sem coleta.
+- O catálogo do ORDS (`/ords/condenacao/metadata-catalog/`) lista só essas rotas.
+- **Escopo da lista**, segundo o TCU: não inclui processos arquivados por decisão terminativa, responsáveis ainda não notificados, decisões não transitadas em julgado, transitadas há mais de 20 anos, anuladas ou suspensas.
+- **Bruto:** as duas listas num JSON comprimido, 2,7 MB.
+
 ## Tesouro Nacional: SICONFI (contas anuais dos municípios)
 
 - **API:** `https://apidatalake.tesouro.gov.br/ords/siconfi/tt/dca?an_exercicio={ano}&no_anexo={anexo}&id_ente={ibge}`. Exige `id_ente`: não há consulta em lote, então é uma por município, anexo e ano (cerca de 0,8 s cada, a partir do Brasil).
