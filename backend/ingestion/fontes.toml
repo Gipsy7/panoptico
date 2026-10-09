@@ -310,3 +310,11 @@ uso = "Casos de corrupção com documentos oficiais e processos consultados à m
 recorte = "só pessoas já ligadas por chave forte; rascunhos não entram"
 frequencia = "diaria"
 depende = ["pessoas"]
+
+[[fonte]]
+nome = "camara_etica"
+modulo = "ingestion.camara.etica"
+uso = "Linha do tempo: representações no Conselho de Ética da Câmara"
+recorte = "representações desde 2023, ligadas pelo nome parlamentar único na Câmara"
+frequencia = "semanal"
+depende = ["pessoas"]

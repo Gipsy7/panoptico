@@ -109,6 +109,18 @@ O subsídio é igual para deputados e senadores e é fixado por decreto legislat
 - **Bens:** valor como declarado, sem correção. A página avisa que bens costumam ser declarados pelo valor de compra. Sem palavras como "enriqueceu": mostramos os dois totais e o ano.
 - **2024:** o TSE passou a mascarar o CPF, então as candidaturas municipais de 2024 não se ligam aos parlamentares federais.
 
+## 2026-10-09: representações no Conselho de Ética da Câmara
+
+- **Fonte:** proposições do tipo REP (Representação) na API da Câmara, desde 2023. São 72; a situação vem do último andamento.
+- **O representado só aparece na ementa**, pelo nome: "em desfavor do Senhor Deputado ZÉ TROVÃO", "dos Senhores Deputados Chico Alencar, Glauber Braga e Ivan Valente".
+- **A ligação é feita num conjunto fechado** e só quando o nome aponta para uma única pessoa (regra `nome_parlamentar`, tratada como forte por isso):
+  - o nome parlamentar e o nome civil dos deputados no cadastro da Câmara;
+  - o nome de urna e o nome civil dos deputados federais eleitos (quem já saiu do mandato, como Eduardo Bolsonaro e Delegado Ramagem, não está mais no cadastro).
+- **Resultado:** 69 de 72 representações ligadas. Todas as 50 correspondências foram conferidas à mão (ex.: "ZÉ TROVÃO" é Marcos Antonio Pereira Gomes; "CÉLIA XAKRIABÁ" é Célia Nunes Correa).
+- **3 ficaram de fora de propósito:** a ementa usa um nome parcial que não bate exatamente com nenhum cadastro ("DIONILSO MARCON", "ABILIO BRUNINI", "PAULO BILYNSKYJ").
+- **O texto é a ementa oficial, entre aspas.** Termos como "suposto procedimento incompatível" são da Câmara, não nossos.
+- **CPIs:** os indiciamentos estão nos relatórios finais (PDF). Entram pela curadoria de casos (`relatorio_cpi`), não por carga automática.
+
 ## 2026-10-09: STF e STJ bloqueiam acesso automático; DataJud e curadoria
 
 - **STF e STJ:**

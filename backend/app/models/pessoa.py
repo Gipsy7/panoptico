@@ -7,7 +7,11 @@ from app.models.base import Base
 
 # Regras de ligação, da mais forte para a mais fraca (docs/DECISOES.md, "acervo local").
 # Só as fortes, ou as revisadas à mão, são publicadas.
-REGRAS_FORTES = {"origem", "cpf", "titulo", "cpf_parcial_nome", "nome_nascimento", "tse"}
+REGRAS_FORTES = {
+    "origem", "cpf", "titulo", "cpf_parcial_nome", "nome_nascimento", "tse",
+    # Nome parlamentar exato e único no cadastro da própria Câmara (atribuído por ela).
+    "nome_parlamentar",
+}  # fmt: skip
 
 
 class Pessoa(Base):

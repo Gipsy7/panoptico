@@ -70,6 +70,12 @@ Endpoints conferidos em 2026-10-06.
 - **URLs:** `https://dadosabertos.camara.leg.br/arquivos/proposicoesTemas/csv/proposicoesTemas-{ano}.csv` (~5 MB/ano) e, para matérias votadas de anos antigos, `GET /api/v2/proposicoes/{id}/temas`.
 - 32 temas oficiais (`/referencias/proposicoes/codTema`), entre eles "Homenagens e Datas Comemorativas". Uma proposição pode ter mais de um tema.
 
+## Câmara: representações no Conselho de Ética
+
+- **API:** `GET /api/v2/proposicoes?siglaTipo=REP&ano={ano}&itens=100` (cabeçalho `x-total-count`; 29 em 2023, 5 em 2024, 28 em 2025, 10 em 2026 até outubro) e o detalhe em `/api/v2/proposicoes/{id}` (`statusProposicao`: `descricaoSituacao`, `descricaoTramitacao`, `dataHora`, `despacho`).
+- **Não há campo com o deputado representado:** ele só aparece na ementa, às vezes em maiúsculas ("Deputado DELEGADO RAMAGEM"), às vezes não ("Deputado Gilvan da Federal"), às vezes pelo nome civil completo ("ANDRÉ LUIS GASPAR JANONES"), às vezes em lista ("Deputadas CÉLIA NUNES CORREA, ÉRIKA JUCÁ KOKAY…").
+- **Link público:** `https://www.camara.leg.br/proposicoesWeb/fichadetramitacao?idProposicao={id}`.
+
 ## Câmara: detalhe do deputado
 
 - **URL:** `GET https://dadosabertos.camara.leg.br/api/v2/deputados/{id}` (513 chamadas, 8 em paralelo)
