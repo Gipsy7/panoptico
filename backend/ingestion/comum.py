@@ -127,38 +127,43 @@ def salvar_raw(fonte: str, payload: Any, prefixo: str = "", extensao: str = ".zi
     return arquivo
 
 
-def trocar_por_manifesto(fonte: str) -> Path | None:
-    """Coleta mínima (bruto = "recorte"): troca o bruto da última carga com sucesso por um
-    manifesto (URL, tamanho, sha256, data). Para arquivos grandes que o órgão mantém no ar:
-    refazer a carga é baixar de novo."""
+def trocar_por_manifesto(fonte: str, desde: datetime | None = None) -> list[Path]:
+    """Coleta mínima (bruto = "recorte"): troca o bruto das cargas com sucesso da fonte por
+    um manifesto (URL, tamanho, sha256, data). Para arquivos grandes que o órgão mantém no
+    ar: refazer a carga é baixar de novo. Com `desde`, só as cargas iniciadas a partir
+    dali (uma execução de fonte anual grava uma carga por ano); sem, todas."""
     import hashlib
 
+    manifestos = []
     with SessionLocal() as session:
-        ingestao = session.scalars(
-            select(FonteIngestao)
-            .where(FonteIngestao.fonte == fonte, FonteIngestao.status == "ok")
-            .order_by(FonteIngestao.id.desc())
-        ).first()
-        if ingestao is None or not Path(ingestao.arquivo_raw).is_file():
-            return None
-        arquivo = Path(ingestao.arquivo_raw)
-        resumo = hashlib.sha256()
-        with arquivo.open("rb") as entrada:
-            for bloco in iter(lambda: entrada.read(1 << 20), b""):
-                resumo.update(bloco)
-        manifesto = arquivo.with_name(arquivo.name + ".manifesto.json")
-        manifesto.write_text(
-            json.dumps(
-                {"url": ingestao.url, "tamanho": arquivo.stat().st_size,
-                 "sha256": resumo.hexdigest(), "baixado_em": f"{ingestao.iniciado_em:%Y-%m-%d}"},
-                ensure_ascii=False,
-            ),
-            encoding="utf-8",
-        )  # fmt: skip
-        arquivo.unlink()
-        ingestao.arquivo_raw = str(manifesto)
+        consulta = select(FonteIngestao).where(
+            FonteIngestao.fonte == fonte, FonteIngestao.status == "ok"
+        )
+        if desde is not None:
+            consulta = consulta.where(FonteIngestao.iniciado_em >= desde)
+        for ingestao in session.scalars(consulta):
+            arquivo = Path(ingestao.arquivo_raw)
+            if not arquivo.is_file() or arquivo.name.endswith(".manifesto.json"):
+                continue
+            resumo = hashlib.sha256()
+            with arquivo.open("rb") as entrada:
+                for bloco in iter(lambda e=entrada: e.read(1 << 20), b""):
+                    resumo.update(bloco)
+            manifesto = arquivo.with_name(arquivo.name + ".manifesto.json")
+            manifesto.write_text(
+                json.dumps(
+                    {"url": ingestao.url, "tamanho": arquivo.stat().st_size,
+                     "sha256": resumo.hexdigest(),
+                     "baixado_em": f"{ingestao.iniciado_em:%Y-%m-%d}"},
+                    ensure_ascii=False,
+                ),
+                encoding="utf-8",
+            )  # fmt: skip
+            arquivo.unlink()
+            ingestao.arquivo_raw = str(manifesto)
+            manifestos.append(manifesto)
         session.commit()
-    return manifesto
+    return manifestos
 
 
 def carregar_raw(arquivo: Path) -> Any:

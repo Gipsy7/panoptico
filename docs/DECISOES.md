@@ -109,6 +109,13 @@ O subsídio é igual para deputados e senadores e é fixado por decreto legislat
 - **Bens:** valor como declarado, sem correção. A página avisa que bens costumam ser declarados pelo valor de compra. Sem palavras como "enriqueceu": mostramos os dois totais e o ano.
 - **2024:** o TSE passou a mascarar o CPF, então as candidaturas municipais de 2024 não se ligam aos parlamentares federais.
 
+## 2026-10-09: primeira carga completa do acervo e correções
+
+- **Primeira carga completa** de todas as fontes ativas no banco do acervo. Resultado: 700 MB de banco e 8,7 GB de brutos. A Assembleia de Roraima carregou pela primeira vez (25 deputados), porque a carga roda no Brasil.
+- **CPF dos deputados só pela linha de comando:** `completar_cpfs_deputados` só rodava pela linha de comando da carga do TSE, que é como o workflow de produção a chama. Pelo orquestrador do acervo, que chama `executar()`, os 513 deputados ficavam sem CPF e não se ligavam às próprias candidaturas. Com isso, a mesma pessoa virava duas, e o Conselho de Ética ligava 16 representações em vez de 85. Agora a chamada fica dentro de `executar()` e só busca quem ainda não tem CPF.
+- **Brutos grandes viram manifesto:** contas de campanha (2,1 GB), votos (1 GB), candidaturas (762 MB), bens (113 MB) e TCE-SP (4,2 GB) são arquivos grandes que o órgão mantém no ar. Marcados com `bruto = "recorte"`; o orquestrador troca o bruto por um manifesto depois de cada carga com sucesso (`comum.trocar_por_manifesto`, agora para todas as cargas de uma execução anual).
+- O relatório passa a mostrar o total da última execução inteira (todos os anos somados), e não o do último ano.
+
 ## 2026-10-09: alerta de queda brusca no acervo
 
 - Depois de cada fonte, `ingestion.acervo rodar` compara o total da execução (todos os anos somados) com o da execução anterior, guardado em `backend/data/acervo_historico.json`.

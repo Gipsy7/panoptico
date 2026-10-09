@@ -282,6 +282,14 @@ def mapa_municipios(
 
 
 def executar(ano: int, de_raw: Path | None = None) -> int:
+    # O CPF dos deputados liga as candidaturas ao parlamentar. Fica aqui (e não só na linha
+    # de comando) para valer também quando a carga é chamada pelo acervo; só busca os que
+    # ainda não têm CPF, então nas execuções seguintes não faz nenhuma requisição.
+    if de_raw is None:
+        completar = completar_cpfs_deputados()
+        if completar:
+            print(f"CPFs de deputados obtidos na Câmara: {completar}")
+
     def baixar(client: httpx.Client) -> bytes:
         return comum.get_bytes(client, URL.format(ano=ano))
 
@@ -301,6 +309,5 @@ if __name__ == "__main__":
     parser.add_argument("--ano", type=int, nargs="*", default=[2018, 2022])
     parser.add_argument("--de-raw", type=Path, help="Reprocessa um arquivo bruto (um ano só)")
     args = parser.parse_args()
-    print(f"CPFs de deputados obtidos na Câmara: {completar_cpfs_deputados()}")
     for ano in args.ano:
         print(f"{FONTE} {ano}: {executar(ano, de_raw=args.de_raw)} candidaturas")

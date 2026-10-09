@@ -179,6 +179,10 @@ def rodar(nomes: set[str], fontes: list[Fonte]) -> int:
                 )
             historico[fonte.nome] = total
             _gravar_historico(historico)
+            if fonte.bruto == "recorte":
+                trocados = comum.trocar_por_manifesto(fonte.nome, desde=inicio)
+                if trocados:
+                    print(f"         {len(trocados)} brutos trocados por manifesto", flush=True)
         except Exception:
             falharam.add(fonte.nome)
             print(f"[erro]   {fonte.nome}", flush=True)
@@ -216,19 +220,16 @@ def relatorio(fontes: list[Fonte]) -> None:
     """Volume por fonte (bruto em disco) e por tabela (banco), e a última carga de cada
     fonte. É a base para decidir a infraestrutura de produção."""
     with SessionLocal() as session:
-        ultimas = {
-            fonte: (status, quando, registros)
-            for fonte, status, quando, registros in session.execute(
-                select(
-                    FonteIngestao.fonte,
-                    FonteIngestao.status,
-                    FonteIngestao.concluido_em,
-                    FonteIngestao.registros,
-                )
-                .distinct(FonteIngestao.fonte)
-                .order_by(FonteIngestao.fonte, FonteIngestao.iniciado_em.desc())
-            ).all()
-        }
+        ultimas: dict[str, tuple] = {}
+        for fonte, status, quando, registros in session.execute(
+            select(
+                FonteIngestao.fonte,
+                FonteIngestao.status,
+                FonteIngestao.concluido_em,
+                FonteIngestao.registros,
+            ).order_by(FonteIngestao.iniciado_em.desc())
+        ):
+            ultimas.setdefault(fonte, (status, quando, registros))
         banco = session.scalar(text("select pg_database_size(current_database())"))
         tabelas = session.execute(
             text(
@@ -240,8 +241,10 @@ def relatorio(fontes: list[Fonte]) -> None:
     print(f"\n{'fonte':28} {'situação':10} {'freq.':8} {'acesso':8} {'guarda':6} "
           f"{'última carga':17} {'status':7} {'registros':>10} {'bruto MB':>10}")  # fmt: skip
     total_bruto = 0
+    historico = _ler_historico()
     for f in fontes:
         status, quando, registros = ultimas.get(f.nome, ("-", None, None))
+        registros = historico.get(f.nome, registros)
         bruto = _tamanho_dir(comum.RAW_DIR / f.nome) if (comum.RAW_DIR / f.nome).exists() else 0
         total_bruto += bruto
         print(

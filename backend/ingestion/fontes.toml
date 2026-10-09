@@ -148,6 +148,7 @@ recorte = "eleitos e parlamentares; 2016 e 2020 só de quem já temos (pelo tít
 frequencia = "manual"
 anos = [2018, 2022, 2024, 2026, 2020, 2016]
 depende = ["camara_deputados", "senado_senadores", "ibge_municipios"]
+bruto = "recorte"
 
 [[fonte]]
 nome = "tse_bens"
@@ -157,6 +158,7 @@ recorte = "candidaturas guardadas"
 frequencia = "manual"
 anos = [2018, 2022, 2024]
 depende = ["tse_candidaturas"]
+bruto = "recorte"
 
 [[fonte]]
 nome = "tse_campanha"
@@ -167,6 +169,7 @@ guarda = "somas"
 frequencia = "manual"
 anos = [2018, 2022, 2024]
 depende = ["tse_candidaturas"]
+bruto = "recorte"
 
 [[fonte]]
 nome = "tse_redes"
@@ -186,6 +189,7 @@ guarda = "somas"
 frequencia = "manual"
 anos = [2018, 2022, 2024]
 depende = ["tse_candidaturas"]
+bruto = "recorte"
 
 # Municípios
 [[fonte]]
@@ -207,6 +211,7 @@ guarda = "somas"
 frequencia = "mensal"
 anos = "dois_anteriores"
 depende = ["ibge_municipios"]
+bruto = "recorte"
 
 # Câmaras e assembleias
 [[fonte]]
