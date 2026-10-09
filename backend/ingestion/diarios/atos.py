@@ -39,6 +39,7 @@ from app.models import (
     PessoaVinculo,
 )
 from ingestion import comum
+from ingestion.diarios.revisao import aplicar_atos
 
 FONTE = "querido_diario_atos"
 URL_CIDADES = "https://api.queridodiario.org.br/cities"
@@ -280,6 +281,7 @@ def executar(municipios: list[str] | None = None, limite: int | None = None) -> 
         if bruto:
             comum.salvar_raw(FONTE, bruto)  # recorte: só as sugestões, não os diários
         ingestao = session.merge(ingestao)
+        aplicar_atos(session)  # decisões já registradas valem para sugestões recarregadas
         ingestao.registros = session.scalar(select(func.count()).select_from(DiarioAto))
         ingestao.status = "ok"
         ingestao.concluido_em = datetime.now()

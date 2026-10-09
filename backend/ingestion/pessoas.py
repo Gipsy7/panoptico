@@ -36,6 +36,7 @@ from app.models import (
     PessoaVinculo,
 )
 from ingestion import comum
+from ingestion.diarios.revisao import aplicar_atos
 from ingestion.identidade import Aresta, Chave, agrupar
 
 FONTE = "pessoas"
@@ -282,6 +283,7 @@ def processar(session: Session) -> tuple[dict[Chave, Registro], list, list, int]
     pessoas, recusadas = agrupar({c: r.cpf for c, r in registros.items()}, arestas)
     mudaram = gravar(session, registros, pessoas)
     aplicar_aceites(session)
+    aplicar_atos(session)  # atos dos diários aceitos na revisão humana
     return registros, pessoas, recusadas, mudaram
 
 

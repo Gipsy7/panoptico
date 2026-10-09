@@ -230,6 +230,7 @@ uv run python -m ingestion.acervo rodar --fonte tse_bens sapl_assembleias
 uv run python -m ingestion.acervo relatorio            # volume por fonte e últimas cargas
 uv run python -m analises                              # lista os cruzamentos (backend/analises/*.sql)
 uv run python -m ingestion.revisar                     # revisão humana dos vínculos por nome aproximado
+uv run python -m ingestion.revisar --tipo diario        # revisão humana dos atos de nomeação/exoneração dos diários (data/atos_revisados.csv)
 # Atualização diária: scripts/acervo_diario.ps1 (como registrar no Agendador do Windows está no topo do arquivo)
 uv run python -m analises fornecedores_sancionados --saida resultado.csv
 ```
@@ -300,7 +301,7 @@ O plano completo, com a ordem das fases, está em [docs/DECISOES.md](docs/DECISO
 - Acervo local com identidade única de pessoa pública e linha do tempo de eventos
 - Justiça e controle, só com registros oficiais: cassações e indeferimentos no TSE, sanções da CGU, contas julgadas pelo TCU, processos no STF e no STJ (status pelo DataJud do CNJ), conselhos de ética e CPIs, e casos de corrupção montados só com documentos oficiais
 - Partidos: a página de finanças já existe; falta exibir os pagamentos a fornecedores ligados a pessoas e empresas da base (`partido_despesa_vinculada`, depende de revisão), os diretórios e as eleições de 2016, 2020 e 2026
-- Atos de nomeação e exoneração nos diários municipais (Querido Diário): a coleta de sugestões já existe no acervo (`python -m ingestion.diarios.atos`, tabela `diario_ato`, sempre `revisado = false`); falta a fila de revisão humana em `ingestion.revisar` antes de qualquer exibição
+- Atos de nomeação e exoneração nos diários municipais (Querido Diário): a coleta de sugestões (`python -m ingestion.diarios.atos`, tabela `diario_ato`) e a revisão humana (`python -m ingestion.revisar --tipo diario`) existem; só o que for aceito vira evento na linha do tempo. Falta rodar a revisão sobre as sugestões do acervo
 - Contratos públicos (PNCP): a coleta em somas já existe no acervo (`python -m ingestion.pncp.contratos`); falta exibir. Convênios, empresas e sócios (CNPJ)
 - As 66 câmaras cujo SAPL parou e as 910 cidades sem canal oficial encontrado
 - Conectores próprios para as 13 assembleias sem SAPL que faltam, depois de um levantamento casa a casa do que cada uma publica

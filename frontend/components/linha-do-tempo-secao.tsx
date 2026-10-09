@@ -23,6 +23,11 @@ const GRUPOS: { titulo: string; detalhe: string; tipos: string[] }[] = [
     tipos: ["tcu_contas_irregulares", "tcu_inabilitacao"],
   },
   {
+    titulo: "Atos de nomeação e exoneração (diários oficiais)",
+    detalhe: "diários municipais, conferidos por uma pessoa",
+    tipos: ["ato_pessoal"],
+  },
+  {
     titulo: "Sanções",
     detalhe: "cadastros da Controladoria-Geral da União (CEIS, CNEP, CEAF)",
     tipos: ["sancao"],
