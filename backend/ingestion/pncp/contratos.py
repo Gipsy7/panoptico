@@ -30,7 +30,7 @@ from pathlib import Path
 from typing import Any
 
 import httpx
-from sqlalchemy import delete, func, select
+from sqlalchemy import delete, select
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.orm import Session
 
@@ -53,6 +53,7 @@ TAMANHO_PAGINA = 500  # o máximo; 501 dá 400
 PAUSA = 0.5  # segundos entre requisições
 TENTATIVAS = 8  # 429 e 5xx, com espera crescente (comum._get)
 JANELA_INICIAL = date(2023, 1, 1)
+TENTATIVAS_400 = 3
 RELEITURA_DIAS = 7
 MAX_RELEITURAS = 20  # dias antigos relidos por coleta, por causa de aditivos
 TIPOS_PESSOA = {"PJ", "PF", "PE"}
@@ -187,6 +188,19 @@ def somar(d: Dia, contratos: list[dict[str, Any]], alvo: set[str]) -> None:
             }
 
 
+def _get_pagina(client: httpx.Client, url: str, params: dict) -> httpx.Response:
+    """A API responde 400 de vez em quando numa página válida (a mesma página responde
+    normalmente logo depois): tenta de novo algumas vezes antes de desistir."""
+    for tentativa in range(1, TENTATIVAS_400 + 1):
+        try:
+            return comum._get(client, url, params, TENTATIVAS)
+        except httpx.HTTPStatusError as erro:
+            if erro.response.status_code != 400 or tentativa == TENTATIVAS_400:
+                raise
+            time.sleep(5 * tentativa)
+    raise AssertionError("inalcançável")
+
+
 def paginas(
     client: httpx.Client, url: str, dia: date, pausa: float = PAUSA
 ) -> Iterator[tuple[dict[str, Any], bytes]]:
@@ -199,7 +213,7 @@ def paginas(
             "pagina": pagina,
             "tamanhoPagina": TAMANHO_PAGINA,
         }
-        resposta = comum._get(client, url, params, TENTATIVAS)
+        resposta = _get_pagina(client, url, params)
         corpo = resposta.json() if resposta.content else {}
         yield corpo, resposta.content
         if pagina >= (corpo.get("totalPaginas") or 0):
@@ -303,16 +317,25 @@ def dias_da_janela(inicio: date, fim: date) -> list[date]:
 
 
 def planejar(
-    de: date | None, ate: date | None, ultimo: date | None, hoje: date, releitura: int
+    de: date | None, ate: date | None, carregados: set[date], hoje: date, releitura: int
 ) -> tuple[date, date, bool]:
-    """(início, fim, incremental). Sem --de/--ate e com cursor: relê os últimos `releitura`
-    dias a partir do cursor; sem cursor: da janela inicial até hoje."""
+    """(início, fim, incremental). Com --de: carga parcial explícita. Sem dias carregados:
+    da janela inicial até hoje. Com um buraco antes da releitura (uma carga parcial de
+    teste, uma interrupção): do primeiro dia que falta, sem a varredura de alterações.
+    Sem buraco: relê os últimos `releitura` dias a partir do cursor (incremental)."""
     fim = ate or hoje
     if de is not None:
         return de, fim, False
-    if ultimo is not None:
-        return max(JANELA_INICIAL, ultimo - timedelta(days=releitura - 1)), fim, ate is None
-    return JANELA_INICIAL, fim, False
+    if not carregados:
+        return JANELA_INICIAL, fim, False
+    cursor = max(carregados)
+    inicio_releitura = max(JANELA_INICIAL, cursor - timedelta(days=releitura - 1))
+    dia = JANELA_INICIAL
+    while dia < inicio_releitura:
+        if dia not in carregados:
+            return dia, fim, False
+        dia += timedelta(days=1)
+    return inicio_releitura, fim, ate is None
 
 
 def escrever_manifesto(caminho: Path, dados: dict[str, Any]) -> None:
@@ -332,9 +355,8 @@ def executar(
     hoje = date.today()
     with SessionLocal() as session:
         alvo = conjunto_alvo(session)
-        ultimo = session.scalar(select(func.max(PncpDia.dia)))
         carregados = set(session.scalars(select(PncpDia.dia)))
-        inicio, fim, incremental = planejar(de, ate, ultimo, hoje, releitura)
+        inicio, fim, incremental = planejar(de, ate, carregados, hoje, releitura)
         manifesto = comum.RAW_DIR / FONTE / f"{datetime.now():%Y-%m-%d_%H%M%S}.manifesto.json"
         ingestao = FonteIngestao(fonte=FONTE, url=URL, arquivo_raw=str(manifesto))
         session.add(ingestao)
@@ -393,7 +415,11 @@ def _dias_alterados(
     que tiveram contrato alterado (aditivo). Os mais recentes primeiro, até `maximo`."""
     antigos: set[date] = set()
     for dia in dias_da_janela(inicio, fim):
-        publicados, linhas = ler_atualizacoes(client, dia, alvo, pausa)
+        try:
+            publicados, linhas = ler_atualizacoes(client, dia, alvo, pausa)
+        except httpx.HTTPError as erro:  # complemento: o dia volta na próxima releitura
+            print(f"  alterações de {dia} não lidas: {erro}")
+            continue
         upsert_contratos(session, list(linhas.values()))
         session.commit()
         antigos |= {p for p in publicados if p < inicio and p in carregados}

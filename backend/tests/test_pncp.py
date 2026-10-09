@@ -172,15 +172,17 @@ def test_gravar_dia_e_idempotente_e_troca_o_dia(session):
 def test_planejar_janela():
     hoje = date(2026, 10, 9)
     # primeira carga: janela inicial até hoje
-    assert contratos.planejar(None, None, None, hoje, 7) == (date(2023, 1, 1), hoje, False)
+    assert contratos.planejar(None, None, set(), hoje, 7) == (date(2023, 1, 1), hoje, False)
+    completos = set(contratos.dias_da_janela(date(2023, 1, 1), date(2026, 10, 5)))
     # incremental: reler os últimos 7 dias a partir do cursor
-    assert contratos.planejar(None, None, date(2026, 10, 5), hoje, 7) == (
-        date(2026, 9, 29),
-        hoje,
-        True,
-    )
+    assert contratos.planejar(None, None, completos, hoje, 7) == (date(2026, 9, 29), hoje, True)
+    # só uma semana de teste carregada: começa do primeiro dia que falta, sem incremental
+    semana = set(contratos.dias_da_janela(date(2025, 10, 1), date(2025, 10, 7)))
+    assert contratos.planejar(None, None, semana, hoje, 7) == (date(2023, 1, 1), hoje, False)
+    buraco = completos - {date(2024, 3, 2)}
+    assert contratos.planejar(None, None, buraco, hoje, 7) == (date(2024, 3, 2), hoje, False)
     # carga parcial explícita
-    assert contratos.planejar(date(2025, 10, 1), date(2025, 10, 7), date(2026, 10, 5), hoje, 7) == (
+    assert contratos.planejar(date(2025, 10, 1), date(2025, 10, 7), completos, hoje, 7) == (
         date(2025, 10, 1),
         date(2025, 10, 7),
         False,
