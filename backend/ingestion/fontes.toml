@@ -1,0 +1,181 @@
+# Registro das fontes do acervo local (python -m ingestion.acervo).
+#
+# Cada [[fonte]]:
+#   nome        o mesmo FONTE do módulo (é como aparece em fonte_ingestao)
+#   modulo      módulo com a função executar()
+#   frequencia  "diaria" | "semanal" | "mensal" | "manual" (manual: só com --fonte)
+#   anos        executar(ano) para cada ano: "padrao" (ano anterior e atual),
+#               "dois_anteriores", "desde_2023" ou uma lista; sem anos, executar()
+#   args        argumentos fixos de executar()
+#   depende     fontes que precisam rodar antes (na mesma execução)
+#   acesso      degrau de acesso (ver docs/DECISOES.md): "aberto" | "brasil" | "lento"
+#               | "espelho" | "pedido" | "lai" | "indisponivel"
+
+# Federais (as mesmas do run_all, na mesma ordem de dependência)
+[[fonte]]
+nome = "camara_deputados"
+modulo = "ingestion.camara.deputados"
+frequencia = "diaria"
+
+[[fonte]]
+nome = "senado_senadores"
+modulo = "ingestion.senado.senadores"
+frequencia = "diaria"
+
+[[fonte]]
+nome = "camara_despesas"
+modulo = "ingestion.camara.despesas"
+frequencia = "diaria"
+anos = "padrao"
+depende = ["camara_deputados"]
+
+[[fonte]]
+nome = "senado_despesas"
+modulo = "ingestion.senado.despesas"
+frequencia = "diaria"
+anos = "padrao"
+depende = ["senado_senadores"]
+
+[[fonte]]
+nome = "camara_votacoes"
+modulo = "ingestion.camara.votacoes"
+frequencia = "diaria"
+anos = "padrao"
+depende = ["camara_deputados"]
+
+[[fonte]]
+nome = "senado_votacoes"
+modulo = "ingestion.senado.votacoes"
+frequencia = "diaria"
+anos = "padrao"
+depende = ["senado_senadores"]
+
+[[fonte]]
+nome = "senado_votacoes_comissoes"
+modulo = "ingestion.senado.votacoes_comissoes"
+frequencia = "diaria"
+anos = "padrao"
+depende = ["senado_senadores"]
+
+[[fonte]]
+nome = "camara_proposicoes"
+modulo = "ingestion.camara.proposicoes"
+frequencia = "diaria"
+anos = "desde_2023"
+depende = ["camara_deputados"]
+
+[[fonte]]
+nome = "senado_proposicoes"
+modulo = "ingestion.senado.proposicoes"
+frequencia = "diaria"
+depende = ["senado_senadores"]
+
+[[fonte]]
+nome = "camara_temas"
+modulo = "ingestion.camara.temas"
+frequencia = "diaria"
+depende = ["camara_votacoes", "camara_proposicoes"]
+
+[[fonte]]
+nome = "senado_temas"
+modulo = "ingestion.senado.temas"
+frequencia = "diaria"
+depende = ["senado_votacoes", "senado_proposicoes"]
+
+[[fonte]]
+nome = "ibge_municipios"
+modulo = "ingestion.ibge.municipios"
+frequencia = "mensal"
+
+[[fonte]]
+nome = "canais_oficiais"
+modulo = "ingestion.canais.catalogo"
+frequencia = "diaria"
+depende = ["ibge_municipios"]
+
+[[fonte]]
+nome = "transparencia_emendas"
+modulo = "ingestion.transparencia.emendas"
+frequencia = "diaria"
+depende = ["camara_deputados", "senado_senadores", "ibge_municipios"]
+
+[[fonte]]
+nome = "resumos"
+modulo = "ingestion.resumos"
+frequencia = "diaria"
+depende = ["camara_despesas", "senado_despesas", "camara_votacoes", "senado_votacoes", "camara_proposicoes", "senado_proposicoes", "transparencia_emendas"]
+
+# Eleições (TSE): arquivos grandes, só quando pedido
+[[fonte]]
+nome = "tse_candidaturas"
+modulo = "ingestion.tse.candidaturas"
+frequencia = "manual"
+anos = [2018, 2022, 2024]
+depende = ["camara_deputados", "senado_senadores", "ibge_municipios"]
+
+[[fonte]]
+nome = "tse_bens"
+modulo = "ingestion.tse.bens"
+frequencia = "manual"
+anos = [2018, 2022, 2024]
+depende = ["tse_candidaturas"]
+
+[[fonte]]
+nome = "tse_campanha"
+modulo = "ingestion.tse.campanha"
+frequencia = "manual"
+anos = [2018, 2022, 2024]
+depende = ["tse_candidaturas"]
+
+[[fonte]]
+nome = "tse_redes"
+modulo = "ingestion.tse.redes"
+frequencia = "manual"
+anos = [2018, 2022, 2024]
+depende = ["tse_candidaturas"]
+
+[[fonte]]
+nome = "tse_votos"
+modulo = "ingestion.tse.votos"
+frequencia = "manual"
+anos = [2018, 2022, 2024]
+depende = ["tse_candidaturas"]
+
+# Municípios
+[[fonte]]
+nome = "siconfi_contas"
+modulo = "ingestion.siconfi.contas"
+frequencia = "mensal"
+anos = "dois_anteriores"
+depende = ["ibge_municipios"]
+
+[[fonte]]
+nome = "tce_sp"
+modulo = "ingestion.tce.sp"
+frequencia = "mensal"
+anos = "dois_anteriores"
+depende = ["ibge_municipios"]
+
+# Câmaras e assembleias
+[[fonte]]
+nome = "sapl_camaras"
+modulo = "ingestion.camaras.sapl"
+frequencia = "semanal"
+depende = ["canais_oficiais"]
+
+[[fonte]]
+nome = "sapl_assembleias"
+modulo = "ingestion.assembleias.sapl"
+frequencia = "semanal"
+# Roraima só responde a IPs do Brasil: no acervo local entra junto com as outras.
+acesso = "brasil"
+
+[[fonte]]
+nome = "almg"
+modulo = "ingestion.assembleias.almg"
+frequencia = "semanal"
+
+[[fonte]]
+nome = "alesp"
+modulo = "ingestion.assembleias.alesp"
+frequencia = "semanal"

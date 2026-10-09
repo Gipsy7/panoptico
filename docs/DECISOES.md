@@ -109,6 +109,42 @@ O subsídio é igual para deputados e senadores e é fixado por decreto legislat
 - **Bens:** valor como declarado, sem correção. A página avisa que bens costumam ser declarados pelo valor de compra. Sem palavras como "enriqueceu": mostramos os dois totais e o ano.
 - **2024:** o TSE passou a mascarar o CPF, então as candidaturas municipais de 2024 não se ligam aos parlamentares federais.
 
+## 2026-10-08: acervo local e regras para Justiça e controle
+
+O plano é juntar tudo o que é público sobre quem exerce função pública: processos, sanções, contas julgadas pelo TCU, cassações, partidos, contratos e empresas. Isso passa de dezenas de GB e não cabe na produção atual.
+
+- **Acervo local primeiro.** As fontes novas rodam numa máquina local, num banco à parte (`panoptico_acervo`, criado por `scripts/criar_acervo.sql`, com as mesmas migrações), com os brutos preservados (`PRESERVAR_RAW=true`) num diretório configurável (`RAW_DIR`, que pode ser um HD externo).
+  - A produção continua como está.
+  - A infraestrutura de produção será decidida com os volumes medidos por `python -m ingestion.acervo relatorio`.
+- **Registro das fontes** em `backend/ingestion/fontes.toml`: módulo, frequência, anos, dependências e degrau de acesso.
+  - `python -m ingestion.acervo rodar --vencidas` roda o que passou da frequência, em ordem de dependência.
+  - Quem depende de uma fonte que falhou é pulado.
+  - TOML porque o Python lê sem dependência nova.
+- **Só registros oficiais.** Processos, investigações e sanções entram só se vierem de órgão oficial (tribunal, TCU, CGU, TSE, CNJ, casas legislativas), com número, data, situação e link. Imprensa e comunicados de operação policial não são fonte.
+- **Presunção de inocência.**
+  - O texto descreve o ato processual ("parte como investigado no Inquérito nº X no STF, aberto em…; situação: em andamento"), sem adjetivos.
+  - Arquivamento, absolvição, anulação e prescrição têm o mesmo destaque da acusação.
+  - Delação aparece como "citado em colaboração premiada homologada", nunca como prova.
+- **Escândalos viram "casos"** montados só com documentos oficiais: processos, denúncias do MPF, acórdãos, relatórios de CPI, delações tornadas públicas e sanções. Cada pessoa é ligada ao caso pelo papel que um documento lhe dá. A curadoria fica em CSVs versionados (`data/casos/`), revisados por pull request.
+- **Pessoas privadas não aparecem:** doadores, filiados comuns, sócios que não são políticos e partes privadas de processos. Servem só para ligação interna. Processos em segredo de justiça e envolvendo menores ficam de fora.
+- **Ligação de pessoas entre fontes:** só vínculo por chave forte é publicado:
+  - CPF;
+  - título de eleitor;
+  - CPF mascarado + nome;
+  - nome + data de nascimento.
+
+  Vínculo por nome com UF e cargo vai para revisão manual. A decisão humana fica num CSV versionado e é reaplicada a cada carga.
+- **Fontes que bloqueiam o acesso automático.** Não contornamos barreira deliberada: nada de rodízio de IP, User-Agent falso, CAPTCHA ou automação de navegador para passar por proteção. A escada, em ordem:
+  1. diagnosticar;
+  2. rodar do Brasil quando é geobloqueio (caso de Roraima);
+  3. ir mais devagar e usar cache;
+  4. buscar o mesmo dado num canal oficial alternativo ou num espelho confiável, conferido por amostra;
+  5. pedir acesso ao órgão;
+  6. fazer pedido pela Lei de Acesso à Informação;
+  7. registrar publicamente que o órgão não publica o dado.
+
+  O degrau de cada fonte fica no registro (`acesso`).
+
 ## 2026-10-08: carga do SAPL mais rápida e sem itens perdidos
 
 - **Paginação sempre ordenada (`o=id`).** Sem ordem, o SAPL pagina de forma instável e a mesma lista repete itens e perde outros: na Assembleia do Acre, 5 projetos recentes de 434 ficavam de fora. Votos, presença e o resto da casa saíram iguais na comparação.

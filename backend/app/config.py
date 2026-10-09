@@ -25,6 +25,10 @@ class Settings(BaseSettings):
     )
     cors_origins: list[str] = ["http://localhost:3000"]
     viacep_url: str = "https://viacep.com.br/ws/{cep}/json/"
+    # Onde ficam os arquivos brutos. No acervo local pode apontar para um HD externo.
+    raw_dir: Path = BACKEND_DIR / "data" / "raw"
+    # No acervo, o bruto nunca é apagado (limpar_raw não faz nada).
+    preservar_raw: bool = False
     # Em funções serverless (Vercel) cada instância vive pouco: sem pool de conexões.
     serverless: bool = os.environ.get("VERCEL") == "1"
 

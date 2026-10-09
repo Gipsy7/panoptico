@@ -24,11 +24,11 @@ from sqlalchemy import insert as sa_insert
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.orm import Session
 
-from app.config import BACKEND_DIR
+from app.config import settings
 from app.db import SessionLocal
 from app.models import Despesa, FonteIngestao, Parlamentar
 
-RAW_DIR = BACKEND_DIR / "data" / "raw"
+RAW_DIR = settings.raw_dir
 USER_AGENT = "Panoptico/0.1 (+https://panoptico.social.br)"
 # Brutos maiores que isto não são lidos para a memória: carregar_raw devolve o caminho.
 LIMITE_EM_MEMORIA = 200_000_000

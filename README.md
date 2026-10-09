@@ -202,6 +202,21 @@ npm run dev                          # http://localhost:3000
 | `uv run python -m ingestion.camara.despesas --ano 2025` | Uma fonte e um ano específicos |
 | `uv run python -m ingestion.camara.deputados --de-raw data/raw/camara_deputados/<arquivo>.json` | Reprocessa um bruto sem rede |
 
+### Acervo local
+
+As fontes novas (Justiça, órgãos de controle, partidos, contratos) são juntadas primeiro num **acervo local**: um banco à parte, sem os limites da produção, com os brutos preservados. O registro das fontes fica em [backend/ingestion/fontes.toml](backend/ingestion/fontes.toml).
+
+```bash
+psql -U postgres -f scripts/criar_acervo.sql         # uma vez
+cd backend
+export DATABASE_URL=postgresql+psycopg://panoptico:panoptico@localhost:5432/panoptico_acervo
+export PRESERVAR_RAW=true RAW_DIR=/e/panoptico/raw     # RAW_DIR é opcional (padrão: data/raw)
+uv run alembic upgrade head
+uv run python -m ingestion.acervo rodar --vencidas     # o que passou da frequência
+uv run python -m ingestion.acervo rodar --fonte tse_bens sapl_assembleias
+uv run python -m ingestion.acervo relatorio            # volume por fonte e últimas cargas
+```
+
 ### API
 
 | Rota | Retorna |
@@ -258,10 +273,16 @@ Os testes do backend usam um banco `panoptico_test` (criado pelo `scripts/criar_
 
 ### Próximos passos
 
+O plano completo, com a ordem das fases, está em [docs/DECISOES.md](docs/DECISOES.md) ("acervo local e regras para Justiça e controle"). Em resumo:
+
+- Acervo local com identidade única de pessoa pública e linha do tempo de eventos
+- Justiça e controle, só com registros oficiais: cassações e indeferimentos no TSE, sanções da CGU, contas julgadas pelo TCU, processos no STF e no STJ (status pelo DataJud do CNJ), conselhos de ética e CPIs, e casos de corrupção montados só com documentos oficiais
+- Partidos (diretórios, contas, fundos) e as eleições de 2016, 2020 e 2026
+- Contratos públicos (PNCP), convênios, empresas e sócios (CNPJ)
+- As 66 câmaras cujo SAPL parou e as 910 cidades sem canal oficial encontrado
 - Conectores próprios para as 16 assembleias sem SAPL que faltam, depois de um levantamento casa a casa do que cada uma publica
 - Votos e presença nas comissões da ALESP (já publicados em dados abertos)
 - Despesas por fornecedor de outros Tribunais de Contas (RS e MG têm dados abertos)
-- Situação na Justiça só com fatos oficiais (cassações e indeferimentos no TSE, processos com número e status), sem nota ou "índice de confiabilidade"
 - Teste com pessoas reais e auditoria de acessibilidade
 
 ## Licença

@@ -6,6 +6,7 @@ import re
 from collections import defaultdict
 from pathlib import Path
 
+from app.config import settings
 from ingestion.comum import RAW_DIR
 
 # "2026_2026-10-06_212345.csv.gz" -> grupo "2026_"; "2026-10-06_212345.json" -> grupo ""
@@ -13,6 +14,8 @@ NOME = re.compile(r"^(?P<grupo>(?:\d{4}_)?)\d{4}-\d{2}-\d{2}_\d{6}\.")
 
 
 def limpar(raiz: Path = RAW_DIR, manter: int = 7) -> list[Path]:
+    if settings.preservar_raw:  # acervo local: o bruto é o registro permanente
+        return []
     grupos: dict[tuple[Path, str], list[Path]] = defaultdict(list)
     for arquivo in raiz.glob("*/*"):
         m = NOME.match(arquivo.name)
