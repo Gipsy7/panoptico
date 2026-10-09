@@ -122,7 +122,7 @@ flowchart LR
 | Candidaturas (inclusive presidente, governadores e prefeitos), bens declarados e contas de campanha (2018, 2022 e 2024) | [Dados abertos do TSE](https://dadosabertos.tse.jus.br/) | Arquivos em lote, carga manual por eleição |
 | Contas anuais dos partidos (receitas, fundo partidário e fundo eleitoral, despesas) e divisão dos fundos por gênero e cor ou raça | [Dados abertos do TSE](https://dadosabertos.tse.jus.br/) | Arquivos em lote, só no acervo local por enquanto (ainda sem página no site) |
 | Sites oficiais dos municípios | Varredura dos domínios `.gov.br` e `.leg.br` de cada cidade | Catálogo versionado, revisado por PR |
-| Contas anuais dos partidos e FEFC/FP | [TSE dados abertos](https://dadosabertos.tse.jus.br/dataset/prestacao-de-contas-anual-partidaria) | zip anual (~60 MB), mensal (workflow de ingestão mensal) |
+| Contas anuais dos partidos e FEFC/FP | [TSE dados abertos](https://dadosabertos.tse.jus.br/dataset/prestacao-de-contas-partidarias-2024) | zip anual (~60 MB), mensal (workflow de ingestão mensal) |
 | Contas anuais dos municípios | [SICONFI (Tesouro Nacional)](https://siconfi.tesouro.gov.br/) | API, uma consulta por município, mensal |
 | Pagamentos das prefeituras e câmaras por fornecedor (SP) | [TCE-SP](https://transparencia.tce.sp.gov.br/conjunto-de-dados) | Arquivo anual em lote, mensal |
 | Pagamentos das prefeituras e câmaras por fornecedor (RS) | [TCE-RS](https://dados.tce.rs.gov.br/) | Arquivo anual em lote, mensal |

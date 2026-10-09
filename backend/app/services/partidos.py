@@ -14,9 +14,10 @@ from sqlalchemy.orm import Session
 from app.models import FonteIngestao, PartidoContaSoma, PartidoCotaMensal, PartidoFefcFp
 
 FONTE_NOME = "Prestação de contas anual dos partidos (TSE, dados abertos)"
-FONTE_URL = "https://dadosabertos.tse.jus.br/dataset/prestacao-de-contas-anual-partidaria"
+FONTE_URL = "https://dadosabertos.tse.jus.br/dataset/prestacao-de-contas-partidarias-{ano}"
 FONTE_FEFC_NOME = "Distribuição do FEFC e do Fundo Partidário por gênero e raça (TSE)"
-FONTE_FEFC_URL = "https://dadosabertos.tse.jus.br/dataset/fefc-fp"
+# O arquivo fefc_fp é um recurso do conjunto da prestação de contas eleitorais do ano.
+FONTE_FEFC_URL = "https://dadosabertos.tse.jus.br/dataset/prestacao-de-contas-eleitorais-{ano}"
 
 ZERO = Decimal(0)
 RECEITAS_PROPRIAS = ("cota_tse", "recurso_candidato", "outra")
@@ -85,7 +86,7 @@ def listar(session: Session, ano: int) -> dict:
         "anos_disponiveis": anos_disponiveis(session),
         "partidos": partidos,
         "fonte_nome": FONTE_NOME,
-        "fonte_url": FONTE_URL,
+        "fonte_url": FONTE_URL.format(ano=ano),
         "atualizado_em": _atualizado_em(session, "tse_contas_partidarias"),
     }
 
@@ -121,7 +122,7 @@ def _fefc_fp(session: Session, ano: int, sigla: str) -> dict | None:
         "fp_por_genero": agrupar("FP", False),
         "fp_por_cor_raca": agrupar("FP", True),
         "fonte_nome": FONTE_FEFC_NOME,
-        "fonte_url": FONTE_FEFC_URL,
+        "fonte_url": FONTE_FEFC_URL.format(ano=ano),
         "atualizado_em": _atualizado_em(session, "tse_fefc_fp"),
     }
 
@@ -182,7 +183,7 @@ def detalhe(session: Session, sigla: str, ano: int) -> dict | None:
         },
         "fefc_fp": _fefc_fp(session, ano, sigla),
         "fonte_nome": FONTE_NOME,
-        "fonte_url": FONTE_URL,
+        "fonte_url": FONTE_URL.format(ano=ano),
         "atualizado_em": _atualizado_em(session, "tse_contas_partidarias"),
     }
 

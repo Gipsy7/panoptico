@@ -66,7 +66,7 @@ CATALOGO = [
         "dado": "Finanças dos partidos: fundos, receitas, gastos e repasses a candidaturas",
         "orgao": "Tribunal Superior Eleitoral (prestação de contas anual dos partidos)",
         "fontes": ["tse_contas_partidarias", "tse_fefc_fp"],
-        "url": "https://dadosabertos.tse.jus.br/dataset/prestacao-de-contas-anual-partidaria",
+        "url": "https://dadosabertos.tse.jus.br/dataset/prestacao-de-contas-partidarias-2024",
     },
     {
         "dado": "Contas anuais das prefeituras (receita, despesa e áreas)",
