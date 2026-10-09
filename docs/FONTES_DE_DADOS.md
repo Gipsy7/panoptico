@@ -135,6 +135,13 @@ Endpoints conferidos em 2026-10-06.
 - **Não traz a data da decisão nem se cabe recurso.** O evento diz o que o TSE registra, com a data de geração do arquivo, e fica sem data na linha do tempo.
 - **Número do processo:** conferido pelo dígito verificador (módulo 97) e formatado como `NNNNNNN-DD.AAAA.J.TR.OOOO`. O `J` = 6 indica a Justiça Eleitoral, e o `TR` o tribunal regional.
 
+## TSE: órgãos partidários
+
+- **URL (lote, sem chave):** `https://cdn.tse.jus.br/estatistica/sead/odsele/orgao_partidario/orgao_partidario.zip` (219 MB; um CSV por partido, 40 arquivos, o do MDB com 317 MB aberto). No catálogo do TSE (`dadosabertos.tse.jus.br`, conjunto "delegados-partidarios") estão também `delegado_partidario.zip` e `perfil_filiacao_partidaria.zip` (só estatística).
+- **Uma linha por membro e cargo:** partido, tipo do órgão (definitivo, provisório), abrangência (municipal, estadual, nacional), município e UF, cargo (`DS_CARGO_MEMBRO`), nome, **título de eleitor** (`NR_TITULO_ELEITORAL_MEMBRO`; às vezes `#NULO`), início e fim do exercício, situação do membro e do órgão (`VIGENTE` / `NÃO VIGENTE`).
+- **Armadilhas:** datas com o ano truncado ("16/03/0208", "07/06/0011"); telefones `-1` e e-mails `#NULO`; o arquivo tem o histórico inteiro, então é preciso filtrar pelo que está vigente.
+- **Catálogo do TSE:** a API CKAN (`/api/3/action/package_list`) lista 184 conjuntos. A busca `package_search` não devolve nada; use `package_list` e `package_show`.
+
 ## CGU: sanções (CEIS, CNEP e CEAF)
 
 - **URL (lote diário, sem chave):** `https://portaldatransparencia.gov.br/download-de-dados/{ceis|cnep|ceaf}/{AAAAMMDD}`, que redireciona para `dadosabertos-download.cgu.gov.br/.../{AAAAMMDD}_{CEIS|CNEP|CEAF}.zip`. Também há `cepim` e `acordos-leniencia` (só empresas e entidades; catalogados, sem coleta).

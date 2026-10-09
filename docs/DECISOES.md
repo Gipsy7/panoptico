@@ -109,6 +109,17 @@ O subsídio é igual para deputados e senadores e é fixado por decreto legislat
 - **Bens:** valor como declarado, sem correção. A página avisa que bens costumam ser declarados pelo valor de compra. Sem palavras como "enriqueceu": mostramos os dois totais e o ano.
 - **2024:** o TSE passou a mascarar o CPF, então as candidaturas municipais de 2024 não se ligam aos parlamentares federais.
 
+## 2026-10-09: cargos partidários e o primeiro bruto "recorte"
+
+- **Fonte:** arquivo de órgãos partidários do TSE. Tem cada membro de cada diretório ou comissão provisória, com cargo, datas e **título de eleitor**, desde os anos 1990.
+- **Coleta mínima:**
+  - ficam só os cargos **vigentes** em órgãos **vigentes**, de pessoas que já estão na base, ligados pelo título;
+  - na base local, 18.728 cargos (4.299 presidentes de diretório, 1.432 vice-presidentes, 1.351 líderes na câmara municipal…);
+  - viram eventos da linha do tempo ("Presidente do órgão provisório estadual do REPUBLICANOS em MA").
+- **Primeiro bruto `recorte`:** o arquivo (219 MB compactado, ~2 GB aberto) é lido de passagem e trocado por um manifesto com URL, tamanho, sha256 e data (`comum.trocar_por_manifesto`). Para refazer, baixa-se de novo.
+- **Datas com o ano truncado** no arquivo ("16/03/0208"): ano antes de 1980 vira data vazia, em vez de uma data errada.
+- **Contas anuais dos partidos** (receitas, fundo partidário, despesas): catalogadas até haver uma página de partido no site que as use. Perfil da filiação partidária: só estatística, sem uso por enquanto.
+
 ## 2026-10-09: representações no Conselho de Ética da Câmara
 
 - **Fonte:** proposições do tipo REP (Representação) na API da Câmara, desde 2023. São 72; a situação vem do último andamento.

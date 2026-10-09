@@ -318,3 +318,22 @@ uso = "Linha do tempo: representações no Conselho de Ética da Câmara"
 recorte = "representações desde 2023, ligadas pelo nome parlamentar único na Câmara"
 frequencia = "semanal"
 depende = ["pessoas"]
+
+# Partidos
+[[fonte]]
+nome = "tse_orgaos_partidarios"
+modulo = "ingestion.tse.orgaos_partidarios"
+uso = "Linha do tempo: cargos partidários atuais (presidente, tesoureiro...) de quem acompanhamos"
+recorte = "só cargos vigentes em órgãos vigentes, de pessoas da base, pelo título de eleitor"
+frequencia = "mensal"
+bruto = "recorte"
+depende = ["pessoas"]
+
+[[fonte]]
+nome = "tse_contas_partidarias"
+modulo = "ingestion.tse.contas_partidarias"
+situacao = "catalogada"
+uso = "Página do partido (ainda não existe): receitas, fundo partidário e despesas por ano"
+recorte = "somas por partido, ano e categoria"
+guarda = "somas"
+frequencia = "mensal"
