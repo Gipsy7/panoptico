@@ -148,3 +148,29 @@ class SancaoEmpresa(Base):
     inicio: Mapped[date | None] = mapped_column(Date)
     fim: Mapped[date | None] = mapped_column(Date)
     processo: Mapped[str | None] = mapped_column(String(40))
+
+
+class SocioPessoa(Base):
+    """Pessoa que acompanhamos e que é sócia (ou administradora) de uma empresa que aparece
+    nos nossos dados (fornecedor de prefeitura ou câmara, empresa sancionada), segundo o
+    quadro de sócios da Receita Federal. Ligação forte: CPF mascarado + nome."""
+
+    __tablename__ = "socio_pessoa"
+    __table_args__ = (UniqueConstraint("pessoa_id", "cnpj"),)
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    pessoa_id: Mapped[int] = mapped_column(ForeignKey("pessoa.id", ondelete="CASCADE"), index=True)
+    cnpj: Mapped[str] = mapped_column(String(14), index=True)
+    qualificacao: Mapped[str | None] = mapped_column(String(80))
+    data_entrada: Mapped[date | None] = mapped_column(Date)
+
+
+class CnpjConsulta(Base):
+    """Quando cada CNPJ teve o quadro de sócios consultado (cache de 30 dias, para não
+    perguntar de novo a um serviço comunitário)."""
+
+    __tablename__ = "cnpj_consulta"
+
+    cnpj: Mapped[str] = mapped_column(String(14), primary_key=True)
+    consultado_em: Mapped[date] = mapped_column(Date)
+    socios: Mapped[int | None]

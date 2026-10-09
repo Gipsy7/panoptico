@@ -109,6 +109,18 @@ O subsídio é igual para deputados e senadores e é fixado por decreto legislat
 - **Bens:** valor como declarado, sem correção. A página avisa que bens costumam ser declarados pelo valor de compra. Sem palavras como "enriqueceu": mostramos os dois totais e o ano.
 - **2024:** o TSE passou a mascarar o CPF, então as candidaturas municipais de 2024 não se ligam aos parlamentares federais.
 
+## 2026-10-09: sócios de fornecedores pela API do Querido Diário
+
+- **Projetos parecidos:** procuramos projetos que já fizessem isso, para não refazer do zero.
+  - Nenhum junta, por pessoa, a ligação forte entre fontes, as câmaras e assembleias, e Justiça e controle com as regras de publicação.
+  - O mais próximo, o Excelências da Transparência Brasil (2006–2017), foi encerrado e era manual.
+  - Há peças reaproveitáveis: a Open Knowledge Brasil mantém a carga do CNPJ (`okfn-brasil/receita`) e a expõe na API do Querido Diário, com os **sócios por CNPJ**.
+- **Uso:** como o endereço do arquivo de sócios da Receita mudou e não está acessível, consultamos o quadro de sócios por CNPJ nessa API (degrau "espelho" da escada de acesso).
+  - Recorte: só as empresas sancionadas que aparecem como fornecedores e os 1.000 maiores fornecedores.
+  - Guarda: só os sócios pessoa física que se ligam por CPF mascarado + nome a pessoas que acompanhamos (`socio_pessoa`).
+- **Educação com o serviço comunitário:** uma consulta a cada 2 segundos, novas tentativas em 503 (ele oscila entre 0,1 s e 24 s e às vezes responde "no available server") e cache de 30 dias por CNPJ (`cnpj_consulta`). A carga grava aos poucos e retoma de onde parou.
+- **Análise `fornecedores_com_socio_acompanhado`:** fornecedores pagos por prefeituras e câmaras que têm como sócio uma pessoa que acompanhamos, com os mandatos dela e se o município pagador é o mesmo de um mandato (possível conflito de interesse, a conferir).
+
 ## 2026-10-09: primeira carga completa do acervo e correções
 
 - **Primeira carga completa** de todas as fontes ativas no banco do acervo. Resultado: 700 MB de banco e 8,7 GB de brutos. A Assembleia de Roraima carregou pela primeira vez (25 deputados), porque a carga roda no Brasil.

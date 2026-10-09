@@ -19,11 +19,13 @@ from app.models.parlamentar import Parlamentar
 from app.models.pessoa import (
     Caso,
     CasoDocumento,
+    CnpjConsulta,
     Evento,
     Pessoa,
     PessoaVinculo,
     Processo,
     SancaoEmpresa,
+    SocioPessoa,
 )
 from app.models.proposicao import Autoria, Proposicao
 from app.models.proposicao_tema import ProposicaoTema
@@ -35,6 +37,7 @@ __all__ = [
     "Base",
     "BemDeclarado",
     "CanalOficial",
+    "CnpjConsulta",
     "Caso",
     "CasoDocumento",
     "CampanhaResumo",
@@ -63,6 +66,7 @@ __all__ = [
     "RedeSocial",
     "ResumoParlamentar",
     "SancaoEmpresa",
+    "SocioPessoa",
     "Votacao",
     "VotacaoComissao",
     "Voto",

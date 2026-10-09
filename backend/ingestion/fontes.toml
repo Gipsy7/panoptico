@@ -368,13 +368,13 @@ frequencia = "mensal"
 [[fonte]]
 nome = "cnpj_socios"
 modulo = "ingestion.receita.socios"
-situacao = "catalogada"
-uso = "Perfil: empresas de que a pessoa é sócia; cruzamento com fornecedores e sanções"
-recorte = "só sócios pessoa física ligados por CPF mascarado + nome a pessoas da base"
+uso = "Perfil e cruzamentos: empresas fornecedoras ou sancionadas de que a pessoa é sócia"
+recorte = "sócios pessoa física, ligados por CPF mascarado + nome, das empresas sancionadas e dos 1.000 maiores fornecedores"
 frequencia = "mensal"
-bruto = "recorte"
-# Endereço atual a confirmar: dadosabertos.rfb.gov.br não conecta (09/10/2026) e
-# arquivos.receitafederal.gov.br é um Nextcloud que exige o link de compartilhamento.
+acesso = "espelho"
+depende = ["pessoas", "cgu_sancoes"]
+# Quadro de sócios da Receita pela API do Querido Diário (OKBR), por CNPJ, com cache de
+# 30 dias: o endereço do arquivo da própria Receita mudou e não está acessível.
 
 [[fonte]]
 nome = "senado_etica"
