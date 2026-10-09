@@ -153,6 +153,14 @@ Endpoints conferidos em 2026-10-06.
 - **Escopo da lista**, segundo o TCU: não inclui processos arquivados por decisão terminativa, responsáveis ainda não notificados, decisões não transitadas em julgado, transitadas há mais de 20 anos, anuladas ou suspensas.
 - **Bruto:** as duas listas num JSON comprimido, 2,7 MB.
 
+## CNJ: DataJud (situação de processos)
+
+- **API pública:** `POST https://api-publica.datajud.cnj.jus.br/api_publica_{tribunal}/_search` (Elasticsearch), com o cabeçalho `Authorization: APIKey {chave}`. A chave é pública, publicada em `https://datajud-wiki.cnj.jus.br/api-publica/acesso/` e trocada de tempos em tempos. A lista de tribunais (91 índices) está em `.../api-publica/endpoints/`: STJ, TSE, TST, STM, TRFs, TJs, TREs, TRTs e TJMs. **O STF não está.**
+- **Consulta:** só por número, sem pontuação (`{"query": {"terms": {"numeroProcesso": [...]}}}`, até 50 por chamada). Não busca por nome de parte.
+- **Tribunal pelo número único:** segmento `J` (3 = STJ, 4 = Federal, 6 = Eleitoral, 8 = Estadual) e `TR`. Na Estadual e na Eleitoral, `TR` segue a ordem das UFs da Resolução CNJ 65/2008 (01 AC … 14 PA … 26 SP, 27 TO); `TR` 00 na Eleitoral é o TSE. O DF tem índices próprios (`tjdft`, `tre-dft`).
+- **Campos usados:** `classe.nome`, `orgaoJulgador.nome`, `dataAjuizamento` (`AAAAMMDDhhmmss`), `nivelSigilo`, `movimentos[]` (`dataHora`, `nome`) e `dataHoraUltimaAtualizacao`. O mesmo processo pode aparecer uma vez por grau (G1, G2): fica o atualizado por último.
+- **Instabilidade:** alguns índices respondem 504 de vez em quando. A carga tenta de novo e deixa os números do tribunal para a próxima.
+
 ## Tesouro Nacional: SICONFI (contas anuais dos municípios)
 
 - **API:** `https://apidatalake.tesouro.gov.br/ords/siconfi/tt/dca?an_exercicio={ano}&no_anexo={anexo}&id_ente={ibge}`. Exige `id_ente`: não há consulta em lote, então é uma por município, anexo e ano (cerca de 0,8 s cada, a partir do Brasil).

@@ -7,7 +7,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 
 from app.db import get_session
-from app.schemas import LinhaDoTempo, PessoaResposta
+from app.schemas import CasoResposta, CasoResumo, LinhaDoTempo, PessoaResposta
 from app.services import pessoas
 
 router = APIRouter()
@@ -35,4 +35,19 @@ def eventos(
     resultado = pessoas.eventos(session, pessoa_id, tipo, de, ate)
     if resultado is None:
         raise HTTPException(404, "Pessoa não encontrada.")
+    return resultado
+
+
+@router.get("/casos", response_model=list[CasoResumo])
+def lista_de_casos(session: Annotated[Session, Depends(get_session)]) -> list[dict]:
+    """Casos montados com documentos oficiais (só os revisados; rascunhos não entram)."""
+    return pessoas.casos(session)
+
+
+@router.get("/casos/{slug}", response_model=CasoResposta)
+def caso(slug: str, session: Annotated[Session, Depends(get_session)]) -> dict:
+    """Documentos oficiais do caso e o papel de cada pessoa segundo eles."""
+    resultado = pessoas.caso(session, slug)
+    if resultado is None:
+        raise HTTPException(404, "Caso não encontrado.")
     return resultado

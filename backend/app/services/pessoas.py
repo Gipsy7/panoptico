@@ -7,10 +7,20 @@ nome (vereador da câmara ligado ao eleito do TSE) fica de fora até ser revisad
 
 from datetime import date
 
-from sqlalchemy import or_, select, tuple_
+from sqlalchemy import func, or_, select, tuple_
 from sqlalchemy.orm import Session
 
-from app.models import Candidatura, Evento, MandatoLocal, Parlamentar, Pessoa, PessoaVinculo
+from app.models import (
+    Candidatura,
+    Caso,
+    CasoDocumento,
+    Evento,
+    MandatoLocal,
+    Parlamentar,
+    Pessoa,
+    PessoaVinculo,
+    Processo,
+)
 from app.models.pessoa import REGRAS_FORTES
 from app.services import tse
 
@@ -178,4 +188,90 @@ def eventos(
         and (ate is None or (i["data"] and i["data"] <= ate))
     ]
     itens.sort(key=lambda i: (i["data"] is not None, i["data"] or date.min), reverse=True)
+    numeros = {i["numero_processo"] for i in itens if i["numero_processo"]}
+    processos = {
+        p.numero: p
+        for p in session.scalars(select(Processo).where(Processo.numero.in_(numeros)))
+    } if numeros else {}  # fmt: skip
+    for i in itens:
+        i["processo"] = _processo(processos.get(i["numero_processo"]))
     return {"pessoa_id": pessoa_id, "itens": itens}
+
+
+def _processo(p: Processo | None) -> dict | None:
+    """Situação do processo no DataJud. Sob sigilo, só a informação de que é sigiloso."""
+    if p is None or not p.encontrado:
+        return None
+    if p.sigiloso:
+        return {"tribunal": p.tribunal, "sigiloso": True, "classe": None, "orgao_julgador": None,
+                "data_ajuizamento": None, "ultimo_andamento": None,
+                "data_ultimo_andamento": None, "consultado_em": p.consultado_em}  # fmt: skip
+    return {
+        "tribunal": p.tribunal,
+        "sigiloso": False,
+        "classe": p.classe,
+        "orgao_julgador": p.orgao_julgador,
+        "data_ajuizamento": p.data_ajuizamento,
+        "ultimo_andamento": p.ultimo_andamento,
+        "data_ultimo_andamento": p.data_ultimo_andamento,
+        "consultado_em": p.consultado_em,
+    }
+
+
+def casos(session: Session) -> list[dict]:
+    contagem = dict(
+        session.execute(
+            select(Evento.caso_slug, func.count(func.distinct(Evento.pessoa_id)))
+            .where(Evento.caso_slug.is_not(None))
+            .group_by(Evento.caso_slug)
+        ).all()
+    )
+    return [
+        {"slug": c.slug, "nome": c.nome, "periodo": c.periodo, "pessoas": contagem.get(c.slug, 0)}
+        for c in session.scalars(select(Caso).order_by(Caso.nome))
+    ]
+
+
+def caso(session: Session, slug: str) -> dict | None:
+    registro = session.get(Caso, slug)
+    if registro is None:
+        return None
+    documentos = session.scalars(
+        select(CasoDocumento).where(CasoDocumento.caso_slug == slug).order_by(CasoDocumento.data)
+    )
+    participacoes = session.execute(
+        select(Evento, Pessoa.nome)
+        .join(Pessoa, Pessoa.id == Evento.pessoa_id)
+        .join(PessoaVinculo, PessoaVinculo.id == Evento.vinculo_id)
+        .where(Evento.caso_slug == slug, publicavel())
+        .order_by(Pessoa.nome, Evento.data)
+    ).all()
+    return {
+        "slug": registro.slug,
+        "nome": registro.nome,
+        "periodo": registro.periodo,
+        "resumo": registro.resumo,
+        "conferido_em": registro.conferido_em,
+        "documentos": [
+            {
+                "tipo": d.tipo,
+                "orgao": d.orgao,
+                "numero": d.numero,
+                "data": d.data,
+                "url": d.url,
+                "resumo": d.resumo,
+            }
+            for d in documentos
+        ],  # fmt: skip
+        "pessoas": [
+            {
+                "pessoa_id": e.pessoa_id,
+                "nome": nome,
+                "papel": e.situacao,
+                "data": e.data,
+                "descricao": e.descricao,
+                "fonte_url": e.fonte_url,
+            }
+            for e, nome in participacoes
+        ],  # fmt: skip
+    }

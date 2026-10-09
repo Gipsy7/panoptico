@@ -232,6 +232,7 @@ uv run python -m ingestion.acervo relatorio            # volume por fonte e últ
 | `GET /municipios/{ibge}/emendas` | Emendas recebidas pela cidade e quem enviou |
 | `GET /pessoas/{id}` | A mesma pessoa em todas as fontes e os perfis dela no site (acervo) |
 | `GET /pessoas/{id}/eventos?tipo=&de=&ate=` | Linha do tempo da pessoa, com a fonte de cada fato (acervo) |
+| `GET /casos` · `GET /casos/{slug}` | Casos montados com documentos oficiais e o papel de cada pessoa (acervo) |
 | `GET /fontes` | Fontes e data da última atualização |
 | `GET /saude` | Situação da API e do banco |
 

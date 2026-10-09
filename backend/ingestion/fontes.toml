@@ -274,3 +274,39 @@ uso = "Linha do tempo: contas julgadas irregulares e inabilitação pelo TCU"
 recorte = "só pessoas físicas ligadas por CPF a pessoas que temos (inidôneos são empresas: fora)"
 frequencia = "semanal"
 depende = ["pessoas"]
+
+[[fonte]]
+nome = "cnj_datajud"
+modulo = "ingestion.cnj.datajud"
+uso = "Linha do tempo: situação e último andamento dos processos citados nos eventos"
+recorte = "só os números de processo que já aparecem nos eventos (não busca por nome)"
+frequencia = "semanal"
+depende = ["tse_cassacoes", "cgu_sancoes"]
+
+# Bloqueiam acesso automático (403): pedidos em docs/pedidos/. Sem contorno.
+[[fonte]]
+nome = "stf_processos"
+modulo = "ingestion.stf.processos"
+situacao = "catalogada"
+uso = "Linha do tempo: inquéritos e ações penais no STF de autoridades com foro"
+recorte = "lista fechada de autoridades com foro no STF"
+frequencia = "semanal"
+acesso = "pedido"
+
+[[fonte]]
+nome = "stj_processos"
+modulo = "ingestion.stj.processos"
+situacao = "catalogada"
+uso = "Linha do tempo: ações penais na Corte Especial do STJ (governadores, conselheiros de TCE)"
+recorte = "lista fechada de autoridades com foro no STJ"
+frequencia = "semanal"
+acesso = "pedido"
+
+# Curadoria versionada (data/casos e data/curadoria): sem rede
+[[fonte]]
+nome = "curadoria"
+modulo = "ingestion.curadoria"
+uso = "Casos de corrupção com documentos oficiais e processos consultados à mão (STF, STJ)"
+recorte = "só pessoas já ligadas por chave forte; rascunhos não entram"
+frequencia = "diaria"
+depende = ["pessoas"]

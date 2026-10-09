@@ -1,0 +1,11 @@
+# RASCUNHO: não é publicado (rascunho = true). Modelo de estrutura para os casos.
+# Conferir cada link no portal do STF (o portal bloqueia acesso automático, então a
+# conferência é manual) antes de tirar o rascunho.
+nome = "Mensalão (Ação Penal 470)"
+periodo = "2005–2014"
+resumo = """Ação penal originária no Supremo Tribunal Federal sobre pagamentos a parlamentares \
+em troca de apoio no Congresso. A denúncia foi oferecida pela Procuradoria-Geral da República \
+em 2006 e recebida pelo STF em 2007. O julgamento do mérito ocorreu em 2012 e os recursos \
+(embargos) foram julgados até 2014. CONFERIR datas e números no acórdão antes de publicar."""
+conferido_em = 2026-10-09
+rascunho = true

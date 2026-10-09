@@ -749,6 +749,19 @@ class PessoaResposta(BaseModel):
     perfis: list[PerfilDaPessoa]
 
 
+class ProcessoSituacao(BaseModel):
+    """Situação do processo no DataJud (CNJ), na data da consulta."""
+
+    tribunal: str | None
+    sigiloso: bool
+    classe: str | None
+    orgao_julgador: str | None
+    data_ajuizamento: date | None
+    ultimo_andamento: str | None
+    data_ultimo_andamento: date | None
+    consultado_em: date
+
+
 class EventoItem(BaseModel):
     data: date | None
     tipo: str
@@ -757,8 +770,44 @@ class EventoItem(BaseModel):
     numero_processo: str | None
     situacao: str | None
     fonte_url: str | None
+    processo: ProcessoSituacao | None = None
 
 
 class LinhaDoTempo(BaseModel):
     pessoa_id: int
     itens: list[EventoItem]
+
+
+class DocumentoDoCaso(BaseModel):
+    tipo: str
+    orgao: str
+    numero: str | None
+    data: date | None
+    url: str
+    resumo: str
+
+
+class PessoaNoCaso(BaseModel):
+    pessoa_id: int
+    nome: str
+    papel: str
+    data: date | None
+    descricao: str
+    fonte_url: str | None
+
+
+class CasoResposta(BaseModel):
+    slug: str
+    nome: str
+    periodo: str | None
+    resumo: str
+    conferido_em: date
+    documentos: list[DocumentoDoCaso]
+    pessoas: list[PessoaNoCaso]
+
+
+class CasoResumo(BaseModel):
+    slug: str
+    nome: str
+    periodo: str | None
+    pessoas: int

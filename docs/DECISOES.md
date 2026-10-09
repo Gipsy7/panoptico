@@ -109,6 +109,35 @@ O subsídio é igual para deputados e senadores e é fixado por decreto legislat
 - **Bens:** valor como declarado, sem correção. A página avisa que bens costumam ser declarados pelo valor de compra. Sem palavras como "enriqueceu": mostramos os dois totais e o ano.
 - **2024:** o TSE passou a mascarar o CPF, então as candidaturas municipais de 2024 não se ligam aos parlamentares federais.
 
+## 2026-10-09: STF e STJ bloqueiam acesso automático; DataJud e curadoria
+
+- **STF e STJ:**
+  - O portal do STF responde 403 a qualquer acesso identificado, inclusive ao `robots.txt`.
+  - A consulta processual do STJ também responde 403, e o portal de dados abertos do STJ deu 504.
+  - **Não contornamos**, nem com navegador automatizado nem com identidade falsa. Seria driblar uma barreira técnica deliberada, o que viola os termos de uso e pode ser enquadrado na Lei 12.737/2012. E um tribunal poder dizer que o projeto burlou seu sistema destruiria a confiança.
+  - Caminhos legítimos:
+    1. pedido de liberação de acesso e pedido pela Lei de Acesso à Informação (textos prontos em `docs/pedidos/`);
+    2. consulta manual por uma pessoa, para a lista fechada de autoridades com foro, anotada em `data/curadoria/processos.csv` e validada pela carga.
+  - No registro de fontes, `stf_processos` e `stj_processos` ficam catalogadas com `acesso = "pedido"`.
+- **DataJud (CNJ):** API pública que cobre STJ, TSE, TRFs, TJs e TREs (não o STF).
+  - Não busca por nome, só por número. Serve para mostrar a situação dos processos que outra fonte oficial já ligou a uma pessoa: classe, órgão julgador, ajuizamento e último andamento.
+  - O tribunal sai do próprio número único (segmento J e tribunal TR).
+  - A chave é pública e trocada pelo CNJ de tempos em tempos; é lida da página oficial a cada carga.
+  - Processo com sigilo fica só com o número.
+  - Um tribunal fora do ar (504) não derruba a carga: os números dele ficam para a próxima, sem serem marcados como "não encontrado".
+- **Curadoria versionada** (`python -m ingestion.curadoria`), para casos (`data/casos/<slug>/`) e processos consultados à mão.
+  - Cada linha liga uma pessoa que já temos, pelo registro de origem (`parlamentar:camara:204534`), a um documento oficial, com um papel de uma lista fechada.
+  - A carga reprova tudo se algo não bater:
+    - pessoa inexistente;
+    - pessoa ligada só pelo nome;
+    - nome de conferência diferente;
+    - papel desconhecido;
+    - link sem https;
+    - número do CNJ inválido.
+  - Rascunhos nunca entram.
+  - Rotas: `/casos` e `/casos/{slug}`; a participação também aparece na linha do tempo da pessoa.
+- **Mensalão como rascunho e modelo:** nenhum réu da AP 470 está na base, que começa em 2018. Uma busca pelo nome achou só homônimos (vereadores com nomes parecidos), o que mostra por que a curadoria exige o registro de origem. Os links do STF ficam para conferência manual.
+
 ## 2026-10-09: condenações do TCU na linha do tempo
 
 - **Contas julgadas irregulares e inabilitação** entram como eventos (`tcu_contas_irregulares` e `tcu_inabilitacao`), ligadas só por CPF completo.

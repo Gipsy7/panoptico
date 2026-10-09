@@ -10,6 +10,8 @@ from ingestion.acervo import Fonte
 def test_registro_valido_e_nomes_iguais_aos_dos_modulos():
     fontes = acervo.ler_registro()
     for f in fontes:
+        if f.situacao != "ativa":  # catalogada: o módulo pode ainda não existir
+            continue
         modulo = importlib.import_module(f.modulo)
         assert hasattr(modulo, "executar"), f.modulo
         # O nome é a chave em fonte_ingestao: diferente do FONTE, a fonte nunca sairia de "vencida".

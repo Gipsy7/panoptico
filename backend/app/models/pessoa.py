@@ -73,3 +73,53 @@ class Evento(Base):
     id_externo: Mapped[str] = mapped_column(String(100))
     fonte_url: Mapped[str | None] = mapped_column(Text)
     ingestao_id: Mapped[int | None] = mapped_column(ForeignKey("fonte_ingestao.id"))
+    # Participação num caso (curadoria): o papel da pessoa segundo um documento oficial.
+    caso_slug: Mapped[str | None] = mapped_column(
+        ForeignKey("caso.slug", ondelete="CASCADE"), index=True
+    )
+
+
+class Processo(Base):
+    """Situação de um processo judicial já citado num evento (cassação, sanção...), lida
+    no DataJud do CNJ pelo número único. Processo sob sigilo fica só com o número."""
+
+    __tablename__ = "processo"
+
+    numero: Mapped[str] = mapped_column(String(25), primary_key=True)  # formato CNJ
+    tribunal: Mapped[str | None] = mapped_column(String(12))
+    classe: Mapped[str | None] = mapped_column(String(150))
+    orgao_julgador: Mapped[str | None] = mapped_column(String(200))
+    data_ajuizamento: Mapped[date | None] = mapped_column(Date)
+    ultimo_andamento: Mapped[str | None] = mapped_column(String(200))
+    data_ultimo_andamento: Mapped[date | None] = mapped_column(Date)
+    sigiloso: Mapped[bool] = mapped_column(Boolean, default=False, server_default="false")
+    encontrado: Mapped[bool] = mapped_column(Boolean, default=True, server_default="true")
+    consultado_em: Mapped[date] = mapped_column(Date)
+
+
+class Caso(Base):
+    """Um caso (escândalo) montado só com documentos oficiais, por curadoria versionada
+    em data/casos/<slug>/. Cada pessoa entra pelo papel que um documento lhe dá."""
+
+    __tablename__ = "caso"
+
+    slug: Mapped[str] = mapped_column(String(60), primary_key=True)
+    nome: Mapped[str] = mapped_column(String(150))
+    periodo: Mapped[str | None] = mapped_column(String(40))
+    resumo: Mapped[str] = mapped_column(Text)
+    conferido_em: Mapped[date] = mapped_column(Date)
+
+
+class CasoDocumento(Base):
+    __tablename__ = "caso_documento"
+    __table_args__ = (UniqueConstraint("caso_slug", "codigo"),)
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    caso_slug: Mapped[str] = mapped_column(ForeignKey("caso.slug", ondelete="CASCADE"))
+    codigo: Mapped[str] = mapped_column(String(40))  # id do documento no CSV do caso
+    tipo: Mapped[str] = mapped_column(String(40))  # processo, denuncia, acordao, relatorio_cpi...
+    orgao: Mapped[str] = mapped_column(String(120))
+    numero: Mapped[str | None] = mapped_column(String(60))
+    data: Mapped[date | None] = mapped_column(Date)
+    url: Mapped[str] = mapped_column(Text)
+    resumo: Mapped[str] = mapped_column(Text)
