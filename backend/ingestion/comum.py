@@ -7,26 +7,36 @@ reprocessar o bruto sem rede (--de-raw).
 
 import argparse
 import gzip
+import hashlib
 import json
+import os
 import re
 import shutil
 import tempfile
 import time
 import unicodedata
-from collections.abc import Callable
+from collections.abc import Callable, Iterable
+from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
 import httpx
-from sqlalchemy import delete, select, update
+from sqlalchemy import delete, func, select, update
 from sqlalchemy import insert as sa_insert
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.orm import Session
 
 from app.config import settings
 from app.db import SessionLocal
-from app.models import Despesa, FonteIngestao, Parlamentar
+from app.models import (
+    Candidatura,
+    Despesa,
+    DownloadCache,
+    FonteIngestao,
+    Parlamentar,
+    Pessoa,
+)
 
 RAW_DIR = settings.raw_dir
 USER_AGENT = "Panoptico/0.1 (+https://panoptico.social.br)"
@@ -132,8 +142,6 @@ def trocar_por_manifesto(fonte: str, desde: datetime | None = None) -> list[Path
     um manifesto (URL, tamanho, sha256, data). Para arquivos grandes que o órgão mantém no
     ar: refazer a carga é baixar de novo. Com `desde`, só as cargas iniciadas a partir
     dali (uma execução de fonte anual grava uma carga por ano); sem, todas."""
-    import hashlib
-
     manifestos = []
     with SessionLocal() as session:
         consulta = select(FonteIngestao).where(
@@ -283,6 +291,203 @@ def anos_padrao() -> list[int]:
     return [ano - 1, ano]
 
 
+# --- Carga incremental: não baixa nem recarrega o que não mudou -------------------------
+
+SEM_MUDANCA = "sem_mudanca"
+# Status que contam como carga bem-sucedida (o acervo e o --vencidas tratam igual).
+STATUS_SUCESSO = ("ok", SEM_MUDANCA)
+# Quantas cargas terminaram sem mudança nesta execução (o acervo lê para o relatório).
+cargas_sem_mudanca = 0
+# Ignora o cache e carrega de qualquer jeito (acervo --forcar ou PANOPTICO_FORCAR=1).
+forcar = os.environ.get("PANOPTICO_FORCAR", "") in ("1", "true", "sim")
+
+
+@dataclass
+class Incremental:
+    """Liga a carga incremental numa fonte (opt-in).
+
+    chave: identifica o arquivo no download_cache (padrão: a URL da carga).
+    sonda: URL consultada com requisição condicional antes de baixar (None: não sonda e
+        compara só o sha256 depois de baixar, para URLs que mudam de nome ou APIs).
+    contexto: texto que muda quando algo de que a carga depende mudou no banco (ex.: novas
+        pessoas a ligar). Se mudou, recarrega mesmo com o arquivo igual.
+    """
+
+    chave: str | None = None
+    sonda: str | None = None
+    contexto: Callable[[Session], str] | None = None
+
+
+def contexto_pessoas(session: Session) -> str:
+    """Muda quando entram pessoas novas: fontes que só gravam "as pessoas que já temos"
+    precisam reler o arquivo igual para ligar quem chegou depois."""
+    total, maior = session.execute(select(func.count(Pessoa.id), func.max(Pessoa.id))).one()
+    return f"pessoas:{total}:{maior}"
+
+
+def contexto_candidaturas(ano: int) -> Callable[[Session], str]:
+    """Pessoas + as candidaturas do ano (para fontes que se penduram nelas)."""
+
+    def contexto(session: Session) -> str:
+        total, maior = session.execute(
+            select(func.count(Candidatura.id), func.max(Candidatura.id)).where(
+                Candidatura.ano_eleicao == ano
+            )
+        ).one()
+        return f"{contexto_pessoas(session)};candidaturas:{total}:{maior}"
+
+    return contexto
+
+
+def sha256_de(payload: bytes | Path) -> str:
+    resumo = hashlib.sha256()
+    if isinstance(payload, Path):
+        with payload.open("rb") as entrada:
+            for bloco in iter(lambda e=entrada: e.read(1 << 20), b""):
+                resumo.update(bloco)
+    else:
+        resumo.update(payload)
+    return resumo.hexdigest()
+
+
+def sondar(client: httpx.Client, url: str, cache: DownloadCache | None) -> dict[str, Any]:
+    """Pergunta ao servidor se o arquivo mudou, sem baixar. Devolve {"igual": True|False|None,
+    "etag", "last_modified", "tamanho"}; igual None = não deu para saber (baixa e compara o
+    sha256). Usa HEAD condicional (If-None-Match / If-Modified-Since); 304 ou validadores
+    iguais ao do último download significam que nada mudou."""
+    resultado: dict[str, Any] = {"igual": None, "etag": None, "last_modified": None,
+                                 "tamanho": None}  # fmt: skip
+    cabecalhos = {}
+    if cache is not None and cache.etag:
+        cabecalhos["If-None-Match"] = cache.etag
+    if cache is not None and cache.last_modified:
+        cabecalhos["If-Modified-Since"] = cache.last_modified
+    try:
+        resposta = client.head(url, headers=cabecalhos, timeout=30)
+    except httpx.HTTPError:
+        return resultado
+    if resposta.status_code == 304:
+        resultado["igual"] = True
+        return resultado
+    if resposta.status_code != 200:  # HEAD não suportado, bloqueado ou erro: baixa
+        return resultado
+    etag = resposta.headers.get("ETag")
+    modificado = resposta.headers.get("Last-Modified")
+    tamanho = resposta.headers.get("Content-Length")
+    resultado.update(etag=etag, last_modified=modificado, tamanho=int(tamanho) if tamanho else None)
+    if cache is not None:
+        if etag:
+            resultado["igual"] = etag == cache.etag
+        elif modificado and tamanho:
+            resultado["igual"] = modificado == cache.last_modified and int(tamanho) == cache.tamanho
+    return resultado
+
+
+def _registrar_sem_mudanca(
+    session: Session, fonte: str, url: str, motivo: str, info: dict[str, Any], cache
+) -> int:
+    """Grava a verificação (status "sem_mudanca") e devolve o total da última carga, para o
+    acervo não ler a ausência de carga como queda."""
+    global cargas_sem_mudanca
+    anterior = session.scalars(
+        select(FonteIngestao)
+        .where(
+            FonteIngestao.fonte == fonte,
+            FonteIngestao.url == url,
+            FonteIngestao.status.in_(STATUS_SUCESSO),
+        )
+        .order_by(FonteIngestao.iniciado_em.desc(), FonteIngestao.id.desc())
+        .limit(1)
+    ).first()
+    total = anterior.registros if anterior and anterior.registros is not None else 0
+    agora = datetime.now(UTC)
+    session.add(
+        FonteIngestao(
+            fonte=fonte,
+            url=url,
+            arquivo_raw=anterior.arquivo_raw if anterior else "",
+            status=SEM_MUDANCA,
+            registros=total,
+            total_fonte=anterior.total_fonte if anterior else None,
+            concluido_em=agora,
+        )
+    )
+    if cache is not None:
+        cache.etag = info.get("etag") or cache.etag
+        cache.last_modified = info.get("last_modified") or cache.last_modified
+        cache.baixado_em = agora
+    session.commit()
+    cargas_sem_mudanca += 1
+    print(f"  {fonte}: sem mudança ({motivo}); nada baixado/carregado de novo", flush=True)
+    return total
+
+
+def _guardar_cache(
+    session: Session, chave: str, url: str, sha: str, tamanho: int, info: dict, contexto
+) -> None:
+    linha = {
+        "chave": chave, "url": url, "etag": info.get("etag"),
+        "last_modified": info.get("last_modified"), "sha256": sha,
+        "tamanho": info.get("tamanho") or tamanho, "contexto": contexto,
+        "baixado_em": datetime.now(UTC),
+    }  # fmt: skip
+    stmt = insert(DownloadCache).values(linha)
+    session.execute(
+        stmt.on_conflict_do_update(
+            index_elements=["chave"], set_={k: v for k, v in linha.items() if k != "chave"}
+        )
+    )
+
+
+class ContaLinhas:
+    """Conta as linhas de um iterador à medida que passam (para o total do arquivo sem
+    guardar tudo na memória): `linhas = ContaLinhas(it)`; depois de consumir, `linhas.total`."""
+
+    def __init__(self, iterador: Iterable[Any]) -> None:
+        self.iterador = iterador
+        self.total = 0
+
+    def __iter__(self):
+        for linha in self.iterador:
+            self.total += 1
+            yield linha
+
+
+def conferir_carga(
+    ingestao: FonteIngestao,
+    linhas: Iterable[dict[str, Any]] | None = None,
+    *,
+    total_fonte: int | None = None,
+    nao_nulos: Iterable[str] = (),
+    unica: Iterable[str] | None = None,
+    total_carregado: int | None = None,
+) -> list[str]:
+    """Checagens de qualidade da carga, gravadas em fonte_ingestao.alertas.
+
+    total_fonte: o total que a fonte informa (ou as linhas do arquivo); só informativo,
+    a menos que total_carregado também venha (aí diferença vira alerta).
+    nao_nulos: campos-chave que não podem estar vazios nas linhas carregadas.
+    unica: campos que juntos identificam a linha; repetidos viram alerta."""
+    alertas: list[str] = []
+    if total_fonte is not None:
+        ingestao.total_fonte = total_fonte
+        if total_carregado is not None and total_carregado != total_fonte:
+            alertas.append(f"carregou {total_carregado} de {total_fonte} informados pela fonte")
+    if linhas is not None:
+        linhas = list(linhas)
+        for campo in nao_nulos:
+            nulos = sum(1 for r in linhas if r.get(campo) in (None, ""))
+            if nulos:
+                alertas.append(f"campo-chave {campo} vazio em {nulos} de {len(linhas)} linhas")
+        if unica:
+            chaves = [tuple(r.get(c) for c in unica) for r in linhas]
+            repetidas = len(chaves) - len(set(chaves))
+            if repetidas:
+                alertas.append(f"{repetidas} linhas repetidas na chave ({', '.join(unica)})")
+    ingestao.alertas = alertas or None
+    return alertas
+
+
 def executar_ingestao(
     fonte: str,
     url: str,
@@ -291,11 +496,53 @@ def executar_ingestao(
     de_raw: Path | None = None,
     prefixo_raw: str = "",
     extensao_raw: str = ".zip",
+    incremental: Incremental | bool = False,
 ) -> int:
-    """Baixa (ou lê o bruto), grava o bruto e roda a carga numa transação registrada."""
+    """Baixa (ou lê o bruto), grava o bruto e roda a carga numa transação registrada.
+
+    Com `incremental` (True: pela URL da carga), antes de baixar sonda o servidor
+    (ETag/Last-Modified) e, depois de baixar, compara o sha256 com o do último download:
+    se nada mudou, não grava o bruto, não recarrega e registra status "sem_mudanca"."""
+    if incremental is True:
+        incremental = Incremental(chave=url, sonda=url)
+    usar_cache = bool(incremental) and de_raw is None and not forcar
+    chave = (incremental.chave or url) if incremental else url
+    info: dict[str, Any] = {}
+    contexto = None
+    sha = None
+    tamanho = 0
     if de_raw is None:
+        cache = None
+        if incremental:
+            with SessionLocal() as session:
+                cache = session.get(DownloadCache, chave)
+                if cache is not None:
+                    session.expunge(cache)
+                if incremental.contexto is not None:
+                    contexto = incremental.contexto(session)
+            if cache is not None and cache.contexto != contexto:
+                cache = None  # algo de que a carga depende mudou: relê mesmo se igual
         with criar_cliente() as client:
+            if incremental and incremental.sonda:
+                info = sondar(client, incremental.sonda, cache if usar_cache else None)
+                if usar_cache and cache is not None and info["igual"]:
+                    with SessionLocal() as session:
+                        return _registrar_sem_mudanca(
+                            session, fonte, url, "servidor informa o mesmo arquivo", info,
+                            session.get(DownloadCache, chave),
+                        )  # fmt: skip
             payload = baixar(client)
+        if incremental:
+            sha = sha256_de(payload)
+            if usar_cache and cache is not None and cache.sha256 == sha:
+                if isinstance(payload, Path):
+                    payload.unlink(missing_ok=True)  # versão igual não se acumula no bruto
+                with SessionLocal() as session:
+                    return _registrar_sem_mudanca(
+                        session, fonte, url, "sha256 igual ao do último download", info,
+                        session.get(DownloadCache, chave),
+                    )  # fmt: skip
+        tamanho = payload.stat().st_size if isinstance(payload, Path) else len(payload)
         arquivo = salvar_raw(fonte, payload, prefixo_raw, extensao_raw)
         if isinstance(payload, Path):  # o arquivo foi movido para o raw
             payload = arquivo
@@ -312,6 +559,8 @@ def executar_ingestao(
             ingestao.registros = total
             ingestao.status = "ok"
             ingestao.concluido_em = datetime.now(UTC)
+            if sha is not None:  # só vale como "último download" se a carga deu certo
+                _guardar_cache(session, chave, url, sha, tamanho, info, contexto)
             session.commit()
         except Exception:
             session.rollback()

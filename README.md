@@ -227,7 +227,8 @@ export PRESERVAR_RAW=true RAW_DIR=/e/panoptico/raw     # RAW_DIR é opcional (pa
 uv run alembic upgrade head
 uv run python -m ingestion.acervo rodar --vencidas     # o que passou da frequência
 uv run python -m ingestion.acervo rodar --fonte tse_bens sapl_assembleias
-uv run python -m ingestion.acervo relatorio            # volume por fonte e últimas cargas
+uv run python -m ingestion.acervo rodar --vencidas --forcar  # ignora o cache de downloads (padrão: pula o que não mudou)
+uv run python -m ingestion.acervo relatorio            # volume por fonte, últimas cargas, total na fonte e alertas
 uv run python -m analises                              # lista os cruzamentos (backend/analises/*.sql)
 uv run python -m ingestion.revisar                     # revisão humana dos vínculos por nome aproximado
 uv run python -m ingestion.revisar --tipo diario        # revisão humana dos atos de nomeação/exoneração dos diários (data/atos_revisados.csv)

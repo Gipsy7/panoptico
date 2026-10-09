@@ -214,12 +214,25 @@ def executar(de_raw: Path | None = None) -> int:
             raise RuntimeError(
                 f"Lista do TCU incompleta ({lidos} de {total_lista} registros): nada alterado."
             )
+        comum.conferir_carga(
+            ingestao,
+            registros,
+            total_fonte=total_lista + len(payload["inabilitados"]),
+            nao_nulos=("cpf", "processo"),
+            unica=("lista", "processo", "cpf"),
+        )
         total = gravar(session, registros, ingestao.id, hoje)
         print(f"  {len(registros)} condenações a pessoas físicas; {total} de pessoas que temos")
         return total
 
     return comum.executar_ingestao(
-        FONTE, URL_PAGINA, baixar, carregar, de_raw=de_raw, extensao_raw=".json.gz"
+        FONTE,
+        URL_PAGINA,
+        baixar,
+        carregar,
+        de_raw=de_raw,
+        extensao_raw=".json.gz",
+        incremental=comum.Incremental(chave=FONTE, contexto=comum.contexto_pessoas),
     )
 
 

@@ -294,13 +294,27 @@ def executar(ano: int, de_raw: Path | None = None) -> int:
         return comum.get_bytes(client, URL.format(ano=ano))
 
     def carregar(session: Session, payload: Any, ingestao: FonteIngestao) -> int:
-        registros = normalizar(comum_tse.linhas(payload, "consulta_cand_"))
+        lidas = comum.ContaLinhas(comum_tse.linhas(payload, "consulta_cand_"))
+        registros = normalizar(lidas)
         if not registros:
             raise ValueError(f"Arquivo de candidaturas de {ano} vazio")
+        comum.conferir_carga(
+            ingestao,
+            registros,
+            total_fonte=lidas.total,
+            nao_nulos=("sq_candidato", "nome"),
+            unica=("ano_eleicao", "sq_candidato"),
+        )
         return carregar_registros(session, registros, ano, ingestao.id)
 
     return comum.executar_ingestao(
-        FONTE, URL.format(ano=ano), baixar, carregar, de_raw=de_raw, prefixo_raw=f"{ano}_"
+        FONTE,
+        URL.format(ano=ano),
+        baixar,
+        carregar,
+        de_raw=de_raw,
+        prefixo_raw=f"{ano}_",
+        incremental=comum.Incremental(sonda=URL.format(ano=ano), contexto=comum.contexto_pessoas),
     )
 
 

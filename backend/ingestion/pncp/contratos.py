@@ -367,6 +367,8 @@ def executar(
             "alvo": len(alvo), "incremental": incremental, "dias": [],
         }  # fmt: skip
         total = 0
+        total_api = 0
+        divergentes: list[str] = []
         try:
             with comum.criar_cliente() as client:
                 dias = dias_da_janela(inicio, fim)
@@ -379,6 +381,9 @@ def executar(
                     d = ler_dia(client, dia, alvo, pausa)
                     gravar_dia(session, d)
                     total += d.lidos
+                    total_api += d.total_api
+                    if d.lidos != d.total_api:
+                        divergentes.append(f"{dia}: {d.lidos} de {d.total_api}")
                     dados["dias"].append(
                         {"dia": dia.isoformat(), "total_api": d.total_api, "lidos": d.lidos,
                          "paginas": d.paginas, "bytes": d.bytes, "sha256": d.sha256.hexdigest()}
@@ -394,6 +399,11 @@ def executar(
             raise
         finally:
             ingestao.registros = total
+            ingestao.total_fonte = total_api
+            if divergentes:
+                ingestao.alertas = [
+                    f"dias com leitura diferente do total da API: {'; '.join(divergentes[:10])}"
+                ]
             ingestao.concluido_em = datetime.now(UTC)
             session.add(ingestao)
             session.commit()

@@ -246,9 +246,11 @@ def test_carga_sem_dados_aborta_sem_apagar(session):
 
 @respx.mock
 def test_exercicio_nao_publicado_nao_e_erro():
+    respx.head(contas.URL.format(ano=2026)).respond(404)
     rota = respx.get(contas.URL.format(ano=2026)).respond(404)
     assert contas.executar(2026) == 0
     assert rota.called
+    respx.head(fefc_fp.URL.format(ano=2026)).respond(404)
     rota = respx.get(fefc_fp.URL.format(ano=2026)).respond(404)
     assert fefc_fp.executar(2026) == 0
     assert rota.called
@@ -257,6 +259,7 @@ def test_exercicio_nao_publicado_nao_e_erro():
 @respx.mock
 def test_erro_de_servidor_nao_e_engolido(monkeypatch):
     monkeypatch.setattr(contas.comum.time, "sleep", lambda _: None)
+    respx.head(contas.URL.format(ano=2024)).respond(403)
     respx.get(contas.URL.format(ano=2024)).respond(403)
     try:
         contas.executar(2024)

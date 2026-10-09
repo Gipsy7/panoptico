@@ -44,6 +44,7 @@ NOME_CADASTRO = {
     "CNEP": "Cadastro Nacional de Empresas Punidas (CNEP)",
     "CEAF": "Cadastro de Expulsões da Administração Federal (CEAF)",
 }
+DATA_FIXA = (1980, 1, 1, 0, 0, 0)
 SEM_INFORMACAO = {"", "sem informação", "sem informacao"}
 
 
@@ -223,7 +224,9 @@ def baixar_cadastros(client: httpx.Client, hoje: date) -> bytes:
                     # (não 404) para arquivo que não existe. Tenta o dia anterior.
                     if erro.response.status_code not in (403, 404) or atraso == 7:
                         raise
-            z.writestr(f"{cadastro.upper()}.zip", conteudo)
+            z.writestr(
+                zipfile.ZipInfo(f"{cadastro.upper()}.zip", DATA_FIXA), conteudo
+            )  # data fixa: bruto igual = sha igual
     return saida.getvalue()
 
 
@@ -231,11 +234,17 @@ def executar(de_raw: Path | None = None) -> int:
     hoje = date.today()
 
     def carregar(session: Session, payload: bytes, ingestao: FonteIngestao) -> int:
-        registros = [
-            r for c in CADASTROS for r in normalizar(c.upper(), ler_zip(payload, c.upper()))
-        ]
+        arquivos = {c.upper(): ler_zip(payload, c.upper()) for c in CADASTROS}
+        registros = [r for c, linhas in arquivos.items() for r in normalizar(c, linhas)]
         if not registros:
             raise RuntimeError("Nenhuma sanção a pessoa física nos arquivos: nada alterado.")
+        comum.conferir_carga(
+            ingestao,
+            registros,
+            total_fonte=sum(len(linhas) for linhas in arquivos.values()),
+            nao_nulos=("codigo",),
+            unica=("cadastro", "codigo"),
+        )
         pessoas = session.execute(select(Pessoa.id, Pessoa.cpf, Pessoa.chave_nome)).all()
         ligados = ligar(registros, pessoas)
         total = gravar(session, ligados, ingestao.id, hoje)
@@ -250,7 +259,7 @@ def executar(de_raw: Path | None = None) -> int:
         empresas = [
             e
             for c in ("CEIS", "CNEP")
-            for e in normalizar_empresas(c, ler_zip(payload, c))
+            for e in normalizar_empresas(c, arquivos[c])
             if e["cnpj"] in fornecedores
         ]
         session.execute(delete(SancaoEmpresa))
@@ -262,6 +271,7 @@ def executar(de_raw: Path | None = None) -> int:
     return comum.executar_ingestao(
         FONTE, URL_PAGINA.format(cadastro="ceis"), lambda c: baixar_cadastros(c, hoje), carregar,
         de_raw=de_raw,
+        incremental=comum.Incremental(chave=FONTE, contexto=comum.contexto_pessoas),
     )  # fmt: skip
 
 

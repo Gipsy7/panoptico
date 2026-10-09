@@ -159,7 +159,9 @@ def executar(ano: int, de_raw: Path | None = None) -> int:
         caminho = comum.baixar_para_arquivo(client, URL.format(ano=ano))
         orgaos = comum.get_bytes(client, URL_ORGAOS)
         with zipfile.ZipFile(caminho, "a") as arquivo:  # o cadastro vai junto no bruto
-            arquivo.writestr(ORGAOS_NO_ZIP, orgaos, compress_type=zipfile.ZIP_DEFLATED)
+            info = zipfile.ZipInfo(ORGAOS_NO_ZIP, (1980, 1, 1, 0, 0, 0))  # data fixa: sha estável
+            info.compress_type = zipfile.ZIP_DEFLATED
+            arquivo.writestr(info, orgaos)
         return caminho
 
     def carregar(session: Session, payload: Any, ingestao: FonteIngestao) -> int:
@@ -182,7 +184,13 @@ def executar(ano: int, de_raw: Path | None = None) -> int:
         return len(linhas_gravar)
 
     return comum.executar_ingestao(
-        FONTE, URL.format(ano=ano), baixar, carregar, de_raw=de_raw, prefixo_raw=f"{ano}_"
+        FONTE,
+        URL.format(ano=ano),
+        baixar,
+        carregar,
+        de_raw=de_raw,
+        prefixo_raw=f"{ano}_",
+        incremental=comum.Incremental(sonda=URL.format(ano=ano)),
     )
 
 
