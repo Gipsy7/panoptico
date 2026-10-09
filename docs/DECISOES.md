@@ -117,7 +117,12 @@ O subsídio é igual para deputados e senadores e é fixado por decreto legislat
   - indicações, moções e requerimentos como contagem.
 - **Na base local:** os 24 com proposições e ligados ao eleito do TSE; 1.241 projetos.
 - **Consulta mês a mês:** o indicador de "última página" da API não é confiável (a paginação passava do fim e dava erro 500). Usamos o total de páginas informado.
-- **Pendentes:** as verbas indenizatórias estão no catálogo em XLSX, por ano. Entram numa próxima etapa, no mesmo formato dos gastos da ALESP e da ALMG.
+- **Gastos do gabinete (verbas indenizatórias):** um XLSX por ano no catálogo, lido sem dependência nova (o XLSX é um zip de XML).
+  - Cada lançamento traz o CPF do deputado. A ligação ao mandato é pelo CPF, via candidatura a deputado distrital no TSE, e, sem ele, pelo nome sem o título.
+  - Ficam só somas por mês e categoria, como na ALESP e na ALMG.
+  - **Cada ano tem um formato:** em 2026 as colunas estão em maiúsculas e a data é o número de série do Excel; em 2025 os nomes das colunas são outros e a data vem como mês/dia/ano. As colunas passam por uma tabela de sinônimos e a ordem da data é detectada por arquivo.
+  - **Categorias:** a mesma categoria vem escrita de vários jeitos ("Locação de veículo", "Locação de Veículos", "VIII - Locação de veículo"). Somamos pela chave sem caixa, acento, partículas e plural, e exibimos a grafia mais comum. Categorias com nomes realmente diferentes ("Combustível" e "Combustíveis e lubrificantes") ficam separadas: não juntamos por sinonímia.
+  - **Cobertura da fonte:** os arquivos só têm lançamentos de 8 deputados em 2025 e 9 em 2026 (até agosto), dos 24. Quem não aparece fica sem gastos, e o site não deve tratar isso como gasto zero.
 - **ALEP (PR):** API com certificado autoassinado. Não desligamos a verificação de segurança, porque isso tiraria a garantia de origem do dado. Fica pendente; o caminho é pedir à Assembleia que corrija o certificado.
 
 ## 2026-10-09: Assembleia de Pernambuco (ALEPE)

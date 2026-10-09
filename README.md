@@ -45,7 +45,7 @@ Os dados sobre o trabalho dos parlamentares já são públicos, mas estão espal
 - **Assembleia legislativa hoje** (nas que usam o SAPL: AC, AL, AM, PB, PI, RO e TO; a de RR bloqueia o acesso a partir do GitHub Actions): o mesmo para os deputados estaduais, com perfil em `/deputado-estadual/{id}`.
 - **Assembleia de São Paulo** (dados abertos da ALESP): deputados no cargo, projetos, moções, requerimentos e indicações, e **gastos do gabinete**, com a média da assembleia. Votos e presença em Plenário não estão nos dados abertos.
 - **Assembleia de Pernambuco** (API de dados abertos da ALEPE): deputados no cargo, projetos, indicações e requerimentos. A API não traz votos, presença nem gastos do gabinete.
-- **Câmara Legislativa do Distrito Federal** (API pública do processo legislativo da CLDF): deputados distritais no cargo, projetos, indicações, moções e requerimentos.
+- **Câmara Legislativa do Distrito Federal** (API pública do processo legislativo e dados abertos da CLDF): deputados distritais no cargo, projetos, indicações, moções e requerimentos, e **gastos do gabinete** (verbas indenizatórias) de quem aparece nos arquivos da CLDF.
 - **Assembleia de Minas Gerais** (dados abertos da ALMG): deputados no cargo, projetos, requerimentos e **gastos do gabinete** (verba indenizatória), com a média da assembleia. A ALMG não publica o voto de cada deputado nem a presença.
 - **Canais oficiais da sua cidade**: sites da prefeitura e da câmara e os portais da transparência, num catálogo aberto (`data/canais_oficiais.csv`, gerado pela varredura, e `data/canais_curados.csv`, com as correções feitas à mão) que qualquer pessoa pode corrigir por pull request.
 - **Compartilhamento**: perfis e comparações têm imagem de pré-visualização e botão de WhatsApp.

@@ -270,6 +270,10 @@ Endpoints conferidos em 2026-10-06.
   - `POST /proposicao/filter?page=&size=&sort=`, com corpo `{"ano", "dataInicio", "dataFim", "tipoProposicao", "autoria"...}`. A autoria vem em texto ("Deputado X, Deputada Y", às vezes repetida). O campo `last` não indica de forma confiável a última página: usamos `totalPages`. Consultamos mês a mês; a soma dos meses bate com o total do ano (4.921 em 2025).
   - `GET /proposicao/{id}`, `/autores`, `/tramitacoes` e `/documentos`.
 - **Sem votos e sem presença** na API.
+- **Verbas indenizatórias** (`verbas-indenizatorias` no catálogo): um XLSX por ano (até 2024 também em CSV). Cada linha é um comprovante: deputado, **CPF do deputado**, fornecedor (nome, CNPJ ou CPF), número do comprovante, data, valor, classificação e observação.
+  - Em 2026: colunas `NOME_PARLAMENTAR`, `CPF_PARLAMENTAR`, `DATA_COMPROVANTE` (número de série do Excel), `VALOR_DESPESA`, `CLASSIFICACAO`.
+  - Em 2025: `Nome do(a) Deputado(a)`, `CPF do(a) Deputado(a)`, `Data do Recibo/NF` (mês/dia/ano), `Valor`, `Classificação`.
+  - Só 8 a 9 dos 24 deputados aparecem nos arquivos.
 
 ## Canais oficiais dos municípios (varredura do Panóptico)
 
