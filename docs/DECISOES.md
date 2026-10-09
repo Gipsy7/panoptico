@@ -109,6 +109,17 @@ O subsídio é igual para deputados e senadores e é fixado por decreto legislat
 - **Bens:** valor como declarado, sem correção. A página avisa que bens costumam ser declarados pelo valor de compra. Sem palavras como "enriqueceu": mostramos os dois totais e o ano.
 - **2024:** o TSE passou a mascarar o CPF, então as candidaturas municipais de 2024 não se ligam aos parlamentares federais.
 
+## 2026-10-09: eleição de 2026 (1º turno) no acervo
+
+- **Os arquivos de 2026 já existem** (gerados em 09/10/2026, depois do 1º turno de 04/10). Trazem 20.989 candidaturas e o CPF completo. Há 1.774 eleitos no 1º turno e 32 candidatos em 2º turno (governo e Presidência).
+- **No acervo, com o mesmo recorte das outras eleições:**
+  - 1.875 candidaturas (eleitos e parlamentares em exercício);
+  - 19.028 bens declarados;
+  - 2 julgamentos de candidatura de pessoas que já acompanhávamos.
+- **A eleição de 2026 roda antes de 2020 e 2016**, que dependem dos títulos das eleições mais recentes.
+- **Não foi para produção:** os eleitos em 2026 só tomam posse em 2027. Mostrá-los no site como "eleitos" antes disso, e trocar a lista de deputados estaduais de 2022 pela de 2026, é decisão de produto a tomar com o usuário.
+- **CPF divergente no TSE:** 3 pessoas aparecem com o mesmo nome completo e o mesmo título, mas com CPFs diferentes em 2016 e em 2020, provavelmente por erro de digitação na fonte. A regra de conflito não funde (é a proteção contra juntar pessoas diferentes), e a candidatura de 2016 delas fica como pessoa à parte. Preferimos o duplicado ao risco de fusão errada.
+
 ## 2026-10-09: eleição de 2016 como histórico
 
 - **Mesmo recorte de 2020:** só candidaturas cujo título de eleitor já aparece em outra eleição guardada. Na base local, 32.722 candidaturas, nenhuma pessoa nova.

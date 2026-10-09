@@ -146,7 +146,7 @@ modulo = "ingestion.tse.candidaturas"
 uso = "Representantes eleitos e \"Quem é\" (TSE)"
 recorte = "eleitos e parlamentares; 2016 e 2020 só de quem já temos (pelo título), depois das demais"
 frequencia = "manual"
-anos = [2018, 2022, 2024, 2020, 2016]
+anos = [2018, 2022, 2024, 2026, 2020, 2016]
 depende = ["camara_deputados", "senado_senadores", "ibge_municipios"]
 
 [[fonte]]
@@ -270,7 +270,7 @@ modulo = "ingestion.tse.cassacoes"
 uso = "Linha do tempo: cassação e julgamento de candidatura (com número do processo)"
 recorte = "só candidaturas de eleitos e parlamentares já ligadas a uma pessoa"
 frequencia = "mensal"
-anos = [2016, 2018, 2020, 2022, 2024]
+anos = [2016, 2018, 2020, 2022, 2024, 2026]
 depende = ["pessoas"]
 
 [[fonte]]
@@ -371,3 +371,15 @@ uso = "Linha do tempo: representações no Conselho de Ética do Senado"
 recorte = "representações desde 2019, ligadas pelo nome único entre senadores"
 frequencia = "semanal"
 depende = ["pessoas"]
+
+# Executivo
+[[fonte]]
+nome = "eagendas"
+modulo = "ingestion.executivo.eagendas"
+situacao = "catalogada"
+uso = "Agenda de ministros e autoridades federais (com quem se reuniram)"
+recorte = "autoridades que são pessoas da base"
+frequencia = "semanal"
+acesso = "pedido"
+# API pública (https://eagendas.cgu.gov.br/api/v2), mas exige token gerado por uma pessoa
+# logada no gov.br (docs: github.com/cgugovbr/eagendas-publico/tree/main/api-consulta).
