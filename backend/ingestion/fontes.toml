@@ -223,6 +223,9 @@ frequencia = "mensal"
 anos = "dois_anteriores"
 depende = ["ibge_municipios"]
 bruto = "recorte"
+acesso = "brasil"
+# dados.tce.rs.gov.br não responde a conexões de fora do Brasil (tempo esgotado no GitHub
+# Actions; 200 em 0,15 s daqui). Roda no acervo local; produção depende de um executor no Brasil.
 
 # A API de dados abertos do TCE-MG exige reCAPTCHA (401 sem o token). Sem contorno.
 [[fonte]]

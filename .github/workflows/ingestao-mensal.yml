@@ -1,7 +1,7 @@
 name: Ingestão mensal
 
 # Fontes que mudam pouco: contas anuais dos municípios (SICONFI), contas anuais dos partidos
-# (TSE) e despesas por fornecedor dos Tribunais de Contas (TCE-SP e TCE-RS). Uma vez por mês, fora da ingestão diária, porque exigem
+# (TSE) e despesas por fornecedor dos Tribunais de Contas (TCE-SP; o TCE-RS não responde a conexões de fora do Brasil e roda no acervo local). Uma vez por mês, fora da ingestão diária, porque exigem
 # milhares de consultas ou arquivos de vários GB.
 on:
   schedule:
@@ -92,17 +92,4 @@ jobs:
           fi
           for a in $anos; do
             uv run python -m ingestion.tce.sp --ano "$a"
-          done
-
-      # Arquivo anual de 1,35 GB compactado (14,7 GB descompactado), lido em fluxo.
-      - name: Despesas por fornecedor (TCE-RS)
-        if: ${{ !inputs.so_partidos }}
-        run: |
-          anos="$ANOS"
-          if [ -z "$anos" ]; then
-            ano=$(date +%Y)
-            anos="$((ano - 2)) $((ano - 1))"
-          fi
-          for a in $anos; do
-            uv run python -m ingestion.tce.rs --ano "$a"
           done
