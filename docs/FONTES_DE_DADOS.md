@@ -149,6 +149,29 @@ Endpoints conferidos em 2026-10-06.
 - **Armadilhas:** datas com o ano truncado ("16/03/0208", "07/06/0011"); telefones `-1` e e-mails `#NULO`; o arquivo tem o histórico inteiro, então é preciso filtrar pelo que está vigente.
 - **Catálogo do TSE:** a API CKAN (`/api/3/action/package_list`) lista 184 conjuntos. A busca `package_search` não devolve nada; use `package_list` e `package_show`.
 
+## TSE: contas anuais dos partidos
+
+- **URL (lote, sem chave):** `https://cdn.tse.jus.br/estatistica/sead/odsele/prestacao_contas_anual_partidaria/prestacao_contas_anual_partidaria_{ano}.zip`, exercícios de 2017 a 2026 (o corrente é parcial). O de 2024 tem 60 MB compactado e 944 MB aberto.
+- **Arquivos:** `receita_anual_{ano}_{UF}.csv` e `despesa_anual_{ano}_{UF}.csv` por UF, mais `_BR` (diretório nacional) e `_BRASIL` (todos juntos). **Não some o `_BRASIL` com os outros.** Conferido em 2024: UFs + `_BR` = `_BRASIL` (receita R$ 8.729.070.518,00; despesa R$ 7.973.896.273,29). A carga lê todos menos o `_BRASIL`.
+- **Formato:** CSV com `;`, latin-1, decimal com vírgula; nulos como `#NULO#` e `-1`. Há uma linha zerada, tudo nulo, para cada prestador sem movimento (ignoradas).
+- **Receita:** esfera (`DS_TP_ESPERA_PARTIDARIA`, com o erro de grafia do arquivo), UF, município, partido, origem (`DS_TP_ORIGEM_DOACAO`), fonte do recurso, data, descrição e valor. Traz o **CPF completo e o nome** do doador pessoa física: nunca guardamos.
+- **Despesa:** esfera (`DS_TP_ESFERA_PARTIDARIA`), partido, fornecedor (CPF ou CNPJ completo e nome), `DS_GASTO`, data, `VR_PAGAMENTO` e fonte da despesa (`DS_FONTE_DESPESA`).
+- **Armadilhas:**
+  - **Dupla contagem.** Das despesas de 2024, R$ 6,3 bi são "Transferências financeiras efetuadas" (para diretórios e candidaturas) e entram de novo como receita do outro lado. Em `partido_conta_soma.natureza` ficam separadas: despesa `gasto` (R$ 1,66 bi), `transferencia_diretorio` (R$ 1,54 bi) e `transferencia_candidato` (R$ 4,78 bi); receita `cota_tse`, `transferencia_partidaria`, `recurso_candidato` e `outra`.
+  - **Caixa dos rótulos:** "Fundo Partidário" e "FUNDO PARTIDÁRIO" no mesmo arquivo; normalizados.
+  - **`DS_GASTO` tem 321 variações** ("GRUPO - SUBGRUPO - FINALIDADE"). Ficamos com o grupo (72 categorias).
+  - **A cota do FEFC na receita (R$ 4.953.833.495,86) difere em R$ 0,8 mi do total por partido do arquivo `fefc_fp` (R$ 4.954.676.301,46)**: são prestações diferentes; não forçamos a igualdade.
+- **Conferência de 2024** (cotas do TSE ao diretório nacional): Fundo Partidário R$ 1.265.998.940,46 (PL 235,1 mi, PT 146,3 mi, União 116,6 mi) e FEFC R$ 4.953.833.495,86, em 12 meses.
+- **O que se guarda** (coleta mínima, `guarda = "somas"`, `bruto = "recorte"`): `partido_conta_soma` (partido × esfera × UF × ano × fonte do recurso × natureza × categoria; 31,8 mil linhas, 11 MB em 2024), `partido_cota_mensal` (cotas do TSE por partido e mês) e `partido_despesa_vinculada` (despesas pagas a CNPJ que está em `sancao_empresa` ou `socio_pessoa`, ou a pessoa da base ligada pelo CPF; o CPF não é gravado). O zip vira manifesto.
+- **Frequência:** mensal; exercícios 2023 a 2026. Exercício ainda não publicado (404) não é erro.
+
+## TSE: FEFC e Fundo Partidário por gênero e cor ou raça
+
+- **URL:** `https://cdn.tse.jus.br/estatistica/sead/odsele/fefc_fp/fefc_fp_{ano}.zip`, com 2020, 2022 e 2024 (2018 e 2026 dão 404). Quatro CSVs: `fefc_genero`, `fefc_cor_raca`, `fp_genero` e `fp_cor_raca` (os de FP têm 91 mil e 182 mil linhas, uma por diretório).
+- **Armadilha:** `VR_PARTIDO_FEFC` e `VR_DESPESA_DIRETORIO_FP` são o total do partido (ou do diretório) e **se repetem** em cada linha de gênero ou cor. Somar a coluna conta em dobro. Guardamos `valor_recebido` (aditivo) e, no FEFC, o `valor_partido` (um valor por partido; ver `partido_fefc_fp`). O total do diretório no FP não é guardado.
+- **Conferência de 2024:** `VR_PARTIDO_FEFC` por partido soma R$ 4.954.676.301,46; recebido por gênero R$ 4.781.075.707,10; FP recebido R$ 245.144.288,35.
+- **O que se guarda:** FEFC como vem (partido × gênero, e × cor ou raça); FP somado por partido × esfera × gênero (× cor). 696 linhas em 2024.
+
 ## CGU: sanções (CEIS, CNEP e CEAF)
 
 - **URL (lote diário, sem chave):** `https://portaldatransparencia.gov.br/download-de-dados/{ceis|cnep|ceaf}/{AAAAMMDD}`, que redireciona para `dadosabertos-download.cgu.gov.br/.../{AAAAMMDD}_{CEIS|CNEP|CEAF}.zip`. Também há `cepim` e `acordos-leniencia` (só empresas e entidades; catalogados, sem coleta).
@@ -254,12 +277,20 @@ Endpoints conferidos em 2026-10-06.
   - `deputados/deputados.xml` (só quem está em exercício: `Situacao` = `EXE`);
   - `processo_legislativo/proposituras.zip` (130 MB descompactado, desde 1996) e `documento_autor.zip` (145 MB);
   - `processo_legislativo/naturezasSpl.xml` (código da natureza: 1 PL, 2 PLC, 3 PR, 4 PDL, 5 PEC, 6 moção, 7 requerimento, 8 requerimento de informação, 9 indicação);
-  - `deputados/despesas_gabinetes.xml` (164 MB, sem compactação, desde 2015).
+  - `deputados/despesas_gabinetes.xml` (164 MB, sem compactação, desde 2015);
+  - `processo_legislativo/comissoes_permanentes_votacoes.xml` (65 MB, sem compactação, desde 2005; 226 mil votos): um voto por linha, com `IdReuniao`, `IdPauta`, `IdComissao`, `IdDocumento` (a matéria), `IdDeputado`, `Deputado` (nome), `Voto` (texto livre, às vezes com espaço no fim) e `TipoVoto` (F favorável ao parecer, P favorável à proposição, C contrário ao parecer, T contrário à proposição, S voto em separado, A abstenção, B em branco);
+  - `processo_legislativo/comissoes_permanentes_reunioes.xml` (3 MB): `IdReuniao`, `Data`, `IdComissao`, `Situacao` (REALIZADA, SEM QUORUM, CANCELADA...);
+  - `processo_legislativo/comissoes.xml`: `IdComissao`, `NomeComissao`, `SiglaComissao`.
 - **Armadilhas:**
   - a autoria usa o `IdSPL` do deputado (casa 94 de 94); `IdDeputado` casa só em parte; os gastos usam a `Matricula`;
   - a categoria do gasto vem com uma letra na frente ("A - COMBUSTÍVEIS E LUBRIFICANTES");
   - a rota `/api/deputadoPresenca` citada no catálogo responde 404; a presença em Plenário só existe num formulário do site, e a página de votações em Plenário responde 403 a acesso automatizado;
-  - há presença e votações das **comissões** (`comissoes_permanentes_presencas.xml`, `comissoes_permanentes_votacoes.xml`, 65 MB), ainda não usadas.
+  - nos votos de comissão, o campo `IdDeputado` traz o `IdSPL`, não o `IdDeputado` de `deputados.xml` (casa 83 dos 88 votantes de 2025–2026 pelo `IdSPL` e só 1 pelo `IdDeputado`; os 5 restantes não estão mais no cargo);
+  - o arquivo de votos não tem data: ela vem da reunião. 3 reuniões citadas nos votos (antigas) não estão no arquivo de reuniões;
+  - "Não registrou voto" vem com `TipoVoto` F (favorável): não pode ser contado como voto;
+  - uma votação é a matéria (`IdDocumento`) numa reunião (`IdReuniao`); a mesma matéria pode ser votada em várias reuniões e comissões. Em 2025–2026 (até 21/07/2026): 2.769 votações e 22.287 votos; 93 dos 2.467 documentos votados não estão em `proposituras.zip`;
+  - uma reunião marcada "SEM QUORUM" (29/04/2026, comissão 12451) tem 313 votos registrados;
+  - a presença nas reuniões das comissões está em `comissoes_permanentes_presencas.xml` (8 MB, `IdReuniao`, `DataReuniao`, `IdDeputado`, `SiglaComissao`; não aparece no catálogo, mas existe no repositório) e a composição das comissões em `comissoes_membros.xml`; ainda não usadas.
 - **Frequência:** semanal, junto com as câmaras.
 
 ## ALEPE: Assembleia Legislativa de Pernambuco

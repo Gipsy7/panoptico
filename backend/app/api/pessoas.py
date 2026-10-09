@@ -1,16 +1,34 @@
 """Pessoa pública (a mesma em todas as fontes) e a linha do tempo dela."""
 
 from datetime import date
-from typing import Annotated
+from typing import Annotated, Literal
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 
 from app.db import get_session
-from app.schemas import CasoResposta, CasoResumo, LinhaDoTempo, PessoaResposta
+from app.schemas import CasoResposta, CasoResumo, LinhaDoTempo, PessoaDoPerfil, PessoaResposta
 from app.services import pessoas
 
 router = APIRouter()
+
+TipoDePerfil = Literal["parlamentar", "candidatura", "vereador", "deputado_estadual"]
+
+
+# Antes de /pessoas/{pessoa_id}, senão "de" seria lido como id.
+@router.get("/pessoas/de", response_model=PessoaDoPerfil)
+def pessoa_de(
+    tipo: TipoDePerfil,
+    id: Annotated[int, Query(ge=1)],
+    session: Annotated[Session, Depends(get_session)],
+) -> dict:
+    """A pessoa de um perfil do site (/parlamentar, /eleito, /vereador ou
+    /deputado-estadual), para buscar a linha do tempo. 404 se o perfil não existe ou não
+    está ligado a uma pessoa por vínculo forte ou revisado."""
+    pessoa_id = pessoas.pessoa_de(session, tipo, id)
+    if pessoa_id is None:
+        raise HTTPException(404, "Pessoa não encontrada para este perfil.")
+    return {"pessoa_id": pessoa_id}
 
 
 @router.get("/pessoas/{pessoa_id}", response_model=PessoaResposta)

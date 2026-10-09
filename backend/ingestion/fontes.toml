@@ -309,6 +309,21 @@ recorte = "só os números de processo que já aparecem nos eventos (não busca 
 frequencia = "semanal"
 depende = ["tse_cassacoes", "cgu_sancoes"]
 
+[[fonte]]
+nome = "cnj_cnia"
+modulo = "ingestion.cnj.cnia"
+situacao = "catalogada"
+uso = "Linha do tempo: condenações por improbidade e inelegibilidade (suspensão de direitos políticos com período, perda da função, ressarcimento, multa)"
+recorte = "busca por CPF só das pessoas da base; detalhe de cada condenação encontrada"
+frequencia = "mensal"
+acesso = "pedido"
+depende = ["pessoas"]
+# Cadastro Nacional de Condenações Cíveis por Improbidade (CNJ). Sem lote nem API: só a
+# consulta pública (consultar_requerido.php, POST Sajax, 15 por página, sem CAPTCHA;
+# robots.txt permite). Acrescenta ao CEIS as penas além da proibição de contratar e as
+# condenações antigas. ~50 mil buscas na primeira carga: ofício ao CNJ antes de rodar em
+# volume (docs/pedidos/cnj_cnia.md).
+
 # Bloqueiam acesso automático (403): pedidos em docs/pedidos/. Sem contorno.
 [[fonte]]
 nome = "stf_processos"
@@ -358,11 +373,23 @@ depende = ["pessoas"]
 [[fonte]]
 nome = "tse_contas_partidarias"
 modulo = "ingestion.tse.contas_partidarias"
-situacao = "catalogada"
-uso = "Página do partido (ainda não existe): receitas, fundo partidário e despesas por ano"
-recorte = "somas por partido, ano e categoria"
+uso = "Página do partido: de onde vem o dinheiro (fundo partidário, fundo eleitoral, doações), para onde vai e quanto passou por transferências entre diretórios"
+recorte = "somas por partido, esfera, UF, ano, fonte do recurso e categoria; cotas mensais do TSE; despesas pagas a fornecedor que já está na base (CNPJ de sancionada ou sócia, pessoa pelo CPF)"
 guarda = "somas"
+bruto = "recorte"
 frequencia = "mensal"
+anos = [2023, 2024, 2025, 2026]
+depende = ["pessoas", "cgu_sancoes", "cnpj_socios"]
+
+[[fonte]]
+nome = "tse_fefc_fp"
+modulo = "ingestion.tse.fefc_fp"
+uso = "Página do partido: como o fundo eleitoral e o fundo partidário foram divididos entre gêneros e cor ou raça"
+recorte = "somas por eleição, partido, esfera, gênero e cor ou raça (2024; 2026 quando o TSE publicar)"
+guarda = "somas"
+bruto = "recorte"
+frequencia = "mensal"
+anos = [2024, 2026]
 
 # Dinheiro público
 [[fonte]]

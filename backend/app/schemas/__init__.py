@@ -743,6 +743,10 @@ class PerfilDaPessoa(BaseModel):
     descricao: str
 
 
+class PessoaDoPerfil(BaseModel):
+    pessoa_id: int
+
+
 class PessoaResposta(BaseModel):
     id: int
     nome: str
@@ -770,6 +774,8 @@ class EventoItem(BaseModel):
     numero_processo: str | None
     situacao: str | None
     fonte_url: str | None
+    # Dia da carga que leu o dado na fonte (para dizer "conferido em").
+    conferido_em: date | None = None
     processo: ProcessoSituacao | None = None
 
 

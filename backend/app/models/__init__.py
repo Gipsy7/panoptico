@@ -16,6 +16,12 @@ from app.models.emenda_pagamento import EmendaPagamento
 from app.models.fonte_ingestao import FonteIngestao
 from app.models.municipio import Municipio
 from app.models.parlamentar import Parlamentar
+from app.models.partido_conta import (
+    PartidoContaSoma,
+    PartidoCotaMensal,
+    PartidoDespesaVinculada,
+    PartidoFefcFp,
+)
 from app.models.pessoa import (
     Caso,
     CasoDocumento,
@@ -58,6 +64,10 @@ __all__ = [
     "Municipio",
     "Orientacao",
     "Parlamentar",
+    "PartidoContaSoma",
+    "PartidoCotaMensal",
+    "PartidoDespesaVinculada",
+    "PartidoFefcFp",
     "Pessoa",
     "PessoaVinculo",
     "Processo",

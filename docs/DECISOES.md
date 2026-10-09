@@ -119,6 +119,17 @@ O subsídio é igual para deputados e senadores e é fixado por decreto legislat
   - a carga de pessoas reaplica as decisões a cada execução: "aceito" publica; "recusado" desfaz a ligação.
   - Um aceite só vale enquanto o vínculo continua ligando à mesma pessoa do registro revisado.
 
+## 2026-10-09: votos nas comissões da ALESP
+
+- **Os votos nominais nas comissões permanentes da ALESP entram** pelo arquivo `comissoes_permanentes_votacoes.xml` dos dados abertos, nas tabelas que já recebem os votos das outras casas (`votacao_local` e `voto_local`), sem tabela nova. O Plenário continua de fora: não está nos dados abertos.
+- **Uma votação é uma matéria numa reunião.** O arquivo de votos não tem data: ela vem da reunião (`comissoes_permanentes_reunioes.xml`), e o nome da comissão de `comissoes.xml`. A matéria aparece como "Comissão de Constituição, Justiça e Redação: Projeto de Lei nº 682 de 2025", com link para a página da propositura; assim fica claro, no perfil, que é voto de comissão. Quando o documento votado não está no arquivo de proposituras (93 das 2.769 votações), aparece como "documento {id}", com o mesmo link.
+- **Ligação ao deputado:** o campo `IdDeputado` desse arquivo traz o `IdSPL` (casa 83 dos 88 votantes do período; os 5 restantes não estão mais no cargo).
+- **O voto é guardado como a ALESP escreveu** ("Favorável ao voto do relator", "Favorável à moção"), quando cabe na coluna (30 caracteres). Os textos mais longos ("Favorável ao projeto e à emenda nº 1, conclusivamente") viram o rótulo da letra que acompanha o voto (`TipoVoto`: F favorável ao parecer, P favorável à proposição, C contrário ao parecer, T contrário à proposição, S voto em separado, A abstenção, B em branco). "Não registrou voto" vira "Não votou" e não conta como voto, mesmo vindo com a letra F.
+- **Totais da votação** ("7 sim, 1 não" no perfil): favoráveis (F e P) e contrários (C e T) entre todos os que votaram, inclusive quem já saiu do cargo. Os dados abertos não trazem o resultado da votação, então ele fica em branco. Num voto favorável ao parecer, "sim" quer dizer sim ao parecer do relator, que pode ser contrário ao projeto.
+- **Coleta mínima:** só reuniões do ano atual e do anterior e só os votos de quem está em exercício. Votação sem nenhum deputado em exercício não entra. Reuniões que não estão no arquivo de reuniões (3, todas antigas) ficam sem data e de fora. Uma reunião marcada "SEM QUORUM" (Segurança Pública, 29/04/2026) tem 313 votos registrados; entram como a ALESP publicou.
+- **Presença nas reuniões de comissão** também está nos dados abertos (`comissoes_permanentes_presencas.xml`, 8 MB), mas não entra por ora: o percentual pediria saber de quais comissões cada um era membro em cada data (`comissoes_membros.xml`), e o campo de presença do perfil é o das sessões do Plenário.
+- Conferido na carga de 09/10/2026: 2.769 votações e 20.583 votos de 83 deputados, de 12/02/2025 a 21/07/2026, iguais à contagem feita direto no arquivo.
+
 ## 2026-10-09: sócios de fornecedores pela API do Querido Diário
 
 - **Projetos parecidos:** procuramos projetos que já fizessem isso, para não refazer do zero.
@@ -234,6 +245,19 @@ O subsídio é igual para deputados e senadores e é fixado por decreto legislat
 
   Nenhum grupo justifica um conector agora. O detalhe de cada uma está em `data/pendencias_cobertura.csv`.
 
+## 2026-10-09: contas anuais dos partidos e FEFC/FP
+
+- **Uso:** a futura página do partido: de onde vem o dinheiro (fundo partidário, fundo eleitoral, doações), para onde vai e quanto só passou de um diretório para outro. As fontes saem de "catalogada" para "ativa" (`tse_contas_partidarias`, `tse_fefc_fp`), só no acervo local; o site ainda não as usa.
+- **Transferências entre diretórios e para candidaturas ficam separadas** (`natureza`), em vez de somadas ou descartadas. Em 2024, R$ 6,3 bi dos R$ 8 bi de despesa são transferências que reaparecem como receita em outro lugar. Um total de "despesa do partido" só deve usar `gasto`.
+- **Categoria = o grupo do `DS_GASTO`** (72 em vez de 321): o resto é detalhe de finalidade que o leitor não precisa e que multiplicaria as linhas.
+- **Agregação por UF, não por município:** a esfera municipal fica somada por UF.
+- **Linhas individuais só quando o fornecedor já é conhecido:** CNPJ em `sancao_empresa` ou `socio_pessoa`, ou CPF de uma `pessoa` da base. Cobrir todos os fornecedores seria uma base de milhões de linhas sem pergunta que a use. O CPF casa, mas não é gravado.
+- **Doadores pessoas físicas não são guardados** (nem nome, nem CPF); o arquivo traz os dois completos.
+- **Pagamento a pessoa da base não é irregularidade.** Salário de funcionário que depois se candidata, por exemplo, aparece. A página deve mostrar o fato (valor, categoria, data) sem adjetivo.
+- **Bruto `recorte`:** o zip anual é lido em fluxo e trocado por manifesto. Exercício ainda não publicado (404) devolve 0 sem erro.
+- **FEFC/FP:** `VR_PARTIDO_FEFC` se repete por linha de gênero ou cor; guarda-se com aviso (um valor por partido). Não igualamos o total do `fefc_fp` à cota da prestação anual, que diferem em R$ 0,8 mi.
+- **Migração `0027_contas_partidarias`:** o id é um texto único (não "0027") porque outra frente pode criar a 0027; a ordem se acerta no merge. Só cria tabelas.
+
 ## 2026-10-09: cargos partidários e o primeiro bruto "recorte"
 
 - **Fonte:** arquivo de órgãos partidários do TSE. Tem cada membro de cada diretório ou comissão provisória, com cargo, datas e **título de eleitor**, desde os anos 1990.
@@ -327,6 +351,15 @@ O subsídio é igual para deputados e senadores e é fixado por decreto legislat
 - **2020 fica de fora** até as candidaturas de 2020 serem carregadas: sem elas o arquivo não ligaria ninguém.
 - **Número de processo inválido** (dígito verificador do CNJ não confere) não é publicado: o evento entra sem número.
 
+## 2026-10-09: linha do tempo nos perfis
+
+- **Do perfil à pessoa:** `GET /pessoas/de?tipo=&id=` traduz o id do perfil (parlamentar, candidatura, vereador, deputado estadual) na chave estável de `pessoa_vinculo` e devolve a pessoa só se o vínculo for forte ou revisado. Sem migração. O tipo tem de bater com a casa (um mandato de assembleia não abre como vereador).
+- **Seção "Linha do tempo"** nos quatro perfis, antes da seção "Eleição", agrupada por tipo numa ordem fixa: eleições, cargos em partidos, registro e diploma de candidatura (TSE), processos, casos, Conselho de Ética, TCU e sanções. Cinco itens por grupo à vista, o resto em "ver os outros".
+- **Texto:** a descrição oficial como veio, órgão, número, situação e, quando houver, a situação no DataJud (processo sob sigilo: só "processo sob sigilo"). Todas as situações (arquivada, vigente, encerrada) têm o mesmo peso visual, sem cor. Textos oficiais longos mostram o começo e abrem por inteiro com um toque. Nota fixa: um registro não é, por si, uma condenação, e a situação pode ter mudado depois da data de conferência.
+- **Data de conferência:** cada evento passa a trazer `conferido_em`, o dia (horário de Brasília) em que terminou a carga que o leu (`fonte_ingestao`).
+- **Só eleições:** a seção aparece com elas e sem a nota sobre processos; sem nenhum registro, ou sem pessoa publicável (hoje, os vereadores e deputados estaduais ligados só pelo nome), a seção não aparece.
+- **Datas sem hora** (`2022-10-02`) passaram a ser formatadas sem fuso em `formatarData`: antes o navegador as lia como meia-noite UTC e mostrava o dia anterior no horário de Brasília (afetava também mandatos, remuneração e projetos).
+
 ## 2026-10-09: pessoa pública única e linha do tempo
 
 - **Tabela `pessoa`:** a mesma pessoa em todas as fontes. Cada registro de fonte (candidatura, parlamentar federal, mandato na câmara ou assembleia) entra em `pessoa_vinculo` com a regra que o ligou. Carga: `python -m ingestion.pessoas`, que lê o banco e não baixa nada.
@@ -416,7 +449,7 @@ O plano é juntar tudo o que é público sobre quem exerce função pública: pr
 ## 2026-10-08: Assembleia de São Paulo (ALESP)
 
 - Conector pelos arquivos XML de dados abertos da ALESP (atualizados todo dia), nas mesmas tabelas das outras casas: os 94 deputados em exercício, projetos (PL, PLC, PR, PDL e PEC, com ementa) e moções, requerimentos e indicações (contagem), do ano atual e do anterior, e os gastos do gabinete somados por mês e categoria.
-- **Sem votos e sem presença em Plenário:** não estão nos dados abertos. O site da ALESP mostra a presença num formulário e recusa acesso automatizado à página de votações; não contornamos. O perfil diz que a assembleia não publica isso em dados abertos.
+- **Sem votos e sem presença em Plenário:** não estão nos dados abertos. O site da ALESP mostra a presença num formulário e recusa acesso automatizado à página de votações; não contornamos. O perfil diz que a assembleia não publica isso em dados abertos. (Os votos nas comissões entraram depois; ver "votos nas comissões da ALESP".)
 - **Suplentes:** o arquivo não diz se o deputado é titular ou suplente; todos aparecem como no cargo.
 - **Ligação ao eleito do TSE (vale para todas as casas):** além do nome idêntico, aceita o mesmo nome sem partículas e títulos ("Alex Madureira" e "Alex de Madureira") e um nome de ao menos duas palavras contido no outro ("Valdomiro Lopes" e "Dr Valdomiro Lopes"), sempre só quando a correspondência é única. Sobrenome solto nunca basta. Na ALESP, a ligação passou de 76 para 87 dos 94 deputados.
 - Os arquivos grandes (até 164 MB) são baixados para o disco, lidos em fluxo e apagados.
