@@ -245,6 +245,19 @@ O subsídio é igual para deputados e senadores e é fixado por decreto legislat
 
   Nenhum grupo justifica um conector agora. O detalhe de cada uma está em `data/pendencias_cobertura.csv`.
 
+## 2026-10-09: contas anuais dos partidos e FEFC/FP
+
+- **Uso:** a futura página do partido: de onde vem o dinheiro (fundo partidário, fundo eleitoral, doações), para onde vai e quanto só passou de um diretório para outro. As fontes saem de "catalogada" para "ativa" (`tse_contas_partidarias`, `tse_fefc_fp`), só no acervo local; o site ainda não as usa.
+- **Transferências entre diretórios e para candidaturas ficam separadas** (`natureza`), em vez de somadas ou descartadas. Em 2024, R$ 6,3 bi dos R$ 8 bi de despesa são transferências que reaparecem como receita em outro lugar. Um total de "despesa do partido" só deve usar `gasto`.
+- **Categoria = o grupo do `DS_GASTO`** (72 em vez de 321): o resto é detalhe de finalidade que o leitor não precisa e que multiplicaria as linhas.
+- **Agregação por UF, não por município:** a esfera municipal fica somada por UF.
+- **Linhas individuais só quando o fornecedor já é conhecido:** CNPJ em `sancao_empresa` ou `socio_pessoa`, ou CPF de uma `pessoa` da base. Cobrir todos os fornecedores seria uma base de milhões de linhas sem pergunta que a use. O CPF casa, mas não é gravado.
+- **Doadores pessoas físicas não são guardados** (nem nome, nem CPF); o arquivo traz os dois completos.
+- **Pagamento a pessoa da base não é irregularidade.** Salário de funcionário que depois se candidata, por exemplo, aparece. A página deve mostrar o fato (valor, categoria, data) sem adjetivo.
+- **Bruto `recorte`:** o zip anual é lido em fluxo e trocado por manifesto. Exercício ainda não publicado (404) devolve 0 sem erro.
+- **FEFC/FP:** `VR_PARTIDO_FEFC` se repete por linha de gênero ou cor; guarda-se com aviso (um valor por partido). Não igualamos o total do `fefc_fp` à cota da prestação anual, que diferem em R$ 0,8 mi.
+- **Migração `0027_contas_partidarias`:** o id é um texto único (não "0027") porque outra frente pode criar a 0027; a ordem se acerta no merge. Só cria tabelas.
+
 ## 2026-10-09: cargos partidários e o primeiro bruto "recorte"
 
 - **Fonte:** arquivo de órgãos partidários do TSE. Tem cada membro de cada diretório ou comissão provisória, com cargo, datas e **título de eleitor**, desde os anos 1990.
