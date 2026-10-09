@@ -14,14 +14,17 @@ outra tabela (sanções, processos, cassações).
 Uso: python -m ingestion.pessoas
 """
 
+import csv
 from collections import defaultdict
 from dataclasses import dataclass
 from datetime import UTC, date, datetime
+from pathlib import Path
 
 from sqlalchemy import delete, exists, select, update
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.orm import Session
 
+from app.config import BACKEND_DIR
 from app.db import SessionLocal
 from app.models import (
     Candidatura,
@@ -61,7 +64,7 @@ def ler(session: Session) -> tuple[dict[Chave, Registro], list[Aresta]]:
         select(
             Candidatura.id, Candidatura.ano_eleicao, Candidatura.sq_candidato, Candidatura.cpf,
             Candidatura.titulo, Candidatura.nome, Candidatura.data_nascimento,
-            Candidatura.parlamentar_id,
+            Candidatura.parlamentar_id, Candidatura.nome_urna,
         )
     ).all()  # fmt: skip
     parlamentares = session.execute(
@@ -89,12 +92,29 @@ def ler(session: Session) -> tuple[dict[Chave, Registro], list[Aresta]]:
         if c.parlamentar_id in chave_parlamentar:
             # A carga do TSE já ligou esta candidatura ao parlamentar por CPF ou título.
             arestas.append(Aresta(chave_parlamentar[c.parlamentar_id], chave, "tse"))
+    nomes_candidatura = {
+        c.id: {comum.chave_nome(c.nome), comum.chave_nome(c.nome_urna)} - {""} for c in candidaturas
+    }
+    recusados = {
+        (r["fonte"], r["id_externo"], r["ligado_a"])
+        for r in revisoes()
+        if r["decisao"] == "recusado"
+    }
     for m in mandatos:
         chave = ("mandato_local", f"{m.casa}:{m.uf}:{m.municipio_ibge or ''}:{m.id_externo}")
         registros[chave] = Registro(chave, m.nome_completo or m.nome)
         if m.candidatura_id in chave_candidatura:
-            # Ligação da carga do SAPL/ALMG/ALESP ao eleito pelo nome: média.
-            arestas.append(Aresta(chave_candidatura[m.candidatura_id], chave, "nome_casa"))
+            alvo = chave_candidatura[m.candidatura_id]
+            if (chave[0], chave[1], f"{alvo[0]}:{alvo[1]}") in recusados:
+                continue  # revisão humana disse que não é a mesma pessoa
+            # Ligação da carga da casa ao eleito pelo nome, sempre única entre os eleitos da
+            # casa. Nome idêntico (de urna ou civil) é forte; aproximado ("Dr Fulano" e
+            # "Fulano") é média e só é publicado depois de revisado (ingestion.revisar).
+            nomes = {comum.chave_nome(m.nome), comum.chave_nome(m.nome_completo)} - {""}
+            regra = (
+                "nome_exato_casa" if nomes & nomes_candidatura[m.candidatura_id] else "nome_casa"
+            )
+            arestas.append(Aresta(alvo, chave, regra))
 
     for campo, regra in (("cpf", "cpf"), ("titulo", "titulo")):
         por_valor: dict[str, list[Chave]] = defaultdict(list)
@@ -104,6 +124,59 @@ def ler(session: Session) -> tuple[dict[Chave, Registro], list[Aresta]]:
         for chaves in por_valor.values():
             arestas += [Aresta(chaves[0], outra, regra) for outra in chaves[1:]]
     return registros, arestas
+
+
+REVISOES = BACKEND_DIR.parent / "data" / "vinculos_revisados.csv"
+COLUNAS_REVISAO = [
+    "fonte",
+    "id_externo",
+    "ligado_a",
+    "decisao",
+    "revisado_por",
+    "revisado_em",
+    "observacao",
+]
+
+
+def revisoes(caminho: Path | None = None) -> list[dict[str, str]]:
+    """Decisões humanas sobre vínculos por nome aproximado (data/vinculos_revisados.csv),
+    reaplicadas a cada carga: "aceito" publica, "recusado" desfaz a ligação."""
+    caminho = caminho or REVISOES
+    if not caminho.exists():
+        return []
+    with caminho.open(encoding="utf-8", newline="") as arquivo:
+        return [
+            {k: (v or "").strip() for k, v in linha.items()}
+            for linha in csv.DictReader(arquivo)
+            if (linha.get("decisao") or "").strip() in ("aceito", "recusado")
+        ]
+
+
+def aplicar_aceites(session: Session) -> int:
+    """Marca como revisados os vínculos aceitos, se ainda ligam à mesma pessoa do registro
+    indicado em "ligado_a" (se a ligação mudou, a decisão antiga não vale mais)."""
+    marcados = 0
+    for r in revisoes():
+        if r["decisao"] != "aceito":
+            continue
+        fonte_alvo, _, id_alvo = r["ligado_a"].partition(":")
+        pessoa_alvo = session.scalar(
+            select(PessoaVinculo.pessoa_id).where(
+                PessoaVinculo.fonte == fonte_alvo, PessoaVinculo.id_externo == id_alvo
+            )
+        )
+        resultado = session.execute(
+            update(PessoaVinculo)
+            .where(
+                PessoaVinculo.fonte == r["fonte"],
+                PessoaVinculo.id_externo == r["id_externo"],
+                PessoaVinculo.pessoa_id == pessoa_alvo,
+                PessoaVinculo.revisado.is_(False),
+            )
+            .values(revisado=True)
+        )
+        marcados += resultado.rowcount
+    return marcados
 
 
 def _atributos(membros: list[Registro]) -> dict:
@@ -207,7 +280,9 @@ def processar(session: Session) -> tuple[dict[Chave, Registro], list, list, int]
     if not registros:
         raise RuntimeError("Nenhum registro para ligar: rode antes as cargas do TSE e das casas.")
     pessoas, recusadas = agrupar({c: r.cpf for c, r in registros.items()}, arestas)
-    return registros, pessoas, recusadas, gravar(session, registros, pessoas)
+    mudaram = gravar(session, registros, pessoas)
+    aplicar_aceites(session)
+    return registros, pessoas, recusadas, mudaram
 
 
 def executar() -> int:

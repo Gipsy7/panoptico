@@ -67,7 +67,7 @@ def _cenario(session):
     c2024 = _candidatura(session, 2024, "3", "000222", nome="Rui Lima", cargo="VEREADOR",
                          situacao_turno="ELEITO POR MÉDIA")  # fmt: skip
     mandato = MandatoLocal(
-        casa="assembleia", uf="AC", id_externo="77", nome="Ana", candidatura_id=c2018.id,
+        casa="assembleia", uf="AC", id_externo="77", nome="Dra. Ana Souza", candidatura_id=c2018.id,
         sapl_url="https://sapl.al.ac.leg.br/",
     )  # fmt: skip
     session.add(mandato)
@@ -143,3 +143,53 @@ def test_api_publica_so_vinculo_forte_e_monta_a_linha_do_tempo(client, session):
         == "2022-10-02"
     )
     assert client.get("/pessoas/999999").status_code == 404
+
+
+def test_nome_identico_na_casa_e_forte_e_revisao_aceita_publica(
+    client, session, tmp_path, monkeypatch
+):
+    _, _, c2018, _, mandato = _cenario(session)
+    carga.processar(session)
+    regra = session.scalar(
+        select(PessoaVinculo.regra).where(PessoaVinculo.fonte == "mandato_local")
+    )
+    assert regra == "nome_casa"  # "Dra. Ana Souza" x "Ana" / "Ana Maria Souza": aproximado
+    # Revisão humana aceita: passa a ser publicado.
+    revisoes = tmp_path / "vinculos_revisados.csv"
+    revisoes.write_text(
+        "fonte,id_externo,ligado_a,decisao,revisado_por,revisado_em,observacao\n"
+        "mandato_local,assembleia:AC::77,candidatura:2018:2,aceito,Fulano,2026-10-09,\n",
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(carga, "REVISOES", revisoes)
+    carga.processar(session)
+    assert (
+        session.scalar(select(PessoaVinculo.revisado).where(PessoaVinculo.fonte == "mandato_local"))
+        is True
+    )
+    # Nome idêntico ao de urna: forte, sem revisão.
+    mandato.nome = "Ana"
+    session.flush()
+    revisoes.write_text(
+        "fonte,id_externo,ligado_a,decisao,revisado_por,revisado_em,observacao\n", encoding="utf-8"
+    )
+    carga.processar(session)
+    assert (
+        session.scalar(select(PessoaVinculo.regra).where(PessoaVinculo.fonte == "mandato_local"))
+        == "nome_exato_casa"
+    )
+
+
+def test_revisao_recusada_desfaz_a_ligacao(session, tmp_path, monkeypatch):
+    _cenario(session)
+    revisoes = tmp_path / "vinculos_revisados.csv"
+    revisoes.write_text(
+        "fonte,id_externo,ligado_a,decisao,revisado_por,revisado_em,observacao\n"
+        "mandato_local,assembleia:AC::77,candidatura:2018:2,recusado,Fulano,2026-10-09,\n",
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(carga, "REVISOES", revisoes)
+    carga.processar(session)
+    assert _pessoa_de(session, "mandato_local", "assembleia:AC::77") != _pessoa_de(
+        session, "candidatura", "2018:2"
+    )

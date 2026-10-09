@@ -109,6 +109,16 @@ O subsídio é igual para deputados e senadores e é fixado por decreto legislat
 - **Bens:** valor como declarado, sem correção. A página avisa que bens costumam ser declarados pelo valor de compra. Sem palavras como "enriqueceu": mostramos os dois totais e o ano.
 - **2024:** o TSE passou a mascarar o CPF, então as candidaturas municipais de 2024 não se ligam aos parlamentares federais.
 
+## 2026-10-09: vínculos por nome: idêntico é forte, aproximado vai para revisão
+
+- No acervo, 5.459 vereadores e deputados estaduais estavam ligados ao eleito do TSE só pelo nome (regra média) e, por isso, fora da publicação. Desses, **5.369 têm nome idêntico** ao de urna ou ao civil do eleito, e a ligação já exige que o nome seja único entre os eleitos da mesma casa.
+- Esse caso passa a ser regra forte (`nome_exato_casa`), com a mesma lógica do nome parlamentar da Câmara: correspondência exata num conjunto fechado.
+- **Os 90 aproximados** ("Vereadora Odete Zanon Viccari" e "Odete Zanon Viccari"; "Lucilene Vale" e "Lucilene da Droga Vale"; erros de digitação da fonte) **vão para revisão humana:**
+  - `python -m ingestion.revisar` mostra cada par lado a lado (um por um, ou `--exportar fila.csv` para planilha);
+  - a decisão vai para `data/vinculos_revisados.csv` (versionado);
+  - a carga de pessoas reaplica as decisões a cada execução: "aceito" publica; "recusado" desfaz a ligação.
+  - Um aceite só vale enquanto o vínculo continua ligando à mesma pessoa do registro revisado.
+
 ## 2026-10-09: sócios de fornecedores pela API do Querido Diário
 
 - **Projetos parecidos:** procuramos projetos que já fizessem isso, para não refazer do zero.

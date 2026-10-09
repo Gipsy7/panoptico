@@ -11,6 +11,8 @@ REGRAS_FORTES = {
     "origem", "cpf", "titulo", "cpf_parcial_nome", "nome_nascimento", "tse",
     # Nome parlamentar exato e único no cadastro da própria Câmara (atribuído por ela).
     "nome_parlamentar",
+    # Nome idêntico ao de um eleito, único entre os eleitos da mesma casa.
+    "nome_exato_casa",
 }  # fmt: skip
 
 
