@@ -109,6 +109,19 @@ O subsídio é igual para deputados e senadores e é fixado por decreto legislat
 - **Bens:** valor como declarado, sem correção. A página avisa que bens costumam ser declarados pelo valor de compra. Sem palavras como "enriqueceu": mostramos os dois totais e o ano.
 - **2024:** o TSE passou a mascarar o CPF, então as candidaturas municipais de 2024 não se ligam aos parlamentares federais.
 
+## 2026-10-09: câmaras com SAPL parado e câmaras que falhavam
+
+- **Falhas no Actions que eram só de origem:** Porto Velho e Armação dos Búzios respondem normalmente a partir do Brasil, como a Assembleia de Roraima. Rodam no acervo local.
+- **Jataí:** só a rota de partidos do SAPL exige senha (401). A câmara passa a entrar sem a sigla do partido.
+- **União de Minas:** a rota de autorias dá erro 500 em qualquer consulta. A câmara entra sem projetos, como já acontece com votos e presença.
+- **As 66 câmaras com SAPL parado em 2021–2024:** abrimos a página de cada uma (`backend/scripts/reconhecer/sapl_parado.py`):
+  - 33 têm só o portal próprio no `.leg.br`, sem sistema legislativo identificável;
+  - 12 ainda apontam para o mesmo SAPL antigo (a câmara só deixou de atualizar);
+  - 6 usam a Cittatec (Pelotas, Erechim, São Borja, Barra do Ribeiro, Ronda Alta, Palminópolis), uma plataforma de gestão que exige login;
+  - os demais estão espalhados entre fornecedores (Siscam, Nexlegis, Legislador, Cespro, IPM, Betha, CR2, Instar e sistemalegislativo.com.br), no máximo três por fornecedor.
+
+  Nenhum grupo justifica um conector agora. O detalhe de cada uma está em `data/pendencias_cobertura.csv`.
+
 ## 2026-10-09: cargos partidários e o primeiro bruto "recorte"
 
 - **Fonte:** arquivo de órgãos partidários do TSE. Tem cada membro de cada diretório ou comissão provisória, com cargo, datas e **título de eleitor**, desde os anos 1990.
