@@ -7,6 +7,11 @@ from ingestion import acervo
 from ingestion.acervo import Fonte
 
 
+@pytest.fixture(autouse=True)
+def _historico_temporario(monkeypatch, tmp_path):
+    monkeypatch.setattr(acervo, "HISTORICO", tmp_path / "historico.json")
+
+
 def test_registro_valido_e_nomes_iguais_aos_dos_modulos():
     fontes = acervo.ler_registro()
     for f in fontes:
@@ -113,3 +118,18 @@ def test_catalogada_nunca_roda(monkeypatch, capsys):
     assert acervo.rodar({"cnpj", "ibge"}, fontes) == 0
     assert chamadas == ["ibge"]
     assert "[pulada] cnpj: catalogada" in capsys.readouterr().out
+
+
+def test_queda_brusca():
+    assert acervo.queda(1000, 700)  # 30% a menos
+    assert not acervo.queda(1000, 850)
+    assert not acervo.queda(None, 10) and not acervo.queda(0, 0)
+
+
+def test_rodar_avisa_queda_e_guarda_historico(monkeypatch, capsys):
+    totais = iter([100, 50])
+    monkeypatch.setattr(acervo, "_executar", lambda fonte, hoje: next(totais))
+    fontes = [Fonte("ibge", "m", "diaria", uso="x")]
+    acervo.rodar({"ibge"}, fontes)
+    acervo.rodar({"ibge"}, fontes)
+    assert "[alerta] ibge: 50 registros, contra 100" in capsys.readouterr().out

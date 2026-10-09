@@ -109,6 +109,12 @@ O subsídio é igual para deputados e senadores e é fixado por decreto legislat
 - **Bens:** valor como declarado, sem correção. A página avisa que bens costumam ser declarados pelo valor de compra. Sem palavras como "enriqueceu": mostramos os dois totais e o ano.
 - **2024:** o TSE passou a mascarar o CPF, então as candidaturas municipais de 2024 não se ligam aos parlamentares federais.
 
+## 2026-10-09: alerta de queda brusca no acervo
+
+- Depois de cada fonte, `ingestion.acervo rodar` compara o total da execução (todos os anos somados) com o da execução anterior, guardado em `backend/data/acervo_historico.json`.
+- Se caiu mais de 20%, imprime `[alerta]` para conferir a fonte. Foi o que teria denunciado cedo as câmaras com SAPL parado: a fonte deixa de ser atualizada e a carga encolhe sem dar erro.
+- Por enquanto é alerta, não bloqueio: a carga já foi gravada. Impedir a troca dos dados publicados fica para quando o acervo alimentar a produção.
+
 ## 2026-10-09: Assembleia de Santa Catarina (ALESC)
 
 - **A ALESC não tem API nem exportação.** As páginas do e-Legis são públicas e sem barreira, então lemos o HTML, uma página por vez, com pausa: cerca de 1.370 páginas por semana.

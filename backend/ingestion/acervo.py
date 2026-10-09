@@ -11,6 +11,7 @@ preservados (PRESERVAR_RAW=true). Ver docs/DECISOES.md, "acervo local".
 
 import argparse
 import importlib
+import json
 import sys
 import tomllib
 import traceback
@@ -25,6 +26,9 @@ from app.models import FonteIngestao
 from ingestion import comum
 
 REGISTRO = Path(__file__).with_name("fontes.toml")
+# Total da última execução de cada fonte (todas as anos somados), para a checagem de queda.
+HISTORICO = comum.RAW_DIR.parent / "acervo_historico.json"
+QUEDA = 0.2  # mais de 20% a menos que a execução anterior: alerta
 FREQUENCIAS = {"diaria": 1, "semanal": 7, "mensal": 30, "manual": None}
 ACESSOS = {"aberto", "brasil", "lento", "espelho", "pedido", "lai", "indisponivel"}
 SITUACOES = {"ativa", "catalogada"}
@@ -149,6 +153,7 @@ def rodar(nomes: set[str], fontes: list[Fonte]) -> int:
     depende da fonte que falhou é pulado. Devolve o número de falhas."""
     hoje = date.today()
     falharam: set[str] = set()
+    historico = _ler_historico()
     for fonte in ordenar(fontes, nomes):
         if fonte.situacao != "ativa":
             print(
@@ -165,11 +170,38 @@ def rodar(nomes: set[str], fontes: list[Fonte]) -> int:
             total = _executar(fonte, hoje)
             segundos = (datetime.now(UTC) - inicio).total_seconds()
             print(f"[ok]     {fonte.nome}: {total} registros em {segundos:.0f}s", flush=True)
+            anterior = historico.get(fonte.nome)
+            if queda(anterior, total):
+                print(
+                    f"[alerta] {fonte.nome}: {total} registros, contra {anterior} na execução "
+                    f"anterior (queda de mais de {QUEDA:.0%}); conferir a fonte",
+                    flush=True,
+                )
+            historico[fonte.nome] = total
+            _gravar_historico(historico)
         except Exception:
             falharam.add(fonte.nome)
             print(f"[erro]   {fonte.nome}", flush=True)
             traceback.print_exc()
     return len(falharam)
+
+
+def queda(anterior: int | None, atual: int | None, limite: float = QUEDA) -> bool:
+    """A carga trouxe muito menos que a anterior? (Visto nas câmaras com SAPL parado: a
+    fonte deixa de ser atualizada e a carga encolhe sem dar erro.)"""
+    return bool(anterior) and atual is not None and atual < anterior * (1 - limite)
+
+
+def _ler_historico() -> dict[str, int]:
+    try:
+        return json.loads(HISTORICO.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return {}
+
+
+def _gravar_historico(historico: dict[str, int]) -> None:
+    HISTORICO.parent.mkdir(parents=True, exist_ok=True)
+    HISTORICO.write_text(json.dumps(historico, indent=1, sort_keys=True), encoding="utf-8")
 
 
 def _tamanho_dir(caminho: Path) -> int:

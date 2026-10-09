@@ -13,6 +13,7 @@ __pycache__/
 backend/data/raw/*
 backend/data/processed/*
 backend/data/logs/
+backend/data/acervo_historico.json
 !backend/data/raw/.gitkeep
 !backend/data/processed/.gitkeep
 
