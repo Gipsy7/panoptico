@@ -75,6 +75,12 @@ CATALOGO = [
         "url": "https://transparencia.tce.sp.gov.br/conjunto-de-dados",
     },
     {
+        "dado": "Para quem a prefeitura e a câmara pagaram (Rio Grande do Sul)",
+        "orgao": "Tribunal de Contas do Estado do Rio Grande do Sul",
+        "fontes": ["tce_rs"],
+        "url": "https://dados.tce.rs.gov.br/",
+    },
+    {
         "dado": "Vereadores no cargo hoje, projetos, votações e presença (câmaras com SAPL)",
         "orgao": "Câmaras municipais (sistema SAPL do Interlegis)",
         "fontes": ["sapl_camaras"],

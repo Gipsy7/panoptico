@@ -12,6 +12,10 @@ FONTES = {
         "Despesas municipais (Tribunal de Contas do Estado de São Paulo)",
         "https://transparencia.tce.sp.gov.br/conjunto-de-dados",
     ),
+    "tce_rs": (
+        "Despesas municipais (Tribunal de Contas do Estado do Rio Grande do Sul)",
+        "https://dados.tce.rs.gov.br/dataset/?q=despesa-orcamentaria-por-empenhos",
+    ),
 }
 ORGAOS = ("prefeitura", "camara", "outros")
 

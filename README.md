@@ -40,7 +40,7 @@ Os dados sobre o trabalho dos parlamentares já são públicos, mas estão espal
   - para quais áreas (saúde, educação…);
   - quem recebeu, com o CNPJ.
 - **Contas da sua cidade** (SICONFI, Tesouro Nacional): quanto a prefeitura arrecadou e gastou no ano, em que áreas e quanto custou a câmara municipal.
-- **Para quem a cidade pagou** (por enquanto, cidades de SP, pelo TCE-SP): os maiores fornecedores da prefeitura e da câmara no ano.
+- **Para quem a cidade pagou** (por enquanto, cidades de SP e do RS, pelo TCE-SP e pelo TCE-RS): os maiores fornecedores da prefeitura e da câmara no ano.
 - **Câmara municipal hoje** (nas câmaras que usam o SAPL): quem está no cargo agora, inclusive suplentes, com partido atual, contato, projetos, quantos requerimentos, indicações e moções apresentou, presença nas sessões (com a média da câmara) e como votou nas votações nominais, onde a câmara registra.
 - **Assembleia legislativa hoje** (nas que usam o SAPL: AC, AL, AM, PB, PI, RO e TO; a de RR bloqueia o acesso a partir do GitHub Actions): o mesmo para os deputados estaduais, com perfil em `/deputado-estadual/{id}`.
 - **Assembleia de São Paulo** (dados abertos da ALESP): deputados no cargo, projetos, moções, requerimentos e indicações, e **gastos do gabinete**, com a média da assembleia. Votos e presença em Plenário não estão nos dados abertos.
@@ -121,6 +121,7 @@ flowchart LR
 | Sites oficiais dos municípios | Varredura dos domínios `.gov.br` e `.leg.br` de cada cidade | Catálogo versionado, revisado por PR |
 | Contas anuais dos municípios | [SICONFI (Tesouro Nacional)](https://siconfi.tesouro.gov.br/) | API, uma consulta por município, mensal |
 | Pagamentos das prefeituras e câmaras por fornecedor (SP) | [TCE-SP](https://transparencia.tce.sp.gov.br/conjunto-de-dados) | Arquivo anual em lote, mensal |
+| Pagamentos das prefeituras e câmaras por fornecedor (RS) | [TCE-RS](https://dados.tce.rs.gov.br/) | Arquivo anual em lote, mensal |
 | Vereadores e deputados estaduais no cargo, projetos, votações nominais e presença | SAPL (Interlegis) de cada câmara e de sete assembleias | API, semanal, endereços do catálogo de canais |
 | Deputados estaduais de SP: projetos e gastos do gabinete | [Dados abertos da ALESP](https://www.al.sp.gov.br/dados-abertos/) | Arquivos XML, semanal |
 | Deputados estaduais de PE: projetos | [Dados abertos da ALEPE](https://dadosabertos.alepe.pe.gov.br/) | API (XML e JSON), semanal |
@@ -297,7 +298,7 @@ O plano completo, com a ordem das fases, está em [docs/DECISOES.md](docs/DECISO
 - As 66 câmaras cujo SAPL parou e as 910 cidades sem canal oficial encontrado
 - Conectores próprios para as 13 assembleias sem SAPL que faltam, depois de um levantamento casa a casa do que cada uma publica
 - Votos e presença nas comissões da ALESP (já publicados em dados abertos)
-- Despesas por fornecedor de outros Tribunais de Contas (RS e MG têm dados abertos)
+- Despesas por fornecedor de outros Tribunais de Contas (o de MG exige reCAPTCHA nos dados abertos; falta pedir acesso)
 - Teste com pessoas reais e auditoria de acessibilidade
 
 ## Licença

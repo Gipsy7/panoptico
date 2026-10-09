@@ -207,8 +207,35 @@ Endpoints conferidos em 2026-10-06.
   - o ano corrente só sai no ano seguinte;
   - a capital não está no arquivo: é fiscalizada pelo TCM-SP;
   - a folha de salários aparece como pagamento ao próprio órgão ("CAMARA MUNICIPAL DE CAMPINAS") ou a um credor "FOLHA DE PAGAMENTO", e vira uma linha "Folha de pagamento (salários)".
-- **Outros TCEs:** RS (`dados.tce.rs.gov.br`) e MG (`dadosabertos.tce.mg.gov.br`) têm portais de dados abertos; a examinar.
+- **Outros TCEs:** RS (abaixo, carregado) e MG (abaixo, bloqueado por reCAPTCHA).
 - **Portais de fornecedores (Betha, CR2...):** não servem para carga automática. O Betha exige reCAPTCHA nas consultas, e o CR2 é um app sem API pública. Não contornamos captcha.
+
+## TCE-RS: despesas das prefeituras e câmaras gaúchas
+
+- **Portal:** `https://dados.tce.rs.gov.br/` (CKAN; a API `api/3/action/package_search` lista os conjuntos). Conjunto "Despesa orçamentária por empenhos", um por ano.
+- **URL (lote, sem chave):** `https://dados.tce.rs.gov.br/dados/municipal/empenhos/{ano}.csv.zip` (também em `.7z`). O zip de 2025 tem 1,35 GB e um CSV de 14,7 GB (27 milhões de linhas); o de 2024, 1,28 GB. O download é rápido (cerca de 1 minuto) e a leitura em fluxo leva uns 5 minutos.
+- **Formato:** `,`, UTF-8 com BOM, decimal com ponto, zip64. Uma linha por operação: `tipo_operacao` = `E` (empenho), `L` (liquidação) ou `P` (pagamento). Usamos só `P`.
+- **Campos:**
+  - `cd_orgao` e `nome_orgao` ("PM DE AGUDO", "CM DE AGUDO"); o arquivo **não traz código IBGE**;
+  - `ano_empenho`, `ano_operacao`, `dt_operacao`;
+  - `nm_credor`, `tp_pessoa` (`PJ` ou `PF`), `cnpj_cpf`;
+  - `vl_pagamento`.
+- **Cadastro de órgãos:** `https://dados.tce.rs.gov.br/dados/auxiliar/orgaos_auditados_rs.csv` liga `CD_ORGAO` a `CD_MUNICIPIO_IBGE`, com `ESFERA`, `SETOR_GOVERNAMENTAL` (EXECUTIVO, LEGISLATIVO, AUTARQUIA, FUNDAÇÃO, CONSÓRCIO ADMINISTRATIVO...) e o `CNPJ` do órgão. Vai junto no bruto (acrescentado ao zip baixado).
+- **Armadilhas:**
+  - o arquivo do ano traz o **histórico inteiro dos empenhos de anos anteriores** que ainda têm restos a pagar, inclusive pagamentos antigos (no de 2025, 700 mil pagamentos de 2024 e outros desde 2004). Filtramos `ano_operacao` igual ao ano do arquivo;
+  - o total pago inclui os restos a pagar pagos no ano. Para conferir com o balancete de despesa do TCE-RS (`dados/municipal/balancete-despesa/{ano}/{cd_orgao}.csv`, coluna `VL_PAGO`), separe os pagamentos de empenhos do próprio ano (`ano_empenho` = ano): batem centavo a centavo;
+  - **CNPJ sem zeros à esquerda** ("360305129220" é 00.360.305/1292-20, da Caixa; o Banco do Brasil chega a vir como "191"). Completamos com zeros e validamos os dígitos;
+  - CPF com `tp_pessoa = PJ` (raro): quando o número é um CPF válido e não um CNPJ válido, vai para a linha das pessoas físicas;
+  - a **folha de salários** aparece como credor PJ sem CNPJ ("FOLHA DE PAGAMENTO", "SERVIDORES MUNICIPAIS", "INATIVOS", "VEREADORES 17 LEGISLATURA", "F U N C I O N A R I O S") ou como pagamento ao CNPJ do próprio órgão ("MUNICIPIO DE PORTO ALEGRE" na prefeitura de Porto Alegre). Vira a linha "Folha de pagamento (salários)". Credores sem CNPJ com outros nomes ("PASEP", "INSS") ficam como fornecedores, sem documento;
+  - há **estornos com valor negativo** em `vl_pagamento`; entram na soma;
+  - consórcios intermunicipais estão cadastrados na cidade-sede; ficam de fora (R$ 729 milhões pagos em 2025).
+- **Frequência:** o órgão envia por bimestre; o arquivo do ano é atualizado ao longo do ano seguinte (o de 2025 foi gerado em abril de 2026). Carga mensal.
+
+## TCE-MG: despesas das prefeituras e câmaras mineiras (bloqueado)
+
+- **Portal:** `https://dadosabertos.tce.mg.gov.br/` é um app Angular. Os arquivos saem da API `https://arabiasaudita.tce.mg.gov.br:8443/TCEMG-proxy-web/publico/apimoci/dados-abertos/dadosAbertos/...` (`buscarMunicipios`, `buscarOrgaos`, `baixarArquivo/{id}`).
+- **Bloqueio:** toda chamada sem sessão responde **401**, e o app então manda o usuário para `TCEMG-proxy-web/login/captcha.jsf` (reCAPTCHA). O "Fiscalizando com o TCE" (`fiscalizandocomtce.tce.mg.gov.br`) usa o mesmo proxy, também com 401 e reCAPTCHA (`captcha_simples.jsf`). Testado em 09/10/2026.
+- **Situação:** não contornamos captcha. A fonte fica catalogada em `fontes.toml` (`tce_mg`, `acesso = "pedido"`) até o TCE-MG oferecer acesso sem captcha ou responder a um pedido.
 
 ## SAPL (Interlegis): câmaras municipais e assembleias
 

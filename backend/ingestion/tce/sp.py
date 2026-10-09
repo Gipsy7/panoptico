@@ -93,7 +93,9 @@ def agregar(linhas: Any) -> dict[tuple[str, str], dict[tuple[str, str | None], l
     return soma
 
 
-def linhas_para_gravar(soma: dict, ano: int, validos: set[str]) -> list[dict]:
+def linhas_para_gravar(soma: dict, ano: int, validos: set[str], fonte: str = FONTE) -> list[dict]:
+    """Os MAIORES fornecedores de cada órgão; o resto vira "Demais fornecedores" e as
+    pessoas físicas uma linha sem nomes. Usado também pelos outros TCEs."""
     resultado = []
     for (ibge, orgao), fornecedores in soma.items():
         if ibge not in validos:
@@ -101,7 +103,7 @@ def linhas_para_gravar(soma: dict, ano: int, validos: set[str]) -> list[dict]:
         pessoas = fornecedores.pop((PESSOAS_FISICAS, None), None)
         ordenados = sorted(fornecedores.items(), key=lambda item: item[1][0], reverse=True)
         principais, resto = ordenados[:MAIORES], ordenados[MAIORES:]
-        base = {"municipio_ibge": ibge, "ano": ano, "orgao": orgao, "fonte": FONTE}
+        base = {"municipio_ibge": ibge, "ano": ano, "orgao": orgao, "fonte": fonte}
         for (nome, documento), (total, quantos) in principais:
             resultado.append(
                 {

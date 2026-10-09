@@ -213,6 +213,30 @@ anos = "dois_anteriores"
 depende = ["ibge_municipios"]
 bruto = "recorte"
 
+[[fonte]]
+nome = "tce_rs"
+modulo = "ingestion.tce.rs"
+uso = "Para quem a cidade pagou (RS)"
+recorte = "dois anos anteriores; consórcios intermunicipais de fora"
+guarda = "somas"
+frequencia = "mensal"
+anos = "dois_anteriores"
+depende = ["ibge_municipios"]
+bruto = "recorte"
+
+# A API de dados abertos do TCE-MG exige reCAPTCHA (401 sem o token). Sem contorno.
+[[fonte]]
+nome = "tce_mg"
+modulo = "ingestion.tce.mg"
+situacao = "catalogada"
+uso = "Para quem a cidade pagou (MG)"
+recorte = "dois anos anteriores"
+guarda = "somas"
+frequencia = "mensal"
+anos = "dois_anteriores"
+depende = ["ibge_municipios"]
+acesso = "pedido"
+
 # Câmaras e assembleias
 [[fonte]]
 nome = "sapl_camaras"
