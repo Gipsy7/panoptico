@@ -182,6 +182,7 @@ O subsídio é igual para deputados e senadores e é fixado por decreto legislat
 - **Resultado:** 69 de 72 representações ligadas. Todas as 50 correspondências foram conferidas à mão (ex.: "ZÉ TROVÃO" é Marcos Antonio Pereira Gomes; "CÉLIA XAKRIABÁ" é Célia Nunes Correa).
 - **3 ficaram de fora de propósito:** a ementa usa um nome parcial que não bate exatamente com nenhum cadastro ("DIONILSO MARCON", "ABILIO BRUNINI", "PAULO BILYNSKYJ").
 - **O texto é a ementa oficial, entre aspas.** Termos como "suposto procedimento incompatível" são da Câmara, não nossos.
+- **Senado:** a rota `/dadosabertos/processo?sigla=REP` (a pesquisa de matérias antiga foi descontinuada) tem só 3 representações ao Conselho de Ética desde 2019 (contra Chico Rodrigues, Flávio Bolsonaro e Marcos do Val). As três foram ligadas, com a mesma regra da Câmara: nome exato e único entre senadores no cadastro e senadores eleitos. O texto é a ementa oficial, entre aspas.
 - **CPIs:** os indiciamentos estão nos relatórios finais (PDF). Entram pela curadoria de casos (`relatorio_cpi`), não por carga automática.
 
 ## 2026-10-09: STF e STJ bloqueiam acesso automático; DataJud e curadoria

@@ -98,10 +98,12 @@ def eventos(
     return linhas, sem
 
 
-def deputados_por_nome(session: Session) -> dict[str, int]:
-    """Nome -> pessoa, num conjunto fechado: o nome parlamentar dos deputados no cadastro
-    da Câmara e, entre os deputados federais eleitos (quem já saiu do mandato não está mais
-    no cadastro), o nome de urna e o nome civil. Nome que aponta para mais de uma pessoa
+def deputados_por_nome(
+    session: Session, casa: str = "camara", cargo: str = "DEPUTADO FEDERAL"
+) -> dict[str, int]:
+    """Nome -> pessoa, num conjunto fechado: o nome parlamentar dos membros no cadastro da
+    casa e, entre os eleitos para o cargo (quem já saiu do mandato não está mais no
+    cadastro), o nome de urna e o nome civil. Nome que aponta para mais de uma pessoa
     fica de fora."""
     pessoa_do_registro = dict(
         session.execute(
@@ -118,15 +120,15 @@ def deputados_por_nome(session: Session) -> dict[str, int]:
 
     for id_externo, nome, civil in session.execute(
         select(Parlamentar.id_externo, Parlamentar.nome_parlamentar, Parlamentar.nome_civil).where(
-            Parlamentar.casa == "camara"
+            Parlamentar.casa == casa
         )
     ):
-        anotar(nome, f"parlamentar:camara:{id_externo}")
-        anotar(civil, f"parlamentar:camara:{id_externo}")
+        anotar(nome, f"parlamentar:{casa}:{id_externo}")
+        anotar(civil, f"parlamentar:{casa}:{id_externo}")
     for ano, sq, urna, civil in session.execute(
         select(Candidatura.ano_eleicao, Candidatura.sq_candidato, Candidatura.nome_urna,
                Candidatura.nome)
-        .where(Candidatura.cargo == "DEPUTADO FEDERAL",
+        .where(Candidatura.cargo == cargo,
                Candidatura.situacao_turno.like("ELEITO%"))
     ):  # fmt: skip
         anotar(urna, f"candidatura:{ano}:{sq}")

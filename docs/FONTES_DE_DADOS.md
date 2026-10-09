@@ -76,6 +76,12 @@ Endpoints conferidos em 2026-10-06.
 - **Não há campo com o deputado representado:** ele só aparece na ementa, às vezes em maiúsculas ("Deputado DELEGADO RAMAGEM"), às vezes não ("Deputado Gilvan da Federal"), às vezes pelo nome civil completo ("ANDRÉ LUIS GASPAR JANONES"), às vezes em lista ("Deputadas CÉLIA NUNES CORREA, ÉRIKA JUCÁ KOKAY…").
 - **Link público:** `https://www.camara.leg.br/proposicoesWeb/fichadetramitacao?idProposicao={id}`.
 
+## Senado: representações no Conselho de Ética
+
+- **API:** `GET https://legis.senado.leg.br/dadosabertos/processo?sigla=REP&dataInicioApresentacao=2019-01-01` (JSON). Substitui `/materia/pesquisa/lista`, que avisa estar descontinuada (desativação prevista em 01/02/2026, mas ainda respondia em 09/10/2026, sem as REP recentes).
+- O parâmetro `ano` não filtra nessa rota; use `dataInicioApresentacao`. Sem filtro de data, a lista começa em 1947 (representações de sindicatos e cidadãos, de outra natureza).
+- **Campos:** `identificacao` ("REP 1/2024"), `dataApresentacao`, `autoria`, `ementa` (com o nome do senador: "em face do Senador Flávio Bolsonaro"), `situacaoAtual`, `codigoMateria` (link: `www25.senado.leg.br/web/atividade/materias/-/materia/{codigo}`).
+
 ## Câmara: detalhe do deputado
 
 - **URL:** `GET https://dadosabertos.camara.leg.br/api/v2/deputados/{id}` (513 chamadas, 8 em paralelo)

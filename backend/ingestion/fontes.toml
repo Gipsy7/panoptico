@@ -363,3 +363,11 @@ frequencia = "mensal"
 bruto = "recorte"
 # Endereço atual a confirmar: dadosabertos.rfb.gov.br não conecta (09/10/2026) e
 # arquivos.receitafederal.gov.br é um Nextcloud que exige o link de compartilhamento.
+
+[[fonte]]
+nome = "senado_etica"
+modulo = "ingestion.senado.etica"
+uso = "Linha do tempo: representações no Conselho de Ética do Senado"
+recorte = "representações desde 2019, ligadas pelo nome único entre senadores"
+frequencia = "semanal"
+depende = ["pessoas"]
