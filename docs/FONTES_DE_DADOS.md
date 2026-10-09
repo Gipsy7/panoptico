@@ -283,6 +283,16 @@ Endpoints conferidos em 2026-10-06.
   - Em 2025: `Nome do(a) Deputado(a)`, `CPF do(a) Deputado(a)`, `Data do Recibo/NF` (mês/dia/ano), `Valor`, `Classificação`.
   - Só 8 a 9 dos 24 deputados aparecem nos arquivos.
 
+## ALESC: Assembleia Legislativa de Santa Catarina
+
+- **Sem API nem exportação.** Lemos as páginas públicas, uma por vez, com pausa:
+  - deputados: `https://www.alesc.sc.gov.br/deputados` (cartões com nome, partido e foto; 40);
+  - proposições: o e-Legis, `https://portalelegis.alesc.sc.gov.br/proposicoes/processo-legislativo` (projetos) e `/proposicoes/atividade-parlamentar` (requerimentos, indicações, moções, pedidos de informação…), 10 por página, `?inicio=AAAA-MM-DD&fim=AAAA-MM-DD&page=N`. O parâmetro `ano` é ignorado: o formulário converte o ano em `inicio` e `fim` no navegador.
+- **Volume (2025 e 2026 até outubro):** ~1.760 proposições do processo legislativo e ~11.900 da atividade parlamentar, ou cerca de 1.370 páginas.
+- **Cada cartão:** número ("PL./0640/2026", "RQS/0012/2026"), ementa, data de entrada, autoria ("Deputado Altair Silva", às vezes vários), setor e situação atual.
+- **Siglas** (conferidas pelo filtro de tipo do próprio e-Legis): PL. projeto de lei, PLC complementar, PEC, PRS resolução, PDL decreto legislativo, RQS requerimento, RCC requerimento de comissões, RQC requerimento de frente/fórum/CPI/comissão mista, IND indicação, MOC moção, PIC pedido de informação, OFL ofício legislativo, PSA proposta de sustação de ato.
+- **Sem votos, presença nem gastos** nessas páginas.
+
 ## Canais oficiais dos municípios (varredura do Panóptico)
 
 - **O que é:** varredura dos domínios oficiais de cada cidade: prefeitura em `{cidade}.{uf}.gov.br`; câmara em `{cidade}.{uf}.leg.br`, `camara{cidade}...` e `cm{cidade}...`; e os links do próprio site da prefeitura. Confere se a página é da cidade e reconhece o sistema (SAPL; fornecedores de transparência como Betha, IPM, CR2, Fiorilli e Elotech).

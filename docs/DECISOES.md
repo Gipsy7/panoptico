@@ -109,6 +109,12 @@ O subsídio é igual para deputados e senadores e é fixado por decreto legislat
 - **Bens:** valor como declarado, sem correção. A página avisa que bens costumam ser declarados pelo valor de compra. Sem palavras como "enriqueceu": mostramos os dois totais e o ano.
 - **2024:** o TSE passou a mascarar o CPF, então as candidaturas municipais de 2024 não se ligam aos parlamentares federais.
 
+## 2026-10-09: Assembleia de Santa Catarina (ALESC)
+
+- **A ALESC não tem API nem exportação.** As páginas do e-Legis são públicas e sem barreira, então lemos o HTML, uma página por vez, com pausa: cerca de 1.370 páginas por semana.
+- **Resultado na base local:** 40 deputados, 36 ligados ao eleito do TSE (os outros 4 devem ser suplentes), 1.188 projetos, e requerimentos, indicações, moções e pedidos de informação como contagem.
+- **Leitura do HTML:** é frágil por natureza. Se a ALESC mudar o layout, a carga recusa lista curta de deputados (menos de 30 de 40). Os testes usam recortes reais das páginas.
+
 ## 2026-10-09: análises (cruzamentos) e sanções a empresas
 
 - **Análises versionadas** em `backend/analises/<nome>.sql`, rodadas por `python -m analises <nome> [--saida arquivo.csv]`. O comentário do topo de cada consulta explica como ler o resultado. Uma análise que se mostrar sólida vira rota da API e depois seção do site; até lá, é material de conferência.

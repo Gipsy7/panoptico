@@ -248,6 +248,13 @@ recorte = "deputados distritais ativos; proposições do ano atual e anterior"
 frequencia = "semanal"
 
 [[fonte]]
+nome = "alesc"
+modulo = "ingestion.assembleias.alesc"
+uso = "Assembleia de Santa Catarina hoje"
+recorte = "deputados em exercício; proposições do ano atual e anterior"
+frequencia = "semanal"
+
+[[fonte]]
 nome = "alesp"
 modulo = "ingestion.assembleias.alesp"
 uso = "Assembleia de São Paulo hoje"
@@ -261,7 +268,7 @@ modulo = "ingestion.pessoas"
 uso = "Pessoa pública única e linha do tempo (/pessoas/{id}/eventos)"
 recorte = "candidaturas, parlamentares e mandatos já carregados"
 frequencia = "semanal"
-depende = ["tse_candidaturas", "camara_deputados", "senado_senadores", "sapl_camaras", "sapl_assembleias", "almg", "alesp", "alepe", "cldf"]
+depende = ["tse_candidaturas", "camara_deputados", "senado_senadores", "sapl_camaras", "sapl_assembleias", "almg", "alesp", "alepe", "cldf", "alesc"]
 
 # Justiça e controle
 [[fonte]]

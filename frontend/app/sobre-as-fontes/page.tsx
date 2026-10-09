@@ -100,7 +100,9 @@ export default function SobreAsFontesPage() {
           da API de dados abertos da ALEPE: deputados no cargo e projetos, com indicações e
           requerimentos como contagem; a API não traz votos, presença nem gastos do gabinete. No
           Distrito Federal, da API pública do processo legislativo da Câmara Legislativa (CLDF):
-          deputados distritais no cargo e projetos; votos e presença não estão nela.
+          deputados distritais no cargo e projetos; votos e presença não estão nela. Em Santa
+          Catarina, das páginas públicas da ALESC e do sistema e-Legis: deputados no cargo e
+          proposições (a ALESC não tem API de dados abertos).
         </Item>
         <Item titulo="Contas da cidade">
           O que a prefeitura declarou ao Tesouro Nacional na Declaração de Contas Anuais

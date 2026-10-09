@@ -39,6 +39,10 @@ TIPOS = {
     "IND": "Indicação",
     "MOC": "Moção",
     "PIC": "Pedido de Informação",
+    "OFL": "Ofício Legislativo",
+    "RCC": "Requerimento de Comissões",
+    "RQC": "Requerimento de Frente, Fórum, CPI ou Comissão Mista",
+    "PSA": "Proposta de Sustação de Ato",
 }
 CARTAO = re.compile(
     r'<a href="/proposicoes/(?P<id>[A-Za-z0-9]+)">(?P<sigla>[^<]+)</a>\s*</h4>'

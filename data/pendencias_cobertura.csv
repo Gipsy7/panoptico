@@ -82,6 +82,6 @@ camara,sapl.vilaflores.rs.leg.br,https://sapl.vilaflores.rs.leg.br/,SAPL parado 
 assembleia,PE,https://dadosabertos.alepe.pe.gov.br/,"sem votos, presença e gastos na API",conector ALEPE (deputados e proposições),resolvido parcialmente
 assembleia,DF,https://ple.cl.df.gov.br/pleservico/api/public,sem votos e presença na API; verbas só de 8–9 dos 24 deputados,"conector CLDF (deputados, proposições e verbas)",resolvido parcialmente
 assembleia,PR,https://webservices.assembleia.pr.leg.br/api/public/,API com certificado HTTPS autoassinado,pedir à ALEP que corrija o certificado (não desligamos a verificação),pendente
-assembleia,SC,https://portalelegis.alesc.sc.gov.br/,"portal só em HTML (htmx), sem API nem exportação","leitor do HTML público, ou pedido de dados abertos",pendente
+assembleia,SC,https://portalelegis.alesc.sc.gov.br/,"portal só em HTML (htmx), sem API nem exportação",conector ALESC (páginas públicas do e-Legis),"resolvido parcialmente (sem votos, presença e gastos)"
 assembleia,GO,https://transparencia.al.go.leg.br/dados-abertos,"página de dados abertos montada no navegador, sem links no HTML",reconhecer pelo navegador,pendente
 assembleia,RJ/RS/BA/ES/MA/MS/PA/RN/SE/CE/AP,,sem dados abertos achados (levantamento de 09/10/2026),levantamento casa a casa a partir do estudo 'Democracia em Formato JSON' (2025),pendente

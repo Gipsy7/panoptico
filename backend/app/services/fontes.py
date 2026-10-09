@@ -111,6 +111,12 @@ CATALOGO = [
         "url": "https://dados.cl.df.gov.br/dataset/proposicoes",
     },
     {
+        "dado": "Deputados estaduais de SC: no cargo e proposições",
+        "orgao": "Assembleia Legislativa de Santa Catarina (páginas públicas do e-Legis)",
+        "fontes": ["alesc"],
+        "url": "https://portalelegis.alesc.sc.gov.br/",
+    },
+    {
         "dado": "Sites oficiais das prefeituras e câmaras (catálogo aberto)",
         "orgao": "Varredura do Panóptico nos domínios .gov.br e .leg.br",
         "fontes": ["canais_oficiais"],
