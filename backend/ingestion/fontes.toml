@@ -287,6 +287,27 @@ recorte = "deputados em exercício; proposições do ano atual e anterior"
 frequencia = "semanal"
 
 [[fonte]]
+nome = "alerj"
+modulo = "ingestion.assembleias.alerj"
+uso = "Assembleia do Rio de Janeiro hoje"
+recorte = "deputados em exercício (sem proposições: o processo legislativo não tem canal aproveitável)"
+frequencia = "semanal"
+
+[[fonte]]
+nome = "alrs"
+modulo = "ingestion.assembleias.alrs"
+uso = "Assembleia do Rio Grande do Sul hoje"
+recorte = "deputados em exercício; proposições, votos em plenário, presença e cota do ano atual e anterior"
+frequencia = "semanal"
+
+[[fonte]]
+nome = "alba"
+modulo = "ingestion.assembleias.alba"
+uso = "Assembleia da Bahia hoje"
+recorte = "deputados em exercício; proposições e presença em plenário do ano atual e anterior"
+frequencia = "semanal"
+
+[[fonte]]
 nome = "alesp"
 modulo = "ingestion.assembleias.alesp"
 uso = "Assembleia de São Paulo hoje"
@@ -300,7 +321,7 @@ modulo = "ingestion.pessoas"
 uso = "Pessoa pública única e linha do tempo (/pessoas/{id}/eventos)"
 recorte = "candidaturas, parlamentares e mandatos já carregados"
 frequencia = "semanal"
-depende = ["tse_candidaturas", "camara_deputados", "senado_senadores", "sapl_camaras", "sapl_assembleias", "almg", "alesp", "alepe", "cldf", "alesc"]
+depende = ["tse_candidaturas", "camara_deputados", "senado_senadores", "sapl_camaras", "sapl_assembleias", "almg", "alesp", "alepe", "cldf", "alesc", "alerj", "alrs", "alba"]
 
 # Justiça e controle
 [[fonte]]

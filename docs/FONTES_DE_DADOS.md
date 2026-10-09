@@ -360,6 +360,38 @@ Endpoints conferidos em 2026-10-06.
 - **Siglas** (conferidas pelo filtro de tipo do próprio e-Legis): PL. projeto de lei, PLC complementar, PEC, PRS resolução, PDL decreto legislativo, RQS requerimento, RCC requerimento de comissões, RQC requerimento de frente/fórum/CPI/comissão mista, IND indicação, MOC moção, PIC pedido de informação, OFL ofício legislativo, PSA proposta de sustação de ato.
 - **Sem votos, presença nem gastos** nessas páginas.
 
+## ALERJ: Assembleia Legislativa do Rio de Janeiro
+
+- **Sem API nem dados abertos.** `robots.txt` inexistente (404). Lemos páginas públicas do site, uma por vez, com pausa:
+  - lista: `https://www.alerj.rj.gov.br/Deputados/RepresentacaoPartidaria` (cartões `controle_deputado` com partido, nome, foto e o código do perfil; 70 deputados em exercício);
+  - ficha: `https://www.alerj.rj.gov.br/Deputados/PerfilDeputado/{id}` (nome parlamentar com a caixa certa, telefone e e-mail do gabinete). A página diz UTF-8, mas partes antigas vêm em Windows-1252: decodificamos com os dois.
+- **Proposições: sem canal aproveitável.** Testado em 09/10/2026:
+  - o processo legislativo está num Lotus Notes (`alerjln1.alerj.rj.gov.br/scpro2327.nsf`, legislatura 2023-2027). A visão de cada deputado (`/{slug}int?OpenForm&ExpandView`) mostra só as primeiras linhas;
+  - qualquer chamada com `Start=`, `Count=` ou `ReadViewEntries` recebe resposta vazia (conexão fechada pelo servidor). Não contornamos;
+  - a busca por texto (POST do formulário público de busca) devolve no máximo 1.000 resultados, ordenados por relevância, misturando proposições, distribuições, despachos e pareceres. Não dá para saber se uma lista está completa.
+- **Sem votos nominais, presença e gastos** em formato aproveitável (a Ordem do Dia é um sistema à parte).
+
+## ALRS: Assembleia Legislativa do Rio Grande do Sul
+
+- **Sem arquivos em lote nem documentação**, mas os portais alimentam as próprias telas por endereços abertos (os `robots.txt` só bloqueiam áreas administrativas do Drupal):
+  - deputados: `GET https://ww4.al.rs.gov.br:5000/listarDestaqueDeputados` (JSON `{"lista": [...]}` com `idDeputado`, `nomeDeputado` (às vezes com espaço no fim), `siglaPartido`, `emailDeputado`, `telefoneDeputado`, `fotoGrandeDeputado`, `codStatus`; 55);
+  - proposições: `GET https://ww4.al.rs.gov.br/legislativo/pesquisa/dados?anoProposicao=AAAA` (JSON com todas as proposições do ano, sem paginação: ~1.100 em 2026, 950 KB, **cerca de 4 minutos** para responder). Campos: `siglaTipoProposicao`, `nroProposicao`, `nomeProponente` ("Deputado(a) Nome", "Deputado(a) Nome + 3 Deputado(s)" quando há coautores sem nome, "Poder Executivo"…), `dthProtocolo`, `ementa`, `descricao` (situação), `proposicaoId`;
+  - votos em plenário: `GET https://transparencia.al.rs.gov.br/parlamentares/votos-plenario/pesquisa?solicitante={idDeputado}&ano=AAAA`. HTML com um `data-item='{...}'` (JSON escapado) por voto: `dataVotacao`, `tipoProjeto`, `numProposicao`, `anoProposicao`, `materia`, `voto` ("Sim", "Não"…), `resultadoVotacao`. Não traz os totais da votação nem um identificador: montamos a votação por (data, tipo, número, ano) e contamos os votos dos deputados em exercício;
+  - presença: `.../presencas-plenario/pesquisa?solicitante=&ano=` (sem `mes`, devolve o ano inteiro, um `data-item` por mês com `presenca`, licenças, `faltaJustificada` e `faltaNaoJustificada`);
+  - cota parlamentar: `.../gastos/pesquisa?solicitante=&ano=&mes=` (obrigatório o mês; sem ele, "não foram encontradas ocorrências"). Despesas do mês por categoria ("Telefones: - R$1.097,00"), mais saldo anterior, cota e total, que ignoramos.
+- **Armadilhas:** a página de gastos escreve a classe CSS com dois espaços (`responsive-value  justify-content-center`); o endereço da proposição precisa do UUID (`/proposicao/PL/1/2026/{proposicaoId}`).
+- **Volume por carga:** 55 deputados x (2 anos de votos + 2 de presença + ~22 meses de cota) = ~1.450 requisições, uma por vez, mais as 2 consultas de proposições.
+
+## ALBA: Assembleia Legislativa da Bahia
+
+- **API pública** do Processo Legislativo Eletrônico, documentada em `https://albalegis.nopapercloud.com.br/dados-abertos.aspx` (`robots.txt`: `Allow: /`). JSON, sem chave:
+  - `GET /api/publico/parlamentar/?pag=1&qtd=200`: 72 registros (63 `Ativo`, 9 `Inativo` da legislatura 20), com `parlamentarNome`, `parlamentarRazaoSocial` (nome civil), `partidoSigla`, `parlamentarFoto`, `parlamentarEmail`, `autorID` e `frequenciaPlenario` (por situação e ano: Presente, Falta, Falta Justificada, Licenciado, Afastado, Governador Interino). A resposta tem 770 KB por causa do currículo em HTML;
+  - `GET /api/publico/proposicao/?pag=&qtd=100&ano=AAAA`: ~1.900 proposições em 2026, com `sigla`, `numero`, `assunto` (ementa), `data`, `situacao`, `arquivo` (PDF) e `AutorRequerenteDados`. Atenção: o autor traz o **CPF**, que não guardamos. O `autorId` da proposição nem sempre é o `autorID` do parlamentar (casa em 416 de 500 no teste); o nome civil (`nomeRazao`) casa com a razão social em todos os deputados, e é a chave principal;
+  - `GET /api/publico/spl/sessoes/` (redireciona sem a barra final): sessões, com pauta, oradores e presenças por sessão em `?id=`; não usamos, porque a frequência por ano já vem no parlamentar;
+  - outras: comissões, mesa, lideranças, partidos, reuniões de comissão.
+- **Tipos:** PL, PLC, PEC, PDL e PRS (projeto de resolução) guardam a ementa; IND (indicação), MOC (moção), REQ (requerimento) e UP (utilidade pública) viram contagem. OF, MSG e outros ficam de fora.
+- **Sem votos nominais** na API (as sessões trazem pauta e presenças, não o voto de cada deputado) e **sem verba de gabinete** nos dados abertos.
+
 ## Canais oficiais dos municípios (varredura do Panóptico)
 
 - **O que é:** varredura dos domínios oficiais de cada cidade: prefeitura em `{cidade}.{uf}.gov.br`; câmara em `{cidade}.{uf}.leg.br`, `camara{cidade}...` e `cm{cidade}...`; e os links do próprio site da prefeitura. Confere se a página é da cidade e reconhece o sistema (SAPL; fornecedores de transparência como Betha, IPM, CR2, Fiorilli e Elotech).

@@ -123,6 +123,24 @@ CATALOGO = [
         "url": "https://portalelegis.alesc.sc.gov.br/",
     },
     {
+        "dado": "Deputados estaduais do RJ: no cargo (partido, foto e contato)",
+        "orgao": "Assembleia Legislativa do Rio de Janeiro (páginas públicas do site)",
+        "fontes": ["alerj"],
+        "url": "https://www.alerj.rj.gov.br/Deputados/QuemSao",
+    },
+    {
+        "dado": "Deputados estaduais do RS: no cargo, proposições, votos, presença e cota",
+        "orgao": "Assembleia Legislativa do Rio Grande do Sul (portais da transparência)",
+        "fontes": ["alrs"],
+        "url": "https://transparencia.al.rs.gov.br/parlamentares",
+    },
+    {
+        "dado": "Deputados estaduais da BA: no cargo, proposições e presença em plenário",
+        "orgao": "Assembleia Legislativa da Bahia (dados abertos do processo legislativo)",
+        "fontes": ["alba"],
+        "url": "https://albalegis.nopapercloud.com.br/dados-abertos.aspx",
+    },
+    {
         "dado": "Sites oficiais das prefeituras e câmaras (catálogo aberto)",
         "orgao": "Varredura do Panóptico nos domínios .gov.br e .leg.br",
         "fontes": ["canais_oficiais"],

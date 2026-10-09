@@ -49,6 +49,9 @@ Os dados sobre o trabalho dos parlamentares já são públicos, mas estão espal
 - **Assembleia de Pernambuco** (API de dados abertos da ALEPE): deputados no cargo, projetos, indicações e requerimentos. A API não traz votos, presença nem gastos do gabinete.
 - **Câmara Legislativa do Distrito Federal** (API pública do processo legislativo e dados abertos da CLDF): deputados distritais no cargo, projetos, indicações, moções e requerimentos, e **gastos do gabinete** (verbas indenizatórias) de quem aparece nos arquivos da CLDF.
 - **Assembleia de Santa Catarina** (páginas públicas do e-Legis da ALESC, que não tem API): deputados no cargo, projetos e a contagem de requerimentos, indicações, moções e pedidos de informação.
+- **Assembleia do Rio de Janeiro** (páginas públicas do site da ALERJ, que não tem API): só os deputados em exercício, com partido, foto e contato. O processo legislativo da casa roda num sistema antigo que não permite coletar as proposições de forma confiável.
+- **Assembleia do Rio Grande do Sul** (portais da ALRS, que não tem dados abertos documentados): deputados no cargo, projetos, requerimentos, **voto de cada deputado em plenário**, **presença** e **cota parlamentar** (gastos do gabinete), com a média da assembleia.
+- **Assembleia da Bahia** (API de dados abertos da ALBA): deputados no cargo, projetos, indicações, moções e requerimentos, e **presença em plenário**. A API não traz votos nem gastos.
 - **Assembleia de Minas Gerais** (dados abertos da ALMG): deputados no cargo, projetos, requerimentos e **gastos do gabinete** (verba indenizatória), com a média da assembleia. A ALMG não publica o voto de cada deputado nem a presença.
 - **Canais oficiais da sua cidade**: sites da prefeitura e da câmara e os portais da transparência, num catálogo aberto (`data/canais_oficiais.csv`, gerado pela varredura, e `data/canais_curados.csv`, com as correções feitas à mão) que qualquer pessoa pode corrigir por pull request.
 - **Compartilhamento**: perfis e comparações têm imagem de pré-visualização e botão de WhatsApp.
@@ -131,6 +134,9 @@ flowchart LR
 | Deputados estaduais de PE: projetos | [Dados abertos da ALEPE](https://dadosabertos.alepe.pe.gov.br/) | API (XML e JSON), semanal |
 | Deputados distritais (DF): projetos | [API do processo legislativo da CLDF](https://dados.cl.df.gov.br/dataset/proposicoes) | API (JSON), semanal |
 | Deputados estaduais de SC: proposições | [e-Legis da ALESC](https://portalelegis.alesc.sc.gov.br/) | Páginas públicas, semanal |
+| Deputados estaduais do RJ | [Site da ALERJ](https://www.alerj.rj.gov.br/Deputados/QuemSao) | Páginas públicas, semanal |
+| Deputados estaduais do RS: projetos, votos em plenário, presença e cota | [Portal da transparência da ALRS](https://transparencia.al.rs.gov.br/parlamentares) | Endereços abertos dos portais, semanal |
+| Deputados estaduais da BA: projetos e presença | [Dados abertos da ALBA](https://albalegis.nopapercloud.com.br/dados-abertos.aspx) | API (JSON), semanal |
 | Deputados estaduais de MG: projetos e gastos do gabinete | [Dados abertos da ALMG](https://dadosabertos.almg.gov.br/) | API, semanal |
 | Municípios | [IBGE](https://servicodados.ibge.gov.br/api/docs/localidades) | API REST |
 | CEP → cidade e estado | [ViaCEP](https://viacep.com.br/) | Consulta na hora, sem gravar |
@@ -303,7 +309,7 @@ O plano completo, com a ordem das fases, está em [docs/DECISOES.md](docs/DECISO
 - Atos de nomeação e exoneração nos diários municipais (Querido Diário): a coleta de sugestões já existe no acervo (`python -m ingestion.diarios.atos`, tabela `diario_ato`, sempre `revisado = false`); falta a fila de revisão humana em `ingestion.revisar` antes de qualquer exibição
 - Contratos públicos (PNCP): a coleta em somas já existe no acervo (`python -m ingestion.pncp.contratos`); falta exibir. Convênios, empresas e sócios (CNPJ)
 - As 66 câmaras cujo SAPL parou e as 910 cidades sem canal oficial encontrado
-- Conectores próprios para as 13 assembleias sem SAPL que faltam, depois de um levantamento casa a casa do que cada uma publica
+- Conectores próprios para as 10 assembleias sem SAPL que faltam, depois de um levantamento casa a casa do que cada uma publica
 - Presença nas reuniões das comissões da ALESP (já publicada em dados abertos; os votos nas comissões já entraram)
 - Despesas por fornecedor de outros Tribunais de Contas (o de MG exige reCAPTCHA nos dados abertos; falta pedir acesso)
 - Teste com pessoas reais e auditoria de acessibilidade
