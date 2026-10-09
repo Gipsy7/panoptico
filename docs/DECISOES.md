@@ -109,6 +109,16 @@ O subsídio é igual para deputados e senadores e é fixado por decreto legislat
 - **Bens:** valor como declarado, sem correção. A página avisa que bens costumam ser declarados pelo valor de compra. Sem palavras como "enriqueceu": mostramos os dois totais e o ano.
 - **2024:** o TSE passou a mascarar o CPF, então as candidaturas municipais de 2024 não se ligam aos parlamentares federais.
 
+## 2026-10-09: Assembleia de Pernambuco (ALEPE)
+
+- **Conector pela API de dados abertos da ALEPE**, nas mesmas tabelas das outras casas:
+  - os 49 deputados no cargo, com partido;
+  - os projetos do ano atual e do anterior, com ementa;
+  - indicações e requerimentos só como contagem.
+- **Ligação dos autores:** o autor deputado vem pelo mesmo nome parlamentar da lista de deputados. Na base local, todos os 49 têm proposições, e 44 se ligaram ao eleito do TSE (os outros 5 devem ser suplentes que assumiram).
+- **Sem votos, sem presença e sem gastos do gabinete:** a API não tem essas rotas. O perfil diz que a assembleia não publica isso em dados abertos.
+- Tipo da proposição em caixa normal com artigo minúsculo ("Proposta de Emenda a Constituição", como vem, sem a crase).
+
 ## 2026-10-09: câmaras com SAPL parado e câmaras que falhavam
 
 - **Falhas no Actions que eram só de origem:** Porto Velho e Armação dos Búzios respondem normalmente a partir do Brasil, como a Assembleia de Roraima. Rodam no acervo local.

@@ -254,6 +254,14 @@ Endpoints conferidos em 2026-10-06.
   - há presença e votações das **comissões** (`comissoes_permanentes_presencas.xml`, `comissoes_permanentes_votacoes.xml`, 65 MB), ainda não usadas.
 - **Frequência:** semanal, junto com as câmaras.
 
+## ALEPE: Assembleia Legislativa de Pernambuco
+
+- **API (sem chave):** `https://dadosabertos.alepe.pe.gov.br/api/v1/` (documentação em `/?documentacao=...`). Rotas: `parlamentares/` (JSON: `nomeParlamentar`, `partido`; 49, todas as cadeiras), `proposicoes/{projetos|indicacoes|requerimentos}/?ano=` (XML), `cargos`, `contratos`, `licitacoes`, `lotacoes`, `remuneracao` e `servidores`. **Sem** votações, presença ou gastos do gabinete (testado: `votacoes`, `presenca`, `despesas` dão 404).
+- **Proposições (XML):** `docid`, `numero`, `ano`, `tipo` ("PROJETO DE LEI ORDINÁRIA", "PROPOSTA DE EMENDA A CONSTITUIÇÃO"…), `ementa`, `dataPublicacao` (`dd/mm/aaaa`) e `<autores>` com `nome` e `tipo` (`DEPUTADO`, `EXTERNO` para o Executivo, `COMISSAO`). O autor deputado vem pelo **mesmo nome parlamentar** da lista de deputados. Em 2026 (até outubro): 629 projetos, 1,7 MB de indicações e 1,4 MB de requerimentos.
+- **Armadilhas:** a ementa das indicações e dos requerimentos vem em HTML escapado duas vezes (`&lt;p&gt;Indicamos &amp;agrave;…`). A rota sem o tipo (`proposicoes/`) devolve erro em XML com as rotas válidas.
+- **Link de cada proposição:** `https://www.alepe.pe.gov.br/proposicao-texto-completo/?docid={docid}`.
+- **Levantamento das outras assembleias** (09/10/2026): ALERJ, ALRS, ALEP e ALBA não têm portal de dados abertos achável (endereços testados dão 404, 500 ou não conectam). Um estudo de 2025 ("Democracia em Formato JSON", preprint SciELO) compara as APIs das 26 assembleias e da CLDF; é o ponto de partida do levantamento casa a casa.
+
 ## Canais oficiais dos municípios (varredura do Panóptico)
 
 - **O que é:** varredura dos domínios oficiais de cada cidade: prefeitura em `{cidade}.{uf}.gov.br`; câmara em `{cidade}.{uf}.leg.br`, `camara{cidade}...` e `cm{cidade}...`; e os links do próprio site da prefeitura. Confere se a página é da cidade e reconhece o sistema (SAPL; fornecedores de transparência como Betha, IPM, CR2, Fiorilli e Elotech).

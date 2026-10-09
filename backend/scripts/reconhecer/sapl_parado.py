@@ -15,8 +15,8 @@ from urllib.parse import urljoin, urlparse
 
 import httpx
 
-from ingestion.comum import USER_AGENT
 from ingestion.canais.catalogo import ler
+from ingestion.comum import USER_AGENT
 
 PALAVRAS = re.compile(r"proposi|materia|legisla|sess(ao|oes)|vereador|leis|pauta|votac", re.I)
 ASSINATURAS = [

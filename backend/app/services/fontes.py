@@ -99,6 +99,12 @@ CATALOGO = [
         "url": "https://www.al.sp.gov.br/dados-abertos/",
     },
     {
+        "dado": "Deputados estaduais de PE: no cargo e projetos",
+        "orgao": "Assembleia Legislativa de Pernambuco (dados abertos)",
+        "fontes": ["alepe"],
+        "url": "https://dadosabertos.alepe.pe.gov.br/",
+    },
+    {
         "dado": "Sites oficiais das prefeituras e câmaras (catálogo aberto)",
         "orgao": "Varredura do Panóptico nos domínios .gov.br e .leg.br",
         "fontes": ["canais_oficiais"],
