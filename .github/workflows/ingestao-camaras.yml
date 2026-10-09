@@ -194,3 +194,66 @@ jobs:
         run: uv sync --locked --no-dev
       - name: Assembleia de Santa Catarina (ALESC)
         run: uv run python -m ingestion.assembleias.alesc
+
+  # Assembleia do Rio de Janeiro: páginas públicas do site (sem API), uma por vez.
+  alerj:
+    needs: catalogo
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: backend
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      PYTHONUNBUFFERED: "1"
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v10.2.0
+        with:
+          version: "0.12.23"
+      - name: Instalar dependências
+        run: uv sync --locked --no-dev
+      - name: Assembleia do Rio de Janeiro (ALERJ)
+        run: uv run python -m ingestion.assembleias.alerj
+
+  # Assembleia do Rio Grande do Sul: portais da transparência e do legislativo, uma requisição por vez.
+  alrs:
+    needs: catalogo
+    runs-on: ubuntu-latest
+    timeout-minutes: 150
+    defaults:
+      run:
+        working-directory: backend
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      PYTHONUNBUFFERED: "1"
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v10.2.0
+        with:
+          version: "0.12.23"
+      - name: Instalar dependências
+        run: uv sync --locked --no-dev
+      - name: Assembleia do Rio Grande do Sul (ALRS)
+        run: uv run python -m ingestion.assembleias.alrs
+
+  # Assembleia da Bahia: API pública de dados abertos do Processo Legislativo Eletrônico.
+  alba:
+    needs: catalogo
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    defaults:
+      run:
+        working-directory: backend
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      PYTHONUNBUFFERED: "1"
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v10.2.0
+        with:
+          version: "0.12.23"
+      - name: Instalar dependências
+        run: uv sync --locked --no-dev
+      - name: Assembleia da Bahia (ALBA)
+        run: uv run python -m ingestion.assembleias.alba

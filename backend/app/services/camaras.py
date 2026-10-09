@@ -28,6 +28,9 @@ FONTES = {
 FONTES_PROPRIAS = {
     "MG": ("almg", "Dados abertos da Assembleia de Minas Gerais (ALMG)"),
     "SP": ("alesp", "Dados abertos da Assembleia de São Paulo (ALESP)"),
+    "RJ": ("alerj", "Site da Assembleia Legislativa do Rio de Janeiro (ALERJ)"),
+    "RS": ("alrs", "Portais da Assembleia Legislativa do Rio Grande do Sul (ALRS)"),
+    "BA": ("alba", "Dados abertos da Assembleia Legislativa da Bahia (ALBA)"),
 }
 
 
