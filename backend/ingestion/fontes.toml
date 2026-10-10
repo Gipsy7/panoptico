@@ -474,6 +474,32 @@ frequencia = "semanal"
 depende = ["pessoas"]
 
 [[fonte]]
+nome = "cpis"
+modulo = "ingestion.congresso.cpis"
+uso = "Linha do tempo: presidente, relator e membros de CPIs e CPMIs (Câmara, Senado e Congresso), com o objeto, as datas e o link do relatório final"
+recorte = "CPIs e CPMIs criadas desde 2019; participação ligada ao parlamentar pelo id oficial da casa (ou pelo nome parlamentar único entre eleitos, com a mesma UF); sem indiciamentos"
+guarda = "linhas"
+bruto = "recorte"
+frequencia = "semanal"
+depende = ["pessoas"]
+# Da Câmara: os arquivos em lote orgaos.json e orgaosDeputados-L{56,57}.json e as tramitações dos
+# requerimentos de criação (para o relatório). Do Senado/Congresso: ~330 consultas de comissões por
+# senador (única forma de achar as CPIs encerradas) e duas páginas oficiais por comissão. O bruto
+# guarda os órgãos, os membros e o HTML das páginas das comissões (poucos MB).
+
+[[fonte]]
+nome = "cpi_indiciamentos"
+modulo = "ingestion.congresso.cpi_indiciamentos"
+uso = "Fila de revisão: nomes citados na seção de indiciamentos dos relatórios finais de CPIs (nada é publicado sem revisão humana; pedido de indiciamento não é acusação formal)"
+recorte = "só relatórios adotados pela comissão (Câmara: parecer aprovado; Senado/Congresso: relatório final aprovado), das CPIs e CPMIs da fonte cpis; nome como no relatório, trecho de até 600 caracteres, página e link do PDF"
+guarda = "linhas"
+bruto = "recorte"
+frequencia = "manual"
+depende = ["cpis"]
+# Baixa PDFs de dezenas de MB (o da CPI da Pandemia tem 38 MB e 1.288 páginas; o da CPI de
+# Brumadinho, 24 MB e 2.287 páginas, ~1 min de extração). Os PDFs não ficam: só as sugestões.
+
+[[fonte]]
 nome = "querido_diario_atos"
 modulo = "ingestion.diarios.atos"
 uso = "Fila de revisão: sugestões de atos de nomeação, exoneração e designação que citam o nome completo de uma pessoa que acompanhamos, nos diários oficiais municipais (nada é publicado sem revisão humana)"

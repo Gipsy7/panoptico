@@ -141,6 +141,12 @@ CATALOGO = [
         "url": "https://albalegis.nopapercloud.com.br/dados-abertos.aspx",
     },
     {
+        "dado": "CPIs e CPMIs desde 2019: presidente, relator, membros e relatório final",
+        "orgao": "Câmara dos Deputados, Senado Federal e Congresso Nacional",
+        "fontes": ["cpis"],
+        "url": "https://dadosabertos.camara.leg.br/",
+    },
+    {
         "dado": "Sites oficiais das prefeituras e câmaras (catálogo aberto)",
         "orgao": "Varredura do Panóptico nos domínios .gov.br e .leg.br",
         "fontes": ["canais_oficiais"],

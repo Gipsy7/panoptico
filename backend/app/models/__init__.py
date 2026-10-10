@@ -9,6 +9,7 @@ from app.models.camara_municipal import (
 from app.models.canal_oficial import CanalOficial
 from app.models.candidatura import BemDeclarado, CampanhaResumo, Candidatura, Foto, RedeSocial
 from app.models.contas_municipio import ContasMunicipio
+from app.models.cpi import Cpi, CpiIndiciamentoSugestao, CpiParticipacao
 from app.models.despesa import Despesa
 from app.models.despesa_fornecedor import DespesaFornecedor
 from app.models.emenda import Emenda
@@ -47,6 +48,9 @@ __all__ = [
     "BemDeclarado",
     "CanalOficial",
     "CnpjConsulta",
+    "Cpi",
+    "CpiIndiciamentoSugestao",
+    "CpiParticipacao",
     "DiarioAto",
     "DiarioConsulta",
     "Caso",
