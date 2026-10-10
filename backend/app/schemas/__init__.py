@@ -934,3 +934,52 @@ class PartidoDetalheResposta(BaseModel):
     fonte_nome: str
     fonte_url: str
     atualizado_em: datetime | None
+
+
+class EmpresaDoSocio(BaseModel):
+    cnpj: str
+    nome: str | None
+    qualificacao: str | None
+    contratos: int
+
+
+class ContratoPncpItem(BaseModel):
+    fornecedor_cnpj: str
+    fornecedor_nome: str | None
+    orgao: str | None
+    municipio: str | None
+    uf: str | None
+    objeto: str | None
+    valor: float | None
+    vigencia_inicio: date | None
+    vigencia_fim: date | None
+    publicado_em: date
+    url: str
+
+
+class ContratosDaPessoa(BaseModel):
+    pessoa_id: int
+    empresas: list[EmpresaDoSocio]
+    total_contratos: int
+    valor_total: float
+    itens: list[ContratoPncpItem]
+    cobertura_desde: date | None
+    fonte_nome: str
+    fonte_url: str
+    atualizado_em: datetime | None
+
+
+class FornecedorPncpItem(BaseModel):
+    fornecedor_cnpj: str
+    fornecedor: str | None
+    valor: float
+    contratos: int
+
+
+class FornecedoresPncpResposta(BaseModel):
+    ano: int
+    itens: list[FornecedorPncpItem]
+    soma_ate: date | None
+    fonte_nome: str
+    fonte_url: str
+    atualizado_em: datetime | None

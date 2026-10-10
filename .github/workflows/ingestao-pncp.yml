@@ -1,0 +1,80 @@
+name: PNCP (contratos públicos)
+
+# Contratos do Portal Nacional de Contratações Públicas, no recorte enxuto da produção
+# (docs/DEPLOY_GRATUITO.md, "PNCP na produção"): os contratos inteiros de empresas de que
+# políticos que acompanhamos são sócios ou que foram sancionadas (pncp_contrato) e a soma
+# anual por município × fornecedor, só do ano atual e do anterior (pncp_anual). Não grava a
+# tabela diária pncp_soma.
+#
+# Todo dia, de madrugada: relê os últimos dias (o cursor fica em pncp_dia) e soma no ano o
+# que saiu da janela de 10 dias. Dia que já foi somado nunca é somado de novo.
+#
+# PRIMEIRA CARGA (disparo manual, uma vez, depois de o cnpj_socios ter rodado): a API não
+# filtra por fornecedor e responde ~3 a 4 min por dia de publicação, então os ~650 dias de
+# janeiro do ano anterior até hoje não cabem num job (limite de 6 h). Dispare "Run workflow"
+# em blocos de até 80 dias, por exemplo: 2025-01-01 a 2025-03-21, 2025-03-22 a 2025-06-09,
+# e assim por diante. A ordem não importa; o que faltar o agendamento diário completa.
+on:
+  schedule:
+    - cron: "30 5 * * *" # 2h30 em Brasília, fora do horário de pico da API
+  workflow_dispatch:
+    inputs:
+      de:
+        description: "Primeiro dia (AAAA-MM-DD). Em branco: continua do cursor."
+        required: false
+        type: string
+      ate:
+        description: "Último dia (AAAA-MM-DD). Em branco: hoje."
+        required: false
+        type: string
+
+# Fila própria: escreve em pncp_contrato, pncp_dia, pncp_janela, pncp_anual e fonte_ingestao.
+# Só lê socio_pessoa e sancao_empresa (que o cnpj_socios e a ingestão de Justiça preenchem).
+concurrency:
+  group: ingestao-pncp
+  cancel-in-progress: false
+
+jobs:
+  pncp:
+    runs-on: ubuntu-latest
+    # Agendado: 120 min bastam para o dia a dia e, se houver atraso, cada dia lido fica
+    # gravado e a execução seguinte continua. Manual: bloco da primeira carga.
+    timeout-minutes: ${{ github.event_name == 'schedule' && 120 || 345 }}
+    defaults:
+      run:
+        working-directory: backend
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      PYTHONUNBUFFERED: "1"
+      DE: ${{ inputs.de }}
+      ATE: ${{ inputs.ate }}
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: astral-sh/setup-uv@v10.2.0
+        with:
+          version: "0.12.23"
+
+      - name: Instalar dependências
+        run: uv sync --locked --no-dev
+
+      - name: Migrações do banco
+        run: uv run alembic upgrade head
+
+      # O diário relê só os 3 últimos dias; pelo cursor, também completa dias que faltem.
+      - name: Contratos do PNCP (recorte da produção)
+        run: |
+          args=(--producao --releitura 3)
+          if [ -n "$DE" ]; then args+=(--de "$DE"); fi
+          if [ -n "$ATE" ]; then args+=(--ate "$ATE"); fi
+          uv run python -m ingestion.pncp.contratos "${args[@]}"
+
+      # Só o manifesto por dia (alguns KB).
+      - name: Guardar dados brutos
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: brutos-pncp-${{ github.run_id }}
+          path: backend/data/raw/
+          retention-days: 7
+          if-no-files-found: ignore

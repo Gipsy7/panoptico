@@ -578,6 +578,9 @@ frequencia = "diaria"
 guarda = "somas"
 bruto = "recorte"
 depende = ["cgu_sancoes", "cnpj_socios"]
+# Produção (--producao, workflow ingestao-pncp.yml): sem pncp_soma; guarda pncp_contrato (alvo),
+# pncp_janela (10 dias) e pncp_anual (município × fornecedor, 30 maiores, 2 anos). Ver
+# docs/DEPLOY_GRATUITO.md, "PNCP na produção".
 # Janela e cursor em pncp_dia: a primeira carga vai de 2023 a hoje (~6 milhões de contratos,
 # ~1 dia de coleta contínua); as seguintes relêem os últimos 7 dias e os dias antigos com
 # aditivo. Cargas parciais: python -m ingestion.pncp.contratos --de AAAA-MM-DD --ate AAAA-MM-DD.

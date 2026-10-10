@@ -11,6 +11,7 @@ import { CandidaturaSecao } from "@/components/candidatura-secao";
 import { QuemESecao } from "@/components/dados-pessoais";
 import { ComissoesSecao } from "@/components/comissoes-secao";
 import { GastosSecao } from "@/components/gastos-secao";
+import { ContratosSocioSecao } from "@/components/contratos-socio-secao";
 import { LinhaDoTempoSecao } from "@/components/linha-do-tempo-secao";
 import { Foto } from "@/components/parlamentar-card";
 import { PresencaSecao } from "@/components/presenca-secao";
@@ -161,6 +162,8 @@ async function Perfil({
       {temas.ok && <TemasSecao dados={temas.dados} casa={p.casa} />}
 
       {linha.ok && <LinhaDoTempoSecao dados={linha.dados} />}
+
+      {linha.ok && <ContratosSocioSecao pessoaId={linha.dados.pessoa_id} />}
 
       {candidatura.ok && <CandidaturaSecao dados={candidatura.dados} />}
 

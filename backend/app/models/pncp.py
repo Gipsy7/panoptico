@@ -1,7 +1,7 @@
 from datetime import date, datetime
 from decimal import Decimal
 
-from sqlalchemy import Boolean, Date, DateTime, Index, Integer, Numeric, String, Text
+from sqlalchemy import Boolean, Date, DateTime, Index, Integer, Numeric, String, Text, text
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.models.base import Base
@@ -86,3 +86,36 @@ class PncpDia(Base):
     pessoas_fisicas: Mapped[int] = mapped_column(Integer)  # somadas sem identificador
     linhas_alvo: Mapped[int] = mapped_column(Integer)  # contratos guardados inteiros
     lido_em: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    compactado: Mapped[bool] = mapped_column(Boolean, default=False, server_default=text("false"))
+    # produção: o dia já foi somado em pncp_anual e saiu de pncp_janela (não soma duas vezes)
+
+
+class PncpJanela(Base):
+    """Produção: o que os últimos dias trouxeram de órgãos MUNICIPAIS, por dia × município ×
+    fornecedor (CNPJ). Existe só para reler um dia sem somar duas vezes; quando o dia sai da
+    janela ele é somado em `pncp_anual` e apagado daqui."""
+
+    __tablename__ = "pncp_janela"
+
+    dia: Mapped[date] = mapped_column(Date, primary_key=True)
+    municipio_ibge: Mapped[str] = mapped_column(String(7), primary_key=True)
+    fornecedor_cnpj: Mapped[str] = mapped_column(String(14), primary_key=True)
+    fornecedor_nome: Mapped[str | None] = mapped_column(String(120))
+    quantidade: Mapped[int] = mapped_column(Integer)
+    valor_global: Mapped[Decimal] = mapped_column(Numeric(18, 2))
+
+
+class PncpAnual(Base):
+    """Produção: soma anual, por município × fornecedor (CNPJ), dos contratos publicados no
+    PNCP por órgãos municipais, sem alienações. Guarda só os `MAIORES_POR_MUNICIPIO` maiores
+    de cada município e ano e só o ano atual e o anterior: é o que o site mostra."""
+
+    __tablename__ = "pncp_anual"
+    __table_args__ = (Index("ix_pncp_anual_municipio", "municipio_ibge", "ano"),)
+
+    ano: Mapped[int] = mapped_column(Integer, primary_key=True)
+    municipio_ibge: Mapped[str] = mapped_column(String(7), primary_key=True)
+    fornecedor_cnpj: Mapped[str] = mapped_column(String(14), primary_key=True)
+    fornecedor_nome: Mapped[str | None] = mapped_column(String(120))
+    quantidade: Mapped[int] = mapped_column(Integer)
+    valor_global: Mapped[Decimal] = mapped_column(Numeric(18, 2))

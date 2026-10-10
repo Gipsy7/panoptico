@@ -7,8 +7,15 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 
 from app.db import get_session
-from app.schemas import CasoResposta, CasoResumo, LinhaDoTempo, PessoaDoPerfil, PessoaResposta
-from app.services import pessoas
+from app.schemas import (
+    CasoResposta,
+    CasoResumo,
+    ContratosDaPessoa,
+    LinhaDoTempo,
+    PessoaDoPerfil,
+    PessoaResposta,
+)
+from app.services import contratos_pncp, pessoas
 
 router = APIRouter()
 
@@ -51,6 +58,16 @@ def eventos(
 ) -> dict:
     """Linha do tempo da pessoa, com a fonte oficial de cada fato."""
     resultado = pessoas.eventos(session, pessoa_id, tipo, de, ate)
+    if resultado is None:
+        raise HTTPException(404, "Pessoa não encontrada.")
+    return resultado
+
+
+@router.get("/pessoas/{pessoa_id}/contratos", response_model=ContratosDaPessoa)
+def contratos(pessoa_id: int, session: Annotated[Session, Depends(get_session)]) -> dict:
+    """Contratos públicos (PNCP) de empresas de que a pessoa é sócia, segundo o quadro de
+    sócios da Receita Federal. Ser sócio de empresa contratada não é irregularidade."""
+    resultado = contratos_pncp.da_pessoa(session, pessoa_id)
     if resultado is None:
         raise HTTPException(404, "Pessoa não encontrada.")
     return resultado
