@@ -32,3 +32,12 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 4314407,Pelotas,RS,sistema_legislativo,https://cmpelotas.cittatec.com.br/portal-legislativo/vereadores,cittatec,2026-10-09
 4318002,São Borja,RS,sistema_legislativo,https://cmsaoborja.cittatec.com.br/portal-legislativo/vereadores,cittatec,2026-10-09
 4316105,Ronda Alta,RS,sistema_legislativo,https://cmrondaalta.cittatec.com.br/portal-legislativo/vereadores,cittatec,2026-10-09
+1600105,Amapá,AP,sistema_legislativo,https://amapa.ap.leg.br/vereadores,portal_php,2026-10-09
+1600238,Ferreira Gomes,AP,sistema_legislativo,https://ferreiragomes.ap.leg.br/vereadores,portal_php,2026-10-09
+1600709,Tartarugalzinho,AP,sistema_legislativo,https://tartarugalzinho.ap.leg.br/vereadores,portal_php,2026-10-09
+2304459,Fortim,CE,sistema_legislativo,https://fortim.ce.leg.br/vereadores,portal_php,2026-10-09
+2311009,Poranga,CE,sistema_legislativo,https://poranga.ce.leg.br/vereadores,portal_php,2026-10-09
+1300631,Beruri,AM,sistema_legislativo,https://www.portalcr2.com.br/entidade/cm-beruri,cr2,2026-10-09
+3132503,Itamarandiba,MG,sistema_legislativo,https://www.portalcr2.com.br/entidade/cm-itamarandiba,cr2,2026-10-09
+1501501,Benevides,PA,sistema_legislativo,https://www.portalcr2.com.br/entidade/cm-benevides,cr2,2026-10-09
+1507607,São Miguel do Guamá,PA,sistema_legislativo,https://www.portalcr2.com.br/entidade/cm-sao-miguel-do-guama,cr2,2026-10-09

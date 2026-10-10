@@ -41,6 +41,8 @@ FONTES_PROPRIAS = {
 # Câmaras que saíram do SAPL e têm conector próprio: o endereço de origem diz qual.
 FONTES_DE_CAMARA = {
     "cittatec.com.br": ("cittatec_camaras", "Portal legislativo da câmara (Cittatec)"),
+    "leg.br/vereadores": ("portal_php_camaras", "Site da câmara (página de vereadores)"),
+    "portalcr2.com.br": ("cr2_camaras", "Portal da Transparência da câmara (CR2)"),
 }
 
 

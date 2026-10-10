@@ -93,6 +93,18 @@ CATALOGO = [
         "url": "https://cmpelotas.cittatec.com.br/portal-legislativo/vereadores",
     },
     {
+        "dado": "Vereadores no cargo hoje (câmaras com o modelo de site PHP de vereadores.php)",
+        "orgao": "Câmaras de Amapá, Ferreira Gomes e Tartarugalzinho (AP), Fortim e Poranga (CE)",
+        "fontes": ["portal_php_camaras"],
+        "url": "https://amapa.ap.leg.br/vereadores",
+    },
+    {
+        "dado": "Vereadores no cargo hoje (câmaras no Portal da Transparência da CR2)",
+        "orgao": "Câmaras de Beruri (AM), Itamarandiba (MG), Benevides e São Miguel do Guamá (PA)",
+        "fontes": ["cr2_camaras"],
+        "url": "https://www.portalcr2.com.br/entidade/cm-beruri",
+    },
+    {
         "dado": "Deputados estaduais no cargo, projetos, votos e presença (assembleias com SAPL)",
         "orgao": "Assembleias legislativas de AC, AL, AM, PB, PI, RO, RR e TO (SAPL)",
         "fontes": ["sapl_assembleias"],
