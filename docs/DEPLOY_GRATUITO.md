@@ -106,7 +106,7 @@ Regras:
 
 ## Limites do plano gratuito
 
-- **Neon:** 0,5 GB. O banco tem ~260 MB; os gastos do gabinete são a maior tabela e só guardamos o ano anterior e o atual.
+- **Neon (histórico: o banco saiu do plano gratuito em outubro de 2026; hoje vale o Launch, ver "Travas contra consumo excessivo"):** 0,5 GB. O banco tinha ~260 MB; os gastos do gabinete são a maior tabela e só guardamos o ano anterior e o atual.
 - **Cold start:** depois de um tempo sem acesso, o banco e a API "acordam" e o primeiro acesso leva 1 a 3 segundos a mais.
 - **Vercel Hobby:** uso não comercial.
 - **GitHub Actions:** em repositório público, os workflows agendados são **desativados depois de 60 dias sem commits**. O GitHub avisa por e-mail; basta reativar em **Actions** ou fazer um commit.
