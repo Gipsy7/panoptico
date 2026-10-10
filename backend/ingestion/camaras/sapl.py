@@ -15,6 +15,7 @@ e várias câmaras em paralelo. Roda uma vez por semana.
 """
 
 import argparse
+import hashlib
 import re
 import time
 from collections.abc import Callable
@@ -116,6 +117,13 @@ class Sapl:
                     return itens
                 anterior = resultados[-1]["id"]
             pagina += 1
+
+
+def id_curto(slug: str) -> str:
+    """O identificador externo cabe em 20 caracteres: slugs maiores ficam com um sufixo de hash."""
+    if len(slug) <= 20:
+        return slug
+    return f"{slug[:15]}-{hashlib.sha1(slug.encode()).hexdigest()[:4]}"
 
 
 def _https(url: str | None) -> str | None:

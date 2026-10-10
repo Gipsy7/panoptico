@@ -107,6 +107,13 @@ jobs:
         run: uv run python -m ingestion.camaras.portal_php
       - name: Câmaras no portal da CR2
         run: uv run python -m ingestion.camaras.cr2
+      - name: Câmaras no Portal Modelo do Interlegis (Imbuia, Santana do Piauí)
+        run: uv run python -m ingestion.camaras.portal_modelo
+      - name: Câmara no site da AOS Software (Queimada Nova)
+        run: uv run python -m ingestion.camaras.aos
+      # Nucleogov / 7Focus: o robots.txt pede 5 s entre requisições (5 câmaras, ~50 páginas).
+      - name: Câmaras no portal da Nucleogov / 7Focus
+        run: uv run python -m ingestion.camaras.nucleogov
 
   # As assembleias legislativas que usam o SAPL (lista em ingestion/assembleias/sapl.py),
   # uma por máquina: as maiores têm milhares de votos e proposições. Roraima fica de fora:
