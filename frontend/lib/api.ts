@@ -655,8 +655,16 @@ export type RespostaBusca = {
 };
 
 /** Busca por nome: pessoas de todos os níveis, partidos e eleitos de eleições passadas. */
-export function getBusca(q: string) {
-  return getJson<RespostaBusca>(`/busca?q=${encodeURIComponent(q)}`);
+export async function getBusca(q: string) {
+  // `nome` repetido de propósito: a API anterior só lê `nome` e não manda `partidos`
+  // nem `pessoas`. Assim a busca segue funcionando se o site for publicado antes da API.
+  const termo = encodeURIComponent(q);
+  const resposta = await getJson<RespostaBusca>(`/busca?q=${termo}&nome=${termo}`);
+  if (resposta.ok) {
+    resposta.dados.partidos ??= [];
+    resposta.dados.pessoas ??= [];
+  }
+  return resposta;
 }
 
 export type LadoLocal = VereadorItem & {
