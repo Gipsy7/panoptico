@@ -339,8 +339,11 @@ def contexto_candidaturas(ano: int) -> Callable[[Session], str]:
     return contexto
 
 
-def sha256_de(payload: bytes | Path) -> str:
+def sha256_de(payload: Any) -> str:
+    """sha256 do arquivo, dos bytes ou, para JSON já lido (dict/list), do JSON canônico."""
     resumo = hashlib.sha256()
+    if not isinstance(payload, bytes | Path):
+        payload = json.dumps(payload, ensure_ascii=False, sort_keys=True).encode()
     if isinstance(payload, Path):
         with payload.open("rb") as entrada:
             for bloco in iter(lambda e=entrada: e.read(1 << 20), b""):
@@ -542,7 +545,12 @@ def executar_ingestao(
                         session, fonte, url, "sha256 igual ao do último download", info,
                         session.get(DownloadCache, chave),
                     )  # fmt: skip
-        tamanho = payload.stat().st_size if isinstance(payload, Path) else len(payload)
+        if isinstance(payload, Path):
+            tamanho = payload.stat().st_size
+        elif isinstance(payload, bytes):
+            tamanho = len(payload)
+        else:  # JSON já lido (dict/list)
+            tamanho = len(json.dumps(payload, ensure_ascii=False))
         arquivo = salvar_raw(fonte, payload, prefixo_raw, extensao_raw)
         if isinstance(payload, Path):  # o arquivo foi movido para o raw
             payload = arquivo

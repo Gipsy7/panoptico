@@ -14,7 +14,7 @@ from pathlib import Path
 from typing import Any
 
 import httpx
-from sqlalchemy import delete, insert, select
+from sqlalchemy import delete, func, insert, select, update
 from sqlalchemy.orm import Session
 
 from app.models import Evento, FonteIngestao, Pessoa, PessoaVinculo
@@ -24,6 +24,7 @@ from ingestion.tse import comum_tse
 FONTE = "tse_orgaos_partidarios"
 URL = f"{comum_tse.BASE}/orgao_partidario/orgao_partidario.zip"
 URL_DADOS = "https://dadosabertos.tse.jus.br/dataset/delegados-partidarios"
+LOTE = 5000
 
 
 def _data(valor: str | None) -> date | None:
@@ -78,20 +79,61 @@ def eventos(linhas: Any, por_titulo: dict[str, int]) -> list[dict[str, Any]]:
 
 
 def gravar(session: Session, linhas: list[dict[str, Any]], ingestao_id: int | None) -> int:
-    session.execute(delete(PessoaVinculo).where(PessoaVinculo.fonte == FONTE))
-    for linha in linhas:
-        vinculo_id = session.scalar(
-            insert(PessoaVinculo)
-            .values(pessoa_id=linha["pessoa_id"], fonte=FONTE, id_externo=linha["id_externo"],
-                    regra="titulo")
-            .returning(PessoaVinculo.id)
+    """Grava só o que mudou (cargo novo, alterado ou encerrado), para a recarga de 18 mil
+    cargos não reescrever o banco inteiro. A data "vigente segundo o TSE em ..." não conta
+    como mudança: ela muda em todas as linhas a cada arquivo novo."""
+    campos = ("pessoa_id", "data", "descricao", "orgao", "fonte_url")
+    atuais = {
+        e.id_externo: e
+        for e in session.execute(
+            select(
+                Evento.id, Evento.id_externo, Evento.vinculo_id,
+                *(getattr(Evento, c) for c in campos),
+            ).where(Evento.fonte == FONTE)
+        )
+    }  # fmt: skip
+    novos = {linha["id_externo"]: linha for linha in linhas}
+    sumiram = [e.vinculo_id for k, e in atuais.items() if k not in novos]
+    for inicio in range(0, len(sumiram), LOTE):  # o evento cai junto (cascata do vínculo)
+        lote = sumiram[inicio : inicio + LOTE]
+        session.execute(delete(PessoaVinculo).where(PessoaVinculo.id.in_(lote)))
+
+    mudaram = [
+        (atuais[k], linha) for k, linha in novos.items()
+        if k in atuais and any(getattr(atuais[k], c) != linha[c] for c in campos)
+    ]  # fmt: skip
+    for velho, linha in mudaram:
+        session.execute(
+            update(PessoaVinculo).where(PessoaVinculo.id == velho.vinculo_id)
+            .values(pessoa_id=linha["pessoa_id"])
         )  # fmt: skip
         session.execute(
-            insert(Evento).values(
-                **linha, vinculo_id=vinculo_id, fonte=FONTE, ingestao_id=ingestao_id
-            )
+            update(Evento).where(Evento.id == velho.id).values(**linha, ingestao_id=ingestao_id)
         )
+
+    acrescentar = [linha for k, linha in novos.items() if k not in atuais]
+    for inicio in range(0, len(acrescentar), LOTE):
+        lote = acrescentar[inicio : inicio + LOTE]
+        ids = session.scalars(
+            insert(PessoaVinculo).returning(PessoaVinculo.id, sort_by_parameter_order=True),
+            [{"pessoa_id": x["pessoa_id"], "fonte": FONTE, "id_externo": x["id_externo"],
+              "regra": "titulo"} for x in lote],
+        ).all()  # fmt: skip
+        session.execute(
+            insert(Evento),
+            [{**x, "vinculo_id": v, "fonte": FONTE, "ingestao_id": ingestao_id}
+             for x, v in zip(lote, ids, strict=True)],
+        )  # fmt: skip
+    print(f"  {len(acrescentar)} cargos novos, {len(mudaram)} alterados, {len(sumiram)} encerrados")
     return len(linhas)
+
+
+def contexto_titulos(session: Session) -> str:
+    """Muda quando entram pessoas com título de eleitor (as que o arquivo pode ligar)."""
+    total, maior = session.execute(
+        select(func.count(Pessoa.id), func.max(Pessoa.id)).where(Pessoa.titulo.is_not(None))
+    ).one()
+    return f"titulos:{total}:{maior}"
 
 
 def executar(de_raw: Path | None = None) -> int:
@@ -111,7 +153,11 @@ def executar(de_raw: Path | None = None) -> int:
         print(f"  {total} cargos partidários vigentes de pessoas da base")
         return total
 
-    total = comum.executar_ingestao(FONTE, URL, baixar, carregar, de_raw=de_raw)
+    # O arquivo tem 219 MB: a sonda (ETag) evita baixar de novo enquanto o TSE não o republica.
+    total = comum.executar_ingestao(
+        FONTE, URL, baixar, carregar, de_raw=de_raw,
+        incremental=comum.Incremental(sonda=URL, contexto=contexto_titulos),
+    )  # fmt: skip
     if de_raw is None:
         comum.trocar_por_manifesto(FONTE)
     return total

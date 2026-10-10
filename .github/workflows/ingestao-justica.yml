@@ -1,0 +1,102 @@
+name: Justiça e identidade (pessoas)
+
+# Identidade única de pessoa pública (/pessoas) e as fontes que alimentam a linha do tempo:
+# cassações do TSE, sanções da CGU, condenações do TCU, processos no DataJud (CNJ), Conselhos
+# de Ética, CPIs, cargos partidários e a curadoria versionada (data/casos, data/curadoria).
+#
+# Uma vez por semana, na terça, depois da ingestão diária e longe do domingo das câmaras (que
+# trazem os vereadores de que a identidade depende). Tudo é incremental: arquivo que o órgão
+# não republicou não é baixado de novo (sonda ETag) ou, se baixado, não é recarregado (sha256
+# igual); `pessoas` só grava o que mudou. Semana sem mudança quase não transfere dados do banco.
+# Fica de fora o que depende de rede brasileira ou de revisão humana local (ver
+# docs/DEPLOY_GRATUITO.md, "Fontes de Justiça e identidade na produção").
+on:
+  schedule:
+    - cron: "0 13 * * 2" # terça-feira, 10h em Brasília
+  workflow_dispatch:
+
+# Fila própria: estas fontes escrevem em pessoa, pessoa_vinculo, evento, processo, cpi e
+# sancao_empresa, que nenhuma outra carga toca. Só leem candidatura, parlamentar e mandato_local.
+concurrency:
+  group: ingestao-justica
+  cancel-in-progress: false
+
+jobs:
+  justica:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    defaults:
+      run:
+        working-directory: backend
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      PYTHONUNBUFFERED: "1"
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: astral-sh/setup-uv@v10.2.0
+        with:
+          version: "0.12.23"
+
+      - name: Instalar dependências
+        run: uv sync --locked --no-dev
+
+      - name: Migrações do banco
+        run: uv run alembic upgrade head
+
+      # Lê candidatura, parlamentar e mandato_local do banco (nada baixa) e aplica os CSVs de
+      # revisão versionados em data/. Só grava o que mudou.
+      - name: Pessoas (identidade única)
+        run: uv run python -m ingestion.pessoas
+
+      # Daqui em diante cada passo roda mesmo que o anterior falhe (um órgão fora do ar não
+      # trava os outros); o job fica vermelho no fim.
+      - name: Cassações e julgamentos de candidatura (TSE)
+        if: ${{ !cancelled() }}
+        run: uv run python -m ingestion.tse.cassacoes --ano 2016 2018 2020 2022 2024 2026
+
+      - name: Sanções (CGU: CEIS e CEAF)
+        if: ${{ !cancelled() }}
+        run: uv run python -m ingestion.transparencia.sancoes
+
+      - name: Condenações do TCU
+        if: ${{ !cancelled() }}
+        run: uv run python -m ingestion.tcu.condenacoes
+
+      - name: Conselho de Ética da Câmara
+        if: ${{ !cancelled() }}
+        run: uv run python -m ingestion.camara.etica
+
+      - name: Conselho de Ética do Senado
+        if: ${{ !cancelled() }}
+        run: uv run python -m ingestion.senado.etica
+
+      - name: CPIs e CPMIs
+        if: ${{ !cancelled() }}
+        run: uv run python -m ingestion.congresso.cpis
+
+      # Arquivo de 219 MB lido em fluxo; a sonda evita baixá-lo se o TSE não republicou.
+      - name: Cargos partidários (TSE)
+        if: ${{ !cancelled() }}
+        run: uv run python -m ingestion.tse.orgaos_partidarios
+
+      - name: Curadoria (casos e processos versionados)
+        if: ${{ !cancelled() }}
+        run: uv run python -m ingestion.curadoria
+
+      # Por último: consulta os números de processo que as cassações, as sanções e a curadoria
+      # trouxeram. A API do CNJ oscila; o limite impede que um tribunal lento prenda o job.
+      - name: Situação dos processos (DataJud, CNJ)
+        if: ${{ !cancelled() }}
+        timeout-minutes: 40
+        run: uv run python -m ingestion.cnj.datajud
+
+      # Só os brutos pequenos (o arquivo de órgãos partidários vira manifesto).
+      - name: Guardar dados brutos
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: brutos-justica-${{ github.run_id }}
+          path: backend/data/raw/
+          retention-days: 7
+          if-no-files-found: ignore
