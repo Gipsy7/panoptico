@@ -32,7 +32,7 @@ jobs:
       - uses: astral-sh/setup-uv@v10.2.0
         with:
           version: "0.12.23"
-      - run: uv sync --locked
+      - run: uv sync --locked --group acervo  # pyarrow, para os testes da exportação
       - run: uv run ruff check
       - run: uv run ruff format --check
       - run: uv run pytest -q

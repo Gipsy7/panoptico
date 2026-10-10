@@ -734,3 +734,17 @@ O plano é juntar tudo o que é público sobre quem exerce função pública: pr
 - **Linguagem do perfil:** "Contratos públicos de empresas de que é sócio(a)": órgão, objeto (resumido), valor global, vigência e link do PNCP, com a nota de que ser sócio de empresa contratada não é irregularidade e de que a ligação é por CPF parcial + nome (Receita via Querido Diário). Rota `GET /pessoas/{id}/contratos`; a cidade ganha `GET /municipios/{ibge}/fornecedores-pncp`.
 - **`cnpj_socios` na produção:** entrou no workflow semanal de Justiça com `--max 600` consultas por execução (2 s cada), para caber em ~25 min. O PNCP recusa a primeira carga com `socio_pessoa` vazia.
 - **Custo medido:** ~9 mil contratos e ~3,6 min por dia de publicação; a primeira carga (~650 dias) é de ~39 h, em blocos manuais de até 80 dias. Dia a dia: ~15 a 20 min de Actions e ~4 a 5 MB gravados.
+
+## 2026-10-10: exportação aberta do acervo (Parquet e CSV.gz)
+
+- **O quê:** `python -m exportar --destino <pasta>` (módulo `backend/exportar/`) gera, por conjunto público, um Parquet (zstd) e um CSV.gz equivalente, mais `LEIAME.md` e `dicionario.json` (colunas, tipos, descrição, fonte oficial, última carga de cada fonte em `fonte_ingestao`, tamanho e SHA-256). Roda à mão contra o banco do acervo; `pyarrow` fica no grupo opcional `acervo` do pyproject, fora da API de produção.
+- **Conjuntos:** parlamentares federais, municípios, vereadores e deputados estaduais, eleitos (candidaturas, bens e totais de campanha), pessoas públicas e seus vínculos, eventos publicáveis, processos citados, casos e documentos, CPIs e membros, cota parlamentar, verba da ALMG, contas dos partidos (somas, cotas mensais, FEFC/FP), PNCP (soma anual e contratos do conjunto-alvo) e pagamentos das prefeituras nos TCEs.
+- **O filtro fica na consulta SQL de cada conjunto**, à vista em `exportar/conjuntos.py`:
+  - pessoa só sai com ao menos um vínculo forte ou revisado (`REGRAS_FORTES` ou `revisado`, o mesmo critério de `publicavel()`) com parlamentar, mandato local ou candidatura eleita; evento só sai se o seu próprio vínculo é publicável; processo, caso e documentos só saem se ligados a um evento publicável;
+  - nunca saem CPF, título, data de nascimento, e-mail e telefone, nem cor ou raça e estado civil dos eleitos (a cor ou raça agregada dos fundos eleitorais fica, porque é o grupo de uma soma);
+  - `diario_ato`, `dou_ato` e `cpi_indiciamento_sugestao` não são lidos por nenhum conjunto; casos em rascunho nem existem no banco;
+  - fornecedor com documento que não é CNPJ de 14 dígitos (CPF, CPF mascarado) sai sem nome e sem documento; PNCP só com CNPJ de 14 dígitos;
+  - defesa em profundidade na escrita: CPF formatado (000.000.000-00) some de qualquer coluna e sequência de 11 dígitos some dos textos livres e nomes de fornecedor (nomes de MEI trazem o CPF no fim).
+- **Os `id` valem só dentro de uma geração** (o banco apaga e reinsere); o LEIAME manda usar as chaves das fontes para acompanhar um registro no tempo.
+- **Fora desta primeira versão:** votos nominais, projetos de lei, emendas e `pncp_soma` (diária, grande demais; a produção também não a guarda). Entram quando houver pedido.
+- **Licença dos dados:** não foi definida; o LEIAME pede citação do Panóptico e da fonte oficial. A decisão (por exemplo CC BY 4.0 na compilação) é do responsável pelo projeto.
