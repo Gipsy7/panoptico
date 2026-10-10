@@ -290,6 +290,7 @@ Os testes do backend usam um banco `panoptico_test` (criado pelo `scripts/criar_
 ## Deploy
 
 - **Hoje:** Vercel no plano gratuito (site e API), Neon no plano Launch, pago por uso (banco), e GitHub Actions (atualização diária). Ver [docs/DEPLOY_GRATUITO.md](docs/DEPLOY_GRATUITO.md).
+- **Justiça e identidade na produção.** O workflow `ingestao-justica.yml` roda toda terça e leva à produção a identidade de pessoa pública (`pessoas`), cassações do TSE, sanções da CGU, condenações do TCU, DataJud, Conselhos de Ética, CPIs, cargos partidários e a curadoria. É incremental: semana sem mudança não recarrega nada (ver "Fontes de Justiça e identidade na produção" em [docs/DEPLOY_GRATUITO.md](docs/DEPLOY_GRATUITO.md)).
 - **Travas de custo.** O plano gratuito do Neon foi trocado pelo pago depois que a cota mensal de transferência estourou. Para o custo não disparar com muito acesso ou um ataque:
   - as respostas da API ficam em cache na CDN (`s-maxage` de 1 hora), então a mesma consulta chega ao banco no máximo uma vez por hora;
   - a base da lista de parlamentares fica 10 minutos em memória;

@@ -25,3 +25,11 @@ def test_so_cargos_vigentes_de_quem_temos_pelo_titulo():
     assert eventos[0]["situacao"] == "vigente segundo o TSE em 03/10/2026"
     assert eventos[1]["data"] is None  # ano truncado no arquivo ("0208")
     assert eventos[1]["descricao"] == "Tesoureiro do órgão provisório nacional do PL"
+
+
+def test_sha256_de_json_ignora_a_ordem_das_chaves():
+    from ingestion import comum
+
+    assert comum.sha256_de({"a": 1, "b": [1, 2]}) == comum.sha256_de({"b": [1, 2], "a": 1})
+    assert comum.sha256_de({"a": 1}) != comum.sha256_de({"a": 2})
+    assert comum.sha256_de(b"x") == comum.sha256_de(b"x")

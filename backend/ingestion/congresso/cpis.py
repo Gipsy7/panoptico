@@ -633,7 +633,10 @@ def executar(de_raw: Path | None = None) -> int:
     def carregar(session: Session, payload: dict, ingestao: FonteIngestao) -> int:
         return gravar(session, normalizar(payload), ingestao.id)
 
-    return comum.executar_ingestao(FONTE, URL_CD_ORGAOS, baixar, carregar, de_raw=de_raw)
+    return comum.executar_ingestao(
+        FONTE, URL_CD_ORGAOS, baixar, carregar, de_raw=de_raw,
+        incremental=comum.Incremental(chave=FONTE, contexto=comum.contexto_pessoas),
+    )  # fmt: skip
 
 
 if __name__ == "__main__":

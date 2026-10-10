@@ -184,8 +184,9 @@ def executar(de_raw: Path | None = None, anos: list[int] | None = None) -> int:
         return gravar(session, payload, ingestao.id)
 
     return comum.executar_ingestao(
-        FONTE, URL_LISTA + "?siglaTipo=REP", lambda c: baixar(c, anos), carregar, de_raw=de_raw
-    )
+        FONTE, URL_LISTA + "?siglaTipo=REP", lambda c: baixar(c, anos), carregar, de_raw=de_raw,
+        incremental=comum.Incremental(chave=FONTE, contexto=comum.contexto_pessoas),
+    )  # fmt: skip
 
 
 if __name__ == "__main__":
