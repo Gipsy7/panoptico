@@ -748,3 +748,10 @@ O plano é juntar tudo o que é público sobre quem exerce função pública: pr
 - **Os `id` valem só dentro de uma geração** (o banco apaga e reinsere); o LEIAME manda usar as chaves das fontes para acompanhar um registro no tempo.
 - **Fora desta primeira versão:** votos nominais, projetos de lei, emendas e `pncp_soma` (diária, grande demais; a produção também não a guarda). Entram quando houver pedido.
 - **Licença dos dados:** não foi definida; o LEIAME pede citação do Panóptico e da fonte oficial. A decisão (por exemplo CC BY 4.0 na compilação) é do responsável pelo projeto.
+
+## 2026-10-10: sócios na produção e PNCP só com sancionadas
+
+- **Problema:** `cnpj_socios` no Actions estourou 60 min duas vezes (7 a 13 s por consulta) e ligou 0 sócios em ~600 consultas.
+- **Causa das 0 ligações:** a produção carrega candidaturas 2018, 2022 e 2024; o CPF completo só existe em 2018 e 2022 (e nos deputados pela Câmara) e vem mascarado em 2024. Sobram ~3 mil pessoas com CPF; no acervo local são 53.690 (50.711 só por 2016/2020).
+- **Decisão:** orçamento de tempo (`--minutos 40`) e lote de 250; a consulta avisa quando há menos de 10 mil pessoas com CPF. O PNCP de produção deixa de recusar `socio_pessoa` vazia e roda só com as sancionadas (contratos de sócios ficam para quando houver sócios, relendo os dias).
+- **Em aberto:** carregar 2016 e 2020 no Neon (custo de armazenamento a medir) é o caminho para ligar sócios na produção.

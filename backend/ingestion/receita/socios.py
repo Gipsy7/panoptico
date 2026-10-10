@@ -40,6 +40,7 @@ URL = "https://api.queridodiario.org.br/company/partners/{cnpj}"
 PAUSA = 2.0
 VALIDADE = timedelta(days=30)
 MAIORES_FORNECEDORES = 1000
+MINIMO_COM_CPF = 10_000  # abaixo disso a ligação quase nunca acontece (só deputados e 2018/2022)
 
 
 def cnpjs_de_interesse(session: Session) -> list[str]:
@@ -92,6 +93,10 @@ def ligar(socios: list[dict], por_meio_nome: dict[tuple[str, str], set[int]]) ->
     return ligados
 
 
+def estourou(limite: float | None) -> bool:
+    return limite is not None and time.monotonic() >= limite
+
+
 def consultar(client: httpx.Client, cnpj: str) -> dict | None:
     for tentativa in range(1, 5):
         time.sleep(PAUSA)
@@ -111,10 +116,12 @@ def consultar(client: httpx.Client, cnpj: str) -> dict | None:
     return None
 
 
-def executar(maximo: int | None = None) -> int:
+def executar(maximo: int | None = None, minutos: float | None = None) -> int:
     """`maximo`: no máximo tantos CNPJs consultados (o resto fica para a próxima execução,
-    porque cada consulta custa ~2 s e o cache é de 30 dias)."""
+    porque cada consulta custa de 2 s (no Brasil) a 13 s (Actions) e o cache é de 30 dias).
+    `minutos`: orçamento de tempo; ao estourar, para limpo (o que foi feito já está salvo)."""
     hoje = date.today()
+    limite = time.monotonic() + minutos * 60 if minutos else None
     with SessionLocal() as session:
         ingestao = FonteIngestao(
             fonte=FONTE, url=URL.format(cnpj="{cnpj}"), arquivo_raw="(não guardado)"
@@ -141,8 +148,18 @@ def executar(maximo: int | None = None) -> int:
             flush=True,
         )
         ligados_total, falhas = 0, 0
+        com_cpf = sum(len(v) for v in por_meio_nome.values())
+        if com_cpf < MINIMO_COM_CPF:
+            print(f"  atenção: só {com_cpf} pessoas com CPF na base; sem as eleições de "
+                  "2016 e 2020 (CPF completo) quase nenhum sócio se liga", flush=True)  # fmt: skip
         with comum.criar_cliente() as client:
             for i, cnpj in enumerate(pendentes, start=1):
+                if estourou(limite):
+                    print(
+                        f"  orçamento de {minutos:g} min esgotado após {i - 1} consultas",
+                        flush=True,
+                    )
+                    break
                 resposta = consultar(client, cnpj)
                 if resposta is None:
                     falhas += 1
@@ -184,4 +201,6 @@ def executar(maximo: int | None = None) -> int:
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=f"Ingestão: {FONTE}")
     parser.add_argument("--max", type=int, help="Máximo de CNPJs consultados nesta execução")
-    print(f"{FONTE}: {executar(parser.parse_args().max)} sócios ligados")
+    parser.add_argument("--minutos", type=float, help="Orçamento de tempo das consultas")
+    args = parser.parse_args()
+    print(f"{FONTE}: {executar(args.max, args.minutos)} sócios ligados")

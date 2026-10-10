@@ -18,7 +18,7 @@ on:
     inputs:
       socios_max:
         description: "Máximo de CNPJs consultados no quadro de sócios (~7 s cada a partir do Actions)"
-        default: "400"
+        default: "250"
         type: string
 
 # Fila própria: estas fontes escrevem em pessoa, pessoa_vinculo, evento, processo, cpi e
@@ -37,7 +37,7 @@ jobs:
     env:
       DATABASE_URL: ${{ secrets.DATABASE_URL }}
       PYTHONUNBUFFERED: "1"
-      SOCIOS_MAX: ${{ inputs.socios_max || '400' }}  # ~7 s por consulta a partir do Actions (medido em 10/10)
+      SOCIOS_MAX: ${{ inputs.socios_max || '250' }}  # ~7 s por consulta a partir do Actions (medido em 10/10)
     steps:
       - uses: actions/checkout@v7
 
@@ -68,12 +68,14 @@ jobs:
 
       # Sócios das empresas sancionadas e dos 1.000 maiores fornecedores (ligam a pessoa aos
       # contratos do PNCP). Consulta por CNPJ a um serviço comunitário, 2 s cada, com cache de
-      # 30 dias: o limite por execução (600, ~25 min) espalha as ~1.900 consultas da primeira
-      # vez por algumas semanas e, depois, só renova o que venceu.
+      # 30 dias: o limite por execução espalha as consultas por algumas semanas. Cada consulta
+      # leva 7 a 13 s a partir do Actions, então --minutos 40 encerra limpo (o feito fica salvo)
+      # antes do timeout do passo. Na produção quase nada se liga enquanto faltarem as
+      # eleições de 2016 e 2020 (CPF completo): ver docs/DEPLOY_GRATUITO.md.
       - name: Sócios das empresas (Receita Federal, via Querido Diário)
         if: ${{ !cancelled() }}
         timeout-minutes: 60
-        run: uv run python -m ingestion.receita.socios --max "$SOCIOS_MAX"
+        run: uv run python -m ingestion.receita.socios --max "$SOCIOS_MAX" --minutos 40
 
       - name: Condenações do TCU
         if: ${{ !cancelled() }}

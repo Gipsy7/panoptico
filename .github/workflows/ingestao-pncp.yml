@@ -9,7 +9,7 @@ name: PNCP (contratos públicos)
 # Todo dia, de madrugada: relê os últimos dias (o cursor fica em pncp_dia) e soma no ano o
 # que saiu da janela de 10 dias. Dia que já foi somado nunca é somado de novo.
 #
-# PRIMEIRA CARGA (disparo manual, uma vez, depois de o cnpj_socios ter rodado): a API não
+# PRIMEIRA CARGA (disparo manual, uma vez; sem sócios ligados, o alvo é só as sancionadas): a API não
 # filtra por fornecedor e responde ~3 a 4 min por dia de publicação, então os ~650 dias de
 # janeiro do ano anterior até hoje não cabem num job (limite de 6 h). Dispare "Run workflow"
 # em blocos de até 80 dias, por exemplo: 2025-01-01 a 2025-03-21, 2025-03-22 a 2025-06-09,

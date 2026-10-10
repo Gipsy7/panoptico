@@ -403,9 +403,12 @@ def executar(
         max_releituras = 0  # dia antigo já está em pncp_anual; só o alvo (rota de alteração)
     with SessionLocal() as session:
         if producao and session.scalar(select(SocioPessoa.id).limit(1)) is None:
-            raise SystemExit(
-                "socio_pessoa vazia: rode cnpj_socios antes (o alvo seria só as sanções)"
-            )
+            # Na produção os sócios só se ligam a quem tem CPF completo (eleições de 2016 e
+            # 2020, que a produção não carrega); o alvo fica só nas sancionadas. Contratos
+            # de sócios descobertos depois exigem reler os dias (--de/--ate).
+            if session.scalar(select(SancaoEmpresa.cnpj).limit(1)) is None:
+                raise SystemExit("socio_pessoa e sancao_empresa vazias: não há alvo")
+            print("  aviso: socio_pessoa vazia; alvo só das empresas sancionadas", flush=True)
         alvo = conjunto_alvo(session)
         carregados = set(session.scalars(select(PncpDia.dia)))
         inicio, fim, incremental = planejar(de, ate, carregados, hoje, releitura, inicial)

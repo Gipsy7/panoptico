@@ -26,3 +26,11 @@ def test_socios_pessoa_fisica_e_ligacao_forte():
     chave = ("606618", comum.chave_nome("José Roberto Tavares"))
     assert socios.ligar(lista, {chave: {7}}) == [(7, lista[0])]
     assert socios.ligar(lista, {chave: {7, 8}}) == []  # ambíguo: não liga
+
+
+def test_orcamento_de_tempo():
+    import time
+
+    assert not socios.estourou(None)
+    assert not socios.estourou(time.monotonic() + 60)
+    assert socios.estourou(time.monotonic() - 1)
