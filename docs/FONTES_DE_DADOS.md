@@ -533,6 +533,41 @@ Endpoints conferidos em 2026-10-06.
 - **Frequência:** `cpis` semanal (~330 consultas à API do Senado com pausa de 0,2 s e ~40 requisições à da Câmara; ~6 minutos); `cpi_indiciamentos` manual (baixa PDFs de dezenas de MB). Ambas rodam no acervo local, como `camara_etica` e `senado_etica`; não estão no `run_all` nem nos workflows de produção.
 - **Tamanho:** `cpi` 104 kB, `cpi_participacao` 440 kB, `cpi_indiciamento_sugestao` 104 kB (164 linhas); bruto de ~3 MB (as páginas HTML das comissões ficam nele).
 
+## ALEMA: Assembleia Legislativa do Maranhão
+
+- **O SAPL (`sapl.al.ma.leg.br`) redireciona para o ALEMALEGIS** (`alemalegis.al.ma.leg.br`), um aplicativo Angular com API própria. Não é PLE/Nopapercloud.
+- **API pública.** O script do aplicativo mostra as rotas `/api/v1/public/*` (sem login): `parliamentary`, `legislature`, `legislative-matter/filter/access?year=&page=&size=` (matérias com tipo, ementa, data e `authorNames`), `parliamentary-vote`, `plenary-session-presence`, `votes`. O servidor não publica `robots.txt` (a rota devolve a página do aplicativo).
+- **Quem está no cargo:** a lista da API traz 155 registros de quatro legislaturas e um `ACTIVE` que não diz quem está em exercício; a lista do site (`www.al.ma.leg.br/sitealema/deputados/`, 41 cartões acima do título "Deputados licenciados") é a usada. O partido do site é o atual (a API guarda a filiação antiga de alguns).
+- **Autoria** por nome exato: o autor da matéria é texto ("Dra Vivianne", "PODER EXECUTIVO"); ligamos pelo nome do site, pelo nome parlamentar ou civil do cadastro e por um apelido conferido. Matérias de 2026: 1.351 (634 indicações, 267 projetos de lei, 252 requerimentos...).
+- **Não coletado:** votos nominais e presença (rotas existem; fora da coleta mínima).
+
+## ALEMS: Assembleia Legislativa de Mato Grosso do Sul
+
+- **Sem SAPL e sem API de proposições aberta.** O sistema de proposições (`sgpl.consulta.al.ms.gov.br/sgpl-publico`) mostra "Validando acesso..." (prova de trabalho contra automação, `sg-pow-captcha`). Não contornamos.
+- **Deputados:** `al.ms.gov.br/Partidos/Lista` (24, agrupados por partido; o menu do site vem de `/api/v2/menu`). O `robots.txt` do site dá 404; o do portal da transparência libera tudo.
+- **Gastos (CEAP):** `transparencia2.al.ms.gov.br/ceap/notas/exportar-csv?ano=AAAA`, o "Exportar todos os lançamentos (CSV)" do portal: 4 linhas de identificação, uma em branco e o cabeçalho (`Deputado;Ano;Mês;Categoria;CPF/CNPJ;Fornecedor;Documento;Emissão;"Valor (R$)";Comprovante`); valores como `R$ 4.669,65`; deputado como `Dep. Cel. David`. Somamos por deputado, mês e categoria. Nomes diferentes da lista de partidos (cinco) ficam em uma tabela de apelidos; sobram só lançamentos de quem saiu (ex.: Neno Razuk).
+
+## ALRN: Assembleia Legislativa do Rio Grande do Norte
+
+- **Sem SAPL** (`sapl.al.rn.leg.br` não resolve). O processo legislativo (`legispad.al.rn.leg.br`) pede login; o portal de Transparência Legislativa (`transparencialegislativa.al.rn.leg.br`, React) chama uma API aberta.
+- **API:** `api-transparencialegislativa.al.rn.leg.br/elegis-api-transp-legislativa/`: `parlamentar/` (24 em exercício; traz CPF, que não guardamos), `processo?iniciativa=ID&pagina=&tamanhoPagina=` (da mais nova para a mais antiga), `processo/ultimas-votacoes`, `reuniao/presenca/ID`. Cada página de 100 leva ~5 s.
+- **Deputados:** cartões de `al.rn.leg.br/deputados` (nome, partido, foto); `robots.txt` do site libera tudo. Projetos: tipos `PL`, `PLC`, `PEC`, `PDL`, `PR`; requerimentos e pedidos de informação só em contagem.
+
+## ALESE: Assembleia Legislativa de Sergipe
+
+- **Sem SAPL.** O Processo Legislativo (SPL, ASP.NET) está em `aleselegis.al.se.leg.br/spl/`; `robots.txt` libera tudo. A consulta de proposições só responde a envio de formulário com `__VIEWSTATE`, sem rota de listagem; não coletamos.
+- **Deputados:** `al.se.leg.br/deputados/` (24 cartões com partido, foto e o código do SPL). **Presença:** a aba "Frequência em Plenário" de `parlamentar.aspx?id=` traz presente/falta/falta justificada/licenciado do ano corrente.
+
+## ALAP: Assembleia Legislativa do Amapá
+
+- **Sem SAPL.** Site `al.ap.leg.br` (o `robots.txt` responde 403 a qualquer cliente; as páginas públicas respondem normalmente) e o portal do eLegis `elegis.al.ap.leg.br/portal` (robots libera tudo), que avisa estar migrando o processo legislativo.
+- **Deputados:** `pagina.php?pg=exibir_legislatura` (24; nome, nome completo e partido na dica da foto). **Projetos:** `portal/proposicoes?tipo_proposicao=T&ano=AAAA&page=N` (GET, 50 por página; códigos 1 lei ordinária, 2 complementar, 4 PEC, 10 decreto legislativo, 9 resolução).
+
+## ALEGO: Assembleia Legislativa de Goiás
+
+- **A página de dados abertos** (`transparencia.al.go.leg.br/dados-abertos`, AngularJS) tem as rotas JSON listadas no script `application.transparencia-*.js`: diárias, servidores, execução orçamentária, licitações, contratos, **verba indenizatória** (`api/transparencia/verbas_indenizatorias.json?ano=&mes=&todos=true`; `verbas_indenizatorias/periodos` lista os meses), entre outras. Não há rota de proposições, votos ou presença (o item "Requerimentos" aponta para a página inicial).
+- **Deputados em exercício:** `portal.al.go.leg.br/deputados/em-exercicio` (tabela no servidor; 42 linhas, nome, partido, telefones, e-mail). O portal responde 500 a `Accept: application/json` puro. O código do deputado é o mesmo nas duas bases. Verba: valor apresentado e valor indenizado por mês (usamos o indenizado).
+
 ## Acervo: cargas incrementais e conferência
 
 - **Arquivos que mudam pouco** (TSE, CGU, TCU, TCE-SP, TCE-RS) não são baixados nem recarregados quando nada mudou: o acervo guarda ETag, Last-Modified e sha256 do último download (tabela `download_cache`) e pergunta ao servidor antes. Sem mudança, `fonte_ingestao` ganha uma linha com status `sem_mudanca` e o bruto não se repete. `python -m ingestion.acervo rodar --forcar` ignora o cache.
