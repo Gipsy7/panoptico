@@ -9,6 +9,7 @@ import { EmendasMunicipioSecao } from "@/components/emendas-municipio";
 import { CamaraSecao } from "@/components/camara-secao";
 import { CanaisSecao } from "@/components/canais-secao";
 import { ContasSecao } from "@/components/contas-secao";
+import { FornecedoresPncpSecao } from "@/components/fornecedores-pncp-secao";
 import { FornecedoresSecao } from "@/components/fornecedores-secao";
 import { EleitosSecao } from "@/components/eleitos-secao";
 import { EleitosFuturosSecao } from "@/components/eleito-futuro";
@@ -24,6 +25,7 @@ import {
   getCanais,
   getContas,
   getFornecedores,
+  getFornecedoresPncp,
   getExecutivo,
   getEmendasMunicipio,
   getVereadores,
@@ -72,7 +74,7 @@ async function Lista({ cep, uf, municipio }: Busca) {
   }
 
   const { localizacao, deputados, senadores, atualizado_em } = resultado.dados;
-  const [emendasResultado, vereadoresResultado, estaduaisResultado, executivoResultado, canaisResultado, contasResultado, camaraResultado, fornecedoresResultado, assembleiaResultado, eleitos2026Resultado] = await Promise.all([
+  const [emendasResultado, vereadoresResultado, estaduaisResultado, executivoResultado, canaisResultado, contasResultado, camaraResultado, fornecedoresResultado, fornecedoresPncpResultado, assembleiaResultado, eleitos2026Resultado] = await Promise.all([
     localizacao.codigo_ibge ? getEmendasMunicipio(localizacao.codigo_ibge) : null,
     localizacao.codigo_ibge ? getVereadores(localizacao.codigo_ibge) : null,
     getDeputadosEstaduais(localizacao.uf),
@@ -81,12 +83,14 @@ async function Lista({ cep, uf, municipio }: Busca) {
     localizacao.codigo_ibge ? getContas(localizacao.codigo_ibge) : null,
     localizacao.codigo_ibge ? getCamara(localizacao.codigo_ibge) : null,
     localizacao.codigo_ibge ? getFornecedores(localizacao.codigo_ibge) : null,
+    localizacao.codigo_ibge ? getFornecedoresPncp(localizacao.codigo_ibge) : null,
     getAssembleia(localizacao.uf),
     getEleitos2026(localizacao.uf),
   ]);
   const eleitos2026 = eleitos2026Resultado.ok ? eleitos2026Resultado.dados : null;
   const assembleia = assembleiaResultado.ok ? assembleiaResultado.dados : null;
   const fornecedores = fornecedoresResultado?.ok ? fornecedoresResultado.dados : null;
+  const fornecedoresPncp = fornecedoresPncpResultado?.ok ? fornecedoresPncpResultado.dados : null;
   const camara = camaraResultado?.ok ? camaraResultado.dados : null;
   const contas = contasResultado?.ok ? contasResultado.dados : null;
   const canais = canaisResultado?.ok ? canaisResultado.dados.itens : [];
@@ -148,6 +152,10 @@ async function Lista({ cep, uf, municipio }: Busca) {
 
       {fornecedores && localizacao.municipio && (
         <FornecedoresSecao dados={fornecedores} cidade={localizacao.municipio} />
+      )}
+
+      {fornecedoresPncp && localizacao.municipio && (
+        <FornecedoresPncpSecao dados={fornecedoresPncp} cidade={localizacao.municipio} />
       )}
 
       {emendas && <EmendasMunicipioSecao dados={emendas} />}

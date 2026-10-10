@@ -39,12 +39,14 @@ from app.models import (
     FonteIngestao,
     PncpContrato,
     PncpDia,
+    PncpJanela,
     PncpOrgao,
     PncpSoma,
     SancaoEmpresa,
     SocioPessoa,
 )
 from ingestion import comum
+from ingestion.pncp import anual
 
 FONTE = "pncp_contratos"
 URL = "https://pncp.gov.br/api/consulta/v1/contratos"
@@ -124,6 +126,10 @@ class Dia:
     somas: dict[Chave, list] = field(default_factory=lambda: defaultdict(lambda: [0, Decimal(0)]))
     orgaos: dict[str, dict] = field(default_factory=dict)
     alvo: dict[str, dict] = field(default_factory=dict)
+    # produção: órgãos municipais, por (município, fornecedor) -> [quantidade, valor, nome]
+    municipais: dict[tuple[str, str], list] = field(
+        default_factory=lambda: defaultdict(lambda: [0, Decimal(0), None])
+    )
     sha256: Any = field(default_factory=hashlib.sha256)
 
 
@@ -177,7 +183,14 @@ def somar(d: Dia, contratos: list[dict[str, Any]], alvo: set[str]) -> None:
         ibge = _digitos(unidade.get("codigoIbge"))[:7]
         soma = d.somas[(orgao_cnpj, ibge, tipo_pessoa, cnpj, tipo)]
         soma[0] += 1
-        soma[1] += _valor(c.get("valorGlobal")) or Decimal(0)
+        valor = _valor(c.get("valorGlobal")) or Decimal(0)
+        soma[1] += valor
+        if orgao.get("esferaId") == "M" and cnpj and ibge and valor > 0:
+            municipal = d.municipais[(ibge, cnpj)]
+            municipal[0] += 1
+            municipal[1] += valor
+            nome = (sem_cpf(c.get("nomeRazaoSocialFornecedor")) or "")[:120]
+            municipal[2] = municipal[2] or nome or None
         if orgao_cnpj and orgao_cnpj not in d.orgaos:
             d.orgaos[orgao_cnpj] = {
                 "cnpj": orgao_cnpj,
@@ -305,6 +318,31 @@ def gravar_dia(session: Session, d: Dia) -> None:
     session.commit()
 
 
+def gravar_dia_producao(session: Session, d: Dia) -> None:
+    """Produção: não guarda a soma diária. O dia entra em pncp_janela (trocado inteiro) e,
+    se já foi compactado em pncp_anual, não entra de novo; os contratos do alvo são sempre
+    atualizados."""
+    atual = session.get(PncpDia, d.dia)
+    if not (atual and atual.compactado):
+        session.execute(delete(PncpJanela).where(PncpJanela.dia == d.dia))
+        linhas = [
+            {"dia": d.dia, "municipio_ibge": m, "fornecedor_cnpj": f, "fornecedor_nome": n,
+             "quantidade": q, "valor_global": v}
+            for (m, f), (q, v, n) in d.municipais.items()
+        ]  # fmt: skip
+        for lote in _em_lotes(linhas, 2000):
+            session.execute(insert(PncpJanela).values(lote))
+    upsert_contratos(session, list(d.alvo.values()))
+    valores = {
+        "total_api": d.total_api, "lidos": d.lidos, "receitas": d.receitas,
+        "empenhos": d.empenhos, "pessoas_fisicas": d.pessoas_fisicas,
+        "linhas_alvo": len(d.alvo), "lido_em": datetime.now(UTC),
+    }  # fmt: skip
+    stmt = insert(PncpDia).values(dia=d.dia, **valores)
+    session.execute(stmt.on_conflict_do_update(index_elements=["dia"], set_=valores))
+    session.commit()
+
+
 def conjunto_alvo(session: Session) -> set[str]:
     """CNPJs de sócios que acompanhamos e de empresas sancionadas."""
     return set(session.scalars(select(SocioPessoa.cnpj).distinct())) | set(
@@ -317,7 +355,12 @@ def dias_da_janela(inicio: date, fim: date) -> list[date]:
 
 
 def planejar(
-    de: date | None, ate: date | None, carregados: set[date], hoje: date, releitura: int
+    de: date | None,
+    ate: date | None,
+    carregados: set[date],
+    hoje: date,
+    releitura: int,
+    janela_inicial: date = JANELA_INICIAL,
 ) -> tuple[date, date, bool]:
     """(início, fim, incremental). Com --de: carga parcial explícita. Sem dias carregados:
     da janela inicial até hoje. Com um buraco antes da releitura (uma carga parcial de
@@ -327,10 +370,10 @@ def planejar(
     if de is not None:
         return de, fim, False
     if not carregados:
-        return JANELA_INICIAL, fim, False
+        return janela_inicial, fim, False
     cursor = max(carregados)
-    inicio_releitura = max(JANELA_INICIAL, cursor - timedelta(days=releitura - 1))
-    dia = JANELA_INICIAL
+    inicio_releitura = max(janela_inicial, cursor - timedelta(days=releitura - 1))
+    dia = janela_inicial
     while dia < inicio_releitura:
         if dia not in carregados:
             return dia, fim, False
@@ -349,14 +392,23 @@ def executar(
     releitura: int = RELEITURA_DIAS,
     max_releituras: int = MAX_RELEITURAS,
     pausa: float = PAUSA,
+    producao: bool = False,
 ) -> int:
     """Lê os dias de publicação de `de` a `ate` (padrão: do cursor, ou de 2023, até hoje).
-    Devolve quantos contratos foram lidos."""
+    Com `producao`: janela inicial no começo do ano anterior, soma em pncp_janela/pncp_anual
+    em vez de pncp_soma e sem reler dias antigos. Devolve quantos contratos foram lidos."""
     hoje = date.today()
+    inicial = date(anual.ano_minimo(hoje), 1, 1) if producao else JANELA_INICIAL
+    if producao:
+        max_releituras = 0  # dia antigo já está em pncp_anual; só o alvo (rota de alteração)
     with SessionLocal() as session:
+        if producao and session.scalar(select(SocioPessoa.id).limit(1)) is None:
+            raise SystemExit(
+                "socio_pessoa vazia: rode cnpj_socios antes (o alvo seria só as sanções)"
+            )
         alvo = conjunto_alvo(session)
         carregados = set(session.scalars(select(PncpDia.dia)))
-        inicio, fim, incremental = planejar(de, ate, carregados, hoje, releitura)
+        inicio, fim, incremental = planejar(de, ate, carregados, hoje, releitura, inicial)
         manifesto = comum.RAW_DIR / FONTE / f"{datetime.now():%Y-%m-%d_%H%M%S}.manifesto.json"
         ingestao = FonteIngestao(fonte=FONTE, url=URL, arquivo_raw=str(manifesto))
         session.add(ingestao)
@@ -379,7 +431,12 @@ def executar(
                 print(f"  {len(dias)} dias a ler ({inicio} a {fim}); {len(alvo)} CNPJs-alvo")
                 for dia in dias:
                     d = ler_dia(client, dia, alvo, pausa)
-                    gravar_dia(session, d)
+                    if producao:
+                        gravar_dia_producao(session, d)
+                        if len(dados["dias"]) % 10 == 9:
+                            _compactar(session, hoje)
+                    else:
+                        gravar_dia(session, d)
                     total += d.lidos
                     total_api += d.total_api
                     if d.lidos != d.total_api:
@@ -392,6 +449,8 @@ def executar(
                     print(
                         f"  {dia}: {d.lidos}/{d.total_api} contratos, {len(d.alvo)} do alvo{aviso}"
                     )
+            if producao:
+                _compactar(session, hoje)
             ingestao.status = "ok"
         except Exception:
             session.rollback()
@@ -409,6 +468,12 @@ def executar(
             session.commit()
             escrever_manifesto(manifesto, dados)
     return total
+
+
+def _compactar(session: Session, hoje: date) -> None:
+    dias = anual.compactar(session, hoje)
+    if dias:
+        print(f"  {dias} dias somados em pncp_anual; {anual.podar(session, hoje)} linhas podadas")
 
 
 def _dias_alterados(
@@ -445,6 +510,11 @@ if __name__ == "__main__":
     parser.add_argument("--ate", type=date.fromisoformat, help="Último dia (AAAA-MM-DD)")
     parser.add_argument("--releitura", type=int, default=RELEITURA_DIAS)
     parser.add_argument("--max-releituras", type=int, default=MAX_RELEITURAS)
+    parser.add_argument(
+        "--producao",
+        action="store_true",
+        help="Recorte enxuto da produção: ano atual e anterior, soma anual por município",
+    )
     args = parser.parse_args()
-    lidos = executar(args.de, args.ate, args.releitura, args.max_releituras)
+    lidos = executar(args.de, args.ate, args.releitura, args.max_releituras, producao=args.producao)
     print(f"{FONTE}: {lidos} contratos lidos")

@@ -111,7 +111,9 @@ def consultar(client: httpx.Client, cnpj: str) -> dict | None:
     return None
 
 
-def executar() -> int:
+def executar(maximo: int | None = None) -> int:
+    """`maximo`: no máximo tantos CNPJs consultados (o resto fica para a próxima execução,
+    porque cada consulta custa ~2 s e o cache é de 30 dias)."""
     hoje = date.today()
     with SessionLocal() as session:
         ingestao = FonteIngestao(
@@ -125,13 +127,19 @@ def executar() -> int:
             )
         )
         pendentes = [c for c in cnpjs_de_interesse(session) if c not in recentes]
+        total_pendentes = len(pendentes)
+        if maximo is not None:
+            pendentes = pendentes[:maximo]
         por_meio_nome: dict[tuple[str, str], set[int]] = {}
         for id_, cpf, chave in session.execute(
             select(Pessoa.id, Pessoa.cpf, Pessoa.chave_nome).where(Pessoa.cpf.is_not(None))
         ):
             por_meio_nome.setdefault((cpf[3:9], chave), set()).add(id_)
         session.commit()
-        print(f"  {len(pendentes)} CNPJs a consultar ({len(recentes)} no cache)", flush=True)
+        print(
+            f"  {len(pendentes)} de {total_pendentes} CNPJs a consultar ({len(recentes)} no cache)",
+            flush=True,
+        )
         ligados_total, falhas = 0, 0
         with comum.criar_cliente() as client:
             for i, cnpj in enumerate(pendentes, start=1):
@@ -174,5 +182,6 @@ def executar() -> int:
 
 
 if __name__ == "__main__":
-    argparse.ArgumentParser(description=f"Ingestão: {FONTE}").parse_args()
-    print(f"{FONTE}: {executar()} sócios ligados")
+    parser = argparse.ArgumentParser(description=f"Ingestão: {FONTE}")
+    parser.add_argument("--max", type=int, help="Máximo de CNPJs consultados nesta execução")
+    print(f"{FONTE}: {executar(parser.parse_args().max)} sócios ligados")

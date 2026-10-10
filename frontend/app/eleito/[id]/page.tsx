@@ -8,6 +8,7 @@ import { CandidaturaSecao } from "@/components/candidatura-secao";
 import { CompartilharWhatsApp } from "@/components/compartilhar";
 import { QuemESecao } from "@/components/dados-pessoais";
 import { FotoOuIniciais } from "@/components/eleitos-secao";
+import { ContratosSocioSecao } from "@/components/contratos-socio-secao";
 import { LinhaDoTempoSecao } from "@/components/linha-do-tempo-secao";
 import { Revelacao } from "@/components/revelacao";
 import { getCanais, getEleito, getLinhaDoTempo } from "@/lib/api";
@@ -120,6 +121,8 @@ async function Perfil({ id }: { id: string }) {
       )}
 
       {linha.ok && <LinhaDoTempoSecao dados={linha.dados} />}
+
+      {linha.ok && <ContratosSocioSecao pessoaId={linha.dados.pessoa_id} />}
 
       <CandidaturaSecao dados={e} />
 

@@ -10,10 +10,11 @@ from app.schemas import (
     CanaisResposta,
     ContasMunicipioResposta,
     EmendasMunicipioResposta,
+    FornecedoresPncpResposta,
     FornecedoresResposta,
     MunicipioInfo,
 )
-from app.services import contas, emendas, fornecedores
+from app.services import contas, contratos_pncp, emendas, fornecedores
 
 router = APIRouter()
 
@@ -80,3 +81,16 @@ def municipios_da_uf(
             select(Municipio).where(Municipio.uf == uf.upper()).order_by(Municipio.nome_chave)
         )
     )
+
+
+@router.get("/municipios/{ibge}/fornecedores-pncp", response_model=FornecedoresPncpResposta)
+def fornecedores_pncp_do_municipio(
+    ibge: str, session: Annotated[Session, Depends(get_session)]
+) -> dict:
+    """Maiores fornecedores dos órgãos municipais no PNCP, no ano mais recente."""
+    if session.get(Municipio, ibge) is None:
+        raise HTTPException(404, "Município não encontrado.")
+    resultado = contratos_pncp.maiores_do_municipio(session, ibge)
+    if resultado is None:
+        raise HTTPException(404, "Sem contratos do PNCP para este município.")
+    return resultado

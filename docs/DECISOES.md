@@ -714,3 +714,14 @@ O plano é juntar tudo o que é público sobre quem exerce função pública: pr
 - **Situação:** a do TSE ("ELEITO", "ELEITO POR QP", "ELEITO POR MÉDIA"). Onde o TSE ainda marca "2º TURNO" (presidente e governadores), o site diz que a pessoa disputa o 2º turno em 25/10/2026 e que a posse, se eleita, é em 1º/1/2027. Suplentes e não eleitos não entram.
 - **Quem já está no cargo e foi reeleito** mostra as duas coisas: o perfil de hoje e o selo "Eleito(a) ... em 2026 — posse em ...", com "segue no mandato de hoje até a posse".
 - **Fonte:** TSE (dados abertos de candidatos), com a data da última carga.
+
+
+## 2026-10-10: PNCP na produção, recorte enxuto e contratos no perfil
+
+- **A soma diária não vai para a produção.** `pncp_soma` (dia × órgão × município × fornecedor × tipo) levaria ~800 MB ao Neon, pago por uso. A produção guarda a soma anual por município × fornecedor (`pncp_anual`, 30 maiores por município e ano, só ano atual e anterior, só órgãos municipais, ~65 MB no teto) e uma janela de 10 dias (`pncp_janela`) para reler sem somar duas vezes. Migração `0034_pncp_anual`, aditiva.
+- **Aproximação declarada:** aditivo de dia já somado não altera a soma anual; fornecedor que cai fora dos 30 maiores recomeça do zero. A página diz que aditivos posteriores à publicação não entram e que não é valor pago.
+- **Município, não órgão:** prefeitura, câmara e fundos têm CNPJs diferentes; a pergunta do cidadão é sobre a cidade.
+- **Contratos inteiros do alvo** (sócios que acompanhamos e sancionadas) continuam inteiros, do ano anterior em diante; o perfil mostra os das empresas de `socio_pessoa`. Contratos de sancionadas ficam guardados (~224 por dia) mas ainda sem tela.
+- **Linguagem do perfil:** "Contratos públicos de empresas de que é sócio(a)": órgão, objeto (resumido), valor global, vigência e link do PNCP, com a nota de que ser sócio de empresa contratada não é irregularidade e de que a ligação é por CPF parcial + nome (Receita via Querido Diário). Rota `GET /pessoas/{id}/contratos`; a cidade ganha `GET /municipios/{ibge}/fornecedores-pncp`.
+- **`cnpj_socios` na produção:** entrou no workflow semanal de Justiça com `--max 600` consultas por execução (2 s cada), para caber em ~25 min. O PNCP recusa a primeira carga com `socio_pessoa` vazia.
+- **Custo medido:** ~9 mil contratos e ~3,6 min por dia de publicação; a primeira carga (~650 dias) é de ~39 h, em blocos manuais de até 80 dias. Dia a dia: ~15 a 20 min de Actions e ~4 a 5 MB gravados.

@@ -8,12 +8,18 @@ name: Justiça e identidade (pessoas)
 # trazem os vereadores de que a identidade depende). Tudo é incremental: arquivo que o órgão
 # não republicou não é baixado de novo (sonda ETag) ou, se baixado, não é recarregado (sha256
 # igual); `pessoas` só grava o que mudou. Semana sem mudança quase não transfere dados do banco.
+# Inclui o quadro de sócios (cnpj_socios), com limite de consultas por execução.
 # Fica de fora o que depende de rede brasileira ou de revisão humana local (ver
 # docs/DEPLOY_GRATUITO.md, "Fontes de Justiça e identidade na produção").
 on:
   schedule:
     - cron: "0 13 * * 2" # terça-feira, 10h em Brasília
   workflow_dispatch:
+    inputs:
+      socios_max:
+        description: "Máximo de CNPJs consultados no quadro de sócios (2 s cada)"
+        default: "600"
+        type: string
 
 # Fila própria: estas fontes escrevem em pessoa, pessoa_vinculo, evento, processo, cpi e
 # sancao_empresa, que nenhuma outra carga toca. Só leem candidatura, parlamentar e mandato_local.
@@ -31,6 +37,7 @@ jobs:
     env:
       DATABASE_URL: ${{ secrets.DATABASE_URL }}
       PYTHONUNBUFFERED: "1"
+      SOCIOS_MAX: ${{ inputs.socios_max || '600' }}
     steps:
       - uses: actions/checkout@v7
 
@@ -58,6 +65,15 @@ jobs:
       - name: "Sanções (CGU: CEIS e CEAF)"
         if: ${{ !cancelled() }}
         run: uv run python -m ingestion.transparencia.sancoes
+
+      # Sócios das empresas sancionadas e dos 1.000 maiores fornecedores (ligam a pessoa aos
+      # contratos do PNCP). Consulta por CNPJ a um serviço comunitário, 2 s cada, com cache de
+      # 30 dias: o limite por execução (600, ~25 min) espalha as ~1.900 consultas da primeira
+      # vez por algumas semanas e, depois, só renova o que venceu.
+      - name: Sócios das empresas (Receita Federal, via Querido Diário)
+        if: ${{ !cancelled() }}
+        timeout-minutes: 60
+        run: uv run python -m ingestion.receita.socios --max "$SOCIOS_MAX"
 
       - name: Condenações do TCU
         if: ${{ !cancelled() }}

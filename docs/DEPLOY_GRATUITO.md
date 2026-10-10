@@ -134,7 +134,7 @@ No plano pago do Neon, configure também no console:
 
 Cada tipo de carga tem a sua fila (`concurrency` no workflow), e por isso cargas diferentes podem rodar ao mesmo tempo:
 - `ingestao-federal`: a ingestão diária e a recarga do Publicar, que escrevem nas mesmas tabelas;
-- `ingestao-tse`, `ingestao-mensal`, `ingestao-camaras` e `ingestao-justica`: cada uma com as suas tabelas. A de Justiça escreve em `pessoa`, `pessoa_vinculo`, `evento`, `processo`, `sancao_empresa` e `cpi*`, e só lê `candidatura`, `parlamentar` e `mandato_local`; por isso roda na terça, depois da ingestão diária e longe do domingo das câmaras.
+- `ingestao-tse`, `ingestao-mensal`, `ingestao-camaras`, `ingestao-pncp` e `ingestao-justica`: cada uma com as suas tabelas. A de Justiça escreve em `pessoa`, `pessoa_vinculo`, `evento`, `processo`, `sancao_empresa` e `cpi*`, e só lê `candidatura`, `parlamentar` e `mandato_local`; por isso roda na terça, depois da ingestão diária e longe do domingo das câmaras.
 
 As migrações usam uma trava no próprio Postgres (`pg_advisory_xact_lock` em `alembic/env.py`): se dois workflows migrarem ao mesmo tempo, o segundo espera e não encontra nada a fazer. Atenção: o GitHub mantém só **uma** execução pendente por fila; disparar outra na mesma fila cancela a que estava esperando.
 
@@ -166,5 +166,27 @@ Total na produção: cerca de 80 MB de dados e índices no Neon, quase todos de 
 - `cnj_cnia`, `stf_processos`, `stj_processos`: catalogadas (sem coleta), bloqueiam acesso automático ou dependem de pedido formal (`docs/pedidos/`).
 - `cpi_indiciamentos`, `querido_diario_atos`, `dou_atos`: geram **fila de revisão humana** local (`ingestion.revisar`); só o resultado, os CSVs `data/*_revisados.csv` versionados, é aplicado pela carga de `pessoas` na produção.
 - `tse_contas_partidarias`, `tse_fefc_fp`: já rodam no `ingestao-mensal.yml`.
-- `cnpj_socios` e `pncp_contratos`: têm volume e cadência próprios; não fazem parte deste conjunto.
+- `pncp_contratos`: tem workflow próprio e diário (seção seguinte). `cnpj_socios` entra neste workflow, depois das sanções, com limite de 600 consultas por execução (2 s cada, ~25 min; cache de 30 dias): a primeira passagem por ~1.900 CNPJs (sancionadas + 1.000 maiores fornecedores) leva 4 terças; depois só renova o que venceu (~65 por semana). Grava `socio_pessoa` e `cnpj_consulta` (poucos KB).
 
+## PNCP na produção
+
+Workflow `.github/workflows/ingestao-pncp.yml`, todo dia às 2h30 (Brasília), fila própria `ingestao-pncp` (escreve em `pncp_contrato`, `pncp_dia`, `pncp_janela`, `pncp_anual`; só lê `socio_pessoa` e `sancao_empresa`). Roda `python -m ingestion.pncp.contratos --producao --releitura 3`.
+
+**Recorte da produção** (o acervo local continua com a soma diária `pncp_soma`, ~800 MB, que NÃO vai para o Neon):
+
+| O que | Tabela | Recorte | Tamanho estimado |
+|---|---|---|---|
+| Contratos inteiros do alvo | `pncp_contrato` | fornecedor CNPJ em `socio_pessoa` ou `sancao_empresa`, sem alienações, do ano anterior em diante | medido: 896 contratos em 4 dias só das 908 empresas sancionadas (224/dia, ~0,58 KB cada com índices); 650 dias dão ~90 a 100 MB; cresce ~45 MB por ano |
+| Soma anual | `pncp_anual` | ano atual e anterior, órgãos municipais, por município × fornecedor (CNPJ), só os 30 maiores de cada município e ano | medido: ~215 bytes por linha; teto de 5,5 mil municípios x 30 x 2 anos = 330 mil linhas = ~65 MB |
+| Janela | `pncp_janela` | últimos 10 dias, por dia × município × fornecedor, para reler um dia sem somar duas vezes | ~4,4 mil linhas por dia (~1 MB no total) |
+| Cursor | `pncp_dia` | um registro por dia lido (`compactado` diz se o dia já foi somado em `pncp_anual`) | ~650 linhas |
+
+Total: ~160 MB no Neon (armazenamento ~US$ 0,06 por mês). Não entram: pessoa física, fornecedor estrangeiro, empenhos de órgãos federais e estaduais na soma anual, tipo de contrato e órgão (a soma é por município).
+
+**Como evita somar duas vezes:** cada dia lido entra em `pncp_janela` (trocado inteiro se relido). Quando sai da janela (10 dias) ele é somado em `pncp_anual` uma única vez e marcado `compactado`; reler um dia já compactado só atualiza os contratos do alvo. Aproximação assumida: aditivo em contrato de dia já compactado não muda a soma anual; fornecedor fora dos 30 maiores do município recomeça do zero se voltar (erro pequeno, longe do topo que o site mostra).
+
+**Custo por dia (medido no acervo, com a API do PNCP lenta):** ~9 mil contratos e ~3,6 min por dia de publicação (35.816 contratos em 14 min 21 s); a rota de alterações leva ~80 s por dia. A releitura de 3 dias custa ~15 a 20 min de Actions por dia (grátis em repositório público). Dados que vão ao Neon: ~4 a 5 MB por dia (janela, alvo, soma), ~0,15 GB por mês; leituras do banco, só os CNPJs do alvo (~3 mil) e os dias do cursor. Estimativa de acréscimo na conta do Neon: menos de R$ 5 por mês (computação de ~20 min por dia a 0,25 CU).
+
+**Primeira carga (disparo manual, uma vez):** ~650 dias (janeiro do ano anterior até hoje) a ~3,6 min por dia = ~39 horas, mais que um job (6 h). Rode **Actions → PNCP → Run workflow** com `de` e `ate` em blocos de até 80 dias (8 a 9 disparos, em fila). Ordem livre; o agendamento diário completa o que faltar (120 min por dia). Antes, deixe o `cnpj_socios` terminar (o `ingestao-justica.yml` consulta 600 CNPJs por terça e aceita `socios_max` no disparo manual; ~1.900 CNPJs levam 4 execuções): o comando recusa rodar com `socio_pessoa` vazia, porque contrato de sócio descoberto depois não é recuperado sem reler os dias (`--de/--ate` de novo; o que já foi somado não soma de novo). Alternativa: rodar a primeira carga da máquina local contra o Neon com `DATABASE_URL`.
+
+**Fica de fora:** contratos de antes do ano anterior; órgãos que não publicam no PNCP; valores pagos (a seção de TCE continua sendo a de pagamentos).

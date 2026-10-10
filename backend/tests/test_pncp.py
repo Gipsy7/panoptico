@@ -5,8 +5,8 @@ import httpx
 import respx
 from sqlalchemy import func, select
 
-from app.models import PncpContrato, PncpDia, PncpOrgao, PncpSoma
-from ingestion.pncp import contratos
+from app.models import PncpAnual, PncpContrato, PncpDia, PncpJanela, PncpOrgao, PncpSoma
+from ingestion.pncp import anual, contratos
 from tests.conftest import carregar_fixture
 
 # Amostra real da API (contratos publicados em 01/10/2025), com os CPFs trocados:
@@ -187,3 +187,69 @@ def test_planejar_janela():
         date(2025, 10, 7),
         False,
     )
+
+
+# --- Recorte da produção: janela de poucos dias + soma anual por município ---
+
+MUNICIPAL = ("4202008", "55420878000178")  # o único PJ municipal com valor da amostra
+
+
+def test_somar_separa_so_pj_de_orgao_municipal_sem_valor_zero():
+    d = _dia(alvo=set())
+    assert {k: (v[0], v[1]) for k, v in d.municipais.items()} == {
+        MUNICIPAL: (1, Decimal("4676.00"))
+    }  # federal, estadual, consórcio, PF, estrangeiro e valor zero ficam fora
+    assert d.municipais[MUNICIPAL][2]  # guarda o nome do fornecedor
+
+
+def _municipal(dia, ibge, cnpj, nome, qtd, valor):
+    d = contratos.Dia(dia)
+    d.municipais[(ibge, cnpj)] = [qtd, Decimal(valor), nome]
+    return d
+
+
+def test_producao_janela_e_compactacao_nao_soma_duas_vezes(session):
+    hoje = date(2026, 10, 10)
+    velho, recente = date(2026, 9, 1), date(2026, 10, 8)
+    for _ in range(2):  # reler o mesmo dia troca a linha da janela
+        contratos.gravar_dia_producao(session, _municipal(velho, "1", "A", "A LTDA", 2, "100"))
+    contratos.gravar_dia_producao(session, _municipal(recente, "1", "A", "A LTDA", 1, "50"))
+    assert session.scalar(select(func.count()).select_from(PncpJanela)) == 2
+    assert anual.compactar(session, hoje) == 1  # só o dia que saiu da janela
+    assert session.get(PncpDia, velho).compactado is True
+    assert session.get(PncpDia, recente).compactado is False
+    linha = session.get(PncpAnual, (2026, "1", "A"))
+    assert (linha.quantidade, linha.valor_global) == (2, Decimal("100.00"))
+    # relê o dia já compactado (carga à mão): não entra de novo na janela nem na soma anual
+    contratos.gravar_dia_producao(session, _municipal(velho, "1", "A", "A LTDA", 2, "100"))
+    assert anual.compactar(session, hoje) == 0
+    assert session.get(PncpAnual, (2026, "1", "A")).valor_global == Decimal("100.00")
+    assert session.scalar(select(func.count()).select_from(PncpJanela)) == 1
+    # o dia recente, depois que sai da janela, soma ao anual
+    assert anual.compactar(session, date(2026, 10, 30)) == 1
+    assert session.get(PncpAnual, (2026, "1", "A")).valor_global == Decimal("150.00")
+    assert session.scalar(select(func.count()).select_from(PncpJanela)) == 0
+
+
+def test_podar_mantem_os_maiores_de_cada_municipio_e_os_dois_ultimos_anos(session):
+    hoje = date(2026, 10, 10)
+    for i in range(5):
+        session.add(PncpAnual(ano=2026, municipio_ibge="1", fornecedor_cnpj=f"F{i}",
+                              quantidade=1, valor_global=Decimal(100 - i)))  # fmt: skip
+    session.add(PncpAnual(ano=2026, municipio_ibge="2", fornecedor_cnpj="Z", quantidade=1,
+                          valor_global=Decimal(1)))  # fmt: skip
+    session.add(PncpAnual(ano=2024, municipio_ibge="2", fornecedor_cnpj="Z", quantidade=1,
+                          valor_global=Decimal(1)))  # fmt: skip
+    session.flush()
+    assert anual.podar(session, hoje, maiores=3) == 3  # 2 excedentes do município 1 + o ano 2024
+    restantes = sorted(
+        (a.municipio_ibge, a.fornecedor_cnpj) for a in session.scalars(select(PncpAnual))
+    )
+    assert restantes == [("1", "F0"), ("1", "F1"), ("1", "F2"), ("2", "Z")]
+
+
+def test_planejar_producao_comeca_no_ano_anterior():
+    hoje = date(2026, 10, 10)
+    inicio = date(anual.ano_minimo(hoje), 1, 1)
+    assert inicio == date(2025, 1, 1)
+    assert contratos.planejar(None, None, set(), hoje, 7, inicio) == (inicio, hoje, False)

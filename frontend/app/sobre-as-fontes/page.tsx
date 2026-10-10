@@ -52,6 +52,16 @@ export default function SobreAsFontesPage() {
           &quot;Virou lei ou norma&quot; quer dizer que a situação oficial é &quot;transformado em
           norma jurídica&quot;.
         </Item>
+        <Item titulo="Contratos públicos (PNCP)">
+          No perfil, os contratos publicados no Portal Nacional de Contratações Públicas por
+          empresas de que a pessoa é sócia ou administradora, segundo o quadro de sócios da
+          Receita Federal (ligação por CPF parcial e nome iguais). Ser sócio de uma empresa
+          contratada não é irregularidade: mostramos só que o contrato existe, com o link. Na
+          cidade, a soma do valor global dos contratos de cada empresa, nos órgãos municipais, no
+          ano; não é o valor pago, não inclui alienações nem aditivos posteriores à publicação, e
+          só aparecem os 30 maiores por cidade. Entram os contratos do ano passado em diante, e
+          órgãos que não publicam no PNCP ficam de fora.
+        </Item>
         <Item titulo="Dinheiro enviado para a cidade">
           Valores de emendas individuais, dos orçamentos de 2023 em diante, pagos à prefeitura, aos
           fundos municipais e a entidades sem fins lucrativos da cidade. Não entram emendas de

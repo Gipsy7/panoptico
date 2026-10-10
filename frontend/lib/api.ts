@@ -840,3 +840,47 @@ export function getPartido(sigla: string, ano?: string) {
   const query = ano ? `?ano=${encodeURIComponent(ano)}` : "";
   return getJson<PartidoDetalhe>(`/partidos/${encodeURIComponent(sigla)}${query}`);
 }
+
+export type ContratoPncp = {
+  fornecedor_cnpj: string;
+  fornecedor_nome: string | null;
+  orgao: string | null;
+  municipio: string | null;
+  uf: string | null;
+  objeto: string | null;
+  valor: number | null;
+  vigencia_inicio: string | null;
+  vigencia_fim: string | null;
+  publicado_em: string;
+  url: string;
+};
+
+export type ContratosDaPessoa = {
+  pessoa_id: number;
+  empresas: { cnpj: string; nome: string | null; qualificacao: string | null; contratos: number }[];
+  total_contratos: number;
+  valor_total: number;
+  itens: ContratoPncp[];
+  cobertura_desde: string | null;
+  fonte_nome: string;
+  fonte_url: string;
+  atualizado_em: string | null;
+};
+
+/** Contratos públicos (PNCP) de empresas de que a pessoa é sócia. */
+export function getContratosDaPessoa(pessoaId: number) {
+  return getJson<ContratosDaPessoa>(`/pessoas/${pessoaId}/contratos`);
+}
+
+export type FornecedoresPncp = {
+  ano: number;
+  itens: { fornecedor_cnpj: string; fornecedor: string | null; valor: number; contratos: number }[];
+  soma_ate: string | null;
+  fonte_nome: string;
+  fonte_url: string;
+  atualizado_em: string | null;
+};
+
+export function getFornecedoresPncp(ibge: string) {
+  return getJson<FornecedoresPncp>(`/municipios/${encodeURIComponent(ibge)}/fornecedores-pncp`);
+}

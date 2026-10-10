@@ -8,6 +8,7 @@ import { CandidaturaSecao } from "@/components/candidatura-secao";
 import { CompartilharWhatsApp } from "@/components/compartilhar";
 import { QuemESecao } from "@/components/dados-pessoais";
 import { FonteRodape } from "@/components/fonte-rodape";
+import { ContratosSocioSecao } from "@/components/contratos-socio-secao";
 import { LinhaDoTempoSecao } from "@/components/linha-do-tempo-secao";
 import { type ItemResumo, ResumoNumeros } from "@/components/resumo-perfil";
 import { getEleito, getLinhaDoTempo, getVereador, getVotacoesLocais } from "@/lib/api";
@@ -173,6 +174,8 @@ export async function PerfilMandatoLocal({ id, paginaVotos }: { id: string; pagi
       </section>
 
       {linha.ok && <LinhaDoTempoSecao dados={linha.dados} />}
+
+      {linha.ok && <ContratosSocioSecao pessoaId={linha.dados.pessoa_id} />}
 
       {eleicao?.ok && (
         <CandidaturaSecao dados={eleicao.dados} />
