@@ -55,7 +55,7 @@ jobs:
         if: ${{ !cancelled() }}
         run: uv run python -m ingestion.tse.cassacoes --ano 2016 2018 2020 2022 2024 2026
 
-      - name: Sanções (CGU: CEIS e CEAF)
+      - name: "Sanções (CGU: CEIS e CEAF)"
         if: ${{ !cancelled() }}
         run: uv run python -m ingestion.transparencia.sancoes
 
