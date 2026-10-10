@@ -15,6 +15,7 @@ Uso:
     python -m ingestion.revisar --exportar fila.csv  # para revisar numa planilha e depois
                                                      # colar as linhas decididas no CSV
     python -m ingestion.revisar --tipo diario      # atos dos diários (também com --exportar)
+    python -m ingestion.revisar --tipo dou         # atos de pessoal do DOU (Seção 2)
     python -m ingestion.revisar --tipo cpi         # indiciamentos sugeridos pelas CPIs
 """
 
@@ -34,6 +35,9 @@ from ingestion.congresso.cpi_revisao import pendentes as pendentes_indiciamentos
 from ingestion.diarios.revisao import ATOS_REVISADOS
 from ingestion.diarios.revisao import gravar_decisao as gravar_ato
 from ingestion.diarios.revisao import pendentes as pendentes_atos
+from ingestion.dou.revisao import DOU_REVISADOS
+from ingestion.dou.revisao import gravar_decisao as gravar_dou
+from ingestion.dou.revisao import pendentes as pendentes_dou
 from ingestion.pessoas import COLUNAS_REVISAO, REVISOES, revisoes
 
 
@@ -143,6 +147,21 @@ def _revisar_diarios(fila: list[dict], revisor: str) -> None:
             gravar_ato(item, "aceito" if resposta == "a" else "recusado", revisor)
 
 
+def _revisar_dou(fila: list[dict], revisor: str) -> None:
+    for i, item in enumerate(fila, start=1):
+        print(f"\n[{i}/{len(fila)}] {item['pessoa']} (DOU, Seção 2)")
+        print(f"  {item['data']}  ato: {item['tipo_ato']}  órgão: {item['orgao']}")
+        print(f"  trecho:  {item['trecho']}")
+        print(f"  DOU:     {item['url']}")
+        resposta = (
+            input("  O ato é desta pessoa? [a]ceitar, [r]ecusar, [p]ular, [s]air: ").strip().lower()
+        )
+        if resposta == "s":
+            break
+        if resposta in ("a", "r"):
+            gravar_dou(item, "aceito" if resposta == "a" else "recusado", revisor)
+
+
 def _candidatos_em_texto(candidatos: list[dict]) -> str:
     return " | ".join(f"{c['pessoa_chave']} = {c['nome']}, {c['descricao']}" for c in candidatos)
 
@@ -175,21 +194,30 @@ def _revisar_cpis(fila: list[dict], revisor: str) -> None:
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Revisão humana de vínculos e de atos")
     parser.add_argument(
-        "--tipo", choices=["vinculo", "diario", "cpi"], default="vinculo",
+        "--tipo", choices=["vinculo", "diario", "dou", "cpi"], default="vinculo",
         help="vinculo: nomes aproximados (padrão); diario: atos de nomeação/exoneração "
-        "sugeridos pelos diários oficiais; cpi: pedidos de indiciamento dos relatórios de CPI",
+        "sugeridos pelos diários oficiais; dou: atos de pessoal sugeridos pelo Diário Oficial "
+        "da União (Seção 2); cpi: pedidos de indiciamento dos relatórios de CPI",
     )  # fmt: skip
     parser.add_argument("--exportar", type=Path, help="Grava a fila num CSV, sem perguntar")
     parser.add_argument("--revisor", default="", help="Quem está revisando (vai no CSV)")
     args = parser.parse_args(argv)
-    diario, cpi = args.tipo == "diario", args.tipo == "cpi"
-    busca = pendentes_indiciamentos if cpi else pendentes_atos if diario else pendentes
+    diario, cpi, dou = args.tipo == "diario", args.tipo == "cpi", args.tipo == "dou"
+    busca = (
+        pendentes_indiciamentos if cpi else pendentes_dou if dou
+        else pendentes_atos if diario else pendentes
+    )  # fmt: skip
     with SessionLocal() as session:
         fila = busca(session)
-    destino = INDICIAMENTOS_REVISADOS if cpi else ATOS_REVISADOS if diario else REVISOES
+    destino = (
+        INDICIAMENTOS_REVISADOS if cpi else DOU_REVISADOS if dou
+        else ATOS_REVISADOS if diario else REVISOES
+    )  # fmt: skip
     rotulo = (
         "pedidos de indiciamento de CPI"
         if cpi
+        else "atos do Diário Oficial da União"
+        if dou
         else "atos de diários oficiais"
         if diario
         else "vínculos por nome aproximado"
@@ -201,7 +229,10 @@ def main(argv: list[str] | None = None) -> int:
         _exportar(fila, args.exportar, destino)
         return 0
     revisor = args.revisor or input("Seu nome (vai no CSV): ").strip()
-    (_revisar_cpis if cpi else _revisar_diarios if diario else _revisar_vinculos)(fila, revisor)
+    (
+        _revisar_cpis if cpi else _revisar_dou if dou
+        else _revisar_diarios if diario else _revisar_vinculos
+    )(fila, revisor)  # fmt: skip
     proxima = "a próxima carga de pessoas (python -m ingestion.pessoas)"
     print(f"\nDecisões em {destino}. Valem na {proxima}.")
     return 0

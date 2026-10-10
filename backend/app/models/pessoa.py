@@ -209,3 +209,26 @@ class DiarioConsulta(Base):
     municipio_ibge: Mapped[str] = mapped_column(String(7), primary_key=True)
     consultado_em: Mapped[date] = mapped_column(Date)
     achados: Mapped[int] = mapped_column(default=0)
+
+
+class DouAto(Base):
+    """SUGESTÃO de ato de nomeação, exoneração, designação ou dispensa achado por nome na
+    Seção 2 (pessoal) do Diário Oficial da União. Mesma regra de `DiarioAto`: achado em
+    texto nunca é vínculo; nasce com `revisado = False` e só vira evento depois de revisão
+    humana (homônimos). O trecho é curto (até 500 caracteres); a URL é a da página do DOU
+    certificado (mais de uma matéria pode estar na mesma página, por isso a chave é a
+    matéria)."""
+
+    __tablename__ = "dou_ato"
+    __table_args__ = (UniqueConstraint("pessoa_id", "id_materia"),)
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    pessoa_id: Mapped[int] = mapped_column(ForeignKey("pessoa.id", ondelete="CASCADE"), index=True)
+    id_materia: Mapped[str] = mapped_column(String(20))  # id do artigo no XML do DOU
+    data: Mapped[date] = mapped_column(Date)
+    tipo_ato: Mapped[str] = mapped_column(String(20))  # nomeacao|exoneracao|designacao|dispensa
+    orgao: Mapped[str] = mapped_column(Text)
+    tipo_materia: Mapped[str | None] = mapped_column(String(100))
+    trecho: Mapped[str] = mapped_column(String(500))
+    url: Mapped[str] = mapped_column(Text)
+    revisado: Mapped[bool] = mapped_column(Boolean, default=False, server_default="false")

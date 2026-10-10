@@ -189,6 +189,42 @@ CATALOGO = [
         "url": "https://www.al.mt.gov.br/parlamento/deputados",
     },
     {
+        "dado": "Deputados estaduais do MA: no cargo (partido e foto) e projetos",
+        "orgao": "Assembleia Legislativa do Maranhão (site e API pública do ALEMALEGIS)",
+        "fontes": ["alema"],
+        "url": "https://alemalegis.al.ma.leg.br/api/v1/public/legislative-matter/filter/access",
+    },
+    {
+        "dado": "Deputados estaduais de MS: no cargo e gastos da cota (CEAP)",
+        "orgao": "Assembleia Legislativa de Mato Grosso do Sul (site e portal da transparência)",
+        "fontes": ["alems"],
+        "url": "https://transparencia2.al.ms.gov.br/ceap",
+    },
+    {
+        "dado": "Deputados estaduais do RN: no cargo (partido e foto) e projetos",
+        "orgao": "Assembleia Legislativa do RN (site e API da transparência legislativa)",
+        "fontes": ["alrn"],
+        "url": "https://transparencialegislativa.al.rn.leg.br/",
+    },
+    {
+        "dado": "Deputados estaduais de SE: no cargo (partido e foto) e presença em plenário",
+        "orgao": "Assembleia Legislativa de Sergipe (site e Processo Legislativo)",
+        "fontes": ["alese"],
+        "url": "https://aleselegis.al.se.leg.br/spl/",
+    },
+    {
+        "dado": "Deputados estaduais do AP: no cargo (partido e foto) e projetos",
+        "orgao": "Assembleia Legislativa do Amapá (site e portal do eLegis)",
+        "fontes": ["alap"],
+        "url": "https://elegis.al.ap.leg.br/portal/proposicoes",
+    },
+    {
+        "dado": "Deputados estaduais de GO: no cargo (partido e contato) e verba indenizatória",
+        "orgao": "Assembleia Legislativa de Goiás (portal e portal da transparência)",
+        "fontes": ["alego"],
+        "url": "https://transparencia.al.go.leg.br/dados-abertos",
+    },
+    {
         "dado": "Sites oficiais das prefeituras e câmaras (catálogo aberto)",
         "orgao": "Varredura do Panóptico nos domínios .gov.br e .leg.br",
         "fontes": ["canais_oficiais"],

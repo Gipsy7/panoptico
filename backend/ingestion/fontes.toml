@@ -360,6 +360,48 @@ recorte = "deputados em exercício (sem proposições: API com OAuth e pesquisa 
 frequencia = "semanal"
 
 [[fonte]]
+nome = "alema"
+modulo = "ingestion.assembleias.alema"
+uso = "Assembleia do Maranhão hoje"
+recorte = "deputados em exercício; projetos do ano atual e anterior (sem votos, presença e gastos)"
+frequencia = "semanal"
+
+[[fonte]]
+nome = "alems"
+modulo = "ingestion.assembleias.alems"
+uso = "Assembleia de Mato Grosso do Sul hoje"
+recorte = "deputados em exercício; gastos da cota (CEAP) do ano atual e anterior (sem proposições: o sistema exige prova de trabalho contra automação)"
+frequencia = "semanal"
+
+[[fonte]]
+nome = "alrn"
+modulo = "ingestion.assembleias.alrn"
+uso = "Assembleia do Rio Grande do Norte hoje"
+recorte = "deputados em exercício; projetos do ano atual e anterior (sem votos nominais, presença e gastos)"
+frequencia = "semanal"
+
+[[fonte]]
+nome = "alese"
+modulo = "ingestion.assembleias.alese"
+uso = "Assembleia de Sergipe hoje"
+recorte = "deputados em exercício e presença em plenário do ano corrente (sem proposições, votos e gastos)"
+frequencia = "semanal"
+
+[[fonte]]
+nome = "alap"
+modulo = "ingestion.assembleias.alap"
+uso = "Assembleia do Amapá hoje"
+recorte = "deputados em exercício; projetos do ano atual e anterior (sem votos, presença e gastos)"
+frequencia = "semanal"
+
+[[fonte]]
+nome = "alego"
+modulo = "ingestion.assembleias.alego"
+uso = "Assembleia de Goiás hoje"
+recorte = "deputados em exercício; verba indenizatória mensal do ano atual e anterior (sem proposições, votos e presença)"
+frequencia = "semanal"
+
+[[fonte]]
 nome = "alesp"
 modulo = "ingestion.assembleias.alesp"
 uso = "Assembleia de São Paulo hoje"
@@ -373,7 +415,7 @@ modulo = "ingestion.pessoas"
 uso = "Pessoa pública única e linha do tempo (/pessoas/{id}/eventos)"
 recorte = "candidaturas, parlamentares e mandatos já carregados"
 frequencia = "semanal"
-depende = ["tse_candidaturas", "camara_deputados", "senado_senadores", "sapl_camaras", "cittatec_camaras", "portal_php_camaras", "cr2_camaras", "sapl_assembleias", "almg", "alesp", "alepe", "cldf", "alesc", "alerj", "alrs", "alba", "ales", "alece", "alepa", "almt"]
+depende = ["tse_candidaturas", "camara_deputados", "senado_senadores", "sapl_camaras", "cittatec_camaras", "portal_php_camaras", "cr2_camaras", "sapl_assembleias", "almg", "alesp", "alepe", "cldf", "alesc", "alerj", "alrs", "alba", "ales", "alece", "alepa", "almt", "alema", "alems", "alrn", "alese", "alap", "alego"]
 
 # Justiça e controle
 [[fonte]]
@@ -565,6 +607,23 @@ depende = ["pessoas"]
 # 1 requisição a cada 2 s, cache de 30 dias por pessoa (diario_consulta). Achado em texto
 # nunca é vínculo: diario_ato nasce com revisado = false. O bruto guardado é só o recorte
 # (as sugestões de cada execução), não os diários.
+
+[[fonte]]
+nome = "dou_atos"
+modulo = "ingestion.dou.atos"
+uso = "Fila de revisão: sugestões de atos de nomeação, exoneração, designação e dispensa na Seção 2 do Diário Oficial da União que citam o nome completo de uma pessoa que acompanhamos (nada é publicado sem revisão humana)"
+recorte = "só a Seção 2 (pessoal) desde 2025-01-01; só matérias com o nome completo (3+ palavras, único na base) e uma palavra de ato no mesmo parágrafo; trecho de até 500 caracteres + órgão, data, tipo e link oficial da página do DOU"
+guarda = "linhas"
+bruto = "recorte"
+frequencia = "mensal"
+acesso = "aberto"
+depende = ["pessoas"]
+# Dados abertos da Imprensa Nacional (in.gov.br/acesso-a-informacao/dados-abertos/base-de-dados):
+# um ZIP por mês e seção (S02MMAAAA.zip, ~16 MB, ~16 mil XML), sem cadastro, publicado na
+# primeira terça-feira do mês seguinte. O link do ZIP é lido da página da base (traz um id que
+# muda). O INLABS (diário do dia em XML) exige cadastro e senha e NÃO é usado. Carga mensal
+# incremental (download_cache por mês: mês igual não rebaixa). O ZIP é lido em fluxo e vira
+# manifesto; fica só o recorte. dou_ato nasce com revisado = false.
 
 # Executivo
 [[fonte]]

@@ -35,6 +35,18 @@ FONTES_PROPRIAS = {
     "CE": ("alece", "Site da Assembleia Legislativa do Ceará (ALECE)"),
     "PA": ("alepa", "Site da Assembleia Legislativa do Pará (ALEPA)"),
     "MT": ("almt", "Site da Assembleia Legislativa de Mato Grosso (ALMT)"),
+    "MA": ("alema", "Site e API pública da Assembleia Legislativa do Maranhão (ALEMA)"),
+    "MS": (
+        "alems",
+        "Site e portal da transparência da Assembleia Legislativa de Mato Grosso do Sul (ALEMS)",
+    ),
+    "RN": (
+        "alrn",
+        "Site e API da Transparência Legislativa da Assembleia Legislativa do RN (ALRN)",
+    ),
+    "SE": ("alese", "Site e Processo Legislativo da Assembleia Legislativa de Sergipe (ALESE)"),
+    "AP": ("alap", "Site e portal do eLegis da Assembleia Legislativa do Amapá (ALAP)"),
+    "GO": ("alego", "Portais da Assembleia Legislativa de Goiás (ALEGO)"),
 }
 
 

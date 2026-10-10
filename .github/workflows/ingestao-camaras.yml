@@ -386,3 +386,129 @@ jobs:
         run: uv sync --locked --no-dev
       - name: Assembleia de Mato Grosso (ALMT)
         run: uv run python -m ingestion.assembleias.almt
+
+  # Assembleia do Maranhão (ALEMA): API do ALEMALEGIS.
+  alema:
+    needs: catalogo
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: backend
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      PYTHONUNBUFFERED: "1"
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v10.2.0
+        with:
+          version: "0.12.23"
+      - name: Instalar dependências
+        run: uv sync --locked --no-dev
+      - name: Assembleia do Maranhão (ALEMA)
+        run: uv run python -m ingestion.assembleias.alema
+
+  # Assembleia de Mato Grosso do Sul (ALEMS): Site e portal da transparência da ALEMS.
+  alems:
+    needs: catalogo
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: backend
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      PYTHONUNBUFFERED: "1"
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v10.2.0
+        with:
+          version: "0.12.23"
+      - name: Instalar dependências
+        run: uv sync --locked --no-dev
+      - name: Assembleia de Mato Grosso do Sul (ALEMS)
+        run: uv run python -m ingestion.assembleias.alems
+
+  # Assembleia do Rio Grande do Norte (ALRN): API da Transparência Legislativa da ALRN.
+  alrn:
+    needs: catalogo
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    defaults:
+      run:
+        working-directory: backend
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      PYTHONUNBUFFERED: "1"
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v10.2.0
+        with:
+          version: "0.12.23"
+      - name: Instalar dependências
+        run: uv sync --locked --no-dev
+      - name: Assembleia do Rio Grande do Norte (ALRN)
+        run: uv run python -m ingestion.assembleias.alrn
+
+  # Assembleia de Sergipe (ALESE): Site e SPL da ALESE.
+  alese:
+    needs: catalogo
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: backend
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      PYTHONUNBUFFERED: "1"
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v10.2.0
+        with:
+          version: "0.12.23"
+      - name: Instalar dependências
+        run: uv sync --locked --no-dev
+      - name: Assembleia de Sergipe (ALESE)
+        run: uv run python -m ingestion.assembleias.alese
+
+  # Assembleia do Amapá (ALAP): Portal do eLegis da ALAP.
+  alap:
+    needs: catalogo
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: backend
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      PYTHONUNBUFFERED: "1"
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v10.2.0
+        with:
+          version: "0.12.23"
+      - name: Instalar dependências
+        run: uv sync --locked --no-dev
+      - name: Assembleia do Amapá (ALAP)
+        run: uv run python -m ingestion.assembleias.alap
+
+  # Assembleia de Goiás (ALEGO): Portal da transparência da ALEGO.
+  alego:
+    needs: catalogo
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: backend
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      PYTHONUNBUFFERED: "1"
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v10.2.0
+        with:
+          version: "0.12.23"
+      - name: Instalar dependências
+        run: uv sync --locked --no-dev
+      - name: Assembleia de Goiás (ALEGO)
+        run: uv run python -m ingestion.assembleias.alego

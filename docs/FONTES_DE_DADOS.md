@@ -499,6 +499,25 @@ Endpoints conferidos em 2026-10-06.
 - **Frequência:** semanal, com cache de 30 dias por pessoa (~7,6 mil pessoas elegíveis, na prática ~30 s por pessoa, por causa da latência da API: carga em fatias). Carga parcial: `python -m ingestion.diarios.atos --municipios 4314902 --limite 50`.
 - **Uso:** fila de revisão de atos de pessoal (nomeação, exoneração, designação) ligados a quem acompanhamos.
 
+## Diário Oficial da União, Seção 2: atos de pessoal (dou_atos)
+
+- **O que é:** a "Base de Dados de Publicações do DOU" da Imprensa Nacional (`https://www.in.gov.br/acesso-a-informacao/dados-abertos/base-de-dados`). **Acesso aberto, sem cadastro:** um ZIP por mês e seção (`S01MMAAAA.zip`, `S02MMAAAA.zip`, `S03MMAAAA.zip`), com um XML por matéria. Publicado, em tese, na primeira terça-feira do mês seguinte (em 2026-10-10 o de agosto existia e o de setembro ainda não). A Seção 2 é a de "atos de pessoal relativos aos servidores públicos". O XML não substitui a versão certificada (PDF).
+- **Acesso, passo a passo:** a página da base escolhe ano e mês por parâmetro (`?ano=2025&mes=Março`, o mês em português, codificado em UTF-8; sem codificar dá 400). A resposta traz os três links de download no formato `https://www.in.gov.br/documents/49035712/<pasta>/S02032025.zip/<uuid>?version=1.0&t=<carimbo>&download=true`. O uuid e o carimbo mudam a cada publicação, então o link é lido da página a cada carga (`url_do_mes`), não montado.
+- **O que NÃO usamos:** o INLABS (`https://inlabs.in.gov.br`, o diário do dia em XML) exige cadastro com e-mail e senha. Não foi contornado; o canal mensal aberto basta para o recorte e dá o histórico.
+- **Tamanho:** a Seção 2 de agosto de 2026 tem 20,7 MB zipados e 16.368 matérias; a de março de 2025, 16,7 MB, 13.334 XML e algumas imagens (`.jpg`) que são ignoradas. Cada carga mensal é um download; o `download_cache` (incremental de `comum`, chave por mês) evita rebaixar o mês que não mudou.
+- **Campos do XML** (`<article>`): `idMateria` (id da matéria), `id`, `name`, `pubName` (`DO2`), `artType` (Portaria, Despacho, Ato...), `pubDate` (dd/mm/aaaa), `artCategory` (o órgão, em hierarquia: "Poder Judiciário/Tribunal Regional do Trabalho da 4ª Região/Presidência"), `pdfPage` (link para a página da edição certificada), `editionNumber`, `numberPage`; e `<body><Texto>` com o HTML da matéria (parágrafos `<p>`, assinatura em `<p class="assina">`, cargo em `class="cargo"`).
+- **Link oficial guardado:** o `pdfPage` (`pesquisa.in.gov.br/imprensa/jsp/visualiza/index.jsp?data=...&jornal=529&pagina=...`), que abre a página da edição certificada onde o ato foi publicado. O endereço bonito da matéria (`/web/dou/-/portaria-n-424-de-...-615770827`) usa um id que **não** está no XML, então não dá para montá-lo (testado: 404). Várias matérias dividem a mesma página, por isso a chave do ato é `idMateria`, não a URL.
+- **Armadilhas:**
+  - BOM no início do XML (`utf-8-sig`) e XML ocasionalmente inválido (contado e ignorado).
+  - **Nome dentro de nome maior.** Um nome de 3 palavras casa com um pedaço de outro ("Marcelo de Oliveira" em "Augusto Marcelo de Oliveira Santos"; "Ana Paula Ferreira" em "Ana Paula Ferreira de Carvalho"). A primeira versão tinha 475 achados em agosto de 2026; o filtro de vizinhança (palavra colada antes ou depois no mesmo estilo de caixa, pulando "de", "da"...) derrubou para 136.
+  - **Assinatura e lotação.** A autoridade que assina (`class="assina"`) é descartada, e linha só com o nome (assinatura de decreto, ex.: o Presidente) também. Parlamentar como lotação ("no gabinete do(a) Deputado(a) Fulano") não é o alvo: o nomeado é o secretário parlamentar.
+  - **Verbo de outro ato.** "Autorizar afastamento", "penalidade", "pensão", "prorrogar a designação", "vaga decorrente da exoneração de Fulano", "férias da titular": a palavra de ato existe, o ato sobre a pessoa não. O verbo tem de vir até 150 caracteres antes do nome (ou 60 depois), sem esses atos no meio.
+  - **Homônimos.** O DOU traz servidores de todo o país; um nome comum ("Carlos Cezar da Silva") pode ser de outra pessoa que não a da base. O texto não traz CPF completo (vem mascarado). Por isso o achado é só sugestão.
+- **O que guardamos (coleta mínima):** só Seção 2, desde 2025-01-01, só quando o texto cita o nome completo (3 palavras ou mais e único na base: nomes de duas pessoas são descartados) de uma pessoa da base numa matéria com palavra de ato (nomear, exonerar, designar, dispensar e flexões). Por achado, uma linha em `dou_ato`: pessoa sugerida, `idMateria`, data, tipo, órgão, tipo da matéria, trecho de até 500 caracteres, link oficial e `revisado = false`. O ZIP é lido em fluxo (um XML por vez) e não fica: o bruto é o recorte (as sugestões do mês, em JSON) mais o manifesto (URL, tamanho, sha256).
+- **Regra crítica:** nome em texto nunca vira vínculo nem evento publicável. Fila: `python -m ingestion.revisar --tipo dou` (decisões em `data/dou_revisados.csv`, reaplicadas a cada carga e a cada carga de pessoas); aceito vira evento `ato_pessoal` com o link do DOU.
+- **Frequência:** mensal. `python -m ingestion.dou.atos` (todos os meses desde 2025-01), `--mes 2026-08` (um mês), `--desde 2025-06`, `--de-raw arquivo.zip --mes AAAA-MM`.
+- **Uso:** fila de revisão de atos de pessoal federais (nomeação, exoneração, designação, dispensa) ligados a quem acompanhamos.
+
 ## CPIs e CPMIs da Câmara, do Senado e do Congresso (cpis, cpi_indiciamentos)
 
 - **O que é:** as comissões parlamentares de inquérito criadas desde 2019 (7 na Câmara, 10 no Senado, 3 mistas no Congresso Nacional), com objeto, datas, situação, presidente, vice-presidentes, relator, titulares e suplentes, e o link do relatório final quando a casa o publica. Tabelas `cpi`, `cpi_participacao` e, só como fila de revisão, `cpi_indiciamento_sugestao`.
@@ -532,6 +551,41 @@ Endpoints conferidos em 2026-10-06.
 - **Próximo passo (não feito):** a fila de revisão humana das sugestões, nos moldes de `python -m ingestion.revisar --tipo diario`: uma pessoa vê nome, trecho, página e PDF, liga o nome a uma pessoa por chave forte (homônimos!) ou recusa, e só então um evento descrevendo o ato ("citado em pedido de indiciamento no relatório final da CPI X, sem que isso signifique denúncia ou condenação", com o desfecho judicial quando houver) pode ser gerado. A decisão ficaria num CSV versionado (`data/indiciamentos_revisados.csv`) e reaplicada a cada carga.
 - **Frequência:** `cpis` semanal (~330 consultas à API do Senado com pausa de 0,2 s e ~40 requisições à da Câmara; ~6 minutos); `cpi_indiciamentos` manual (baixa PDFs de dezenas de MB). Ambas rodam no acervo local, como `camara_etica` e `senado_etica`; não estão no `run_all` nem nos workflows de produção.
 - **Tamanho:** `cpi` 104 kB, `cpi_participacao` 440 kB, `cpi_indiciamento_sugestao` 104 kB (164 linhas); bruto de ~3 MB (as páginas HTML das comissões ficam nele).
+
+## ALEMA: Assembleia Legislativa do Maranhão
+
+- **O SAPL (`sapl.al.ma.leg.br`) redireciona para o ALEMALEGIS** (`alemalegis.al.ma.leg.br`), um aplicativo Angular com API própria. Não é PLE/Nopapercloud.
+- **API pública.** O script do aplicativo mostra as rotas `/api/v1/public/*` (sem login): `parliamentary`, `legislature`, `legislative-matter/filter/access?year=&page=&size=` (matérias com tipo, ementa, data e `authorNames`), `parliamentary-vote`, `plenary-session-presence`, `votes`. O servidor não publica `robots.txt` (a rota devolve a página do aplicativo).
+- **Quem está no cargo:** a lista da API traz 155 registros de quatro legislaturas e um `ACTIVE` que não diz quem está em exercício; a lista do site (`www.al.ma.leg.br/sitealema/deputados/`, 41 cartões acima do título "Deputados licenciados") é a usada. O partido do site é o atual (a API guarda a filiação antiga de alguns).
+- **Autoria** por nome exato: o autor da matéria é texto ("Dra Vivianne", "PODER EXECUTIVO"); ligamos pelo nome do site, pelo nome parlamentar ou civil do cadastro e por um apelido conferido. Matérias de 2026: 1.351 (634 indicações, 267 projetos de lei, 252 requerimentos...).
+- **Não coletado:** votos nominais e presença (rotas existem; fora da coleta mínima).
+
+## ALEMS: Assembleia Legislativa de Mato Grosso do Sul
+
+- **Sem SAPL e sem API de proposições aberta.** O sistema de proposições (`sgpl.consulta.al.ms.gov.br/sgpl-publico`) mostra "Validando acesso..." (prova de trabalho contra automação, `sg-pow-captcha`). Não contornamos.
+- **Deputados:** `al.ms.gov.br/Partidos/Lista` (24, agrupados por partido; o menu do site vem de `/api/v2/menu`). O `robots.txt` do site dá 404; o do portal da transparência libera tudo.
+- **Gastos (CEAP):** `transparencia2.al.ms.gov.br/ceap/notas/exportar-csv?ano=AAAA`, o "Exportar todos os lançamentos (CSV)" do portal: 4 linhas de identificação, uma em branco e o cabeçalho (`Deputado;Ano;Mês;Categoria;CPF/CNPJ;Fornecedor;Documento;Emissão;"Valor (R$)";Comprovante`); valores como `R$ 4.669,65`; deputado como `Dep. Cel. David`. Somamos por deputado, mês e categoria. Nomes diferentes da lista de partidos (cinco) ficam em uma tabela de apelidos; sobram só lançamentos de quem saiu (ex.: Neno Razuk).
+
+## ALRN: Assembleia Legislativa do Rio Grande do Norte
+
+- **Sem SAPL** (`sapl.al.rn.leg.br` não resolve). O processo legislativo (`legispad.al.rn.leg.br`) pede login; o portal de Transparência Legislativa (`transparencialegislativa.al.rn.leg.br`, React) chama uma API aberta.
+- **API:** `api-transparencialegislativa.al.rn.leg.br/elegis-api-transp-legislativa/`: `parlamentar/` (24 em exercício; traz CPF, que não guardamos), `processo?iniciativa=ID&pagina=&tamanhoPagina=` (da mais nova para a mais antiga), `processo/ultimas-votacoes`, `reuniao/presenca/ID`. Cada página de 100 leva ~5 s.
+- **Deputados:** cartões de `al.rn.leg.br/deputados` (nome, partido, foto); `robots.txt` do site libera tudo. Projetos: tipos `PL`, `PLC`, `PEC`, `PDL`, `PR`; requerimentos e pedidos de informação só em contagem.
+
+## ALESE: Assembleia Legislativa de Sergipe
+
+- **Sem SAPL.** O Processo Legislativo (SPL, ASP.NET) está em `aleselegis.al.se.leg.br/spl/`; `robots.txt` libera tudo. A consulta de proposições só responde a envio de formulário com `__VIEWSTATE`, sem rota de listagem; não coletamos.
+- **Deputados:** `al.se.leg.br/deputados/` (24 cartões com partido, foto e o código do SPL). **Presença:** a aba "Frequência em Plenário" de `parlamentar.aspx?id=` traz presente/falta/falta justificada/licenciado do ano corrente.
+
+## ALAP: Assembleia Legislativa do Amapá
+
+- **Sem SAPL.** Site `al.ap.leg.br` (o `robots.txt` responde 403 a qualquer cliente; as páginas públicas respondem normalmente) e o portal do eLegis `elegis.al.ap.leg.br/portal` (robots libera tudo), que avisa estar migrando o processo legislativo.
+- **Deputados:** `pagina.php?pg=exibir_legislatura` (24; nome, nome completo e partido na dica da foto). **Projetos:** `portal/proposicoes?tipo_proposicao=T&ano=AAAA&page=N` (GET, 50 por página; códigos 1 lei ordinária, 2 complementar, 4 PEC, 10 decreto legislativo, 9 resolução).
+
+## ALEGO: Assembleia Legislativa de Goiás
+
+- **A página de dados abertos** (`transparencia.al.go.leg.br/dados-abertos`, AngularJS) tem as rotas JSON listadas no script `application.transparencia-*.js`: diárias, servidores, execução orçamentária, licitações, contratos, **verba indenizatória** (`api/transparencia/verbas_indenizatorias.json?ano=&mes=&todos=true`; `verbas_indenizatorias/periodos` lista os meses), entre outras. Não há rota de proposições, votos ou presença (o item "Requerimentos" aponta para a página inicial).
+- **Deputados em exercício:** `portal.al.go.leg.br/deputados/em-exercicio` (tabela no servidor; 42 linhas, nome, partido, telefones, e-mail). O portal responde 500 a `Accept: application/json` puro. O código do deputado é o mesmo nas duas bases. Verba: valor apresentado e valor indenizado por mês (usamos o indenizado).
 
 ## Acervo: cargas incrementais e conferência
 
