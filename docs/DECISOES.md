@@ -594,6 +594,7 @@ O plano é juntar tudo o que é público sobre quem exerce função pública: pr
 - **Primeira varredura nacional (8/10/2026):** 4.661 das 5.571 cidades com algum canal; 3.810 prefeituras, 3.738 câmaras, **982 câmaras com SAPL**, 3.510 portais da câmara e 3.458 da prefeitura.
   - Na conferência manual de 20 cidades, os sites da prefeitura e da câmara estavam certos. Dois links de transparência estavam errados: um portal de outra cidade (modelo de site do fornecedor) e uma notícia. Os dois tipos de erro viraram filtros, que tiraram 127 links do catálogo.
   - SC teve poucas prefeituras (54), porque o servidor que hospeda a maioria delas bloqueia as máquinas da varredura.
+- **Segunda varredura (10/10/2026):** das 904 cidades sem nenhum canal (catálogo e curados), 7 ganharam a câmara (RS: Arroio do Tigre, Cristal do Sul, Santa Tereza; PB, PI, PR e RO uma cada), nenhuma com SAPL. Ficam 897 sem canal em `data/cidades_sem_canal.csv`. Regra de aceite: 200, nome da cidade e "câmara" no título, sem domínio parado, e estado citado quando o domínio não é `.{uf}.`; abreviações ("sta", "s.") não foram testadas, porque não há padrão. Cobertura: 4.674 de 5.571 cidades com algum canal.
 - **Capitais e correções manuais:** `data/canais_curados.csv` substitui o canal da varredura do mesmo tipo na mesma cidade. As capitais usam endereços fora do padrão (`pbh.gov.br`, `prefeitura.rio`, `cmc.pr.gov.br`...), por isso foram conferidas uma a uma. A varredura tinha achado o site do governo do estado no lugar da prefeitura de São Paulo.
 
 ## 2026-10-08: fotos dos eleitos (TSE)

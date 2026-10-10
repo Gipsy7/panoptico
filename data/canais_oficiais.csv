@@ -8171,6 +8171,7 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 2513000,Salgadinho,PB,prefeitura,https://salgadinho.pb.gov.br/,,2026-10-08
 2513000,Salgadinho,PB,transparencia_camara,https://camarasalgadinho.pb.gov.br/transparencia,,2026-10-08
 2513000,Salgadinho,PB,transparencia_prefeitura,https://salgadinho.pb.gov.br/assuntos/portal-da-transparencia,,2026-10-08
+2513109,Salgado de São Félix,PB,camara,https://cmsalgadosaofelix.pb.gov.br/,,2026-10-10
 2513158,Santa Cecília,PB,camara,https://cmsantacecilia.pb.gov.br/,,2026-10-08
 2513158,Santa Cecília,PB,prefeitura,https://santacecilia.pb.gov.br/,,2026-10-08
 2513158,Santa Cecília,PB,transparencia_camara,https://cmsantacecilia.pb.gov.br/portal?recurso=mapa,,2026-10-08
@@ -9131,6 +9132,7 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 2200954,Aroeiras do Itaim,PI,transparencia_prefeitura,https://transparencia.aossoftware.com.br/pmaroeirasdoitaim/Default.aspx?AcessoIndividual=LnkMenuInicio,,2026-10-08
 2201002,Arraial,PI,prefeitura,https://arraial.pi.gov.br/arraial,,2026-10-08
 2201002,Arraial,PI,transparencia_prefeitura,https://transparencia.arraial.pi.gov.br/arraial/licitacoes/,,2026-10-08
+2201051,Assunção do Piauí,PI,camara,https://www.camara.assuncaodopiaui.pi.gov.br/,,2026-10-10
 2201101,Avelino Lopes,PI,camara,https://avelinolopes.pi.leg.br/,,2026-10-08
 2201101,Avelino Lopes,PI,transparencia_camara,https://transparencia.avelinolopes.pi.leg.br/,,2026-10-08
 2201150,Baixa Grande do Ribeiro,PI,prefeitura,https://baixagrandedoribeiro.pi.gov.br/index/,,2026-10-08
@@ -9965,6 +9967,7 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 4106571,Cruzeiro do Iguaçu,PR,sapl,https://sapl.cruzeirodoiguacu.pr.leg.br/,sapl,2026-10-08
 4106571,Cruzeiro do Iguaçu,PR,transparencia_camara,http://cruzeirodoiguacupr.equiplano.com.br:7417/transparencia/,,2026-10-08
 4106571,Cruzeiro do Iguaçu,PR,transparencia_prefeitura,https://cruzeirodoiguacu.pr.gov.br/portal-transparencia,,2026-10-08
+4106605,Cruzeiro do Oeste,PR,camara,https://www.cmcruzeirodooeste.pr.gov.br/,,2026-10-10
 4106704,Cruzeiro do Sul,PR,camara,https://cmcruzeirodosul.pr.gov.br/,,2026-10-08
 4106704,Cruzeiro do Sul,PR,prefeitura,https://cruzeirodosul.pr.gov.br/,,2026-10-08
 4106704,Cruzeiro do Sul,PR,transparencia_camara,https://cruzeirodosul.eloweb.net/portaltransparencia/4/,,2026-10-08
@@ -11730,6 +11733,7 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 1101302,Mirante da Serra,RO,camara,https://www.mirantedaserra.ro.leg.br,,2026-10-08
 1101302,Mirante da Serra,RO,sapl,https://sapl.mirantedaserra.ro.leg.br/,sapl,2026-10-08
 1101302,Mirante da Serra,RO,transparencia_camara,https://transparencia.mirantedaserra.ro.gov.br/novo/LEGISLATIVO?page=1&perPage=10,,2026-10-08
+1101401,Monte Negro,RO,camara,https://camara.montenegro.ro.gov.br/,,2026-10-10
 1100148,Nova Brasilândia D'Oeste,RO,camara,https://www.novabrasilandiadoeste.ro.leg.br,,2026-10-08
 1100148,Nova Brasilândia D'Oeste,RO,sapl,https://sapl.novabrasilandiadoeste.ro.leg.br/,sapl,2026-10-08
 1100148,Nova Brasilândia D'Oeste,RO,transparencia_camara,https://transparencia.novabrasilandiadoeste.ro.leg.br/,,2026-10-08
@@ -11894,6 +11898,7 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 4301073,Arroio do Padre,RS,prefeitura,https://www.arroiodopadre.rs.gov.br/,,2026-10-08
 4301073,Arroio do Padre,RS,transparencia_camara,https://transparencia.betha.cloud/#/cEaKLCVEqYersSLDQtMO2A==,betha,2026-10-08
 4301073,Arroio do Padre,RS,transparencia_prefeitura,https://www.arroiodopadre.rs.gov.br/portal/transparencia,,2026-10-08
+4301206,Arroio do Tigre,RS,camara,https://www.camaraarroiodotigre.rs.gov.br/,,2026-10-10
 4301107,Arroio dos Ratos,RS,camara,https://www.arroiodosratos.rs.leg.br,,2026-10-08
 4301107,Arroio dos Ratos,RS,sapl,https://sapl.arroiodosratos.rs.leg.br/,sapl,2026-10-08
 4301107,Arroio dos Ratos,RS,transparencia_camara,https://arroiodosratos.multi24h.com.br/multi24/sistemas/transparencia/?entidade=2,multi24,2026-10-08
@@ -12109,6 +12114,7 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 4306007,Crissiumal,RS,transparencia_prefeitura,https://www.crissiumal.rs.gov.br/portal-da-transparencia,,2026-10-08
 4306056,Cristal,RS,prefeitura,https://www.cristal.rs.gov.br/,,2026-10-08
 4306056,Cristal,RS,transparencia_prefeitura,https://www.cristal.rs.gov.br/portal-da-transparencia,,2026-10-08
+4306072,Cristal do Sul,RS,camara,https://cmcristaldosul.com.br/,,2026-10-10
 4306130,Cruzaltense,RS,camara,https://www.camaracruzaltense.rs.gov.br/,,2026-10-08
 4306130,Cruzaltense,RS,prefeitura,https://cruzaltense.rs.gov.br/,,2026-10-08
 4306130,Cruzaltense,RS,transparencia_camara,https://www.cruzaltense.rs.gov.br/portal-da-transparencia,,2026-10-08
@@ -12630,6 +12636,7 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 4316956,Santa Maria do Herval,RS,transparencia_prefeitura,https://www.santamariadoherval.rs.gov.br/portal-da-transparencia,,2026-10-08
 4317202,Santa Rosa,RS,prefeitura,https://prefeitura.santarosa.rs.gov.br/,,2026-10-08
 4317202,Santa Rosa,RS,transparencia_prefeitura,https://prefeitura.santarosa.rs.gov.br/?page_id=2463,,2026-10-08
+4317251,Santa Tereza,RS,camara,https://camarasantatereza.com.br/,,2026-10-10
 4317301,Santa Vitória do Palmar,RS,prefeitura,https://santavitoriadopalmar.rs.gov.br/,,2026-10-08
 4317301,Santa Vitória do Palmar,RS,transparencia_prefeitura,https://santavitoriadopalmar.rs.gov.br/municipio/transparencia/,,2026-10-08
 4317400,Santiago,RS,camara,https://santiago.rs.leg.br/,,2026-10-08
