@@ -43,6 +43,7 @@ from sqlalchemy.orm import Session
 
 from app.models import Cpi, CpiIndiciamentoSugestao, FonteIngestao
 from ingestion import comum
+from ingestion.congresso.cpi_revisao import aplicar_indiciamentos
 
 FONTE = "cpi_indiciamentos"
 JANELA = 40  # páginas lidas a partir do título da seção
@@ -285,7 +286,9 @@ def executar(
         return resultados
 
     def carregar(session: Session, payload: list[dict], ingestao: FonteIngestao) -> int:
-        return gravar(session, payload)
+        total = gravar(session, payload)
+        aplicar_indiciamentos(session)  # decisões já registradas valem para a recarga
+        return total
 
     url = "https://www.camara.leg.br/proposicoesWeb/prop_mostrarintegra"
     return comum.executar_ingestao(FONTE, url, baixar, carregar, de_raw=de_raw)

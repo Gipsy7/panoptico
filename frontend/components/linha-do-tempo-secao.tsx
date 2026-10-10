@@ -17,7 +17,7 @@ const GRUPOS: { titulo: string; detalhe: string; tipos: string[] }[] = [
   { titulo: "Processos na Justiça", detalhe: "consultados nos tribunais", tipos: ["processo"] },
   { titulo: "Casos", detalhe: "papel segundo documentos oficiais", tipos: ["caso"] },
   { titulo: "Conselho de Ética", detalhe: "representações na Câmara e no Senado", tipos: ["conselho_etica"] },
-  { titulo: "CPIs e CPMIs", detalhe: "presidente, relator e membros de comissões de inquérito", tipos: ["cpi"] },
+  { titulo: "CPIs e CPMIs", detalhe: "presidente, relator e membros de comissões de inquérito; pedidos de indiciamento em relatórios finais, conferidos por uma pessoa", tipos: ["cpi", "cpi_indiciamento"] },
   {
     titulo: "Tribunal de Contas da União",
     detalhe: "contas julgadas irregulares e inabilitação para cargo público",
@@ -98,6 +98,13 @@ export function LinhaDoTempoSecao({ dados }: { dados: LinhaDoTempo }) {
           )}
         </div>
       ))}
+
+      {dados.itens.some((i) => i.tipo === "cpi_indiciamento") && (
+        <p className="text-xs text-muted-foreground">
+          Pedido de indiciamento em relatório de CPI é uma proposta da comissão: não é acusação
+          formal nem condenação, e cabe ao Ministério Público decidir se denuncia.
+        </p>
+      )}
 
       {!soEleicoes && (
         <p className="text-xs text-muted-foreground">

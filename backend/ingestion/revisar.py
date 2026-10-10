@@ -5,13 +5,17 @@ aceitos aqui; a decisão vai para data/vinculos_revisados.csv (versionado) e é 
 a cada carga de pessoas.
 
 Os atos de nomeação e exoneração sugeridos pelos diários oficiais (tabela diario_ato) têm a
-mesma revisão, com --tipo diario; a decisão vai para data/atos_revisados.csv.
+mesma revisão, com --tipo diario; a decisão vai para data/atos_revisados.csv. Os pedidos de
+indiciamento dos relatórios de CPI (tabela cpi_indiciamento_sugestao) também, com --tipo cpi:
+o revisor liga o nome a uma pessoa da base ou recusa; a decisão vai para
+data/indiciamentos_revisados.csv.
 
 Uso:
     python -m ingestion.revisar                    # um por um: [a]ceitar, [r]ecusar, [p]ular
     python -m ingestion.revisar --exportar fila.csv  # para revisar numa planilha e depois
                                                      # colar as linhas decididas no CSV
     python -m ingestion.revisar --tipo diario      # atos dos diários (também com --exportar)
+    python -m ingestion.revisar --tipo cpi         # indiciamentos sugeridos pelas CPIs
 """
 
 import argparse
@@ -24,6 +28,9 @@ from sqlalchemy import select
 
 from app.db import SessionLocal
 from app.models import Candidatura, MandatoLocal, Municipio, PessoaVinculo
+from ingestion.congresso.cpi_revisao import INDICIAMENTOS_REVISADOS
+from ingestion.congresso.cpi_revisao import gravar_decisao as gravar_indiciamento
+from ingestion.congresso.cpi_revisao import pendentes as pendentes_indiciamentos
 from ingestion.diarios.revisao import ATOS_REVISADOS
 from ingestion.diarios.revisao import gravar_decisao as gravar_ato
 from ingestion.diarios.revisao import pendentes as pendentes_atos
@@ -136,27 +143,65 @@ def _revisar_diarios(fila: list[dict], revisor: str) -> None:
             gravar_ato(item, "aceito" if resposta == "a" else "recusado", revisor)
 
 
+def _candidatos_em_texto(candidatos: list[dict]) -> str:
+    return " | ".join(f"{c['pessoa_chave']} = {c['nome']}, {c['descricao']}" for c in candidatos)
+
+
+def _revisar_cpis(fila: list[dict], revisor: str) -> None:
+    for i, item in enumerate(fila, start=1):
+        encerrada = item["data_relatorio"] or "data não informada"
+        print(f"\n[{i}/{len(fila)}] {item['cpi']} ({item['casa']}, encerrada em {encerrada})")
+        print(f"  nome no PDF: {item['nome_citado']}  (página {item['pagina']})")
+        print(f"  trecho: {item['trecho']}")
+        print(f"  PDF:    {item['url']}")
+        candidatos = item["candidatos"]
+        for n, c in enumerate(candidatos, start=1):
+            print(f"  [{n}] {c['nome']}: {c['descricao']}")
+        if not candidatos:
+            print("  (nenhuma pessoa da base com esse nome)")
+        pergunta = (
+            "  Número da pessoa (aceitar), [n] não é pessoa da base (recusar), [p]ular, [s]air: "
+        )
+        resposta = input(pergunta).strip().lower()
+        if resposta == "s":
+            break
+        if resposta == "n":
+            gravar_indiciamento(item, "recusado", revisor)
+        elif resposta.isdigit() and 1 <= int(resposta) <= len(candidatos):
+            escolhida = candidatos[int(resposta) - 1]
+            gravar_indiciamento(item, "aceito", revisor, pessoa_chave=escolhida["pessoa_chave"])
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Revisão humana de vínculos e de atos")
     parser.add_argument(
-        "--tipo", choices=["vinculo", "diario"], default="vinculo",
+        "--tipo", choices=["vinculo", "diario", "cpi"], default="vinculo",
         help="vinculo: nomes aproximados (padrão); diario: atos de nomeação/exoneração "
-        "sugeridos pelos diários oficiais",
+        "sugeridos pelos diários oficiais; cpi: pedidos de indiciamento dos relatórios de CPI",
     )  # fmt: skip
     parser.add_argument("--exportar", type=Path, help="Grava a fila num CSV, sem perguntar")
     parser.add_argument("--revisor", default="", help="Quem está revisando (vai no CSV)")
     args = parser.parse_args(argv)
-    diario = args.tipo == "diario"
+    diario, cpi = args.tipo == "diario", args.tipo == "cpi"
+    busca = pendentes_indiciamentos if cpi else pendentes_atos if diario else pendentes
     with SessionLocal() as session:
-        fila = pendentes_atos(session) if diario else pendentes(session)
-    destino = ATOS_REVISADOS if diario else REVISOES
-    rotulo = "atos de diários oficiais" if diario else "vínculos por nome aproximado"
+        fila = busca(session)
+    destino = INDICIAMENTOS_REVISADOS if cpi else ATOS_REVISADOS if diario else REVISOES
+    rotulo = (
+        "pedidos de indiciamento de CPI"
+        if cpi
+        else "atos de diários oficiais"
+        if diario
+        else "vínculos por nome aproximado"
+    )
     print(f"{len(fila)} {rotulo} esperando revisão", file=sys.stderr)
     if args.exportar:
+        if cpi:  # a lista de candidatos vira texto numa coluna
+            fila = [{**f, "candidatos": _candidatos_em_texto(f["candidatos"])} for f in fila]
         _exportar(fila, args.exportar, destino)
         return 0
     revisor = args.revisor or input("Seu nome (vai no CSV): ").strip()
-    (_revisar_diarios if diario else _revisar_vinculos)(fila, revisor)
+    (_revisar_cpis if cpi else _revisar_diarios if diario else _revisar_vinculos)(fila, revisor)
     proxima = "a próxima carga de pessoas (python -m ingestion.pessoas)"
     print(f"\nDecisões em {destino}. Valem na {proxima}.")
     return 0
