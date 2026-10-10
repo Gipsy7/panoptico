@@ -88,3 +88,58 @@ def test_coletar_pasta_sem_seletor(monkeypatch):
         ("Netinho do Mel", "MDB"),
         ("Antonio de Hercília", "MDB"),
     ]
+
+
+def test_membros_da_legislatura_atual_so_ativos():
+    membros = portal_modelo.membros_da_legislatura(PAGINAS["legislatura_atual"])
+    assert [(m["id_externo"], m["nome"], m["nome_completo"], m["partido"]) for m in membros] == [
+        ("jonas", "Jonas", "Jonas Vilarino da Rosa", "MDB"),
+        ("oziel-zotti", "Oziel Zotti", None, "PSD"),
+    ]
+    assert portal_modelo.membros_da_legislatura(PAGINAS["legislatura_antiga"]) == []
+
+
+def test_blocos_da_capa_aceitam_atributos_em_qualquer_ordem():
+    blocos = portal_modelo.blocos_da_capa(PAGINAS["capa_campo_novo"])
+    assert [(b[1], b[2]) for b in blocos] == [
+        ("Thiago Onofre", "PODE"),
+        ("Gilmário S. de Góes", "PSD"),
+    ]
+    assert blocos[1][0].endswith("/9a-legislatura-1/gilmario-goes")
+
+
+@respx.mock
+def test_coletar_pela_pasta_de_legislaturas(monkeypatch):
+    monkeypatch.setattr(portal_modelo, "PAUSA", 0)
+    base = "https://www.vilaflores.rs.leg.br"
+    respx.get(base + LISTA).respond(text="<html>Parlamentares</html>")
+    respx.get(base + portal_modelo.LEGISLATURAS).respond(
+        text='<a href="x/legislaturas/9-legislatura">9</a> <a href="x/legislaturas/10">10</a>'
+        '<a href="x/legislaturas/RSS">RSS</a>'
+    )
+    respx.get(f"{base}{portal_modelo.LEGISLATURAS}/9-legislatura").respond(
+        text=PAGINAS["legislatura_antiga"]
+    )
+    respx.get(f"{base}{portal_modelo.LEGISLATURAS}/10").respond(text=PAGINAS["legislatura_atual"])
+    camara = portal_modelo.coletar(base)
+    assert [v["nome"] for v in camara["vereadores"]] == ["Jonas", "Oziel Zotti"]
+
+
+@respx.mock
+def test_coletar_pela_capa_quando_a_pasta_de_parlamentares_nao_existe(monkeypatch):
+    monkeypatch.setattr(portal_modelo, "PAUSA", 0)
+    base = "https://www.camponovoderondonia.ro.leg.br"
+    respx.get(base + LISTA).respond(404)
+    respx.get(base + portal_modelo.LEGISLATURAS).respond(404)
+    respx.get(base + portal_modelo.CAPAS).respond(text=PAGINAS["pasta_legislaturas_campo_novo"])
+    capa = f"{base}{portal_modelo.CAPAS}/9a-legislatura-1"
+    respx.get(capa + "/capa").respond(text=PAGINAS["capa_campo_novo"])
+    respx.get(capa + "/thiago-dos-tres-coqueiros").respond(text=PAGINAS["ficha_campo_novo"])
+    respx.get(capa + "/gilmario-goes").respond(
+        text=PAGINAS["ficha_campo_novo"].replace("Thiago dos Três Coqueiros", "Gilmário Góes")
+    )
+    camara = portal_modelo.coletar(base)
+    assert [(v["nome"], v["nome_completo"], v["partido"]) for v in camara["vereadores"]] == [
+        ("Thiago dos Três Coqueiros", "Thiago Onofre", "PODE"),
+        ("Gilmário Góes", "Gilmário S. de Góes", "PSD"),
+    ]
