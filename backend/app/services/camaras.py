@@ -53,6 +53,12 @@ FONTES_PROPRIAS = {
 # Câmaras que saíram do SAPL e têm conector próprio: o endereço de origem diz qual.
 FONTES_DE_CAMARA = {
     "cittatec.com.br": ("cittatec_camaras", "Portal legislativo da câmara (Cittatec)"),
+    "queimadanova.pi.leg.br": ("aos_camaras", "Site da câmara (AOS Software)"),
+    "leg.br/vereador/": ("nucleogov_camaras", "Portal da câmara (Nucleogov / 7Focus)"),
+    "processo-legislativo/parlamentares": (
+        "portal_modelo_camaras",
+        "Portal da câmara (Portal Modelo do Interlegis)",
+    ),
     "leg.br/vereadores": ("portal_php_camaras", "Site da câmara (página de vereadores)"),
     "portalcr2.com.br": ("cr2_camaras", "Portal da Transparência da câmara (CR2)"),
 }

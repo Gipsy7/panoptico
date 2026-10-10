@@ -41,3 +41,11 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 3132503,Itamarandiba,MG,sistema_legislativo,https://www.portalcr2.com.br/entidade/cm-itamarandiba,cr2,2026-10-09
 1501501,Benevides,PA,sistema_legislativo,https://www.portalcr2.com.br/entidade/cm-benevides,cr2,2026-10-09
 1507607,São Miguel do Guamá,PA,sistema_legislativo,https://www.portalcr2.com.br/entidade/cm-sao-miguel-do-guama,cr2,2026-10-09
+5217302,Pirenópolis,GO,sistema_legislativo,https://pirenopolis.go.leg.br/,nucleogov,2026-10-10
+5204904,Campos Belos,GO,sistema_legislativo,https://www.camposbelos.go.leg.br/,nucleogov,2026-10-10
+1703867,Cariri do Tocantins,TO,sistema_legislativo,https://www.cariridotocantins.to.leg.br/,nucleogov,2026-10-10
+1707652,Figueirópolis,TO,sistema_legislativo,https://figueiropolis.to.leg.br/,nucleogov,2026-10-10
+1718899,Santa Rita do Tocantins,TO,sistema_legislativo,https://www.santaritadotocantins.to.leg.br/,nucleogov,2026-10-10
+4207403,Imbuia,SC,sistema_legislativo,https://www.imbuia.sc.leg.br/,portal_modelo,2026-10-10
+2209351,Santana do Piauí,PI,sistema_legislativo,https://www.santanadopiaui.pi.leg.br,portal_modelo,2026-10-10
+2208650,Queimada Nova,PI,sistema_legislativo,https://queimadanova.pi.leg.br/,aos,2026-10-10

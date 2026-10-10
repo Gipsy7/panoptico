@@ -99,6 +99,24 @@ CATALOGO = [
         "url": "https://amapa.ap.leg.br/vereadores",
     },
     {
+        "dado": "Vereadores no cargo hoje (câmaras com o portal da Nucleogov / 7Focus)",
+        "orgao": (
+            "Câmaras de Pirenópolis e Campos Belos (GO), Cariri do Tocantins, Figueirópolis "
+            "e Santa Rita do Tocantins (TO)"
+        ),
+        "fontes": ["nucleogov_camaras"],
+        "url": "https://pirenopolis.go.leg.br/",
+    },
+    {
+        "dado": (
+            "Vereadores no cargo hoje (câmaras com o Portal Modelo do Interlegis "
+            "e o site da AOS Software)"
+        ),
+        "orgao": "Câmaras de Imbuia (SC), Santana do Piauí e Queimada Nova (PI)",
+        "fontes": ["portal_modelo_camaras", "aos_camaras"],
+        "url": "https://www.imbuia.sc.leg.br/processo-legislativo/parlamentares",
+    },
+    {
         "dado": "Vereadores no cargo hoje (câmaras no Portal da Transparência da CR2)",
         "orgao": "Câmaras de Beruri (AM), Itamarandiba (MG), Benevides e São Miguel do Guamá (PA)",
         "fontes": ["cr2_camaras"],

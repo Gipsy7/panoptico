@@ -274,6 +274,30 @@ frequencia = "semanal"
 depende = ["canais_oficiais"]
 
 [[fonte]]
+nome = "nucleogov_camaras"
+modulo = "ingestion.camaras.nucleogov"
+uso = "Câmaras que saíram do SAPL para o portal da Nucleogov / 7Focus (GO e TO)"
+recorte = "vereadores em exercício (nome, partido, foto), com a pausa de 5 s do robots.txt"
+frequencia = "semanal"
+depende = ["canais_oficiais"]
+
+[[fonte]]
+nome = "portal_modelo_camaras"
+modulo = "ingestion.camaras.portal_modelo"
+uso = "Câmaras que saíram do SAPL e têm o Portal Modelo do Interlegis (Plone) com os parlamentares cadastrados (Imbuia, Santana do Piauí)"
+recorte = "vereadores ativos da legislatura atual (apelido, nome civil, partido)"
+frequencia = "semanal"
+depende = ["canais_oficiais"]
+
+[[fonte]]
+nome = "aos_camaras"
+modulo = "ingestion.camaras.aos"
+uso = "Câmara que saiu do SAPL para o site da AOS Software (Queimada Nova)"
+recorte = "vereadores em exercício (apelido, nome civil, partido, foto)"
+frequencia = "semanal"
+depende = ["canais_oficiais"]
+
+[[fonte]]
 nome = "sapl_assembleias"
 modulo = "ingestion.assembleias.sapl"
 uso = "Assembleia legislativa hoje"
@@ -415,7 +439,7 @@ modulo = "ingestion.pessoas"
 uso = "Pessoa pública única e linha do tempo (/pessoas/{id}/eventos)"
 recorte = "candidaturas, parlamentares e mandatos já carregados"
 frequencia = "semanal"
-depende = ["tse_candidaturas", "camara_deputados", "senado_senadores", "sapl_camaras", "cittatec_camaras", "portal_php_camaras", "cr2_camaras", "sapl_assembleias", "almg", "alesp", "alepe", "cldf", "alesc", "alerj", "alrs", "alba", "ales", "alece", "alepa", "almt", "alema", "alems", "alrn", "alese", "alap", "alego"]
+depende = ["tse_candidaturas", "camara_deputados", "senado_senadores", "sapl_camaras", "cittatec_camaras", "portal_php_camaras", "cr2_camaras", "sapl_assembleias", "almg", "alesp", "alepe", "cldf", "alesc", "alerj", "alrs", "alba", "ales", "alece", "alepa", "almt", "alema", "alems", "alrn", "alese", "alap", "alego", "nucleogov_camaras", "portal_modelo_camaras", "aos_camaras"]
 
 # Justiça e controle
 [[fonte]]
