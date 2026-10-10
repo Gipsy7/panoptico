@@ -11,7 +11,7 @@ description: Como operar o Panóptico em produção — Vercel (site e API), Neo
 |---|---|---|
 | Site | Vercel, projeto `panoptico` (root `frontend`) | https://panoptico.social.br · https://panoptico.vercel.app |
 | API | Vercel, projeto `panoptico-api` (root `backend`, FastAPI em `app/main.py`) | https://api.panoptico.social.br · https://panoptico-api.vercel.app |
-| Banco | Neon (gratuito, 0,5 GB) | — |
+| Banco | Neon (plano Launch, pago por uso; ver travas de custo no README) | — |
 | Ingestão diária | `.github/workflows/ingestao.yml`, 6h de Brasília | Actions do repo `Gipsy7/panoptico` |
 | CI | `.github/workflows/ci.yml` (pytest com Postgres, ruff, lint e build) | a cada push |
 
@@ -92,4 +92,4 @@ Zona atual: `A` da raiz → `216.198.79.1` e `64.29.17.1`; `CNAME www` e `CNAME 
 
 ## Alternativa
 
-Para sair do plano gratuito, `deploy/` tem uma VPS completa (docker compose com Postgres, API, site, Caddy e ingestão por cron) e o guia `docs/DEPLOY.md`. Nada disso está em uso hoje.
+Alternativa ao Neon e à Vercel: `deploy/` tem uma VPS completa (docker compose com Postgres, API, site, Caddy e ingestão por cron) e o guia `docs/DEPLOY.md`. Nada disso está em uso hoje.

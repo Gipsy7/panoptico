@@ -4,7 +4,7 @@
 |---|---|---|
 | Site (Next.js) | Vercel, projeto `panoptico` | https://panoptico.social.br |
 | API (FastAPI) | Vercel, projeto `panoptico-api` | https://api.panoptico.social.br |
-| Banco | Neon (plano gratuito, 0,5 GB) | — |
+| Banco | Neon (plano Launch, pago por uso, desde outubro de 2026) | — |
 | Atualização diária dos dados | GitHub Actions (`.github/workflows/ingestao.yml`) | 6h de Brasília |
 | Câmaras municipais (SAPL) | `.github/workflows/ingestao-camaras.yml`, um estado por máquina | domingo, 8h |
 | Contas dos municípios (SICONFI) | `.github/workflows/ingestao-mensal.yml` | dia 15, 7h |

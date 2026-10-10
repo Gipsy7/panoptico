@@ -60,6 +60,7 @@ O subsídio é igual para deputados e senadores e é fixado por decreto legislat
 - Por enquanto o projeto fica em planos gratuitos: Vercel (site e API, em dois projetos), Neon (Postgres, 0,5 GB) e GitHub Actions (ingestão diária e CI). Repositório público.
 - A API roda como função Python na Vercel, sem pool de conexões e sem prepared statements, usando o pooler do Neon. A ingestão e as migrações usam a conexão direta.
 - Os arquivos de deploy em VPS (`deploy/`) ficam prontos para quando houver orçamento.
+- **Atualização (outubro de 2026):** o banco passou para o Neon Launch, pago por uso, depois que a cota mensal de transferência do plano gratuito estourou (ver README, "Travas de custo"). O limite de 0,5 GB não vale mais; o custo cresce com armazenamento e uso, então a coleta mínima continua valendo.
 - `pandas` saiu das dependências: não era usado e pesava no pacote da função.
 
 ## 2026-10-07: tabelas ordenáveis em vez de ranking

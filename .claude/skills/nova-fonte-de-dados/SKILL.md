@@ -55,7 +55,7 @@ Inclua um `if __name__ == "__main__":` com `argparse` (`--ano`, `--de-raw`) como
 
 Modelo em `backend/app/models/<nome>.py`, exportado em `app/models/__init__.py`, e migração **escrita à mão** em `backend/alembic/versions/000N_<nome>.py` (siga a numeração e o estilo das anteriores, com `op.f(...)` e a naming convention de `models/base.py`). Aplique com `python -m uv run alembic upgrade head`. Se a migração mexer em tabelas que a ingestão diária (`run_all`) preenche e os dados precisarem ser recarregados ao publicar, declare `RECARREGAR_DADOS = True` no módulo da migração; tabelas novas com carga própria não precisam.
 
-Lembre do limite do Neon gratuito (0,5 GB): guarde só o período útil (ex.: ano anterior e atual, ou desde 2023) e confira o tamanho com `pg_total_relation_size` depois de carregar.
+O Neon de produção é pago por uso (plano Launch): cada GB guardado custa. Guarde só o período útil (ex.: ano anterior e atual, ou desde 2023) e confira o tamanho com `pg_total_relation_size` depois de carregar.
 
 ## 4. Testes
 
