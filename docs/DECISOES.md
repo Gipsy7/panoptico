@@ -199,6 +199,15 @@ O subsídio é igual para deputados e senadores e é fixado por decreto legislat
 - **Resultado na base local:** RJ 70 deputados (61 ligados ao eleito do TSE); RS 55 (54 ligados), 797 projetos, 274 votações com 11.068 votos e 11.202 linhas de cota; BA 63 (59 ligados) e 301 projetos. Os que não ligam têm nome parlamentar diferente do nome de urna do TSE, ou são suplentes que assumiram.
 - **Os mesmos `fonte_nome` na API:** `/estados/{uf}/assembleia` passa a citar a fonte própria de RJ, RS e BA (antes caía no rótulo do SAPL).
 
+## 2026-10-09: Assembleias do Espírito Santo, Ceará, Pará e Mato Grosso
+
+- **ES: mesma API da ALBA.** A ALES usa o Processo Legislativo Eletrônico da Nopapercloud (hospedado em `www3.al.es.gov.br`). A lógica comum foi para `ingestion/assembleias/ple.py`; `alba.py` e `ales.py` só dizem endereço, siglas e UF. Diferenças tratadas: situação `Ativos` (plural), faltas chamadas de "ausência" e proposições pedidas por sigla (o ano tem ~5.400 documentos, quase todos ofícios e atas). Entram deputados, projetos (PL, PLC, PEC, PDL, PR), contagem de indicações e requerimentos, e presença. Sem votos e gastos. Carga lenta (~20 minutos).
+- **CE: só páginas públicas.** O portal da transparência tem API, mas só administrativa. Entram os 46 deputados em exercício (40 titulares + 6 suplentes; os 6 titulares licenciados ficam registrados como fora de exercício) e os projetos da legislatura vigente lidos do sistema antigo de proposições (PL, PLC, PEC, PDL, PRS) do ano atual e anterior. O autor é casado pelo nome, só se exato e único; projetos de autoria do Executivo ou de ex-deputados ficam de fora. Votos (planilhas de relatório de impressão) e verba (PDF) ficam de fora.
+- **PA: só os deputados.** A pesquisa de proposições é um componente DevExpress cuja paginação não responde fora do navegador (ver `docs/FONTES_DE_DADOS.md`). Não reproduzimos o estado interno da biblioteca.
+- **MT: só os deputados.** O sistema atual não é SAPL: a API exige OAuth 2.0 (para fornecedores da instituição) e o `robots.txt` veda a pesquisa de proposições. Respeitamos os dois. Pendência: pedir à ALMT dados abertos ou credencial.
+- **Resultado na base local:** ES 30 deputados (26 ligados ao eleito do TSE), 1.607 projetos e a contagem de indicações e requerimentos; CE 46 em exercício (35 ligados; 52 registros com os 6 licenciados) e 1.261 projetos; PA 41 (36 ligados); MT 24 (23 ligados). Os que não ligam ao TSE têm nome parlamentar diferente do nome de urna ou são suplentes que assumiram.
+- **Os mesmos `fonte_nome` na API:** `/estados/{uf}/assembleia` cita a fonte própria das quatro.
+
 ## 2026-10-09: análises (cruzamentos) e sanções a empresas
 
 - **Análises versionadas** em `backend/analises/<nome>.sql`, rodadas por `python -m analises <nome> [--saida arquivo.csv]`. O comentário do topo de cada consulta explica como ler o resultado. Uma análise que se mostrar sólida vira rota da API e depois seção do site; até lá, é material de conferência.

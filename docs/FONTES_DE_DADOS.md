@@ -403,6 +403,37 @@ Endpoints conferidos em 2026-10-06.
   - `GET /api/open-data-leg/public/mandatos/proposicoes/parlamentares/<pessoa>?periodoMandato=<início>,<fim>`: quantidade de proposições por tipo.
 - **Armadilhas:** o endereço da foto embute o **CPF em base64** (`.../conecta/<CPF em base64>`), então a foto não é guardada. A lista de proposições mistura pareceres, memorandos, recursos e justificativas de ausência com as proposições do vereador; esses ficam de fora da contagem. Não há texto das proposições, votos nominais nem presença na API pública (os projetos individuais só pelo GraphQL de uso interno, que não usamos).
 
+## ALES: Assembleia Legislativa do Espírito Santo
+
+- **Mesma API da ALBA** (Processo Legislativo Eletrônico da Nopapercloud), em `https://www3.al.es.gov.br/api/publico/` (o link "Dados Abertos" do portal aponta para `dados-abertos.aspx`, que o `www.al.es.gov.br` não serve). `robots.txt` inexistente (404). JSON, sem chave:
+  - `GET parlamentar/?pag=1&qtd=200`: 35 registros: 30 com situação `Ativos` (as 30 cadeiras), 3 suplentes e 2 titulares que saíram. Campos como os da ALBA, com `autorID`, `parlamentarRazaoSocial` e `frequenciaPlenario`. Diferenças: a situação é `Ativos` (plural) e a paginação vem como `paginacao`;
+  - `GET proposicao/?pag=&qtd=100&ano=AAAA&sigla=XX`: a API aceita filtrar por `sigla`, `tipoId` e `autorId`. **Sem filtro, o ano tem ~5.400 documentos** (ofícios de comenda, justificativas de ausência, atas, pautas...) e cada página de 100 leva cerca de 12 segundos; por isso o conector pede só os tipos que interessam. Em 2025: PL 925, PLC 45, PEC 4, PDL 156, PR 29, REQ 64, RQI 172, IND 1.704;
+  - **Frequência:** os nomes são `Presente`, `Ausência`, `Ausência Justificada`, `Falta`, `Licenciado`, `Afastado` e `Governador Interino`. Sessões = presenças + faltas + ausências (justificadas ou não), como na ALBA.
+- **Armadilhas:** o autor da proposição traz o nome digitado à mão (ex.: "Engenherio José Esmeraldo"), então o nome nem sempre casa com a razão social do deputado; o `autorId` da proposição casa com o `autorID` do parlamentar e serve de segunda chave. O autor traz CPF/CNPJ e endereço, que não guardamos.
+- **Sem votos nominais** (só o "Boletim de Votação Nominal" em PDF) e **sem verba de gabinete** nos dados abertos. O portal de transparência tem cotas parlamentares (`/Transparencia/CotasParlamentares`), não lidas.
+
+## ALECE: Assembleia Legislativa do Ceará
+
+- **Sem dados abertos legislativos.** `robots.txt` do site libera tudo menos downloads de imagens. A API do portal da transparência (`transparencia.al.ce.gov.br/api`, OpenAPI em `/docs?api-docs.json`) só tem contratos, empenhos, licitações, pagamentos e termos de credenciamento. Lemos páginas públicas, uma por vez:
+  - lista: `https://www.al.ce.gov.br/deputados`: cartões `deputado_card` (classe `licenciado` para os 6 titulares afastados) e, depois do título "Suplentes em Exercício", os 6 suplentes. Em exercício: 40 + 6 = 46;
+  - ficha: `https://www.al.ce.gov.br/deputados/{slug}` (e-mail e telefones do gabinete);
+  - projetos: o sistema antigo `https://www2.al.ce.gov.br/legislativo/proposicoes/ano.php?nome=31_legislatura&tabela={projeto_lei|projeto_compl|projeto_emen|projeto_decre|projeto_reso}&opcao=T&absolutepage=N`, 15 registros por página, ordem aproximadamente cronológica (a mais recente no fim). Campos: número/ano (`572/26`), autor, data de entrada, ementa (com link do texto), situação (`OBS`). **Armadilhas:** o autor vem em formatos diferentes (`AUTORIA: DEPUTADO FULANO.`, `Autoria: Deputado Fulano.`, só o nome); a página mistura UTF-8 e Windows-1252; há linhas tortas (`572/256`), ignoradas; nem todo projeto tem o texto publicado (usamos o endereço da listagem);
+  - votação nominal: `transparencia.al.ce.gov.br/consultas-gerais/votacao-nominal` lista as matérias e dá um PDF e uma planilha por matéria, mas a planilha é o relatório de impressão (títulos, mesclas e o voto espalhado por colunas de partido): não lemos;
+  - verba de desempenho parlamentar: `/despesas/verba-desempenho-parlamentar` lista os deputados e abre um modal por mês com o detalhe em PDF: não lemos.
+- Indicações, moções e requerimentos não entram (milhares de páginas de listagem).
+
+## ALEPA: Assembleia Legislativa do Pará
+
+- **Sem API.** `robots.txt` inexistente (404). O portal (`www.alepa.pa.gov.br`, ASP.NET MVC com DevExpress, da Quartertec) lista os 41 deputados em `/Home/Page/Deputados` com nome, partido e foto já no HTML (`card-info`); a foto fica em `alepa.quartertec.com.br` com barras invertidas no endereço.
+- **Proposições e votações nominais: sem canal aproveitável.** Testado em 09/10/2026: `Proposicoes` e `VotacoesNominais` carregam o resultado por chamadas de retorno DevExpress (`POST /Legislativo/CallbackPanelProposicoes` com `__DXCallbackName=cbpProposicoes`). O filtro funciona (`model.Ano=2025` devolve 2.809 itens), mas a lista vem 10 por página e o pedido de outras páginas (`PAGERONCLICK`) devolve sempre a primeira. Reproduzir o estado do componente fora do navegador seria depender do formato interno da biblioteca, e não achamos a forma estável. Voltar a olhar se a ALEPA publicar dados abertos.
+
+## ALMT: Assembleia Legislativa de Mato Grosso
+
+- **O SAPL (`sapl.al.mt.leg.br`) parou em 2018.** O sistema atual é próprio: site `www.al.mt.gov.br` e API `api.al.mt.gov.br`.
+- **API fechada.** `api.al.mt.gov.br` documenta os serviços (`ssl/parlamentar`, `ssl/proposicao`, `ssl/sessao-plenaria/proposicao-votada`, `ssl/ordem-dia`, `sgp/servidor`...), mas exige OAuth 2.0 (`401 access_denied`), e a página diz que é para os fornecedores da instituição. Limite: 10 requisições por segundo. Não usamos.
+- **`robots.txt`** veda `/proposicao?` (pesquisa e paginação), `/parlamento/ordem-do-dia?`, `/parlamento/documentos/parlamentares?`, `/transparencia/pesquisa/` e as páginas de mídia com parâmetros. A lista de proposições sem parâmetros mostra só as mais recentes. Respeitamos.
+- **O que lemos:** `https://www.al.mt.gov.br/parlamento/deputados` (24 cartões: nome, partido, foto e código do perfil) e `/parlamento/deputados/{id}/perfil` (nome civil).
+
 ## Canais oficiais dos municípios (varredura do Panóptico)
 
 - **O que é:** varredura dos domínios oficiais de cada cidade: prefeitura em `{cidade}.{uf}.gov.br`; câmara em `{cidade}.{uf}.leg.br`, `camara{cidade}...` e `cm{cidade}...`; e os links do próprio site da prefeitura. Confere se a página é da cidade e reconhece o sistema (SAPL; fornecedores de transparência como Betha, IPM, CR2, Fiorilli e Elotech).

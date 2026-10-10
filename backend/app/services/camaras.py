@@ -31,6 +31,10 @@ FONTES_PROPRIAS = {
     "RJ": ("alerj", "Site da Assembleia Legislativa do Rio de Janeiro (ALERJ)"),
     "RS": ("alrs", "Portais da Assembleia Legislativa do Rio Grande do Sul (ALRS)"),
     "BA": ("alba", "Dados abertos da Assembleia Legislativa da Bahia (ALBA)"),
+    "ES": ("ales", "Dados abertos da Assembleia Legislativa do Espírito Santo (ALES)"),
+    "CE": ("alece", "Site da Assembleia Legislativa do Ceará (ALECE)"),
+    "PA": ("alepa", "Site da Assembleia Legislativa do Pará (ALEPA)"),
+    "MT": ("almt", "Site da Assembleia Legislativa de Mato Grosso (ALMT)"),
 }
 
 
