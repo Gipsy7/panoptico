@@ -698,8 +698,16 @@ class BuscaItem(BaseModel):
     caminho: str  # endereço do perfil no site
 
 
+class BuscaPartido(BaseModel):
+    sigla: str
+    nome: str
+    caminho: str  # /partidos/{sigla}
+
+
 class BuscaResposta(BaseModel):
-    itens: list[BuscaItem]
+    itens: list[BuscaItem]  # quem está no cargo hoje
+    partidos: list[BuscaPartido]
+    pessoas: list[BuscaItem]  # eleições passadas e suplentes, com perfil no site
 
 
 class LadoLocal(VereadorItem):

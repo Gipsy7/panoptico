@@ -1,3 +1,4 @@
+from app.models import busca_indices as _busca_indices  # noqa: F401  (índices da busca)
 from app.models.base import Base
 from app.models.camara_municipal import (
     GastoLocal,

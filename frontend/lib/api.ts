@@ -644,9 +644,19 @@ export type ResultadoBusca = {
   caminho: string;
 };
 
-/** Pessoas de todos os níveis com esse nome: Congresso, Executivo, assembleias e câmaras. */
-export function getBusca(nome: string) {
-  return getJson<{ itens: ResultadoBusca[] }>(`/busca?nome=${encodeURIComponent(nome)}`);
+export type PartidoBuscado = { sigla: string; nome: string; caminho: string };
+
+export type RespostaBusca = {
+  /** Quem está no cargo hoje. */
+  itens: ResultadoBusca[];
+  partidos: PartidoBuscado[];
+  /** Eleições passadas e suplentes, com perfil no site. */
+  pessoas: ResultadoBusca[];
+};
+
+/** Busca por nome: pessoas de todos os níveis, partidos e eleitos de eleições passadas. */
+export function getBusca(q: string) {
+  return getJson<RespostaBusca>(`/busca?q=${encodeURIComponent(q)}`);
 }
 
 export type LadoLocal = VereadorItem & {
