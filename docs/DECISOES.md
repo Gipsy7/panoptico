@@ -714,3 +714,12 @@ O plano é juntar tudo o que é público sobre quem exerce função pública: pr
 - **Situação:** a do TSE ("ELEITO", "ELEITO POR QP", "ELEITO POR MÉDIA"). Onde o TSE ainda marca "2º TURNO" (presidente e governadores), o site diz que a pessoa disputa o 2º turno em 25/10/2026 e que a posse, se eleita, é em 1º/1/2027. Suplentes e não eleitos não entram.
 - **Quem já está no cargo e foi reeleito** mostra as duas coisas: o perfil de hoje e o selo "Eleito(a) ... em 2026 — posse em ...", com "segue no mandato de hoje até a posse".
 - **Fonte:** TSE (dados abertos de candidatos), com a data da última carga.
+
+## 2026-10-10: casos Sanguessugas e Zelotes (rascunhos)
+
+- **Dois casos novos em `data/casos/`**, ambos `rascunho = true`: `sanguessugas` (CPMI das Ambulâncias, 2006) e `zelotes` (CPI do CARF e ação penal da 10ª Vara Federal/DF).
+- **Só entram pessoas que já estão na base**, pelo registro de origem e com conferência de UF e nome civil. Do Sanguessugas, 9 parlamentares (hoje no Congresso) estão na lista da CPMI; dos réus e indiciados do Zelotes, nenhum.
+- **Recomendação de CPMI não é condenação:** a linha do tempo mostra "investigado(a)" (elementos enviados ao Conselho de Ética) ou "investigação arquivada" (CPMI não recomendou procedimento), nunca "culpado". Absolvição informada pelo Relatório Final entra com o mesmo destaque.
+- **Desfecho sem documento oficial primário fica como "situação não confirmada"** e vai para `NOTAS.md`. Notícia (inclusive da Agência Câmara e do STF) serve de pista para a conferência, não de fonte.
+- **Portal que bloqueia robô não é contornado:** o PDF do relatório da CPI do CARF fica atrás de verificação de segurança; o caso aponta para a página oficial de relatórios da comissão.
+

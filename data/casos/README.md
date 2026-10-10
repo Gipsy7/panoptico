@@ -45,3 +45,15 @@ Um papel por linha: quem foi denunciado e depois absolvido tem duas linhas, com 
 ## Processos consultados à mão: `data/curadoria/processos.csv`
 
 Para fontes que bloqueiam acesso automático (STF, STJ). Uma pessoa consulta o portal público e anota o resultado. Colunas: `pessoa`, `nome_conferencia`, `tribunal`, `classe`, `numero`, `numero_cnj`, `papel`, `relator`, `data_autuacao`, `situacao`, `url`, `conferido_em`, `conferido_por`, `rascunho`. Processos sob segredo de justiça não entram.
+
+## Casos na pasta
+
+Todos são rascunho (`rascunho = true`): nada é publicado até a revisão humana. O que falta conferir está em `NOTAS.md` de cada pasta.
+
+| caso | situação | documentos | pessoas ligadas |
+|---|---|---|---|
+| `mensalao` | modelo de estrutura; sem links conferidos | 1 (a conferir) | nenhuma (réus fora da base) |
+| `sanguessugas` | rascunho; links do Congresso/Senado conferidos em 2026-10-10 | 4 (ficha RQN 77/2006-CN, Relatório Parcial nº 1, Relatório Final nº 6/2006-CN vol. I e II) | 9 parlamentares: 5 enviados ao Conselho de Ética (1 com absolvição informada pelo Relatório Final), 4 com arquivamento pela CPMI; desfechos na Câmara e no STF a conferir |
+| `zelotes` | rascunho; STF/TRF1/TCU dependem de conferência manual | 3 (RQS 407/2015, Relatório Final nº 17/2015 da CPI do CARF, sentença de 04/05/2016 da 10ª Vara Federal/DF) | nenhuma ainda (réus e indiciados fora da base) |
+
+Quando um portal oficial bloqueia o acesso automático (verificação de segurança, 403), o link vai para a página oficial que responde e a lacuna é anotada em `NOTAS.md`; não contornamos o bloqueio.
