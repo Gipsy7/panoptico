@@ -1,5 +1,6 @@
 """Eleitos que só existem no TSE: vereadores e deputados estaduais e distritais."""
 
+from datetime import date
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, Path, Query, Response
@@ -10,12 +11,13 @@ from app.models import Candidatura, MandatoLocal, Municipio
 from app.schemas import (
     CamaraResposta,
     EleitoDetalhe,
+    EleitosFuturos,
     Executivo,
     ListaEleitos,
     VereadorDetalhe,
     VotacoesLocais,
 )
-from app.services import camaras, tse
+from app.services import camaras, eleitos_futuros, tse
 from app.services.representantes import UFS
 
 router = APIRouter()
@@ -64,6 +66,18 @@ def deputados_estaduais(
     return tse.deputados_estaduais(session, uf)
 
 
+@router.get("/estados/{uf}/eleitos-2026", response_model=EleitosFuturos)
+def eleitos_2026_do_estado(
+    uf: Annotated[str, Path(min_length=2, max_length=2)],
+    session: Annotated[Session, Depends(get_session)],
+) -> dict:
+    """Eleitos de 2026 que ainda não tomaram posse (e quem disputa o 2º turno), à parte de
+    quem está no cargo hoje."""
+    if uf.upper() not in UFS:
+        raise HTTPException(404, "Estado não encontrado.")
+    return eleitos_futuros.do_estado(session, uf)
+
+
 @router.get("/executivo", response_model=Executivo)
 def executivo(
     uf: Annotated[str, Query(min_length=2, max_length=2)],
@@ -92,7 +106,16 @@ def foto(candidatura_id: int, session: Annotated[Session, Depends(get_session)])
 @router.get("/eleitos/{candidatura_id}", response_model=EleitoDetalhe)
 def eleito(candidatura_id: int, session: Annotated[Session, Depends(get_session)]) -> dict:
     candidatura = session.get(Candidatura, candidatura_id)
-    if candidatura is None or candidatura.cargo not in tse.CARGOS_COM_PERFIL:
+    # Deputados federais e senadores só têm perfil de eleito antes da posse; depois, o perfil
+    # de parlamentar (com a atividade) assume.
+    aceito = candidatura is not None and (
+        candidatura.cargo in tse.CARGOS_COM_PERFIL
+        or (
+            candidatura.cargo in ("DEPUTADO FEDERAL", "SENADOR")
+            and candidatura.ano_eleicao >= date.today().year
+        )
+    )
+    if candidatura is None or not aceito:
         raise HTTPException(404, "Eleito não encontrado.")
     return tse.eleito(session, candidatura)
 

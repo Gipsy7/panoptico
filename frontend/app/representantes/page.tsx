@@ -11,12 +11,14 @@ import { CanaisSecao } from "@/components/canais-secao";
 import { ContasSecao } from "@/components/contas-secao";
 import { FornecedoresSecao } from "@/components/fornecedores-secao";
 import { EleitosSecao } from "@/components/eleitos-secao";
+import { EleitosFuturosSecao } from "@/components/eleito-futuro";
 import { ExecutivoSecao } from "@/components/executivo-secao";
 import { ParlamentarCard } from "@/components/parlamentar-card";
 import {
   type EmendasMunicipio,
   type ParlamentarResumo,
   getDeputadosEstaduais,
+  getEleitos2026,
   getAssembleia,
   getCamara,
   getCanais,
@@ -70,7 +72,7 @@ async function Lista({ cep, uf, municipio }: Busca) {
   }
 
   const { localizacao, deputados, senadores, atualizado_em } = resultado.dados;
-  const [emendasResultado, vereadoresResultado, estaduaisResultado, executivoResultado, canaisResultado, contasResultado, camaraResultado, fornecedoresResultado, assembleiaResultado] = await Promise.all([
+  const [emendasResultado, vereadoresResultado, estaduaisResultado, executivoResultado, canaisResultado, contasResultado, camaraResultado, fornecedoresResultado, assembleiaResultado, eleitos2026Resultado] = await Promise.all([
     localizacao.codigo_ibge ? getEmendasMunicipio(localizacao.codigo_ibge) : null,
     localizacao.codigo_ibge ? getVereadores(localizacao.codigo_ibge) : null,
     getDeputadosEstaduais(localizacao.uf),
@@ -80,7 +82,9 @@ async function Lista({ cep, uf, municipio }: Busca) {
     localizacao.codigo_ibge ? getCamara(localizacao.codigo_ibge) : null,
     localizacao.codigo_ibge ? getFornecedores(localizacao.codigo_ibge) : null,
     getAssembleia(localizacao.uf),
+    getEleitos2026(localizacao.uf),
   ]);
+  const eleitos2026 = eleitos2026Resultado.ok ? eleitos2026Resultado.dados : null;
   const assembleia = assembleiaResultado.ok ? assembleiaResultado.dados : null;
   const fornecedores = fornecedoresResultado?.ok ? fornecedoresResultado.dados : null;
   const camara = camaraResultado?.ok ? camaraResultado.dados : null;
@@ -135,6 +139,10 @@ async function Lista({ cep, uf, municipio }: Busca) {
         parlamentares={deputados}
         emendas={emendas}
       />
+
+      {eleitos2026 && eleitos2026.ano_eleicao && (
+        <EleitosFuturosSecao dados={eleitos2026} estado={localizacao.estado} />
+      )}
 
       {contas && localizacao.municipio && <ContasSecao dados={contas} cidade={localizacao.municipio} />}
 

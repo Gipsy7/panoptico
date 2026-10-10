@@ -157,12 +157,47 @@ class VotosRecebidos(BaseModel):
     total: int
 
 
+class EleitoFuturo(BaseModel):
+    """Eleito (ou candidato no 2º turno) de uma eleição cuja posse ainda não aconteceu."""
+
+    id: int  # candidatura
+    nome_urna: str
+    partido: str | None
+    numero: str | None
+    uf: str
+    cargo: str
+    unidade: str
+    ano_eleicao: int
+    situacao: str | None
+    situacao_tse: str | None
+    segundo_turno: bool
+    data_segundo_turno: date | None
+    posse: date
+    votos: int | None
+    parlamentar_id: int | None
+    ja_no_cargo: bool
+    vice: str | None
+
+
+class EleitosFuturos(BaseModel):
+    ano_eleicao: int | None
+    presidente: list[EleitoFuturo]
+    governador: list[EleitoFuturo]
+    senadores: list[EleitoFuturo]
+    deputados_federais: list[EleitoFuturo]
+    deputados_estaduais: list[EleitoFuturo]
+    fonte_nome: str
+    fonte_url: str
+    atualizado_em: datetime | None
+
+
 class CandidaturaResposta(BaseModel):
     candidaturas: list[CandidaturaItem]
     bens: BensDeclarados | None
     campanha: Campanha | None
     pessoais: Pessoais | None = None
     votos: VotosRecebidos | None = None
+    eleito_2026: EleitoFuturo | None = None
     fonte_nome: str
     fonte_url: str
     atualizado_em: datetime | None
@@ -218,6 +253,7 @@ class EleitoDetalhe(EleitoItem):
     unidade: str
     municipio_ibge: str | None
     ano_eleicao: int
+    eleito_2026: EleitoFuturo | None = None
     bens: BensDeclarados | None
     campanha: Campanha | None
     fonte_nome: str
@@ -708,6 +744,7 @@ class BuscaResposta(BaseModel):
     itens: list[BuscaItem]  # quem está no cargo hoje
     partidos: list[BuscaPartido]
     pessoas: list[BuscaItem]  # eleições passadas e suplentes, com perfil no site
+    eleitos_2026: list[BuscaItem] = []  # eleitos que ainda não tomaram posse
 
 
 class LadoLocal(VereadorItem):

@@ -6,6 +6,7 @@ import { AvisoErro } from "@/components/aviso-erro";
 import { Revelacao } from "@/components/revelacao";
 import { CompartilharWhatsApp } from "@/components/compartilhar";
 import { FonteRodape } from "@/components/fonte-rodape";
+import { SeloEleitoFuturo } from "@/components/eleito-futuro";
 import { CandidaturaSecao } from "@/components/candidatura-secao";
 import { QuemESecao } from "@/components/dados-pessoais";
 import { ComissoesSecao } from "@/components/comissoes-secao";
@@ -115,6 +116,10 @@ async function Perfil({
           )}
         </div>
       </header>
+
+      {candidatura.ok && candidatura.dados.eleito_2026 && (
+        <SeloEleitoFuturo eleito={candidatura.dados.eleito_2026} atualizadoEm={candidatura.dados.atualizado_em} />
+      )}
 
       <ResumoPerfil
         gastos={gastos.ok ? gastos.dados : undefined}

@@ -49,13 +49,13 @@ export function BuscaGeral({ rotulo = "Procure pelo nome" }: { rotulo?: string }
       ultimaBusca.current = texto;
       const resposta = await getBusca(texto);
       if (ultimaBusca.current !== texto) return;
-      setBusca({ texto, resposta: resposta.ok ? resposta.dados : { itens: [], partidos: [], pessoas: [] } });
+      setBusca({ texto, resposta: resposta.ok ? resposta.dados : { itens: [], partidos: [], pessoas: [], eleitos_2026: [] } });
     }, 300);
     return () => clearTimeout(atraso);
   }, [texto]);
 
   const resultados = texto.length >= MINIMO && busca?.texto === texto ? busca.resposta : null;
-  const vazio = resultados && !resultados.itens.length && !resultados.partidos.length && !resultados.pessoas.length;
+  const vazio = resultados && !resultados.itens.length && !resultados.partidos.length && !resultados.pessoas.length && !resultados.eleitos_2026.length;
 
   return (
     <div className="flex flex-col gap-2">
@@ -93,6 +93,7 @@ export function BuscaGeral({ rotulo = "Procure pelo nome" }: { rotulo?: string }
               </ul>
             </section>
           )}
+          <Pessoas titulo="Eleitos em 2026, ainda sem posse" itens={resultados.eleitos_2026} />
           <Pessoas titulo="Eleições passadas e suplentes" itens={resultados.pessoas} />
         </div>
       )}

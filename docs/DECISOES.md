@@ -696,3 +696,12 @@ O plano é juntar tudo o que é público sobre quem exerce função pública: pr
 - **Regras para o índice servir:** a consulta usa a mesma expressão do índice (`busca_norm(coluna) LIKE '%PALAVRA%'`) e o literal `'ELEITO%'` (não parâmetro) para o planejador provar o índice parcial. Trigrama precisa de 3 letras, então palavras de 1 ou 2 letras ("da", "de") são ignoradas no filtro quando há outra maior ("maria da silva" levava 40 s com o `LIKE '%DA%'`, agora 40 ms) e, se não sobra nenhuma, só a sigla de partido responde. Toda consulta tem LIMIT. Quem mudar a expressão no código sem mudar o índice faz a busca varrer a tabela.
 - **Cache:** a resposta continua sob o middleware (`s-maxage=3600`), com teste.
 - **Fora do escopo:** cidades/municípios (a busca não os cobre; o CEP e a página do estado levam até eles); proposições; nome parlamentar pela grafia da Câmara/Senado além do que já existia. Pessoa com vínculo só por nome não revisado não aparece.
+
+## 2026-10-10: eleitos de 2026 antes da posse, separados de quem está no cargo
+
+- **Decisão do usuário:** quem foi eleito em 2026 (1º turno em 04/10/2026) aparece no site antes da posse como "eleito em 2026, posse em 2027", **separado** de quem está no cargo hoje. Posse: presidente e governador em 1º/1/2027; Congresso e assembleias em 1º/2/2027.
+- **O que "no cargo hoje" significa não mudou:** `mandato_em_curso()` continua cortando eleições cuja posse não aconteceu. Os eleitos novos vêm de um serviço à parte (`services/eleitos_futuros.py`), que usa o critério oposto (ano da eleição >= ano atual). Quando o ano virar, eles saem desse bloco e entram como mandato atual, sem mudar código.
+- **API:** `GET /estados/{uf}/eleitos-2026` (presidente, governador, senadores, deputados federais e estaduais/distritais); campo `eleito_2026` em `/parlamentares/{id}/candidatura` e em `/eleitos/{id}`; grupo `eleitos_2026` em `/busca`. `/eleitos/{id}` aceita deputado federal e senador só enquanto a posse não aconteceu.
+- **Situação:** a do TSE ("ELEITO", "ELEITO POR QP", "ELEITO POR MÉDIA"). Onde o TSE ainda marca "2º TURNO" (presidente e governadores), o site diz que a pessoa disputa o 2º turno em 25/10/2026 e que a posse, se eleita, é em 1º/1/2027. Suplentes e não eleitos não entram.
+- **Quem já está no cargo e foi reeleito** mostra as duas coisas: o perfil de hoje e o selo "Eleito(a) ... em 2026 — posse em ...", com "segue no mandato de hoje até a posse".
+- **Fonte:** TSE (dados abertos de candidatos), com a data da última carga.

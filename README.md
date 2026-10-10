@@ -21,6 +21,7 @@ Os dados sobre o trabalho dos parlamentares já são públicos, mas estão espal
   - os 3 senadores e os deputados federais do estado;
   - os **deputados estaduais** eleitos;
   - os **vereadores** eleitos da cidade.
+  - os **eleitos de 2026 que ainda não tomaram posse** (presidente e governador em 1º/1/2027; Congresso e assembleias em 1º/2/2027; "2º turno" onde o TSE ainda não decidiu), numa seção à parte de quem está no cargo hoje, com selo no perfil e na busca.
 - **Perfil de cada parlamentar federal**, com os números principais no topo e os detalhes abaixo:
   - **Gastos do gabinete** (cota parlamentar): total do ano, média da Casa, gastos por categoria e os maiores gastos. Quando não há nenhum reembolso, o site diz isso e explica as causas possíveis.
   - **Presença em votações**: em quantas votações nominais do Plenário votou, desde o início do mandato atual.
