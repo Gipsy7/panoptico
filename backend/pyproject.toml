@@ -26,6 +26,11 @@ dev = [
     "ruff>=0.16.10",
 ]
 
+# Exportação aberta do acervo (python -m exportar); fora da API de produção.
+acervo = [
+    "pyarrow>=21.0.0",
+]
+
 [tool.uv]
 package = false
 

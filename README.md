@@ -260,6 +260,21 @@ uv run python -m ingestion.congresso.cpi_indiciamentos # sugestões de indiciame
 uv run python -m analises fornecedores_sancionados --saida resultado.csv
 ```
 
+### Dados abertos
+
+Dumps do acervo para pesquisadores e jornalistas: um arquivo **Parquet** (zstd) e um **CSV.gz** equivalente por conjunto (deputados e senadores, vereadores e deputados estaduais, eleitos, bens e campanha, linha do tempo, processos, CPIs, cota parlamentar, contas dos partidos, PNCP, pagamentos das prefeituras nos TCEs), mais `LEIAME.md` e `dicionario.json` (colunas, fonte oficial, data da última carga de cada fonte, tamanho e SHA-256). É rodado à mão, contra o banco do acervo; não faz parte da API de produção.
+
+```bash
+cd backend
+uv sync --group acervo                       # pyarrow, só para a exportação
+export DATABASE_URL=postgresql+psycopg://panoptico:panoptico@localhost:5432/panoptico_acervo
+uv run python -m exportar --listar           # os conjuntos
+uv run python -m exportar --destino /e/panoptico/dados-abertos
+uv run python -m exportar --destino saida --conjunto eventos pessoas_publicas   # só alguns
+```
+
+A leitura é em lotes de 50 mil linhas, numa transação só de leitura (retrato consistente mesmo com uma carga rodando). Nunca saem CPF, título de eleitor, data de nascimento, pessoa sem vínculo publicável (a regra `publicavel()` do site), sugestões não revisadas (atos de diários e do DOU, indiciamentos de CPI) nem casos em rascunho; os testes (`tests/test_exportar.py`) procuram esses dados nos arquivos gerados. Ver [docs/DECISOES.md](docs/DECISOES.md), "exportação aberta".
+
 ### API
 
 | Rota | Retorna |
