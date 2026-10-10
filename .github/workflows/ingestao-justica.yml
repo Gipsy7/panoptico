@@ -17,8 +17,8 @@ on:
   workflow_dispatch:
     inputs:
       socios_max:
-        description: "Máximo de CNPJs consultados no quadro de sócios (2 s cada)"
-        default: "600"
+        description: "Máximo de CNPJs consultados no quadro de sócios (~7 s cada a partir do Actions)"
+        default: "400"
         type: string
 
 # Fila própria: estas fontes escrevem em pessoa, pessoa_vinculo, evento, processo, cpi e
@@ -37,7 +37,7 @@ jobs:
     env:
       DATABASE_URL: ${{ secrets.DATABASE_URL }}
       PYTHONUNBUFFERED: "1"
-      SOCIOS_MAX: ${{ inputs.socios_max || '600' }}
+      SOCIOS_MAX: ${{ inputs.socios_max || '400' }}  # ~7 s por consulta a partir do Actions (medido em 10/10)
     steps:
       - uses: actions/checkout@v7
 
