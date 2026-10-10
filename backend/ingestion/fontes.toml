@@ -258,6 +258,22 @@ frequencia = "semanal"
 depende = ["canais_oficiais"]
 
 [[fonte]]
+nome = "portal_php_camaras"
+modulo = "ingestion.camaras.portal_php"
+uso = "Câmaras que saíram do SAPL e usam o modelo de site PHP com vereadores.php (AP e CE)"
+recorte = "vereadores da legislatura em vigor (nome, partido, foto)"
+frequencia = "semanal"
+depende = ["canais_oficiais"]
+
+[[fonte]]
+nome = "cr2_camaras"
+modulo = "ingestion.camaras.cr2"
+uso = "Câmaras que saíram do SAPL para o Portal da Transparência da CR2 (Beruri, Itamarandiba, Benevides, São Miguel do Guamá)"
+recorte = "vereadores ativos hoje (nome, partido, foto, contato)"
+frequencia = "semanal"
+depende = ["canais_oficiais"]
+
+[[fonte]]
 nome = "sapl_assembleias"
 modulo = "ingestion.assembleias.sapl"
 uso = "Assembleia legislativa hoje"
@@ -357,7 +373,7 @@ modulo = "ingestion.pessoas"
 uso = "Pessoa pública única e linha do tempo (/pessoas/{id}/eventos)"
 recorte = "candidaturas, parlamentares e mandatos já carregados"
 frequencia = "semanal"
-depende = ["tse_candidaturas", "camara_deputados", "senado_senadores", "sapl_camaras", "cittatec_camaras", "sapl_assembleias", "almg", "alesp", "alepe", "cldf", "alesc", "alerj", "alrs", "alba", "ales", "alece", "alepa", "almt"]
+depende = ["tse_candidaturas", "camara_deputados", "senado_senadores", "sapl_camaras", "cittatec_camaras", "portal_php_camaras", "cr2_camaras", "sapl_assembleias", "almg", "alesp", "alepe", "cldf", "alesc", "alerj", "alrs", "alba", "ales", "alece", "alepa", "almt"]
 
 # Justiça e controle
 [[fonte]]
