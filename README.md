@@ -56,6 +56,7 @@ Os dados sobre o trabalho dos parlamentares já são públicos, mas estão espal
 - **Assembleia do Espírito Santo** (API de dados abertos da ALES): deputados no cargo, projetos, indicações e requerimentos, e **presença em plenário**. A API não traz votos nem gastos.
 - **Assembleia do Ceará** (páginas públicas do site da ALECE, que não tem dados abertos legislativos): deputados em exercício (inclusive suplentes) e projetos de lei, leis complementares, emendas à Constituição, decretos legislativos e resoluções.
 - **Assembleia do Pará** e **Assembleia de Mato Grosso** (páginas públicas dos sites): só os deputados em exercício, com partido e foto. A pesquisa de proposições da ALEPA não permite coleta confiável fora do navegador; a API da ALMT exige credencial e o `robots.txt` do site veda a pesquisa.
+- **Assembleias do MA, MS, RN, SE, AP e GO** (sites e portais de cada Casa; nenhuma usa SAPL): deputados em exercício ligados ao eleito do TSE, e o que cada uma publica de forma estruturada. MA (API do ALEMALEGIS): projetos e contagem de indicações, requerimentos e moções. RN (API da Transparência Legislativa): projetos e contagens. AP (portal do eLegis): projetos. MS (portal da transparência): gastos da cota (CEAP). GO (portal da transparência): verba indenizatória mensal. SE (Processo Legislativo): presença em plenário. O sistema de proposições de MS exige prova de trabalho contra automação, o de SE só responde a formulário com estado de sessão, e GO não publica proposições em JSON; não contornamos.
 - **Assembleia de Minas Gerais** (dados abertos da ALMG): deputados no cargo, projetos, requerimentos e **gastos do gabinete** (verba indenizatória), com a média da assembleia. A ALMG não publica o voto de cada deputado nem a presença.
 - **Canais oficiais da sua cidade**: sites da prefeitura e da câmara e os portais da transparência, num catálogo aberto (`data/canais_oficiais.csv`, gerado pela varredura, e `data/canais_curados.csv`, com as correções feitas à mão) que qualquer pessoa pode corrigir por pull request.
 - **Compartilhamento**: perfis e comparações têm imagem de pré-visualização e botão de WhatsApp.
@@ -146,6 +147,7 @@ flowchart LR
 | Deputados estaduais do CE: projetos | [Site da ALECE](https://www.al.ce.gov.br/deputados) | Páginas públicas, semanal |
 | Deputados estaduais do PA | [Portal da ALEPA](https://www.alepa.pa.gov.br/Home/Page/Deputados) | Página pública, semanal |
 | Deputados estaduais de MT | [Site da ALMT](https://www.al.mt.gov.br/parlamento/deputados) | Páginas públicas, semanal |
+| Deputados estaduais do MA, MS, RN, SE, AP e GO | Sites e portais da ALEMA, ALEMS, ALRN, ALESE, ALAP e ALEGO | Páginas públicas e APIs JSON de cada Casa, semanal |
 | Deputados estaduais de MG: projetos e gastos do gabinete | [Dados abertos da ALMG](https://dadosabertos.almg.gov.br/) | API, semanal |
 | Municípios | [IBGE](https://servicodados.ibge.gov.br/api/docs/localidades) | API REST |
 | CEP → cidade e estado | [ViaCEP](https://viacep.com.br/) | Consulta na hora, sem gravar |
@@ -323,7 +325,7 @@ O plano completo, com a ordem das fases, está em [docs/DECISOES.md](docs/DECISO
 - Atos de nomeação e exoneração nos diários municipais (Querido Diário): a coleta de sugestões (`python -m ingestion.diarios.atos`, tabela `diario_ato`) e a revisão humana (`python -m ingestion.revisar --tipo diario`) existem; só o que for aceito vira evento na linha do tempo. Falta rodar a revisão sobre as sugestões do acervo
 - Contratos públicos (PNCP): a coleta em somas já existe no acervo (`python -m ingestion.pncp.contratos`); falta exibir. Convênios, empresas e sócios (CNPJ)
 - As 60 câmaras cujo SAPL parou e que ainda não têm conector (sistema atual de cada uma em `data/sistemas_camaras.csv`; próximos: modelo PHP de AP/CE com 5 e CR2 com 4) e as 910 cidades sem canal oficial encontrado
-- Conectores próprios para as 7 assembleias sem SAPL (AP, GO, MA, MS, RN, SE e PR, esta à espera de a ALEP corrigir o certificado) que faltam, depois de um levantamento casa a casa do que cada uma publica
+- Assembleias: falta a do Paraná (PR), à espera de a ALEP corrigir o certificado HTTPS da API; nenhuma outra Casa fica sem conector, mas várias só têm os deputados e parte do restante (votos nominais, presença e gastos: ver `data/pendencias_cobertura.csv`)
 - Presença nas reuniões das comissões da ALESP (já publicada em dados abertos; os votos nas comissões já entraram)
 - Despesas por fornecedor de outros Tribunais de Contas (o de MG exige reCAPTCHA nos dados abertos; falta pedir acesso)
 - Teste com pessoas reais e auditoria de acessibilidade

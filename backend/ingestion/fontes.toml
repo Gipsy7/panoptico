@@ -344,6 +344,48 @@ recorte = "deputados em exercício (sem proposições: API com OAuth e pesquisa 
 frequencia = "semanal"
 
 [[fonte]]
+nome = "alema"
+modulo = "ingestion.assembleias.alema"
+uso = "Assembleia do Maranhão hoje"
+recorte = "deputados em exercício; projetos do ano atual e anterior (sem votos, presença e gastos)"
+frequencia = "semanal"
+
+[[fonte]]
+nome = "alems"
+modulo = "ingestion.assembleias.alems"
+uso = "Assembleia de Mato Grosso do Sul hoje"
+recorte = "deputados em exercício; gastos da cota (CEAP) do ano atual e anterior (sem proposições: o sistema exige prova de trabalho contra automação)"
+frequencia = "semanal"
+
+[[fonte]]
+nome = "alrn"
+modulo = "ingestion.assembleias.alrn"
+uso = "Assembleia do Rio Grande do Norte hoje"
+recorte = "deputados em exercício; projetos do ano atual e anterior (sem votos nominais, presença e gastos)"
+frequencia = "semanal"
+
+[[fonte]]
+nome = "alese"
+modulo = "ingestion.assembleias.alese"
+uso = "Assembleia de Sergipe hoje"
+recorte = "deputados em exercício e presença em plenário do ano corrente (sem proposições, votos e gastos)"
+frequencia = "semanal"
+
+[[fonte]]
+nome = "alap"
+modulo = "ingestion.assembleias.alap"
+uso = "Assembleia do Amapá hoje"
+recorte = "deputados em exercício; projetos do ano atual e anterior (sem votos, presença e gastos)"
+frequencia = "semanal"
+
+[[fonte]]
+nome = "alego"
+modulo = "ingestion.assembleias.alego"
+uso = "Assembleia de Goiás hoje"
+recorte = "deputados em exercício; verba indenizatória mensal do ano atual e anterior (sem proposições, votos e presença)"
+frequencia = "semanal"
+
+[[fonte]]
 nome = "alesp"
 modulo = "ingestion.assembleias.alesp"
 uso = "Assembleia de São Paulo hoje"
@@ -357,7 +399,7 @@ modulo = "ingestion.pessoas"
 uso = "Pessoa pública única e linha do tempo (/pessoas/{id}/eventos)"
 recorte = "candidaturas, parlamentares e mandatos já carregados"
 frequencia = "semanal"
-depende = ["tse_candidaturas", "camara_deputados", "senado_senadores", "sapl_camaras", "cittatec_camaras", "sapl_assembleias", "almg", "alesp", "alepe", "cldf", "alesc", "alerj", "alrs", "alba", "ales", "alece", "alepa", "almt"]
+depende = ["tse_candidaturas", "camara_deputados", "senado_senadores", "sapl_camaras", "cittatec_camaras", "sapl_assembleias", "almg", "alesp", "alepe", "cldf", "alesc", "alerj", "alrs", "alba", "ales", "alece", "alepa", "almt", "alema", "alems", "alrn", "alese", "alap", "alego"]
 
 # Justiça e controle
 [[fonte]]

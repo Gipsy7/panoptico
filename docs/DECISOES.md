@@ -208,6 +208,16 @@ O subsídio é igual para deputados e senadores e é fixado por decreto legislat
 - **Resultado na base local:** ES 30 deputados (26 ligados ao eleito do TSE), 1.607 projetos e a contagem de indicações e requerimentos; CE 46 em exercício (35 ligados; 52 registros com os 6 licenciados) e 1.261 projetos; PA 41 (36 ligados); MT 24 (23 ligados). Os que não ligam ao TSE têm nome parlamentar diferente do nome de urna ou são suplentes que assumiram.
 - **Os mesmos `fonte_nome` na API:** `/estados/{uf}/assembleia` cita a fonte própria das quatro.
 
+## 2026-10-10: Assembleias do MA, MS, RN, SE, AP e GO
+
+- **Nenhuma usa PLE/Nopapercloud nem SAPL em outro endereço.** Conferido casa a casa antes de escrever código: MA (`sapl.al.ma.leg.br` redireciona para o ALEMALEGIS, Angular), RN e SE (os endereços de SAPL não resolvem), AP (SAPL inexistente; eLegis próprio), MS e GO (sistemas próprios). Cada uma ganhou conector próprio, com o registro de deputado e a gravação comuns em `ingestion/assembleias/base.py` (a gravação é a de `ple.py`).
+- **O que entrou em cada uma:** MA, RN e AP: deputados em exercício, projetos (ano atual e anterior) e, em MA e RN, a contagem de indicações, requerimentos e moções. MS: deputados e gastos da cota (CEAP, somados por deputado, mês e categoria). GO: deputados e verba indenizatória mensal (valor indenizado). SE: deputados e presença em plenário do ano corrente.
+- **O que ficou de fora e por quê:** MS, proposições: o SGPL mostra "Validando acesso..." (prova de trabalho contra automação); não contornamos. SE, proposições: a consulta do SPL só responde a envio de formulário com `__VIEWSTATE`. GO: não há rota JSON de proposições, votos ou presença nos dados abertos. MA e RN têm rotas de votos e de presença na API, fora desta coleta mínima. PR continua pendente (certificado HTTPS inválido; a verificação não é desligada).
+- **Quem está em exercício:** MA, pelo site (41 cartões; os "Deputados licenciados", listados à parte, ficam de fora; a lista da API mistura quatro legislaturas). GO tem 42 linhas na tabela de exercício do portal, uma a mais que as 41 cadeiras (provável suplente em exercício; seguimos o portal). Em MS, nomes do CEAP que diferem da lista de partidos (cinco) ficam numa tabela de apelidos conferida à mão; o que sobra é de quem saiu.
+- **Autoria só por nome exato** (MA, AP, RN pela iniciativa da API), como nas outras casas. CPF devolvido pela API do RN não é guardado.
+- **Resultado na base local:** MA 41 deputados (34 ligados ao eleito do TSE), 961 projetos; MS 24 (22), gastos de R$ 26,9 milhões em 2025-2026; RN 24 (21), 1.063 projetos; SE 24 (21), presença de 24; AP 24 (21), 1.336 projetos; GO 42 (39), verba de R$ 30,4 milhões em 2025-2026.
+- **Os mesmos `fonte_nome` na API:** `/estados/{uf}/assembleia` cita a fonte própria das seis.
+
 ## 2026-10-09: análises (cruzamentos) e sanções a empresas
 
 - **Análises versionadas** em `backend/analises/<nome>.sql`, rodadas por `python -m analises <nome> [--saida arquivo.csv]`. O comentário do topo de cada consulta explica como ler o resultado. Uma análise que se mostrar sólida vira rota da API e depois seção do site; até lá, é material de conferência.
