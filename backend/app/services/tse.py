@@ -129,6 +129,8 @@ def _atualizado_em(session: Session) -> datetime | None:
 
 
 def resumo(session: Session, parlamentar: Parlamentar) -> dict:
+    from app.services import eleitos_futuros
+
     """Perfil do parlamentar federal: bens da candidatura mais recente (comparados com a
     anterior) e a campanha que deu o mandato atual."""
     candidaturas = session.scalars(
@@ -150,6 +152,7 @@ def resumo(session: Session, parlamentar: Parlamentar) -> dict:
         "votos": {"ano": do_mandato.ano_eleicao, "total": do_mandato.votos}
         if do_mandato and do_mandato.votos is not None
         else None,
+        "eleito_2026": eleitos_futuros.da_pessoa(session, parlamentar_id=parlamentar.id),
         "fonte_nome": FONTE_NOME,
         "fonte_url": FONTE_URL,
         "atualizado_em": _atualizado_em(session),
@@ -289,6 +292,8 @@ def deputados_estaduais(session: Session, uf: str) -> dict:
 def eleito(session: Session, candidatura: Candidatura) -> dict:
     """Perfil de um eleito pelo TSE. Se a própria casa (SAPL) lista a pessoa no cargo, diz
     qual é o mandato, para o site mostrar um perfil só, com a atividade."""
+    from app.services import eleitos_futuros
+
     mandato = session.execute(
         select(MandatoLocal.id, MandatoLocal.casa).where(
             MandatoLocal.candidatura_id == candidatura.id
@@ -306,6 +311,12 @@ def eleito(session: Session, candidatura: Candidatura) -> dict:
         "unidade": candidatura.unidade,
         "municipio_ibge": candidatura.municipio_ibge,
         "ano_eleicao": candidatura.ano_eleicao,
+        "eleito_2026": eleitos_futuros.da_pessoa(
+            session,
+            candidatura=candidatura,
+            parlamentar_id=candidatura.parlamentar_id,
+            titulo=candidatura.titulo,
+        ),
         "bens": _bens(session, candidatura, None) if _tem_bens(session, candidatura.id) else None,
         "campanha": _campanha(session, candidatura),
         "fonte_nome": FONTE_NOME,

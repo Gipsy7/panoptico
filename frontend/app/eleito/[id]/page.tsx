@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 
 import { AvisoErro } from "@/components/aviso-erro";
+import { SeloEleitoFuturo } from "@/components/eleito-futuro";
 import { CandidaturaSecao } from "@/components/candidatura-secao";
 import { CompartilharWhatsApp } from "@/components/compartilhar";
 import { QuemESecao } from "@/components/dados-pessoais";
@@ -69,8 +70,11 @@ async function Perfil({ id }: { id: string }) {
         </div>
       </header>
 
+      {e.eleito_2026 && <SeloEleitoFuturo eleito={e.eleito_2026} atualizadoEm={e.atualizado_em} />}
+
       <QuemESecao pessoais={e.pessoais} votos={e.votos != null ? { ano: e.ano_eleicao, total: e.votos } : null} />
 
+      {e.eleito_2026?.id !== e.id && (
       <section aria-labelledby="atividade-titulo" className="flex flex-col gap-3">
         <h2 id="atividade-titulo" className="text-2xl">
           No cargo
@@ -98,6 +102,7 @@ async function Perfil({ id }: { id: string }) {
           </div>
         )}
       </section>
+      )}
 
       <CompartilharWhatsApp
         caminho={`/eleito/${e.id}`}

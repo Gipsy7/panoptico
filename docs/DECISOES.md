@@ -706,3 +706,11 @@ O plano é juntar tudo o que é público sobre quem exerce função pública: pr
 - **Fora:** fontes que bloqueiam acesso automático ou dependem de pedido (`cnj_cnia`, `stf_processos`, `stj_processos`) e as de revisão humana (`cpi_indiciamentos`, `querido_diario_atos`, `dou_atos`), cujos CSVs `data/*_revisados.csv` versionados a carga de `pessoas` aplica na produção.
 - **Custo:** ~80 MB no Neon e, por semana sem mudança, ~40 MB lidos do banco por `pessoas` e menos de 1 MB gravado (tabela completa em `docs/DEPLOY_GRATUITO.md`).
 
+## 2026-10-10: eleitos de 2026 antes da posse, separados de quem está no cargo
+
+- **Decisão do usuário:** quem foi eleito em 2026 (1º turno em 04/10/2026) aparece no site antes da posse como "eleito em 2026, posse em 2027", **separado** de quem está no cargo hoje. Posse: presidente e governador em 1º/1/2027; Congresso e assembleias em 1º/2/2027.
+- **O que "no cargo hoje" significa não mudou:** `mandato_em_curso()` continua cortando eleições cuja posse não aconteceu. Os eleitos novos vêm de um serviço à parte (`services/eleitos_futuros.py`), que usa o critério oposto (ano da eleição >= ano atual). Quando o ano virar, eles saem desse bloco e entram como mandato atual, sem mudar código.
+- **API:** `GET /estados/{uf}/eleitos-2026` (presidente, governador, senadores, deputados federais e estaduais/distritais); campo `eleito_2026` em `/parlamentares/{id}/candidatura` e em `/eleitos/{id}`; grupo `eleitos_2026` em `/busca`. `/eleitos/{id}` aceita deputado federal e senador só enquanto a posse não aconteceu.
+- **Situação:** a do TSE ("ELEITO", "ELEITO POR QP", "ELEITO POR MÉDIA"). Onde o TSE ainda marca "2º TURNO" (presidente e governadores), o site diz que a pessoa disputa o 2º turno em 25/10/2026 e que a posse, se eleita, é em 1º/1/2027. Suplentes e não eleitos não entram.
+- **Quem já está no cargo e foi reeleito** mostra as duas coisas: o perfil de hoje e o selo "Eleito(a) ... em 2026 — posse em ...", com "segue no mandato de hoje até a posse".
+- **Fonte:** TSE (dados abertos de candidatos), com a data da última carga.

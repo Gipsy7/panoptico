@@ -16,7 +16,7 @@ from sqlalchemy import and_, case, exists, func, literal, literal_column, select
 from sqlalchemy.orm import Session
 
 from app.models import Candidatura, MandatoLocal, Municipio, Parlamentar, Pessoa, PessoaVinculo
-from app.services import tse
+from app.services import eleitos_futuros, tse
 from app.services.pessoas import publicavel
 from ingestion.comum import chave_nome
 
@@ -230,13 +230,13 @@ def _pessoas(session: Session, palavras: list[str], ja_listados: set[str]) -> li
 def buscar(session: Session, nome: str) -> dict:
     palavras = chave_nome(nome).split()
     if not palavras:
-        return {"itens": [], "partidos": [], "pessoas": []}
+        return {"itens": [], "partidos": [], "pessoas": [], "eleitos_2026": []}
     partidos = _partidos(palavras)
     # Trigrama precisa de 3 letras: sem nenhuma palavra assim ('pt', 'da') só a sigla de partido
     # faz sentido. Palavras curtas ('da', 'de') junto de outras maiores não entram no filtro
     # SQL (casariam com quase todo mundo e não usam o índice).
     if all(len(p) < 3 for p in palavras):
-        return {"itens": [], "partidos": partidos, "pessoas": []}
+        return {"itens": [], "partidos": partidos, "pessoas": [], "eleitos_2026": []}
     palavras = [p for p in palavras if len(p) >= 3]
     resultado: list[dict] = []
 
@@ -342,4 +342,16 @@ def buscar(session: Session, nome: str) -> dict:
         if chave_nome(item["nome_completo"]) == chave_nome(item["nome"]):
             item["nome_completo"] = None
     listados = {i["caminho"] for i in itens}
-    return {"itens": itens, "partidos": partidos, "pessoas": _pessoas(session, palavras, listados)}
+    # Eleitos que ainda não tomaram posse ficam num grupo à parte; quem já aparece em cima
+    # (mesmo perfil) não se repete.
+    futuros = [
+        e
+        for e in eleitos_futuros.para_busca(session, palavras, _casa, LIMITE)
+        if e["caminho"] not in listados
+    ]
+    return {
+        "itens": itens,
+        "partidos": partidos,
+        "pessoas": _pessoas(session, palavras, listados),
+        "eleitos_2026": futuros,
+    }

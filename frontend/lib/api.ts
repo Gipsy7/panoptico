@@ -173,10 +173,49 @@ export type CandidaturaTse = {
   } | null;
   pessoais?: Pessoais | null;
   votos?: { ano: number; total: number } | null;
+  eleito_2026?: EleitoFuturo | null;
   fonte_nome: string;
   fonte_url: string;
   atualizado_em: string | null;
 };
+
+/** Eleito (ou candidato no 2º turno) de uma eleição cuja posse ainda não aconteceu. */
+export type EleitoFuturo = {
+  id: number;
+  nome_urna: string;
+  partido: string | null;
+  numero: string | null;
+  uf: string;
+  cargo: string;
+  unidade: string;
+  ano_eleicao: number;
+  situacao: string | null;
+  situacao_tse: string | null;
+  segundo_turno: boolean;
+  data_segundo_turno: string | null;
+  posse: string;
+  votos: number | null;
+  parlamentar_id: number | null;
+  /** Já exerce hoje um mandato federal (por exemplo, reeleito). */
+  ja_no_cargo: boolean;
+  vice: string | null;
+};
+
+export type EleitosFuturos = {
+  ano_eleicao: number | null;
+  presidente: EleitoFuturo[];
+  governador: EleitoFuturo[];
+  senadores: EleitoFuturo[];
+  deputados_federais: EleitoFuturo[];
+  deputados_estaduais: EleitoFuturo[];
+  fonte_nome: string;
+  fonte_url: string;
+  atualizado_em: string | null;
+};
+
+export function getEleitos2026(uf: string) {
+  return getJson<EleitosFuturos>(`/estados/${encodeURIComponent(uf)}/eleitos-2026`);
+}
 
 export type Eleito = {
   id: number;
@@ -219,6 +258,7 @@ export type EleitoDetalhe = Eleito &
     unidade: string;
     municipio_ibge: string | null;
     ano_eleicao: number;
+    eleito_2026?: EleitoFuturo | null;
   };
 
 export type Chapa = {
@@ -652,6 +692,8 @@ export type RespostaBusca = {
   partidos: PartidoBuscado[];
   /** Eleições passadas e suplentes, com perfil no site. */
   pessoas: ResultadoBusca[];
+  /** Eleitos que ainda não tomaram posse (e quem disputa o 2º turno). */
+  eleitos_2026: ResultadoBusca[];
 };
 
 /** Busca por nome: pessoas de todos os níveis, partidos e eleitos de eleições passadas. */
@@ -663,6 +705,7 @@ export async function getBusca(q: string) {
   if (resposta.ok) {
     resposta.dados.partidos ??= [];
     resposta.dados.pessoas ??= [];
+    resposta.dados.eleitos_2026 ??= [];
   }
   return resposta;
 }

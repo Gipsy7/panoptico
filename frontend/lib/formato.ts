@@ -13,6 +13,12 @@ export function formatarData(iso: string): string {
   return new Date(iso).toLocaleDateString("pt-BR", { timeZone: "America/Sao_Paulo" });
 }
 
+/** "2027-02-01" -> "1º/2/2027". */
+export function formatarPosse(iso: string): string {
+  const [ano, mes, dia] = iso.split("-").map(Number);
+  return `${dia === 1 ? "1º" : dia}/${mes}/${ano}`;
+}
+
 export const NOME_CASA: Record<Casa, string> = {
   camara: "Câmara dos Deputados",
   senado: "Senado Federal",
