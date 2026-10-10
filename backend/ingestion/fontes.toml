@@ -308,6 +308,34 @@ recorte = "deputados em exercício; proposições e presença em plenário do an
 frequencia = "semanal"
 
 [[fonte]]
+nome = "ales"
+modulo = "ingestion.assembleias.ales"
+uso = "Assembleia do Espírito Santo hoje"
+recorte = "deputados em exercício; proposições e presença em plenário do ano atual e anterior"
+frequencia = "semanal"
+
+[[fonte]]
+nome = "alece"
+modulo = "ingestion.assembleias.alece"
+uso = "Assembleia do Ceará hoje"
+recorte = "deputados em exercício; projetos do ano atual e anterior (sem indicações, votos, presença e gastos)"
+frequencia = "semanal"
+
+[[fonte]]
+nome = "alepa"
+modulo = "ingestion.assembleias.alepa"
+uso = "Assembleia do Pará hoje"
+recorte = "deputados em exercício (sem proposições: a pesquisa do portal não pagina fora do navegador)"
+frequencia = "semanal"
+
+[[fonte]]
+nome = "almt"
+modulo = "ingestion.assembleias.almt"
+uso = "Assembleia de Mato Grosso hoje"
+recorte = "deputados em exercício (sem proposições: API com OAuth e pesquisa vedada pelo robots.txt)"
+frequencia = "semanal"
+
+[[fonte]]
 nome = "alesp"
 modulo = "ingestion.assembleias.alesp"
 uso = "Assembleia de São Paulo hoje"
@@ -321,7 +349,7 @@ modulo = "ingestion.pessoas"
 uso = "Pessoa pública única e linha do tempo (/pessoas/{id}/eventos)"
 recorte = "candidaturas, parlamentares e mandatos já carregados"
 frequencia = "semanal"
-depende = ["tse_candidaturas", "camara_deputados", "senado_senadores", "sapl_camaras", "sapl_assembleias", "almg", "alesp", "alepe", "cldf", "alesc", "alerj", "alrs", "alba"]
+depende = ["tse_candidaturas", "camara_deputados", "senado_senadores", "sapl_camaras", "sapl_assembleias", "almg", "alesp", "alepe", "cldf", "alesc", "alerj", "alrs", "alba", "ales", "alece", "alepa", "almt"]
 
 # Justiça e controle
 [[fonte]]

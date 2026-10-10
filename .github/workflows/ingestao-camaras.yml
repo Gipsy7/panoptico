@@ -257,3 +257,87 @@ jobs:
         run: uv sync --locked --no-dev
       - name: Assembleia da Bahia (ALBA)
         run: uv run python -m ingestion.assembleias.alba
+
+  # Assembleia do Espírito Santo: API pública do Processo Legislativo Eletrônico (filtrada por tipo de proposição).
+  ales:
+    needs: catalogo
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    defaults:
+      run:
+        working-directory: backend
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      PYTHONUNBUFFERED: "1"
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v10.2.0
+        with:
+          version: "0.12.23"
+      - name: Instalar dependências
+        run: uv sync --locked --no-dev
+      - name: Assembleia do Espírito Santo (ALES)
+        run: uv run python -m ingestion.assembleias.ales
+
+  # Assembleia do Ceará: páginas públicas do site e do sistema de proposições, uma por vez.
+  alece:
+    needs: catalogo
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    defaults:
+      run:
+        working-directory: backend
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      PYTHONUNBUFFERED: "1"
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v10.2.0
+        with:
+          version: "0.12.23"
+      - name: Instalar dependências
+        run: uv sync --locked --no-dev
+      - name: Assembleia do Ceará (ALECE)
+        run: uv run python -m ingestion.assembleias.alece
+
+  # Assembleia do Pará: página pública de deputados do portal.
+  alepa:
+    needs: catalogo
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: backend
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      PYTHONUNBUFFERED: "1"
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v10.2.0
+        with:
+          version: "0.12.23"
+      - name: Instalar dependências
+        run: uv sync --locked --no-dev
+      - name: Assembleia do Pará (ALEPA)
+        run: uv run python -m ingestion.assembleias.alepa
+
+  # Assembleia de Mato Grosso: páginas públicas de deputados do site.
+  almt:
+    needs: catalogo
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: backend
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      PYTHONUNBUFFERED: "1"
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v10.2.0
+        with:
+          version: "0.12.23"
+      - name: Instalar dependências
+        run: uv sync --locked --no-dev
+      - name: Assembleia de Mato Grosso (ALMT)
+        run: uv run python -m ingestion.assembleias.almt

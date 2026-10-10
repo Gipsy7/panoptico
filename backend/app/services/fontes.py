@@ -141,6 +141,30 @@ CATALOGO = [
         "url": "https://albalegis.nopapercloud.com.br/dados-abertos.aspx",
     },
     {
+        "dado": "Deputados estaduais do ES: no cargo, proposições e presença em plenário",
+        "orgao": "Assembleia Legislativa do Espírito Santo (dados abertos do processo legislativo)",
+        "fontes": ["ales"],
+        "url": "https://www3.al.es.gov.br/api/publico/parlamentar/",
+    },
+    {
+        "dado": "Deputados estaduais do CE: no cargo (partido, foto e contato) e projetos",
+        "orgao": "Assembleia Legislativa do Ceará (páginas públicas do site)",
+        "fontes": ["alece"],
+        "url": "https://www.al.ce.gov.br/deputados",
+    },
+    {
+        "dado": "Deputados estaduais do PA: no cargo (partido e foto)",
+        "orgao": "Assembleia Legislativa do Pará (página pública do portal)",
+        "fontes": ["alepa"],
+        "url": "https://www.alepa.pa.gov.br/Home/Page/Deputados",
+    },
+    {
+        "dado": "Deputados estaduais de MT: no cargo (partido e foto)",
+        "orgao": "Assembleia Legislativa de Mato Grosso (páginas públicas do site)",
+        "fontes": ["almt"],
+        "url": "https://www.al.mt.gov.br/parlamento/deputados",
+    },
+    {
         "dado": "Sites oficiais das prefeituras e câmaras (catálogo aberto)",
         "orgao": "Varredura do Panóptico nos domínios .gov.br e .leg.br",
         "fontes": ["canais_oficiais"],
