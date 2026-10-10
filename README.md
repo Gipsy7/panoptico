@@ -240,6 +240,8 @@ uv run python -m ingestion.acervo relatorio            # volume por fonte, últi
 uv run python -m analises                              # lista os cruzamentos (backend/analises/*.sql)
 uv run python -m ingestion.revisar                     # revisão humana dos vínculos por nome aproximado
 uv run python -m ingestion.revisar --tipo diario        # revisão humana dos atos de nomeação/exoneração dos diários (data/atos_revisados.csv)
+uv run python -m ingestion.congresso.cpis                   # CPIs e CPMIs: comissões, membros e eventos (acervo local)
+uv run python -m ingestion.congresso.cpi_indiciamentos # sugestões de indiciamento dos relatórios finais (manual, baixa PDFs grandes; não publica nada)
 # Atualização diária: scripts/acervo_diario.ps1 (como registrar no Agendador do Windows está no topo do arquivo)
 uv run python -m analises fornecedores_sancionados --saida resultado.csv
 ```
@@ -308,7 +310,8 @@ Os testes do backend usam um banco `panoptico_test` (criado pelo `scripts/criar_
 O plano completo, com a ordem das fases, está em [docs/DECISOES.md](docs/DECISOES.md) ("acervo local e regras para Justiça e controle"). Em resumo:
 
 - Acervo local com identidade única de pessoa pública e linha do tempo de eventos
-- Justiça e controle, só com registros oficiais: cassações e indeferimentos no TSE, sanções da CGU, contas julgadas pelo TCU, processos no STF e no STJ (status pelo DataJud do CNJ), conselhos de ética e CPIs, e casos de corrupção montados só com documentos oficiais
+- Justiça e controle, só com registros oficiais: cassações e indeferimentos no TSE, sanções da CGU, contas julgadas pelo TCU, processos no STF e no STJ (status pelo DataJud do CNJ), conselhos de ética, participação em CPIs e CPMIs, e casos de corrupção montados só com documentos oficiais
+- CPIs e CPMIs (Câmara, Senado e Congresso, desde 2019): a participação (presidente, relator e membros) já vira evento na linha do tempo (`python -m ingestion.congresso.cpis`, tabelas `cpi` e `cpi_participacao`). Os pedidos de indiciamento dos relatórios finais **não** são publicados: `python -m ingestion.congresso.cpi_indiciamentos` extrai os nomes como sugestões em `cpi_indiciamento_sugestao` (164 nas CPIs de Brumadinho, BNDES e Pandemia), que esperam uma fila de revisão humana nos moldes da dos diários
 - Partidos: a página de finanças já existe; falta exibir os pagamentos a fornecedores ligados a pessoas e empresas da base (`partido_despesa_vinculada`, depende de revisão), os diretórios e as eleições de 2016, 2020 e 2026
 - Atos de nomeação e exoneração nos diários municipais (Querido Diário): a coleta de sugestões (`python -m ingestion.diarios.atos`, tabela `diario_ato`) e a revisão humana (`python -m ingestion.revisar --tipo diario`) existem; só o que for aceito vira evento na linha do tempo. Falta rodar a revisão sobre as sugestões do acervo
 - Contratos públicos (PNCP): a coleta em somas já existe no acervo (`python -m ingestion.pncp.contratos`); falta exibir. Convênios, empresas e sócios (CNPJ)

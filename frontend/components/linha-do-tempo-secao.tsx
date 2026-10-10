@@ -17,6 +17,7 @@ const GRUPOS: { titulo: string; detalhe: string; tipos: string[] }[] = [
   { titulo: "Processos na Justiça", detalhe: "consultados nos tribunais", tipos: ["processo"] },
   { titulo: "Casos", detalhe: "papel segundo documentos oficiais", tipos: ["caso"] },
   { titulo: "Conselho de Ética", detalhe: "representações na Câmara e no Senado", tipos: ["conselho_etica"] },
+  { titulo: "CPIs e CPMIs", detalhe: "presidente, relator e membros de comissões de inquérito", tipos: ["cpi"] },
   {
     titulo: "Tribunal de Contas da União",
     detalhe: "contas julgadas irregulares e inabilitação para cargo público",
