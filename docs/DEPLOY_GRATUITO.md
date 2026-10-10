@@ -109,6 +109,7 @@ Regras:
 - **Neon (histórico: o banco saiu do plano gratuito em outubro de 2026; hoje vale o Launch, ver "Travas contra consumo excessivo"):** 0,5 GB. O banco tinha ~260 MB; os gastos do gabinete são a maior tabela e só guardamos o ano anterior e o atual.
 - **Cold start:** depois de um tempo sem acesso, o banco e a API "acordam" e o primeiro acesso leva 1 a 3 segundos a mais.
 - **Vercel Hobby:** uso não comercial.
+- **Vercel Hobby, 100 deploys por dia** (somando os dois projetos): em 09/10/2026 o limite estourou (`api-deployments-free-per-day`) e a API ficou presa num deploy antigo. Por isso `frontend/vercel.json` e `backend/vercel.json` desligam o deploy de qualquer branch que não seja o `main` (sem prévias do `dev`), e os merges são enviados em lote.
 - **GitHub Actions:** em repositório público, os workflows agendados são **desativados depois de 60 dias sem commits**. O GitHub avisa por e-mail; basta reativar em **Actions** ou fazer um commit.
 - **Arquivos brutos:** ficam 7 dias como artefato de cada execução (aba **Actions → execução → Artifacts**).
 - **Neon, transferência de dados:** o plano gratuito tem uma cota mensal pequena de transferência. Em outubro de 2026 ela estourou num dia de várias cargas completas seguidas, e o banco ficou bloqueado até a cota renovar. Evite disparar recargas completas à mão.
