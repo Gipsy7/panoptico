@@ -566,6 +566,23 @@ depende = ["pessoas"]
 # nunca é vínculo: diario_ato nasce com revisado = false. O bruto guardado é só o recorte
 # (as sugestões de cada execução), não os diários.
 
+[[fonte]]
+nome = "dou_atos"
+modulo = "ingestion.dou.atos"
+uso = "Fila de revisão: sugestões de atos de nomeação, exoneração, designação e dispensa na Seção 2 do Diário Oficial da União que citam o nome completo de uma pessoa que acompanhamos (nada é publicado sem revisão humana)"
+recorte = "só a Seção 2 (pessoal) desde 2025-01-01; só matérias com o nome completo (3+ palavras, único na base) e uma palavra de ato no mesmo parágrafo; trecho de até 500 caracteres + órgão, data, tipo e link oficial da página do DOU"
+guarda = "linhas"
+bruto = "recorte"
+frequencia = "mensal"
+acesso = "aberto"
+depende = ["pessoas"]
+# Dados abertos da Imprensa Nacional (in.gov.br/acesso-a-informacao/dados-abertos/base-de-dados):
+# um ZIP por mês e seção (S02MMAAAA.zip, ~16 MB, ~16 mil XML), sem cadastro, publicado na
+# primeira terça-feira do mês seguinte. O link do ZIP é lido da página da base (traz um id que
+# muda). O INLABS (diário do dia em XML) exige cadastro e senha e NÃO é usado. Carga mensal
+# incremental (download_cache por mês: mês igual não rebaixa). O ZIP é lido em fluxo e vira
+# manifesto; fica só o recorte. dou_ato nasce com revisado = false.
+
 # Executivo
 [[fonte]]
 nome = "eagendas"

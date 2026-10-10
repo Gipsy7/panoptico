@@ -38,6 +38,7 @@ from app.models import (
 from ingestion import comum
 from ingestion.congresso.cpi_revisao import aplicar_indiciamentos
 from ingestion.diarios.revisao import aplicar_atos
+from ingestion.dou.revisao import aplicar_atos_dou
 from ingestion.identidade import Aresta, Chave, agrupar
 
 FONTE = "pessoas"
@@ -285,6 +286,7 @@ def processar(session: Session) -> tuple[dict[Chave, Registro], list, list, int]
     mudaram = gravar(session, registros, pessoas)
     aplicar_aceites(session)
     aplicar_atos(session)  # atos dos diários aceitos na revisão humana
+    aplicar_atos_dou(session)  # idem, atos do DOU
     aplicar_indiciamentos(session)  # indiciamentos de CPI aceitos na revisão humana
     return registros, pessoas, recusadas, mudaram
 
