@@ -13,16 +13,23 @@ Conteúdo (um .jsonl por tabela, mais manifesto.json com contagens e sha256):
   só os 30 maiores de cada município e ano, dos dias que já saíram da janela (compactados);
 - `pncp_dia`: um registro por dia lido desde 1º de janeiro do ano anterior, com `compactado`;
 - `pncp_janela`: os últimos 10 dias, por dia × município × fornecedor;
+- `pncp_suspeito`: o que ficou de fora das somas por valor suspeito (`suspeito.py`), por dia ×
+  órgão × município × fornecedor, do ano anterior em diante;
 - `pncp_contrato`: contratos inteiros das empresas sancionadas e dos sócios que acompanhamos
   (o mesmo conjunto-alvo da produção), do ano anterior em diante.
+
+Valor suspeito (digitação errada no PNCP): no acervo só há somas por dia × órgão × fornecedor ×
+tipo, então o teste vale para cada linha dessas (igual ao contrato quando `quantidade` é 1); o
+que passa do limite sai de `pncp_anual`/`pncp_janela` e vai para `pncp_suspeito`.
 
 Sem pessoa física: só entra fornecedor com CNPJ (PF e estrangeiro nunca têm identificador no
 acervo) e todo texto livre passa por `sem_cpf`; a geração para se sobrar padrão de CPF.
 
 Diferenças inevitáveis em relação à leitura direta da API (o acervo guarda somas, não
 contratos): o filtro "valor global > 0" não pode ser aplicado a cada contrato, só ao total do
-grupo; o nome do fornecedor vem de `sancao_empresa` e `pncp_contrato` (os demais ficam sem
-nome até o diário vê-los de novo); e `pncp_orgao` não é gravado na produção.
+grupo; o nome do fornecedor vem de `pncp_contrato`, `sancao_empresa` e dos pagamentos dos
+TCEs (`despesa_fornecedor`, só onde o tribunal publica); os demais ficam sem nome até o diário
+vê-los de novo e o site mostra o CNPJ; e `pncp_orgao` não é gravado na produção.
 """
 
 import argparse
@@ -37,21 +44,22 @@ from typing import Any
 
 from sqlalchemy import create_engine, delete, select, text
 from sqlalchemy.dialects.postgresql import insert
-from sqlalchemy.orm import Session, sessionmaker
+from sqlalchemy.orm import Session, defer, sessionmaker
 
 from app.models import (
     PncpAnual,
     PncpContrato,
     PncpDia,
     PncpJanela,
+    PncpSuspeito,
     SancaoEmpresa,
     SocioPessoa,
 )
-from ingestion.pncp import anual
+from ingestion.pncp import anual, suspeito
 from ingestion.pncp.contratos import CPF, sem_cpf
 
-VERSAO = 1
-TABELAS = ("pncp_anual", "pncp_dia", "pncp_janela", "pncp_contrato")
+VERSAO = 2
+TABELAS = ("pncp_anual", "pncp_dia", "pncp_janela", "pncp_suspeito", "pncp_contrato")
 CAMPOS_TEXTO_CONTRATO = (
     "orgao_nome", "municipio_nome", "fornecedor_nome", "tipo_contrato", "categoria",
     "objeto", "processo",
@@ -59,7 +67,7 @@ CAMPOS_TEXTO_CONTRATO = (
 LOTE = 2000
 MODELOS = {
     "pncp_anual": PncpAnual, "pncp_dia": PncpDia, "pncp_janela": PncpJanela,
-    "pncp_contrato": PncpContrato,
+    "pncp_contrato": PncpContrato, "pncp_suspeito": PncpSuspeito,
 }  # fmt: skip
 
 
@@ -83,8 +91,20 @@ def _linhas(session: Session, sql: str, **params: Any) -> list[dict[str, Any]]:
 
 
 def _nomes(session: Session) -> dict[str, str]:
-    """Nome por CNPJ: sancao_empresa e, por cima, o que o PNCP informou (pncp_contrato)."""
+    """Nome por CNPJ: pagamentos dos TCEs (despesa_fornecedor), por cima sancao_empresa e, por
+    cima, o que o PNCP informou (pncp_contrato)."""
     nomes: dict[str, str] = {}
+    for cnpj, nome in session.execute(
+        text(
+            """
+            SELECT regexp_replace(documento, '[^0-9]', '', 'g') AS cnpj, max(fornecedor)
+            FROM despesa_fornecedor
+            WHERE length(regexp_replace(documento, '[^0-9]', '', 'g')) = 14
+            GROUP BY 1
+            """
+        )
+    ):
+        nomes[cnpj] = nome
     for cnpj, nome in session.execute(select(SancaoEmpresa.cnpj, SancaoEmpresa.nome)):
         nomes.setdefault(cnpj, nome)
     for cnpj, nome in session.execute(
@@ -105,10 +125,18 @@ def montar(session: Session, hoje: date) -> dict[str, list[dict[str, Any]]]:
     inicio = date(anual.ano_minimo(hoje), 1, 1)
     corte = hoje - timedelta(days=anual.JANELA_DIAS)  # antes dele: compactado
     nomes = _nomes(session)
-    municipal = """
+    # limite de cada linha: o menor entre a despesa paga anual do município e o teto absoluto
+    base = """
         FROM pncp_soma p JOIN pncp_orgao o ON o.cnpj = p.orgao_cnpj AND o.esfera = 'M'
+        LEFT JOIN (
+            SELECT DISTINCT ON (municipio_ibge) municipio_ibge, despesa_paga
+            FROM contas_municipio WHERE despesa_paga > 0 ORDER BY municipio_ibge, ano DESC
+        ) c ON c.municipio_ibge = p.municipio_ibge
         WHERE p.fornecedor_cnpj <> '' AND p.municipio_ibge <> ''
     """
+    limite = "LEAST(CAST(:teto AS numeric), COALESCE(c.despesa_paga, CAST(:teto AS numeric)))"
+    municipal = f"{base} AND p.valor_global <= {limite}"
+    teto = suspeito.TETO_ABSOLUTO
 
     soma_anual = _linhas(
         session,
@@ -127,7 +155,7 @@ def montar(session: Session, hoje: date) -> dict[str, list[dict[str, Any]]]:
         ) r WHERE posicao <= :maiores
         ORDER BY ano, municipio_ibge, fornecedor_cnpj
         """,
-        inicio=inicio, corte=corte, maiores=anual.MAIORES_POR_MUNICIPIO,
+        inicio=inicio, corte=corte, maiores=anual.MAIORES_POR_MUNICIPIO, teto=teto,
     )  # fmt: skip
     for linha in soma_anual:
         linha["fornecedor_nome"] = _nome_limpo(nomes, linha["fornecedor_cnpj"])
@@ -141,9 +169,23 @@ def montar(session: Session, hoje: date) -> dict[str, list[dict[str, Any]]]:
         GROUP BY 1, 2, 3 HAVING sum(p.valor_global) > 0
         ORDER BY 1, 2, 3
         """,
-        corte=corte,
-    )
+        corte=corte, teto=teto,
+    )  # fmt: skip
     for linha in janela:
+        linha["fornecedor_nome"] = _nome_limpo(nomes, linha["fornecedor_cnpj"])
+
+    suspeitos = _linhas(
+        session,
+        f"""
+        SELECT p.dia, p.municipio_ibge, p.orgao_cnpj, p.fornecedor_cnpj, '' AS referencia,
+               sum(p.quantidade)::int AS quantidade, sum(p.valor_global) AS valor_global,
+               max({limite}) AS limite
+        {base} AND p.valor_global > {limite} AND p.dia >= :inicio
+        GROUP BY 1, 2, 3, 4 ORDER BY 1, 2, 3, 4
+        """,
+        inicio=inicio, teto=teto,
+    )  # fmt: skip
+    for linha in suspeitos:
         linha["fornecedor_nome"] = _nome_limpo(nomes, linha["fornecedor_cnpj"])
 
     dias = _linhas(
@@ -159,23 +201,28 @@ def montar(session: Session, hoje: date) -> dict[str, list[dict[str, Any]]]:
     alvo = set(session.scalars(select(SancaoEmpresa.cnpj).distinct())) | set(
         session.scalars(select(SocioPessoa.cnpj).distinct())
     )
+    limites = suspeito.carregar_limites(session)
     contratos: list[dict[str, Any]] = []
     colunas = [c.name for c in PncpContrato.__table__.columns]
     for c in session.scalars(
         select(PncpContrato)
+        .options(defer(PncpContrato.valor_suspeito))  # o acervo pode não ter a coluna ainda
         .where(PncpContrato.publicado_em >= inicio)
         .order_by(PncpContrato.numero_controle)
     ):
         if c.fornecedor_cnpj not in alvo:
             continue
-        linha = {k: getattr(c, k) for k in colunas}
+        linha = {k: getattr(c, k) for k in colunas if k != "valor_suspeito"}
+        linha["valor_suspeito"] = suspeito.eh_suspeito(
+            c.valor_global, c.esfera, c.municipio_ibge, limites
+        )
         for k in CAMPOS_TEXTO_CONTRATO:
             if linha[k]:
                 linha[k] = sem_cpf(linha[k])
         contratos.append(linha)
     return {
         "pncp_anual": soma_anual, "pncp_dia": dias, "pncp_janela": janela,
-        "pncp_contrato": contratos,
+        "pncp_suspeito": suspeitos, "pncp_contrato": contratos,
     }  # fmt: skip
 
 
@@ -318,6 +365,7 @@ def carregar(session: Session, manifesto: dict, tabelas: dict[str, list], forcar
     session.execute(delete(PncpAnual).where(PncpAnual.ano.in_(anos)))
     session.execute(delete(PncpJanela).where(PncpJanela.dia.between(de, ate)))
     session.execute(delete(PncpDia).where(PncpDia.dia.between(de, ate)))
+    session.execute(delete(PncpSuspeito).where(PncpSuspeito.dia.between(de, ate)))
     for nome in TABELAS:
         _inserir(session, nome, tabelas[nome])
     session.commit()

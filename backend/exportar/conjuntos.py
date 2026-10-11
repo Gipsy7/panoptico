@@ -587,7 +587,8 @@ CONJUNTOS: tuple[Conjunto, ...] = (
         titulo="Contratos do PNCP: soma anual por município e fornecedor",
         descricao="Soma, por município e fornecedor (CNPJ), dos contratos publicados no PNCP "
         "por órgãos municipais, sem alienações. Só os maiores fornecedores de cada município "
-        "e só o ano atual e o anterior.",
+        "e só o ano atual e o anterior. Contratos com valor que parece incorreto (acima da "
+        "despesa paga anual do município ou de R$ 50 bilhões) ficam fora da soma.",
         orgao="Portal Nacional de Contratações Públicas (PNCP)",
         url="https://pncp.gov.br/",
         fontes=("pncp_contratos",),
@@ -620,7 +621,7 @@ CONJUNTOS: tuple[Conjunto, ...] = (
                       municipio_nome, fornecedor_cnpj, fornecedor_nome, tipo_contrato,
                       categoria, receita, objeto, valor_inicial, valor_global, valor_acumulado,
                       data_assinatura, vigencia_inicio, vigencia_fim, publicado_em,
-                      compra_pncp, processo
+                      compra_pncp, processo, valor_suspeito
                FROM pncp_contrato WHERE length(fornecedor_cnpj) = 14
                ORDER BY numero_controle""",
         colunas=(
@@ -646,6 +647,12 @@ CONJUNTOS: tuple[Conjunto, ...] = (
             _c("publicado_em", "data", "Data de publicação no PNCP."),
             _c("compra_pncp", "texto", "Compra de origem no PNCP."),
             _c("processo", "texto", "Número do processo administrativo.", livre=True),
+            _c(
+                "valor_suspeito",
+                "booleano",
+                "Se o valor informado ao PNCP parece incorreto (passa da despesa paga anual do "
+                "município ou de R$ 50 bilhões); o valor original não foi alterado.",
+            ),  # fmt: skip
         ),
     ),
     Conjunto(

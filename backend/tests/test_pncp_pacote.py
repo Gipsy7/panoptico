@@ -13,6 +13,7 @@ from app.models import (
     PncpJanela,
     PncpOrgao,
     PncpSoma,
+    PncpSuspeito,
     SancaoEmpresa,
 )
 from ingestion.pncp import anual, contratos, pacote
@@ -137,7 +138,7 @@ def _producao(session, tmp_path):
     """Gera o pacote do acervo e esvazia as tabelas (uma produção ainda sem a carga)."""
     destino = tmp_path / "p.zip"
     pacote.gerar(session, destino, HOJE)
-    for modelo in (PncpSoma, PncpAnual, PncpJanela, PncpDia, PncpContrato):
+    for modelo in (PncpSoma, PncpAnual, PncpJanela, PncpDia, PncpContrato, PncpSuspeito):
         session.query(modelo).delete()
     session.flush()
     return pacote.ler(destino, destino.with_suffix(".manifesto.json"))

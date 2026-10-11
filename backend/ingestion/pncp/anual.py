@@ -70,6 +70,10 @@ def podar(session: Session, hoje: date, maiores: int = MAIORES_POR_MUNICIPIO) ->
     antigas = session.execute(
         text("DELETE FROM pncp_anual WHERE ano < :minimo"), {"minimo": ano_minimo(hoje)}
     ).rowcount
+    session.execute(
+        text("DELETE FROM pncp_suspeito WHERE dia < :inicio"),
+        {"inicio": date(ano_minimo(hoje), 1, 1)},
+    )
     excedentes = session.execute(
         text(
             """

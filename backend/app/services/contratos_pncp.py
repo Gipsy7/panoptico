@@ -13,12 +13,21 @@ from decimal import Decimal
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
-from app.models import FonteIngestao, Pessoa, PncpAnual, PncpContrato, PncpDia, SocioPessoa
+from app.models import (
+    FonteIngestao,
+    Pessoa,
+    PncpAnual,
+    PncpContrato,
+    PncpDia,
+    PncpSuspeito,
+    SocioPessoa,
+)
 
 FONTE_NOME = "Portal Nacional de Contratações Públicas (PNCP)"
 FONTE_URL = "https://pncp.gov.br/app/contratos"
 LIMITE_CONTRATOS = 50
 MAIORES_NO_SITE = 10
+SUSPEITOS_NO_SITE = 5
 
 # numeroControlePNCP: CNPJ do órgão - 2 (contrato) - sequencial / ano
 CONTROLE = re.compile(r"^(\d{14})-\d+-(\d+)/(\d{4})$")
@@ -43,7 +52,8 @@ def _atualizado_em(session: Session) -> datetime | None:
 
 def da_pessoa(session: Session, pessoa_id: int) -> dict | None:
     """Empresas de que a pessoa é sócia e os contratos delas no PNCP (alienações fora),
-    do mais recente para o mais antigo. None se a pessoa não existe."""
+    do mais recente para o mais antigo. None se a pessoa não existe. Contrato com valor suspeito
+    (ingestion/pncp/suspeito.py) aparece com a marca, mas não entra no valor total."""
     if session.get(Pessoa, pessoa_id) is None:
         return None
     socios = session.scalars(select(SocioPessoa).where(SocioPessoa.pessoa_id == pessoa_id)).all()
@@ -53,6 +63,7 @@ def da_pessoa(session: Session, pessoa_id: int) -> dict | None:
         "empresas": [],
         "total_contratos": 0,
         "valor_total": Decimal(0),
+        "contratos_suspeitos": 0,
         "itens": [],
         "cobertura_desde": None,
         "fonte_nome": FONTE_NOME,
@@ -65,10 +76,13 @@ def da_pessoa(session: Session, pessoa_id: int) -> dict | None:
         PncpContrato.fornecedor_cnpj.in_(cnpjs),
         PncpContrato.receita.is_(False),
     )
-    total, valor = session.execute(
-        select(func.count(), func.coalesce(func.sum(PncpContrato.valor_global), 0)).where(
-            *contratos
-        )
+    ok = PncpContrato.valor_suspeito.is_(False)
+    total, valor, suspeitos = session.execute(
+        select(
+            func.count(),
+            func.coalesce(func.sum(PncpContrato.valor_global).filter(ok), 0),
+            func.count().filter(PncpContrato.valor_suspeito.is_(True)),
+        ).where(*contratos)
     ).one()
     if total == 0:
         return vazio
@@ -107,6 +121,7 @@ def da_pessoa(session: Session, pessoa_id: int) -> dict | None:
             "uf": c.uf,
             "objeto": c.objeto,
             "valor": c.valor_global,
+            "valor_suspeito": c.valor_suspeito,
             "vigencia_inicio": c.vigencia_inicio,
             "vigencia_fim": c.vigencia_fim,
             "publicado_em": c.publicado_em,
@@ -119,6 +134,7 @@ def da_pessoa(session: Session, pessoa_id: int) -> dict | None:
         "empresas": empresas,
         "total_contratos": total,
         "valor_total": valor,
+        "contratos_suspeitos": suspeitos,
         "itens": itens,
         "cobertura_desde": session.scalar(select(func.min(PncpDia.dia))),
         "atualizado_em": _atualizado_em(session),
@@ -140,8 +156,35 @@ def maiores_do_municipio(session: Session, ibge: str) -> dict | None:
     ate: date | None = session.scalar(
         select(func.max(PncpDia.dia)).where(PncpDia.compactado.is_(True))
     )
+    suspeitos = session.execute(
+        select(
+            PncpSuspeito.fornecedor_cnpj,
+            func.max(PncpSuspeito.fornecedor_nome),
+            func.sum(PncpSuspeito.valor_global).label("valor"),
+            func.sum(PncpSuspeito.quantidade),
+            func.max(PncpSuspeito.referencia),
+        )
+        .where(
+            PncpSuspeito.municipio_ibge == ibge,
+            PncpSuspeito.dia >= date(ano, 1, 1),
+            PncpSuspeito.dia < date(ano + 1, 1, 1),
+        )
+        .group_by(PncpSuspeito.fornecedor_cnpj)
+        .order_by(func.sum(PncpSuspeito.valor_global).desc())
+        .limit(SUSPEITOS_NO_SITE)
+    ).all()
     return {
         "ano": ano,
+        "suspeitos": [
+            {
+                "fornecedor_cnpj": cnpj,
+                "fornecedor": nome,
+                "valor": valor,
+                "contratos": quantidade,
+                "url": (link_pncp(referencia) if referencia else None) or FONTE_URL,
+            }
+            for cnpj, nome, valor, quantidade, referencia in suspeitos
+        ],
         "itens": [
             {
                 "fornecedor_cnpj": x.fornecedor_cnpj,

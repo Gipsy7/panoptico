@@ -951,6 +951,7 @@ class ContratoPncpItem(BaseModel):
     uf: str | None
     objeto: str | None
     valor: float | None
+    valor_suspeito: bool = False
     vigencia_inicio: date | None
     vigencia_fim: date | None
     publicado_em: date
@@ -962,6 +963,7 @@ class ContratosDaPessoa(BaseModel):
     empresas: list[EmpresaDoSocio]
     total_contratos: int
     valor_total: float
+    contratos_suspeitos: int = 0
     itens: list[ContratoPncpItem]
     cobertura_desde: date | None
     fonte_nome: str
@@ -976,9 +978,18 @@ class FornecedorPncpItem(BaseModel):
     contratos: int
 
 
+class FornecedorPncpSuspeito(BaseModel):
+    fornecedor_cnpj: str
+    fornecedor: str | None
+    valor: float
+    contratos: int
+    url: str
+
+
 class FornecedoresPncpResposta(BaseModel):
     ano: int
     itens: list[FornecedorPncpItem]
+    suspeitos: list[FornecedorPncpSuspeito] = []
     soma_ate: date | None
     fonte_nome: str
     fonte_url: str

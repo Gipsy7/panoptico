@@ -33,7 +33,10 @@ export async function ContratosSocioSecao({ pessoaId }: { pessoaId: number }) {
           {empresas.length === 1 ? "Empresa" : "Empresas"}: {empresas.join(", ")}. Total publicado no PNCP:{" "}
           <span className="tabular-nums">{d.total_contratos}</span>{" "}
           {d.total_contratos === 1 ? "contrato" : "contratos"}, somando{" "}
-          <span className="tabular-nums">{formatarReais(d.valor_total, true)}</span>.
+          <span className="tabular-nums">{formatarReais(d.valor_total, true)}</span>
+          {d.contratos_suspeitos > 0 &&
+            ` (sem ${d.contratos_suspeitos} ${d.contratos_suspeitos === 1 ? "contrato" : "contratos"} com valor que parece incorreto)`}
+          .
         </p>
       </div>
 
@@ -65,7 +68,8 @@ export async function ContratosSocioSecao({ pessoaId }: { pessoaId: number }) {
         de uma empresa contratada pelo poder público não é, por si, irregularidade: o dado mostra só
         que o contrato existe. Entram contratos publicados no PNCP{desde ? ` desde ${desde}` : ""},
         sem alienações; órgãos que não publicam no PNCP não aparecem. O valor é o global informado
-        no contrato.
+        no contrato; quando ele passa do que o município paga num ano inteiro (ou de R$ 50 bilhões),
+        parece erro de digitação do órgão: o contrato aparece com aviso e não entra no total.
       </p>
       <FonteRodape fonte={d.fonte_nome} url={d.fonte_url} atualizadoEm={d.atualizado_em} />
     </section>
@@ -101,6 +105,15 @@ function Contrato({ c }: { c: ContratoPncp }) {
           <>
             <dt className="text-muted-foreground">Valor</dt>
             <dd className="tabular-nums">{formatarReais(c.valor)}</dd>
+          </>
+        )}
+        {c.valor_suspeito && c.valor !== null && (
+          <>
+            <dt className="text-muted-foreground">Atenção</dt>
+            <dd role="note">
+              Valor informado ao PNCP parece incorreto ({formatarReais(c.valor)}); conferir na fonte. Fica
+              fora do total acima.
+            </dd>
           </>
         )}
         {vigencia && (

@@ -57,6 +57,10 @@ class PncpContrato(Base):
     atualizado_em: Mapped[datetime | None] = mapped_column(DateTime)
     compra_pncp: Mapped[str | None] = mapped_column(String(40))
     processo: Mapped[str | None] = mapped_column(String(100))
+    # valor informado ao PNCP parece digitado errado (ingestion/pncp/suspeito.py): fora das somas
+    valor_suspeito: Mapped[bool] = mapped_column(
+        Boolean, default=False, server_default=text("false")
+    )
 
 
 class PncpOrgao(Base):
@@ -119,3 +123,23 @@ class PncpAnual(Base):
     fornecedor_nome: Mapped[str | None] = mapped_column(String(120))
     quantidade: Mapped[int] = mapped_column(Integer)
     valor_global: Mapped[Decimal] = mapped_column(Numeric(18, 2))
+
+
+class PncpSuspeito(Base):
+    """Produção: contrato (ou, no pacote do acervo, grupo do dia) de órgão municipal cujo valor
+    global passa do plausível (`ingestion/pncp/suspeito.py`). Fica fora de `pncp_janela` e
+    `pncp_anual`; aparece na cidade com o aviso de que o valor parece incorreto. `referencia` é
+    o número de controle do PNCP (vazio no grupo do acervo, que guarda somas)."""
+
+    __tablename__ = "pncp_suspeito"
+    __table_args__ = (Index("ix_pncp_suspeito_municipio", "municipio_ibge", "dia"),)
+
+    dia: Mapped[date] = mapped_column(Date, primary_key=True)
+    municipio_ibge: Mapped[str] = mapped_column(String(7), primary_key=True)
+    orgao_cnpj: Mapped[str] = mapped_column(String(14), primary_key=True)
+    fornecedor_cnpj: Mapped[str] = mapped_column(String(14), primary_key=True)
+    referencia: Mapped[str] = mapped_column(String(40), primary_key=True, server_default="")
+    fornecedor_nome: Mapped[str | None] = mapped_column(String(120))
+    quantidade: Mapped[int] = mapped_column(Integer)
+    valor_global: Mapped[Decimal] = mapped_column(Numeric(18, 2))
+    limite: Mapped[Decimal] = mapped_column(Numeric(18, 2))

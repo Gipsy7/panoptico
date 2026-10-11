@@ -38,7 +38,15 @@ from app.models.pessoa import (
     SancaoEmpresa,
     SocioPessoa,
 )
-from app.models.pncp import PncpAnual, PncpContrato, PncpDia, PncpJanela, PncpOrgao, PncpSoma
+from app.models.pncp import (
+    PncpAnual,
+    PncpContrato,
+    PncpDia,
+    PncpJanela,
+    PncpOrgao,
+    PncpSoma,
+    PncpSuspeito,
+)
 from app.models.proposicao import Autoria, Proposicao
 from app.models.proposicao_tema import ProposicaoTema
 from app.models.resumo_parlamentar import ResumoParlamentar
@@ -89,6 +97,7 @@ __all__ = [
     "PncpJanela",
     "PncpOrgao",
     "PncpSoma",
+    "PncpSuspeito",
     "Proposicao",
     "ProjetoLocal",
     "ProposicaoTema",

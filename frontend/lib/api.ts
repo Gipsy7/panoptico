@@ -849,6 +849,8 @@ export type ContratoPncp = {
   uf: string | null;
   objeto: string | null;
   valor: number | null;
+  /** O valor informado ao PNCP parece digitado errado: fora do total, com aviso. */
+  valor_suspeito: boolean;
   vigencia_inicio: string | null;
   vigencia_fim: string | null;
   publicado_em: string;
@@ -860,6 +862,7 @@ export type ContratosDaPessoa = {
   empresas: { cnpj: string; nome: string | null; qualificacao: string | null; contratos: number }[];
   total_contratos: number;
   valor_total: number;
+  contratos_suspeitos: number;
   itens: ContratoPncp[];
   cobertura_desde: string | null;
   fonte_nome: string;
@@ -875,6 +878,8 @@ export function getContratosDaPessoa(pessoaId: number) {
 export type FornecedoresPncp = {
   ano: number;
   itens: { fornecedor_cnpj: string; fornecedor: string | null; valor: number; contratos: number }[];
+  /** Valores informados ao PNCP que parecem incorretos: fora do ranking e da soma. */
+  suspeitos: { fornecedor_cnpj: string; fornecedor: string | null; valor: number; contratos: number; url: string }[];
   soma_ate: string | null;
   fonte_nome: string;
   fonte_url: string;

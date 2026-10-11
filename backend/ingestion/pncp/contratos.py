@@ -42,11 +42,12 @@ from app.models import (
     PncpJanela,
     PncpOrgao,
     PncpSoma,
+    PncpSuspeito,
     SancaoEmpresa,
     SocioPessoa,
 )
 from ingestion import comum
-from ingestion.pncp import anual
+from ingestion.pncp import anual, suspeito
 
 FONTE = "pncp_contratos"
 URL = "https://pncp.gov.br/api/consulta/v1/contratos"
@@ -130,19 +131,24 @@ class Dia:
     municipais: dict[tuple[str, str], list] = field(
         default_factory=lambda: defaultdict(lambda: [0, Decimal(0), None])
     )
+    # produção: contratos municipais com valor suspeito (fora de `municipais`), um por contrato
+    suspeitos: list[dict[str, Any]] = field(default_factory=list)
     sha256: Any = field(default_factory=hashlib.sha256)
 
 
-def contrato_inteiro(c: dict[str, Any], cnpj: str) -> dict[str, Any]:
+def contrato_inteiro(
+    c: dict[str, Any], cnpj: str, limites: suspeito.Limites | None = None
+) -> dict[str, Any]:
     orgao, unidade = c.get("orgaoEntidade") or {}, c.get("unidadeOrgao") or {}
     objeto = sem_cpf(c.get("objetoContrato"))
+    ibge = _digitos(unidade.get("codigoIbge"))[:7] or None
     return {
         "numero_controle": c["numeroControlePNCP"],
         "orgao_cnpj": _digitos(orgao.get("cnpj"))[:14],
         "orgao_nome": (orgao.get("razaoSocial") or "")[:300] or None,
         "esfera": orgao.get("esferaId"),
         "uf": unidade.get("ufSigla"),
-        "municipio_ibge": _digitos(unidade.get("codigoIbge"))[:7] or None,
+        "municipio_ibge": ibge,
         "municipio_nome": (unidade.get("municipioNome") or "")[:120] or None,
         "fornecedor_cnpj": cnpj,
         "fornecedor_nome": (sem_cpf(c.get("nomeRazaoSocialFornecedor")) or "")[:300] or None,
@@ -153,6 +159,9 @@ def contrato_inteiro(c: dict[str, Any], cnpj: str) -> dict[str, Any]:
         "valor_inicial": _valor(c.get("valorInicial")),
         "valor_global": _valor(c.get("valorGlobal")),
         "valor_acumulado": _valor(c.get("valorAcumulado")),
+        "valor_suspeito": suspeito.eh_suspeito(
+            _valor(c.get("valorGlobal")), orgao.get("esferaId"), ibge, limites
+        ),
         "data_assinatura": _data(c.get("dataAssinatura")),
         "vigencia_inicio": _data(c.get("dataVigenciaInicio")),
         "vigencia_fim": _data(c.get("dataVigenciaFim")),
@@ -163,13 +172,21 @@ def contrato_inteiro(c: dict[str, Any], cnpj: str) -> dict[str, Any]:
     }
 
 
-def somar(d: Dia, contratos: list[dict[str, Any]], alvo: set[str]) -> None:
-    """Acumula os contratos de uma página nas somas do dia (puro, sem rede nem banco)."""
+def somar(
+    d: Dia,
+    contratos: list[dict[str, Any]],
+    alvo: set[str],
+    limites: suspeito.Limites | None = None,
+) -> None:
+    """Acumula os contratos de uma página nas somas do dia (puro, sem rede nem banco).
+    Valor suspeito (suspeito.py) não entra em `municipais`: vai para `suspeitos`."""
     for c in contratos:
         d.lidos += 1
         tipo_pessoa, cnpj = fornecedor_de(c)
         if cnpj and cnpj in alvo and c.get("numeroControlePNCP"):
-            d.alvo[c["numeroControlePNCP"]] = contrato_inteiro(c, cnpj)  # com a flag receita
+            d.alvo[c["numeroControlePNCP"]] = contrato_inteiro(
+                c, cnpj, limites
+            )  # com a flag receita
         if c.get("receita"):  # alienação: não é gasto
             d.receitas += 1
             continue
@@ -186,11 +203,19 @@ def somar(d: Dia, contratos: list[dict[str, Any]], alvo: set[str]) -> None:
         valor = _valor(c.get("valorGlobal")) or Decimal(0)
         soma[1] += valor
         if orgao.get("esferaId") == "M" and cnpj and ibge and valor > 0:
-            municipal = d.municipais[(ibge, cnpj)]
-            municipal[0] += 1
-            municipal[1] += valor
             nome = (sem_cpf(c.get("nomeRazaoSocialFornecedor")) or "")[:120]
-            municipal[2] = municipal[2] or nome or None
+            if suspeito.eh_suspeito(valor, "M", ibge, limites):
+                d.suspeitos.append({
+                    "municipio_ibge": ibge, "orgao_cnpj": orgao_cnpj, "fornecedor_cnpj": cnpj,
+                    "referencia": (c.get("numeroControlePNCP") or "")[:40],
+                    "fornecedor_nome": nome or None, "quantidade": 1, "valor_global": valor,
+                    "limite": suspeito.limite("M", ibge, limites),
+                })  # fmt: skip
+            else:
+                municipal = d.municipais[(ibge, cnpj)]
+                municipal[0] += 1
+                municipal[1] += valor
+                municipal[2] = municipal[2] or nome or None
         if orgao_cnpj and orgao_cnpj not in d.orgaos:
             d.orgaos[orgao_cnpj] = {
                 "cnpj": orgao_cnpj,
@@ -235,7 +260,13 @@ def paginas(
         time.sleep(pausa)
 
 
-def ler_dia(client: httpx.Client, dia: date, alvo: set[str], pausa: float = PAUSA) -> Dia:
+def ler_dia(
+    client: httpx.Client,
+    dia: date,
+    alvo: set[str],
+    pausa: float = PAUSA,
+    limites: suspeito.Limites | None = None,
+) -> Dia:
     d = Dia(dia)
     vistos: set[str] = set()
     for corpo, bruto in paginas(client, URL, dia, pausa):
@@ -251,12 +282,16 @@ def ler_dia(client: httpx.Client, dia: date, alvo: set[str], pausa: float = PAUS
                 continue
             vistos.add(numero)
             novos.append(c)
-        somar(d, novos, alvo)
+        somar(d, novos, alvo, limites)
     return d
 
 
 def ler_atualizacoes(
-    client: httpx.Client, dia: date, alvo: set[str], pausa: float = PAUSA
+    client: httpx.Client,
+    dia: date,
+    alvo: set[str],
+    pausa: float = PAUSA,
+    limites: suspeito.Limites | None = None,
 ) -> tuple[set[date], dict[str, dict]]:
     """Contratos alterados num dia (aditivos...): os dias de publicação a reler e, já
     completos, os que são do conjunto-alvo."""
@@ -269,7 +304,7 @@ def ler_atualizacoes(
                 publicados.add(publicado)
             _, cnpj = fornecedor_de(c)
             if cnpj in alvo and c.get("numeroControlePNCP") and publicado:
-                linhas[c["numeroControlePNCP"]] = contrato_inteiro(c, cnpj)
+                linhas[c["numeroControlePNCP"]] = contrato_inteiro(c, cnpj, limites)
     return publicados, linhas
 
 
@@ -325,6 +360,11 @@ def gravar_dia_producao(session: Session, d: Dia) -> None:
     atual = session.get(PncpDia, d.dia)
     if not (atual and atual.compactado):
         session.execute(delete(PncpJanela).where(PncpJanela.dia == d.dia))
+        session.execute(delete(PncpSuspeito).where(PncpSuspeito.dia == d.dia))
+        for lote in _em_lotes(d.suspeitos, 2000):
+            session.execute(
+                insert(PncpSuspeito).values([{"dia": d.dia, **linha} for linha in lote])
+            )
         linhas = [
             {"dia": d.dia, "municipio_ibge": m, "fornecedor_cnpj": f, "fornecedor_nome": n,
              "quantidade": q, "valor_global": v}
@@ -410,6 +450,7 @@ def executar(
                 raise SystemExit("socio_pessoa e sancao_empresa vazias: não há alvo")
             print("  aviso: socio_pessoa vazia; alvo só das empresas sancionadas", flush=True)
         alvo = conjunto_alvo(session)
+        limites = suspeito.carregar_limites(session)
         carregados = set(session.scalars(select(PncpDia.dia)))
         inicio, fim, incremental = planejar(de, ate, carregados, hoje, releitura, inicial)
         manifesto = comum.RAW_DIR / FONTE / f"{datetime.now():%Y-%m-%d_%H%M%S}.manifesto.json"
@@ -429,11 +470,19 @@ def executar(
                 dias = dias_da_janela(inicio, fim)
                 if incremental:
                     dias += _dias_alterados(
-                        client, session, inicio, fim, carregados, alvo, max_releituras, pausa
+                        client,
+                        session,
+                        inicio,
+                        fim,
+                        carregados,
+                        alvo,
+                        max_releituras,
+                        pausa,
+                        limites,
                     )
                 print(f"  {len(dias)} dias a ler ({inicio} a {fim}); {len(alvo)} CNPJs-alvo")
                 for dia in dias:
-                    d = ler_dia(client, dia, alvo, pausa)
+                    d = ler_dia(client, dia, alvo, pausa, limites)
                     if producao:
                         gravar_dia_producao(session, d)
                         if len(dados["dias"]) % 10 == 9:
@@ -488,13 +537,14 @@ def _dias_alterados(
     alvo: set[str],
     maximo: int,
     pausa: float,
+    limites: suspeito.Limites | None = None,
 ) -> list[date]:
     """Pela rota de atualização: dias de publicação já carregados, anteriores à releitura,
     que tiveram contrato alterado (aditivo). Os mais recentes primeiro, até `maximo`."""
     antigos: set[date] = set()
     for dia in dias_da_janela(inicio, fim):
         try:
-            publicados, linhas = ler_atualizacoes(client, dia, alvo, pausa)
+            publicados, linhas = ler_atualizacoes(client, dia, alvo, pausa, limites)
         except httpx.HTTPError as erro:  # complemento: o dia volta na próxima releitura
             print(f"  alterações de {dia} não lidas: {erro}")
             continue
