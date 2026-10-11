@@ -760,3 +760,10 @@ O plano é juntar tudo o que é público sobre quem exerce função pública: pr
 
 - **Decisão:** os dados abertos exportados (`python -m exportar`) ficam sob a CC BY 4.0. O código mantém a AGPL-3.0 (`LICENSE` não muda).
 - **Por quê:** os dados de origem são públicos e oficiais; a licença cobre a seleção, a organização e as ligações feitas pelo Panóptico. A citação sugerida está em `LICENCA-DADOS.md`, no LEIAME e no `dicionario.json` (campo `licenca`).
+
+## 2026-10-10: carga histórica do PNCP por pacote em release
+
+- **Contexto:** a primeira carga da produção pela API levaria ~39 h (8 a 9 disparos do workflow). O acervo local já tem os contratos de 2023-01-01 a 2026-10-09, conferidos dia a dia.
+- **Decisão:** `python -m ingestion.pncp.pacote gerar` monta, só com SELECT no acervo, o que `--producao` teria gravado (`pncp_anual` top 30 por município e ano, `pncp_dia` com `compactado`, `pncp_janela` dos 10 últimos dias, `pncp_contrato` do alvo) num .zip de JSONL com manifesto e sha256; vai como anexo de release e o workflow `pncp-pacote.yml` (manual, mesma fila do diário) o carrega com `carregar`, trocando o período numa transação. A divisão compactado/janela é a do modo produção, então o diário continua dali sem somar duas vezes (testado). Sem CPF: só fornecedor com CNPJ, `sem_cpf` nos textos e varredura que aborta a geração.
+- **Aproximações declaradas:** "valor > 0" aplicado ao total do grupo (não a cada contrato); nome do fornecedor só de sancionadas e contratos do alvo; alvo = `sancao_empresa` do acervo. Os 8 a 9 disparos por API ficam como plano B.
+
