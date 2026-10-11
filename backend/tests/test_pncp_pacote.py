@@ -7,9 +7,11 @@ import pytest
 from sqlalchemy import func, select
 
 from app.models import (
+    FonteIngestao,
     PncpAnual,
     PncpContrato,
     PncpDia,
+    PncpEntePublico,
     PncpJanela,
     PncpOrgao,
     PncpSoma,
@@ -138,7 +140,15 @@ def _producao(session, tmp_path):
     """Gera o pacote do acervo e esvazia as tabelas (uma produção ainda sem a carga)."""
     destino = tmp_path / "p.zip"
     pacote.gerar(session, destino, HOJE)
-    for modelo in (PncpSoma, PncpAnual, PncpJanela, PncpDia, PncpContrato, PncpSuspeito):
+    for modelo in (
+        PncpSoma,
+        PncpAnual,
+        PncpJanela,
+        PncpDia,
+        PncpContrato,
+        PncpSuspeito,
+        PncpEntePublico,
+    ):
         session.query(modelo).delete()
     session.flush()
     return pacote.ler(destino, destino.with_suffix(".manifesto.json"))
@@ -194,3 +204,13 @@ def test_arquivo_adulterado_e_recusado(acervo, tmp_path):
     externo.write_text(json.dumps(dados))
     with pytest.raises(pacote.PacoteInvalido):
         pacote.ler(destino, externo)
+
+
+def test_carga_leva_os_entes_publicos_e_registra_a_ingestao(acervo, tmp_path):
+    manifesto, tabelas = _producao(acervo, tmp_path)
+    assert {x["cnpj"] for x in tabelas["pncp_ente_publico"]} == {"1" * 14, "2" * 14}
+    pacote.carregar(acervo, manifesto, tabelas)
+    pacote.carregar(acervo, manifesto, tabelas)  # idempotente
+    assert acervo.scalar(select(func.count()).select_from(PncpEntePublico)) == 2
+    ing = acervo.scalars(select(FonteIngestao).where(FonteIngestao.fonte == "pncp_contratos")).all()
+    assert ing and all(i.status == "ok" and i.concluido_em for i in ing)

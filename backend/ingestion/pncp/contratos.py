@@ -39,6 +39,7 @@ from app.models import (
     FonteIngestao,
     PncpContrato,
     PncpDia,
+    PncpEntePublico,
     PncpJanela,
     PncpOrgao,
     PncpSoma,
@@ -46,6 +47,7 @@ from app.models import (
     SancaoEmpresa,
     SocioPessoa,
 )
+from app.textos import limpar_texto
 from ingestion import comum
 from ingestion.pncp import anual, suspeito
 
@@ -69,7 +71,7 @@ def sem_cpf(texto: str | None) -> str | None:
     """MEI traz o CPF dentro da razão social ('JOSE DA SILVA 12345678901'): tira."""
     if not texto:
         return None
-    return " ".join(CPF.sub(" ", texto).split()) or None
+    return " ".join(CPF.sub(" ", limpar_texto(texto) or "").split()) or None
 
 
 def _digitos(valor: Any) -> str:
@@ -353,6 +355,11 @@ def gravar_dia(session: Session, d: Dia) -> None:
     session.commit()
 
 
+def gravar_entes_publicos(session: Session, d: Dia) -> None:
+    for lote in _em_lotes([{"cnpj": c} for c in d.orgaos], 2000):
+        session.execute(insert(PncpEntePublico).values(lote).on_conflict_do_nothing())
+
+
 def gravar_dia_producao(session: Session, d: Dia) -> None:
     """Produção: não guarda a soma diária. O dia entra em pncp_janela (trocado inteiro) e,
     se já foi compactado em pncp_anual, não entra de novo; os contratos do alvo são sempre
@@ -372,6 +379,7 @@ def gravar_dia_producao(session: Session, d: Dia) -> None:
         ]  # fmt: skip
         for lote in _em_lotes(linhas, 2000):
             session.execute(insert(PncpJanela).values(lote))
+    gravar_entes_publicos(session, d)
     upsert_contratos(session, list(d.alvo.values()))
     valores = {
         "total_api": d.total_api, "lidos": d.lidos, "receitas": d.receitas,

@@ -976,6 +976,7 @@ class FornecedorPncpItem(BaseModel):
     fornecedor: str | None
     valor: float
     contratos: int
+    ente_publico: bool = False  # CNPJ de órgão público que contrata no PNCP
 
 
 class FornecedorPncpSuspeito(BaseModel):

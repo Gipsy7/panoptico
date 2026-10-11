@@ -877,7 +877,14 @@ export function getContratosDaPessoa(pessoaId: number) {
 
 export type FornecedoresPncp = {
   ano: number;
-  itens: { fornecedor_cnpj: string; fornecedor: string | null; valor: number; contratos: number }[];
+  itens: {
+    fornecedor_cnpj: string;
+    fornecedor: string | null;
+    valor: number;
+    contratos: number;
+    /** O CNPJ também aparece como órgão contratante no PNCP (repasse entre órgãos). */
+    ente_publico?: boolean;
+  }[];
   /** Valores informados ao PNCP que parecem incorretos: fora do ranking e da soma. */
   suspeitos: { fornecedor_cnpj: string; fornecedor: string | null; valor: number; contratos: number; url: string }[];
   soma_ate: string | null;

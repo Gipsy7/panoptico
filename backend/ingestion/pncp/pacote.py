@@ -47,9 +47,11 @@ from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.orm import Session, defer, sessionmaker
 
 from app.models import (
+    FonteIngestao,
     PncpAnual,
     PncpContrato,
     PncpDia,
+    PncpEntePublico,
     PncpJanela,
     PncpSuspeito,
     SancaoEmpresa,
@@ -58,8 +60,12 @@ from app.models import (
 from ingestion.pncp import anual, suspeito
 from ingestion.pncp.contratos import CPF, sem_cpf
 
-VERSAO = 2
-TABELAS = ("pncp_anual", "pncp_dia", "pncp_janela", "pncp_suspeito", "pncp_contrato")
+VERSAO = 3  # 3 acrescenta pncp_ente_publico; o pacote de versão 2 ainda é aceito na carga
+TABELAS = (
+    "pncp_anual", "pncp_dia", "pncp_janela", "pncp_suspeito", "pncp_contrato",
+    "pncp_ente_publico",
+)  # fmt: skip
+OPCIONAIS = ("pncp_ente_publico",)  # ausentes nos pacotes de versão 2
 CAMPOS_TEXTO_CONTRATO = (
     "orgao_nome", "municipio_nome", "fornecedor_nome", "tipo_contrato", "categoria",
     "objeto", "processo",
@@ -68,6 +74,7 @@ LOTE = 2000
 MODELOS = {
     "pncp_anual": PncpAnual, "pncp_dia": PncpDia, "pncp_janela": PncpJanela,
     "pncp_contrato": PncpContrato, "pncp_suspeito": PncpSuspeito,
+    "pncp_ente_publico": PncpEntePublico,
 }  # fmt: skip
 
 
@@ -220,9 +227,10 @@ def montar(session: Session, hoje: date) -> dict[str, list[dict[str, Any]]]:
             if linha[k]:
                 linha[k] = sem_cpf(linha[k])
         contratos.append(linha)
+    entes = _linhas(session, "SELECT cnpj FROM pncp_orgao ORDER BY cnpj")
     return {
         "pncp_anual": soma_anual, "pncp_dia": dias, "pncp_janela": janela,
-        "pncp_suspeito": suspeitos, "pncp_contrato": contratos,
+        "pncp_suspeito": suspeitos, "pncp_contrato": contratos, "pncp_ente_publico": entes,
     }  # fmt: skip
 
 
@@ -300,10 +308,13 @@ def ler(arquivo: Path, manifesto_externo: Path | None = None) -> tuple[dict, dic
             raise PacoteInvalido(f"sha256 do arquivo difere do manifesto: {real} != {esperado}")
     with zipfile.ZipFile(arquivo) as z:
         manifesto = json.loads(z.read("manifesto.json"))
-        if manifesto.get("versao") != VERSAO:
+        if manifesto.get("versao") not in (2, VERSAO):
             raise PacoteInvalido(f"versão de pacote não suportada: {manifesto.get('versao')}")
         tabelas: dict[str, list] = {}
         for nome in TABELAS:
+            if nome in OPCIONAIS and nome not in manifesto["tabelas"]:
+                tabelas[nome] = []
+                continue
             info = manifesto["tabelas"][nome]
             dados = z.read(info["arquivo"])
             if hashlib.sha256(dados).hexdigest() != info["sha256"]:
@@ -339,7 +350,9 @@ def _inserir(session: Session, nome: str, linhas: list[dict[str, Any]]) -> None:
     for i in range(0, len(convertidas), LOTE):
         lote = convertidas[i : i + LOTE]
         stmt = insert(modelo).values(lote)
-        if nome == "pncp_contrato":
+        if nome == "pncp_ente_publico":
+            stmt = stmt.on_conflict_do_nothing()
+        elif nome == "pncp_contrato":
             atualizar = {c: stmt.excluded[c] for c in lote[0] if c != "numero_controle"}
             stmt = stmt.on_conflict_do_update(index_elements=["numero_controle"], set_=atualizar)
         session.execute(stmt)
@@ -368,6 +381,17 @@ def carregar(session: Session, manifesto: dict, tabelas: dict[str, list], forcar
     session.execute(delete(PncpSuspeito).where(PncpSuspeito.dia.between(de, ate)))
     for nome in TABELAS:
         _inserir(session, nome, tabelas[nome])
+    # a carga também vale como "última atualização" que o site mostra (o diário faz o mesmo)
+    agora = datetime.now(UTC)
+    session.add(
+        FonteIngestao(
+            fonte="pncp_contratos", url="pacote histórico do PNCP",
+            arquivo_raw=f"pncp-pacote {manifesto.get('gerado_em', '')}",
+            iniciado_em=agora, concluido_em=agora, status="ok",
+            registros=sum(len(tabelas[n]) for n in TABELAS if n != "pncp_ente_publico"),
+            alertas=[f"pacote histórico até {ate}"],
+        )
+    )  # fmt: skip
     session.commit()
 
 

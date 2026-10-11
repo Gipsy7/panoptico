@@ -11,10 +11,17 @@ function linkCnpj(c: string) {
   return `https://solucoes.receita.fazenda.gov.br/servicos/cnpjreva/cnpjreva_solicitacao.asp?cnpj=${c}`;
 }
 
-function Fornecedor({ cnpj, nome }: { cnpj: string; nome: string | null }) {
+function Fornecedor({ cnpj, nome, entePublico }: { cnpj: string; nome: string | null; entePublico?: boolean }) {
   return (
     <>
-      <span className="block">{nome ?? "Nome não informado nesta base"}</span>
+      <span className="block">
+        {nome ?? "Nome não informado nesta base"}
+        {entePublico && (
+          <span className="ml-2 whitespace-nowrap rounded-full px-2 py-0.5 text-xs text-muted-foreground ring-1 ring-foreground/20">
+            órgão público
+          </span>
+        )}
+      </span>
       <span className="block text-xs text-muted-foreground tabular-nums">
         CNPJ{" "}
         <a href={linkCnpj(cnpj)} target="_blank" rel="noopener noreferrer" className="underline underline-offset-2">
@@ -42,7 +49,7 @@ export function FornecedoresPncpSecao({ dados, cidade }: { dados: FornecedoresPn
         {dados.itens.map((f) => (
           <li key={f.fornecedor_cnpj} className="flex items-baseline justify-between gap-3 py-2 text-sm">
             <span className="min-w-0">
-              <Fornecedor cnpj={f.fornecedor_cnpj} nome={f.fornecedor} />
+              <Fornecedor cnpj={f.fornecedor_cnpj} nome={f.fornecedor} entePublico={f.ente_publico} />
               <span className="block text-xs text-muted-foreground tabular-nums">
                 {f.contratos} {f.contratos === 1 ? "contrato" : "contratos"}
               </span>
@@ -57,6 +64,12 @@ export function FornecedoresPncpSecao({ dados, cidade }: { dados: FornecedoresPn
         (empenhos e pagamentos aparecem na seção sobre quem a cidade pagou), e prefeituras que não
         publicam no PNCP ficam de fora. Aditivos posteriores à publicação não entram na soma.
       </p>
+      {dados.itens.some((f) => f.ente_publico) && (
+        <p className="text-xs text-muted-foreground">
+          &quot;Órgão público&quot; indica um CNPJ que também aparece como órgão contratante no PNCP: o valor
+          é de contrato ou repasse entre órgãos públicos, não de compra de uma empresa.
+        </p>
+      )}
       {dados.suspeitos.length > 0 && (
         <div className="painel flex flex-col gap-2" role="note">
           <p className="text-sm font-medium">Valores que parecem incorretos ficaram de fora</p>

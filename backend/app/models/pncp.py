@@ -75,6 +75,16 @@ class PncpOrgao(Base):
     uf: Mapped[str | None] = mapped_column(String(2))
 
 
+class PncpEntePublico(Base):
+    """CNPJ de órgão ou entidade pública que contrata no PNCP (todo CNPJ visto como órgão
+    contratante). Serve para rotular, no ranking de fornecedores, quem é ente público (repasse
+    entre órgãos). Existe na produção, onde `pncp_orgao` não é gravado."""
+
+    __tablename__ = "pncp_ente_publico"
+
+    cnpj: Mapped[str] = mapped_column(String(14), primary_key=True)
+
+
 class PncpDia(Base):
     """Cursor e conferência: um dia de publicação já lido, com o total que a API informou
     (`totalRegistros`) e quantos contratos foram lidos. O maior dia é o ponto de partida da

@@ -1,7 +1,16 @@
-from datetime import date
+from datetime import date, datetime
 from decimal import Decimal
 
-from app.models import Municipio, Pessoa, PncpAnual, PncpContrato, PncpDia, SocioPessoa
+from app.models import (
+    FonteIngestao,
+    Municipio,
+    Pessoa,
+    PncpAnual,
+    PncpContrato,
+    PncpDia,
+    PncpEntePublico,
+    SocioPessoa,
+)
 from app.services import contratos_pncp
 
 
@@ -74,3 +83,28 @@ def test_maiores_fornecedores_do_municipio(client, session):
     assert corpo["itens"][0]["fornecedor"] == "F11" and corpo["itens"][0]["valor"] == 110.0
     assert client.get("/municipios/9999999/fornecedores-pncp").status_code == 404
     assert client.get("/municipios/1111111/fornecedores-pncp").status_code == 404
+
+
+def test_fornecedor_ente_publico_nome_saneado_e_atualizado_em(client, session):
+    # o Postgres nem aceita surrogate; o que pode ter sido gravado é mojibake ou U+FFFD
+    estragado = ("SOCIEDADE ÁGUA S.A.".encode().decode("latin-1")) + chr(0xFFFD)
+    session.add(Municipio(ibge="4202008", nome="Exemplo", uf="SC", nome_chave="EXEMPLO"))
+    session.add_all([
+        PncpAnual(ano=2026, municipio_ibge="4202008", fornecedor_cnpj="1" * 14,
+                  fornecedor_nome=estragado, quantidade=1, valor_global=Decimal(200)),
+        PncpAnual(ano=2026, municipio_ibge="4202008", fornecedor_cnpj="2" * 14,
+                  fornecedor_nome="FUNDO MUNICIPAL DE SAUDE", quantidade=1,
+                  valor_global=Decimal(100)),
+        PncpEntePublico(cnpj="2" * 14),
+        FonteIngestao(fonte="pncp_contratos", url="x", arquivo_raw="x", status="ok",
+                      concluido_em=datetime(2026, 10, 10, 12, 0)),
+    ])  # fmt: skip
+    session.flush()
+    r = client.get("/municipios/4202008/fornecedores-pncp")
+    r.content.decode("utf-8")  # a resposta é UTF-8 válido, sem surrogate
+    corpo = r.json()
+    assert [(i["fornecedor"], i["ente_publico"]) for i in corpo["itens"]] == [
+        ("SOCIEDADE ÁGUA S.A.", False),
+        ("FUNDO MUNICIPAL DE SAUDE", True),
+    ]
+    assert corpo["atualizado_em"].startswith("2026-10-10")
