@@ -34,6 +34,8 @@ No repositório, em **Settings → Secrets and variables → Actions → New rep
 
 Depois, em **Actions → Ingestão diária → Run workflow**, marque **Carga inicial** e rode. Leva de 10 a 20 minutos: cria as tabelas e carrega tudo. Daí em diante roda sozinho todo dia.
 
+**Assembleias só do Brasil (11/10/2026):** ALMG, CLDF, ALEPE, ALRS, ALES, ALEMA, ALAP, ALBA e ALESE dão tempo esgotado (ALBA: 403) a IPs dos EUA, nas duas execuções do GitHub Actions. Os jobs delas estão desligados (`if: false` em `ingestao-camaras.yml`) e as fontes têm `acesso = "brasil"`: só atualizam pelo acervo local. Na produção ficam com a última carga feita (ALMG, ALEPE e CLDF têm dados de cargas anteriores; as outras seis ainda não chegaram à produção).
+
 ## 3. Vercel: API
 
 **Add New → Project →** importe `panoptico` e configure:

@@ -820,3 +820,7 @@ O plano é juntar tudo o que é público sobre quem exerce função pública: pr
 - **Valor é "indicado", não "pago":** não há pagamento por indicação nas fontes abertas; a seção diz isso, e que o registro cobre só 2022 e pode estar incompleto. Ausência de indicações não é prova de que o parlamentar não pediu. Texto factual, sem juízo sobre legalidade.
 - **Ligação ao parlamentar:** nome exato e único na mesma Casa (civil ou parlamentar). 59% das indicações de deputados e senadores casaram; o resto é de quem não está na base atual. Usuário externo não entra (evita pessoas privadas).
 - **Coleta mínima e produção:** 7,9 mil linhas, 4,7 MB. Fonte estática (2022): frequência mensal, no `run_all` com download incremental. Migração `0041_emenda_relator` (aditiva); outra revisão `0041_cargo_especial_cpgf` existe em outro branch, então o merge precisa de uma migração de junção (`down_revision` das duas).
+
+## 2026-10-11: nove assembleias só a partir do Brasil
+
+- **ALMG, CLDF, ALEPE, ALRS, ALES, ALEMA, ALAP, ALBA e ALESE:** tempo esgotado (ALBA: 403) nos servidores do GitHub Actions, duas vezes seguidas (execução 38142411556 e reexecução); daqui todos respondem em menos de 1 s. Bloqueio por país, como no TCE-RS e na ALRR. Jobs desligados com `if: false` (sem apagar), fontes com `acesso = "brasil"`, atualização só pelo acervo local; na produção, última carga feita (ALMG, ALEPE e CLDF com dados anteriores; as outras seis ainda sem carga).

@@ -345,6 +345,8 @@ modulo = "ingestion.assembleias.almg"
 uso = "Assembleia de Minas Gerais hoje"
 recorte = "deputados em exercício; ano atual e anterior"
 frequencia = "semanal"
+# Bloqueia IP de fora do Brasil (GitHub Actions, 11/10/2026: tempo esgotado nos EUA); roda no acervo local.
+acesso = "brasil"
 
 [[fonte]]
 nome = "alepe"
@@ -352,6 +354,8 @@ modulo = "ingestion.assembleias.alepe"
 uso = "Assembleia de Pernambuco hoje"
 recorte = "deputados em exercício; proposições do ano atual e anterior"
 frequencia = "semanal"
+# Bloqueia IP de fora do Brasil (GitHub Actions, 11/10/2026: tempo esgotado nos EUA); roda no acervo local.
+acesso = "brasil"
 
 [[fonte]]
 nome = "cldf"
@@ -359,6 +363,8 @@ modulo = "ingestion.assembleias.cldf"
 uso = "Câmara Legislativa do DF hoje"
 recorte = "deputados distritais ativos; proposições do ano atual e anterior"
 frequencia = "semanal"
+# Bloqueia IP de fora do Brasil (GitHub Actions, 11/10/2026: tempo esgotado nos EUA); roda no acervo local.
+acesso = "brasil"
 
 [[fonte]]
 nome = "alesc"
@@ -380,6 +386,8 @@ modulo = "ingestion.assembleias.alrs"
 uso = "Assembleia do Rio Grande do Sul hoje"
 recorte = "deputados em exercício; proposições, votos em plenário, presença e cota do ano atual e anterior"
 frequencia = "semanal"
+# Bloqueia IP de fora do Brasil (GitHub Actions, 11/10/2026: tempo esgotado nos EUA); roda no acervo local.
+acesso = "brasil"
 
 [[fonte]]
 nome = "alba"
@@ -387,6 +395,8 @@ modulo = "ingestion.assembleias.alba"
 uso = "Assembleia da Bahia hoje"
 recorte = "deputados em exercício; proposições e presença em plenário do ano atual e anterior"
 frequencia = "semanal"
+# Bloqueia IP de fora do Brasil (GitHub Actions, 11/10/2026: tempo esgotado nos EUA); roda no acervo local.
+acesso = "brasil"
 
 [[fonte]]
 nome = "ales"
@@ -394,6 +404,8 @@ modulo = "ingestion.assembleias.ales"
 uso = "Assembleia do Espírito Santo hoje"
 recorte = "deputados em exercício; proposições e presença em plenário do ano atual e anterior"
 frequencia = "semanal"
+# Bloqueia IP de fora do Brasil (GitHub Actions, 11/10/2026: tempo esgotado nos EUA); roda no acervo local.
+acesso = "brasil"
 
 [[fonte]]
 nome = "alece"
@@ -422,6 +434,8 @@ modulo = "ingestion.assembleias.alema"
 uso = "Assembleia do Maranhão hoje"
 recorte = "deputados em exercício; projetos do ano atual e anterior (sem votos, presença e gastos)"
 frequencia = "semanal"
+# Bloqueia IP de fora do Brasil (GitHub Actions, 11/10/2026: tempo esgotado nos EUA); roda no acervo local.
+acesso = "brasil"
 
 [[fonte]]
 nome = "alems"
@@ -443,6 +457,8 @@ modulo = "ingestion.assembleias.alese"
 uso = "Assembleia de Sergipe hoje"
 recorte = "deputados em exercício e presença em plenário do ano corrente (sem proposições, votos e gastos)"
 frequencia = "semanal"
+# Bloqueia IP de fora do Brasil (GitHub Actions, 11/10/2026: tempo esgotado nos EUA); roda no acervo local.
+acesso = "brasil"
 
 [[fonte]]
 nome = "alap"
@@ -450,6 +466,8 @@ modulo = "ingestion.assembleias.alap"
 uso = "Assembleia do Amapá hoje"
 recorte = "deputados em exercício; projetos do ano atual e anterior (sem votos, presença e gastos)"
 frequencia = "semanal"
+# Bloqueia IP de fora do Brasil (GitHub Actions, 11/10/2026: tempo esgotado nos EUA); roda no acervo local.
+acesso = "brasil"
 
 [[fonte]]
 nome = "alego"
