@@ -251,6 +251,9 @@ def test_dicionario_e_leiame(banco, tmp_path):
     assert parl["fonte_oficial"]["orgao"] and parl["colunas"][0]["descricao"]
     assert len(parl["arquivos"]["parquet"]["sha256"]) == 64
     assert "O que nunca está aqui" in (tmp_path / "LEIAME.md").read_text(encoding="utf-8")
+    assert d["licenca"]["url"] == "https://creativecommons.org/licenses/by/4.0/deed.pt-br"
+    assert "CC BY 4.0" in d["licenca"]["nome"]
+    assert "## Licença" in (tmp_path / "LEIAME.md").read_text(encoding="utf-8")
 
 
 def test_limpar():

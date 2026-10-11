@@ -275,6 +275,8 @@ uv run python -m exportar --destino saida --conjunto eventos pessoas_publicas   
 
 A leitura é em lotes de 50 mil linhas, numa transação só de leitura (retrato consistente mesmo com uma carga rodando). Nunca saem CPF, título de eleitor, data de nascimento, pessoa sem vínculo publicável (a regra `publicavel()` do site), sugestões não revisadas (atos de diários e do DOU, indiciamentos de CPI) nem casos em rascunho; os testes (`tests/test_exportar.py`) procuram esses dados nos arquivos gerados. Ver [docs/DECISOES.md](docs/DECISOES.md), "exportação aberta".
 
+Licença dos dados abertos: [Creative Commons Atribuição 4.0 (CC BY 4.0)](https://creativecommons.org/licenses/by/4.0/deed.pt-br), com a forma de citação em [LICENCA-DADOS.md](LICENCA-DADOS.md). O código segue a AGPL-3.0.
+
 ### API
 
 | Rota | Retorna |

@@ -755,3 +755,8 @@ O plano é juntar tudo o que é público sobre quem exerce função pública: pr
 - **Causa das 0 ligações:** a produção carrega candidaturas 2018, 2022 e 2024; o CPF completo só existe em 2018 e 2022 (e nos deputados pela Câmara) e vem mascarado em 2024. Sobram ~3 mil pessoas com CPF; no acervo local são 53.690 (50.711 só por 2016/2020).
 - **Decisão:** orçamento de tempo (`--minutos 40`) e lote de 250; a consulta avisa quando há menos de 10 mil pessoas com CPF. O PNCP de produção deixa de recusar `socio_pessoa` vazia e roda só com as sancionadas (contratos de sócios ficam para quando houver sócios, relendo os dias).
 - **Em aberto:** carregar 2016 e 2020 no Neon (custo de armazenamento a medir) é o caminho para ligar sócios na produção.
+
+## 2026-10-10: licença dos dados abertos
+
+- **Decisão:** os dados abertos exportados (`python -m exportar`) ficam sob a CC BY 4.0. O código mantém a AGPL-3.0 (`LICENSE` não muda).
+- **Por quê:** os dados de origem são públicos e oficiais; a licença cobre a seleção, a organização e as ligações feitas pelo Panóptico. A citação sugerida está em `LICENCA-DADOS.md`, no LEIAME e no `dicionario.json` (campo `licenca`).

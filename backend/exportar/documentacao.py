@@ -10,6 +10,10 @@ from exportar.conjuntos import Conjunto
 
 VERSAO_ESQUEMA = 1
 REPOSITORIO = "https://github.com/Gipsy7/Panoptico"
+LICENCA = {
+    "nome": "Creative Commons Atribuição 4.0 Internacional (CC BY 4.0)",
+    "url": "https://creativecommons.org/licenses/by/4.0/deed.pt-br",
+}
 
 
 def ultimas_cargas(conn: Connection, fontes: tuple[str, ...]) -> list[dict]:
@@ -37,6 +41,7 @@ def montar_dicionario(
         "versao_esquema": VERSAO_ESQUEMA,
         "gerado_em": datetime.now(UTC).isoformat(timespec="seconds"),
         "projeto": REPOSITORIO,
+        "licenca": LICENCA,
         "conjuntos": [
             {
                 "nome": c.nome,
@@ -61,6 +66,25 @@ def montar_dicionario(
 
 def _kb(n: int) -> str:
     return f"{n / 1024 / 1024:.1f} MB" if n >= 1024 * 1024 else f"{n / 1024:.0f} kB"
+
+
+def _licenca_leiame(dicionario: dict) -> str:
+    data = dicionario["gerado_em"][:10]
+    orgaos = sorted({c["fonte_oficial"]["orgao"] for c in dicionario["conjuntos"]})
+    return f"""## Licença
+
+Estes dados abertos estão sob a **{LICENCA["nome"]}**
+({LICENCA["url"]}). Você pode copiar, redistribuir, adaptar e usar para qualquer fim,
+inclusive comercial, desde que dê o crédito.
+
+Forma sugerida de citação:
+
+> Panóptico (panoptico.social.br), a partir de {" / ".join(orgaos)}, dados de {data}.
+
+Os dados de origem são públicos e oficiais; a fonte de cada conjunto está no `dicionario.json`.
+A licença cobre a seleção, a organização e as ligações feitas pelo Panóptico. O código do
+projeto segue a sua própria licença (ver `LICENCA-DADOS.md` no repositório).
+"""
 
 
 def montar_leiame(dicionario: dict) -> str:
@@ -119,8 +143,8 @@ fontes (`casa` + `id_externo`, `ano_eleicao` + `sq_candidato`, `numero_controle`
 - Ser citado num evento não é culpa: leia o `tipo`, a `situacao` e abra o documento oficial.
 - Ligações por nome são conservadoras; homônimos existem. A coluna `regra` e `revisado` mostram
   como cada ligação foi feita.
-- Ao usar, cite o Panóptico e a fonte oficial de cada conjunto.
-"""
+
+{_licenca_leiame(dicionario)}"""
 
 
 def escrever_documentacao(
