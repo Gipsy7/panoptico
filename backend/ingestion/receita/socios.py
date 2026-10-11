@@ -93,6 +93,13 @@ def ligar(socios: list[dict], por_meio_nome: dict[tuple[str, str], set[int]]) ->
     return ligados
 
 
+def pendentes_da_execucao(cnpjs: list[str], recentes: set[str], refazer: bool) -> list[str]:
+    """CNPJs a consultar: os que não estão no cache de 30 dias, ou todos com `refazer`."""
+    if refazer:
+        return list(cnpjs)
+    return [c for c in cnpjs if c not in recentes]
+
+
 def estourou(limite: float | None) -> bool:
     return limite is not None and time.monotonic() >= limite
 
@@ -116,10 +123,11 @@ def consultar(client: httpx.Client, cnpj: str) -> dict | None:
     return None
 
 
-def executar(maximo: int | None = None, minutos: float | None = None) -> int:
+def executar(maximo: int | None = None, minutos: float | None = None, refazer: bool = False) -> int:
     """`maximo`: no máximo tantos CNPJs consultados (o resto fica para a próxima execução,
     porque cada consulta custa de 2 s (no Brasil) a 13 s (Actions) e o cache é de 30 dias).
-    `minutos`: orçamento de tempo; ao estourar, para limpo (o que foi feito já está salvo)."""
+    `minutos`: orçamento de tempo; ao estourar, para limpo (o que foi feito já está salvo).
+    `refazer`: ignora o cache de 30 dias e reconsulta também os CNPJs já consultados."""
     hoje = date.today()
     limite = time.monotonic() + minutos * 60 if minutos else None
     with SessionLocal() as session:
@@ -133,7 +141,7 @@ def executar(maximo: int | None = None, minutos: float | None = None) -> int:
                 select(CnpjConsulta.cnpj).where(CnpjConsulta.consultado_em >= hoje - VALIDADE)
             )
         )
-        pendentes = [c for c in cnpjs_de_interesse(session) if c not in recentes]
+        pendentes = pendentes_da_execucao(cnpjs_de_interesse(session), recentes, refazer)
         total_pendentes = len(pendentes)
         if maximo is not None:
             pendentes = pendentes[:maximo]
@@ -143,8 +151,9 @@ def executar(maximo: int | None = None, minutos: float | None = None) -> int:
         ):
             por_meio_nome.setdefault((cpf[3:9], chave), set()).add(id_)
         session.commit()
+        no_cache = "cache ignorado (--refazer)" if refazer else f"{len(recentes)} no cache"
         print(
-            f"  {len(pendentes)} de {total_pendentes} CNPJs a consultar ({len(recentes)} no cache)",
+            f"  {len(pendentes)} de {total_pendentes} CNPJs a consultar ({no_cache})",
             flush=True,
         )
         ligados_total, falhas = 0, 0
@@ -202,5 +211,10 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=f"Ingestão: {FONTE}")
     parser.add_argument("--max", type=int, help="Máximo de CNPJs consultados nesta execução")
     parser.add_argument("--minutos", type=float, help="Orçamento de tempo das consultas")
+    parser.add_argument(
+        "--refazer",
+        action="store_true",
+        help="Ignora o cache de 30 dias e reconsulta também os CNPJs recentes",
+    )
     args = parser.parse_args()
-    print(f"{FONTE}: {executar(args.max, args.minutos)} sócios ligados")
+    print(f"{FONTE}: {executar(args.max, args.minutos, args.refazer)} sócios ligados")

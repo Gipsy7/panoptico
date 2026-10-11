@@ -144,6 +144,8 @@ Workflow `.github/workflows/ingestao-justica.yml`, toda terça às 10h (Brasíli
 
 `pessoas` não baixa nada: lê `candidatura`, `parlamentar` e `mandato_local` (as únicas tabelas de que depende, todas existentes na produção) e aplica os CSVs de revisão versionados em `data/` (`vinculos_revisados.csv`, `atos_revisados.csv`, `indiciamentos_revisados.csv`) quando existirem. Só grava o que mudou (pessoas novas ou alteradas; vínculos com `ON CONFLICT ... WHERE` diferente). Localmente, com 158 mil registros, leva ~30 s e grava 0 linhas quando nada mudou. Dry run local dos passos em sequência: segunda rodada sem mudança em ~3 s para cassações, CGU, Éticas, CPIs (~105 s de consultas) e cargos partidários; só o TCU (45 s) e a Ética da Câmara (35 s) refazem consultas. O DataJud estava lento (429 e 15 a 25 s por consulta), por isso o passo tem limite de 40 min.
 
+**Clicar em `socios_refazer` (Run workflow):** reconsulta também os CNPJs dos últimos 30 dias (`--refazer`); usar depois de carregar CPFs novos na produção (ex.: eleições 2016 e 2020), para que as ligações de sócios já consultadas sejam refeitas sem esperar o cache vencer.
+
 **Como cada fonte evita transferir quando nada mudou**
 
 | Fonte | Tabelas que preenche (MB no acervo local, com índices) | Baixa por execução | Recarga incremental |

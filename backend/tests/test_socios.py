@@ -28,6 +28,15 @@ def test_socios_pessoa_fisica_e_ligacao_forte():
     assert socios.ligar(lista, {chave: {7, 8}}) == []  # ambíguo: não liga
 
 
+def test_refazer_reconsulta_cnpj_consultado_ontem():
+    # cnpj_consulta de ontem: está no cache de 30 dias, então a execução normal o pula...
+    cnpjs = ["11222333000181", "44555666000177"]
+    recentes = {"11222333000181"}
+    assert socios.pendentes_da_execucao(cnpjs, recentes, refazer=False) == ["44555666000177"]
+    # ...e com --refazer ele entra de novo na fila, junto com os demais, na mesma ordem.
+    assert socios.pendentes_da_execucao(cnpjs, recentes, refazer=True) == cnpjs
+
+
 def test_orcamento_de_tempo():
     import time
 
