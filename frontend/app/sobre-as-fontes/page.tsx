@@ -69,6 +69,15 @@ export default function SobreAsFontesPage() {
           intermediários. O autor é identificado pelo nome usado no orçamento; quem não está em
           exercício aparece em &quot;outros autores&quot;.
         </Item>
+        <Item titulo="O que aconteceu com o dinheiro das emendas">
+          Para as emendas individuais de cada parlamentar, de 2023 em diante, mostramos a situação
+          dos convênios (Portal da Transparência) e das transferências especiais (TransfereGov):
+          em execução, prestação de contas em análise ou aprovada, relatório de gestão, valores e
+          vigência. São as situações registradas nos sistemas do governo federal e descrevem o
+          andamento administrativo, não um julgamento. Um convênio pode reunir recursos de mais de
+          uma emenda, e o valor mostrado é o do convênio inteiro. Emendas sem número identificado
+          nos arquivos ficam de fora.
+        </Item>
         <Item titulo="Bens e campanha">
           Dados que o próprio candidato declarou à Justiça Eleitoral (TSE) nas eleições de 2018 e
           2022, ligados ao parlamentar pelo CPF. Os bens são os da candidatura mais recente,

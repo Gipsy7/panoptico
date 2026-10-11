@@ -209,3 +209,8 @@ Diferenças em relação a ler a API: o acervo guarda somas, não contratos, ent
 **Valor suspeito (migração `0035_pncp_suspeito`):** contrato municipal com valor acima do menor entre a despesa paga anual do município (`contas_municipio`, SICONFI) e R$ 50 bi não entra em `pncp_janela`/`pncp_anual`: vai para `pncp_suspeito` (poucas linhas; 217 no pacote; podada com os anos antigos) e, no alvo, `pncp_contrato.valor_suspeito`. A produção lê `contas_municipio` no começo de cada execução (sem contas, vale só o teto). Regra e números em `docs/DECISOES.md`. O pacote passa a ser versão 2 (tabela `pncp_suspeito`; pacote antigo não carrega). Medido em 10/10/2026: `pncp_anual` 190.113 linhas (R$ 415 bi) e `pncp_janela` 32.700 (R$ 9,9 bi), contra ~R$ 10,6 tri sem a regra; `pncp_suspeito` 217 linhas (R$ 10,2 tri).
 
 **Fica de fora:** contratos de antes do ano anterior; órgãos que não publicam no PNCP; valores pagos (a seção de TCE continua sendo a de pagamentos).
+
+## TransfereGov (convênios e transferências especiais das emendas) na produção
+
+Medido no banco local: `emenda_transferencia` 60 mil linhas, ~30 MB (mais ~3 MB de `emenda_convenio`). A carga baixa o zip de convênios da CGU (67 MB, só da internet para o runner; ~12 s e o CSV é lido em fluxo, sem disco além do temporário) e pagina a API do TransfereGov (~170 requisições, ~30 s, sem chave). Como o arquivo só muda em dia útil e o servidor informa o validador (HEAD), a segunda execução do dia não baixa nada. Por ser pequena em banco e em tempo, as duas cargas (`transferegov_convenios`, `transferegov_especiais`) estão no `run_all` diário, depois das emendas. Migração `0040_transferegov` (aditiva).
+

@@ -107,6 +107,13 @@ Endpoints conferidos em 2026-10-06.
 - A API (`api.portaldatransparencia.gov.br`, exige chave em `PORTAL_TRANSPARENCIA_CHAVE`) pagina de 15 em 15. Por isso usamos o lote.
 - **Remuneração:** a API de remuneração do Portal cobre servidores do Executivo, não parlamentares. O subsídio vem do Decreto Legislativo 172/2022.
 
+### O que aconteceu com o dinheiro: convênios e transferências especiais
+
+- **Ligação:** `EmendasParlamentares_Convenios.csv` (no mesmo zip das emendas) traz código da emenda + **número do convênio** (17.855 linhas desde 2023; 9.190 no arquivo todo têm código "Sem informação" e não ligam a nenhuma emenda). Vai para `emenda_convenio`.
+- **Convênios (situação, valores, vigência):** `https://portaldatransparencia.gov.br/download-de-dados/convenios/{AAAAMMDD}` (zip de ~67 MB, CSV de 347 MB em latin-1, 622 mil convênios; o servidor responde 403 para dia sem arquivo; a página `/download-de-dados/convenios` lista o último dia). Colunas usadas: `NÚMERO CONVÊNIO`, `SITUAÇÃO CONVÊNIO` (mistura execução e prestação de contas: "Em execução", "Prestação de contas enviada para análise", "aprovada", "rejeitada", "Adimplente", "Normal"...), `NOME/CÓDIGO CONVENENTE` (CNPJ), objeto, valor do convênio, `VALOR LIBERADO`, contrapartida, vigência. Todos os 16.937 convênios das emendas desde 2023 estão no arquivo. Não há link por convênio verificável (o portal é protegido por WAF): o site liga à consulta do Portal e mostra o número.
+- **Transferências especiais ("emendas Pix"):** API aberta do TransfereGov, `https://api.transferegov.gestao.gov.br/transferenciasespeciais/` (PostgREST, sem chave, 1.000 linhas por página, filtro `campo=gte.2023`, Swagger na raiz). `plano_acao_especial.numero_emenda_parlamentar_plano_acao` é o mesmo código de 12 dígitos de `emenda.codigo` (3.425 de 3.425 emendas especiais da base têm plano; 42.891 planos, um por beneficiário); `executor_especial` traz o objeto, `empenho_especial` (situação 4, "Enviado") o valor empenhado e `relatorio_gestao_especial` a situação do relatório de gestão. O link oficial por plano é a própria consulta da API (`?codigo_plano_acao=eq.…`).
+- **Fora do recorte:** o SICONV completo (`repositorio.dados.gov.br/seges/detru/siconv.zip`, 3,3 GB, aceita `Range`) tem prazos e a prestação de contas em detalhe, mas a situação do arquivo da CGU já cobre o essencial e é atualizada todo dia útil (o SICONV foi gerado em 17/07/2026).
+
 ## IBGE: municípios
 
 - **URL:** `GET https://servicodados.ibge.gov.br/api/v1/localidades/municipios?view=nivelado` (5.571 municípios)

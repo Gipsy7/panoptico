@@ -41,6 +41,7 @@ Os dados sobre o trabalho dos parlamentares já são públicos, mas estão espal
   - quem enviou;
   - para quais áreas (saúde, educação…);
   - quem recebeu, com o CNPJ.
+- **O que aconteceu com o dinheiro das emendas** (perfil do parlamentar): situação dos convênios e das transferências especiais ligados às emendas individuais, com prestação de contas, valores, vigência e link oficial. Mostra a situação registrada no governo federal, sem julgamento.
 - **Dinheiro dos partidos** (`/partidos`, TSE): cotas do Fundo Partidário e do fundo eleitoral, receitas, gastos e repasses a candidaturas de cada partido, com as transferências entre diretórios separadas para não contar duas vezes; o fundo eleitoral por gênero e cor ou raça (eleição de 2024).
 - **Contas da sua cidade** (SICONFI, Tesouro Nacional): quanto a prefeitura arrecadou e gastou no ano, em que áreas e quanto custou a câmara municipal.
 - **Para quem a cidade pagou** (no site, por enquanto, cidades de SP, pelo TCE-SP): os maiores fornecedores da prefeitura e da câmara no ano. O RS (TCE-RS) já está no acervo local, mas o tribunal não responde a conexões de fora do Brasil, e a ingestão de produção roda no GitHub Actions (EUA). Minas Gerais aguarda resposta do TCE-MG, cuja API exige reCAPTCHA e não tem espelho aberto (pedido em `docs/pedidos/tce_mg.md`).
@@ -128,6 +129,7 @@ flowchart LR
 | Votações nominais (Plenário e comissões) e orientação do Governo | Câmara e Senado | Arquivos anuais e API |
 | Projetos de lei e autores | Câmara e Senado | Arquivos anuais e API |
 | Emendas parlamentares e quem recebeu | [Portal da Transparência (CGU)](https://portaldatransparencia.gov.br/emendas) | Arquivo em lote |
+| O que aconteceu com o dinheiro das emendas (situação de convênios e transferências especiais, prestação de contas) | [Portal da Transparência (CGU)](https://portaldatransparencia.gov.br/convenios/consulta) e [TransfereGov](https://www.gov.br/transferegov/pt-br) | Arquivo em lote e API |
 | Candidaturas (inclusive presidente, governadores e prefeitos), bens declarados e contas de campanha (2018, 2022 e 2024) | [Dados abertos do TSE](https://dadosabertos.tse.jus.br/) | Arquivos em lote, carga manual por eleição |
 | Contas anuais dos partidos (receitas, fundo partidário e fundo eleitoral, despesas) e divisão dos fundos por gênero e cor ou raça | [Dados abertos do TSE](https://dadosabertos.tse.jus.br/) | Arquivos em lote, só no acervo local por enquanto (ainda sem página no site) |
 | Sites oficiais dos municípios | Varredura dos domínios `.gov.br` e `.leg.br` de cada cidade | Catálogo versionado, revisado por PR |
@@ -286,6 +288,7 @@ Licença dos dados abertos: [Creative Commons Atribuição 4.0 (CC BY 4.0)](http
 | `GET /parlamentares/{id}/gastos?ano=` | Gastos do gabinete e média da Casa |
 | `GET /parlamentares/{id}/presenca?ano=` | Participação em votações nominais |
 | `GET /parlamentares/{id}/projetos` | Projetos de lei desde 2023 |
+| `GET /parlamentares/{id}/emendas-destino` | Situação dos convênios e transferências especiais das emendas individuais |
 | `GET /municipios?uf=` | Municípios de um estado |
 | `GET /municipios/{ibge}/emendas` | Emendas recebidas pela cidade e quem enviou |
 | `GET /pessoas/de?tipo=&id=` | A pessoa por trás de um perfil do site (`tipo`: `parlamentar`, `candidatura`, `vereador` ou `deputado_estadual`); 404 se o perfil não estiver ligado por vínculo forte ou revisado |
