@@ -29,6 +29,11 @@ const GRUPOS: { titulo: string; detalhe: string; tipos: string[] }[] = [
     tipos: ["ato_pessoal"],
   },
   {
+    titulo: "Cargos no governo federal",
+    detalhe: "cargos de confiança e viagens a serviço, no Portal da Transparência",
+    tipos: ["cargo_federal", "viagem_federal"],
+  },
+  {
     titulo: "Sanções",
     detalhe: "cadastros da Controladoria-Geral da União (CEIS, CNEP, CEAF)",
     tipos: ["sancao"],

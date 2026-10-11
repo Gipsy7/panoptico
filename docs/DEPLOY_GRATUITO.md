@@ -153,6 +153,8 @@ Workflow `.github/workflows/ingestao-justica.yml`, toda terça às 10h (Brasíli
 | `pessoas` | `pessoa` 34, `pessoa_vinculo` 31 (156 mil de candidaturas) | nada (lê ~40 MB do banco: candidatura ~25, vínculos ~10, pessoas ~7) | grava só o que mudou |
 | `tse_cassacoes` | `evento` (894 linhas, 0,3) | 6 zips do TSE, 2,6 MB no total | sonda ETag; contexto = pessoas e candidaturas do ano |
 | `cgu_sancoes` | `evento` (49), `sancao_empresa` 0,6 (908 empresas) | 1 zip da CGU, 4,2 MB (CEIS + CEAF) | sha256 do zip + contexto de pessoas |
+| `cgu_servidores` | `servidor_federal` 0,06, `evento` (15) | ZIP de **83 MB** do mês (lido em fluxo, 450 MB descompactado; ~10 s) | sonda Last-Modified + tamanho; contexto = pessoas |
+| `cgu_viagens` | `viagem_federal_ano` 0,1, `evento` (174) | ZIP de **156 MB** por ano (anterior e atual), só o `Viagem.csv` (~10 s) | sonda Last-Modified + tamanho; contexto = pessoas |
 | `tcu_condenacoes` | `evento` (371, 0,2) | 2,7 MB (JSON do TCU) | sha256 + contexto de pessoas |
 | `cnj_datajud` | `processo` (0,03; ~520 números consultados) | ~0,1 MB de respostas + 1 página da chave pública | upsert de ~520 linhas (centenas de KB) |
 | `camara_etica` | `evento` (85) | ~0,1 MB (72 representações) | sha256 + contexto de pessoas |
