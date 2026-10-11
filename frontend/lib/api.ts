@@ -472,6 +472,44 @@ export function getProjetos(id: string) {
   return getJson<Projetos>(`/parlamentares/${encodeURIComponent(id)}/projetos`);
 }
 
+export type DestinoEmendaItem = {
+  emenda_codigo: string;
+  ano_emenda: number;
+  tipo: "convenio" | "especial";
+  identificador: string;
+  situacao: string | null;
+  relatorio_gestao: string | null;
+  beneficiario: string | null;
+  beneficiario_cnpj: string | null;
+  uf: string | null;
+  orgao_concedente: string | null;
+  objeto: string | null;
+  valor_total: number | null;
+  valor_repassado: number | null;
+  valor_contrapartida: number | null;
+  inicio_vigencia: string | null;
+  fim_vigencia: string | null;
+  fonte_url: string;
+};
+
+export type DestinoEmendas = {
+  desde: number;
+  quantidade: number;
+  valor_total: number;
+  valor_repassado: number;
+  por_situacao: { tipo: string; situacao: string | null; quantidade: number; valor_total: number }[];
+  relatorios_de_gestao: { situacao: string | null; quantidade: number }[];
+  itens: DestinoEmendaItem[];
+  limite: number;
+  fonte_nome: string;
+  fonte_url: string;
+  atualizado_em: string | null;
+};
+
+export function getDestinoEmendas(id: string) {
+  return getJson<DestinoEmendas>(`/parlamentares/${encodeURIComponent(id)}/emendas-destino`);
+}
+
 export type Presenca = {
   ano: number;
   anos_disponiveis: number[];

@@ -273,6 +273,52 @@ class ProjetoItem(BaseModel):
     primeiro_autor: bool
 
 
+class DestinoSituacao(BaseModel):
+    tipo: str
+    situacao: str | None
+    quantidade: int
+    valor_total: float
+
+
+class DestinoRelatorio(BaseModel):
+    situacao: str | None
+    quantidade: int
+
+
+class DestinoItem(BaseModel):
+    emenda_codigo: str
+    ano_emenda: int
+    tipo: str
+    identificador: str
+    situacao: str | None
+    relatorio_gestao: str | None
+    beneficiario: str | None
+    beneficiario_cnpj: str | None
+    uf: str | None
+    orgao_concedente: str | None
+    objeto: str | None
+    valor_total: float | None
+    valor_repassado: float | None
+    valor_contrapartida: float | None
+    inicio_vigencia: date | None
+    fim_vigencia: date | None
+    fonte_url: str
+
+
+class DestinoEmendasResposta(BaseModel):
+    desde: int
+    quantidade: int
+    valor_total: float
+    valor_repassado: float
+    por_situacao: list[DestinoSituacao]
+    relatorios_de_gestao: list[DestinoRelatorio]
+    itens: list[DestinoItem]
+    limite: int
+    fonte_nome: str
+    fonte_url: str
+    atualizado_em: datetime | None
+
+
 class ProjetosResposta(BaseModel):
     desde: date
     primeiro_autor: int

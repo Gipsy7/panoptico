@@ -49,6 +49,13 @@ CATALOGO = [
         "url": "https://portaldatransparencia.gov.br/emendas",
     },
     {
+        "dado": "O que aconteceu com o dinheiro das emendas: situação dos convênios e das "
+        "transferências especiais, vigência e prestação de contas",
+        "orgao": "CGU (Portal da Transparência) e Ministério da Gestão (TransfereGov)",
+        "fontes": ["transferegov_convenios", "transferegov_especiais"],
+        "url": "https://www.gov.br/transferegov/pt-br",
+    },
+    {
         "dado": "Eleitos (do vereador ao presidente), bens, contas de campanha, votos, "
         "redes e fotos",
         "orgao": "Tribunal Superior Eleitoral",

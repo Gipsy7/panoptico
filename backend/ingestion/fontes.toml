@@ -133,6 +133,23 @@ frequencia = "diaria"
 depende = ["camara_deputados", "senado_senadores", "ibge_municipios"]
 
 [[fonte]]
+nome = "transferegov_convenios"
+modulo = "ingestion.transferegov.convenios"
+uso = "O que aconteceu com o dinheiro das emendas (convênios)"
+recorte = "só convênios apontados pelas emendas da base (desde 2023); CSV de 67 MB lido em fluxo, fica o recorte"
+frequencia = "diaria"
+bruto = "recorte"
+depende = ["transparencia_emendas"]
+
+[[fonte]]
+nome = "transferegov_especiais"
+modulo = "ingestion.transferegov.especiais"
+uso = "O que aconteceu com o dinheiro das emendas (transferências especiais)"
+recorte = "só planos de ação das emendas da base (desde 2023), via API aberta do TransfereGov"
+frequencia = "diaria"
+depende = ["transparencia_emendas"]
+
+[[fonte]]
 nome = "resumos"
 modulo = "ingestion.resumos"
 uso = "Números-chave e lista de parlamentares"

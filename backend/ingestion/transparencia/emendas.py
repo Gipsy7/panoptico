@@ -25,7 +25,14 @@ import httpx
 from sqlalchemy import delete, insert, select
 from sqlalchemy.orm import Session
 
-from app.models import Emenda, EmendaPagamento, FonteIngestao, Municipio, Parlamentar
+from app.models import (
+    Emenda,
+    EmendaConvenio,
+    EmendaPagamento,
+    FonteIngestao,
+    Municipio,
+    Parlamentar,
+)
 from ingestion import comum
 from ingestion.proposicoes_comum import INICIO_LEGISLATURA
 
@@ -33,6 +40,7 @@ FONTE = "transparencia_emendas"
 URL = "https://portaldatransparencia.gov.br/download-de-dados/emendas-parlamentares/UNICO"
 ARQUIVO = "EmendasParlamentares.csv"
 ARQUIVO_FAVORECIDOS = "EmendasParlamentares_PorFavorecido.csv"
+ARQUIVO_CONVENIOS = "EmendasParlamentares_Convenios.csv"
 SEM_INFORMACAO = "Sem informação"
 GRUPOS = {
     "Município": "prefeitura",
@@ -113,6 +121,20 @@ def normalizar_pagamentos(conteudo_zip: bytes, ano_minimo: int) -> list[dict[str
                 }
             )
     return registros
+
+
+def normalizar_convenios(conteudo_zip: bytes, ano_minimo: int) -> list[dict[str, Any]]:
+    """Pares (emenda, convênio) do arquivo de convênios das emendas. Há linhas com código
+    "Sem informação": sem emenda identificada, não há a quem ligar."""
+    pares: dict[tuple[str, str], dict[str, Any]] = {}
+    with zipfile.ZipFile(io.BytesIO(conteudo_zip)) as z, z.open(ARQUIVO_CONVENIOS) as f:
+        for linha in csv.DictReader(io.TextIOWrapper(f, encoding="latin-1"), delimiter=";"):
+            codigo = linha["Código da Emenda"].strip()
+            numero = linha["Número Convênio"].strip()
+            if not codigo[:4].isdigit() or int(codigo[:4]) < ano_minimo or not numero:
+                continue
+            pares[(codigo, numero)] = {"emenda_codigo": codigo, "numero_convenio": numero}
+    return list(pares.values())
 
 
 def resolver_municipios(
@@ -208,6 +230,14 @@ def carregar(session: Session, conteudo: bytes, ingestao: FonteIngestao) -> int:
     ]
     for inicio in range(0, len(pagamentos), 5000):
         session.execute(insert(EmendaPagamento), pagamentos[inicio : inicio + 5000])
+    convenios = normalizar_convenios(conteudo, ano_minimo)
+    session.execute(delete(EmendaConvenio))
+    for inicio in range(0, len(convenios), 5000):
+        session.execute(
+            insert(EmendaConvenio),
+            [{**c, "ingestao_id": ingestao.id} for c in convenios[inicio : inicio + 5000]],
+        )
+    print(f"  convênios ligados a emendas: {len(convenios)}")
     return len(linhas) + len(pagamentos)
 
 

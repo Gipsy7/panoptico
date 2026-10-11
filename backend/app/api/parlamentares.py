@@ -7,6 +7,7 @@ from app.db import get_session
 from app.models import Parlamentar
 from app.schemas import (
     CandidaturaResposta,
+    DestinoEmendasResposta,
     GastosResposta,
     ListaParlamentaresResposta,
     ParlamentarDetalhe,
@@ -18,6 +19,7 @@ from app.schemas import (
 )
 from app.services import (
     comissoes,
+    destino_emendas,
     gastos,
     presenca,
     projetos,
@@ -107,6 +109,19 @@ def votos_nas_comissoes(
     pagina: Annotated[int, Query(ge=1)] = 1,
 ) -> dict:
     return comissoes.lista(session, _buscar(session, parlamentar_id), pagina)
+
+
+@router.get(
+    "/parlamentares/{parlamentar_id}/emendas-destino", response_model=DestinoEmendasResposta
+)
+def destino_das_emendas(
+    parlamentar_id: int, session: Annotated[Session, Depends(get_session)]
+) -> dict:
+    """Situação dos convênios e transferências especiais das emendas individuais."""
+    resultado = destino_emendas.resumo(session, _buscar(session, parlamentar_id))
+    if resultado is None:
+        raise HTTPException(404, "Sem convênios ou transferências ligados às emendas.")
+    return resultado
 
 
 @router.get("/parlamentares/{parlamentar_id}/projetos", response_model=ProjetosResposta)

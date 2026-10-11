@@ -15,6 +15,7 @@ from app.models.despesa import Despesa
 from app.models.despesa_fornecedor import DespesaFornecedor
 from app.models.emenda import Emenda
 from app.models.emenda_pagamento import EmendaPagamento
+from app.models.emenda_transferencia import EmendaConvenio, EmendaTransferencia
 from app.models.fonte_ingestao import DownloadCache, FonteIngestao
 from app.models.municipio import Municipio
 from app.models.parlamentar import Parlamentar
@@ -73,7 +74,9 @@ __all__ = [
     "Despesa",
     "DespesaFornecedor",
     "Emenda",
+    "EmendaConvenio",
     "EmendaPagamento",
+    "EmendaTransferencia",
     "Evento",
     "DownloadCache",
     "FonteIngestao",

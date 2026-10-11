@@ -18,6 +18,8 @@ from ingestion.senado import senadores
 from ingestion.senado import temas as temas_senado
 from ingestion.senado import votacoes as votacoes_senado
 from ingestion.senado import votacoes_comissoes as comissoes_senado
+from ingestion.transferegov import convenios as convenios_emendas
+from ingestion.transferegov import especiais as especiais_emendas
 from ingestion.transparencia import emendas
 
 
@@ -41,6 +43,9 @@ def _tarefas() -> list[tuple[str, Callable[[], int]]]:
     tarefas.append((municipios.FONTE, municipios.executar))
     tarefas.append((canais.FONTE, canais.executar))  # catálogo versionado; não acessa sites
     tarefas.append((emendas.FONTE, emendas.executar))
+    # Depois das emendas: o que aconteceu com o dinheiro (convênios e transferências especiais).
+    tarefas.append((convenios_emendas.FONTE, convenios_emendas.executar))
+    tarefas.append((especiais_emendas.FONTE, especiais_emendas.executar))
     # Por último: consolida os números de cada parlamentar a partir do que foi carregado.
     tarefas.append((resumos.FONTE, resumos.executar))
     return tarefas
