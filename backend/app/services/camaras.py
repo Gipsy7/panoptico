@@ -52,6 +52,9 @@ FONTES_PROPRIAS = {
 
 # Câmaras que saíram do SAPL e têm conector próprio: o endereço de origem diz qual.
 FONTES_DE_CAMARA = {
+    "palmas.to.leg.br": ("sistemas_camaras", "Site da câmara (Palmas)"),
+    "teofilootoni.mg.leg.br": ("sistemas_camaras", "Site da câmara (Teófilo Otoni)"),
+    "frutal.siscam.com.br": ("sistemas_camaras", "Portal da câmara (Siscam)"),
     "cittatec.com.br": ("cittatec_camaras", "Portal legislativo da câmara (Cittatec)"),
     "queimadanova.pi.leg.br": ("aos_camaras", "Site da câmara (AOS Software)"),
     "leg.br/vereador/": ("nucleogov_camaras", "Portal da câmara (Nucleogov / 7Focus)"),

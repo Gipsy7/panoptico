@@ -111,6 +111,8 @@ jobs:
         run: uv run python -m ingestion.camaras.portal_modelo
       - name: Câmara no site da AOS Software (Queimada Nova)
         run: uv run python -m ingestion.camaras.aos
+      - name: Câmaras de Palmas, Teófilo Otoni e Frutal (sites próprios)
+        run: uv run python -m ingestion.camaras.sistemas
       # Nucleogov / 7Focus: o robots.txt pede 5 s entre requisições (5 câmaras, ~50 páginas).
       - name: Câmaras no portal da Nucleogov / 7Focus
         run: uv run python -m ingestion.camaras.nucleogov

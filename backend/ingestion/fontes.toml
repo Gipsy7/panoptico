@@ -323,6 +323,14 @@ frequencia = "semanal"
 depende = ["canais_oficiais"]
 
 [[fonte]]
+nome = "sistemas_camaras"
+modulo = "ingestion.camaras.sistemas"
+uso = "Câmaras que saíram do SAPL para sites de fornecedor com leitor próprio (Palmas, Teófilo Otoni, Frutal)"
+recorte = "vereadores em exercício (nome, partido, foto), com a pausa de 5 s do robots.txt de Palmas"
+frequencia = "semanal"
+depende = ["canais_oficiais"]
+
+[[fonte]]
 nome = "sapl_assembleias"
 modulo = "ingestion.assembleias.sapl"
 uso = "Assembleia legislativa hoje"
@@ -464,7 +472,7 @@ modulo = "ingestion.pessoas"
 uso = "Pessoa pública única e linha do tempo (/pessoas/{id}/eventos)"
 recorte = "candidaturas, parlamentares e mandatos já carregados"
 frequencia = "semanal"
-depende = ["tse_candidaturas", "camara_deputados", "senado_senadores", "sapl_camaras", "cittatec_camaras", "portal_php_camaras", "cr2_camaras", "sapl_assembleias", "almg", "alesp", "alepe", "cldf", "alesc", "alerj", "alrs", "alba", "ales", "alece", "alepa", "almt", "alema", "alems", "alrn", "alese", "alap", "alego", "nucleogov_camaras", "portal_modelo_camaras", "aos_camaras"]
+depende = ["tse_candidaturas", "camara_deputados", "senado_senadores", "sapl_camaras", "cittatec_camaras", "portal_php_camaras", "cr2_camaras", "sapl_assembleias", "almg", "alesp", "alepe", "cldf", "alesc", "alerj", "alrs", "alba", "ales", "alece", "alepa", "almt", "alema", "alems", "alrn", "alese", "alap", "alego", "nucleogov_camaras", "portal_modelo_camaras", "aos_camaras", "sistemas_camaras"]
 
 # Justiça e controle
 [[fonte]]
