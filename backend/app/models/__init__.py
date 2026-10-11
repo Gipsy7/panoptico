@@ -52,6 +52,7 @@ from app.models.pncp import (
 from app.models.proposicao import Autoria, Proposicao
 from app.models.proposicao_tema import ProposicaoTema
 from app.models.resumo_parlamentar import ResumoParlamentar
+from app.models.servidor_federal import ServidorFederal, ViagemFederalAno
 from app.models.votacao import Orientacao, Votacao, VotacaoComissao, Voto, VotoComissao
 
 __all__ = [
@@ -109,7 +110,9 @@ __all__ = [
     "RedeSocial",
     "ResumoParlamentar",
     "SancaoEmpresa",
+    "ServidorFederal",
     "SocioPessoa",
+    "ViagemFederalAno",
     "Votacao",
     "VotacaoComissao",
     "Voto",

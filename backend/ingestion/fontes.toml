@@ -477,6 +477,30 @@ frequencia = "semanal"
 depende = ["pessoas"]
 
 [[fonte]]
+nome = "cgu_servidores"
+modulo = "ingestion.transparencia.servidores"
+uso = "Linha do tempo: cargos de confiança no governo federal de pessoas que acompanhamos (ex-parlamentares, ex-prefeitos e vereadores nomeados)"
+recorte = "só cargos comissionados e funções de confiança do SIAPE, de pessoas ligadas por CPF mascarado (6 dígitos do meio) + nome igual; mês mais recente e histórico de entradas e saídas; sem remuneração"
+bruto = "recorte"
+frequencia = "mensal"
+depende = ["pessoas"]
+# Cadastro mensal de servidores (Servidores_SIAPE, ZIP de 83 MB, 780 mil linhas, CPF
+# ***.123.456-**). O mês vem da página de downloads do Portal. Um mês novo acumula: cada
+# cargo guarda primeiro e último mês em que constou.
+
+[[fonte]]
+nome = "cgu_viagens"
+modulo = "ingestion.transparencia.viagens"
+uso = "Linha do tempo: viagens a serviço (quantidade, diárias e passagens por ano) de pessoas que acompanhamos"
+recorte = "só viagens realizadas de pessoas ligadas por CPF mascarado + nome igual, somadas por ano; sem destino, motivo nem trecho"
+guarda = "somas"
+bruto = "recorte"
+frequencia = "mensal"
+anos = "padrao"
+depende = ["pessoas"]
+# ZIP anual do Portal (156 MB em 2025, 814 mil viagens); só o Viagem.csv é lido.
+
+[[fonte]]
 nome = "tcu_condenacoes"
 modulo = "ingestion.tcu.condenacoes"
 uso = "Linha do tempo: contas julgadas irregulares e inabilitação pelo TCU"

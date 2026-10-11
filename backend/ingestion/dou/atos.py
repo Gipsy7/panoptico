@@ -77,10 +77,12 @@ NAO_E_NOME = {
 def url_do_mes(client: httpx.Client, ano: int, mes: int) -> str | None:
     """Link do ZIP da Seção 2 do mês, lido da página da base de dados (o link tem um
     identificador que muda a cada publicação). None se o mês ainda não foi publicado."""
-    resposta = client.get(URL_BASE, params={"ano": ano, "mes": MESES[mes - 1]})
-    if resposta.status_code in (400, 404):
-        return None
-    resposta.raise_for_status()
+    try:  # com novas tentativas: a página da Imprensa Nacional às vezes esgota o tempo
+        resposta = comum._get(client, URL_BASE, {"ano": ano, "mes": MESES[mes - 1]}, 4)
+    except httpx.HTTPStatusError as erro:
+        if erro.response.status_code in (400, 404):
+            return None
+        raise
     padrao = rf'href="(https://www\.in\.gov\.br/documents/[^"]*S02{mes:02d}{ano}\.zip[^"]*)"'
     achado = re.search(padrao, resposta.text)
     return html.unescape(achado.group(1)) if achado else None
