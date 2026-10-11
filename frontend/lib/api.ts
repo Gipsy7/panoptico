@@ -510,6 +510,32 @@ export function getDestinoEmendas(id: string) {
   return getJson<DestinoEmendas>(`/parlamentares/${encodeURIComponent(id)}/emendas-destino`);
 }
 
+export type EmendasRelator = {
+  ano: number;
+  quantidade: number;
+  valor_solicitado: number;
+  beneficiarios: number;
+  por_orgao: { orgao: string; quantidade: number; valor: number }[];
+  itens: {
+    numero: number;
+    data_cadastro: string | null;
+    beneficiario: string;
+    uf: string | null;
+    orgao: string | null;
+    objeto: string | null;
+    valor_solicitado: number;
+  }[];
+  limite: number;
+  fonte_nome: string;
+  fonte_url: string;
+  arquivo_url: string;
+  atualizado_em: string | null;
+};
+
+export function getEmendasRelator(id: string) {
+  return getJson<EmendasRelator>(`/parlamentares/${encodeURIComponent(id)}/emendas-relator`);
+}
+
 export type Presenca = {
   ano: number;
   anos_disponiveis: number[];

@@ -11,6 +11,7 @@ from ingestion.camara import proposicoes as proposicoes_camara
 from ingestion.camara import temas as temas_camara
 from ingestion.camara import votacoes as votacoes_camara
 from ingestion.canais import catalogo as canais
+from ingestion.congresso import emendas_relator
 from ingestion.ibge import municipios
 from ingestion.senado import despesas as despesas_senado
 from ingestion.senado import proposicoes as proposicoes_senado
@@ -43,6 +44,7 @@ def _tarefas() -> list[tuple[str, Callable[[], int]]]:
     tarefas.append((municipios.FONTE, municipios.executar))
     tarefas.append((canais.FONTE, canais.executar))  # catálogo versionado; não acessa sites
     tarefas.append((emendas.FONTE, emendas.executar))
+    tarefas.append((emendas_relator.FONTE, emendas_relator.executar))  # indicações RP9 (2022)
     # Depois das emendas: o que aconteceu com o dinheiro (convênios e transferências especiais).
     tarefas.append((convenios_emendas.FONTE, convenios_emendas.executar))
     tarefas.append((especiais_emendas.FONTE, especiais_emendas.executar))

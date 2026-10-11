@@ -133,6 +133,14 @@ frequencia = "diaria"
 depende = ["camara_deputados", "senado_senadores", "ibge_municipios"]
 
 [[fonte]]
+nome = "congresso_emendas_relator"
+modulo = "ingestion.congresso.emendas_relator"
+uso = "Indicações de emendas de relator-geral (RP9) com o parlamentar que pediu"
+recorte = "só indicações de deputados e senadores da base, registradas em 2022 (planilha da CMO, 3 MB)"
+frequencia = "mensal"
+depende = ["camara_deputados", "senado_senadores"]
+
+[[fonte]]
 nome = "transferegov_convenios"
 modulo = "ingestion.transferegov.convenios"
 uso = "O que aconteceu com o dinheiro das emendas (convênios)"

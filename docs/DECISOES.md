@@ -804,3 +804,11 @@ O plano é juntar tudo o que é público sobre quem exerce função pública: pr
 - **Prestação de contas:** nos convênios, está na própria situação; nas transferências especiais, vem do relatório de gestão (a maioria dos planos ainda não tem relatório).
 - **Produção:** entra no `run_all` diário (download incremental: o convênio só é baixado de novo se o arquivo do dia mudou).
 
+
+## 2026-10-11: indicações de emendas de relator-geral (RP9)
+
+- **Pergunta do cidadão:** "quem pediu o dinheiro do orçamento secreto?". No orçamento o autor da RP9 é "relator geral"; o Panóptico só mostra o parlamentar quando há **registro oficial aberto** do pedido.
+- **Fonte única que serve:** a planilha consolidada da CMO para a LOA 2022 (autor, beneficiário, objeto, valor solicitado). 2020 e 2021 não têm autor estruturado (relação de beneficiários sem autor; PDFs de cartas em texto livre, a maioria de prefeitos). Não extraímos os PDFs: o vínculo carta-linha seria inferência. RP8 (comissão): sem registro de solicitante; ficou de fora.
+- **Valor é "indicado", não "pago":** não há pagamento por indicação nas fontes abertas; a seção diz isso, e que o registro cobre só 2022 e pode estar incompleto. Ausência de indicações não é prova de que o parlamentar não pediu. Texto factual, sem juízo sobre legalidade.
+- **Ligação ao parlamentar:** nome exato e único na mesma Casa (civil ou parlamentar). 59% das indicações de deputados e senadores casaram; o resto é de quem não está na base atual. Usuário externo não entra (evita pessoas privadas).
+- **Coleta mínima e produção:** 7,9 mil linhas, 4,7 MB. Fonte estática (2022): frequência mensal, no `run_all` com download incremental. Migração `0041_emenda_relator` (aditiva); outra revisão `0041_cargo_especial_cpgf` existe em outro branch, então o merge precisa de uma migração de junção (`down_revision` das duas).

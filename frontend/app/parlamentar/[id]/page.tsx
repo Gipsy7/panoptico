@@ -11,6 +11,7 @@ import { CandidaturaSecao } from "@/components/candidatura-secao";
 import { QuemESecao } from "@/components/dados-pessoais";
 import { ComissoesSecao } from "@/components/comissoes-secao";
 import { DestinoEmendasSecao } from "@/components/destino-emendas-secao";
+import { EmendasRelatorSecao } from "@/components/emendas-relator-secao";
 import { GastosSecao } from "@/components/gastos-secao";
 import { ContratosSocioSecao } from "@/components/contratos-socio-secao";
 import { LinhaDoTempoSecao } from "@/components/linha-do-tempo-secao";
@@ -23,6 +24,7 @@ import { TemasSecao } from "@/components/temas-secao";
 import { VotosSecao } from "@/components/votos-secao";
 import {
   getDestinoEmendas,
+  getEmendasRelator,
   getGastos,
   getParlamentar,
   getPresenca,
@@ -85,7 +87,7 @@ async function Perfil({
   paginaVotos?: string;
   paginaComissoes?: string;
 }) {
-  const [resultado, gastos, projetos, presenca, temas, votos, candidatura, comissoes, linha, destino] = await Promise.all([
+  const [resultado, gastos, projetos, presenca, temas, votos, candidatura, comissoes, linha, destino, relator] = await Promise.all([
     getParlamentar(id),
     getGastos(id, ano),
     getProjetos(id),
@@ -96,6 +98,7 @@ async function Perfil({
     getVotosComissoes(id, paginaComissoes),
     getLinhaDoTempo("parlamentar", id),
     getDestinoEmendas(id),
+    getEmendasRelator(id),
   ]);
   if (!resultado.ok) {
     if (resultado.status === 404 || resultado.status === 422) notFound();
@@ -163,6 +166,8 @@ async function Perfil({
       {projetos.ok && <ProjetosSecao projetos={projetos.dados} casa={p.casa} />}
 
       {destino.ok && <DestinoEmendasSecao dados={destino.dados} />}
+
+      {relator.ok && <EmendasRelatorSecao dados={relator.dados} />}
 
       {temas.ok && <TemasSecao dados={temas.dados} casa={p.casa} />}
 

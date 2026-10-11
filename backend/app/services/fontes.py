@@ -49,6 +49,13 @@ CATALOGO = [
         "url": "https://portaldatransparencia.gov.br/emendas",
     },
     {
+        "dado": "Indicações de emendas de relator-geral (RP9, 2022) com o parlamentar que pediu",
+        "orgao": "Comissão Mista de Orçamento (Congresso Nacional)",
+        "fontes": ["congresso_emendas_relator"],
+        "url": "https://www2.camara.leg.br/atividade-legislativa/comissoes/comissoes-mistas/cmo/"
+        "Indicacoes-para-execucao-orcamentaria-em-RP9_LOA-2022",
+    },
+    {
         "dado": "O que aconteceu com o dinheiro das emendas: situação dos convênios e das "
         "transferências especiais, vigência e prestação de contas",
         "orgao": "CGU (Portal da Transparência) e Ministério da Gestão (TransfereGov)",
