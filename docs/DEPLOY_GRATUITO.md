@@ -215,3 +215,7 @@ Diferenças em relação a ler a API: o acervo guarda somas, não contratos, ent
 
 Medido no banco local: `emenda_transferencia` 60 mil linhas, ~30 MB (mais ~3 MB de `emenda_convenio`). A carga baixa o zip de convênios da CGU (67 MB, só da internet para o runner; ~12 s e o CSV é lido em fluxo, sem disco além do temporário) e pagina a API do TransfereGov (~170 requisições, ~30 s, sem chave). Como o arquivo só muda em dia útil e o servidor informa o validador (HEAD), a segunda execução do dia não baixa nada. Por ser pequena em banco e em tempo, as duas cargas (`transferegov_convenios`, `transferegov_especiais`) estão no `run_all` diário, depois das emendas. Migração `0040_transferegov` (aditiva).
 
+
+## Indicações de emendas de relator (RP9) na produção
+
+Medido no banco local: `emenda_relator_indicacao` 7,9 mil linhas, ~4,7 MB (índices incluídos). A carga baixa uma planilha de 3 MB da CMO e, como o servidor informa ETag/Last-Modified e o arquivo é de 2022, a partir da segunda execução não baixa nada. Está no `run_all` (depois das emendas); pequena demais para exigir carga inicial separada. Migração `0041_emenda_relator` (aditiva).

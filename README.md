@@ -130,6 +130,7 @@ flowchart LR
 | Projetos de lei e autores | Câmara e Senado | Arquivos anuais e API |
 | Emendas parlamentares e quem recebeu | [Portal da Transparência (CGU)](https://portaldatransparencia.gov.br/emendas) | Arquivo em lote |
 | O que aconteceu com o dinheiro das emendas (situação de convênios e transferências especiais, prestação de contas) | [Portal da Transparência (CGU)](https://portaldatransparencia.gov.br/convenios/consulta) e [TransfereGov](https://www.gov.br/transferegov/pt-br) | Arquivo em lote e API |
+| Indicações de emendas de relator-geral (RP9, 2022) com o parlamentar que pediu | [Comissão Mista de Orçamento](https://www2.camara.leg.br/atividade-legislativa/comissoes/comissoes-mistas/cmo/Indicacoes-para-execucao-orcamentaria-em-RP9_LOA-2022) | Planilha (xlsx); 2020 e 2021 não têm autor estruturado |
 | Candidaturas (inclusive presidente, governadores e prefeitos), bens declarados e contas de campanha (2018, 2022 e 2024) | [Dados abertos do TSE](https://dadosabertos.tse.jus.br/) | Arquivos em lote, carga manual por eleição |
 | Contas anuais dos partidos (receitas, fundo partidário e fundo eleitoral, despesas) e divisão dos fundos por gênero e cor ou raça | [Dados abertos do TSE](https://dadosabertos.tse.jus.br/) | Arquivos em lote, só no acervo local por enquanto (ainda sem página no site) |
 | Sites oficiais dos municípios | Varredura dos domínios `.gov.br` e `.leg.br` de cada cidade | Catálogo versionado, revisado por PR |

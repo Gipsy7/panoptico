@@ -8,6 +8,7 @@ from app.models import Parlamentar
 from app.schemas import (
     CandidaturaResposta,
     DestinoEmendasResposta,
+    EmendasRelatorResposta,
     GastosResposta,
     ListaParlamentaresResposta,
     ParlamentarDetalhe,
@@ -20,6 +21,7 @@ from app.schemas import (
 from app.services import (
     comissoes,
     destino_emendas,
+    emendas_relator,
     gastos,
     presenca,
     projetos,
@@ -121,6 +123,19 @@ def destino_das_emendas(
     resultado = destino_emendas.resumo(session, _buscar(session, parlamentar_id))
     if resultado is None:
         raise HTTPException(404, "Sem convênios ou transferências ligados às emendas.")
+    return resultado
+
+
+@router.get(
+    "/parlamentares/{parlamentar_id}/emendas-relator", response_model=EmendasRelatorResposta
+)
+def indicacoes_emendas_relator(
+    parlamentar_id: int, session: Annotated[Session, Depends(get_session)]
+) -> dict:
+    """Indicações de emendas de relator-geral (RP9) com o parlamentar como autor do pedido."""
+    resultado = emendas_relator.resumo(session, _buscar(session, parlamentar_id))
+    if resultado is None:
+        raise HTTPException(404, "Sem indicações de emendas de relator registradas.")
     return resultado
 
 

@@ -10,6 +10,7 @@ Fontes que bloqueiam o acesso automático ou não publicam o dado em formato abe
 | CNJ | Lote do Cadastro de Condenações por Improbidade e Inelegibilidade (CNIA), ou autorização para consultar por CPF em volume | a enviar | [cnj_cnia.md](cnj_cnia.md) |
 | TSE | Tabela mensal de distribuição do Fundo Partidário em formato aberto (página bloqueada a robôs; o valor é obtido da prestação de contas dos partidos, que é o declarado por eles) | a enviar | — |
 | TCE-MG | Acesso à API de dados abertos (empenhos e pagamentos dos municípios) sem reCAPTCHA, ou arquivo anual em lote como o do TCE-RS (LAI); nenhum canal aberto alternativo existe | a enviar | [tce_mg.md](tce_mg.md) |
+| CMO (Congresso) | Solicitantes das emendas de relator-geral (RP9) de 2020 e 2021 e das emendas de comissão (RP8), no formato da planilha da LOA 2022 (LAI) | a enviar | [cmo_rp9_solicitantes.md](cmo_rp9_solicitantes.md) |
 | ALMG e ALESP | Votos nominais e presença em Plenário em formato aberto (LAI) | a enviar | — |
 | Câmara dos Deputados | Justificativas de ausência em votações (LAI) | a enviar | — |
 

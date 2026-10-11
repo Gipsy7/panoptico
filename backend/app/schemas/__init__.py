@@ -319,6 +319,36 @@ class DestinoEmendasResposta(BaseModel):
     atualizado_em: datetime | None
 
 
+class RelatorOrgao(BaseModel):
+    orgao: str
+    quantidade: int
+    valor: float
+
+
+class RelatorItem(BaseModel):
+    numero: int
+    data_cadastro: date | None
+    beneficiario: str
+    uf: str | None
+    orgao: str | None
+    objeto: str | None
+    valor_solicitado: float
+
+
+class EmendasRelatorResposta(BaseModel):
+    ano: int
+    quantidade: int
+    valor_solicitado: float
+    beneficiarios: int
+    por_orgao: list[RelatorOrgao]
+    itens: list[RelatorItem]
+    limite: int
+    fonte_nome: str
+    fonte_url: str
+    arquivo_url: str
+    atualizado_em: datetime | None
+
+
 class ProjetosResposta(BaseModel):
     desde: date
     primeiro_autor: int

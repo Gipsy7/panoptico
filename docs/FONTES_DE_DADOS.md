@@ -642,3 +642,19 @@ Reconhecimento de 11/10/2026. As duas fontes são arquivos em lote, sem chave (a
 - Detalhes e motivos em [DECISOES.md](DECISOES.md), "carga incremental e conferência da carga".
 
 ## A confirmar (fases seguintes)
+
+### Emendas de relator-geral (RP9, "orçamento secreto") e de comissão (RP8) — Congresso / CMO
+
+Reconhecimento (2026-10-11):
+
+- **Portal da Transparência (arquivo de emendas que já carregamos):** traz RP9 como "Emenda de Relator" (2016–2022; 2020: R$ 21,2 bi, 2021: R$ 16,7 bi, 2022: R$ 8,6 bi empenhados) e RP8 como "Emenda de Comissão". **O autor é sempre "RELATOR GERAL" (ou "Sem informação") nas de relator e o nome da comissão nas de comissão**: não há o parlamentar que pediu. Por isso o carregamento das emendas (a partir de 2023) nunca ligou essas linhas a ninguém.
+- **Siga Brasil (Senado):** painéis de execução orçamentária; a classificação RP9 aparece, mas sem solicitante (o relator-geral era o autor formal; o Senado declarou ao STF não ter banco com os solicitantes). Sem fonte aberta de solicitante ali.
+- **CMO (Comissão Mista de Orçamento), páginas "Indicações para execução orçamentária em RP9" (Câmara dos Deputados, `www2.camara.leg.br/atividade-legislativa/comissoes/comissoes-mistas/cmo/`):**
+  - **LOA 2022 (usada):** `…/EXECUCAO-RP9/LOA-2022/Relacao-de-indicacoes-Consolidado.xlsx` (xlsx de 2,9 MB, 16.636 indicações, publicado por força do Ato Conjunto das Mesas 1/2021 e da decisão do STF na ADPF 854). Colunas: Número, Ano, Data de cadastro, **Autor** (nome civil), **Tipo autor** (Deputado 11.026, Senador 2.403, "Usuario Externo" 3.207), CNPJ, nome e UF do beneficiário, órgão, unidade, ação, objeto, justificativa, GND, **Valor Solicitado**, Etapa ("Com indicação"). Mesmas linhas divididas em 56 listas (`…/LOA-2022/<data>/1-0NN-Relacao-de-indicacoes.xlsx`) e ofícios OFINDRP9.
+  - **LOA 2021 (não usada):** 34 listas com xlsx de beneficiários **sem autor** (código CMO, órgão, ação, favorecido, CNPJ, valor) e um PDF de "solicitações" com 11 MB de cartas escaneadas/texto livre (ofício de prefeito a "Senador Márcio Bittar, Relator-Geral"), sem tabela que ligue cada carta a uma linha da relação. A maioria é de prefeitos, não de parlamentares. Sem estrutura, o vínculo seria palpite.
+  - **LOA 2020:** só os anexos do Ato Conjunto (execução por emenda, beneficiário e objeto, autor "Relator Geral"); sem solicitante.
+- **Emendas de comissão (RP8):** nenhum registro aberto que nomeie o parlamentar que pediu; o autor oficial é a comissão. Não implementado.
+
+Armadilhas do xlsx: cabeçalho com erro de digitação ("Cnpj beneficário"; o leitor acha a coluna pelo prefixo); datas em número serial do Excel; autor em **nome civil** ("Iraja Silvestre Filho"), diferente do nome parlamentar; vários autores da legislatura passada que não estão na base; valor é o **solicitado** (não há empenho nem pagamento por indicação); servidor da Câmara responde 406 a `Accept: application/json` (a carga manda `*/*`). O servidor informa ETag/Last-Modified (arquivo de 24/10/2022), então o download incremental só baixa de novo se mudar.
+
+Coleta: só Deputado e Senador (usuário externo = prefeito, entidade ou particular, fica de fora), ligados à base pelo nome civil ou parlamentar sem acentos, **na mesma Casa, correspondência exata e única**. Resultado: 13.429 indicações de parlamentares → 7.918 ligadas a 235 parlamentares da base (R$ 5,07 bi indicados), 5.511 de autores fora da base (deputados e senadores da legislatura anterior), 0 ambíguas. Tabela `emenda_relator_indicacao` (4,7 MB). Módulo `ingestion/congresso/emendas_relator.py` (xlsx lido com zip + xml da biblioteca padrão).
