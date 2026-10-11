@@ -131,6 +131,12 @@ CATALOGO = [
         "url": "https://www.imbuia.sc.leg.br/processo-legislativo/parlamentares",
     },
     {
+        "dado": "Vereadores no cargo hoje (sites próprios das câmaras)",
+        "orgao": "Câmaras de Palmas (TO), Teófilo Otoni e Frutal (MG)",
+        "fontes": ["sistemas_camaras"],
+        "url": "https://palmas.to.leg.br/",
+    },
+    {
         "dado": "Vereadores no cargo hoje (câmaras no Portal da Transparência da CR2)",
         "orgao": "Câmaras de Beruri (AM), Itamarandiba (MG), Benevides e São Miguel do Guamá (PA)",
         "fontes": ["cr2_camaras"],

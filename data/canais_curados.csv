@@ -51,3 +51,6 @@ ibge,municipio,uf,tipo,url,sistema,verificado_em
 2208650,Queimada Nova,PI,sistema_legislativo,https://queimadanova.pi.leg.br/,aos,2026-10-10
 4323309,Vila Flores,RS,sistema_legislativo,https://www.vilaflores.rs.leg.br,portal_modelo,2026-10-10
 1100700,Campo Novo de Rondônia,RO,sistema_legislativo,https://www.camponovoderondonia.ro.leg.br,portal_modelo,2026-10-10
+1721000,Palmas,TO,sistema_legislativo,https://palmas.to.leg.br/,nexlegis,2026-10-11
+3168606,Teófilo Otoni,MG,sistema_legislativo,https://teofilootoni.mg.leg.br/,digitaliza,2026-10-11
+3127107,Frutal,MG,sistema_legislativo,https://frutal.siscam.com.br/,siscam,2026-10-11
