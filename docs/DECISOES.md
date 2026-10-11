@@ -755,3 +755,10 @@ O plano é juntar tudo o que é público sobre quem exerce função pública: pr
 - **Causa das 0 ligações:** a produção carrega candidaturas 2018, 2022 e 2024; o CPF completo só existe em 2018 e 2022 (e nos deputados pela Câmara) e vem mascarado em 2024. Sobram ~3 mil pessoas com CPF; no acervo local são 53.690 (50.711 só por 2016/2020).
 - **Decisão:** orçamento de tempo (`--minutos 40`) e lote de 250; a consulta avisa quando há menos de 10 mil pessoas com CPF. O PNCP de produção deixa de recusar `socio_pessoa` vazia e roda só com as sancionadas (contratos de sócios ficam para quando houver sócios, relendo os dias).
 - **Em aberto:** carregar 2016 e 2020 no Neon (custo de armazenamento a medir) é o caminho para ligar sócios na produção.
+
+## 2026-10-10: carga histórica do PNCP por pacote em release
+
+- **Contexto:** a primeira carga da produção pela API levaria ~39 h (8 a 9 disparos do workflow). O acervo local já tem os contratos de 2023-01-01 a 2026-10-09, conferidos dia a dia.
+- **Decisão:** `python -m ingestion.pncp.pacote gerar` monta, só com SELECT no acervo, o que `--producao` teria gravado (`pncp_anual` top 30 por município e ano, `pncp_dia` com `compactado`, `pncp_janela` dos 10 últimos dias, `pncp_contrato` do alvo) num .zip de JSONL com manifesto e sha256; vai como anexo de release e o workflow `pncp-pacote.yml` (manual, mesma fila do diário) o carrega com `carregar`, trocando o período numa transação. A divisão compactado/janela é a do modo produção, então o diário continua dali sem somar duas vezes (testado). Sem CPF: só fornecedor com CNPJ, `sem_cpf` nos textos e varredura que aborta a geração.
+- **Aproximações declaradas:** "valor > 0" aplicado ao total do grupo (não a cada contrato); nome do fornecedor só de sancionadas e contratos do alvo; alvo = `sancao_empresa` do acervo. Os 8 a 9 disparos por API ficam como plano B.
+

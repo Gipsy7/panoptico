@@ -1,0 +1,69 @@
+name: PNCP (carga histórica por pacote)
+
+# Carga histórica do PNCP na produção sem reler a API (~39 h): o pacote é gerado no acervo local
+# (python -m ingestion.pncp.pacote gerar) e enviado como anexo de uma release do GitHub
+# (pncp-pacote.zip + pncp-pacote.manifesto.json). Este workflow baixa os dois, confere o sha256
+# e grava no Neon, trocando o período do pacote (idempotente). Ver "PNCP na produção" em
+# docs/DEPLOY_GRATUITO.md. Depois, o diário (ingestao-pncp.yml) continua dali.
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Tag da release com o pacote (ex.: pncp-pacote-2026-10-10)"
+        required: true
+        type: string
+
+# Mesma fila do diário: os dois escrevem em pncp_anual, pncp_janela, pncp_dia e pncp_contrato.
+concurrency:
+  group: ingestao-pncp
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  pacote:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: backend
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      TAG: ${{ inputs.tag }}
+      PYTHONUNBUFFERED: "1"
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: astral-sh/setup-uv@v10.2.0
+        with:
+          version: "0.12.23"
+
+      - name: Instalar dependências
+        run: uv sync --locked --no-dev
+
+      - name: Baixar o pacote da release
+        run: |
+          mkdir -p "$RUNNER_TEMP/pacote"
+          gh release download "$TAG" --repo "$GITHUB_REPOSITORY" --dir "$RUNNER_TEMP/pacote" \
+            --pattern pncp-pacote.zip --pattern pncp-pacote.manifesto.json
+          ls -l "$RUNNER_TEMP/pacote"
+
+      - name: Conferir o sha256 do manifesto
+        run: |
+          esperado=$(jq -r .arquivo_sha256 "$RUNNER_TEMP/pacote/pncp-pacote.manifesto.json")
+          real=$(sha256sum "$RUNNER_TEMP/pacote/pncp-pacote.zip" | cut -d' ' -f1)
+          echo "esperado $esperado"
+          echo "real     $real"
+          [ -n "$esperado" ] && [ "$esperado" = "$real" ]
+
+      - name: Migrações do banco
+        run: uv run alembic upgrade head
+
+      # Confere de novo o sha256 de cada tabela dentro do zip e troca o período numa transação.
+      - name: Carregar o pacote
+        run: |
+          uv run python -m ingestion.pncp.pacote carregar \
+            --arquivo "$RUNNER_TEMP/pacote/pncp-pacote.zip" \
+            --manifesto "$RUNNER_TEMP/pacote/pncp-pacote.manifesto.json"
