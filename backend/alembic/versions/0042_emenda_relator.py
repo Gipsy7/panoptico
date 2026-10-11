@@ -2,8 +2,8 @@
 
 Só aditiva: tabela nova `emenda_relator_indicacao`.
 
-Revision ID: 0041_emenda_relator
-Revises: 0040_transferegov
+Revision ID: 0042_emenda_relator
+Revises: 0041_cargo_especial_cpgf
 Create Date: 2026-10-11
 """
 
@@ -13,8 +13,8 @@ import sqlalchemy as sa
 
 from alembic import op
 
-revision: str = "0041_emenda_relator"
-down_revision: str | None = "0040_transferegov"
+revision: str = "0042_emenda_relator"
+down_revision: str | None = "0041_cargo_especial_cpgf"
 branch_labels: str | Sequence[str] | None = None
 depends_on: str | Sequence[str] | None = None
 
