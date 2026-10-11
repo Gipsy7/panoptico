@@ -698,6 +698,15 @@ O plano é juntar tudo o que é público sobre quem exerce função pública: pr
 - **Cache:** a resposta continua sob o middleware (`s-maxage=3600`), com teste.
 - **Fora do escopo:** cidades/municípios (a busca não os cobre; o CEP e a página do estado levam até eles); proposições; nome parlamentar pela grafia da Câmara/Senado além do que já existia. Pessoa com vínculo só por nome não revisado não aparece.
 
+## 2026-10-11: cargos federais e viagens a serviço (Portal da Transparência)
+
+- **Pergunta que responde:** "esta pessoa que acompanhamos (ex-deputado, ex-prefeito, ex-vereador, suplente) tem hoje, ou teve, cargo de confiança no governo federal? Quanto viajou a serviço?"
+- **Coleta mínima:** do cadastro de 780 mil servidores guardamos só os **cargos de confiança de pessoas da base** (15 pessoas em agosto/2026; 251 pessoas da base constam no SIAPE, as outras 236 só com cargo de carreira, fora). Remuneração fica de fora: +169 MB por mês e o valor não responde a nada que o site mostre. Viagens: só as realizadas, de pessoas da base, **somadas por ano** (quantidade, diárias, passagens, outros gastos e devoluções); destino, motivo e trechos ficam no Portal.
+- **Identidade:** só vínculo forte publica. Ligação por 6 dígitos do meio do CPF + nome igual e única na base (`cpf_parcial_nome`). Pessoa sem CPF completo nunca liga (o nome sozinho não basta), e nenhum CPF é guardado ou exibido. Conferência à mão dos 15 cargos: todos têm candidatura no TSE compatível com a pessoa (UF da lotação igual à da disputa quando o órgão é regional; Brasília nos ministérios), e os casos conhecidos batem com a imprensa (Chico D'Angelo na ANS, Leonardo de Brito no MEC, Eliane Aquino no MDS). Ver o relatório da carga em `docs/FONTES_DE_DADOS.md`.
+- **Histórico de entradas e saídas:** `servidor_federal` guarda, por cargo, o primeiro e o último mês do cadastro em que ele apareceu. Cada mês novo acumula; o cargo que deixa de constar fica com o último mês antigo e o evento diz "último cadastro em que consta: <mês>". Não inferimos exoneração (o cadastro não diz o motivo).
+- **Evento:** `cargo_federal`, "Nomeado(a) para <função> (<sigla nível>), <atividade> em <órgão> (Portal da Transparência, cadastro de <mês>)", com a data de ingresso no cargo. `viagem_federal`: "N viagens a serviço em AAAA: R$ ... em diárias, R$ ... em passagens...", com a data da última viagem do ano. Um grupo só na linha do tempo, "Cargos no governo federal".
+- **Produção:** tabelas pequenas (64 KB e 96 KB no acervo; migração aditiva `0039_servidor_federal`). Entra no `ingestao-justica.yml` depois das sanções. A produção só tem CPF completo de ~3 mil pessoas (TSE mascara 2024), então liga bem menos que o acervo até carregar 2016 e 2020. O download (83 MB + 156 MB por ano) fica no GitHub e só repete quando o Portal atualiza o arquivo.
+
 ## 2026-10-10: fontes de Justiça e identidade na produção
 
 - **Por quê:** a linha do tempo dos perfis (`/pessoas/...`), a busca de pessoas e as CPIs só existiam no acervo local; na produção as tabelas `pessoa`, `evento`, `processo`, `cpi*` estavam vazias.

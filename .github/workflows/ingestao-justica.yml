@@ -71,6 +71,22 @@ jobs:
         if: ${{ !cancelled() }}
         run: uv run python -m ingestion.transparencia.sancoes
 
+      # Cargos de confiança no governo federal e viagens a serviço das pessoas da base (Portal da
+      # Transparência). Zips de 83 MB (servidores, mês) e 156 MB (viagens, ano), lidos em fluxo e
+      # só baixados quando o Portal os atualiza (sonda Last-Modified + sha256); gravam poucas
+      # dezenas de linhas. Se o Portal pedir verificação humana (WAF), o passo falha sem efeito.
+      - name: "Cargos federais (Portal da Transparência: cadastro de servidores)"
+        if: ${{ !cancelled() }}
+        run: uv run python -m ingestion.transparencia.servidores
+
+      - name: "Viagens a serviço (Portal da Transparência)"
+        if: ${{ !cancelled() }}
+        run: |
+          ano=$(date +%Y)
+          for a in $((ano - 1)) $ano; do
+            uv run python -m ingestion.transparencia.viagens --ano "$a"
+          done
+
       # Sócios das empresas sancionadas e dos 1.000 maiores fornecedores (ligam a pessoa aos
       # contratos do PNCP). Consulta por CNPJ a um serviço comunitário, 2 s cada, com cache de
       # 30 dias: o limite por execução espalha as consultas por algumas semanas. Cada consulta
