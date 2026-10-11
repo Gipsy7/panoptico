@@ -162,7 +162,12 @@ def contrato_inteiro(
         "valor_global": _valor(c.get("valorGlobal")),
         "valor_acumulado": _valor(c.get("valorAcumulado")),
         "valor_suspeito": suspeito.eh_suspeito(
-            _valor(c.get("valorGlobal")), orgao.get("esferaId"), ibge, limites
+            _valor(c.get("valorGlobal")),
+            orgao.get("esferaId"),
+            ibge,
+            limites,
+            _valor(c.get("valorInicial")),
+            c.get("numeroControlePNCP"),
         ),
         "data_assinatura": _data(c.get("dataAssinatura")),
         "vigencia_inicio": _data(c.get("dataVigenciaInicio")),
@@ -206,12 +211,13 @@ def somar(
         soma[1] += valor
         if orgao.get("esferaId") == "M" and cnpj and ibge and valor > 0:
             nome = (sem_cpf(c.get("nomeRazaoSocialFornecedor")) or "")[:120]
-            if suspeito.eh_suspeito(valor, "M", ibge, limites):
+            inicial, numero = _valor(c.get("valorInicial")), c.get("numeroControlePNCP")
+            if suspeito.eh_suspeito(valor, "M", ibge, limites, inicial, numero):
                 d.suspeitos.append({
                     "municipio_ibge": ibge, "orgao_cnpj": orgao_cnpj, "fornecedor_cnpj": cnpj,
                     "referencia": (c.get("numeroControlePNCP") or "")[:40],
                     "fornecedor_nome": nome or None, "quantidade": 1, "valor_global": valor,
-                    "limite": suspeito.limite("M", ibge, limites),
+                    "limite": suspeito.limite("M", ibge, limites, inicial, numero),
                 })  # fmt: skip
             else:
                 municipal = d.municipais[(ibge, cnpj)]
@@ -242,7 +248,11 @@ def _get_pagina(client: httpx.Client, url: str, params: dict) -> httpx.Response:
 
 
 def paginas(
-    client: httpx.Client, url: str, dia: date, pausa: float = PAUSA
+    client: httpx.Client,
+    url: str,
+    dia: date,
+    pausa: float = PAUSA,
+    extra: dict[str, Any] | None = None,
 ) -> Iterator[tuple[dict[str, Any], bytes]]:
     """As páginas de um dia, uma requisição por vez. Dia sem registros responde 204."""
     pagina = 1
@@ -252,6 +262,7 @@ def paginas(
             "dataFinal": f"{dia:%Y%m%d}",
             "pagina": pagina,
             "tamanhoPagina": TAMANHO_PAGINA,
+            **(extra or {}),
         }
         resposta = _get_pagina(client, url, params)
         corpo = resposta.json() if resposta.content else {}

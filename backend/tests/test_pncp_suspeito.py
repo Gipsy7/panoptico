@@ -38,6 +38,24 @@ def test_regra_do_valor_suspeito():
     assert not suspeito.eh_suspeito(None, "M", "1", limites)
 
 
+def test_salto_de_valor_mais_de_100_vezes_o_inicial():
+    cem = Decimal("100")
+    assert not suspeito.eh_suspeito(Decimal("10000"), "M", "1", None, Decimal("100"))  # 100x vale
+    assert suspeito.eh_suspeito(Decimal("10000.01"), "M", "1", None, Decimal("100"))
+    assert suspeito.limite("M", "1", None, Decimal("100")) == cem * 100
+    for inicial in (None, Decimal(0)):  # sem base de comparação: não dispara
+        assert not suspeito.eh_suspeito(Decimal("999999"), "M", "1", None, inicial)
+    # vale o menor entre o salto e o limite do município
+    assert suspeito.limite("M", "1", {"1": Decimal("500")}, Decimal("100")) == Decimal("500")
+    assert suspeito.limite("M", "1", {"1": Decimal("50000")}, Decimal("100")) == Decimal("10000")
+    # termo de Campinas: inicial = global no PNCP, então só o caso conhecido o marca
+    n = "51885242000140-2-000286/2026"
+    v = Decimal("3060318000")
+    assert not suspeito.eh_suspeito(v, "M", "3509502", None, v)
+    assert suspeito.eh_suspeito(v, "M", "3509502", None, v, n)
+    assert not suspeito.eh_suspeito(Decimal("2828730"), "M", "3509502", None, None, n)
+
+
 def _contas(ano, despesa):
     return ContasMunicipio(
         municipio_ibge=IBGE, ano=ano, despesa_paga=Decimal(despesa), despesa_por_area={}
@@ -82,6 +100,19 @@ def test_somar_separa_valor_suspeito_da_soma_municipal_e_marca_o_alvo():
     assert [d.alvo[k]["valor_suspeito"] for k in ("A-1", "A-2", "A-3")] == [False, False, True]
     assert d.alvo["A-3"]["valor_global"] == Decimal("999999999999.00")
     assert sum(v[1] for v in d.somas.values()) == Decimal("1000000000999.00")  # pncp_soma bruta
+
+
+def test_somar_marca_salto_de_valor_pelo_inicial():
+    d = contratos.Dia(date(2026, 10, 1))
+    cs = [_contrato_municipal("S-1", 1000), _contrato_municipal("S-2", 1001),
+          _contrato_municipal("S-3", 1001)]  # fmt: skip
+    cs[0]["valorInicial"], cs[1]["valorInicial"] = 10, 10  # 100x e acima de 100x
+    cs[2]["valorInicial"] = 0
+    contratos.somar(d, cs, {CNPJ}, None)
+    assert [s["referencia"] for s in d.suspeitos] == ["S-2"]
+    assert d.suspeitos[0]["limite"] == Decimal("1000")
+    assert d.municipais[(IBGE, CNPJ)][:2] == [2, Decimal("2001.00")]
+    assert [d.alvo[k]["valor_suspeito"] for k in ("S-1", "S-2", "S-3")] == [False, True, False]
 
 
 def test_producao_grava_suspeito_e_reler_o_dia_nao_duplica(session):
@@ -157,6 +188,25 @@ def test_pacote_tira_suspeito_das_somas_e_o_guarda_a_parte(acervo, tmp_path):
     for _ in range(2):
         pacote.carregar(acervo, manifesto, tabelas)
     assert acervo.scalar(select(func.count()).select_from(PncpSuspeito)) == 2
+
+
+def test_pacote_tira_os_saltos_achados_da_api_das_somas(acervo):
+    acervo.add(_soma(date(2026, 3, 2), CNPJ_B, 2, "900", "Contrato"))  # 1 salto + 1 normal
+    acervo.flush()
+    salto = {
+        "numero": "1-2-1/2026", "dia": "2026-03-02", "orgao_cnpj": "1" * 14,
+        "municipio_ibge": IBGE, "fornecedor_cnpj": CNPJ_B, "tipo_contrato": "Contrato",
+        "valor_inicial": "5", "valor_global": "800",
+    }  # fmt: skip
+    t = pacote.montar(acervo, HOJE, [salto])
+    [x] = [x for x in t["pncp_suspeito"] if x["referencia"]]
+    assert (x["valor_global"], x["limite"], x["quantidade"]) == (
+        Decimal("800"), Decimal("500"), 1,
+    )  # fmt: skip
+    anual = {(a["fornecedor_cnpj"], a["valor_global"], a["quantidade"]) for a in t["pncp_anual"]}
+    assert (CNPJ_B, Decimal("170.00"), 2) in anual  # 70 de 29/09 + 100 que sobrou, sem o salto
+    sem = pacote.montar(acervo, HOJE)
+    assert not [x for x in sem["pncp_suspeito"] if x["referencia"]]
 
 
 # --- exibição (API) ---------------------------------------------------------------------------

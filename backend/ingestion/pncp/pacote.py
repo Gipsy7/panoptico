@@ -127,14 +127,39 @@ def _nome_limpo(nomes: dict[str, str], cnpj: str) -> str | None:
     return (sem_cpf(nomes.get(cnpj)) or "")[:120] or None
 
 
-def montar(session: Session, hoje: date) -> dict[str, list[dict[str, Any]]]:
-    """As quatro tabelas, como `contratos --producao` as deixaria em `hoje`."""
+# `pncp_soma` sem os contratos de salto de valor (`salto.py`): tira da linha do dia × órgão ×
+# fornecedor × tipo a quantidade e o valor de cada um (nunca abaixo de zero)
+SOMA_SEM_SALTOS = """(
+    SELECT p0.dia, p0.orgao_cnpj, p0.municipio_ibge, p0.fornecedor_cnpj,
+           GREATEST(p0.quantidade - COALESCE(s.q, 0), 0) AS quantidade,
+           GREATEST(p0.valor_global - COALESCE(s.v, 0), 0) AS valor_global
+    FROM pncp_soma p0 LEFT JOIN (
+        SELECT dia, orgao_cnpj, municipio_ibge, fornecedor_cnpj, tipo_contrato,
+               count(*) AS q, sum(valor_global) AS v
+        FROM jsonb_to_recordset(CAST(:saltos AS jsonb)) AS x(
+            dia date, orgao_cnpj text, municipio_ibge text, fornecedor_cnpj text,
+            tipo_contrato text, valor_global numeric)
+        GROUP BY 1, 2, 3, 4, 5
+    ) s ON s.dia = p0.dia AND s.orgao_cnpj = p0.orgao_cnpj
+       AND s.municipio_ibge = p0.municipio_ibge AND s.fornecedor_cnpj = p0.fornecedor_cnpj
+       AND s.tipo_contrato = p0.tipo_contrato
+) p"""
+
+
+def montar(
+    session: Session, hoje: date, saltos: list[dict[str, Any]] | None = None
+) -> dict[str, list[dict[str, Any]]]:
+    """As quatro tabelas, como `contratos --producao` as deixaria em `hoje`. `saltos`: contratos
+    achados por `salto.py` (valor global acima de 100 vezes o inicial), que saem das somas e
+    entram em `pncp_suspeito` um a um."""
+    saltos = [x for x in (saltos or []) if x["dia"] >= f"{anual.ano_minimo(hoje)}-01-01"]
+    json_saltos = json.dumps(saltos)
     inicio = date(anual.ano_minimo(hoje), 1, 1)
     corte = hoje - timedelta(days=anual.JANELA_DIAS)  # antes dele: compactado
     nomes = _nomes(session)
     # limite de cada linha: o menor entre a despesa paga anual do município e o teto absoluto
-    base = """
-        FROM pncp_soma p JOIN pncp_orgao o ON o.cnpj = p.orgao_cnpj AND o.esfera = 'M'
+    base = f"""
+        FROM {SOMA_SEM_SALTOS} JOIN pncp_orgao o ON o.cnpj = p.orgao_cnpj AND o.esfera = 'M'
         LEFT JOIN (
             SELECT DISTINCT ON (municipio_ibge) municipio_ibge, despesa_paga
             FROM contas_municipio WHERE despesa_paga > 0 ORDER BY municipio_ibge, ano DESC
@@ -163,6 +188,7 @@ def montar(session: Session, hoje: date) -> dict[str, list[dict[str, Any]]]:
         ORDER BY ano, municipio_ibge, fornecedor_cnpj
         """,
         inicio=inicio, corte=corte, maiores=anual.MAIORES_POR_MUNICIPIO, teto=teto,
+        saltos=json_saltos,
     )  # fmt: skip
     for linha in soma_anual:
         linha["fornecedor_nome"] = _nome_limpo(nomes, linha["fornecedor_cnpj"])
@@ -176,7 +202,7 @@ def montar(session: Session, hoje: date) -> dict[str, list[dict[str, Any]]]:
         GROUP BY 1, 2, 3 HAVING sum(p.valor_global) > 0
         ORDER BY 1, 2, 3
         """,
-        corte=corte, teto=teto,
+        corte=corte, teto=teto, saltos=json_saltos,
     )  # fmt: skip
     for linha in janela:
         linha["fornecedor_nome"] = _nome_limpo(nomes, linha["fornecedor_cnpj"])
@@ -190,10 +216,20 @@ def montar(session: Session, hoje: date) -> dict[str, list[dict[str, Any]]]:
         {base} AND p.valor_global > {limite} AND p.dia >= :inicio
         GROUP BY 1, 2, 3, 4 ORDER BY 1, 2, 3, 4
         """,
-        inicio=inicio, teto=teto,
+        inicio=inicio, teto=teto, saltos=json_saltos,
     )  # fmt: skip
     for linha in suspeitos:
         linha["fornecedor_nome"] = _nome_limpo(nomes, linha["fornecedor_cnpj"])
+    limites = suspeito.carregar_limites(session)
+    for x in saltos:
+        valor, inicial = Decimal(x["valor_global"]), Decimal(x["valor_inicial"])
+        suspeitos.append({
+            "dia": date.fromisoformat(x["dia"]), "municipio_ibge": x["municipio_ibge"],
+            "orgao_cnpj": x["orgao_cnpj"], "fornecedor_cnpj": x["fornecedor_cnpj"],
+            "referencia": x["numero"][:40], "quantidade": 1, "valor_global": valor,
+            "limite": suspeito.limite("M", x["municipio_ibge"], limites, inicial, x["numero"]),
+            "fornecedor_nome": _nome_limpo(nomes, x["fornecedor_cnpj"]),
+        })  # fmt: skip
 
     dias = _linhas(
         session,
@@ -208,7 +244,6 @@ def montar(session: Session, hoje: date) -> dict[str, list[dict[str, Any]]]:
     alvo = set(session.scalars(select(SancaoEmpresa.cnpj).distinct())) | set(
         session.scalars(select(SocioPessoa.cnpj).distinct())
     )
-    limites = suspeito.carregar_limites(session)
     contratos: list[dict[str, Any]] = []
     colunas = [c.name for c in PncpContrato.__table__.columns]
     for c in session.scalars(
@@ -221,7 +256,7 @@ def montar(session: Session, hoje: date) -> dict[str, list[dict[str, Any]]]:
             continue
         linha = {k: getattr(c, k) for k in colunas if k != "valor_suspeito"}
         linha["valor_suspeito"] = suspeito.eh_suspeito(
-            c.valor_global, c.esfera, c.municipio_ibge, limites
+            c.valor_global, c.esfera, c.municipio_ibge, limites, c.valor_inicial, c.numero_controle
         )
         for k in CAMPOS_TEXTO_CONTRATO:
             if linha[k]:
@@ -252,10 +287,12 @@ def _jsonl(linhas: list[dict[str, Any]]) -> bytes:
     )
 
 
-def gerar(session: Session, destino: Path, hoje: date | None = None) -> dict[str, Any]:
+def gerar(
+    session: Session, destino: Path, hoje: date | None = None, saltos: list | None = None
+) -> dict[str, Any]:
     """Escreve o .zip em `destino` e o manifesto externo ao lado; devolve o manifesto."""
     hoje = hoje or date.today()
-    tabelas = montar(session, hoje)
+    tabelas = montar(session, hoje, saltos)
     achados = varrer_cpf(tabelas)
     if achados:
         raise PacoteInvalido(f"padrão de CPF no pacote: {sorted(set(achados))}")
@@ -408,6 +445,7 @@ def main() -> None:
     g = sub.add_parser("gerar", help="gera o pacote a partir do acervo (só SELECT)")
     g.add_argument("--destino", type=Path, required=True)
     g.add_argument("--url", help="URL do acervo (padrão: DATABASE_URL)")
+    g.add_argument("--saltos", type=Path, help="saltos.json de `ingestion.pncp.salto varrer`")
     g.add_argument("--hoje", type=date.fromisoformat, help="data de referência (padrão: hoje)")
     c = sub.add_parser("carregar", help="grava o pacote no banco de DATABASE_URL")
     c.add_argument("--arquivo", type=Path, required=True)
@@ -422,7 +460,10 @@ def main() -> None:
             from app.db import SessionLocal as sessao
         with sessao() as session:
             session.execute(text("SET TRANSACTION READ ONLY"))
-            m = gerar(session, args.destino, args.hoje)
+            saltos = None
+            if args.saltos:
+                saltos = json.loads(args.saltos.read_text(encoding="utf-8"))["saltos"]
+            m = gerar(session, args.destino, args.hoje, saltos)
         print(json.dumps(m, ensure_ascii=False, indent=1))
     else:
         from app.db import SessionLocal
