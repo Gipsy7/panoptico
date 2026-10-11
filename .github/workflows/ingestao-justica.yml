@@ -87,6 +87,15 @@ jobs:
             uv run python -m ingestion.transparencia.viagens --ano "$a"
           done
 
+      # Cartão de pagamento do governo federal (CPGF): ZIP mensal de ~300 KB, só os 3 últimos
+      # meses publicados. Espera antes, porque o Portal pede verificação humana (405) depois de
+      # ~15 pedidos seguidos do mesmo IP (as viagens acima já usaram alguns).
+      - name: "Cartão de pagamento do governo federal (Portal da Transparência)"
+        if: ${{ !cancelled() }}
+        run: |
+          sleep 300
+          uv run python -m ingestion.transparencia.cpgf
+
       # Sócios das empresas sancionadas e dos 1.000 maiores fornecedores (ligam a pessoa aos
       # contratos do PNCP). Consulta por CNPJ a um serviço comunitário, 2 s cada, com cache de
       # 30 dias: o limite por execução espalha as consultas por algumas semanas. Cada consulta

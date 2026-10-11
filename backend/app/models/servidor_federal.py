@@ -20,7 +20,10 @@ class ServidorFederal(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     pessoa_id: Mapped[int] = mapped_column(ForeignKey("pessoa.id", ondelete="CASCADE"), index=True)
     id_externo: Mapped[str] = mapped_column(String(100))
-    id_portal: Mapped[int] = mapped_column(Integer)  # Id_SERVIDOR_PORTAL (link do Portal)
+    id_portal: Mapped[int | None] = mapped_column(Integer)  # Id_SERVIDOR_PORTAL (link do Portal)
+    # "siape" (cadastro mensal) ou "viagens" (cargo de natureza especial, CNE, lido da função
+    # do viajante; aí `primeiro_mes`/`ultimo_mes` são a primeira e a última viagem com a função).
+    origem: Mapped[str] = mapped_column(String(20), default="siape", server_default="siape")
     sigla: Mapped[str] = mapped_column(String(10))  # CCX, FEX, CD, DAS...
     nivel: Mapped[str | None] = mapped_column(String(6))
     funcao: Mapped[str] = mapped_column(String(120))
@@ -51,3 +54,21 @@ class ViagemFederalAno(Base):
     outros: Mapped[Decimal] = mapped_column(Numeric(14, 2))
     devolucao: Mapped[Decimal] = mapped_column(Numeric(14, 2))
     ultima_viagem: Mapped[date | None] = mapped_column(Date)  # início da última viagem do ano
+
+
+class CpgfPortadorMes(Base):
+    """Gastos no cartão de pagamento do governo federal (CPGF) em que o PORTADOR é pessoa da
+    base (CPF mascarado + nome igual), somados por órgão e mês do extrato. Sem favorecido nem
+    transação individual (coleta mínima; o detalhe está no Portal)."""
+
+    __tablename__ = "cpgf_portador_mes"
+    __table_args__ = (UniqueConstraint("pessoa_id", "orgao", "ano", "mes"),)
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    pessoa_id: Mapped[int] = mapped_column(ForeignKey("pessoa.id", ondelete="CASCADE"))
+    orgao: Mapped[str] = mapped_column(String(160))
+    ano: Mapped[int] = mapped_column(Integer)
+    mes: Mapped[int] = mapped_column(Integer)
+    transacoes: Mapped[int] = mapped_column(Integer)
+    total: Mapped[Decimal] = mapped_column(Numeric(14, 2))
+    saques: Mapped[Decimal] = mapped_column(Numeric(14, 2))  # parte do total sacada em dinheiro

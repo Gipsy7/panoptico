@@ -707,6 +707,13 @@ O plano é juntar tudo o que é público sobre quem exerce função pública: pr
 - **Evento:** `cargo_federal`, "Nomeado(a) para <função> (<sigla nível>), <atividade> em <órgão> (Portal da Transparência, cadastro de <mês>)", com a data de ingresso no cargo. `viagem_federal`: "N viagens a serviço em AAAA: R$ ... em diárias, R$ ... em passagens...", com a data da última viagem do ano. Um grupo só na linha do tempo, "Cargos no governo federal".
 - **Produção:** tabelas pequenas (64 KB e 96 KB no acervo; migração aditiva `0039_servidor_federal`). Entra no `ingestao-justica.yml` depois das sanções. A produção só tem CPF completo de ~3 mil pessoas (TSE mascara 2024), então liga bem menos que o acervo até carregar 2016 e 2020. O download (83 MB + 156 MB por ano) fica no GitHub e só repete quando o Portal atualiza o arquivo.
 
+## 2026-10-11: ministros (cargo de natureza especial) e cartão de pagamento do governo federal
+
+- **Ministros:** o cadastro SIAPE não traz o cargo deles, mas as viagens trazem `Função = CNE-0001` com o ministério. Lemos isso na mesma passada do `Viagem.csv` (sem download novo) e gravamos em `servidor_federal` com `origem = "viagens"`, com o período observado (primeira e última viagem). O evento diz "Exerceu cargo de natureza especial em <órgão> (registro de viagens a serviço, <período>)": o período é o das viagens, não o da posse, e a redação não afirma datas de nomeação nem de saída. Fonte própria na linha do tempo (`cgu_viagens_cne`) para as cargas de viagens e de servidores não apagarem os eventos uma da outra; as consultas do SIAPE passaram a filtrar `origem = "siape"`.
+- **CPGF:** só quando o PORTADOR é pessoa da base, por CPF parcial + nome igual. Portador só com nome não liga (homônimos: os nomes iguais têm outros dígitos). Somas por pessoa x órgão x mês (a carga troca o mês inteiro), evento por ano. Sem favorecido: o que a pessoa comprou e de quem fica no Portal.
+- **Migração `0041_cargo_especial_cpgf`** (down_revision `0040_transferegov`): coluna `servidor_federal.origem` (padrão `siape`), `id_portal` aceita nulo, tabela `cpgf_portador_mes`. Aditiva.
+- **Produção:** viagens já está no `ingestao-justica.yml`; o CPGF entrou depois delas, com `sleep 300` (o WAF do Portal bloqueia depois de ~15 pedidos seguidos) e só os 3 últimos meses publicados (~1 MB). Tipo de evento novo `cartao_corporativo`, no grupo "Cargos no governo federal" da linha do tempo.
+
 ## 2026-10-10: fontes de Justiça e identidade na produção
 
 - **Por quê:** a linha do tempo dos perfis (`/pessoas/...`), a busca de pessoas e as CPIs só existiam no acervo local; na produção as tabelas `pessoa`, `evento`, `processo`, `cpi*` estavam vazias.

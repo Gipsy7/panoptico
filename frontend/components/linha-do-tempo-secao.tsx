@@ -30,8 +30,8 @@ const GRUPOS: { titulo: string; detalhe: string; tipos: string[] }[] = [
   },
   {
     titulo: "Cargos no governo federal",
-    detalhe: "cargos de confiança e viagens a serviço, no Portal da Transparência",
-    tipos: ["cargo_federal", "viagem_federal"],
+    detalhe: "cargos de confiança, viagens a serviço e cartão de pagamento, no Portal da Transparência",
+    tipos: ["cargo_federal", "viagem_federal", "cartao_corporativo"],
   },
   {
     titulo: "Sanções",

@@ -165,7 +165,9 @@ def gravar(session: Session, registros: list[dict[str, Any]], mes: date) -> int:
         k
         for k in session.scalars(
             select(ServidorFederal.id_externo).where(
-                ServidorFederal.primeiro_mes == mes, ServidorFederal.ultimo_mes == mes
+                ServidorFederal.origem == "siape",
+                ServidorFederal.primeiro_mes == mes,
+                ServidorFederal.ultimo_mes == mes,
             )
         )
         if k not in chaves
@@ -203,11 +205,13 @@ def descricao(s: ServidorFederal) -> str:
 def publicar_eventos(session: Session, ingestao_id: int | None) -> int:
     """Refaz vínculos e eventos desta fonte a partir de `servidor_federal` (todo o histórico)."""
     session.execute(delete(PessoaVinculo).where(PessoaVinculo.fonte == FONTE))  # eventos em cascata
-    recente = session.scalar(select(func.max(ServidorFederal.ultimo_mes)))
+    recente = session.scalar(
+        select(func.max(ServidorFederal.ultimo_mes)).where(ServidorFederal.origem == "siape")
+    )
     if recente is None:
         return 0
     total = 0
-    for s in session.scalars(select(ServidorFederal)):
+    for s in session.scalars(select(ServidorFederal).where(ServidorFederal.origem == "siape")):
         vinculo_id = session.scalar(
             insert(PessoaVinculo)
             .values(pessoa_id=s.pessoa_id, fonte=FONTE, id_externo=s.id_externo,
