@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
 const ITENS = [
   { href: "/parlamentares", rotulo: "Parlamentares" },
@@ -12,57 +12,88 @@ const ITENS = [
 ];
 
 /**
- * Menu do topo. No computador, links em linha; no celular, um <details> que abre um painel
- * (funciona sem JavaScript; com JavaScript, fecha ao escolher um link). Não lê a URL atual de
+ * Menu do topo. No computador, links em linha. No celular, o botão "Buscar pelo CEP" fica sempre
+ * visível e o menu é um botão (`aria-expanded`) que abre um painel sob o cabeçalho; o painel fecha
+ * ao tocar num link, ao tocar fora e com Esc, e trava a rolagem do fundo. Não lê a URL atual de
  * propósito: no layout, isso obrigaria a renderizar o cabeçalho a cada pedido.
  */
 export function MenuPrincipal() {
-  const celular = useRef<HTMLDetailsElement>(null);
-  const fechar = () => {
-    if (celular.current) celular.current.open = false;
-  };
+  const [aberto, setAberto] = useState(false);
+  const botao = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    if (!aberto) return;
+    const anterior = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const aoTeclar = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setAberto(false);
+        botao.current?.focus();
+      }
+    };
+    document.addEventListener("keydown", aoTeclar);
+    return () => {
+      document.body.style.overflow = anterior;
+      document.removeEventListener("keydown", aoTeclar);
+    };
+  }, [aberto]);
 
   return (
     <>
       <nav aria-label="Principal" className="hidden items-center gap-6 text-sm md:flex">
         {ITENS.map((i) => (
-          <Link key={i.href} href={i.href} className="underline-offset-4 hover:underline">
+          <Link key={i.href} href={i.href} className="alvo-link underline-offset-4 hover:underline">
             {i.rotulo}
           </Link>
         ))}
-        <Link href="/#cep" className="botao-linha h-9 px-4">
+        <Link href="/#cep" className="botao-linha px-4">
           Buscar pelo CEP
         </Link>
       </nav>
 
-      <details ref={celular} className="group md:hidden">
-        <summary
-          aria-label="Menu"
-          className="flex size-10 cursor-pointer list-none items-center justify-center rounded-[2px] focus-visible:outline-2 focus-visible:outline-bronze [&::-webkit-details-marker]:hidden"
+      <div className="flex items-center gap-2 md:hidden">
+        <Link href="/#cep" onClick={() => setAberto(false)} className="botao-linha px-3">
+          Buscar pelo CEP
+        </Link>
+        <button
+          ref={botao}
+          type="button"
+          aria-label={aberto ? "Fechar o menu" : "Abrir o menu"}
+          aria-expanded={aberto}
+          aria-controls="menu-celular"
+          onClick={() => setAberto((v) => !v)}
+          className="flex size-11 items-center justify-center rounded-[2px] focus-visible:outline-2 focus-visible:outline-bronze"
         >
           <svg aria-hidden viewBox="0 0 24 24" className="size-6" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round">
-            <path d="M4 7h16M4 12h16M4 17h16" className="group-open:hidden" />
-            <path d="M6 6l12 12M18 6L6 18" className="hidden group-open:block" />
+            {aberto ? <path d="M6 6l12 12M18 6L6 18" /> : <path d="M4 7h16M4 12h16M4 17h16" />}
           </svg>
-        </summary>
-        <nav
-          aria-label="Principal"
-          className="absolute inset-x-0 top-full border-b border-border bg-background px-4 pb-5 shadow-[0_16px_24px_-20px_rgb(0_0_0/0.25)]"
+        </button>
+      </div>
+
+      {aberto && (
+        // Toque fora da lista (na área abaixo dela) fecha o painel.
+        <div
+          id="menu-celular"
+          onClick={() => setAberto(false)}
+          className="absolute inset-x-0 top-full h-[calc(100dvh-3.5rem)] bg-background/95 md:hidden"
         >
-          <ul className="lista-fios flex flex-col text-base">
-            {ITENS.map((i) => (
-              <li key={i.href}>
-                <Link href={i.href} onClick={fechar} className="block py-3">
-                  {i.rotulo}
-                </Link>
-              </li>
-            ))}
-          </ul>
-          <Link href="/#cep" onClick={fechar} className="botao mt-4 w-full">
-            Buscar pelo CEP
-          </Link>
-        </nav>
-      </details>
+          <nav
+            aria-label="Menu"
+            onClick={(e) => e.stopPropagation()}
+            className="border-b border-border bg-background px-4 pb-5 shadow-[0_16px_24px_-20px_rgb(0_0_0/0.25)]"
+          >
+            <ul className="lista-fios flex flex-col text-base">
+              {ITENS.map((i) => (
+                <li key={i.href}>
+                  <Link href={i.href} onClick={() => setAberto(false)} className="flex min-h-12 items-center">
+                    {i.rotulo}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </nav>
+        </div>
+      )}
     </>
   );
 }

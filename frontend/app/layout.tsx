@@ -38,7 +38,7 @@ export const viewport: Viewport = {
   themeColor: "#f4f1ea",
 };
 
-const LINK = "underline underline-offset-2 hover:text-foreground";
+const LINK = "alvo-link underline underline-offset-2 hover:text-foreground";
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
@@ -57,7 +57,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           style={{ viewTransitionName: "site-header" }}
           className="sticky top-0 z-40 border-b border-border/70 bg-background/85 backdrop-blur-md"
         >
-          <div className="mx-auto flex w-full max-w-5xl items-center justify-between gap-4 px-4 py-3">
+          <div className="mx-auto flex w-full max-w-5xl items-center h-14 justify-between gap-4 px-4">
             <Link
               href="/"
               aria-label="Panóptico.social, página inicial"
@@ -72,7 +72,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           {children}
         </main>
         <footer className="mt-8 border-t border-border/70">
-          <div className="mx-auto flex w-full max-w-5xl flex-col gap-4 px-4 py-8 text-xs text-muted-foreground">
+          <div className="mx-auto flex w-full max-w-5xl flex-col gap-4 px-4 py-8 text-sm text-muted-foreground">
             <div className="flex items-start gap-3">
               <Marca tamanho={28} traco={2.4} className="shrink-0 text-bronze" />
               <p className="max-w-prose text-sm leading-relaxed">
@@ -80,7 +80,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
                 Aqui é o contrário: todos podem ver quem os representa.
               </p>
             </div>
-            <nav aria-label="Rodapé" className="flex flex-wrap gap-x-4 gap-y-1">
+            <nav aria-label="Rodapé" className="flex flex-wrap gap-x-6 gap-y-1">
               <Link href="/partidos" className={LINK}>
                 Dinheiro dos partidos
               </Link>
