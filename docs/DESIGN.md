@@ -157,7 +157,7 @@ Referências conferidas no código de `frontend/` em 17/10/2026.
 
 ## 7. Comparador de até 4 pessoas (estilo TudoCelular)
 
-Rota única `/comparar?p=1&p=10&p=57&p=88` (compatível com `a` e `b` atuais, que viram `p`). Mínimo 2, máximo 4.
+Rota única `/comparar?ids=1,10,57,88` (mesmo parâmetro da API; `a` e `b` continuam valendo). Mínimo 2, máximo 4.
 
 **Celular, 360 px.** Colunas de 140 px de largura; a coluna de rótulos fica fixa à esquerda (96 px) e as pessoas rolam com
 `scroll-snap-type: x mandatory`; cada coluna é um ponto de parada. Cabeçalho (fotos) fixo no topo com `sticky top-14`.
