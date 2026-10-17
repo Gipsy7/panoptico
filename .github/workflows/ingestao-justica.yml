@@ -100,7 +100,9 @@ jobs:
       # contratos do PNCP). Consulta por CNPJ a um serviço comunitário, 2 s cada, com cache de
       # 30 dias: o limite por execução espalha as consultas por algumas semanas. Cada consulta
       # leva 7 a 13 s a partir do Actions, então --minutos 40 encerra limpo (o feito fica salvo)
-      # antes do timeout do passo. Na produção quase nada se liga enquanto faltarem as
+      # antes do timeout do passo. O prazo vale dentro de cada consulta (tentativas, esperas e
+      # timeout da requisição), não só entre CNPJs: em 10/10 o passo estourou os 60 min porque
+      # um CNPJ lento podia passar de 10 min sozinho. Na produção quase nada se liga enquanto faltarem as
       # eleições de 2016 e 2020 (CPF completo): ver docs/DEPLOY_GRATUITO.md.
       - name: Sócios das empresas (Receita Federal, via Querido Diário)
         if: ${{ !cancelled() }}

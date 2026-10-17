@@ -104,13 +104,18 @@ def estourou(limite: float | None) -> bool:
     return limite is not None and time.monotonic() >= limite
 
 
-def consultar(client: httpx.Client, cnpj: str) -> dict | None:
+def consultar(client: httpx.Client, cnpj: str, limite: float | None = None) -> dict | None:
+    """Consulta um CNPJ. O prazo (`limite`, em time.monotonic) vale também aqui dentro:
+    antes de cada tentativa, nas esperas e no tempo de cada requisição. Antes só era checado
+    entre CNPJs, e um CNPJ com 4 tentativas lentas passava de 10 minutos do orçamento."""
     for tentativa in range(1, 5):
-        time.sleep(PAUSA)
+        if estourou(limite):
+            return None
+        _dormir(PAUSA, limite)
         try:
-            resposta = client.get(URL.format(cnpj=cnpj))
+            resposta = client.get(URL.format(cnpj=cnpj), timeout=_timeout(limite))
         except httpx.TransportError:
-            time.sleep(10 * tentativa)
+            _dormir(10 * tentativa, limite)
             continue
         if resposta.status_code == 404:
             return {"partners": []}
@@ -119,8 +124,21 @@ def consultar(client: httpx.Client, cnpj: str) -> dict | None:
                 return resposta.json()
             except ValueError:
                 return None
-        time.sleep(10 * tentativa)  # 503 "no available server": espera e tenta de novo
+        _dormir(10 * tentativa, limite)  # 503 "no available server": espera e tenta de novo
     return None
+
+
+def _dormir(segundos: float, limite: float | None) -> None:
+    """Espera sem passar do prazo."""
+    if limite is not None:
+        segundos = min(segundos, max(0.0, limite - time.monotonic()))
+    time.sleep(segundos)
+
+
+def _timeout(limite: float | None) -> httpx.Timeout:
+    """Timeout de uma requisição: o padrão do cliente, encolhido ao que resta do prazo."""
+    resta = 120.0 if limite is None else max(1.0, limite - time.monotonic())
+    return httpx.Timeout(min(30.0, resta), connect=min(60.0, resta), read=min(120.0, resta))
 
 
 def executar(maximo: int | None = None, minutos: float | None = None, refazer: bool = False) -> int:
@@ -169,7 +187,7 @@ def executar(maximo: int | None = None, minutos: float | None = None, refazer: b
                         flush=True,
                     )
                     break
-                resposta = consultar(client, cnpj)
+                resposta = consultar(client, cnpj, limite)
                 if resposta is None:
                     falhas += 1
                     continue

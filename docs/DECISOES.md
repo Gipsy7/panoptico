@@ -912,3 +912,13 @@ O plano é juntar tudo o que é público sobre quem exerce função pública: pr
 ## 2026-10-11: nove assembleias só a partir do Brasil
 
 - **ALMG, CLDF, ALEPE, ALRS, ALES, ALEMA, ALAP, ALBA e ALESE:** tempo esgotado (ALBA: 403) nos servidores do GitHub Actions, duas vezes seguidas (execução 38142411556 e reexecução); daqui todos respondem em menos de 1 s. Bloqueio por país, como no TCE-RS e na ALRR. Jobs desligados com `if: false` (sem apagar), fontes com `acesso = "brasil"`, atualização só pelo acervo local; na produção, última carga feita (ALMG, ALEPE e CLDF com dados anteriores; as outras seis ainda sem carga).
+
+## 2026-10-17: ingestão diária mais resiliente a falhas passageiras
+
+Em 15/10 (`ibge_municipios`, ConnectTimeout) e 16/10 (`senado_votacoes`, 503 numa data) a ingestão falhou e o dia seguinte passou sozinho; em 10/10 o passo de sócios estourou o `timeout-minutes` mesmo com `--minutos 40`.
+
+- `comum._get`: 5 tentativas (antes 3), backoff exponencial com teto de 60 s e jitter de até 1 s; `Retry-After` respeitado (também com teto de 60 s). Retentáveis: `ConnectTimeout`, `ReadTimeout`, `RemoteProtocolError` (e demais erros de transporte), 5xx e 429; os outros 4xx sobem na hora. Quem passa `tentativas` continua valendo. Connect timeout do cliente subiu para 60 s.
+- Votações do Senado: se a orientação de uma data falhar depois dos retries, a data é pulada com aviso no log; o ano não é abortado (as orientações são complemento).
+- `run_all`: depois da 1ª passada, as tarefas que falharam rodam de novo após `INGESTAO_ESPERA_SEGUNDA_PASSADA` segundos (padrão 120; 0 nos testes). O código de saída é 1 só se algo falhar também na 2ª passada. Se recuperou alguma fonte, os resumos são refeitos. Com `GITHUB_STEP_SUMMARY`, o painel do Actions lista o que falhou na 1ª e o que se recuperou.
+- Sócios: o prazo `--minutos` só era checado entre CNPJs; cada CNPJ podia gastar 4 tentativas de até 120 s de leitura mais esperas de 10 a 40 s. Agora o prazo vale antes de cada tentativa, limita as esperas e encolhe o timeout de cada requisição.
+
