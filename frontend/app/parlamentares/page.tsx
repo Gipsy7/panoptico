@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Form from "next/form";
 import Link from "next/link";
 
+import { EsqueletoSecao } from "@/components/esqueleto-secao";
 import { AvisoErro } from "@/components/aviso-erro";
 import { Revelacao } from "@/components/revelacao";
 import { FonteRodape } from "@/components/fonte-rodape";
@@ -36,7 +37,7 @@ export default function ParlamentaresPage({ searchParams }: PageProps<"/parlamen
           cada número vem de fonte oficial e não é uma nota.
         </p>
       </header>
-      <Revelacao fallback={<p className="text-muted-foreground">Carregando…</p>}>
+      <Revelacao fallback={<EsqueletoSecao rotulo="Carregando a lista de parlamentares…" secoes={2} />}>
         {searchParams.then((sp) => {
           const filtros: FiltrosLista = {};
           for (const campo of CAMPOS) {

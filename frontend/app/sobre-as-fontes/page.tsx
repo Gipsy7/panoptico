@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 
+import { EsqueletoSecao } from "@/components/esqueleto-secao";
 import { Revelacao } from "@/components/revelacao";
 import { getFontes } from "@/lib/api";
 import { formatarData } from "@/lib/formato";
@@ -25,7 +26,7 @@ export default function SobreAsFontesPage() {
         <h2 id="fontes-titulo" className="text-2xl">
           De onde vem cada dado
         </h2>
-        <Revelacao fallback={<p className="text-muted-foreground">Carregando…</p>}>
+        <Revelacao fallback={<EsqueletoSecao rotulo="Carregando…" secoes={2} />}>
           <ListaFontes />
         </Revelacao>
       </section>

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
+import { EsqueletoSecao } from "@/components/esqueleto-secao";
 import { AvisoErro } from "@/components/aviso-erro";
 import { PartidoSecao } from "@/components/partido-secao";
 import { Revelacao } from "@/components/revelacao";
@@ -19,7 +20,7 @@ const texto = (v: string | string[] | undefined) => (typeof v === "string" && v 
 
 export default function PartidoPage({ params, searchParams }: PageProps<"/partidos/[sigla]">) {
   return (
-    <Revelacao fallback={<p className="text-muted-foreground">Carregando…</p>}>
+    <Revelacao fallback={<EsqueletoSecao rotulo="Carregando as contas do partido…" secoes={3} />}>
       {Promise.all([params, searchParams]).then(([{ sigla }, sp]) => (
         <Conteudo sigla={decodeURIComponent(sigla)} ano={texto(sp.ano)} />
       ))}

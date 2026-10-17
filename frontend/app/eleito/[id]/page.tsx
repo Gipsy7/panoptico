@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { EsqueletoSecao } from "@/components/esqueleto-secao";
 import { notFound, redirect } from "next/navigation";
 
 import { AvisoErro } from "@/components/aviso-erro";
@@ -24,7 +25,7 @@ export async function generateMetadata({ params }: PageProps<"/eleito/[id]">): P
 
 export default function EleitoPage({ params }: PageProps<"/eleito/[id]">) {
   return (
-    <Revelacao fallback={<p className="text-muted-foreground">Carregando…</p>}>
+    <Revelacao fallback={<EsqueletoSecao rotulo="Carregando o perfil…" secoes={3} />}>
       {params.then(({ id }) => (
         <Perfil id={id} />
       ))}

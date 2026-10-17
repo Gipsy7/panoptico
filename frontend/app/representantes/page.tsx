@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
+import { EsqueletoSecao } from "@/components/esqueleto-secao";
 import { AvisoErro } from "@/components/aviso-erro";
 import { Revelacao } from "@/components/revelacao";
 import { CompartilharWhatsApp } from "@/components/compartilhar";
@@ -39,7 +40,7 @@ type Busca = { cep?: string; uf?: string; municipio?: string };
 
 export default function RepresentantesPage({ searchParams }: PageProps<"/representantes">) {
   return (
-    <Revelacao fallback={<Carregando />}>
+    <Revelacao fallback={<EsqueletoSecao rotulo="Carregando representantes…" secoes={4} />}>
       {searchParams.then((sp) => (
         <Lista
           cep={primeiro(sp.cep)}
@@ -238,17 +239,5 @@ function Secao({
         </ul>
       )}
     </section>
-  );
-}
-
-function Carregando() {
-  return (
-    <div className="flex flex-col gap-3" aria-busy="true" aria-live="polite">
-      <span className="sr-only">Carregando representantes…</span>
-      <div className="h-8 w-2/3 animate-pulse rounded-[2px] bg-muted" />
-      {Array.from({ length: 6 }, (_, i) => (
-        <div key={i} className="h-16 animate-pulse rounded-[2px] bg-muted" />
-      ))}
-    </div>
   );
 }

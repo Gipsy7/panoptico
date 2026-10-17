@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 
+import { EsqueletoSecao } from "@/components/esqueleto-secao";
 import { PerfilMandatoLocal } from "@/components/mandato-local-perfil";
 import { Revelacao } from "@/components/revelacao";
 import { getVereador } from "@/lib/api";
@@ -15,7 +16,7 @@ export async function generateMetadata({ params }: PageProps<"/vereador/[id]">):
 
 export default function Pagina({ params, searchParams }: PageProps<"/vereador/[id]">) {
   return (
-    <Revelacao fallback={<p className="text-muted-foreground">Carregando…</p>}>
+    <Revelacao fallback={<EsqueletoSecao rotulo="Carregando o perfil…" secoes={3} />}>
       {Promise.all([params, searchParams]).then(([{ id }, busca]) => (
         <PerfilMandatoLocal id={id} paginaVotos={typeof busca.votos === "string" ? busca.votos : undefined} />
       ))}

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
+import { EsqueletoSecao } from "@/components/esqueleto-secao";
 import { TabelaRolavel } from "@/components/ui/tabela-rolavel";
 import { AvisoErro } from "@/components/aviso-erro";
 import { FonteRodape } from "@/components/fonte-rodape";
@@ -40,7 +41,7 @@ export default function PartidosPage({ searchParams }: PageProps<"/partidos">) {
           uma coluna para ordenar.
         </p>
       </header>
-      <Revelacao fallback={<p className="text-muted-foreground">Carregando…</p>}>
+      <Revelacao fallback={<EsqueletoSecao rotulo="Carregando as contas dos partidos…" secoes={2} />}>
         {searchParams.then((sp) => (
           <Tabela ano={texto(sp.ano)} ordenar={texto(sp.ordenar)} ordem={texto(sp.ordem)} />
         ))}

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Suspense } from "react";
 
+import { EsqueletoSecao } from "@/components/esqueleto-secao";
 import { BuscaGeral } from "@/components/busca-geral";
 import { CepForm } from "@/components/cep-form";
 import { Marca } from "@/components/logo";
@@ -35,7 +36,13 @@ export default function Home() {
           </div>
         </div>
 
-        <Suspense fallback={<div className="h-96 animate-pulse rounded-[2px] bg-muted" aria-hidden />}>
+        <Suspense
+          fallback={
+            <div className="min-h-96 border border-border p-[var(--esp-4)]">
+              <EsqueletoSecao rotulo="Carregando o exemplo de comparação…" />
+            </div>
+          }
+        >
           <ExemploDeComparacao />
         </Suspense>
       </section>
