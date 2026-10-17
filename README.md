@@ -34,8 +34,8 @@ Os dados sobre o trabalho dos parlamentares já são públicos, mas estão espal
 - **Todos os perfis têm a mesma ordem**: cabeçalho, números-chave, "Quem é" (dados declarados ao TSE e votos recebidos), atividade no cargo e, por fim, a eleição (bens e campanha). Quando a câmara ou a assembleia publica a pessoa no cargo, o perfil do TSE leva ao perfil da casa, com a atividade; quando a câmara não publica dados abertos, o perfil diz isso e mostra os canais oficiais da cidade.
 - **Linha do tempo** em todos os perfis (parlamentar federal, eleito, vereador e deputado estadual): eleições vencidas, cargos em partidos, julgamentos e cassações de candidatura (TSE), representações no Conselho de Ética, contas julgadas irregulares e inabilitação (TCU), sanções (CGU), cargos de confiança no governo federal (inclui ministros, lidos das viagens), viagens a serviço e cartão de pagamento do governo federal (Portal da Transparência), processos e casos, agrupados por tipo. Cada registro mostra a situação informada pela fonte, o link oficial e a data em que foi conferido; processo sob sigilo não é detalhado. Só aparece quando o perfil está ligado à pessoa por dado seguro (CPF, título de eleitor ou revisão manual) e há algo a mostrar.
 - **Busca por nome** em todos os níveis, na página inicial: parlamentares federais, presidente, governadores, prefeitos, deputados estaduais e vereadores (sem diferença de acento; também pelo nome completo), mais **partidos** (pela sigla ou pelo nome) e pessoas de eleições passadas ou suplentes, em grupos com limite. Usa índices de trigramas do Postgres (`pg_trgm` + `unaccent`, migração `0033_busca`) e cada consulta tem `LIMIT`, para não pesar no banco pago por uso; a resposta é cacheável na CDN.
-- **Comparador**: dois parlamentares lado a lado, com números, votos em comum por tema e projetos assinados juntos.
-- **Comparador na mesma casa** (`/comparar/local`): dois vereadores da mesma câmara, ou dois deputados da mesma assembleia, com projetos, proposições, presença, votos em comum e dados declarados ao TSE.
+- **Comparador** (`/comparar?ids=1,2,3`): de dois a quatro parlamentares lado a lado, em colunas como num comparador de celulares: números com a média da Casa, projetos por tema, votos em comum em matriz par a par (só entre pessoas da mesma Casa) e projetos assinados juntos. Links antigos com `?a=&b=` continuam valendo.
+- **Comparador na mesma casa** (`/comparar/local`): de dois a quatro vereadores da mesma câmara, ou deputados da mesma assembleia, com projetos, proposições, presença, votos em comum e dados declarados ao TSE.
 - **Lista de todos os parlamentares federais**, ordenável por um critério factual de cada vez (gastos, presença, projetos, emendas, alinhamento com o Governo). Não há nota nem ranking.
 - **Dinheiro enviado para a sua cidade**: emendas individuais pagas à prefeitura, aos fundos municipais e a entidades, com:
   - quem enviou;
@@ -73,7 +73,7 @@ Os dados sobre o trabalho dos parlamentares já são públicos, mas estão espal
 
 ## Projeto aberto
 
-O Panóptico é **público e aberto a contribuições**. O código está todo neste repositório, os dados vêm de fontes públicas e a metodologia de cada número está documentada em [docs/DECISOES.md](docs/DECISOES.md) e na página [Sobre as fontes](https://panoptico.social.br/sobre-as-fontes).
+O Panóptico é **público e aberto a contribuições**. O código está todo neste repositório, os dados vêm de fontes públicas e a metodologia de cada número está documentada em [docs/DECISOES.md](docs/DECISOES.md) e na página [Sobre as fontes](https://panoptico.social.br/sobre-as-fontes). Os padrões visuais e de celular estão em [docs/DESIGN.md](docs/DESIGN.md), e o [CLAUDE.md](CLAUDE.md) resume regras e comandos para quem trabalha com agentes de código.
 
 Você pode ajudar de várias formas, mesmo sem programar:
 
