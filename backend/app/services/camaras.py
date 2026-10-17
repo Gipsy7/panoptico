@@ -65,6 +65,9 @@ FONTES_DE_CAMARA = {
     ),
     "leg.br/vereadores": ("portal_php_camaras", "Site da câmara (página de vereadores)"),
     "portalcr2.com.br": ("cr2_camaras", "Portal da Transparência da câmara (CR2)"),
+    "pimentabueno.ro.leg.br": ("fornecedores_batgirl_camaras", "Site da câmara (Pimenta Bueno)"),
+    "perdoes.mg.leg.br": ("fornecedores_batgirl_camaras", "Site da câmara (Perdões)"),
+    "santacruz.pe.leg.br": ("fornecedores_batgirl_camaras", "Site da câmara (Santa Cruz)"),
 }
 
 

@@ -137,6 +137,12 @@ CATALOGO = [
         "url": "https://palmas.to.leg.br/",
     },
     {
+        "dado": "Vereadores no cargo hoje (sites próprios das câmaras)",
+        "orgao": "Câmaras de Pimenta Bueno (RO), Perdões (MG) e Santa Cruz (PE)",
+        "fontes": ["fornecedores_batgirl_camaras"],
+        "url": "https://www.pimentabueno.ro.leg.br/",
+    },
+    {
         "dado": "Vereadores no cargo hoje (câmaras no Portal da Transparência da CR2)",
         "orgao": "Câmaras de Beruri (AM), Itamarandiba (MG), Benevides e São Miguel do Guamá (PA)",
         "fontes": ["cr2_camaras"],
