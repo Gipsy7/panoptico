@@ -89,6 +89,7 @@
 - [2026-10-11: nove assembleias só a partir do Brasil](#2026-10-11-nove-assembleias-só-a-partir-do-brasil)
 - [2026-10-17: ingestão diária mais resiliente a falhas passageiras](#2026-10-17-ingestão-diária-mais-resiliente-a-falhas-passageiras)
 - [2026-10-17: comparador de 2 a 4 pessoas (`ids`)](#2026-10-17-comparador-de-2-a-4-pessoas-ids)
+- [2026-10-17: câmaras de sites próprios e do Portal Modelo, rechecagem](#2026-10-17-câmaras-de-sites-próprios-e-do-portal-modelo-rechecagem)
 
 ## 2026-10-06: stack inicial
 
@@ -932,3 +933,12 @@ Em 15/10 (`ibge_municipios`, ConnectTimeout) e 16/10 (`senado_votacoes`, 503 num
 - **`/comparar/local?ids=`:** todas da mesma câmara/assembleia (senão 422). Resposta: `casa`, `pessoas[]` (mesmo `LadoLocal`), `proposicoes_por_tipo[{tipo, valores[]}]`, `convergencia[{i, j, votacoes_em_comum, iguais, divergencias[]}]`, fonte e data.
 - **Custo:** o local faz uma consulta de votos para todos e monta os pares em memória. O federal consulta por par (cerca de 0,2 s por par com 3 mil votações no banco de teste: 2 pessoas 0,28 s, 3 pessoas 0,73 s, 4 pessoas 0,6 s com um senador, onde 3 dos 6 pares são `null`; 4 da mesma Casa deve ficar em torno de 1,2 s). Aceito por ora (CDN de 1 h); se pesar, trocar por uma consulta única como no local.
 - **Frontend:** `frontend/lib/api.ts` ganhou `ComparacaoN`/`getComparacaoN(ids, ano)` e `ComparacaoLocalN`/`getComparacaoLocalN(ids)`; os tipos e as páginas antigas seguem como estavam.
+
+## 2026-10-17: câmaras de sites próprios e do Portal Modelo, rechecagem
+
+- **Seis câmaras entram** (`ingestion.camaras.fornecedores_alfred`): Aracruz e Cachoeiro de Itapemirim (Câmara Sem Papel / NoPaperCloud, que voltaram ao ar), Varjão de Minas, Nortelândia, Santa Maria do Cambucá e Alvorada. Um módulo à parte do `sistemas.py` (que fica como está), com a lista de câmaras no próprio código em vez do catálogo, para não mexer em `canais_curados.csv`. Cada modelo de página tem um leitor curto; a gravação é a do SAPL (inclusive a ligação ao eleito do TSE).
+- **Quem conta como vereador:** só o bloco "Ativo" das páginas da Câmara Sem Papel (suplentes e licenciados ficam de fora, como no `portal_php`), e a página precisa mostrar a legislatura que começa em 2025. Santa Maria do Cambucá: `ativo = S` e `titular = S` no JSON.
+- **Robots e ritmo:** o leitor lê o `robots.txt` do host antes e não faz o pedido que ele veda (levanta `PermissionError`; não há contorno). Uma requisição por vez, pausa de 3 s, User-Agent do Panóptico.
+- **Coleta mínima:** o JSON de Santa Maria do Cambucá traz data de nascimento, telefone, e-mail e biografia, e os cartões de Alvorada trazem nascimento, estado civil e ocupação; nada disso é lido nem entra nas fixtures de teste. Santa Maria do Cambucá não publica o partido (campo vazio): entra sem partido, em vez de adivinhar.
+- **Pendências que continuam, com a data de 17/10:** União (PI), cujo certificado TLS continua inválido (a verificação não foi desligada), e as 16 câmaras do Portal Modelo, em que uma requisição à lista de parlamentares não achou vereadores atuais (a lista está vazia, pede login ou responde 404; Tanque do Piauí tem 10 fichas, todas "Inativo"). `portal_modelo.py` não mudou.
+- **Crédito no site:** `FONTES_DE_CAMARA` (em `app/services/camaras.py`) ganhou os endereços das seis câmaras no começo do dicionário, porque "leg.br/vereadores" (portal PHP) também casaria com o portal de Santa Maria do Cambucá; e a lista de fontes de `app/services/fontes.py`, uma linha.

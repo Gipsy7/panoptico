@@ -113,6 +113,8 @@ jobs:
         run: uv run python -m ingestion.camaras.aos
       - name: Câmaras de Palmas, Teófilo Otoni e Frutal (sites próprios)
         run: uv run python -m ingestion.camaras.sistemas
+      - name: Câmaras de Aracruz, Cachoeiro de Itapemirim, Varjão de Minas, Nortelândia, Santa Maria do Cambucá e Alvorada
+        run: uv run python -m ingestion.camaras.fornecedores_alfred
       # Nucleogov / 7Focus: o robots.txt pede 5 s entre requisições (5 câmaras, ~50 páginas).
       - name: Câmaras no portal da Nucleogov / 7Focus
         run: uv run python -m ingestion.camaras.nucleogov

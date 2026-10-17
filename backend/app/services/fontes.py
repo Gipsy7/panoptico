@@ -137,6 +137,15 @@ CATALOGO = [
         "url": "https://palmas.to.leg.br/",
     },
     {
+        "dado": "Vereadores no cargo hoje (sites próprios e de fornecedores das câmaras)",
+        "orgao": (
+            "Câmaras de Aracruz e Cachoeiro de Itapemirim (ES), Varjão de Minas (MG), "
+            "Nortelândia (MT), Santa Maria do Cambucá (PE) e Alvorada (TO)"
+        ),
+        "fontes": ["fornecedores_alfred_camaras"],
+        "url": "https://alvorada.to.leg.br/transparencia/vereador",
+    },
+    {
         "dado": "Vereadores no cargo hoje (câmaras no Portal da Transparência da CR2)",
         "orgao": "Câmaras de Beruri (AM), Itamarandiba (MG), Benevides e São Miguel do Guamá (PA)",
         "fontes": ["cr2_camaras"],
