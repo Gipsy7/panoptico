@@ -1,5 +1,7 @@
 import Link from "next/link";
 
+import { Migalhas } from "@/components/ui/migalhas";
+import { TabelaRolavel } from "@/components/ui/tabela-rolavel";
 import { FonteRodape } from "@/components/fonte-rodape";
 import type { GrupoFefc, PartidoDetalhe } from "@/lib/api";
 import { MESES, formatarReais } from "@/lib/formato";
@@ -40,13 +42,13 @@ function Grupos({ titulo, grupos }: { titulo: string; grupos: GrupoFefc[] }) {
             <div className="flex items-baseline justify-between gap-3 text-sm">
               <span className="min-w-0">
                 {g.nome}
-                <span className="ml-1 text-xs text-muted-foreground">
+                <span className="ml-1 text-sm text-muted-foreground">
                   {g.candidatos.toLocaleString("pt-BR")} candidaturas
                 </span>
               </span>
               <span className="shrink-0 tabular-nums">
                 {formatarReais(g.valor, true)}
-                <span className="ml-1 text-xs text-muted-foreground">
+                <span className="ml-1 text-sm text-muted-foreground">
                   {total ? ((g.valor / total) * 100).toLocaleString("pt-BR", { maximumFractionDigits: 1 }) : "0"}%
                 </span>
               </span>
@@ -72,9 +74,13 @@ export function PartidoSecao({ dados }: { dados: PartidoDetalhe }) {
   return (
     <div className="flex flex-col gap-8">
       <header className="flex flex-col gap-2">
-        <Link href={`/partidos?ano=${dados.ano}`} className="text-sm underline underline-offset-4">
-          ← Todos os partidos
-        </Link>
+        <Migalhas
+          itens={[
+            { rotulo: "Início", href: "/" },
+            { rotulo: "Partidos", href: `/partidos?ano=${dados.ano}` },
+            { rotulo: dados.sigla },
+          ]}
+        />
         <h1 className="text-3xl tracking-tight">Dinheiro do {dados.sigla}</h1>
         <p className="text-muted-foreground">
           O que o partido declarou ao Tribunal Superior Eleitoral (TSE) na prestação de contas de{" "}
@@ -88,7 +94,7 @@ export function PartidoSecao({ dados }: { dados: PartidoDetalhe }) {
                 key={a}
                 href={link(a)}
                 aria-current={a === dados.ano ? "page" : undefined}
-                className={a === dados.ano ? "font-semibold underline underline-offset-4" : "underline-offset-4 hover:underline"}
+                className={`alvo-link px-1 ${a === dados.ano ? "font-semibold underline underline-offset-4" : "underline-offset-4 hover:underline"}`}
               >
                 {a}
               </Link>
@@ -119,7 +125,7 @@ export function PartidoSecao({ dados }: { dados: PartidoDetalhe }) {
             <dd className="numero text-2xl">{formatarReais(dados.gasto, true)}</dd>
           </div>
         </dl>
-        <p className="text-xs text-muted-foreground">
+        <p className="text-sm text-muted-foreground">
           As cotas são o que o diretório nacional recebeu do TSE. O gasto não inclui repasses entre
           diretórios nem a candidaturas (veja abaixo), para o mesmo dinheiro não ser contado duas
           vezes.
@@ -132,11 +138,12 @@ export function PartidoSecao({ dados }: { dados: PartidoDetalhe }) {
             <h2 id="partido-cotas" className="text-2xl">
               Cotas recebidas mês a mês
             </h2>
-            <p className="text-xs text-muted-foreground">
+            <p className="text-sm text-muted-foreground">
               Fundo Partidário e Fundo Especial de Financiamento de Campanha (FEFC), pagos pelo TSE
               ao diretório nacional
             </p>
           </div>
+          <TabelaRolavel larguraMinima="36rem" primeiraColunaFixa>
           <table className="w-full border-collapse text-sm">
             <caption className="sr-only">Cotas recebidas por mês em {dados.ano}</caption>
             <thead>
@@ -168,6 +175,7 @@ export function PartidoSecao({ dados }: { dados: PartidoDetalhe }) {
               })}
             </tbody>
           </table>
+          </TabelaRolavel>
         </section>
       )}
 
@@ -176,7 +184,7 @@ export function PartidoSecao({ dados }: { dados: PartidoDetalhe }) {
           <h2 id="partido-receitas" className="text-2xl">
             De onde veio o dinheiro
           </h2>
-          <p className="text-xs text-muted-foreground">
+          <p className="text-sm text-muted-foreground">
             Por fonte do recurso, em todos os diretórios. Não inclui o que veio de outros diretórios
             do próprio partido.
           </p>
@@ -189,7 +197,7 @@ export function PartidoSecao({ dados }: { dados: PartidoDetalhe }) {
           <h2 id="partido-despesas" className="text-2xl">
             Em que o partido gastou
           </h2>
-          <p className="text-xs text-muted-foreground">
+          <p className="text-sm text-muted-foreground">
             Por tipo de despesa, como o partido classificou. Só gastos: sem transferências.
           </p>
         </div>
@@ -211,7 +219,7 @@ export function PartidoSecao({ dados }: { dados: PartidoDetalhe }) {
           <h2 id="partido-transf" className="text-2xl">
             Dinheiro que só mudou de mãos
           </h2>
-          <p className="text-xs text-muted-foreground">
+          <p className="text-sm text-muted-foreground">
             Está fora do gasto acima: o dinheiro que sai de um diretório entra em outro, ou chega a
             uma candidatura, e já aparece lá como receita.
           </p>
@@ -244,7 +252,7 @@ export function PartidoSecao({ dados }: { dados: PartidoDetalhe }) {
             <h2 id="partido-fefc" className="text-2xl">
               Fundos nas candidaturas de {dados.fefc_fp.ano}
             </h2>
-            <p className="text-xs text-muted-foreground">
+            <p className="text-sm text-muted-foreground">
               Quanto das campanhas chegou a cada grupo, por gênero e por cor ou raça (autodeclarados
               pelas candidaturas)
             </p>

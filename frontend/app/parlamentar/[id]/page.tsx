@@ -4,6 +4,8 @@ import { notFound } from "next/navigation";
 
 import { AvisoErro } from "@/components/aviso-erro";
 import { Revelacao } from "@/components/revelacao";
+import { IndicePerfil, type ItemIndice } from "@/components/indice-perfil";
+import { Migalhas } from "@/components/ui/migalhas";
 import { CompartilharWhatsApp } from "@/components/compartilhar";
 import { FonteRodape } from "@/components/fonte-rodape";
 import { SeloEleitoFuturo } from "@/components/eleito-futuro";
@@ -106,8 +108,32 @@ async function Perfil({
   }
   const p = resultado.dados;
 
+  // Só entram no índice as seções que existem; o componente ainda confere se o título está na página.
+  const secoes: (ItemIndice | false)[] = [
+    gastos.ok && { id: "gastos-titulo", rotulo: "Gastos" },
+    presenca.ok && { id: "presenca-titulo", rotulo: "Presença" },
+    votos.ok && { id: "votos-titulo", rotulo: "Votos" },
+    comissoes.ok && { id: "comissoes-titulo", rotulo: "Comissões" },
+    projetos.ok && { id: "projetos-titulo", rotulo: "Projetos" },
+    destino.ok && { id: "destino-emendas-titulo", rotulo: "Emendas" },
+    relator.ok && { id: "emendas-relator-titulo", rotulo: "Emendas de relator" },
+    temas.ok && { id: "temas-titulo", rotulo: "Temas" },
+    linha.ok && { id: "linha-do-tempo-titulo", rotulo: "Linha do tempo" },
+    candidatura.ok && { id: "tse-titulo", rotulo: "Candidatura" },
+    { id: "remuneracao-titulo", rotulo: "Remuneração" },
+  ];
+  const indice = secoes.filter((s): s is ItemIndice => s !== false);
+
   return (
-    <article className="flex flex-col gap-6">
+    <article data-largura="larga" className="flex flex-col gap-6 lg:grid lg:grid-cols-[11rem_minmax(0,1fr)] lg:gap-x-10">
+      <div className="flex flex-col gap-4 lg:col-start-2">
+        <Migalhas
+          itens={[
+            { rotulo: "Início", href: "/" },
+            { rotulo: "Parlamentares", href: "/parlamentares" },
+            { rotulo: p.nome_parlamentar },
+          ]}
+        />
       <header className="flex items-start gap-4">
         <Foto parlamentar={p} largura={96} prioridade />
         <div className="flex min-w-0 flex-col gap-1">
@@ -123,7 +149,11 @@ async function Perfil({
           )}
         </div>
       </header>
+      </div>
 
+      <IndicePerfil itens={indice} />
+
+      <div className="flex min-w-0 flex-col gap-6 lg:col-start-2">
       {candidatura.ok && candidatura.dados.eleito_2026 && (
         <SeloEleitoFuturo eleito={candidatura.dados.eleito_2026} atualizadoEm={candidatura.dados.atualizado_em} />
       )}
@@ -221,6 +251,7 @@ async function Perfil({
       </section>
 
       <FonteRodape fonte={FONTE_CASA[p.casa]} url={p.fonte_url} atualizadoEm={p.atualizado_em} />
+      </div>
     </article>
   );
 }

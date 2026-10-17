@@ -20,7 +20,7 @@ export function CandidaturaSecao({
         <h2 id="tse-titulo" className="text-2xl">
           Eleição
         </h2>
-        <p className="text-xs text-muted-foreground">
+        <p className="text-sm text-muted-foreground">
           Declarados pelo próprio candidato à Justiça Eleitoral (TSE)
         </p>
       </div>
@@ -29,7 +29,7 @@ export function CandidaturaSecao({
         <div className="flex flex-col gap-3">
           <h3 className="font-medium">
             Bens declarados na eleição de {bens.candidatura.ano}
-            <span className="block text-xs font-normal text-muted-foreground">
+            <span className="block text-sm font-normal text-muted-foreground">
               candidatura a {bens.candidatura.cargo.toLowerCase()} · {bens.candidatura.unidade}
             </span>
           </h3>
@@ -37,7 +37,7 @@ export function CandidaturaSecao({
             <div className="figura">
               <dt className="text-sm text-muted-foreground">Total declarado</dt>
               <dd className="numero text-3xl">{formatarReais(bens.total, true)}</dd>
-              <dd className="text-xs text-muted-foreground">
+              <dd className="text-sm text-muted-foreground">
                 {bens.quantidade} {bens.quantidade === 1 ? "bem" : "bens"}
               </dd>
             </div>
@@ -47,7 +47,7 @@ export function CandidaturaSecao({
                   Na eleição anterior ({bens.anterior.candidatura.ano})
                 </dt>
                 <dd className="numero text-3xl">{formatarReais(bens.anterior.total, true)}</dd>
-                <dd className="text-xs text-muted-foreground">
+                <dd className="text-sm text-muted-foreground">
                   candidatura a {bens.anterior.candidatura.cargo.toLowerCase()}
                 </dd>
               </div>
@@ -64,7 +64,7 @@ export function CandidaturaSecao({
                     <span className="min-w-0">
                       <span className="block">{b.tipo}</span>
                       {b.descricao && (
-                        <span className="block text-xs text-muted-foreground">{b.descricao}</span>
+                        <span className="block text-sm text-muted-foreground">{b.descricao}</span>
                       )}
                     </span>
                     <span className="shrink-0 tabular-nums">{formatarReais(b.valor, true)}</span>
@@ -73,7 +73,7 @@ export function CandidaturaSecao({
               </ul>
             </details>
           )}
-          <p className="text-xs text-muted-foreground">
+          <p className="text-sm text-muted-foreground">
             Valores como o candidato declarou, sem correção pela inflação. Bens costumam ser
             declarados pelo valor de compra, que pode ser bem menor que o de mercado.{" "}
             <a href={bens.fonte_url} target="_blank" rel="noopener noreferrer" className="underline underline-offset-2">
@@ -87,7 +87,7 @@ export function CandidaturaSecao({
         <div className="flex flex-col gap-3">
           <h3 className="font-medium">
             Campanha de {campanha.candidatura.ano}
-            <span className="block text-xs font-normal text-muted-foreground">
+            <span className="block text-sm font-normal text-muted-foreground">
               a que deu o mandato atual · {campanha.candidatura.cargo.toLowerCase()} · {campanha.candidatura.unidade}
             </span>
           </h3>
@@ -102,7 +102,7 @@ export function CandidaturaSecao({
             </div>
           </dl>
           <Partes titulo="De onde veio o dinheiro" itens={campanha.receitas_por_origem} total={campanha.receitas_total} />
-          <p className="text-xs text-muted-foreground">
+          <p className="text-sm text-muted-foreground">
             &quot;Fundo eleitoral&quot; e &quot;fundo partidário&quot; são dinheiro público repassado pelos
             partidos. {campanha.numero_doadores > 0 &&
               `${campanha.numero_doadores} ${campanha.numero_doadores === 1 ? "pessoa doou" : "pessoas doaram"}; não mostramos o nome de doadores, que são cidadãos comuns.`}
@@ -131,7 +131,7 @@ function Partes({ titulo, itens, total }: { titulo: string; itens: { nome: strin
                 <span className="min-w-0">{i.nome}</span>
                 <span className="shrink-0 tabular-nums">
                   {formatarReais(i.valor, true)}
-                  <span className="ml-1 text-xs text-muted-foreground">
+                  <span className="ml-1 text-sm text-muted-foreground">
                     {parte < 0.1 ? "<0,1" : parte.toLocaleString("pt-BR", { maximumFractionDigits: parte < 1 ? 1 : 0 })}%
                   </span>
                 </span>

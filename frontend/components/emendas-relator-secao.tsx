@@ -1,3 +1,4 @@
+import { TabelaRolavel } from "@/components/ui/tabela-rolavel";
 import { FonteRodape } from "@/components/fonte-rodape";
 import type { EmendasRelator } from "@/lib/api";
 import { formatarData, formatarReais } from "@/lib/formato";
@@ -21,6 +22,7 @@ export function EmendasRelatorSecao({ dados }: { dados: EmendasRelator }) {
         <Numero rotulo="Beneficiários diferentes" valor={String(dados.beneficiarios)} />
       </dl>
 
+      <TabelaRolavel larguraMinima="28rem">
       <table className="w-full text-left text-sm">
         <caption className="pb-1 text-left font-medium">Por órgão que executaria o recurso</caption>
         <thead className="sr-only">
@@ -42,6 +44,7 @@ export function EmendasRelatorSecao({ dados }: { dados: EmendasRelator }) {
           ))}
         </tbody>
       </table>
+      </TabelaRolavel>
 
       <p className="text-sm text-muted-foreground">
         Emenda de relator-geral (RP9) foi uma modalidade de emenda ao orçamento federal usada de

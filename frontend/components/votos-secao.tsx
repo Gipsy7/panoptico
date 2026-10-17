@@ -29,7 +29,7 @@ export function VotosSecao({
         <h2 id="votos-titulo" className="text-2xl">
           Como votou
         </h2>
-        <p className="text-xs text-muted-foreground">
+        <p className="text-sm text-muted-foreground">
           Votações nominais do Plenário em {dados.ano}
         </p>
       </div>
@@ -115,11 +115,11 @@ export function VotosSecao({
                   ))}
                 {v.proposicao_ementa && <p className="line-clamp-3 text-sm">{v.proposicao_ementa}</p>}
                 {v.temas.length > 0 && (
-                  <p className="text-xs text-muted-foreground">{v.temas.join(" · ")}</p>
+                  <p className="text-sm text-muted-foreground">{v.temas.join(" · ")}</p>
                 )}
               </div>
-              <p className="line-clamp-2 text-xs text-muted-foreground">{v.descricao}</p>
-              <dl className="grid grid-cols-3 gap-2 text-xs">
+              <p className="line-clamp-2 text-sm text-muted-foreground">{v.descricao}</p>
+              <dl className="grid grid-cols-1 gap-1 text-sm sm:grid-cols-3 sm:gap-2">
                 <Voto rotulo="Votou" valor={v.voto || "Sem voto registrado"} destaque />
                 <Voto rotulo="Governo orientou" valor={v.orientacao_governo} />
                 <Voto rotulo={`Maioria ${v.partido ?? "do partido"}`} valor={v.maioria_partido} />
@@ -130,7 +130,7 @@ export function VotosSecao({
         {paginas > 1 && (
           <nav aria-label="Páginas de votações" className="flex items-center justify-between pt-2 text-sm">
             {dados.pagina > 1 ? (
-              <Link href={link(dados.pagina - 1)} className="font-medium underline underline-offset-4">
+              <Link href={link(dados.pagina - 1)} className="alvo-link font-medium underline underline-offset-4">
                 ← Mais recentes
               </Link>
             ) : (
@@ -140,7 +140,7 @@ export function VotosSecao({
               {dados.pagina} de {paginas}
             </span>
             {dados.pagina < paginas ? (
-              <Link href={link(dados.pagina + 1)} className="font-medium underline underline-offset-4">
+              <Link href={link(dados.pagina + 1)} className="alvo-link font-medium underline underline-offset-4">
                 Mais antigas →
               </Link>
             ) : (
@@ -184,9 +184,9 @@ function Bloco({
 
 function Voto({ rotulo, valor, destaque }: { rotulo: string; valor: string | null; destaque?: boolean }) {
   return (
-    <div className={destaque ? "rounded-md bg-accent px-2 py-1" : "px-2 py-1"}>
-      <dt className="text-muted-foreground">{rotulo}</dt>
-      <dd className="font-semibold">{valor || "—"}</dd>
+    <div className={`flex items-baseline justify-between gap-3 px-2 py-1 sm:block ${destaque ? "rounded-md bg-accent" : ""}`}>
+      <dt className="min-w-0 text-muted-foreground">{rotulo}</dt>
+      <dd className="text-right font-semibold sm:text-left">{valor || "—"}</dd>
     </div>
   );
 }

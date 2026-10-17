@@ -20,7 +20,7 @@ export default function Home() {
             <Marca tamanho={28} animada traco={2.6} className="text-bronze" />
             <p className="sobretitulo">O panóptico, invertido</p>
           </div>
-          <h1 className="text-5xl leading-[1.04] text-balance sm:text-6xl">
+          <h1 className="text-[2rem] leading-[1.1] text-balance sm:text-5xl lg:text-6xl">
             Quem te representa, <span className="text-bronze-texto italic">às claras</span>
           </h1>
           <p className="max-w-lg text-lg leading-relaxed text-pretty text-muted-foreground">
@@ -67,16 +67,16 @@ async function ExemploDeComparacao() {
         <span aria-hidden className="size-1.5 rounded-full bg-bronze" />
         Exemplo de comparação
       </p>
-      <div className="flex flex-col rounded-[2px] border border-border bg-card shadow-[0_24px_48px_-32px_rgb(20_20_20/0.35)]">
-        <div className="grid grid-cols-2 gap-4 border-b border-foreground p-5">
+      <div className="flex flex-col rounded-[2px] border border-border bg-card">
+        <div className="grid grid-cols-2 gap-3 border-b border-foreground p-4 sm:gap-4 sm:p-5">
           <Pessoa p={a} />
           <Pessoa p={b} />
         </div>
-        <dl className="flex flex-col px-5">
+        <dl className="flex flex-col px-4 sm:px-5">
           {linhas.map((l) => (
             <div key={l.rotulo} className="border-b border-border py-3">
-              <dt className="text-xs text-muted-foreground">{l.rotulo}</dt>
-              <div className="mt-1 grid grid-cols-2 gap-4">
+              <dt className="text-sm text-muted-foreground">{l.rotulo}</dt>
+              <div className="mt-1 grid grid-cols-2 gap-3 sm:gap-4">
                 <dd className="numero text-xl">{l.a}</dd>
                 <dd className="numero text-xl">{l.b}</dd>
               </div>
@@ -84,7 +84,7 @@ async function ExemploDeComparacao() {
           ))}
         </dl>
         {convergencia && convergencia.votacoes_em_comum > 0 && (
-          <div className="flex flex-col gap-2 px-5 pt-4">
+          <div className="flex flex-col gap-2 px-4 pt-4 sm:px-5">
             <p className="text-sm">
               Votaram igual em{" "}
               <span className="numero text-lg">
@@ -97,11 +97,11 @@ async function ExemploDeComparacao() {
             </div>
           </div>
         )}
-        <div className="flex flex-wrap items-center justify-between gap-3 p-5">
+        <div className="flex flex-wrap items-center justify-between gap-3 p-4 sm:p-5">
           <Link href={`/comparar?a=${a.id}&b=${b.id}`} className="botao-linha">
             Ver a comparação completa
           </Link>
-          <Link href="/comparar" className="text-sm underline underline-offset-4">
+          <Link href="/comparar" className="alvo-link text-sm underline underline-offset-4">
             Comparar outros
           </Link>
         </div>
@@ -119,7 +119,7 @@ function Pessoa({ p }: { p: ParlamentarResumo }) {
     <Link href={`/parlamentar/${p.id}`} className="flex min-w-0 items-center gap-3 hover:opacity-80">
       <Foto parlamentar={p} largura={44} />
       <span className="flex min-w-0 flex-col gap-1">
-        <span className="line-clamp-2 text-sm font-semibold leading-tight">{p.nome_parlamentar}</span>
+        <span className="line-clamp-2 break-words text-sm font-semibold leading-tight">{p.nome_parlamentar}</span>
         <span className="flex flex-wrap gap-1">
           {p.partido && <span className="pilula">{p.partido}</span>}
           <span className="pilula">{p.uf}</span>

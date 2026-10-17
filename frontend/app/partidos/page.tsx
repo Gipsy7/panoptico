@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
+import { TabelaRolavel } from "@/components/ui/tabela-rolavel";
 import { AvisoErro } from "@/components/aviso-erro";
 import { FonteRodape } from "@/components/fonte-rodape";
 import { Revelacao } from "@/components/revelacao";
@@ -83,8 +84,8 @@ async function Tabela({ ano, ordenar, ordem }: { ano?: string; ordenar?: string;
         <h2 id="partidos-titulo" className="text-xl">
           {linhas.length} partidos em {dados.ano}
         </h2>
-        <div className="-mx-4 overflow-x-auto px-4">
-          <table className="w-full min-w-[44rem] border-collapse text-sm">
+        <TabelaRolavel larguraMinima="44rem" primeiraColunaFixa>
+          <table className="w-full border-collapse text-sm">
             <caption className="sr-only">
               Contas dos partidos em {dados.ano}, em reais, ordenáveis por coluna
             </caption>
@@ -112,13 +113,13 @@ async function Tabela({ ano, ordenar, ordem }: { ano?: string; ordenar?: string;
             <tbody>
               {linhas.map((p) => (
                 <tr key={p.sigla} className="border-b border-border/70">
-                  <th scope="row" className="py-2 pr-3 text-left font-medium">
+                  <th scope="row" className="py-3 pr-3 text-left font-medium">
                     <Link href={`/partidos/${encodeURIComponent(p.sigla)}?ano=${dados.ano}`} className="underline underline-offset-4">
                       {p.sigla}
                     </Link>
                   </th>
                   {COLUNAS.slice(1).map((c) => (
-                    <td key={c.id} className="py-2 pr-3 text-right tabular-nums">
+                    <td key={c.id} className="py-3 pr-3 text-right tabular-nums">
                       {formatarReais(p[c.id as keyof Omit<PartidoNaLista, "sigla">], true)}
                     </td>
                   ))}
@@ -126,7 +127,7 @@ async function Tabela({ ano, ordenar, ordem }: { ano?: string; ordenar?: string;
               ))}
             </tbody>
           </table>
-        </div>
+        </TabelaRolavel>
       </section>
 
       <div className="nota flex flex-col gap-2 text-sm text-muted-foreground">

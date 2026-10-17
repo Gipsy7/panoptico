@@ -71,7 +71,7 @@ export function LinhaDoTempoSecao({ dados }: { dados: LinhaDoTempo }) {
         <h2 id="linha-do-tempo-titulo" className="text-2xl">
           Linha do tempo
         </h2>
-        <p className="text-xs text-muted-foreground">
+        <p className="text-sm text-muted-foreground">
           {soEleicoes
             ? "Eleições vencidas, segundo a Justiça Eleitoral (TSE)"
             : "Registros de órgãos oficiais sobre esta pessoa, com a situação que cada fonte informa"}
@@ -82,7 +82,7 @@ export function LinhaDoTempoSecao({ dados }: { dados: LinhaDoTempo }) {
         <div key={g.titulo} className="flex flex-col gap-2">
           <h3 className="font-medium">
             {g.titulo} <span className="text-sm font-normal text-muted-foreground tabular-nums">({g.itens.length})</span>
-            <span className="block text-xs font-normal text-muted-foreground">{g.detalhe}</span>
+            <span className="block text-sm font-normal text-muted-foreground">{g.detalhe}</span>
           </h3>
           <ul className="lista-fios flex flex-col">
             {g.itens.slice(0, VISIVEIS_POR_GRUPO).map((item, i) => (
@@ -105,14 +105,14 @@ export function LinhaDoTempoSecao({ dados }: { dados: LinhaDoTempo }) {
       ))}
 
       {dados.itens.some((i) => i.tipo === "cpi_indiciamento") && (
-        <p className="text-xs text-muted-foreground">
+        <p className="text-sm text-muted-foreground">
           Pedido de indiciamento em relatório de CPI é uma proposta da comissão: não é acusação
           formal nem condenação, e cabe ao Ministério Público decidir se denuncia.
         </p>
       )}
 
       {!soEleicoes && (
-        <p className="text-xs text-muted-foreground">
+        <p className="text-sm text-muted-foreground">
           Uma representação, um julgamento ou um processo registrado não é, por si, uma condenação:
           a situação de cada um é a informada pela fonte, que pode ter mudado depois da data de
           conferência. Só entram registros ligados a esta pessoa por dado seguro (CPF, título de
@@ -131,7 +131,7 @@ function Item({ item }: { item: EventoItem }) {
   const situacao = eleicao ? situacaoEleicao(item.situacao) : item.situacao;
   return (
     <li className="flex flex-col gap-1.5 py-3">
-      <p className="text-xs text-muted-foreground tabular-nums">
+      <p className="text-sm text-muted-foreground tabular-nums">
         {item.data ? formatarData(item.data) : "Data não informada pela fonte"}
       </p>
       <Descricao texto={item.descricao} />
@@ -148,7 +148,7 @@ function Item({ item }: { item: EventoItem }) {
         </dl>
       )}
       {eleicao && situacao && <p className="text-sm text-muted-foreground">{situacao}</p>}
-      <p className="text-xs text-muted-foreground">
+      <p className="text-sm text-muted-foreground">
         {item.fonte_url && (
           <a href={item.fonte_url} target="_blank" rel="noopener noreferrer" className="underline underline-offset-2">
             Ver na fonte oficial

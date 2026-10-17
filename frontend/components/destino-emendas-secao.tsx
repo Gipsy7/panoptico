@@ -1,3 +1,4 @@
+import { TabelaRolavel } from "@/components/ui/tabela-rolavel";
 import { FonteRodape } from "@/components/fonte-rodape";
 import type { DestinoEmendaItem, DestinoEmendas } from "@/lib/api";
 import { formatarData, formatarReais } from "@/lib/formato";
@@ -104,6 +105,7 @@ function TabelaSituacoes({
   linhas: { rotulo: string; quantidade: number; valor?: number }[];
 }) {
   return (
+    <TabelaRolavel larguraMinima="28rem">
     <table className="w-full text-left text-sm">
       <caption className="pb-1 text-left font-medium">{titulo}</caption>
       <thead className="sr-only">
@@ -127,6 +129,7 @@ function TabelaSituacoes({
         ))}
       </tbody>
     </table>
+    </TabelaRolavel>
   );
 }
 

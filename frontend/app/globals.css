@@ -81,6 +81,15 @@
   --chart-4: #b8b0a2;
   --chart-5: #141414;
   --radius: 0.25rem;
+  /* Escala de espaçamento (docs/DESIGN.md, seção 3). */
+  --esp-1: 0.25rem;
+  --esp-2: 0.5rem;
+  --esp-3: 0.75rem;
+  --esp-4: 1rem;
+  --esp-6: 1.5rem;
+  --esp-10: 2.5rem;
+  --esp-16: 4rem;
+  --altura-cabecalho: 3.5rem;
   --sidebar: oklch(0.985 0 0);
   --sidebar-foreground: oklch(0.145 0 0);
   --sidebar-primary: oklch(0.205 0 0);
@@ -134,6 +143,10 @@
   }
   html {
     @apply font-sans;
+    scroll-padding-top: calc(var(--altura-cabecalho) + 2.75rem + var(--esp-4));
+    @media (min-width: 64rem) {
+      scroll-padding-top: calc(var(--altura-cabecalho) + var(--esp-6));
+    }
   }
 }
 @layer base {
@@ -182,7 +195,7 @@
   padding-inline: 0.5rem;
   border-radius: 2px;
   background: var(--muted);
-  font-size: 0.75rem;
+  font-size: 0.8125rem;
   font-weight: 500;
   line-height: 1;
   color: var(--foreground);
@@ -197,11 +210,30 @@
 }
 /* Rótulo pequeno em versalete (sobretítulos). */
 @utility sobretitulo {
-  font-size: 0.7rem;
+  font-size: 0.75rem;
   font-weight: 500;
-  letter-spacing: 0.18em;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--bronze-texto);
+}
+/* Alvo de toque de 44 px (altura e largura mínimas). */
+@utility alvo-44 {
+  min-height: 2.75rem;
+  min-width: 2.75rem;
+}
+/* Link solto de texto com área de toque de 44 px de altura. */
+@utility alvo-link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.75rem;
+}
+/* Tabela rolável com primeira coluna fixa (ver ui/tabela-rolavel.tsx). */
+.tabela-fixa :is(th, td):first-child {
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  background: var(--background);
+  box-shadow: 1px 0 0 var(--border);
 }
 /* Campo com sublinhado. */
 @utility campo {

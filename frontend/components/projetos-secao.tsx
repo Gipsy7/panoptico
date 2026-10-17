@@ -1,3 +1,4 @@
+import { TabelaRolavel } from "@/components/ui/tabela-rolavel";
 import { FonteRodape } from "@/components/fonte-rodape";
 import type { Casa, ProjetoItem, Projetos } from "@/lib/api";
 import { CASA_CURTA, formatarData } from "@/lib/formato";
@@ -32,6 +33,7 @@ export function ProjetosSecao({ projetos, casa }: { projetos: Projetos; casa: Ca
       </p>
 
       {projetos.por_tipo.length > 0 && (
+        <TabelaRolavel larguraMinima="24rem">
         <table className="w-full text-left text-sm">
           <caption className="sr-only">Projetos por tipo</caption>
           <thead className="text-muted-foreground">
@@ -53,6 +55,7 @@ export function ProjetosSecao({ projetos, casa }: { projetos: Projetos; casa: Ca
             ))}
           </tbody>
         </table>
+        </TabelaRolavel>
       )}
 
       {projetos.viraram_norma_lista.length > 0 && (
