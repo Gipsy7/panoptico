@@ -6,6 +6,7 @@ import { AvisoErro } from "@/components/aviso-erro";
 import { Revelacao } from "@/components/revelacao";
 import { FonteRodape } from "@/components/fonte-rodape";
 import { Foto } from "@/components/parlamentar-card";
+import { BarraFiltros } from "@/components/ui/barra-filtros";
 import { Resumo2x2 } from "@/components/ui/resumo-2x2";
 import {
   type CriterioId,
@@ -76,7 +77,7 @@ async function Lista({ filtros }: { filtros: FiltrosLista }) {
           },
         ]}
       />
-      <Filtros dados={dados} filtros={filtros} />
+      <BarraFiltrosLista dados={dados} filtros={filtros} />
 
       <section aria-labelledby="lista-titulo" className="revelar flex flex-col gap-3">
         <div className="nota flex flex-col gap-1 text-sm">
@@ -128,6 +129,66 @@ async function Lista({ filtros }: { filtros: FiltrosLista }) {
 
       <FonteRodape fonte="Câmara, Senado e Portal da Transparência" url="/sobre-as-fontes" atualizadoEm={dados.atualizado_em} />
     </>
+  );
+}
+
+/** Endereço da lista com uma mudança nos filtros; volta para a página 1 e tira o que é padrão. */
+function enderecoLista(filtros: FiltrosLista, mudanca: Partial<Record<keyof FiltrosLista, string>>) {
+  const params = new URLSearchParams();
+  for (const [chave, valor] of Object.entries({ ...filtros, ...mudanca, pagina: "" })) {
+    if (valor && !(chave === "ordenar" && valor === "nome")) params.set(chave, valor);
+  }
+  const texto = params.toString();
+  return texto ? `/parlamentares?${texto}` : "/parlamentares";
+}
+
+function BarraFiltrosLista({ dados, filtros }: { dados: ListaParlamentares; filtros: FiltrosLista }) {
+  const ativos = [
+    filtros.busca && { rotulo: `Nome: ${filtros.busca}`, campo: "busca" as const },
+    filtros.uf && { rotulo: `Estado: ${filtros.uf.toUpperCase()}`, campo: "uf" as const },
+    filtros.partido && { rotulo: `Partido: ${filtros.partido}`, campo: "partido" as const },
+  ].filter((a): a is { rotulo: string; campo: "busca" | "uf" | "partido" } => Boolean(a));
+  const contador = ativos.length + (filtros.casa ? 1 : 0) + (dados.ordenar !== "nome" ? 1 : 0);
+  const casas = [
+    { valor: "", rotulo: "Câmara e Senado" },
+    { valor: "camara", rotulo: "Câmara" },
+    { valor: "senado", rotulo: "Senado" },
+  ];
+  return (
+    <BarraFiltros
+      contador={contador}
+      limparHref="/parlamentares"
+      painel={<Filtros dados={dados} filtros={filtros} />}
+      grupos={[
+        ...(ativos.length
+          ? [
+              {
+                itens: ativos.map((a) => ({
+                  rotulo: a.rotulo,
+                  href: enderecoLista(filtros, { [a.campo]: "" }),
+                  remover: true,
+                })),
+              },
+            ]
+          : []),
+        {
+          titulo: "Casa",
+          itens: casas.map((c) => ({
+            rotulo: c.rotulo,
+            href: enderecoLista(filtros, { casa: c.valor }),
+            ativa: (filtros.casa ?? "") === c.valor,
+          })),
+        },
+        {
+          titulo: "Ordenar por",
+          itens: dados.criterios.map((c) => ({
+            rotulo: c.nome,
+            href: enderecoLista(filtros, { ordenar: c.id, ordem: c.id === "nome" ? "asc" : "desc" }),
+            ativa: dados.ordenar === c.id,
+          })),
+        },
+      ]}
+    />
   );
 }
 

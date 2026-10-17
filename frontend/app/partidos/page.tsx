@@ -5,6 +5,7 @@ import { TabelaRolavel } from "@/components/ui/tabela-rolavel";
 import { AvisoErro } from "@/components/aviso-erro";
 import { FonteRodape } from "@/components/fonte-rodape";
 import { Revelacao } from "@/components/revelacao";
+import { BarraFiltros } from "@/components/ui/barra-filtros";
 import { Resumo2x2 } from "@/components/ui/resumo-2x2";
 import { type PartidoNaLista, getPartidos } from "@/lib/api";
 import { formatarReais, formatarReaisCompacto } from "@/lib/formato";
@@ -83,19 +84,28 @@ async function Tabela({ ano, ordenar, ordem }: { ano?: string; ordenar?: string;
           },
         ]}
       />
-      <nav aria-label="Ano da prestação de contas" className="flex flex-wrap items-center gap-2 text-sm">
-        <span className="text-muted-foreground">Contas de</span>
-        {dados.anos_disponiveis.map((a) => (
-          <Link
-            key={a}
-            href={href(a, coluna, sentido)}
-            aria-current={a === dados.ano ? "page" : undefined}
-            className={a === dados.ano ? "font-semibold underline underline-offset-4" : "underline-offset-4 hover:underline"}
-          >
-            {a}
-          </Link>
-        ))}
-      </nav>
+      <BarraFiltros
+        contador={(dados.ano !== dados.anos_disponiveis[0] ? 1 : 0) + (coluna !== "sigla" ? 1 : 0)}
+        limparHref="/partidos"
+        grupos={[
+          {
+            titulo: "Contas de",
+            itens: dados.anos_disponiveis.map((a) => ({
+              rotulo: String(a),
+              href: href(a, coluna, sentido),
+              ativa: a === dados.ano,
+            })),
+          },
+          {
+            titulo: "Ordenar por",
+            itens: COLUNAS.map((c) => ({
+              rotulo: c.rotulo,
+              href: href(dados.ano, c.id, c.id === "sigla" ? "asc" : "desc"),
+              ativa: c.id === coluna,
+            })),
+          },
+        ]}
+      />
 
       <section aria-labelledby="partidos-titulo" className="revelar flex flex-col gap-3">
         <h2 id="partidos-titulo" className="text-xl">
