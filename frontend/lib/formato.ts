@@ -40,6 +40,19 @@ export function formatarReais(valor: number, curto = false): string {
   return (curto ? REAIS_CURTO : REAIS).format(valor);
 }
 
+const REAIS_COMPACTO = new Intl.NumberFormat("pt-BR", {
+  style: "currency",
+  currency: "BRL",
+  notation: "compact",
+  compactDisplay: "short",
+  maximumFractionDigits: 1,
+});
+
+/** Reais abreviados ("R$ 1,2 bi"), para números grandes em espaço apertado. */
+export function formatarReaisCompacto(valor: number): string {
+  return REAIS_COMPACTO.format(valor);
+}
+
 /**
  * Gastos do gabinete: zero quer dizer que a fonte oficial não tem nenhum reembolso no período
  * (abriu mão da cota, estava licenciado ou como ministro, ou assumiu depois). Conferido na

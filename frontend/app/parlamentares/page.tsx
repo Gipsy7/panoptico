@@ -2,10 +2,14 @@ import type { Metadata } from "next";
 import Form from "next/form";
 import Link from "next/link";
 
+import { CabecalhoPagina } from "@/components/ui/cabecalho-pagina";
+import { EsqueletoSecao } from "@/components/esqueleto-secao";
 import { AvisoErro } from "@/components/aviso-erro";
 import { Revelacao } from "@/components/revelacao";
 import { FonteRodape } from "@/components/fonte-rodape";
 import { Foto } from "@/components/parlamentar-card";
+import { BarraFiltros } from "@/components/ui/barra-filtros";
+import { Resumo2x2 } from "@/components/ui/resumo-2x2";
 import {
   type CriterioId,
   type FiltrosLista,
@@ -13,7 +17,7 @@ import {
   type ParlamentarNaLista,
   getParlamentares,
 } from "@/lib/api";
-import { CASA_CURTA, formatarGastos, formatarReais } from "@/lib/formato";
+import { CASA_CURTA, formatarGastos, formatarReais, formatarReaisCompacto } from "@/lib/formato";
 import { UFS } from "@/lib/ufs";
 
 export const metadata: Metadata = {
@@ -26,15 +30,13 @@ const CAMPOS: (keyof FiltrosLista)[] = ["busca", "casa", "uf", "partido", "orden
 
 export default function ParlamentaresPage({ searchParams }: PageProps<"/parlamentares">) {
   return (
-    <div className="flex flex-col gap-6">
-      <header className="flex flex-col gap-1">
-        <h1 className="text-3xl tracking-tight">Todos os parlamentares</h1>
-        <p className="text-muted-foreground">
-          Deputados federais e senadores em exercício. Escolha um critério para ordenar a lista:
-          cada número vem de fonte oficial e não é uma nota.
-        </p>
-      </header>
-      <Revelacao fallback={<p className="text-muted-foreground">Carregando…</p>}>
+    <div className="pagina-secoes">
+      <CabecalhoPagina
+        sobretitulo="Congresso Nacional"
+        titulo="Todos os parlamentares"
+        subtitulo="Deputados federais e senadores em exercício. Escolha um critério para ordenar a lista: cada número vem de fonte oficial e não é uma nota."
+      />
+      <Revelacao fallback={<EsqueletoSecao rotulo="Carregando a lista de parlamentares…" secoes={2} />}>
         {searchParams.then((sp) => {
           const filtros: FiltrosLista = {};
           for (const campo of CAMPOS) {
@@ -59,7 +61,23 @@ async function Lista({ filtros }: { filtros: FiltrosLista }) {
 
   return (
     <>
-      <Filtros dados={dados} filtros={filtros} />
+      <Resumo2x2
+        titulo={`Resumo do Congresso em ${dados.ano}`}
+        itens={[
+          { rotulo: "Deputados federais", valor: dados.por_casa.camara.toLocaleString("pt-BR") },
+          { rotulo: "Senadores", valor: dados.por_casa.senado.toLocaleString("pt-BR") },
+          { rotulo: "Partidos representados", valor: dados.partidos.length.toLocaleString("pt-BR") },
+          {
+            rotulo: `Gasto médio por deputado em ${dados.ano}`,
+            valor: dados.medias.camara.gastos != null ? formatarReaisCompacto(dados.medias.camara.gastos) : "—",
+            apoio:
+              dados.medias.senado.gastos != null
+                ? `Senado: ${formatarReaisCompacto(dados.medias.senado.gastos)}`
+                : undefined,
+          },
+        ]}
+      />
+      <BarraFiltrosLista dados={dados} filtros={filtros} />
 
       <section aria-labelledby="lista-titulo" className="revelar flex flex-col gap-3">
         <div className="nota flex flex-col gap-1 text-sm">
@@ -111,6 +129,66 @@ async function Lista({ filtros }: { filtros: FiltrosLista }) {
 
       <FonteRodape fonte="Câmara, Senado e Portal da Transparência" url="/sobre-as-fontes" atualizadoEm={dados.atualizado_em} />
     </>
+  );
+}
+
+/** Endereço da lista com uma mudança nos filtros; volta para a página 1 e tira o que é padrão. */
+function enderecoLista(filtros: FiltrosLista, mudanca: Partial<Record<keyof FiltrosLista, string>>) {
+  const params = new URLSearchParams();
+  for (const [chave, valor] of Object.entries({ ...filtros, ...mudanca, pagina: "" })) {
+    if (valor && !(chave === "ordenar" && valor === "nome")) params.set(chave, valor);
+  }
+  const texto = params.toString();
+  return texto ? `/parlamentares?${texto}` : "/parlamentares";
+}
+
+function BarraFiltrosLista({ dados, filtros }: { dados: ListaParlamentares; filtros: FiltrosLista }) {
+  const ativos = [
+    filtros.busca && { rotulo: `Nome: ${filtros.busca}`, campo: "busca" as const },
+    filtros.uf && { rotulo: `Estado: ${filtros.uf.toUpperCase()}`, campo: "uf" as const },
+    filtros.partido && { rotulo: `Partido: ${filtros.partido}`, campo: "partido" as const },
+  ].filter((a): a is { rotulo: string; campo: "busca" | "uf" | "partido" } => Boolean(a));
+  const contador = ativos.length + (filtros.casa ? 1 : 0) + (dados.ordenar !== "nome" ? 1 : 0);
+  const casas = [
+    { valor: "", rotulo: "Câmara e Senado" },
+    { valor: "camara", rotulo: "Câmara" },
+    { valor: "senado", rotulo: "Senado" },
+  ];
+  return (
+    <BarraFiltros
+      contador={contador}
+      limparHref="/parlamentares"
+      painel={<Filtros dados={dados} filtros={filtros} />}
+      grupos={[
+        ...(ativos.length
+          ? [
+              {
+                itens: ativos.map((a) => ({
+                  rotulo: a.rotulo,
+                  href: enderecoLista(filtros, { [a.campo]: "" }),
+                  remover: true,
+                })),
+              },
+            ]
+          : []),
+        {
+          titulo: "Casa",
+          itens: casas.map((c) => ({
+            rotulo: c.rotulo,
+            href: enderecoLista(filtros, { casa: c.valor }),
+            ativa: (filtros.casa ?? "") === c.valor,
+          })),
+        },
+        {
+          titulo: "Ordenar por",
+          itens: dados.criterios.map((c) => ({
+            rotulo: c.nome,
+            href: enderecoLista(filtros, { ordenar: c.id, ordem: c.id === "nome" ? "asc" : "desc" }),
+            ativa: dados.ordenar === c.id,
+          })),
+        },
+      ]}
+    />
   );
 }
 

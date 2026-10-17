@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { TextoLongo } from "@/components/ui/texto-longo";
 import { FonteRodape } from "@/components/fonte-rodape";
 import type { VotosComissoes } from "@/lib/api";
 import { formatarData } from "@/lib/formato";
@@ -48,7 +49,7 @@ export function ComissoesSecao({ dados, parlamentarId }: { dados: VotosComissoes
                 ) : (
                   <span className="font-medium">{v.proposicao}</span>
                 ))}
-              {v.proposicao_ementa && <p className="line-clamp-2 text-sm">{v.proposicao_ementa}</p>}
+              {v.proposicao_ementa && <TextoLongo linhas={3}>{v.proposicao_ementa}</TextoLongo>}
               <p className="line-clamp-2 text-xs text-muted-foreground">{v.descricao}</p>
               <p className="text-sm">
                 Votou: <span className="font-semibold">{v.voto || "Sem voto registrado"}</span>

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 
+import { EsqueletoSecao } from "@/components/esqueleto-secao";
 import { Revelacao } from "@/components/revelacao";
 import { getFontes } from "@/lib/api";
 import { formatarData } from "@/lib/formato";
@@ -11,9 +12,10 @@ export const metadata: Metadata = {
 
 export default function SobreAsFontesPage() {
   return (
-    <article className="flex flex-col gap-8">
-      <header className="flex flex-col gap-2">
-        <h1 className="text-3xl tracking-tight">Sobre as fontes</h1>
+    <article className="pagina-secoes">
+      <header className="flex flex-col gap-[var(--esp-2)]">
+        <p className="sobretitulo">Método</p>
+        <h1 className="titulo-pagina">Sobre as fontes</h1>
         <p className="text-muted-foreground">
           Todos os dados do Panóptico vêm de fontes públicas e oficiais. Não fazemos notas,
           rankings nem avaliações: mostramos o dado, a média para comparação e o link para a
@@ -25,7 +27,7 @@ export default function SobreAsFontesPage() {
         <h2 id="fontes-titulo" className="text-2xl">
           De onde vem cada dado
         </h2>
-        <Revelacao fallback={<p className="text-muted-foreground">Carregando…</p>}>
+        <Revelacao fallback={<EsqueletoSecao rotulo="Carregando…" secoes={2} />}>
           <ListaFontes />
         </Revelacao>
       </section>

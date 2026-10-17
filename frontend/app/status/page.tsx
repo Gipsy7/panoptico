@@ -7,8 +7,10 @@ export const metadata: Metadata = { title: "Status" };
 
 export default function StatusPage() {
   return (
-    <div className="flex flex-col gap-2">
-      <h1 className="text-2xl font-bold">Status</h1>
+    <div className="flex flex-col gap-[var(--esp-2)]">
+      <p className="sobretitulo">Sistema</p>
+      <h1 className="titulo-pagina">Status</h1>
+      <p className="text-muted-foreground">Estado da API e do banco de dados neste momento.</p>
       <Suspense fallback={<p>Verificando…</p>}>
         <Saude />
       </Suspense>

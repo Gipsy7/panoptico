@@ -72,7 +72,7 @@ export function PartidoSecao({ dados }: { dados: PartidoDetalhe }) {
   const link = (a: number) => `/partidos/${encodeURIComponent(dados.sigla)}?ano=${a}`;
 
   return (
-    <div className="flex flex-col gap-8">
+    <div className="pagina-secoes">
       <header className="flex flex-col gap-2">
         <Migalhas
           itens={[
@@ -81,7 +81,8 @@ export function PartidoSecao({ dados }: { dados: PartidoDetalhe }) {
             { rotulo: dados.sigla },
           ]}
         />
-        <h1 className="text-3xl tracking-tight">Dinheiro do {dados.sigla}</h1>
+        <p className="sobretitulo">Partido</p>
+        <h1 className="titulo-pagina">Dinheiro do {dados.sigla}</h1>
         <p className="text-muted-foreground">
           O que o partido declarou ao Tribunal Superior Eleitoral (TSE) na prestação de contas de{" "}
           {dados.ano}, somando o diretório nacional, os estaduais e os municipais.

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { EsqueletoSecao } from "@/components/esqueleto-secao";
 import { notFound, redirect } from "next/navigation";
 
 import { AvisoErro } from "@/components/aviso-erro";
@@ -24,7 +25,7 @@ export async function generateMetadata({ params }: PageProps<"/eleito/[id]">): P
 
 export default function EleitoPage({ params }: PageProps<"/eleito/[id]">) {
   return (
-    <Revelacao fallback={<p className="text-muted-foreground">Carregando…</p>}>
+    <Revelacao fallback={<EsqueletoSecao rotulo="Carregando o perfil…" secoes={3} />}>
       {params.then(({ id }) => (
         <Perfil id={id} />
       ))}
@@ -54,11 +55,12 @@ async function Perfil({ id }: { id: string }) {
       : `/representantes?uf=${e.uf}`;
 
   return (
-    <article className="flex flex-col gap-8">
+    <article className="pagina-secoes">
       <header className="flex items-start gap-4">
         <FotoOuIniciais eleito={e} tamanho={72} />
         <div className="flex min-w-0 flex-col gap-1">
-          <h1 className="text-3xl tracking-tight">{e.nome_urna}</h1>
+          <p className="sobretitulo">Eleito</p>
+          <h1 className="titulo-pagina">{e.nome_urna}</h1>
           <p className="text-muted-foreground">
             {e.cargo} · {e.unidade}
           </p>

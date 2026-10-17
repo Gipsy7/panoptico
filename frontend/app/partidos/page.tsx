@@ -1,12 +1,16 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
+import { CabecalhoPagina } from "@/components/ui/cabecalho-pagina";
+import { EsqueletoSecao } from "@/components/esqueleto-secao";
 import { TabelaRolavel } from "@/components/ui/tabela-rolavel";
 import { AvisoErro } from "@/components/aviso-erro";
 import { FonteRodape } from "@/components/fonte-rodape";
 import { Revelacao } from "@/components/revelacao";
+import { BarraFiltros } from "@/components/ui/barra-filtros";
+import { Resumo2x2 } from "@/components/ui/resumo-2x2";
 import { type PartidoNaLista, getPartidos } from "@/lib/api";
-import { formatarReais } from "@/lib/formato";
+import { formatarReais, formatarReaisCompacto } from "@/lib/formato";
 
 export const metadata: Metadata = {
   title: "Dinheiro dos partidos",
@@ -29,16 +33,13 @@ const texto = (v: string | string[] | undefined) => (typeof v === "string" && v 
 
 export default function PartidosPage({ searchParams }: PageProps<"/partidos">) {
   return (
-    <div className="flex flex-col gap-6" data-largura="larga">
-      <header className="flex flex-col gap-2">
-        <h1 className="text-3xl tracking-tight">Dinheiro dos partidos</h1>
-        <p className="text-muted-foreground">
-          Valores que os próprios partidos declararam ao Tribunal Superior Eleitoral (TSE) na
-          prestação de contas anual: de onde veio o dinheiro e para onde foi. Toque no título de
-          uma coluna para ordenar.
-        </p>
-      </header>
-      <Revelacao fallback={<p className="text-muted-foreground">Carregando…</p>}>
+    <div className="pagina-secoes" data-largura="larga">
+      <CabecalhoPagina
+        sobretitulo="Partidos"
+        titulo="Dinheiro dos partidos"
+        subtitulo="Valores que os próprios partidos declararam ao Tribunal Superior Eleitoral (TSE) na prestação de contas anual: de onde veio o dinheiro e para onde foi. Toque no título de uma coluna para ordenar."
+      />
+      <Revelacao fallback={<EsqueletoSecao rotulo="Carregando as contas dos partidos…" secoes={2} />}>
         {searchParams.then((sp) => (
           <Tabela ano={texto(sp.ano)} ordenar={texto(sp.ordenar)} ordem={texto(sp.ordem)} />
         ))}
@@ -64,21 +65,46 @@ async function Tabela({ ano, ordenar, ordem }: { ano?: string; ordenar?: string;
     coluna === "sigla" ? fator * a.sigla.localeCompare(b.sigla, "pt-BR") : fator * (a[coluna] - b[coluna]),
   );
 
+  const soma = (campo: keyof Omit<PartidoNaLista, "sigla">) => dados.partidos.reduce((t, p) => t + p[campo], 0);
+  const gastoMedio = dados.partidos.length ? soma("gasto") / dados.partidos.length : 0;
+
   return (
     <>
-      <nav aria-label="Ano da prestação de contas" className="flex flex-wrap items-center gap-2 text-sm">
-        <span className="text-muted-foreground">Contas de</span>
-        {dados.anos_disponiveis.map((a) => (
-          <Link
-            key={a}
-            href={href(a, coluna, sentido)}
-            aria-current={a === dados.ano ? "page" : undefined}
-            className={a === dados.ano ? "font-semibold underline underline-offset-4" : "underline-offset-4 hover:underline"}
-          >
-            {a}
-          </Link>
-        ))}
-      </nav>
+      <Resumo2x2
+        titulo={`Resumo das contas dos partidos em ${dados.ano}`}
+        itens={[
+          { rotulo: `Partidos com contas em ${dados.ano}`, valor: dados.partidos.length.toLocaleString("pt-BR") },
+          { rotulo: "Recebido do Fundo Partidário", valor: formatarReaisCompacto(soma("cota_fundo_partidario")) },
+          { rotulo: "Recebido do fundo eleitoral", valor: formatarReaisCompacto(soma("cota_fefc")) },
+          {
+            rotulo: "Gasto médio por partido",
+            valor: formatarReaisCompacto(gastoMedio),
+            apoio: `Total: ${formatarReaisCompacto(soma("gasto"))}`,
+          },
+        ]}
+      />
+      <BarraFiltros
+        contador={(dados.ano !== dados.anos_disponiveis[0] ? 1 : 0) + (coluna !== "sigla" ? 1 : 0)}
+        limparHref="/partidos"
+        grupos={[
+          {
+            titulo: "Contas de",
+            itens: dados.anos_disponiveis.map((a) => ({
+              rotulo: String(a),
+              href: href(a, coluna, sentido),
+              ativa: a === dados.ano,
+            })),
+          },
+          {
+            titulo: "Ordenar por",
+            itens: COLUNAS.map((c) => ({
+              rotulo: c.rotulo,
+              href: href(dados.ano, c.id, c.id === "sigla" ? "asc" : "desc"),
+              ativa: c.id === coluna,
+            })),
+          },
+        ]}
+      />
 
       <section aria-labelledby="partidos-titulo" className="revelar flex flex-col gap-3">
         <h2 id="partidos-titulo" className="text-xl">

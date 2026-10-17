@@ -1,6 +1,7 @@
 import Form from "next/form";
 import Link from "next/link";
 
+import { TextoLongo } from "@/components/ui/texto-longo";
 import { FonteRodape } from "@/components/fonte-rodape";
 import type { Casa, Placar, Votos } from "@/lib/api";
 import { CASA_CURTA, formatarData } from "@/lib/formato";
@@ -113,7 +114,7 @@ export function VotosSecao({
                   ) : (
                     <span className="font-medium">{v.proposicao}</span>
                   ))}
-                {v.proposicao_ementa && <p className="line-clamp-3 text-sm">{v.proposicao_ementa}</p>}
+                {v.proposicao_ementa && <TextoLongo linhas={3}>{v.proposicao_ementa}</TextoLongo>}
                 {v.temas.length > 0 && (
                   <p className="text-sm text-muted-foreground">{v.temas.join(" · ")}</p>
                 )}

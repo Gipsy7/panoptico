@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { EsqueletoSecao } from "@/components/esqueleto-secao";
 import { notFound } from "next/navigation";
 
 import { AvisoErro } from "@/components/aviso-erro";
@@ -125,7 +126,7 @@ async function Perfil({
   const indice = secoes.filter((s): s is ItemIndice => s !== false);
 
   return (
-    <article data-largura="larga" className="flex flex-col gap-6 lg:grid lg:grid-cols-[11rem_minmax(0,1fr)] lg:gap-x-10">
+    <article data-largura="larga" className="pagina-secoes lg:grid lg:grid-cols-[11rem_minmax(0,1fr)] lg:gap-x-10">
       <div className="flex flex-col gap-4 lg:col-start-2">
         <Migalhas
           itens={[
@@ -137,7 +138,8 @@ async function Perfil({
       <header className="flex items-start gap-4">
         <Foto parlamentar={p} largura={96} prioridade />
         <div className="flex min-w-0 flex-col gap-1">
-          <h1 className="text-3xl tracking-tight">{p.nome_parlamentar}</h1>
+          <p className="sobretitulo">{p.casa === "senado" ? "Senador" : "Deputado federal"}</p>
+          <h1 className="titulo-pagina">{p.nome_parlamentar}</h1>
           {p.nome_civil && p.nome_civil !== p.nome_parlamentar && (
             <p className="text-sm text-muted-foreground">{p.nome_civil}</p>
           )}
@@ -258,13 +260,16 @@ async function Perfil({
 
 function Carregando() {
   return (
-    <div className="flex gap-4" aria-busy="true" aria-live="polite">
+    <div className="flex flex-col gap-[var(--esp-10)]" aria-busy="true" aria-live="polite">
       <span className="sr-only">Carregando perfil…</span>
-      <div className="h-32 w-24 animate-pulse rounded-[2px] bg-muted" />
-      <div className="flex flex-1 flex-col gap-2">
-        <div className="h-7 w-2/3 animate-pulse rounded-[2px] bg-muted" />
-        <div className="h-5 w-1/2 animate-pulse rounded-[2px] bg-muted" />
+      <div aria-hidden className="flex gap-4">
+        <div className="h-32 w-24 animate-pulse rounded-[2px] bg-muted motion-reduce:animate-none" />
+        <div className="flex flex-1 flex-col gap-2">
+          <div className="h-7 w-2/3 animate-pulse rounded-[2px] bg-muted motion-reduce:animate-none" />
+          <div className="h-5 w-1/2 animate-pulse rounded-[2px] bg-muted motion-reduce:animate-none" />
+        </div>
       </div>
+      <EsqueletoSecao rotulo="Carregando seções do perfil…" secoes={2} />
     </div>
   );
 }

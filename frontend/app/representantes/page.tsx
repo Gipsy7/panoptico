@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
+import { EsqueletoSecao } from "@/components/esqueleto-secao";
 import { AvisoErro } from "@/components/aviso-erro";
 import { Revelacao } from "@/components/revelacao";
 import { CompartilharWhatsApp } from "@/components/compartilhar";
@@ -39,7 +40,7 @@ type Busca = { cep?: string; uf?: string; municipio?: string };
 
 export default function RepresentantesPage({ searchParams }: PageProps<"/representantes">) {
   return (
-    <Revelacao fallback={<Carregando />}>
+    <Revelacao fallback={<EsqueletoSecao rotulo="Carregando representantes…" secoes={4} />}>
       {searchParams.then((sp) => (
         <Lista
           cep={primeiro(sp.cep)}
@@ -103,16 +104,16 @@ async function Lista({ cep, uf, municipio }: Busca) {
     : localizacao.estado;
 
   return (
-    <div className="flex flex-col gap-8">
+    <div className="pagina-secoes">
       <div className="flex flex-col gap-1">
-        <p className="text-sm text-muted-foreground">
+        <p className="sobretitulo">
           {localizacao.cep
             ? `CEP ${formatarCep(localizacao.cep)}`
             : localizacao.municipio
               ? "Busca por cidade"
               : "Busca por estado"}
         </p>
-        <h1 className="text-3xl tracking-tight">Você está em {lugar}</h1>
+        <h1 className="titulo-pagina">Você está em {lugar}</h1>
         <p className="text-muted-foreground">
           Quem governa e quem representa {lugar}, do Executivo à câmara municipal:
         </p>
@@ -238,17 +239,5 @@ function Secao({
         </ul>
       )}
     </section>
-  );
-}
-
-function Carregando() {
-  return (
-    <div className="flex flex-col gap-3" aria-busy="true" aria-live="polite">
-      <span className="sr-only">Carregando representantes…</span>
-      <div className="h-8 w-2/3 animate-pulse rounded-[2px] bg-muted" />
-      {Array.from({ length: 6 }, (_, i) => (
-        <div key={i} className="h-16 animate-pulse rounded-[2px] bg-muted" />
-      ))}
-    </div>
   );
 }

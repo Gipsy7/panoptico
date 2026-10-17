@@ -1,3 +1,4 @@
+import { TextoLongo } from "@/components/ui/texto-longo";
 import { TabelaRolavel } from "@/components/ui/tabela-rolavel";
 import { FonteRodape } from "@/components/fonte-rodape";
 import type { Casa, ProjetoItem, Projetos } from "@/lib/api";
@@ -111,7 +112,7 @@ function ListaProjetos({ itens }: { itens: ProjetoItem[] }) {
           >
             {p.sigla_tipo} {p.numero}/{p.ano}
           </a>
-          <p className="text-sm">{p.ementa}</p>
+          <TextoLongo linhas={3}>{p.ementa}</TextoLongo>
           <p className="text-xs text-muted-foreground">
             Apresentado em {formatarData(p.data_apresentacao)} ·{" "}
             {p.situacao ?? "Situação não informada"}

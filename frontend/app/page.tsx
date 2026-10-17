@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Suspense } from "react";
 
+import { EsqueletoSecao } from "@/components/esqueleto-secao";
 import { BuscaGeral } from "@/components/busca-geral";
 import { CepForm } from "@/components/cep-form";
 import { Marca } from "@/components/logo";
@@ -13,7 +14,7 @@ const UF_DO_EXEMPLO = "SC";
 
 export default function Home() {
   return (
-    <div data-largura="larga" className="flex flex-col gap-20">
+    <div data-largura="larga" className="flex flex-col gap-[var(--esp-16)]">
       <section className="grid items-start gap-12 pt-2 md:grid-cols-[minmax(0,1fr)_minmax(0,25rem)] md:gap-16 md:pt-10">
         <div className="flex flex-col gap-6">
           <div className="flex items-center gap-3">
@@ -35,7 +36,13 @@ export default function Home() {
           </div>
         </div>
 
-        <Suspense fallback={<div className="h-96 animate-pulse rounded-[2px] bg-muted" aria-hidden />}>
+        <Suspense
+          fallback={
+            <div className="min-h-96 border border-border p-[var(--esp-4)]">
+              <EsqueletoSecao rotulo="Carregando o exemplo de comparação…" />
+            </div>
+          }
+        >
           <ExemploDeComparacao />
         </Suspense>
       </section>

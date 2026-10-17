@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { TextoLongo } from "@/components/ui/texto-longo";
 import { notFound } from "next/navigation";
 
 import { GastosLocaisSecao, PresencaLocalSecao, VotacoesLocaisSecao } from "@/components/atividade-local";
@@ -62,11 +63,12 @@ export async function PerfilMandatoLocal({ id, paginaVotos }: { id: string; pagi
   }
 
   return (
-    <article className="flex flex-col gap-8">
+    <article className="pagina-secoes">
       <header className="flex items-start gap-4">
         <FotoVereador vereador={v} tamanho={72} />
         <div className="flex min-w-0 flex-col gap-1">
-          <h1 className="text-3xl tracking-tight">{v.nome}</h1>
+          <p className="sobretitulo">{cargo}</p>
+          <h1 className="titulo-pagina">{v.nome}</h1>
           {v.nome_completo && v.nome_completo !== v.nome && (
             <p className="text-sm text-muted-foreground">{v.nome_completo}</p>
           )}
@@ -139,7 +141,7 @@ export async function PerfilMandatoLocal({ id, paginaVotos }: { id: string; pagi
                   <a href={p.url} target="_blank" rel="noopener noreferrer" className="font-medium underline underline-offset-2">
                     {p.tipo} {p.numero ? `nº ${p.numero}` : ""}/{p.ano}
                   </a>
-                  <p className="text-sm">{p.ementa}</p>
+                  <TextoLongo linhas={3}>{p.ementa}</TextoLongo>
                   <p className="text-xs text-muted-foreground">
                     {p.data_apresentacao ? formatarData(p.data_apresentacao) : ""}
                     {p.em_tramitacao === true ? " · em tramitação" : p.em_tramitacao === false ? " · tramitação encerrada" : ""}

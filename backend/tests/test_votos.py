@@ -160,6 +160,12 @@ def test_resumo_e_lista_ordenavel(client, session):
     todos = client.get("/parlamentares?ordenar=governo&ordem=desc").json()["itens"]
     assert [i["casa"] for i in todos][-3:] == ["senado"] * 3
 
+    # Contagem por Casa não muda com o filtro: vem de todos os parlamentares em exercício.
+    por_casa = por_nome["por_casa"]
+    assert por_casa["camara"] == por_nome["total"]
+    assert por_casa["senado"] == 3
+    assert client.get("/parlamentares?casa=senado").json()["por_casa"] == por_casa
+
     alvo = a.nome_parlamentar.split()[0].lower()
     busca = client.get(f"/parlamentares?busca={alvo}").json()
     assert a.id in [i["id"] for i in busca["itens"]]
