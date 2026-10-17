@@ -42,13 +42,13 @@ function Grupos({ titulo, grupos }: { titulo: string; grupos: GrupoFefc[] }) {
             <div className="flex items-baseline justify-between gap-3 text-sm">
               <span className="min-w-0">
                 {g.nome}
-                <span className="ml-1 text-xs text-muted-foreground">
+                <span className="ml-1 text-sm text-muted-foreground">
                   {g.candidatos.toLocaleString("pt-BR")} candidaturas
                 </span>
               </span>
               <span className="shrink-0 tabular-nums">
                 {formatarReais(g.valor, true)}
-                <span className="ml-1 text-xs text-muted-foreground">
+                <span className="ml-1 text-sm text-muted-foreground">
                   {total ? ((g.valor / total) * 100).toLocaleString("pt-BR", { maximumFractionDigits: 1 }) : "0"}%
                 </span>
               </span>
@@ -125,7 +125,7 @@ export function PartidoSecao({ dados }: { dados: PartidoDetalhe }) {
             <dd className="numero text-2xl">{formatarReais(dados.gasto, true)}</dd>
           </div>
         </dl>
-        <p className="text-xs text-muted-foreground">
+        <p className="text-sm text-muted-foreground">
           As cotas são o que o diretório nacional recebeu do TSE. O gasto não inclui repasses entre
           diretórios nem a candidaturas (veja abaixo), para o mesmo dinheiro não ser contado duas
           vezes.
@@ -138,7 +138,7 @@ export function PartidoSecao({ dados }: { dados: PartidoDetalhe }) {
             <h2 id="partido-cotas" className="text-2xl">
               Cotas recebidas mês a mês
             </h2>
-            <p className="text-xs text-muted-foreground">
+            <p className="text-sm text-muted-foreground">
               Fundo Partidário e Fundo Especial de Financiamento de Campanha (FEFC), pagos pelo TSE
               ao diretório nacional
             </p>
@@ -184,7 +184,7 @@ export function PartidoSecao({ dados }: { dados: PartidoDetalhe }) {
           <h2 id="partido-receitas" className="text-2xl">
             De onde veio o dinheiro
           </h2>
-          <p className="text-xs text-muted-foreground">
+          <p className="text-sm text-muted-foreground">
             Por fonte do recurso, em todos os diretórios. Não inclui o que veio de outros diretórios
             do próprio partido.
           </p>
@@ -197,7 +197,7 @@ export function PartidoSecao({ dados }: { dados: PartidoDetalhe }) {
           <h2 id="partido-despesas" className="text-2xl">
             Em que o partido gastou
           </h2>
-          <p className="text-xs text-muted-foreground">
+          <p className="text-sm text-muted-foreground">
             Por tipo de despesa, como o partido classificou. Só gastos: sem transferências.
           </p>
         </div>
@@ -219,7 +219,7 @@ export function PartidoSecao({ dados }: { dados: PartidoDetalhe }) {
           <h2 id="partido-transf" className="text-2xl">
             Dinheiro que só mudou de mãos
           </h2>
-          <p className="text-xs text-muted-foreground">
+          <p className="text-sm text-muted-foreground">
             Está fora do gasto acima: o dinheiro que sai de um diretório entra em outro, ou chega a
             uma candidatura, e já aparece lá como receita.
           </p>
@@ -252,7 +252,7 @@ export function PartidoSecao({ dados }: { dados: PartidoDetalhe }) {
             <h2 id="partido-fefc" className="text-2xl">
               Fundos nas candidaturas de {dados.fefc_fp.ano}
             </h2>
-            <p className="text-xs text-muted-foreground">
+            <p className="text-sm text-muted-foreground">
               Quanto das campanhas chegou a cada grupo, por gênero e por cor ou raça (autodeclarados
               pelas candidaturas)
             </p>

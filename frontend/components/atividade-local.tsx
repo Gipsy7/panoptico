@@ -15,7 +15,7 @@ export function PresencaLocalSecao({ v, nomeCasa }: { v: VereadorDetalhe; nomeCa
         <h2 id="presenca-titulo" className="text-2xl">
           Presença nas sessões
         </h2>
-        <p className="text-xs text-muted-foreground">Ano atual e anterior, durante o mandato</p>
+        <p className="text-sm text-muted-foreground">Ano atual e anterior, durante o mandato</p>
       </div>
       {!p ? (
         <p className="text-sm text-muted-foreground">
@@ -29,17 +29,17 @@ export function PresencaLocalSecao({ v, nomeCasa }: { v: VereadorDetalhe; nomeCa
               <dd className="numero text-3xl">
                 {p.presencas} de {p.sessoes}
               </dd>
-              <dd className="text-xs text-muted-foreground">sessões</dd>
+              <dd className="text-sm text-muted-foreground">sessões</dd>
             </div>
             {p.media_casa !== null && (
               <div className="figura">
                 <dt className="text-sm text-muted-foreground">Média da {nomeCasa}</dt>
                 <dd className="numero text-3xl">{PCT.format(p.media_casa)}%</dd>
-                <dd className="text-xs text-muted-foreground">das sessões, entre quem está no cargo</dd>
+                <dd className="text-sm text-muted-foreground">das sessões, entre quem está no cargo</dd>
               </div>
             )}
           </dl>
-          <p className="text-xs text-muted-foreground">
+          <p className="text-sm text-muted-foreground">
             Contam as sessões plenárias com a lista de presença lançada no sistema. Ausências
             justificadas (licença, missão oficial) não aparecem separadas.
           </p>
@@ -67,7 +67,7 @@ export function VotacoesLocaisSecao({
         <h2 id="votacoes-titulo" className="text-2xl">
           Como votou
         </h2>
-        <p className="text-xs text-muted-foreground">
+        <p className="text-sm text-muted-foreground">
           Votações nominais da {nomeCasa}, ano atual e anterior
         </p>
       </div>
@@ -95,7 +95,7 @@ export function VotacoesLocaisSecao({
                   ) : (
                     v.materia
                   )}
-                  <span className="block text-xs text-muted-foreground">
+                  <span className="block text-sm text-muted-foreground">
                     {[v.data && formatarData(v.data), v.resultado, `${v.sim} sim, ${v.nao} não`].filter(Boolean).join(" · ")}
                   </span>
                 </span>
@@ -120,7 +120,7 @@ export function VotacoesLocaisSecao({
               )}
             </nav>
           )}
-          <p className="text-xs text-muted-foreground">
+          <p className="text-sm text-muted-foreground">
             Votações simbólicas, em que não se anota o voto de cada um, não aparecem.
           </p>
         </>
@@ -141,7 +141,7 @@ export function GastosLocaisSecao({ v, nomeCasa }: { v: VereadorDetalhe; nomeCas
         <h2 id="gastos-titulo" className="text-2xl">
           Gastos do gabinete
         </h2>
-        <p className="text-xs text-muted-foreground">Verba indenizatória (reembolsos ao gabinete)</p>
+        <p className="text-sm text-muted-foreground">Verba indenizatória (reembolsos ao gabinete)</p>
       </div>
       <dl className="grid grid-cols-2 gap-3">
         <div className="figura">
@@ -174,7 +174,7 @@ export function GastosLocaisSecao({ v, nomeCasa }: { v: VereadorDetalhe; nomeCas
           </li>
         ))}
       </ul>
-      <p className="text-xs text-muted-foreground">
+      <p className="text-sm text-muted-foreground">
         Valores reembolsados como a {nomeCasa} publica, por mês de fechamento. A média inclui quem
         está no cargo hoje; quem não pediu reembolso entra com zero.
       </p>

@@ -17,7 +17,8 @@ export function IndicePerfil({ itens }: { itens: ItemIndice[] }) {
   const fileira = useRef<HTMLUListElement>(null);
 
   useEffect(() => {
-    setPresentes(itens.filter((i) => document.getElementById(i.id)));
+    const quadro = requestAnimationFrame(() => setPresentes(itens.filter((i) => document.getElementById(i.id))));
+    return () => cancelAnimationFrame(quadro);
   }, [itens]);
 
   useEffect(() => {
