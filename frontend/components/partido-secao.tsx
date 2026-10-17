@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { Migalhas } from "@/components/ui/migalhas";
 import { TabelaRolavel } from "@/components/ui/tabela-rolavel";
 import { FonteRodape } from "@/components/fonte-rodape";
 import type { GrupoFefc, PartidoDetalhe } from "@/lib/api";
@@ -73,9 +74,13 @@ export function PartidoSecao({ dados }: { dados: PartidoDetalhe }) {
   return (
     <div className="flex flex-col gap-8">
       <header className="flex flex-col gap-2">
-        <Link href={`/partidos?ano=${dados.ano}`} className="text-sm underline underline-offset-4">
-          ← Todos os partidos
-        </Link>
+        <Migalhas
+          itens={[
+            { rotulo: "Início", href: "/" },
+            { rotulo: "Partidos", href: `/partidos?ano=${dados.ano}` },
+            { rotulo: dados.sigla },
+          ]}
+        />
         <h1 className="text-3xl tracking-tight">Dinheiro do {dados.sigla}</h1>
         <p className="text-muted-foreground">
           O que o partido declarou ao Tribunal Superior Eleitoral (TSE) na prestação de contas de{" "}
@@ -89,7 +94,7 @@ export function PartidoSecao({ dados }: { dados: PartidoDetalhe }) {
                 key={a}
                 href={link(a)}
                 aria-current={a === dados.ano ? "page" : undefined}
-                className={a === dados.ano ? "font-semibold underline underline-offset-4" : "underline-offset-4 hover:underline"}
+                className={`alvo-link px-1 ${a === dados.ano ? "font-semibold underline underline-offset-4" : "underline-offset-4 hover:underline"}`}
               >
                 {a}
               </Link>

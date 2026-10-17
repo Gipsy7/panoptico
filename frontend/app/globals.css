@@ -143,7 +143,10 @@
   }
   html {
     @apply font-sans;
-    scroll-padding-top: calc(var(--altura-cabecalho) + var(--esp-4));
+    scroll-padding-top: calc(var(--altura-cabecalho) + 2.75rem + var(--esp-4));
+    @media (min-width: 64rem) {
+      scroll-padding-top: calc(var(--altura-cabecalho) + var(--esp-6));
+    }
   }
 }
 @layer base {
