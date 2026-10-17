@@ -23,6 +23,9 @@ Máquina Windows; `uv` não está no PATH: use `python -m uv ...`. Shells: Git B
 # app/config.py), nunca o banco de dev nem o acervo. Não exporte DATABASE_URL de produção ou do acervo.
 python -m uv run pytest -q
 python -m uv run pytest tests/test_x.py -q        # só uma área
+# Agentes em paralelo dividem o panoptico_test: erros de conexão em massa = outro agente testando;
+# rode só a sua área, espere e repita. O coordenador roda a suíte completa depois do merge.
+# Worktree novo: `uv sync --group acervo` (pyarrow do test_exportar).
 python -m uv run ruff check . && python -m uv run ruff format --check .
 python -m uv run alembic upgrade head              # migrações no banco do DATABASE_URL
 python -m uv run uvicorn app.main:app --port 8000  # sem --reload (deixa processo órfão no Windows)
