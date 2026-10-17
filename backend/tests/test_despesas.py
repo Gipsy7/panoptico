@@ -4,8 +4,9 @@ from decimal import Decimal
 
 from sqlalchemy import func, select
 
-from app.models import Despesa, Parlamentar
-from ingestion import comum
+from app.models import Despesa, Parlamentar, ResumoParlamentar
+from app.services import gastos
+from ingestion import comum, resumos
 from ingestion.camara import despesas as despesas_camara
 from ingestion.senado import despesas as despesas_senado
 from tests.test_api import _ingestao, _popular
@@ -124,6 +125,44 @@ def test_gastos_endpoint(client, session):
     assert client.get(f"/parlamentares/{deps[0].id}/gastos?ano=1999").status_code == 404
     senador = session.scalars(select(Parlamentar).where(Parlamentar.casa == "senado")).first()
     assert client.get(f"/parlamentares/{senador.id}/gastos").status_code == 404
+
+
+def test_gastos_guardado_e_consulta_unica_iguais_ao_calculo_na_hora(session):
+    """Anos, último mês e média da Casa: o caminho novo (uma consulta de anos e a média do
+    resumo_parlamentar) devolve o mesmo que as contas diretas na tabela de despesas."""
+    _popular(session)
+    deps = session.scalars(select(Parlamentar).where(Parlamentar.casa == "camara")).all()
+    for ano, valores in ((2025, [("A", "10.10"), ("B", "5.05"), ("C", "1")]), (2026, [("A", "7")])):
+        linhas = _despesas(session, deps[0], valores) + _despesas(session, deps[1], valores[:1])
+        comum.recarregar_despesas(session, "camara", ano, linhas, _ingestao(session))
+    session.flush()
+    session.execute(ResumoParlamentar.__table__.insert(), resumos.calcular(session, [2025, 2026]))
+    session.flush()
+
+    assert gastos.anos_e_ultimo_mes(session, "camara") == {2026: 1, 2025: 3}
+    assert gastos.anos_e_ultimo_mes(session, "senado") == {}
+    antigo = session.execute(
+        select(Despesa.ano, func.max(Despesa.mes))
+        .where(Despesa.casa == "camara")
+        .group_by(Despesa.ano)
+        .order_by(Despesa.ano.desc())
+    ).all()
+    assert list(gastos.anos_e_ultimo_mes(session, "camara").items()) == antigo
+    assert gastos.anos_disponiveis(session, deps[0]) == [2026, 2025]
+    for ano in (2025, 2026):
+        assert gastos._media_guardada(session, "camara", ano) == gastos.media_da_casa(
+            session, "camara", ano
+        )
+        for p in deps:
+            assert gastos.resumo(session, p, ano) == gastos.resumo(
+                session, p, ano, usar_guardado=False
+            )
+    # Resumo incompleto ou ano sem resumo: cai no cálculo direto.
+    assert gastos._media_guardada(session, "camara", 2024) is None
+    session.execute(
+        ResumoParlamentar.__table__.delete().where(ResumoParlamentar.parlamentar_id == deps[2].id)
+    )
+    assert gastos._media_guardada(session, "camara", 2026) is None
 
 
 def test_nome_proprio():

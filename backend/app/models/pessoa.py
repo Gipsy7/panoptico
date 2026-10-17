@@ -22,6 +22,8 @@ class Pessoa(Base):
     eventos. CPF e título servem só para ligar registros e nunca são exibidos."""
 
     __tablename__ = "pessoa"
+    # Ordem da busca por nome: com termo comum ("silva") lê só as primeiras linhas do índice.
+    __table_args__ = (Index("ix_pessoa_nome", "nome"),)
 
     id: Mapped[int] = mapped_column(primary_key=True)
     nome: Mapped[str] = mapped_column(String(200))

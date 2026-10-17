@@ -1,4 +1,6 @@
 # ruff: noqa: E501  (dados montados numa linha só)
+from sqlalchemy import text
+
 from app.models import Candidatura, MandatoLocal, Municipio, Pessoa, PessoaVinculo
 from ingestion.comum import chave_nome
 from tests.test_api import _ingestao, _popular
@@ -165,6 +167,25 @@ def test_busca_nao_repete_quem_ja_esta_nos_eleitos_e_limita_os_grupos(client, se
     # As 5 que não couberam em itens aparecem em pessoas; nenhuma aparece nos dois.
     assert len(corpo["pessoas"]) == 5
     assert not caminhos & {p["caminho"] for p in corpo["pessoas"]}
+
+
+def test_busca_de_termo_comum_igual_com_e_sem_o_indice_de_nome(client, session):
+    """O índice de `pessoa.nome` só muda o plano: mesmos itens, na mesma ordem por nome."""
+    ingestao = _ingestao(session).id
+    for i in range(60):
+        nome = f"{'Zé' if i % 3 else 'Ana'} {(i * 37) % 60:02d} Silva"
+        _pessoa_com_candidatura(session, ingestao, nome, 2016, "origem")
+    _pessoa_com_candidatura(session, ingestao, "Beto Costa", 2016, "origem")  # fora do termo
+
+    com_indice = client.get("/busca", params={"q": "silva"}).json()
+    assert len(com_indice["pessoas"]) == 10
+    nomes = [p["nome"] for p in com_indice["pessoas"]]
+    assert nomes == sorted(nomes)  # quem já está em itens não se repete aqui
+
+    session.execute(text("set local enable_indexscan = off"))
+    session.execute(text("set local enable_indexonlyscan = off"))
+    sem_indice = client.get("/busca", params={"q": "silva"}).json()
+    assert sem_indice == com_indice
 
 
 def test_busca_resposta_cacheavel_na_cdn(client):
