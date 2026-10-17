@@ -43,7 +43,7 @@ export function TabelaRolavel({
   }, [medir]);
 
   return (
-    <div className={cn("relative", className)}>
+    <div className={cn("relative min-w-0 max-w-full", className)}>
       <div
         ref={rolagem}
         onScroll={medir}

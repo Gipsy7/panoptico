@@ -52,8 +52,8 @@ export function MenuPrincipal() {
       </nav>
 
       <div className="flex items-center gap-2 md:hidden">
-        <Link href="/#cep" onClick={() => setAberto(false)} className="botao-linha px-3">
-          Buscar pelo CEP
+        <Link href="/#cep" onClick={() => setAberto(false)} aria-label="Buscar pelo CEP" className="botao-linha px-3 whitespace-nowrap">
+          Buscar CEP
         </Link>
         <button
           ref={botao}
