@@ -31,9 +31,9 @@ export function ComparadorQuadro({
       <div
         ref={topo}
         onScroll={() => sincronizar("topo")}
-        className="sticky top-14 z-30 snap-x snap-mandatory overflow-x-auto scroll-pl-[104px] border-b border-foreground bg-background [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        className="sticky top-14 z-30 snap-x snap-mandatory overflow-x-auto scroll-pl-[132px] border-b border-foreground bg-background [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
       >
-        <div className="grid min-w-[calc(104px_+_var(--c)*140px)] grid-cols-[104px_repeat(var(--c),140px)] md:min-w-0 md:grid-cols-[200px_repeat(var(--c),minmax(0,1fr))]">
+        <div className="grid min-w-[calc(132px_+_var(--c)*104px)] grid-cols-[132px_repeat(var(--c),104px)] md:min-w-0 md:grid-cols-[200px_repeat(var(--c),minmax(0,1fr))]">
           {cabecalho}
         </div>
       </div>
@@ -43,7 +43,7 @@ export function ComparadorQuadro({
         role="region"
         aria-label="Tabela de comparação, role para os lados para ver todas as pessoas"
         tabIndex={0}
-        className="snap-x snap-mandatory overflow-x-auto scroll-pl-[104px] focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-bronze"
+        className="snap-x snap-mandatory overflow-x-auto scroll-pl-[132px] focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-bronze"
       >
         {children}
       </div>

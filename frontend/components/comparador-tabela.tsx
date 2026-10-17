@@ -83,13 +83,13 @@ export function ComparadorTabela({
   return (
     <ComparadorQuadro cabecalho={cabecalho} colunas={total}>
       <table
-        className="w-full min-w-[calc(104px_+_var(--c)*140px)] table-fixed border-separate border-spacing-0 text-left text-sm md:min-w-0"
+        className="w-full min-w-[calc(132px_+_var(--c)*104px)] table-fixed border-separate border-spacing-0 text-left text-sm md:min-w-0"
       >
         <caption className="sr-only">{legenda}. Cada linha traz o valor de cada pessoa.</caption>
         <colgroup>
-          <col className="w-[104px] md:w-[200px]" />
+          <col className="w-[132px] md:w-[200px]" />
           {Array.from({ length: total }, (_, i) => (
-            <col key={i} className="w-[140px] md:w-auto" />
+            <col key={i} className="w-[104px] md:w-auto" />
           ))}
         </colgroup>
         <thead className="sr-only">
@@ -133,7 +133,7 @@ export function ComparadorTabela({
                     scope="row"
                     className="sticky left-0 z-10 border-b border-r border-border bg-background py-2 pl-4 pr-2 text-left align-top font-normal md:pl-0"
                   >
-                    <span className="block hyphens-auto break-words text-sm leading-tight">{l.rotulo}</span>
+                    <span className="block [overflow-wrap:normal] text-sm leading-tight">{l.rotulo}</span>
                     {l.detalhe && (
                       <span className="mt-1 block text-[13px] leading-tight text-muted-foreground">{l.detalhe}</span>
                     )}
