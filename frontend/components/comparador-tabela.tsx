@@ -133,7 +133,7 @@ export function ComparadorTabela({
                     scope="row"
                     className="sticky left-0 z-10 border-b border-r border-border bg-background py-2 pl-4 pr-2 text-left align-top font-normal md:pl-0"
                   >
-                    <span className="block break-words text-sm leading-tight">{l.rotulo}</span>
+                    <span className="block hyphens-auto break-words text-sm leading-tight">{l.rotulo}</span>
                     {l.detalhe && (
                       <span className="mt-1 block text-[13px] leading-tight text-muted-foreground">{l.detalhe}</span>
                     )}
