@@ -24,17 +24,17 @@ export function PresencaLocalSecao({ v, nomeCasa }: { v: VereadorDetalhe; nomeCa
       ) : (
         <>
           <dl className="grid grid-cols-2 gap-3">
-            <div className="figura">
+            <div className="figura min-w-0">
               <dt className="text-sm text-muted-foreground">Esteve em</dt>
-              <dd className="numero text-3xl">
+              <dd className="numero text-2xl break-words sm:text-3xl">
                 {p.presencas} de {p.sessoes}
               </dd>
               <dd className="text-sm text-muted-foreground">sessões</dd>
             </div>
             {p.media_casa !== null && (
-              <div className="figura">
+              <div className="figura min-w-0">
                 <dt className="text-sm text-muted-foreground">Média da {nomeCasa}</dt>
-                <dd className="numero text-3xl">{PCT.format(p.media_casa)}%</dd>
+                <dd className="numero text-2xl break-words sm:text-3xl">{PCT.format(p.media_casa)}%</dd>
                 <dd className="text-sm text-muted-foreground">das sessões, entre quem está no cargo</dd>
               </div>
             )}
@@ -144,17 +144,17 @@ export function GastosLocaisSecao({ v, nomeCasa }: { v: VereadorDetalhe; nomeCas
         <p className="text-sm text-muted-foreground">Verba indenizatória (reembolsos ao gabinete)</p>
       </div>
       <dl className="grid grid-cols-2 gap-3">
-        <div className="figura">
+        <div className="figura min-w-0">
           <dt className="text-sm text-muted-foreground">
             Total em {g.ano}
             {g.ate_mes ? ` (até ${MESES[g.ate_mes - 1]})` : ""}
           </dt>
-          <dd className="numero text-3xl">{formatarReais(g.total, true)}</dd>
+          <dd className="numero text-2xl break-words sm:text-3xl">{formatarReais(g.total, true)}</dd>
         </div>
         {g.media_casa !== null && (
-          <div className="figura">
+          <div className="figura min-w-0">
             <dt className="text-sm text-muted-foreground">Média por parlamentar da {nomeCasa}</dt>
-            <dd className="numero text-3xl">{formatarReais(g.media_casa, true)}</dd>
+            <dd className="numero text-2xl break-words sm:text-3xl">{formatarReais(g.media_casa, true)}</dd>
           </div>
         )}
       </dl>

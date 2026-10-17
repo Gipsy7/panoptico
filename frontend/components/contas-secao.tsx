@@ -17,15 +17,15 @@ export function ContasSecao({ dados, cidade }: { dados: ContasMunicipio; cidade:
       </div>
       <dl className="grid grid-cols-2 gap-3">
         {dados.receita_total != null && (
-          <div className="figura">
+          <div className="figura min-w-0">
             <dt className="text-sm text-muted-foreground">Arrecadou</dt>
-            <dd className="numero text-3xl">{formatarReais(dados.receita_total, true)}</dd>
+            <dd className="numero text-2xl break-words sm:text-3xl">{formatarReais(dados.receita_total, true)}</dd>
           </div>
         )}
         {dados.despesa_paga != null && (
-          <div className="figura">
+          <div className="figura min-w-0">
             <dt className="text-sm text-muted-foreground">Gastou (pago)</dt>
-            <dd className="numero text-3xl">{formatarReais(dados.despesa_paga, true)}</dd>
+            <dd className="numero text-2xl break-words sm:text-3xl">{formatarReais(dados.despesa_paga, true)}</dd>
             {dados.despesa_por_habitante != null && (
               <dd className="text-xs text-muted-foreground">
                 {formatarReais(dados.despesa_por_habitante, true)} por habitante

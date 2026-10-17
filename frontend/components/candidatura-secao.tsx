@@ -34,19 +34,19 @@ export function CandidaturaSecao({
             </span>
           </h3>
           <dl className="grid grid-cols-2 gap-3">
-            <div className="figura">
+            <div className="figura min-w-0">
               <dt className="text-sm text-muted-foreground">Total declarado</dt>
-              <dd className="numero text-3xl">{formatarReais(bens.total, true)}</dd>
+              <dd className="numero text-2xl break-words sm:text-3xl">{formatarReais(bens.total, true)}</dd>
               <dd className="text-sm text-muted-foreground">
                 {bens.quantidade} {bens.quantidade === 1 ? "bem" : "bens"}
               </dd>
             </div>
             {bens.anterior && (
-              <div className="figura">
+              <div className="figura min-w-0">
                 <dt className="text-sm text-muted-foreground">
                   Na eleição anterior ({bens.anterior.candidatura.ano})
                 </dt>
-                <dd className="numero text-3xl">{formatarReais(bens.anterior.total, true)}</dd>
+                <dd className="numero text-2xl break-words sm:text-3xl">{formatarReais(bens.anterior.total, true)}</dd>
                 <dd className="text-sm text-muted-foreground">
                   candidatura a {bens.anterior.candidatura.cargo.toLowerCase()}
                 </dd>
@@ -92,13 +92,13 @@ export function CandidaturaSecao({
             </span>
           </h3>
           <dl className="grid grid-cols-2 gap-3">
-            <div className="figura">
+            <div className="figura min-w-0">
               <dt className="text-sm text-muted-foreground">Arrecadou</dt>
-              <dd className="numero text-3xl">{formatarReais(campanha.receitas_total, true)}</dd>
+              <dd className="numero text-2xl break-words sm:text-3xl">{formatarReais(campanha.receitas_total, true)}</dd>
             </div>
-            <div className="figura">
+            <div className="figura min-w-0">
               <dt className="text-sm text-muted-foreground">Gastou (contratado)</dt>
-              <dd className="numero text-3xl">{formatarReais(campanha.despesas_total, true)}</dd>
+              <dd className="numero text-2xl break-words sm:text-3xl">{formatarReais(campanha.despesas_total, true)}</dd>
             </div>
           </dl>
           <Partes titulo="De onde veio o dinheiro" itens={campanha.receitas_por_origem} total={campanha.receitas_total} />

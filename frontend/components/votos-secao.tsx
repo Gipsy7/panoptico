@@ -169,7 +169,7 @@ function Bloco({
   return (
     <div className="figura flex flex-col gap-0.5">
       <dt className="text-sm text-muted-foreground">{rotulo}</dt>
-      <dd className="numero text-3xl">
+      <dd className="numero text-2xl break-words sm:text-3xl">
         {placar.total ? `${placar.iguais} de ${placar.total}` : "—"}
       </dd>
       {placar.percentual !== null && (

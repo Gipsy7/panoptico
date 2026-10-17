@@ -91,9 +91,9 @@ export function ProjetosSecao({ projetos, casa }: { projetos: Projetos; casa: Ca
 
 function Numero({ rotulo, valor }: { rotulo: string; valor: number }) {
   return (
-    <div className="figura">
+    <div className="figura min-w-0">
       <dt className="text-sm text-muted-foreground">{rotulo}</dt>
-      <dd className="numero text-3xl">{NUMERO.format(valor)}</dd>
+      <dd className="numero text-2xl break-words sm:text-3xl">{NUMERO.format(valor)}</dd>
     </div>
   );
 }

@@ -25,20 +25,20 @@ export function PresencaSecao({ presenca, casa }: { presenca: Presenca; casa: Ca
       ) : (
         <>
           <dl className="grid grid-cols-2 gap-3">
-            <div className="figura">
+            <div className="figura min-w-0">
               <dt className="text-sm text-muted-foreground">Votou em</dt>
-              <dd className="numero text-3xl">
+              <dd className="numero text-2xl break-words sm:text-3xl">
                 {p.votou} de {p.total_votacoes}
               </dd>
               <dd className="text-sm text-muted-foreground tabular-nums">
                 {PCT.format(p.percentual ?? 0)}%
               </dd>
             </div>
-            <div className="figura">
+            <div className="figura min-w-0">
               <dt className="text-sm text-muted-foreground">
                 Média por parlamentar do {CASA_CURTA[casa]}
               </dt>
-              <dd className="numero text-3xl">
+              <dd className="numero text-2xl break-words sm:text-3xl">
                 {p.media_casa_percentual === null ? "—" : `${PCT.format(p.media_casa_percentual)}%`}
               </dd>
             </div>
