@@ -1,5 +1,7 @@
 # Panóptico: plano do MVP
 
+> Documento histórico (outubro de 2026). As seis fases foram entregues e o escopo cresceu (assembleias, câmaras, Justiça e controle, CPIs). O roteiro atual é acompanhado no plano interativo do coordenador e em ACOMPANHAMENTO.md (local).
+
 **Domínio:** panoptico.social.br
 **Slogan provisório:** Panóptico: quem te representa, às claras
 **Ideia central:** inverter a lógica da vigilância. Em vez do Estado observar o cidadão, o cidadão passa a enxergar o poder público.
@@ -168,15 +170,15 @@ O público-alvo é o grande público brasileiro, então a interface faz parte do
 
 ## 9. Próximos passos no VS Code
 
-1. Criar o repositório e a estrutura de pastas acima.
-2. Subir o Postgres com `docker-compose.yml`.
-3. Escrever o primeiro script de ingestão (deputados da Câmara).
-4. Modelar o banco (parlamentar, mandato, despesa, proposição, fonte).
-5. Criar a rota `GET /representantes?cep=...`.
+1. [x] Criar o repositório e a estrutura de pastas acima.
+2. [x] Subir o Postgres com `docker-compose.yml`.
+3. [x] Escrever o primeiro script de ingestão (deputados da Câmara).
+4. [x] Modelar o banco (parlamentar, mandato, despesa, proposição, fonte).
+5. [x] Criar a rota `GET /representantes?cep=...`.
 
 ## 10. Pendências
 
 - [ ] Confirmar regras e renovação do domínio panoptico.social.br
 - [ ] Conferir se o nome "Panóptico" está livre no INPI (serviços de informação)
 - [ ] Reservar o nome nas redes sociais
-- [ ] Gerar a chave da API do Portal da Transparência
+- [x] Gerar a chave da API do Portal da Transparência
