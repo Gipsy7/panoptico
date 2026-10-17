@@ -738,6 +738,36 @@ export function getComparacao(a: string, b: string, ano?: string) {
   return getJson<Comparacao>(`/comparar?${params}`);
 }
 
+/** Convergência de um par (i < j, índices em `pessoas`); `convergencia` é null se forem de Casas diferentes. */
+export type ConvergenciaDoPar = {
+  i: number;
+  j: number;
+  mesma_casa: boolean;
+  convergencia: NonNullable<Comparacao["convergencia"]> | null;
+};
+
+/** Comparação de 2 a 4 parlamentares (chamada com `ids`). Listas alinhadas à ordem de `ids`. */
+export type ComparacaoN = {
+  ano: number;
+  anos_disponiveis: number[];
+  pessoas: ParlamentarResumo[];
+  numeros: (ParlamentarNaLista | null)[];
+  criterios: Comparacao["criterios"];
+  medias: Comparacao["medias"];
+  mesma_casa: boolean;
+  temas: { tema: string; valores: number[] }[];
+  convergencia: ConvergenciaDoPar[];
+  coautorias: { i: number; j: number; total: number; itens: Comparacao["coautorias"]["itens"] }[];
+  atualizado_em: string | null;
+};
+
+/** De 2 a 4 ids distintos (422 fora disso). */
+export function getComparacaoN(ids: (string | number)[], ano?: string) {
+  const params = new URLSearchParams({ ids: ids.join(",") });
+  if (ano) params.set("ano", ano);
+  return getJson<ComparacaoN>(`/comparar?${params}`);
+}
+
 export type ResultadoBusca = {
   nome: string;
   nome_completo: string | null;
@@ -804,6 +834,27 @@ export type ComparacaoLocal = {
 /** Dois da mesma câmara ou assembleia, lado a lado. */
 export function getComparacaoLocal(a: string, b: string) {
   return getJson<ComparacaoLocal>(`/comparar/local?a=${encodeURIComponent(a)}&b=${encodeURIComponent(b)}`);
+}
+
+/** De 2 a 4 da mesma câmara ou assembleia (chamada com `ids`). */
+export type ComparacaoLocalN = {
+  casa: "camara" | "assembleia";
+  pessoas: LadoLocal[];
+  proposicoes_por_tipo: { tipo: string; valores: number[] }[];
+  convergencia: {
+    i: number;
+    j: number;
+    votacoes_em_comum: number;
+    iguais: number;
+    divergencias: ComparacaoLocal["divergencias"]; // voto_a é de i, voto_b é de j
+  }[];
+  fonte_nome: string;
+  fonte_url: string;
+  atualizado_em: string | null;
+};
+
+export function getComparacaoLocalN(ids: (string | number)[]) {
+  return getJson<ComparacaoLocalN>(`/comparar/local?ids=${ids.map((i) => encodeURIComponent(i)).join(",")}`);
 }
 
 export type ProcessoSituacao = {

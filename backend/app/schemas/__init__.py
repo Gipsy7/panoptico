@@ -801,6 +801,39 @@ class ComparacaoResposta(BaseModel):
     atualizado_em: datetime | None
 
 
+class TemaNPessoas(BaseModel):
+    tema: str
+    valores: list[int]  # alinhado a `pessoas`
+
+
+class ConvergenciaDoPar(BaseModel):
+    i: int  # índices em `pessoas`, sempre i < j
+    j: int
+    mesma_casa: bool
+    convergencia: Convergencia | None  # None quando as duas pessoas são de casas diferentes
+
+
+class CoautoriasDoPar(Coautorias):
+    i: int
+    j: int
+
+
+class ComparacaoNResposta(BaseModel):
+    """Comparação de 2 a 4 parlamentares (chamada com `ids`)."""
+
+    ano: int
+    anos_disponiveis: list[int]
+    pessoas: list[ParlamentarResumo]
+    numeros: list[ParlamentarNaLista | None]  # alinhado a `pessoas`
+    criterios: list[Criterio]
+    medias: dict[str, dict[str, float | None]]
+    mesma_casa: bool  # todas da mesma casa
+    temas: list[TemaNPessoas]
+    convergencia: list[ConvergenciaDoPar]
+    coautorias: list[CoautoriasDoPar]
+    atualizado_em: datetime | None
+
+
 class BuscaItem(BaseModel):
     nome: str
     nome_completo: str | None
@@ -853,6 +886,31 @@ class ComparacaoLocal(BaseModel):
     votacoes_em_comum: int
     iguais: int
     divergencias: list[DivergenciaLocal]
+    fonte_nome: str
+    fonte_url: str
+    atualizado_em: datetime | None
+
+
+class TipoComparadoN(BaseModel):
+    tipo: str
+    valores: list[int]  # alinhado a `pessoas`
+
+
+class ConvergenciaLocalDoPar(BaseModel):
+    i: int  # índices em `pessoas`, sempre i < j
+    j: int
+    votacoes_em_comum: int
+    iguais: int
+    divergencias: list[DivergenciaLocal]  # voto_a é de i, voto_b é de j
+
+
+class ComparacaoLocalN(BaseModel):
+    """Comparação de 2 a 4 vereadores da mesma câmara ou deputados da mesma assembleia."""
+
+    casa: str
+    pessoas: list[LadoLocal]
+    proposicoes_por_tipo: list[TipoComparadoN]
+    convergencia: list[ConvergenciaLocalDoPar]
     fonte_nome: str
     fonte_url: str
     atualizado_em: datetime | None

@@ -87,6 +87,8 @@
 - [2026-10-11: o que aconteceu com o dinheiro das emendas (TransfereGov)](#2026-10-11-o-que-aconteceu-com-o-dinheiro-das-emendas-transferegov)
 - [2026-10-11: indicações de emendas de relator-geral (RP9)](#2026-10-11-indicações-de-emendas-de-relator-geral-rp9)
 - [2026-10-11: nove assembleias só a partir do Brasil](#2026-10-11-nove-assembleias-só-a-partir-do-brasil)
+- [2026-10-17: ingestão diária mais resiliente a falhas passageiras](#2026-10-17-ingestão-diária-mais-resiliente-a-falhas-passageiras)
+- [2026-10-17: comparador de 2 a 4 pessoas (`ids`)](#2026-10-17-comparador-de-2-a-4-pessoas-ids)
 
 ## 2026-10-06: stack inicial
 
@@ -922,3 +924,11 @@ Em 15/10 (`ibge_municipios`, ConnectTimeout) e 16/10 (`senado_votacoes`, 503 num
 - `run_all`: depois da 1ª passada, as tarefas que falharam rodam de novo após `INGESTAO_ESPERA_SEGUNDA_PASSADA` segundos (padrão 120; 0 nos testes). O código de saída é 1 só se algo falhar também na 2ª passada. Se recuperou alguma fonte, os resumos são refeitos. Com `GITHUB_STEP_SUMMARY`, o painel do Actions lista o que falhou na 1ª e o que se recuperou.
 - Sócios: o prazo `--minutos` só era checado entre CNPJs; cada CNPJ podia gastar 4 tentativas de até 120 s de leitura mais esperas de 10 a 40 s. Agora o prazo vale antes de cada tentativa, limita as esperas e encolhe o timeout de cada requisição.
 
+
+## 2026-10-17: comparador de 2 a 4 pessoas (`ids`)
+
+- **Opção (i):** `GET /comparar` e `GET /comparar/local` aceitam `ids=1,2,3` (2 a 4 ids distintos). Com `a`/`b` a resposta é idêntica à antiga (links compartilhados e o frontend atual não quebram); só `ids` devolve a forma nova. Misturar `ids` com `a`/`b`, ou omitir tudo, dá 422. Ids repetidos, menos de 2, mais de 4 ou mal formados: 422 com mensagem; id inexistente: 404. As rotas declaram `response_model` como união das duas formas.
+- **`/comparar?ids=&ano=` (federal):** `pessoas[]`, `numeros[]` (alinhado, `null` se sem resumo), `criterios`, `medias`, `mesma_casa` (todas da mesma Casa), `temas[{tema, valores[]}]` (até 12), `convergencia[{i, j, mesma_casa, convergencia}]` e `coautorias[{i, j, total, itens[]}]`. Pares com `i < j` (índices em `pessoas`), todos presentes: 2 pessoas = 1 par, 4 = 6. `convergencia` do par tem o conteúdo antigo (`voto_a` é de `i`, `voto_b` de `j`) e é `null` quando as duas são de Casas diferentes.
+- **`/comparar/local?ids=`:** todas da mesma câmara/assembleia (senão 422). Resposta: `casa`, `pessoas[]` (mesmo `LadoLocal`), `proposicoes_por_tipo[{tipo, valores[]}]`, `convergencia[{i, j, votacoes_em_comum, iguais, divergencias[]}]`, fonte e data.
+- **Custo:** o local faz uma consulta de votos para todos e monta os pares em memória. O federal consulta por par (cerca de 0,2 s por par com 3 mil votações no banco de teste: 2 pessoas 0,28 s, 3 pessoas 0,73 s, 4 pessoas 0,6 s com um senador, onde 3 dos 6 pares são `null`; 4 da mesma Casa deve ficar em torno de 1,2 s). Aceito por ora (CDN de 1 h); se pesar, trocar por uma consulta única como no local.
+- **Frontend:** `frontend/lib/api.ts` ganhou `ComparacaoN`/`getComparacaoN(ids, ano)` e `ComparacaoLocalN`/`getComparacaoLocalN(ids)`; os tipos e as páginas antigas seguem como estavam.

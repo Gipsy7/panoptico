@@ -237,6 +237,56 @@ def test_comparar_na_mesma_casa(client, session):
     )
 
 
+def test_comparar_local_varias_pessoas(client, session):
+    casa = {
+        "base": "https://sapl.al.ac.leg.br/",
+        "vereadores": [_deputado("1", "Ana"), _deputado("2", "Bia"), _deputado("3", "Cris")],
+        "votacoes": [_votacao("10", "2025-03-01"), _votacao("11", "2025-04-01")],
+        "votos": [
+            {"votacao": "10", "parlamentar": "1", "voto": "Sim"}, {"votacao": "10", "parlamentar": "2", "voto": "Sim"},
+            {"votacao": "10", "parlamentar": "3", "voto": "Não"},
+            {"votacao": "11", "parlamentar": "1", "voto": "Sim"}, {"votacao": "11", "parlamentar": "2", "voto": "Não"},
+            # Cris não votou na 11: o par com ela só tem a 10.
+            {"votacao": "11", "parlamentar": "3", "voto": "Não Votou"},
+        ],
+    }  # fmt: skip
+    sapl.gravar(session, None, casa, uf="AC")
+    sapl.gravar(
+        session,
+        None,
+        {**casa, "vereadores": [_deputado("1", "Rui")], "votacoes": [], "votos": []},
+        uf="RR",
+    )
+    session.flush()
+    ids = {
+        i["nome"]: i["id"]
+        for uf in ("AC", "RR")
+        for i in client.get(f"/estados/{uf}/assembleia").json()["itens"]
+    }
+    trio = f"{ids['Cris']},{ids['Ana']},{ids['Bia']}"
+    corpo = client.get("/comparar/local", params={"ids": trio}).json()
+    assert [p["nome"] for p in corpo["pessoas"]] == ["Cris", "Ana", "Bia"]
+    assert corpo["proposicoes_por_tipo"] == [{"tipo": "Indicação", "valores": [2, 2, 2]}]
+    pares = {(x["i"], x["j"]): x for x in corpo["convergencia"]}
+    assert set(pares) == {(0, 1), (0, 2), (1, 2)}
+    assert (pares[(1, 2)]["votacoes_em_comum"], pares[(1, 2)]["iguais"]) == (2, 1)
+    assert pares[(1, 2)]["divergencias"][0]["materia"] == "Veto nº 11 de 2025"
+    assert (pares[(0, 1)]["votacoes_em_comum"], pares[(0, 1)]["iguais"]) == (1, 0)
+
+    # Mesmo número que a forma antiga para o mesmo par.
+    antigo = client.get("/comparar/local", params={"a": ids["Ana"], "b": ids["Bia"]}).json()
+    assert (antigo["votacoes_em_comum"], antigo["iguais"]) == (2, 1)
+
+    quatro = client.get("/comparar/local", params={"ids": f"{trio},{ids['Rui']}"})
+    assert quatro.status_code == 422  # Rui é de outra assembleia
+    repetida = client.get("/comparar/local", params={"ids": f"{ids['Ana']},{ids['Ana']}"})
+    assert repetida.status_code == 422
+    cinco = client.get("/comparar/local", params={"ids": "1,2,3,4,5"})
+    assert cinco.status_code == 422
+    assert client.get("/comparar/local", params={"ids": "1"}).status_code == 422
+    assert client.get("/comparar/local", params={"ids": "1,x"}).status_code == 422
+
+
 def test_casar_nome_em_niveis_e_so_quando_unico():
     eleitos = [(1, "Alex de Madureira"), (2, "Dr Valdomiro Lopes"), (3, "Capitão Conte Lopes"),
                (4, "Alex Santana"), (5, "Leo Siqueira"), (6, "Caruso")]  # fmt: skip

@@ -3,6 +3,7 @@ hoje."""
 
 from datetime import datetime
 from decimal import Decimal
+from itertools import combinations
 from typing import Any
 
 from sqlalchemy import func, select
@@ -393,4 +394,61 @@ def comparar(session: Session, a: MandatoLocal, b: MandatoLocal) -> dict:
         "fonte_nome": _fonte(a.casa, a.uf, a.sapl_url)[1],
         "fonte_url": a.sapl_url,
         "atualizado_em": _atualizado_em(session, a.casa, a.uf),
+    }
+
+
+def comparar_n(session: Session, mandatos: list[MandatoLocal]) -> dict:
+    """De 2 a 4 parlamentares da mesma casa (o chamador valida). Uma só consulta de votos
+    para todos; a convergência é montada por par (i < j)."""
+    ids = [m.id for m in mandatos]
+    linhas = session.execute(
+        select(VotacaoLocal, VotoLocal.mandato_id, VotoLocal.voto)
+        .join(VotoLocal, VotoLocal.votacao_id == VotacaoLocal.id)
+        .where(VotoLocal.mandato_id.in_(ids), func.lower(VotoLocal.voto).not_in(NAO_VOTOU))
+        .order_by(VotacaoLocal.data.desc().nulls_last(), VotacaoLocal.id.desc())
+    ).all()
+    por_votacao: dict[int, tuple[VotacaoLocal, dict[int, str]]] = {}
+    for votacao, mandato_id, voto in linhas:  # já na ordem das votações
+        por_votacao.setdefault(votacao.id, (votacao, {}))[1][mandato_id] = voto
+
+    convergencia = []
+    for i, j in combinations(range(len(mandatos)), 2):
+        comuns = [
+            (v, votos[ids[i]], votos[ids[j]])
+            for v, votos in por_votacao.values()
+            if ids[i] in votos and ids[j] in votos
+        ]
+        divergencias = [(v, x, y) for v, x, y in comuns if x != y]
+        convergencia.append(
+            {
+                "i": i,
+                "j": j,
+                "votacoes_em_comum": len(comuns),
+                "iguais": len(comuns) - len(divergencias),
+                "divergencias": [
+                    {
+                        "data": v.data,
+                        "materia": v.materia,
+                        "resultado": v.resultado,
+                        "url": v.url,
+                        "voto_a": x,
+                        "voto_b": y,
+                    }
+                    for v, x, y in divergencias[:20]
+                ],  # fmt: skip
+            }
+        )
+    tipos = sorted({t for m in mandatos for t in m.proposicoes_por_tipo})
+    primeiro = mandatos[0]
+    return {
+        "casa": primeiro.casa,
+        "pessoas": [_lado(session, m) for m in mandatos],
+        "proposicoes_por_tipo": [
+            {"tipo": t, "valores": [m.proposicoes_por_tipo.get(t, 0) for m in mandatos]}
+            for t in tipos
+        ],
+        "convergencia": convergencia,
+        "fonte_nome": _fonte(primeiro.casa, primeiro.uf, primeiro.sapl_url)[1],
+        "fonte_url": primeiro.sapl_url,
+        "atualizado_em": _atualizado_em(session, primeiro.casa, primeiro.uf),
     }
