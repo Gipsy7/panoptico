@@ -14,7 +14,7 @@ export function Resumo2x2({ titulo, itens }: { titulo: string; itens: ItemResumo
             i % 2 === 1 ? "border-l border-border" : ""
           } ${i >= 2 ? "border-t border-border" : ""}`}
         >
-          <p className="numero text-[1.625rem] leading-none break-words sm:text-[2.5rem]">{item.valor}</p>
+          <p className="numero text-[1.5rem] leading-none whitespace-nowrap sm:text-[2.5rem]">{item.valor}</p>
           <p className="text-sm">{item.rotulo}</p>
           {item.apoio && <p className="text-sm text-muted-foreground">{item.apoio}</p>}
         </div>
