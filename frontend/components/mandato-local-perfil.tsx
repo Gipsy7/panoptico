@@ -63,7 +63,7 @@ export async function PerfilMandatoLocal({ id, paginaVotos }: { id: string; pagi
   }
 
   return (
-    <article className="flex flex-col gap-8">
+    <article className="pagina-secoes">
       <header className="flex items-start gap-4">
         <FotoVereador vereador={v} tamanho={72} />
         <div className="flex min-w-0 flex-col gap-1">

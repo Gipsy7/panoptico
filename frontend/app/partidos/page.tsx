@@ -33,7 +33,7 @@ const texto = (v: string | string[] | undefined) => (typeof v === "string" && v 
 
 export default function PartidosPage({ searchParams }: PageProps<"/partidos">) {
   return (
-    <div className="flex flex-col gap-6" data-largura="larga">
+    <div className="pagina-secoes" data-largura="larga">
       <CabecalhoPagina
         sobretitulo="Partidos"
         titulo="Dinheiro dos partidos"

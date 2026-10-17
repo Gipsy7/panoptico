@@ -55,7 +55,7 @@ async function Perfil({ id }: { id: string }) {
       : `/representantes?uf=${e.uf}`;
 
   return (
-    <article className="flex flex-col gap-8">
+    <article className="pagina-secoes">
       <header className="flex items-start gap-4">
         <FotoOuIniciais eleito={e} tamanho={72} />
         <div className="flex min-w-0 flex-col gap-1">

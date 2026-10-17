@@ -30,7 +30,7 @@ const CAMPOS: (keyof FiltrosLista)[] = ["busca", "casa", "uf", "partido", "orden
 
 export default function ParlamentaresPage({ searchParams }: PageProps<"/parlamentares">) {
   return (
-    <div className="flex flex-col gap-6">
+    <div className="pagina-secoes">
       <CabecalhoPagina
         sobretitulo="Congresso Nacional"
         titulo="Todos os parlamentares"

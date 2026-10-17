@@ -35,7 +35,7 @@ const CUSTOS = [
 
 export default function ApoiePage() {
   return (
-    <article className="flex flex-col gap-8">
+    <article className="pagina-secoes">
       <header className="flex flex-col gap-2">
         <p className="sobretitulo">Apoie</p>
         <h1 className="titulo-pagina">Um site pequeno, com custos pequenos</h1>

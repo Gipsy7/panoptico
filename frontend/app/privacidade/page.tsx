@@ -7,7 +7,7 @@ export const metadata: Metadata = {
 
 export default function PrivacidadePage() {
   return (
-    <article className="flex flex-col gap-6">
+    <article className="pagina-secoes">
       <header className="flex flex-col gap-[var(--esp-2)]">
         <p className="sobretitulo">Seus dados</p>
         <h1 className="titulo-pagina">Privacidade</h1>

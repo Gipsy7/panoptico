@@ -72,7 +72,7 @@ export function PartidoSecao({ dados }: { dados: PartidoDetalhe }) {
   const link = (a: number) => `/partidos/${encodeURIComponent(dados.sigla)}?ano=${a}`;
 
   return (
-    <div className="flex flex-col gap-8">
+    <div className="pagina-secoes">
       <header className="flex flex-col gap-2">
         <Migalhas
           itens={[

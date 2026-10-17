@@ -230,6 +230,15 @@
     font-size: 3.5rem;
   }
 }
+/* Espaço entre seções de uma página: 40 px no celular, 64 px no desktop (tokens --esp-*). */
+@utility pagina-secoes {
+  display: flex;
+  flex-direction: column;
+  gap: var(--esp-10);
+  @media (min-width: 48rem) {
+    gap: var(--esp-16);
+  }
+}
 /* Alvo de toque de 44 px (altura e largura mínimas). */
 @utility alvo-44 {
   min-height: 2.75rem;

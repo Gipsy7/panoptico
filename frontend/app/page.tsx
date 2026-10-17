@@ -14,7 +14,7 @@ const UF_DO_EXEMPLO = "SC";
 
 export default function Home() {
   return (
-    <div data-largura="larga" className="flex flex-col gap-20">
+    <div data-largura="larga" className="flex flex-col gap-[var(--esp-16)]">
       <section className="grid items-start gap-12 pt-2 md:grid-cols-[minmax(0,1fr)_minmax(0,25rem)] md:gap-16 md:pt-10">
         <div className="flex flex-col gap-6">
           <div className="flex items-center gap-3">

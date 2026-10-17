@@ -126,7 +126,7 @@ async function Perfil({
   const indice = secoes.filter((s): s is ItemIndice => s !== false);
 
   return (
-    <article data-largura="larga" className="flex flex-col gap-6 lg:grid lg:grid-cols-[11rem_minmax(0,1fr)] lg:gap-x-10">
+    <article data-largura="larga" className="pagina-secoes lg:grid lg:grid-cols-[11rem_minmax(0,1fr)] lg:gap-x-10">
       <div className="flex flex-col gap-4 lg:col-start-2">
         <Migalhas
           itens={[

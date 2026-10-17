@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 
 export default function SobreAsFontesPage() {
   return (
-    <article className="flex flex-col gap-8">
+    <article className="pagina-secoes">
       <header className="flex flex-col gap-[var(--esp-2)]">
         <p className="sobretitulo">Método</p>
         <h1 className="titulo-pagina">Sobre as fontes</h1>
