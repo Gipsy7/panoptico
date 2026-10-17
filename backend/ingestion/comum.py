@@ -10,6 +10,7 @@ import gzip
 import hashlib
 import json
 import os
+import random
 import re
 import shutil
 import tempfile
@@ -50,30 +51,45 @@ Carregar = Callable[[Session, Any, FonteIngestao], int]
 
 def criar_cliente() -> httpx.Client:
     return httpx.Client(
-        timeout=httpx.Timeout(30.0, read=120.0),
+        timeout=httpx.Timeout(30.0, connect=60.0, read=120.0),
         headers={"Accept": "application/json", "User-Agent": USER_AGENT},
         follow_redirects=True,
     )
 
 
+TENTATIVAS_PADRAO = 5
+TETO_ESPERA = 60.0
+# Falhas de rede que valem uma nova tentativa (ConnectTimeout, ReadTimeout e
+# RemoteProtocolError são subclasses de TransportError; listadas para ficar explícito).
+ERROS_RETENTAVEIS = (
+    httpx.ConnectTimeout,
+    httpx.ReadTimeout,
+    httpx.RemoteProtocolError,
+    httpx.TransportError,
+)
+
+
 def _espera(resposta: httpx.Response | None, tentativa: int) -> float:
-    """Quanto esperar antes de tentar de novo: o Retry-After da fonte, se houver."""
+    """Quanto esperar antes de tentar de novo: o Retry-After da fonte, se houver; senão
+    backoff exponencial (2, 4, 8, 16... s) com teto de 60 s e um jitter leve."""
     if resposta is not None:
         retry_after = resposta.headers.get("Retry-After", "")
         if retry_after.isdigit():
-            return min(int(retry_after), 60)
-    return float(2**tentativa)
+            return min(int(retry_after), TETO_ESPERA)
+    return min(float(2**tentativa), TETO_ESPERA) + random.uniform(0, 1)
 
 
 def _get(client: httpx.Client, url: str, params: dict | None, tentativas: int) -> httpx.Response:
-    """GET com novas tentativas para falhas de rede, erros 5xx e limite de taxa (429)."""
+    """GET com novas tentativas para falhas de rede, erros 5xx e limite de taxa (429).
+    Os demais 4xx (404, 403...) não se resolvem tentando de novo e sobem na hora."""
     resposta = None
     for tentativa in range(1, tentativas + 1):
         try:
             resposta = client.get(url, params=params)
             if resposta.status_code < 500 and resposta.status_code != 429:
                 return resposta.raise_for_status()
-        except httpx.TransportError:
+        except ERROS_RETENTAVEIS:
+            resposta = None  # não reaproveita o Retry-After de uma resposta anterior
             if tentativa == tentativas:
                 raise
         if tentativa < tentativas:
@@ -81,11 +97,13 @@ def _get(client: httpx.Client, url: str, params: dict | None, tentativas: int) -
     return resposta.raise_for_status()
 
 
-def get_json(client: httpx.Client, url: str, params: dict | None = None, tentativas: int = 3):
+def get_json(
+    client: httpx.Client, url: str, params: dict | None = None, tentativas: int = TENTATIVAS_PADRAO
+):
     return _get(client, url, params, tentativas).json()
 
 
-def get_bytes(client: httpx.Client, url: str, tentativas: int = 3) -> bytes:
+def get_bytes(client: httpx.Client, url: str, tentativas: int = TENTATIVAS_PADRAO) -> bytes:
     return _get(client, url, None, tentativas).content
 
 

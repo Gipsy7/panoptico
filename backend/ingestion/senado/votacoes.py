@@ -48,10 +48,15 @@ def baixar(client: httpx.Client, ano: int) -> dict[str, Any]:
             if v.get("votacaoSecreta") != "S" and v.get("votos")
         }
     )
-    orientacoes = {
-        data: comum.get_json(client, URL_ORIENTACOES.format(data=data.replace("-", "")))
-        for data in datas
-    }
+    orientacoes = {}
+    for data in datas:
+        try:
+            orientacoes[data] = comum.get_json(
+                client, URL_ORIENTACOES.format(data=data.replace("-", ""))
+            )
+        except httpx.HTTPError as erro:
+            # As orientações são um complemento: uma data fora do ar não derruba o ano.
+            print(f"[aviso] orientações de {data} puladas: {erro!r}", flush=True)
     return {"votacoes": votacoes, "orientacoes": orientacoes}
 
 

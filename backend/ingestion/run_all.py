@@ -1,6 +1,8 @@
 """Roda todas as ingestões. Uso: uv run python -m ingestion.run_all"""
 
+import os
 import sys
+import time
 import traceback
 from collections.abc import Callable
 
@@ -53,17 +55,65 @@ def _tarefas() -> list[tuple[str, Callable[[], int]]]:
     return tarefas
 
 
-def main() -> int:
-    falhas = 0
-    for nome, tarefa in _tarefas():
+ESPERA_PADRAO = 120.0  # segundos entre a 1ª e a 2ª passada
+
+
+def _espera_segunda_passada() -> float:
+    """INGESTAO_ESPERA_SEGUNDA_PASSADA (segundos) muda a espera; 0 zera (testes)."""
+    try:
+        return max(0.0, float(os.environ.get("INGESTAO_ESPERA_SEGUNDA_PASSADA", ESPERA_PADRAO)))
+    except ValueError:
+        return ESPERA_PADRAO
+
+
+def _passada(tarefas: list[tuple[str, Callable[[], int]]]) -> list[tuple[str, Callable[[], int]]]:
+    """Roda as tarefas e devolve as que falharam."""
+    falharam = []
+    for nome, tarefa in tarefas:
         try:
             print(f"[ok]   {nome}: {tarefa()} registros", flush=True)
         except Exception:
-            falhas += 1
+            falharam.append((nome, tarefa))
             print(f"[erro] {nome}", flush=True)
             traceback.print_exc()
+    return falharam
+
+
+def _resumo(primeira: list[str], recuperadas: list[str], persistentes: list[str]) -> None:
+    """Escreve o resumo no painel do GitHub Actions (GITHUB_STEP_SUMMARY), se existir."""
+    caminho = os.environ.get("GITHUB_STEP_SUMMARY")
+    if not caminho or not primeira:
+        return
+    linhas = ["## Ingestão diária: fontes que falharam na 1ª passada", ""]
+    linhas += [f"- {n}" for n in primeira]
+    linhas += ["", "### Recuperadas na 2ª passada", ""]
+    linhas += [f"- {n}" for n in recuperadas] or ["- nenhuma"]
+    linhas += ["", "### Falharam também na 2ª passada", ""]
+    linhas += [f"- {n}" for n in persistentes] or ["- nenhuma"]
+    with open(caminho, "a", encoding="utf-8") as arquivo:
+        arquivo.write("\n".join(linhas) + "\n")
+
+
+def main() -> int:
+    tarefas = _tarefas()
+    falharam = _passada(tarefas)
+    primeira = [n for n, _ in falharam]
+    persistentes = primeira
+    if falharam:
+        espera = _espera_segunda_passada()
+        print(f"[2ª passada] {len(falharam)} tarefa(s) a repetir em {espera:g} s", flush=True)
+        time.sleep(espera)
+        persistentes_tarefas = _passada(falharam)
+        persistentes = [n for n, _ in persistentes_tarefas]
+        recuperadas = [n for n in primeira if n not in persistentes]
+        if recuperadas:
+            # Os resumos consolidam o que foi carregado: refaz depois de recuperar dados.
+            for nome, tarefa in tarefas:
+                if nome == resumos.FONTE and nome not in primeira:
+                    _passada([(nome, tarefa)])
+        _resumo(primeira, recuperadas, persistentes)
     print(f"[ok]   brutos antigos apagados: {len(limpar_raw.limpar())}", flush=True)
-    return 1 if falhas else 0
+    return 1 if persistentes else 0
 
 
 if __name__ == "__main__":

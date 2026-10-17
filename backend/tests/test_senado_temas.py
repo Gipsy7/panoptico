@@ -71,5 +71,6 @@ def test_orientacoes_do_senado_ligadas_pelo_sequencial():
 def test_espera_respeita_retry_after():
     com_header = httpx.Response(429, headers={"Retry-After": "7"})
     assert comum._espera(com_header, 1) == 7
-    assert comum._espera(httpx.Response(429), 2) == 4
-    assert comum._espera(None, 3) == 8
+    assert 4 <= comum._espera(httpx.Response(429), 2) <= 5  # backoff 2**2 + jitter até 1 s
+    assert 8 <= comum._espera(None, 3) <= 9
+    assert comum._espera(None, 10) <= comum.TETO_ESPERA + 1
