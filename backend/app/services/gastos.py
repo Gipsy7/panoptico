@@ -3,10 +3,10 @@
 from datetime import datetime
 from decimal import Decimal
 
-from sqlalchemy import func, select
+from sqlalchemy import func, select, text
 from sqlalchemy.orm import Session
 
-from app.models import Despesa, FonteIngestao, Parlamentar
+from app.models import Despesa, FonteIngestao, Parlamentar, ResumoParlamentar
 
 FONTES = {
     "camara": {
@@ -22,15 +22,50 @@ FONTES = {
 }
 
 
-def anos_disponiveis(session: Session, parlamentar: Parlamentar) -> list[int]:
-    return list(
-        session.scalars(
-            select(Despesa.ano)
-            .where(Despesa.casa == parlamentar.casa)
-            .distinct()
-            .order_by(Despesa.ano.desc())
-        )
+# Um ano por vez, saltando pelo índice (casa, ano, mes): poucas sondagens em vez de ler as
+# ~100 mil entradas da Casa para agrupar.
+_ANOS_E_ULTIMO_MES = text(
+    """
+    with recursive anos(ano) as (
+        select min(ano) from despesa where casa = :casa
+        union all
+        select (select min(ano) from despesa where casa = :casa and ano > anos.ano)
+          from anos where anos.ano is not null
     )
+    select ano, (select max(mes) from despesa where casa = :casa and ano = anos.ano)
+      from anos where ano is not null order by ano desc
+    """
+)
+
+
+def anos_e_ultimo_mes(session: Session, casa: str) -> dict[int, int]:
+    """Cada ano com gasto da Casa e o último mês com gasto nele, do ano mais novo para o mais
+    antigo, numa consulta só."""
+    return {int(ano): int(mes) for ano, mes in session.execute(_ANOS_E_ULTIMO_MES, {"casa": casa})}
+
+
+def anos_disponiveis(session: Session, parlamentar: Parlamentar) -> list[int]:
+    return list(anos_e_ultimo_mes(session, parlamentar.casa))
+
+
+def _media_guardada(session: Session, casa: str, ano: int) -> Decimal | None:
+    """Mesma média, lida do `resumo_parlamentar` (soma de despesas por parlamentar e ano,
+    gravada a cada ingestão). Só vale se todo parlamentar em exercício tem linha no ano."""
+    em_exercicio = session.scalar(
+        select(func.count()).where(Parlamentar.casa == casa, Parlamentar.em_exercicio.is_(True))
+    )
+    linhas, media = session.execute(
+        select(func.count(), func.coalesce(func.avg(ResumoParlamentar.gastos), 0))
+        .join(Parlamentar, Parlamentar.id == ResumoParlamentar.parlamentar_id)
+        .where(
+            Parlamentar.casa == casa,
+            Parlamentar.em_exercicio.is_(True),
+            ResumoParlamentar.ano == ano,
+        )
+    ).one()
+    if not linhas or linhas != em_exercicio:
+        return None
+    return media.quantize(Decimal("0.01"))
 
 
 def media_da_casa(session: Session, casa: str, ano: int) -> Decimal:
@@ -48,7 +83,16 @@ def media_da_casa(session: Session, casa: str, ano: int) -> Decimal:
     )
 
 
-def resumo(session: Session, parlamentar: Parlamentar, ano: int) -> dict:
+def resumo(
+    session: Session,
+    parlamentar: Parlamentar,
+    ano: int,
+    anos_meses: dict[int, int] | None = None,
+    usar_guardado: bool = True,
+) -> dict:
+    """`anos_meses` é o resultado de `anos_e_ultimo_mes`, para quem já o leu não repetir."""
+    if anos_meses is None:
+        anos_meses = anos_e_ultimo_mes(session, parlamentar.casa)
     do_parlamentar = (Despesa.parlamentar_id == parlamentar.id, Despesa.ano == ano)
 
     total = session.scalar(select(func.coalesce(func.sum(Despesa.valor), 0)).where(*do_parlamentar))
@@ -67,9 +111,10 @@ def resumo(session: Session, parlamentar: Parlamentar, ano: int) -> dict:
     maiores = session.scalars(
         select(Despesa).where(*do_parlamentar).order_by(Despesa.valor.desc()).limit(10)
     ).all()
-    ultimo_mes = session.scalar(
-        select(func.max(Despesa.mes)).where(Despesa.casa == parlamentar.casa, Despesa.ano == ano)
-    )
+    ultimo_mes = anos_meses.get(ano)
+    media_casa = _media_guardada(session, parlamentar.casa, ano) if usar_guardado else None
+    if media_casa is None:
+        media_casa = media_da_casa(session, parlamentar.casa, ano)
 
     fonte = FONTES[parlamentar.casa]
     atualizado_em: datetime | None = session.scalar(
@@ -80,10 +125,10 @@ def resumo(session: Session, parlamentar: Parlamentar, ano: int) -> dict:
 
     return {
         "ano": ano,
-        "anos_disponiveis": anos_disponiveis(session, parlamentar),
+        "anos_disponiveis": list(anos_meses),
         "ultimo_mes": ultimo_mes,
         "total": total,
-        "media_casa": media_da_casa(session, parlamentar.casa, ano),
+        "media_casa": media_casa,
         "por_categoria": [{"categoria": c, "total": t} for c, t in por_categoria],
         "por_mes": [{"mes": m, "total": t} for m, t in por_mes],
         "maiores_despesas": maiores,

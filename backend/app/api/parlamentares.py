@@ -85,14 +85,15 @@ def gastos_do_parlamentar(
     ano: Annotated[int | None, Query(description="Padrão: ano mais recente com dados")] = None,
 ) -> dict:
     p = _buscar(session, parlamentar_id)
-    anos = gastos.anos_disponiveis(session, p)
+    anos_meses = gastos.anos_e_ultimo_mes(session, p.casa)
+    anos = list(anos_meses)
     if not anos:
         raise HTTPException(404, "Ainda não há gastos carregados para esta Casa.")
     if ano is None:
         ano = anos[0]
     elif ano not in anos:
         raise HTTPException(404, f"Sem gastos carregados para {ano}.")
-    return gastos.resumo(session, p, ano)
+    return gastos.resumo(session, p, ano, anos_meses)
 
 
 @router.get("/parlamentares/{parlamentar_id}/candidatura", response_model=CandidaturaResposta)

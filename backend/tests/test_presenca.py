@@ -4,8 +4,9 @@ from datetime import date
 
 from sqlalchemy import select
 
-from app.models import Parlamentar
+from app.models import Parlamentar, ResumoParlamentar
 from app.services import presenca
+from ingestion import resumos
 from ingestion import votacoes_comum as vc
 from ingestion.camara import votacoes as camara
 from ingestion.senado import votacoes as senado
@@ -155,3 +156,56 @@ def test_presenca_endpoint_respeita_inicio_do_exercicio(client, session):
     # média dos 3 deputados em exercício: (75 + 50 + 0) / 3
     assert a["media_casa_percentual"] == 41.7
     assert client.get(f"/parlamentares/{deps[0].id}/presenca?ano=1999").status_code == 404
+
+
+def test_media_da_casa_guardada_igual_a_recalculada(session):
+    """A média lida do resumo_parlamentar tem de ser a mesma da conta feita na hora, nas duas
+    Casas, com quem assumiu no meio do ano e em ano sem resumo (que recalcula)."""
+    _popular(session)
+    deps = session.scalars(select(Parlamentar).where(Parlamentar.casa == "camara")).all()
+    sens = session.scalars(select(Parlamentar).where(Parlamentar.casa == "senado")).all()
+    deps[1].em_exercicio_desde = date(2026, 6, 1)
+    votacoes = [
+        {"id_externo": str(i), "data": date(2026, m, 1), "descricao": "x", "proposicao": None,
+         "secreta": False}
+        for i, m in enumerate([2, 3, 7, 8, 9])
+    ]  # fmt: skip
+    escolhas = ["Sim", "Não", "Abstenção", "Obstrução", "Sim"]
+    votos_c = [
+        {"id_externo_votacao": str(i), "parlamentar_id": d.id, "voto": escolhas[(i + k) % 5]}
+        for i in range(5)
+        for k, d in enumerate(deps)
+        if (i + k) % 4 != 3
+    ]
+    vc.recarregar_votacoes(session, "camara", 2026, votacoes, votos_c, _ingestao(session))
+    codigos = ["Sim", "NCom", "MIS", "P-NRV", "NA"]
+    votos_s = [
+        {"id_externo_votacao": str(i), "parlamentar_id": s.id, "voto": codigos[(i + k) % 5]}
+        for i in range(5)
+        for k, s in enumerate(sens)
+    ]
+    vc.recarregar_votacoes(session, "senado", 2026, votacoes, votos_s, _ingestao(session))
+    session.flush()
+    session.execute(ResumoParlamentar.__table__.insert(), resumos.calcular(session, [2026]))
+    session.flush()
+
+    for casa, pessoas in (("camara", deps), ("senado", sens)):
+        valido, media = presenca._media_guardada(session, casa, 2026)
+        assert valido and media is not None
+        for p in pessoas:
+            assert presenca.resumo(session, p, 2026) == presenca.resumo(
+                session, p, 2026, usar_guardado=False
+            )
+    # Ano sem resumo: recalcula e continua igual.
+    assert presenca._media_guardada(session, "camara", 2025) == (False, None)
+    assert presenca.resumo(session, deps[0], 2025) == presenca.resumo(
+        session, deps[0], 2025, usar_guardado=False
+    )
+    # Resumo incompleto (falta um deputado em exercício): não confia, recalcula.
+    session.execute(
+        ResumoParlamentar.__table__.delete().where(ResumoParlamentar.parlamentar_id == deps[2].id)
+    )
+    assert presenca._media_guardada(session, "camara", 2026) == (False, None)
+    assert presenca.resumo(session, deps[0], 2026) == presenca.resumo(
+        session, deps[0], 2026, usar_guardado=False
+    )

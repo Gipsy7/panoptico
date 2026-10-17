@@ -10,7 +10,7 @@ from datetime import date, datetime
 from sqlalchemy import extract, func, select, text
 from sqlalchemy.orm import Session
 
-from app.models import FonteIngestao, Parlamentar, Votacao
+from app.models import FonteIngestao, Parlamentar, ResumoParlamentar, Votacao
 
 # Registrou voto (inclui a presidência da sessão, que não vota por regimento).
 VOTOU = {"Sim", "Não", "Abstenção", "Obstrução", "Votou", "Artigo 17"}
@@ -71,8 +71,7 @@ def anos_disponiveis(session: Session, casa: str) -> list[int]:
 
 
 # Contagens por parlamentar numa só consulta (usada no resumo e na média da Casa).
-_CONTAGENS = text(
-    """
+_SQL_CONTAGENS = """
     with janela as (
         select p.id as parlamentar_id,
                greatest(make_date(:ano, 1, 1),
@@ -92,6 +91,13 @@ _CONTAGENS = text(
                 group by o.voto) t), '{}'::json) as votos
     from janela j
     """
+_CONTAGENS = text(_SQL_CONTAGENS)
+# A mesma conta, só para um parlamentar (a média da Casa vem do resumo guardado).
+_CONTAGENS_UM = text(
+    _SQL_CONTAGENS.replace(
+        "where p.casa = :casa and (p.em_exercicio or p.id = :parlamentar_id)",
+        "where p.id = :parlamentar_id",
+    )
 )
 
 
@@ -130,14 +136,28 @@ def _resumir(casa: str, votacoes: int, votos: dict[str, int]) -> dict:
     }
 
 
-def resumo(session: Session, parlamentar: Parlamentar, ano: int) -> dict:
-    casa = parlamentar.casa
+def _media_guardada(session: Session, casa: str, ano: int) -> tuple[bool, float | None]:
+    """Média do percentual de presença lida do `resumo_parlamentar` (gravado a cada ingestão
+    com as mesmas contas de `_CONTAGENS`/`_resumir`). Só vale se todo parlamentar em exercício
+    da Casa tem linha no ano; do contrário devolve (False, None) e quem chama recalcula."""
+    em_exercicio = session.scalar(
+        select(func.count()).where(Parlamentar.casa == casa, Parlamentar.em_exercicio)
+    )
     linhas = session.execute(
-        _CONTAGENS, {"ano": ano, "casa": casa, "parlamentar_id": parlamentar.id}
+        select(ResumoParlamentar.presenca_votou, ResumoParlamentar.presenca_total)
+        .join(Parlamentar, Parlamentar.id == ResumoParlamentar.parlamentar_id)
+        .where(Parlamentar.casa == casa, Parlamentar.em_exercicio, ResumoParlamentar.ano == ano)
     ).all()
-    por_parlamentar = {pid: _resumir(casa, votacoes, votos) for pid, votacoes, votos in linhas}
-    deste = por_parlamentar[parlamentar.id]
+    if not linhas or len(linhas) != em_exercicio:
+        return False, None
+    percentuais = [round(100 * votou / total, 1) for votou, total in linhas if total]
+    return True, (round(sum(percentuais) / len(percentuais), 1) if percentuais else None)
 
+
+def _media_recalculada(session: Session, casa: str, ano: int, parlamentar_id: int) -> float | None:
+    linhas = session.execute(
+        _CONTAGENS, {"ano": ano, "casa": casa, "parlamentar_id": parlamentar_id}
+    ).all()
     em_exercicio = set(
         session.scalars(
             select(Parlamentar.id).where(Parlamentar.casa == casa, Parlamentar.em_exercicio)
@@ -145,9 +165,25 @@ def resumo(session: Session, parlamentar: Parlamentar, ano: int) -> dict:
     )
     percentuais = [
         r["percentual"]
-        for pid, r in por_parlamentar.items()
-        if pid in em_exercicio and r["percentual"] is not None
+        for pid, votacoes, votos in linhas
+        if pid in em_exercicio and (r := _resumir(casa, votacoes, votos))["percentual"] is not None
     ]
+    return round(sum(percentuais) / len(percentuais), 1) if percentuais else None
+
+
+def resumo(
+    session: Session, parlamentar: Parlamentar, ano: int, usar_guardado: bool = True
+) -> dict:
+    casa = parlamentar.casa
+    linhas = session.execute(
+        _CONTAGENS_UM, {"ano": ano, "casa": casa, "parlamentar_id": parlamentar.id}
+    ).all()
+    deste = {pid: _resumir(casa, votacoes, votos) for pid, votacoes, votos in linhas}[
+        parlamentar.id
+    ]
+    valido, media = _media_guardada(session, casa, ano) if usar_guardado else (False, None)
+    if not valido:
+        media = _media_recalculada(session, casa, ano, parlamentar.id)
 
     fonte = FONTES[casa]
     atualizado_em: datetime | None = session.scalar(
@@ -160,9 +196,7 @@ def resumo(session: Session, parlamentar: Parlamentar, ano: int) -> dict:
         "anos_disponiveis": anos_disponiveis(session, casa),
         "periodo_inicio": inicio_periodo(parlamentar, ano),
         **deste,
-        "media_casa_percentual": (
-            round(sum(percentuais) / len(percentuais), 1) if percentuais else None
-        ),
+        "media_casa_percentual": media,
         "ausencia_detalhada": casa == "senado",
         "fonte_nome": fonte["nome"],
         "fonte_url": fonte["url"],
