@@ -1,0 +1,216 @@
+# Guia de design do Panóptico
+
+Referência pedida pelo dono do projeto: https://12axes.vercel.app. Este guia copia a **disciplina** do 12axes
+(ritmo, cartões, barras, mobile), não a paleta. O Panóptico continua "tinta e papel": marfim, tinta e bronze.
+Auditoria feita em 17/10/2026 com Edge headless (360 e 390 px; 1280 px para home).
+
+Nota de método: o Edge headless impõe janela mínima de ~500 px e recorta o screenshot, o que parece
+"estouro" lateral mas não é. Os screenshots válidos usam um `<iframe>` de 360 px. As páginas que carregam
+dados em streaming (perfil, comparador, partido) saíram no estado "Carregando" nesse método; os problemas
+delas abaixo vêm da leitura do código e de um screenshot em 390 px anterior ao recorte. Reconferir em celular real.
+
+## 1. O que o 12axes faz bem
+
+- **Layout:** uma coluna única no celular, margem lateral constante (~16 px), cada bloco com um sobretítulo
+  (`— CATÁLOGO`), título grande, subtítulo em cinza e só então o conteúdo. Nunca há dois níveis de caixa.
+- **Ritmo vertical:** espaço grande e regular entre seções (~64 a 80 px) e pequeno dentro delas (8 a 16 px).
+  A seção se separa por espaço e por um fio, não por fundo diferente. O olho sabe onde uma ideia termina.
+- **Cartões:** poucos, todos iguais: borda fina, raio pequeno, número grande no alto, rótulo pequeno embaixo,
+  uma ação ("Ver perfil") no canto inferior. O cartão de resumo (4 contadores 2x2) dá a dimensão do catálogo antes da lista.
+- **Barras:** a faixa de 12 ícones por eixo e as barras de compatibilidade são finas, de altura única, com o valor
+  escrito ao lado. A barra nunca vem sem número.
+- **Tipografia:** uma família sans forte, títulos bem maiores que o texto (escala ~ 2,2x), texto corrido a 16 px
+  com entrelinha ~1,6, legenda nunca abaixo de 13 px. Números em tamanho de título com `tabular-nums`.
+- **Menu:** cabeçalho curto e fixo, logo à esquerda, **uma única ação primária** à direita ("Fazer o teste") em vez
+  de menu hambúrguer escondendo tudo. Migalhas de pão (`Início / Partidos`) abaixo do cabeçalho.
+- **Filtros:** busca + botão "Filtros" com contador + fileira de pílulas rolável na horizontal; o estado ativo é visível.
+- **Animações:** curtas, de entrada (fade e subida), sem movimento contínuo. Carrossel com pontos indicando a posição.
+- **Mobile:** alvos grandes (botões de 48 px, linhas de lista com 80 px), botões em largura total, grades 2x2 em vez
+  de 4 colunas, textos cortados com reticências (`line-clamp`) em vez de crescerem.
+
+## 2. O que adotar no Panóptico
+
+Sem mudar a paleta. Nada de vermelho, azul ou verde-amarelo como cor principal (o 12axes usa verde, azul e vinho
+para categorias; **não copiar**). Hierarquia só com:
+
+1. **Tinta** (`--foreground`) para o que é mais importante, cinza quente (`--muted-foreground`) para apoio.
+2. **Fio** (`figura`, `painel`, `lista-fios`): 1 px tinta para número em destaque, 1 px `--border` para separar.
+3. **Peso e corpo:** Newsreader grande para números e títulos, Geist 500 para rótulos.
+4. **Bronze** só em sobretítulo, marca, barra de dado, nota lateral e foco. Nunca como fundo de bloco.
+
+Linguagem factual: sem adjetivo, sem "melhor/pior", sem semáforo. Comparar sempre com a média da Casa e dar a fonte.
+
+Adotar do 12axes:
+- Sobretítulo + título + subtítulo em toda página interna (já é o padrão; padronizar).
+- Cartão-resumo 2x2 no alto de listas (ex.: /partidos: partidos, deputados, senadores, gasto médio).
+- Migalhas de pão em páginas internas (partido, perfil, comparar).
+- Barra de filtros com contador e pílulas roláveis em /parlamentares e /partidos.
+- Ação primária única no cabeçalho do celular ("Buscar pelo CEP" sempre visível) além do menu.
+- Texto longo cortado com "ver mais" em vez de blocos de 10 linhas.
+- Índice de seções no perfil (o 12axes tem âncoras `#como-funciona`, `#guia-eixos`).
+
+## 3. Tokens
+
+Espaçamento (escala de 4 px; usar apenas estes):
+
+| Token | Valor | Uso |
+|---|---|---|
+| `--esp-1` | 4 px | ícone e rótulo |
+| `--esp-2` | 8 px | dentro de pílulas e linhas |
+| `--esp-3` | 12 px | entre rótulo e número |
+| `--esp-4` | 16 px | margem lateral no celular, padding de cartão |
+| `--esp-6` | 24 px | entre blocos dentro de uma seção |
+| `--esp-10` | 40 px | entre seções no celular |
+| `--esp-16` | 64 px | entre seções no desktop |
+
+Tipografia (mínimo de 14 px em qualquer conteúdo; 12 px só em metadado não essencial e nunca como único meio de ler um dado):
+
+| Papel | Celular | Desktop | Fonte |
+|---|---|---|---|
+| h1 | 32 px / 1,1 (`text-[2rem]`) | 56 px | Newsreader 450 |
+| h2 | 26 px / 1,2 | 36 px | Newsreader 450 |
+| número grande | 32 px | 40 px | Newsreader 400, tabular |
+| texto | 16 px / 1,6 | 17 px | Geist 400 |
+| texto de apoio, tabela | 14 px / 1,5 | 14 px | Geist 400 |
+| sobretítulo | 12 px, versalete, 0,14em (hoje 0,7rem = 11,2 px: subir) | 12 px | Geist 500 |
+| legenda e fonte | 13 px | 13 px | Geist 400 |
+
+Raio: `--radius` atual (0,25 rem; 2 px em botões e pílulas). Manter retangular, nada de pílula arredondada.
+Sombras: nenhuma em cartões (o fio basta). Única exceção: painel do menu móvel e o cartão flutuante da home,
+`0 16px 24px -20px rgb(0 0 0 / .25)`. Alvos: altura mínima 44 px (botão, link isolado, seletor, linha de lista).
+
+## 4. Componentes
+
+**Cartão.** `bg-card`, borda 1 px `--border`, padding 16 px, sem sombra. Estrutura: sobretítulo, número (Newsreader),
+rótulo, ação opcional. No celular, largura total; no desktop, grade de 2 a 4 colunas.
+
+**Número com média da Casa.** Linha 1: rótulo (14 px, cinza). Linha 2: número em serifa 32 px. Linha 3: "Média da Casa:
+X" em 14 px cinza. Tudo dentro de `figura` (fio de tinta em cima). Dois números lado a lado só se couberem em 360 px
+(grade 2 colunas, 164 px cada); senão, empilhar.
+
+**Barra neutra.** Trilho `--muted` com 8 px de altura, preenchimento `--bronze`, marca vertical de tinta (2 px) na média
+da Casa, valor escrito à direita (não dentro da barra). `role="img"` com `aria-label` descrevendo valor e média.
+
+**Tabela rolável com coluna fixa.**
+```tsx
+<div className="-mx-4 overflow-x-auto px-4">
+  <table className="w-full min-w-[40rem] text-left text-sm">
+    <th className="sticky left-0 bg-background ..."> {/* 1ª coluna fixa, fio à direita */}
+```
+Regras: sempre dentro de `overflow-x-auto`; `min-width` definido; primeira coluna `sticky left-0` com fundo opaco;
+sombra de borda (gradiente de 8 px) à direita indicando que há mais; linhas com 44 px. Extrair para `ui/tabela-rolavel.tsx`.
+
+**Menu móvel.** Cabeçalho 56 px: logo, botão "Buscar pelo CEP" (44 px) e botão de menu (44x44). Painel em tela cheia
+sob o cabeçalho, links de 48 px, fecha ao tocar num link, ao tocar fora, e com Esc; trava a rolagem do fundo.
+Migrar de `<details>` para botão com `aria-expanded` + `useState`.
+
+**Índice de seções (perfil).** No celular: fileira horizontal fixa sob o cabeçalho, com pílulas de 44 px de altura
+(Gastos, Presença, Votos, Projetos, Emendas...), `scroll-snap-type: x proximity`, destaca a seção visível (peso 600 e fio
+de bronze embaixo). No desktop: lista vertical `sticky top-20` numa coluna lateral de 200 px. Links são âncoras `#id`
+com `scroll-margin-top` igual à altura dos dois cabeçalhos.
+
+## 5. Regras para celular
+
+1. **360 px sem rolagem horizontal da página.** Teste: `document.documentElement.scrollWidth <= 360` em cada rota.
+   O que for mais largo rola dentro do próprio contêiner (`overflow-x-auto`), nunca no `body`.
+2. **Alvos de 44 px ou mais** (altura e largura), com 8 px de espaço entre alvos. Link só de texto em corpo de frase é exceção;
+   links soltos (ex.: "trocar") ganham `min-h-11 inline-flex items-center`.
+3. Conteúdo a 14 px no mínimo; `text-xs` só em metadado repetido (UF, casa) e nunca em número ou texto de explicação.
+4. Margem lateral de 16 px; nada de `fixed` com largura em px.
+5. Títulos com `text-balance` e `break-words`; nomes longos de partido e de projeto quebram, não estouram.
+6. Uma ação primária por tela; botões de formulário em largura total.
+7. Imagens e fotos com `aspect-ratio` fixo para não pular o layout (CLS).
+8. Respeitar `prefers-reduced-motion` (já feito). Animação só de entrada, no máximo 420 ms.
+9. Conferir em 360 e em 390, e com zoom de texto a 200%.
+
+## 6. Problemas atuais priorizados
+
+Referências conferidas no código de `frontend/` em 17/10/2026.
+
+**P1 (quebra a leitura ou o uso no celular)**
+- Tabelas sem `overflow-x-auto` (estouram a página em 360 px): `components/destino-emendas-secao.tsx:107`,
+  `components/emendas-relator-secao.tsx:24`, `components/projetos-secao.tsx:35`, `components/partido-secao.tsx:140`,
+  `app/comparar/local/page.tsx:145`. Já corretas e a copiar: `components/gastos-secao.tsx:105` e `app/partidos/page.tsx:86`.
+- Menu móvel `<details>` com botão de 40 px (`components/menu-principal.tsx:41`), painel que não fecha ao tocar fora nem com Esc
+  (`menu-principal.tsx:50`), sem trava de rolagem do fundo.
+- Perfil do parlamentar com 12 seções empilhadas e sem índice nem "voltar ao topo" (`app/parlamentar/[id]/page.tsx:138-180`);
+  no celular são ~5 000 px de rolagem. A lista de votos (`votos-secao.tsx`) é a mais longa.
+- "trocar" no comparador é `text-xs` sem área de toque (`app/comparar/page.tsx:343`), alvo de ~16 px.
+- Comparador só aceita 2 pessoas e no celular espreme dois cartões em 164 px cada (`app/comparar/page.tsx:164-165`).
+
+**P2 (legibilidade e consistência)**
+- Excesso de texto pequeno: 116 usos de `text-xs`/`text-[0.7rem]` em 37 arquivos (os maiores: `candidatura-secao.tsx`,
+  `atividade-local.tsx`, `fornecedores-pncp-secao.tsx`, `comparar/page.tsx`, `partido-secao.tsx`, `linha-do-tempo-secao.tsx`).
+  Utilitário `sobretitulo` em 0,7 rem (`app/globals.css:200`) e `pilula` em 0,75 rem (`globals.css:185`): subir para 0,75 e 0,8125 rem.
+- Home com `text-5xl` (48 px) em 360 px (`app/page.tsx:23`): quebra o título em 4 linhas e "às claras" fica no limite.
+  Usar `text-[2rem] sm:text-5xl lg:text-6xl`.
+- Botão `botao-linha` do cabeçalho com `h-9` (36 px) no desktop (`menu-principal.tsx:33`) e `seletor` de 44 px sem espaço entre alvos.
+- Faixa de votos em `votos-secao.tsx` com três colunas ("Votou / Governo orientou / Maioria") cortadas em 360 px (screenshot do perfil).
+- Falta migalha de pão e botão "voltar" nas páginas internas (partido, perfil, comparar).
+
+**P3 (polimento)**
+- Padronizar espaçamento entre seções (`gap-*` varia entre 8 e 14 nas páginas).
+- Skeleton de carregamento mostra só uma foto cinza; mostrar a estrutura da seção (título, 3 linhas).
+- Tabela `/partidos` (`min-w-[44rem]`) sem indicação visual de que rola.
+- Cartão flutuante da home com sombra e ponta de segundo cartão: remover a sombra (fora da regra "sem sombra").
+- Adicionar cartão-resumo 2x2 e pílulas de filtro roláveis em `/parlamentares` e `/partidos`.
+
+## 7. Comparador de até 4 pessoas (estilo TudoCelular)
+
+Rota única `/comparar?p=1&p=10&p=57&p=88` (compatível com `a` e `b` atuais, que viram `p`). Mínimo 2, máximo 4.
+
+**Celular, 360 px.** Colunas de 140 px de largura; a coluna de rótulos fica fixa à esquerda (96 px) e as pessoas rolam com
+`scroll-snap-type: x mandatory`; cada coluna é um ponto de parada. Cabeçalho (fotos) fixo no topo com `sticky top-14`.
+```
++--------------------------------------+ 360
+| Panóptico.social     [CEP]  [menu]   |
++--------------------------------------+
+| Comparar parlamentares     2 de 4    |
++--------+-----------------------------+  <- cabeçalho fixo (sticky)
+|        | [foto]    [foto]  [ + ]     |
+|        | Esperidião Ivete   Adicionar|
+|        | PP·SC     MDB·SC           |
+|        | [Remover] [Remover]        |
++--------+-----------------------------+
+|Gastos  | R$ 269.307 | R$ 279.347 ->  |  <- rola de lado, encaixa (snap)
+|2026    | média: ... | média: ...     |
+|Presença| 58 de 62   | 53 de 62       |
+|Projetos| 27         | 13             |
+|Votos   | [ver matriz abaixo]         |
++--------+-----------------------------+
+| Votos em comum (matriz)              |
+|        Esp   Ive   Jor   Ana         |
+|  Esp    -    95%   71%   60%         |
+|  Ive   95%    -    74%   62%         |
+|  Jor   71%   74%    -    80%         |
+|  Ana   60%   62%   80%    -          |
+|  "votaram igual em X de Y votações"  |
++--------------------------------------+
+```
+- Colunas de rótulo e de pessoa alinhadas por linha (cada linha tem altura única, 64 px) para não desencontrar ao rolar.
+- Dica de rolagem: ponta da próxima coluna sempre visível (140 px x 2 + 96 = 376 > 360).
+- Adicionar: botão "+" (44 px) abre uma folha de baixo com a busca por nome; remover: botão "Remover" de 44 px no cabeçalho.
+- Matriz em tabela rolável com primeira coluna fixa; célula mostra o percentual e, abaixo em 13 px, "19 de 20".
+  Intensidade só em cinza e bronze (fundo `--muted` a `--bronze` com 20% a 60% de opacidade); nunca verde/vermelho.
+
+**Desktop, 1280 px.**
+```
+| Comparar parlamentares                              [Só diferenças] [Compartilhar] |
++-----------------+--------------+--------------+--------------+--------------+
+| (rótulos fixos) | [foto]  X    | [foto]  X    | [foto]  X    |   [ + ]      |  <- sticky
+|  200 px         | Nome         | Nome         | Nome         | Adicionar    |
++-----------------+--------------+--------------+--------------+--------------+
+| Gastos 2026     | R$ 269.307   | R$ 279.347   | R$ 188.020   |              |
+|   média da Casa | R$ 250.100   | ...          |              |              |
+| Presença        | 58 de 62     | ...          |              |              |
+| Projetos        | 27           | ...          |              |              |
++-----------------+--------------+--------------+--------------+--------------+
+| Votos em comum: matriz par a par (4x4), clique na célula lista as votações |
+```
+- Colunas de 220 px até 4; com 2 ou 3 pessoas, distribuem a largura (`grid-template-columns: 200px repeat(n, 1fr)`).
+- Cabeçalho `sticky top-0` e coluna de rótulos `sticky left-0`; filtro "Só diferenças" mantém só as linhas em que há valores distintos.
+- Casas diferentes (Câmara × Senado): a matriz de votos em comum só compara pares da mesma Casa; os demais pares mostram "Casas diferentes".
+- URL compartilhável e imagem Open Graph (já existe `app/comparar/imagem`) estendida para 3 e 4 pessoas.
+
+Critérios de aceite: sem rolagem horizontal da página em 360 px; todos os alvos >= 44 px; teclado percorre colunas;
+leitor de tela lê "Linha Gastos, Esperidião R$ 269.307, Ivete R$ 279.347".
