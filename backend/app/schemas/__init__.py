@@ -654,6 +654,7 @@ class ListaParlamentaresResposta(BaseModel):
     criterios: list[Criterio]
     medias: dict[str, dict[str, float | None]]
     partidos: list[str]
+    por_casa: dict[str, int]
     total: int
     pagina: int
     por_pagina: int

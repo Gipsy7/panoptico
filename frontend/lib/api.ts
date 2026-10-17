@@ -626,6 +626,7 @@ export type ListaParlamentares = {
   criterios: { id: CriterioId; nome: string; definicao: string }[];
   medias: Record<Casa, Record<string, number | null>>;
   partidos: string[];
+  por_casa: Record<Casa, number>;
   total: number;
   pagina: number;
   por_pagina: number;

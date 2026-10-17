@@ -5,8 +5,9 @@ import { TabelaRolavel } from "@/components/ui/tabela-rolavel";
 import { AvisoErro } from "@/components/aviso-erro";
 import { FonteRodape } from "@/components/fonte-rodape";
 import { Revelacao } from "@/components/revelacao";
+import { Resumo2x2 } from "@/components/ui/resumo-2x2";
 import { type PartidoNaLista, getPartidos } from "@/lib/api";
-import { formatarReais } from "@/lib/formato";
+import { formatarReais, formatarReaisCompacto } from "@/lib/formato";
 
 export const metadata: Metadata = {
   title: "Dinheiro dos partidos",
@@ -64,8 +65,24 @@ async function Tabela({ ano, ordenar, ordem }: { ano?: string; ordenar?: string;
     coluna === "sigla" ? fator * a.sigla.localeCompare(b.sigla, "pt-BR") : fator * (a[coluna] - b[coluna]),
   );
 
+  const soma = (campo: keyof Omit<PartidoNaLista, "sigla">) => dados.partidos.reduce((t, p) => t + p[campo], 0);
+  const gastoMedio = dados.partidos.length ? soma("gasto") / dados.partidos.length : 0;
+
   return (
     <>
+      <Resumo2x2
+        titulo={`Resumo das contas dos partidos em ${dados.ano}`}
+        itens={[
+          { rotulo: `Partidos com contas em ${dados.ano}`, valor: dados.partidos.length.toLocaleString("pt-BR") },
+          { rotulo: "Recebido do Fundo Partidário", valor: formatarReaisCompacto(soma("cota_fundo_partidario")) },
+          { rotulo: "Recebido do fundo eleitoral", valor: formatarReaisCompacto(soma("cota_fefc")) },
+          {
+            rotulo: "Gasto médio por partido",
+            valor: formatarReaisCompacto(gastoMedio),
+            apoio: `Total: ${formatarReaisCompacto(soma("gasto"))}`,
+          },
+        ]}
+      />
       <nav aria-label="Ano da prestação de contas" className="flex flex-wrap items-center gap-2 text-sm">
         <span className="text-muted-foreground">Contas de</span>
         {dados.anos_disponiveis.map((a) => (

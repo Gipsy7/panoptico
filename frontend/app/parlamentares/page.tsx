@@ -6,6 +6,7 @@ import { AvisoErro } from "@/components/aviso-erro";
 import { Revelacao } from "@/components/revelacao";
 import { FonteRodape } from "@/components/fonte-rodape";
 import { Foto } from "@/components/parlamentar-card";
+import { Resumo2x2 } from "@/components/ui/resumo-2x2";
 import {
   type CriterioId,
   type FiltrosLista,
@@ -13,7 +14,7 @@ import {
   type ParlamentarNaLista,
   getParlamentares,
 } from "@/lib/api";
-import { CASA_CURTA, formatarGastos, formatarReais } from "@/lib/formato";
+import { CASA_CURTA, formatarGastos, formatarReais, formatarReaisCompacto } from "@/lib/formato";
 import { UFS } from "@/lib/ufs";
 
 export const metadata: Metadata = {
@@ -59,6 +60,22 @@ async function Lista({ filtros }: { filtros: FiltrosLista }) {
 
   return (
     <>
+      <Resumo2x2
+        titulo={`Resumo do Congresso em ${dados.ano}`}
+        itens={[
+          { rotulo: "Deputados federais", valor: dados.por_casa.camara.toLocaleString("pt-BR") },
+          { rotulo: "Senadores", valor: dados.por_casa.senado.toLocaleString("pt-BR") },
+          { rotulo: "Partidos representados", valor: dados.partidos.length.toLocaleString("pt-BR") },
+          {
+            rotulo: `Gasto médio por deputado em ${dados.ano}`,
+            valor: dados.medias.camara.gastos != null ? formatarReaisCompacto(dados.medias.camara.gastos) : "—",
+            apoio:
+              dados.medias.senado.gastos != null
+                ? `Senado: ${formatarReaisCompacto(dados.medias.senado.gastos)}`
+                : undefined,
+          },
+        ]}
+      />
       <Filtros dados={dados} filtros={filtros} />
 
       <section aria-labelledby="lista-titulo" className="revelar flex flex-col gap-3">

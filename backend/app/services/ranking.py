@@ -195,6 +195,7 @@ def listar(
         "criterios": [{"id": k, **v} for k, v in CRITERIOS.items()],
         "medias": medias(todos),
         "partidos": sorted({i["partido"] for i in todos if i["partido"]}),
+        "por_casa": {c: sum(1 for i in todos if i["casa"] == c) for c in ("camara", "senado")},
         "total": len(filtrados),
         "pagina": pagina,
         "por_pagina": POR_PAGINA,
