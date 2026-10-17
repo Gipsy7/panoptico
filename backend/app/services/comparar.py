@@ -1,5 +1,7 @@
 """Comparação lado a lado de dois parlamentares."""
 
+from itertools import combinations
+
 from sqlalchemy import and_, func, select
 from sqlalchemy.orm import Session, aliased
 
@@ -80,5 +82,50 @@ def comparar(session: Session, a: Parlamentar, b: Parlamentar, ano: int) -> dict
         "temas": _temas_lado_a_lado(session, a, b),
         "convergencia": votos.convergencia(session, a, b, ano) if mesma_casa else None,
         "coautorias": _coautorias(session, a, b),
+        "atualizado_em": lista["atualizado_em"],
+    }
+
+
+def _temas_n(session: Session, pessoas: list[Parlamentar]) -> list[dict]:
+    """Projetos como autor principal por tema, um valor por pessoa (na ordem de `pessoas`)."""
+    por_tema: dict[str, list[int]] = {}
+    for k, p in enumerate(pessoas):
+        for t in temas.projetos_por_tema(session, p)["temas"]:
+            por_tema.setdefault(t["tema"], [0] * len(pessoas))[k] = t["primeiro_autor"]
+    linhas = [{"tema": t, "valores": v} for t, v in por_tema.items() if any(v)]
+    linhas.sort(key=lambda x: (-sum(x["valores"]), x["tema"]))
+    return linhas[:LIMITE_TEMAS]
+
+
+def comparar_n(session: Session, pessoas: list[Parlamentar], ano: int) -> dict:
+    """De 2 a 4 parlamentares. Convergência e coautorias são calculadas por par (i < j)."""
+    lista = ranking.listar(session, ano=ano)
+    pares = list(combinations(range(len(pessoas)), 2))
+    convergencia = []
+    for i, j in pares:
+        mesma = pessoas[i].casa == pessoas[j].casa
+        convergencia.append(
+            {
+                "i": i,
+                "j": j,
+                "mesma_casa": mesma,
+                "convergencia": votos.convergencia(session, pessoas[i], pessoas[j], ano)
+                if mesma
+                else None,
+            }
+        )
+    return {
+        "ano": ano,
+        "anos_disponiveis": lista["anos_disponiveis"],
+        "pessoas": [_pessoa(p) for p in pessoas],
+        "numeros": [ranking.resumo_de(session, p, ano) for p in pessoas],
+        "criterios": lista["criterios"],
+        "medias": lista["medias"],
+        "mesma_casa": len({p.casa for p in pessoas}) == 1,
+        "temas": _temas_n(session, pessoas),
+        "convergencia": convergencia,
+        "coautorias": [
+            {"i": i, "j": j, **_coautorias(session, pessoas[i], pessoas[j])} for i, j in pares
+        ],
         "atualizado_em": lista["atualizado_em"],
     }

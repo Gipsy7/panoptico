@@ -191,6 +191,55 @@ def test_rota_comparar(client, session):
     assert client.get(f"/comparar?a={a.id}&b=999999").status_code == 404
 
 
+def test_rota_comparar_varias_pessoas(client, session):
+    a, b, c = _cenario(session)
+    senador = session.scalars(select(Parlamentar).where(Parlamentar.casa == "senado")).first()
+    session.execute(resumos.ResumoParlamentar.__table__.insert(), resumos.calcular(session, [2026]))
+    session.flush()
+
+    corpo = client.get("/comparar", params={"ids": f"{c.id},{a.id},{b.id}"}).json()
+    assert [p["id"] for p in corpo["pessoas"]] == [c.id, a.id, b.id]
+    assert len(corpo["numeros"]) == 3
+    assert corpo["numeros"][1]["governo"] == 66.7  # alinhado a `pessoas`: o segundo é o A
+    assert corpo["mesma_casa"] is True
+    assert [(x["i"], x["j"]) for x in corpo["convergencia"]] == [(0, 1), (0, 2), (1, 2)]
+    ab = corpo["convergencia"][2]["convergencia"]  # A (1) com B (2)
+    assert (ab["votacoes_em_comum"], ab["percentual"]) == (4, 50.0)
+    assert corpo["convergencia"][0]["convergencia"]["votacoes_em_comum"] == 3  # C com A
+    assert [(x["i"], x["j"]) for x in corpo["coautorias"]] == [(0, 1), (0, 2), (1, 2)]
+    assert all("valores" in t and len(t["valores"]) == 3 for t in corpo["temas"])
+
+    # Quatro pessoas, uma de outra casa: os pares com ela dão null.
+    quatro = client.get("/comparar", params={"ids": f"{a.id},{b.id},{c.id},{senador.id}"}).json()
+    assert len(quatro["convergencia"]) == 6
+    assert quatro["mesma_casa"] is False
+    com_senador = [x for x in quatro["convergencia"] if x["j"] == 3]
+    assert len(com_senador) == 3
+    assert all(x["convergencia"] is None and x["mesma_casa"] is False for x in com_senador)
+    assert all(x["convergencia"] is not None for x in quatro["convergencia"] if x["j"] != 3)
+
+    # a e b continuam valendo, na forma antiga.
+    antigo = client.get(f"/comparar?a={a.id}&b={b.id}").json()
+    assert "numeros_a" in antigo and "pessoas" not in antigo
+
+    ruins = [
+        {"ids": f"{a.id}"},  # menos de 2
+        {"ids": f"{a.id},{a.id}"},  # repetido
+        {"ids": f"{a.id},{b.id},{a.id}"},
+        {"ids": f"{a.id},{b.id},{c.id},{senador.id},999999"},  # 5 ids
+        {"ids": f"{a.id},abc"},  # mal formado
+        {"ids": f"{a.id},"},
+        {"ids": f"{a.id},{b.id}", "a": a.id},  # ids junto com a/b
+        {"a": a.id},  # b faltando
+        {},
+    ]
+    for params in ruins:
+        resposta = client.get("/comparar", params=params)
+        assert resposta.status_code == 422, params
+        assert resposta.json()["detail"]
+    assert client.get("/comparar", params={"ids": f"{a.id},999999"}).status_code == 404
+
+
 def test_votos_nas_comissoes_ficam_fora_do_plenario(client, session):
     from datetime import date
 
