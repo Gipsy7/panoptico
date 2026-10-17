@@ -331,21 +331,27 @@ frequencia = "semanal"
 depende = ["canais_oficiais"]
 
 [[fonte]]
-<<<<<<< HEAD
 nome = "fornecedores_robin_camaras"
 modulo = "ingestion.camaras.fornecedores_robin"
 uso = "Câmaras de Senador Guiomard (site Wix) e Praia Grande (e-Solution/IPM, JSON da própria página)"
 recorte = "vereadores em exercício na legislatura 2025–2028 (nome, nome civil, partido); sem foto em Praia Grande (/datafiles/ vetado no robots.txt)"
 frequencia = "semanal"
 depende = ["canais_oficiais"]
-=======
+
+[[fonte]]
 nome = "fornecedores_alfred_camaras"
 modulo = "ingestion.camaras.fornecedores_alfred"
 uso = "Câmaras de site próprio ou de fornecedor com leitor pequeno (Aracruz, Cachoeiro de Itapemirim, Varjão de Minas, Nortelândia, Santa Maria do Cambucá, Alvorada)"
 recorte = "vereadores ativos da legislatura 2025–2028 (nome, nome civil, partido, foto), com robots.txt e pausa de 3 s"
 frequencia = "semanal"
 depende = []
->>>>>>> worktree-agent-a887a4c4ca5e185b3
+
+[[fonte]]
+nome = "fornecedores_batgirl_camaras"
+modulo = "ingestion.camaras.fornecedores_batgirl"
+uso = "Câmaras que saíram do SAPL para sites de fornecedor com leitor próprio (Pimenta Bueno, Perdões, Santa Cruz)"
+recorte = "vereadores em exercício (nome, partido, foto quando estável), com pausa de 3 s entre requisições"
+frequencia = "semanal"
 
 [[fonte]]
 nome = "sapl_assembleias"
@@ -507,7 +513,7 @@ modulo = "ingestion.pessoas"
 uso = "Pessoa pública única e linha do tempo (/pessoas/{id}/eventos)"
 recorte = "candidaturas, parlamentares e mandatos já carregados"
 frequencia = "semanal"
-depende = ["tse_candidaturas", "camara_deputados", "senado_senadores", "sapl_camaras", "cittatec_camaras", "portal_php_camaras", "cr2_camaras", "sapl_assembleias", "almg", "alesp", "alepe", "cldf", "alesc", "alerj", "alrs", "alba", "ales", "alece", "alepa", "almt", "alema", "alems", "alrn", "alese", "alap", "alego", "nucleogov_camaras", "portal_modelo_camaras", "aos_camaras", "sistemas_camaras", "fornecedores_alfred_camaras"]
+depende = ["tse_candidaturas", "camara_deputados", "senado_senadores", "sapl_camaras", "cittatec_camaras", "portal_php_camaras", "cr2_camaras", "sapl_assembleias", "almg", "alesp", "alepe", "cldf", "alesc", "alerj", "alrs", "alba", "ales", "alece", "alepa", "almt", "alema", "alems", "alrn", "alese", "alap", "alego", "nucleogov_camaras", "portal_modelo_camaras", "aos_camaras", "sistemas_camaras", "fornecedores_robin_camaras", "fornecedores_alfred_camaras", "fornecedores_batgirl_camaras"]
 
 # Justiça e controle
 [[fonte]]

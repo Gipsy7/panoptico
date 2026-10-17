@@ -53,16 +53,6 @@ FONTES_PROPRIAS = {
 
 # Câmaras que saíram do SAPL e têm conector próprio: o endereço de origem diz qual.
 FONTES_DE_CAMARA = {
-<<<<<<< HEAD
-    "senadorguiomard.ac.leg.br": (
-        "fornecedores_robin_camaras",
-        "Site da câmara (Senador Guiomard)",
-    ),
-    "praiagrande.sp.leg.br": (
-        "fornecedores_robin_camaras",
-        "Site da câmara (Praia Grande, e-Solution)",
-    ),
-=======
     # Leitores de ingestion.camaras.fornecedores_alfred (antes dos demais: "leg.br/vereadores"
     # também casaria com o endereço de Santa Maria do Cambucá).
     "camarasempapel.com.br": ("fornecedores_alfred_camaras", "Site da câmara (Câmara Sem Papel)"),
@@ -74,7 +64,14 @@ FONTES_DE_CAMARA = {
         "Portal da transparência da câmara (Santa Maria do Cambucá)",
     ),
     "alvorada.to.leg.br": ("fornecedores_alfred_camaras", "Site da câmara (Alvorada)"),
->>>>>>> worktree-agent-a887a4c4ca5e185b3
+    "senadorguiomard.ac.leg.br": (
+        "fornecedores_robin_camaras",
+        "Site da câmara (Senador Guiomard)",
+    ),
+    "praiagrande.sp.leg.br": (
+        "fornecedores_robin_camaras",
+        "Site da câmara (Praia Grande, e-Solution)",
+    ),
     "palmas.to.leg.br": ("sistemas_camaras", "Site da câmara (Palmas)"),
     "teofilootoni.mg.leg.br": ("sistemas_camaras", "Site da câmara (Teófilo Otoni)"),
     "frutal.siscam.com.br": ("sistemas_camaras", "Portal da câmara (Siscam)"),
@@ -87,6 +84,9 @@ FONTES_DE_CAMARA = {
     ),
     "leg.br/vereadores": ("portal_php_camaras", "Site da câmara (página de vereadores)"),
     "portalcr2.com.br": ("cr2_camaras", "Portal da Transparência da câmara (CR2)"),
+    "pimentabueno.ro.leg.br": ("fornecedores_batgirl_camaras", "Site da câmara (Pimenta Bueno)"),
+    "perdoes.mg.leg.br": ("fornecedores_batgirl_camaras", "Site da câmara (Perdões)"),
+    "santacruz.pe.leg.br": ("fornecedores_batgirl_camaras", "Site da câmara (Santa Cruz)"),
 }
 
 

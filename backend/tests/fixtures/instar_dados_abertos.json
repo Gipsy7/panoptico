@@ -1,0 +1,18 @@
+{
+ "dados": [
+  {
+   "nome": "Fabio Rodrigues da Silva",
+   "nomeParlamentar": "Fabio Tiziu",
+   "partido": "PL",
+   "cargoMesaDiretora": "2º Secretário",
+   "dataAtualizacao": "2026-05-04 16:03:02"
+  },
+  {
+   "nome": "Fábio Alves Matias Lemes",
+   "nomeParlamentar": "Fábio Matias",
+   "partido": "União Brasil",
+   "cargoMesaDiretora": false,
+   "dataAtualizacao": "2026-05-04 02:40:48"
+  }
+ ]
+}
