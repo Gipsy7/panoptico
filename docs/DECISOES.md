@@ -89,6 +89,7 @@
 - [2026-10-11: nove assembleias só a partir do Brasil](#2026-10-11-nove-assembleias-só-a-partir-do-brasil)
 - [2026-10-17: ingestão diária mais resiliente a falhas passageiras](#2026-10-17-ingestão-diária-mais-resiliente-a-falhas-passageiras)
 - [2026-10-17: comparador de 2 a 4 pessoas (`ids`)](#2026-10-17-comparador-de-2-a-4-pessoas-ids)
+- [2026-10-17: Senador Guiomard e Praia Grande, e as outras seis câmaras de fornecedor](#2026-10-17-senador-guiomard-e-praia-grande-e-as-outras-seis-câmaras-de-fornecedor)
 
 ## 2026-10-06: stack inicial
 
@@ -932,3 +933,9 @@ Em 15/10 (`ibge_municipios`, ConnectTimeout) e 16/10 (`senado_votacoes`, 503 num
 - **`/comparar/local?ids=`:** todas da mesma câmara/assembleia (senão 422). Resposta: `casa`, `pessoas[]` (mesmo `LadoLocal`), `proposicoes_por_tipo[{tipo, valores[]}]`, `convergencia[{i, j, votacoes_em_comum, iguais, divergencias[]}]`, fonte e data.
 - **Custo:** o local faz uma consulta de votos para todos e monta os pares em memória. O federal consulta por par (cerca de 0,2 s por par com 3 mil votações no banco de teste: 2 pessoas 0,28 s, 3 pessoas 0,73 s, 4 pessoas 0,6 s com um senador, onde 3 dos 6 pares são `null`; 4 da mesma Casa deve ficar em torno de 1,2 s). Aceito por ora (CDN de 1 h); se pesar, trocar por uma consulta única como no local.
 - **Frontend:** `frontend/lib/api.ts` ganhou `ComparacaoN`/`getComparacaoN(ids, ano)` e `ComparacaoLocalN`/`getComparacaoLocalN(ids)`; os tipos e as páginas antigas seguem como estavam.
+
+## 2026-10-17: Senador Guiomard e Praia Grande, e as outras seis câmaras de fornecedor
+
+- **Dois leitores num módulo só** (`ingestion.camaras.fornecedores_robin`, fonte `fornecedores_robin_camaras`, semanal): `wix` (Senador Guiomard, HTML do `/vereadores`) e `esolution` (Praia Grande, o JSON que a própria página chama). Mesmo critério de `sistemas_camaras`: só vereadores em exercício, titulares, com partido; gravação pela do SAPL (ligação ao eleito do TSE); uma requisição por câmara, `User-Agent` do Panóptico e 5 s de pausa entre câmaras.
+- **Praia Grande sem foto.** O `robots.txt` do e-Solution veta `/datafiles/`, onde ficam as fotos; o JSON de dados está em `/publico/service/`, que não é vetado. Guardamos nome, partido e id, não a foto.
+- **O que o levantamento chamava de Betha, Megasoft, IPM, Fiorilli e Publicsoft era quase sempre só o portal de transparência.** Das 8 câmaras: Campos Belos (Nucleogov) e Imbuia (Portal Modelo) já tinham leitor; Carolina, Garopaba, Itatuba e São Raimundo das Mangabeiras são Portal Modelo do Interlegis (Plone) com a lista de vereadores vazia, antiga (2021–2024), atrás de login ou fora do ar, e ficam pendentes com o motivo, em vez de gravar legislatura antiga. Em Garopaba o `atende.net` (IPM) tem `robots.txt` que veta as rotas de dados da página; não contornamos.

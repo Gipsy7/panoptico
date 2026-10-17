@@ -137,6 +137,12 @@ CATALOGO = [
         "url": "https://palmas.to.leg.br/",
     },
     {
+        "dado": "Vereadores no cargo hoje (sites das câmaras de Senador Guiomard e Praia Grande)",
+        "orgao": "Câmaras de Senador Guiomard (AC) e Praia Grande (SP)",
+        "fontes": ["fornecedores_robin_camaras"],
+        "url": "https://www.senadorguiomard.ac.leg.br/vereadores",
+    },
+    {
         "dado": "Vereadores no cargo hoje (câmaras no Portal da Transparência da CR2)",
         "orgao": "Câmaras de Beruri (AM), Itamarandiba (MG), Benevides e São Miguel do Guamá (PA)",
         "fontes": ["cr2_camaras"],

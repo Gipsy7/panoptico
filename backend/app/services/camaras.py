@@ -53,6 +53,14 @@ FONTES_PROPRIAS = {
 
 # Câmaras que saíram do SAPL e têm conector próprio: o endereço de origem diz qual.
 FONTES_DE_CAMARA = {
+    "senadorguiomard.ac.leg.br": (
+        "fornecedores_robin_camaras",
+        "Site da câmara (Senador Guiomard)",
+    ),
+    "praiagrande.sp.leg.br": (
+        "fornecedores_robin_camaras",
+        "Site da câmara (Praia Grande, e-Solution)",
+    ),
     "palmas.to.leg.br": ("sistemas_camaras", "Site da câmara (Palmas)"),
     "teofilootoni.mg.leg.br": ("sistemas_camaras", "Site da câmara (Teófilo Otoni)"),
     "frutal.siscam.com.br": ("sistemas_camaras", "Portal da câmara (Siscam)"),
