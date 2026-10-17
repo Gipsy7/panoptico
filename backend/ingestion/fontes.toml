@@ -331,6 +331,14 @@ frequencia = "semanal"
 depende = ["canais_oficiais"]
 
 [[fonte]]
+nome = "fornecedores_robin_camaras"
+modulo = "ingestion.camaras.fornecedores_robin"
+uso = "Câmaras de Senador Guiomard (site Wix) e Praia Grande (e-Solution/IPM, JSON da própria página)"
+recorte = "vereadores em exercício na legislatura 2025–2028 (nome, nome civil, partido); sem foto em Praia Grande (/datafiles/ vetado no robots.txt)"
+frequencia = "semanal"
+depende = ["canais_oficiais"]
+
+[[fonte]]
 nome = "sapl_assembleias"
 modulo = "ingestion.assembleias.sapl"
 uso = "Assembleia legislativa hoje"
