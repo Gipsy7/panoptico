@@ -102,6 +102,7 @@ def comparar_n(session: Session, pessoas: list[Parlamentar], ano: int) -> dict:
     lista = ranking.listar(session, ano=ano)
     pares = list(combinations(range(len(pessoas)), 2))
     convergencia = []
+    por_par = votos.convergencia_pares(session, pessoas, ano)
     for i, j in pares:
         mesma = pessoas[i].casa == pessoas[j].casa
         convergencia.append(
@@ -109,9 +110,7 @@ def comparar_n(session: Session, pessoas: list[Parlamentar], ano: int) -> dict:
                 "i": i,
                 "j": j,
                 "mesma_casa": mesma,
-                "convergencia": votos.convergencia(session, pessoas[i], pessoas[j], ano)
-                if mesma
-                else None,
+                "convergencia": por_par.get((i, j)),
             }
         )
     return {

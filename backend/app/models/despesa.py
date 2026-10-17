@@ -14,6 +14,7 @@ class Despesa(Base):
     __table_args__ = (
         Index("ix_despesa_parlamentar_ano", "parlamentar_id", "ano"),
         Index("ix_despesa_casa_ano", "casa", "ano"),
+        Index("ix_despesa_casa_ano_mes", "casa", "ano", "mes"),
     )
 
     id: Mapped[int] = mapped_column(primary_key=True)

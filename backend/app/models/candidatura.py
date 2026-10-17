@@ -12,6 +12,7 @@ from sqlalchemy import (
     String,
     Text,
     UniqueConstraint,
+    text,
 )
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -32,6 +33,11 @@ class Candidatura(Base):
         Index("ix_candidatura_cpf", "cpf"),
         Index("ix_candidatura_municipio_ibge", "municipio_ibge"),
         Index("ix_candidatura_cargo_uf", "cargo", "uf"),
+        Index(
+            "ix_candidatura_chapa_titular",
+            "chapa_titular_id",
+            postgresql_where=text("chapa_titular_id IS NOT NULL"),
+        ),
     )
 
     id: Mapped[int] = mapped_column(primary_key=True)
