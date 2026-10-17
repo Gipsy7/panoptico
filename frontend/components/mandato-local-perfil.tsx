@@ -67,7 +67,8 @@ export async function PerfilMandatoLocal({ id, paginaVotos }: { id: string; pagi
       <header className="flex items-start gap-4">
         <FotoVereador vereador={v} tamanho={72} />
         <div className="flex min-w-0 flex-col gap-1">
-          <h1 className="text-3xl tracking-tight">{v.nome}</h1>
+          <p className="sobretitulo">{cargo}</p>
+          <h1 className="titulo-pagina">{v.nome}</h1>
           {v.nome_completo && v.nome_completo !== v.nome && (
             <p className="text-sm text-muted-foreground">{v.nome_completo}</p>
           )}

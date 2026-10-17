@@ -13,8 +13,9 @@ export const metadata: Metadata = {
 export default function SobreAsFontesPage() {
   return (
     <article className="flex flex-col gap-8">
-      <header className="flex flex-col gap-2">
-        <h1 className="text-3xl tracking-tight">Sobre as fontes</h1>
+      <header className="flex flex-col gap-[var(--esp-2)]">
+        <p className="sobretitulo">Método</p>
+        <h1 className="titulo-pagina">Sobre as fontes</h1>
         <p className="text-muted-foreground">
           Todos os dados do Panóptico vêm de fontes públicas e oficiais. Não fazemos notas,
           rankings nem avaliações: mostramos o dado, a média para comparação e o link para a

@@ -38,7 +38,7 @@ export default function ApoiePage() {
     <article className="flex flex-col gap-8">
       <header className="flex flex-col gap-2">
         <p className="sobretitulo">Apoie</p>
-        <h1 className="text-3xl tracking-tight">Um site pequeno, com custos pequenos</h1>
+        <h1 className="titulo-pagina">Um site pequeno, com custos pequenos</h1>
         <p className="text-muted-foreground">
           O Panóptico é gratuito, sem anúncios e sem cadastro, e vai continuar assim. Se ele foi
           útil para você, uma doação ajuda a pagar os custos de manter tudo no ar.

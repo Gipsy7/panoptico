@@ -59,7 +59,8 @@ async function Perfil({ id }: { id: string }) {
       <header className="flex items-start gap-4">
         <FotoOuIniciais eleito={e} tamanho={72} />
         <div className="flex min-w-0 flex-col gap-1">
-          <h1 className="text-3xl tracking-tight">{e.nome_urna}</h1>
+          <p className="sobretitulo">Eleito</p>
+          <h1 className="titulo-pagina">{e.nome_urna}</h1>
           <p className="text-muted-foreground">
             {e.cargo} · {e.unidade}
           </p>

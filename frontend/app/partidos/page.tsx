@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
+import { CabecalhoPagina } from "@/components/ui/cabecalho-pagina";
 import { EsqueletoSecao } from "@/components/esqueleto-secao";
 import { TabelaRolavel } from "@/components/ui/tabela-rolavel";
 import { AvisoErro } from "@/components/aviso-erro";
@@ -33,14 +34,11 @@ const texto = (v: string | string[] | undefined) => (typeof v === "string" && v 
 export default function PartidosPage({ searchParams }: PageProps<"/partidos">) {
   return (
     <div className="flex flex-col gap-6" data-largura="larga">
-      <header className="flex flex-col gap-2">
-        <h1 className="text-3xl tracking-tight">Dinheiro dos partidos</h1>
-        <p className="text-muted-foreground">
-          Valores que os próprios partidos declararam ao Tribunal Superior Eleitoral (TSE) na
-          prestação de contas anual: de onde veio o dinheiro e para onde foi. Toque no título de
-          uma coluna para ordenar.
-        </p>
-      </header>
+      <CabecalhoPagina
+        sobretitulo="Partidos"
+        titulo="Dinheiro dos partidos"
+        subtitulo="Valores que os próprios partidos declararam ao Tribunal Superior Eleitoral (TSE) na prestação de contas anual: de onde veio o dinheiro e para onde foi. Toque no título de uma coluna para ordenar."
+      />
       <Revelacao fallback={<EsqueletoSecao rotulo="Carregando as contas dos partidos…" secoes={2} />}>
         {searchParams.then((sp) => (
           <Tabela ano={texto(sp.ano)} ordenar={texto(sp.ordenar)} ordem={texto(sp.ordem)} />

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Form from "next/form";
 import Link from "next/link";
 
+import { CabecalhoPagina } from "@/components/ui/cabecalho-pagina";
 import { EsqueletoSecao } from "@/components/esqueleto-secao";
 import { AvisoErro } from "@/components/aviso-erro";
 import { Revelacao } from "@/components/revelacao";
@@ -30,13 +31,11 @@ const CAMPOS: (keyof FiltrosLista)[] = ["busca", "casa", "uf", "partido", "orden
 export default function ParlamentaresPage({ searchParams }: PageProps<"/parlamentares">) {
   return (
     <div className="flex flex-col gap-6">
-      <header className="flex flex-col gap-1">
-        <h1 className="text-3xl tracking-tight">Todos os parlamentares</h1>
-        <p className="text-muted-foreground">
-          Deputados federais e senadores em exercício. Escolha um critério para ordenar a lista:
-          cada número vem de fonte oficial e não é uma nota.
-        </p>
-      </header>
+      <CabecalhoPagina
+        sobretitulo="Congresso Nacional"
+        titulo="Todos os parlamentares"
+        subtitulo="Deputados federais e senadores em exercício. Escolha um critério para ordenar a lista: cada número vem de fonte oficial e não é uma nota."
+      />
       <Revelacao fallback={<EsqueletoSecao rotulo="Carregando a lista de parlamentares…" secoes={2} />}>
         {searchParams.then((sp) => {
           const filtros: FiltrosLista = {};

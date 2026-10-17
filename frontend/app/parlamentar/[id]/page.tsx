@@ -138,7 +138,8 @@ async function Perfil({
       <header className="flex items-start gap-4">
         <Foto parlamentar={p} largura={96} prioridade />
         <div className="flex min-w-0 flex-col gap-1">
-          <h1 className="text-3xl tracking-tight">{p.nome_parlamentar}</h1>
+          <p className="sobretitulo">{p.casa === "senado" ? "Senador" : "Deputado federal"}</p>
+          <h1 className="titulo-pagina">{p.nome_parlamentar}</h1>
           {p.nome_civil && p.nome_civil !== p.nome_parlamentar && (
             <p className="text-sm text-muted-foreground">{p.nome_civil}</p>
           )}

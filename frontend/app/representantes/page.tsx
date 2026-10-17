@@ -106,14 +106,14 @@ async function Lista({ cep, uf, municipio }: Busca) {
   return (
     <div className="flex flex-col gap-8">
       <div className="flex flex-col gap-1">
-        <p className="text-sm text-muted-foreground">
+        <p className="sobretitulo">
           {localizacao.cep
             ? `CEP ${formatarCep(localizacao.cep)}`
             : localizacao.municipio
               ? "Busca por cidade"
               : "Busca por estado"}
         </p>
-        <h1 className="text-3xl tracking-tight">Você está em {lugar}</h1>
+        <h1 className="titulo-pagina">Você está em {lugar}</h1>
         <p className="text-muted-foreground">
           Quem governa e quem representa {lugar}, do Executivo à câmara municipal:
         </p>

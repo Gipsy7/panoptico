@@ -216,6 +216,20 @@
   text-transform: uppercase;
   color: var(--bronze-texto);
 }
+/* Título de página (h1): 32 px no celular, 56 px no desktop (ver docs/DESIGN.md). */
+@utility titulo-pagina {
+  font-size: 2rem;
+  line-height: 1.1;
+  letter-spacing: -0.015em;
+  text-wrap: balance;
+  overflow-wrap: anywhere;
+  @media (min-width: 40rem) {
+    font-size: 3rem;
+  }
+  @media (min-width: 64rem) {
+    font-size: 3.5rem;
+  }
+}
 /* Alvo de toque de 44 px (altura e largura mínimas). */
 @utility alvo-44 {
   min-height: 2.75rem;
