@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { TabelaRolavel } from "@/components/ui/tabela-rolavel";
 import { FonteRodape } from "@/components/fonte-rodape";
 import type { GrupoFefc, PartidoDetalhe } from "@/lib/api";
 import { MESES, formatarReais } from "@/lib/formato";
@@ -137,6 +138,7 @@ export function PartidoSecao({ dados }: { dados: PartidoDetalhe }) {
               ao diretório nacional
             </p>
           </div>
+          <TabelaRolavel larguraMinima="36rem" primeiraColunaFixa>
           <table className="w-full border-collapse text-sm">
             <caption className="sr-only">Cotas recebidas por mês em {dados.ano}</caption>
             <thead>
@@ -168,6 +170,7 @@ export function PartidoSecao({ dados }: { dados: PartidoDetalhe }) {
               })}
             </tbody>
           </table>
+          </TabelaRolavel>
         </section>
       )}
 
