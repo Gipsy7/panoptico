@@ -137,10 +137,20 @@ CATALOGO = [
         "url": "https://palmas.to.leg.br/",
     },
     {
+<<<<<<< HEAD
         "dado": "Vereadores no cargo hoje (sites das câmaras de Senador Guiomard e Praia Grande)",
         "orgao": "Câmaras de Senador Guiomard (AC) e Praia Grande (SP)",
         "fontes": ["fornecedores_robin_camaras"],
         "url": "https://www.senadorguiomard.ac.leg.br/vereadores",
+=======
+        "dado": "Vereadores no cargo hoje (sites próprios e de fornecedores das câmaras)",
+        "orgao": (
+            "Câmaras de Aracruz e Cachoeiro de Itapemirim (ES), Varjão de Minas (MG), "
+            "Nortelândia (MT), Santa Maria do Cambucá (PE) e Alvorada (TO)"
+        ),
+        "fontes": ["fornecedores_alfred_camaras"],
+        "url": "https://alvorada.to.leg.br/transparencia/vereador",
+>>>>>>> worktree-agent-a887a4c4ca5e185b3
     },
     {
         "dado": "Vereadores no cargo hoje (câmaras no Portal da Transparência da CR2)",

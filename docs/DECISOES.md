@@ -90,6 +90,7 @@
 - [2026-10-17: ingestão diária mais resiliente a falhas passageiras](#2026-10-17-ingestão-diária-mais-resiliente-a-falhas-passageiras)
 - [2026-10-17: comparador de 2 a 4 pessoas (`ids`)](#2026-10-17-comparador-de-2-a-4-pessoas-ids)
 - [2026-10-17: Senador Guiomard e Praia Grande, e as outras seis câmaras de fornecedor](#2026-10-17-senador-guiomard-e-praia-grande-e-as-outras-seis-câmaras-de-fornecedor)
+- [2026-10-17: câmaras de sites próprios e do Portal Modelo, rechecagem](#2026-10-17-câmaras-de-sites-próprios-e-do-portal-modelo-rechecagem)
 
 ## 2026-10-06: stack inicial
 
@@ -939,3 +940,12 @@ Em 15/10 (`ibge_municipios`, ConnectTimeout) e 16/10 (`senado_votacoes`, 503 num
 - **Dois leitores num módulo só** (`ingestion.camaras.fornecedores_robin`, fonte `fornecedores_robin_camaras`, semanal): `wix` (Senador Guiomard, HTML do `/vereadores`) e `esolution` (Praia Grande, o JSON que a própria página chama). Mesmo critério de `sistemas_camaras`: só vereadores em exercício, titulares, com partido; gravação pela do SAPL (ligação ao eleito do TSE); uma requisição por câmara, `User-Agent` do Panóptico e 5 s de pausa entre câmaras.
 - **Praia Grande sem foto.** O `robots.txt` do e-Solution veta `/datafiles/`, onde ficam as fotos; o JSON de dados está em `/publico/service/`, que não é vetado. Guardamos nome, partido e id, não a foto.
 - **O que o levantamento chamava de Betha, Megasoft, IPM, Fiorilli e Publicsoft era quase sempre só o portal de transparência.** Das 8 câmaras: Campos Belos (Nucleogov) e Imbuia (Portal Modelo) já tinham leitor; Carolina, Garopaba, Itatuba e São Raimundo das Mangabeiras são Portal Modelo do Interlegis (Plone) com a lista de vereadores vazia, antiga (2021–2024), atrás de login ou fora do ar, e ficam pendentes com o motivo, em vez de gravar legislatura antiga. Em Garopaba o `atende.net` (IPM) tem `robots.txt` que veta as rotas de dados da página; não contornamos.
+
+## 2026-10-17: câmaras de sites próprios e do Portal Modelo, rechecagem
+
+- **Seis câmaras entram** (`ingestion.camaras.fornecedores_alfred`): Aracruz e Cachoeiro de Itapemirim (Câmara Sem Papel / NoPaperCloud, que voltaram ao ar), Varjão de Minas, Nortelândia, Santa Maria do Cambucá e Alvorada. Um módulo à parte do `sistemas.py` (que fica como está), com a lista de câmaras no próprio código em vez do catálogo, para não mexer em `canais_curados.csv`. Cada modelo de página tem um leitor curto; a gravação é a do SAPL (inclusive a ligação ao eleito do TSE).
+- **Quem conta como vereador:** só o bloco "Ativo" das páginas da Câmara Sem Papel (suplentes e licenciados ficam de fora, como no `portal_php`), e a página precisa mostrar a legislatura que começa em 2025. Santa Maria do Cambucá: `ativo = S` e `titular = S` no JSON.
+- **Robots e ritmo:** o leitor lê o `robots.txt` do host antes e não faz o pedido que ele veda (levanta `PermissionError`; não há contorno). Uma requisição por vez, pausa de 3 s, User-Agent do Panóptico.
+- **Coleta mínima:** o JSON de Santa Maria do Cambucá traz data de nascimento, telefone, e-mail e biografia, e os cartões de Alvorada trazem nascimento, estado civil e ocupação; nada disso é lido nem entra nas fixtures de teste. Santa Maria do Cambucá não publica o partido (campo vazio): entra sem partido, em vez de adivinhar.
+- **Pendências que continuam, com a data de 17/10:** União (PI), cujo certificado TLS continua inválido (a verificação não foi desligada), e as 16 câmaras do Portal Modelo, em que uma requisição à lista de parlamentares não achou vereadores atuais (a lista está vazia, pede login ou responde 404; Tanque do Piauí tem 10 fichas, todas "Inativo"). `portal_modelo.py` não mudou.
+- **Crédito no site:** `FONTES_DE_CAMARA` (em `app/services/camaras.py`) ganhou os endereços das seis câmaras no começo do dicionário, porque "leg.br/vereadores" (portal PHP) também casaria com o portal de Santa Maria do Cambucá; e a lista de fontes de `app/services/fontes.py`, uma linha.
