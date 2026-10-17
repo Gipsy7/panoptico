@@ -1,3 +1,4 @@
+import random
 from collections import Counter
 from datetime import date
 
@@ -8,6 +9,7 @@ from app.services import ranking, votos
 from ingestion import proposicoes_comum as pc
 from ingestion import resumos
 from ingestion import votacoes_comum as vc
+from ingestion.comum import upsert_parlamentares
 from tests.test_api import _ingestao, _popular
 
 
@@ -89,6 +91,57 @@ def test_lista_de_votos_e_convergencia(session):
     assert [d["proposicao"] for d in conv["divergencias"]] == ["PL 3/2026", "PL 1/2026"]
     # C não votou em v3: só 3 votações em comum com A.
     assert votos.convergencia(session, a, c, 2026)["votacoes_em_comum"] == 3
+
+
+def test_convergencia_pares_igual_a_convergencia_por_par(session):
+    """A consulta única para todos os pares tem de devolver o mesmo que a de cada par."""
+    camara, _ = _popular(session)
+    extra = dict(camara[0], id_externo="999001", nome_parlamentar="Quarto Deputado")
+    upsert_parlamentares(session, "camara", [extra], _ingestao(session))
+    session.flush()
+    deputados_ = session.scalars(
+        select(Parlamentar).where(Parlamentar.casa == "camara").order_by(Parlamentar.id)
+    ).all()
+    senador = session.scalars(select(Parlamentar).where(Parlamentar.casa == "senado")).first()
+    assert len(deputados_) >= 4
+    pessoas = [*deputados_[:4], senador]
+
+    sorteio = random.Random(7)
+    opcoes = ["Sim", "Não", "Abstenção", "Obstrução", "Presente", "Art. 17"]
+    votacoes = [
+        {"id_externo": f"v{i}", "data": date(2026, 1 + i % 6, 1 + i % 27), "descricao": f"d{i}",
+         "proposicao": f"PL {i}/2026", "proposicao_id_externo": str(i % 9), "secreta": i % 11 == 0}
+        for i in range(120)
+    ]  # fmt: skip
+    lista_votos = [
+        {"id_externo_votacao": v["id_externo"], "parlamentar_id": p.id,
+         "voto": sorteio.choice(opcoes), "partido": "X"}
+        for v in votacoes
+        for p in deputados_[:4]
+        if sorteio.random() > 0.1
+    ]  # fmt: skip
+    vc.recarregar_votacoes(session, "camara", 2026, votacoes, lista_votos, _ingestao(session))
+    for i in range(9):
+        temas = {f"Tema {i % 3}", f"Tema {(i + 1) % 4}"}
+        if i % 2:
+            temas.add(pc.SEM_CLASSIFICACAO)
+        session.add_all(
+            ProposicaoTema(casa="camara", proposicao_id_externo=str(i), tema=t) for t in temas
+        )
+    session.flush()
+
+    por_par = votos.convergencia_pares(session, pessoas, 2026)
+    # 4 deputados = 6 pares; o senador não forma par com ninguém.
+    assert sorted(por_par) == [(i, j) for i in range(4) for j in range(i + 1, 4)]
+    algum_com_20 = False
+    for (i, j), resultado in por_par.items():
+        assert resultado == votos.convergencia(session, pessoas[i], pessoas[j], 2026)
+        assert resultado["votacoes_em_comum"] > 10
+        algum_com_20 |= len(resultado["divergencias"]) == 20
+        assert resultado["por_tema"]
+    assert algum_com_20
+    # Outro ano: nada em comum, mas o par continua presente.
+    assert votos.convergencia_pares(session, pessoas, 2025)[(0, 1)]["votacoes_em_comum"] == 0
 
 
 def test_resumo_e_lista_ordenavel(client, session):

@@ -231,26 +231,9 @@ def temas_disponiveis(session: Session, parlamentar: Parlamentar, ano: int) -> l
     )
 
 
-def convergencia(session: Session, a: Parlamentar, b: Parlamentar, ano: int) -> dict:
-    """Em quantas votações (em que os dois deram voto efetivo) votaram igual, no total e
-    por tema, e as divergências mais recentes."""
-    va, vb = aliased(Voto), aliased(Voto)
-    linhas = session.execute(
-        select(Votacao, va.voto, vb.voto)
-        .join(va, and_(va.votacao_id == Votacao.id, va.parlamentar_id == a.id))
-        .join(vb, and_(vb.votacao_id == Votacao.id, vb.parlamentar_id == b.id))
-        .where(
-            func.extract("year", Votacao.data) == ano,
-            Votacao.secreta.is_(False),
-            va.voto.in_(VOTO_EFETIVO),
-            vb.voto.in_(VOTO_EFETIVO),
-        )
-        .order_by(Votacao.data.desc(), Votacao.id.desc())
-    ).all()
-    temas = _temas_por_proposicao(
-        session, a.casa, {v.proposicao_id_externo for v, _, _ in linhas if v.proposicao_id_externo}
-    )
-
+def _resultado_convergencia(linhas, temas: dict[str, list[str]]) -> dict:
+    """Monta o resultado de uma convergência a partir de (votação, voto_a, voto_b), da mais
+    recente para a mais antiga."""
     total = Placar()
     por_tema: dict[str, Placar] = defaultdict(Placar)
     divergencias = []
@@ -285,4 +268,75 @@ def convergencia(session: Session, a: Parlamentar, b: Parlamentar, ano: int) -> 
             key=lambda x: -x["total"],
         ),
         "divergencias": divergencias,
+    }
+
+
+def convergencia(session: Session, a: Parlamentar, b: Parlamentar, ano: int) -> dict:
+    """Em quantas votações (em que os dois deram voto efetivo) votaram igual, no total e
+    por tema, e as divergências mais recentes."""
+    va, vb = aliased(Voto), aliased(Voto)
+    linhas = session.execute(
+        select(Votacao, va.voto, vb.voto)
+        .join(va, and_(va.votacao_id == Votacao.id, va.parlamentar_id == a.id))
+        .join(vb, and_(vb.votacao_id == Votacao.id, vb.parlamentar_id == b.id))
+        .where(
+            func.extract("year", Votacao.data) == ano,
+            Votacao.secreta.is_(False),
+            va.voto.in_(VOTO_EFETIVO),
+            vb.voto.in_(VOTO_EFETIVO),
+        )
+        .order_by(Votacao.data.desc(), Votacao.id.desc())
+    ).all()
+    temas = _temas_por_proposicao(
+        session, a.casa, {v.proposicao_id_externo for v, _, _ in linhas if v.proposicao_id_externo}
+    )
+    return _resultado_convergencia(linhas, temas)
+
+
+def convergencia_pares(
+    session: Session, pessoas: list[Parlamentar], ano: int
+) -> dict[tuple[int, int], dict]:
+    """A mesma `convergencia`, para todos os pares (i < j) de `pessoas` que são da mesma Casa,
+    com uma consulta de votos só (e uma de temas) em vez de uma por par. As chaves são os
+    índices em `pessoas`; pares de Casas diferentes ficam de fora."""
+    ids = [p.id for p in pessoas]
+    por_votacao: dict[int, tuple[Votacao, dict[int, str]]] = {}
+    for votacao, parlamentar_id, voto in session.execute(
+        select(Votacao, Voto.parlamentar_id, Voto.voto)
+        .join(Voto, Voto.votacao_id == Votacao.id)
+        .where(
+            Voto.parlamentar_id.in_(ids),
+            func.extract("year", Votacao.data) == ano,
+            Votacao.secreta.is_(False),
+            Voto.voto.in_(VOTO_EFETIVO),
+        )
+        .order_by(Votacao.data.desc(), Votacao.id.desc())
+    ):
+        por_votacao.setdefault(votacao.id, (votacao, {}))[1][parlamentar_id] = voto
+
+    pares = [
+        (i, j)
+        for i in range(len(pessoas))
+        for j in range(i + 1, len(pessoas))
+        if pessoas[i].casa == pessoas[j].casa
+    ]
+    linhas: dict[tuple[int, int], list] = {par: [] for par in pares}
+    for votacao, votos_da_votacao in por_votacao.values():  # já da mais recente à mais antiga
+        for i, j in pares:
+            voto_i, voto_j = votos_da_votacao.get(ids[i]), votos_da_votacao.get(ids[j])
+            if voto_i is not None and voto_j is not None:
+                linhas[(i, j)].append((votacao, voto_i, voto_j))
+
+    temas: dict[str, dict[str, list[str]]] = {}
+    for casa in {pessoas[i].casa for i, _ in pares}:
+        proposicoes = {
+            v.proposicao_id_externo
+            for (i, _), itens in linhas.items()
+            if pessoas[i].casa == casa
+            for v, _, _ in itens
+            if v.proposicao_id_externo
+        }
+        temas[casa] = _temas_por_proposicao(session, casa, proposicoes)
+    return {
+        (i, j): _resultado_convergencia(linhas[(i, j)], temas[pessoas[i].casa]) for i, j in pares
     }
