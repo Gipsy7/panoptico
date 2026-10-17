@@ -73,7 +73,7 @@ Os dados sobre o trabalho dos parlamentares já são públicos, mas estão espal
 
 ## Projeto aberto
 
-O Panóptico é **público e aberto a contribuições**. O código está todo neste repositório, os dados vêm de fontes públicas e a metodologia de cada número está documentada em [docs/DECISOES.md](docs/DECISOES.md) e na página [Sobre as fontes](https://panoptico.social.br/sobre-as-fontes). Os padrões visuais e de celular estão em [docs/DESIGN.md](docs/DESIGN.md), e o [CLAUDE.md](CLAUDE.md) resume regras e comandos para quem trabalha com agentes de código.
+O Panóptico é **público e aberto a contribuições**. O código está todo neste repositório, os dados vêm de fontes públicas e a metodologia de cada número está documentada em [docs/DECISOES.md](docs/DECISOES.md) e na página [Sobre as fontes](https://panoptico.social.br/sobre-as-fontes). Os padrões visuais e de celular estão em [docs/DESIGN.md](docs/DESIGN.md), e o [CLAUDE.md](CLAUDE.md) resume regras e comandos para quem trabalha com agentes de código. O roteiro do teste de usabilidade com pessoas que não acompanham política está em [docs/USABILIDADE.md](docs/USABILIDADE.md).
 
 Você pode ajudar de várias formas, mesmo sem programar:
 
