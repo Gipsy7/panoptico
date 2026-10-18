@@ -94,6 +94,7 @@
 - [2026-10-17: convergência numa consulta só e medição das rotas](#2026-10-17-convergência-numa-consulta-só-e-medição-das-rotas)
 - [2026-10-18: modo escuro](#2026-10-18-modo-escuro)
 - [2026-10-18: acompanhar representante só por feed Atom](#2026-10-18-acompanhar-representante-só-por-feed-atom)
+- [2026-10-18: CPF no nome de fornecedor](#2026-10-18-cpf-no-nome-de-fornecedor)
 
 ## 2026-10-06: stack inicial
 
@@ -980,3 +981,11 @@ Em 15/10 (`ibge_municipios`, ConnectTimeout) e 16/10 (`senado_votacoes`, 503 num
 - **Decisão:** quem quiser acompanhar um representante usa um feed Atom (leitor de feeds ou ferramenta de avisos). O site não coleta e-mail nem telefone para avisos.
 - **Por quê:** coleta mínima (LGPD): o feed não exige dado do cidadão nem lista de contatos para guardar e proteger.
 - **Pendente:** aviso por e-mail ou WhatsApp só entra depois de uma decisão própria de LGPD (base legal, prazo de guarda, descadastro).
+
+## 2026-10-18: CPF no nome de fornecedor
+
+- **Contexto:** MEIs aparecem nas fontes com o CNPJ certo, mas o CPF dentro do nome ("ELENISE FREIER BEIER 00594280079"). No banco de dev havia ~2.000 linhas em `despesa_fornecedor` (TCE-SP e TCE-RS) e ~1.100 em `despesa` (cota parlamentar: Câmara e Senado). `pncp_*`, `emenda_pagamento`, `emenda_transferencia`, `emenda_relator_indicacao` e `partido_despesa_vinculada` não tinham nenhum.
+- **Decisão:** uma função só, `app.textos.sem_cpf`, tira CPF do nome (11 ou 12 dígitos com ou sem pontuação, mascarado `***.123.456-**`, truncado, com o rótulo "CPF:" e o traço que sobra). CNPJ de 14 dígitos fica intacto. Aplicada em três pontos: ingestão (TCE-SP, TCE-RS, cota da Câmara e do Senado, PNCP; o bruto fica como veio), saída dos serviços que mostram nome de fornecedor ou favorecido, e a exportação aberta (que já trocava por "[CPF omitido]" e agora também cobre o CPF mascarado).
+- **Aproximação declarada:** número solto de 9 a 10 dígitos no nome também some (CPF digitado errado); um nome legítimo com número assim perderia o número.
+- **Dev:** corrigido por UPDATE nos valores distintos (os brutos grandes do TCE são só manifesto, sem `--de-raw`). **Produção:** o serviço já limpa na saída; o dado gravado só se regrava na próxima ingestão (TCE-SP mensal).
+

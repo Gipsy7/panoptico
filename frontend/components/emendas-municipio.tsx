@@ -4,12 +4,13 @@ import { FonteRodape } from "@/components/fonte-rodape";
 import type { EmendasMunicipio } from "@/lib/api";
 import { formatarReais } from "@/lib/formato";
 
-const LIMITE = 10;
+const LIMITE = 5;
 
 export function EmendasMunicipioSecao({ dados }: { dados: EmendasMunicipio }) {
   const cidade = dados.municipio.nome;
   const ultimoAno = dados.por_ano.at(-1)?.ano ?? dados.desde;
   const top = dados.parlamentares.slice(0, LIMITE);
+  const resto = dados.parlamentares.slice(LIMITE);
   const maior = Math.max(top[0]?.total ?? 0, dados.outros_autores[0]?.total ?? 0);
 
   return (
@@ -31,15 +32,30 @@ export function EmendasMunicipioSecao({ dados }: { dados: EmendasMunicipio }) {
         <>
           <dl className="grid grid-cols-2 gap-3">
             <div className="col-span-2 figura">
-              <dt className="text-sm text-muted-foreground">Total recebido</dt>
+              <dt className="text-sm text-muted-foreground">Total pago à cidade</dt>
               <dd className="numero text-4xl">
                 {formatarReais(dados.total, true)}
               </dd>
               <dd className="text-sm text-muted-foreground">
-                enviado por {dados.numero_autores}{" "}
+                pagos desde {dados.desde}, enviados por {dados.numero_autores}{" "}
                 {dados.numero_autores === 1 ? "parlamentar" : "parlamentares"}
               </dd>
             </div>
+            {dados.por_habitante != null && (
+              <div className="col-span-2 figura">
+                <dt className="text-sm text-muted-foreground">Por habitante</dt>
+                <dd className="numero text-2xl">{formatarReais(dados.por_habitante, true)}</dd>
+                {dados.media_uf_por_habitante != null && (
+                  <dd className="text-sm text-muted-foreground">
+                    Média dos {dados.municipios_na_media?.toLocaleString("pt-BR")} municípios de{" "}
+                    {dados.municipio.uf}: {formatarReais(dados.media_uf_por_habitante, true)} por habitante
+                    {dados.media_uf_descricao && (
+                      <span className="block text-xs">{dados.media_uf_descricao}</span>
+                    )}
+                  </dd>
+                )}
+              </div>
+            )}
             <div className="figura">
               <dt className="text-sm text-muted-foreground">Prefeitura e fundos municipais</dt>
               <dd className="numero text-2xl">
@@ -56,26 +72,23 @@ export function EmendasMunicipioSecao({ dados }: { dados: EmendasMunicipio }) {
 
           {top.length > 0 && (
             <div className="flex flex-col gap-2">
-              <h3 className="font-medium">Quem mais enviou (em exercício)</h3>
+              <h3 className="font-medium">Maiores valores enviados (parlamentares em exercício)</h3>
               <ul className="flex flex-col gap-3">
-                {top.map(({ parlamentar: p, total, do_estado }) => (
-                  <Barra
-                    key={p.id}
-                    href={`/parlamentar/${p.id}`}
-                    rotulo={p.nome_parlamentar}
-                    detalhe={
-                      [p.partido, p.uf].filter(Boolean).join(" · ") +
-                      (do_estado ? "" : " · outro estado")
-                    }
-                    valor={total}
-                    maior={maior}
-                  />
+                {top.map((x) => (
+                  <BarraParlamentar key={x.parlamentar.id} x={x} maior={maior} />
                 ))}
               </ul>
-              {dados.parlamentares.length > LIMITE && (
-                <p className="text-sm text-muted-foreground">
-                  E mais {dados.parlamentares.length - LIMITE} parlamentares em exercício.
-                </p>
+              {resto.length > 0 && (
+                <details className="painel">
+                  <summary className="cursor-pointer font-medium">
+                    Ver todos os {dados.parlamentares.length} (mais {resto.length})
+                  </summary>
+                  <ul className="mt-3 flex flex-col gap-3">
+                    {resto.map((x) => (
+                      <BarraParlamentar key={x.parlamentar.id} x={x} maior={maior} />
+                    ))}
+                  </ul>
+                </details>
               )}
             </div>
           )}
@@ -94,9 +107,9 @@ export function EmendasMunicipioSecao({ dados }: { dados: EmendasMunicipio }) {
           )}
 
           {(dados.por_area ?? []).length > 0 && (
-            <div className="flex flex-col gap-2">
-              <h3 className="font-medium">Para quais áreas</h3>
-              <ul className="flex flex-col gap-3">
+            <details className="painel">
+              <summary className="cursor-pointer font-medium">Para quais áreas</summary>
+              <ul className="mt-3 flex flex-col gap-3">
                 {dados.por_area.map((a) => (
                   <Barra
                     key={a.area}
@@ -107,18 +120,20 @@ export function EmendasMunicipioSecao({ dados }: { dados: EmendasMunicipio }) {
                   />
                 ))}
               </ul>
-              <p className="text-xs text-muted-foreground">
+              <p className="mt-3 text-xs text-muted-foreground">
                 Área é a função do orçamento a que a emenda pertence.
                 {dados.por_area.some((a) => a.area === "Encargos especiais") &&
                   " \"Encargos especiais\" reúne, entre outras, as transferências especiais (as \"emendas Pix\"), em que o dinheiro vai direto para o caixa da prefeitura sem área definida."}
               </p>
-            </div>
+            </details>
           )}
 
           {(dados.favorecidos ?? []).length > 0 && (
-            <div className="flex flex-col gap-2">
-              <h3 className="font-medium">Quem recebeu</h3>
-              <ul className="lista-fios flex flex-col">
+            <details className="painel">
+              <summary className="cursor-pointer font-medium">
+                Quem recebeu: os {dados.favorecidos.length} maiores
+              </summary>
+              <ul className="lista-fios mt-3 flex flex-col">
                 {dados.favorecidos.map((f) => (
                   <li key={f.cnpj} className="flex flex-col gap-1 py-3">
                     <div className="flex items-baseline justify-between gap-3">
@@ -154,13 +169,13 @@ export function EmendasMunicipioSecao({ dados }: { dados: EmendasMunicipio }) {
                   E mais {dados.numero_favorecidos - dados.favorecidos.length} que receberam valores menores.
                 </p>
               )}
-            </div>
+            </details>
           )}
 
           <p className="text-sm text-muted-foreground">
             Soma o que foi pago à prefeitura, aos fundos municipais e a entidades sem fins
             lucrativos de {cidade}. Não inclui emendas de bancada, de comissão ou de relator, nem
-            valores pagos a empresas.
+            valores pagos a empresas. Só o que já foi pago, não o que foi prometido (empenhado).
           </p>
         </>
       )}
@@ -171,6 +186,24 @@ export function EmendasMunicipioSecao({ dados }: { dados: EmendasMunicipio }) {
         atualizadoEm={dados.atualizado_em}
       />
     </section>
+  );
+}
+
+function BarraParlamentar({
+  x: { parlamentar: p, total, do_estado },
+  maior,
+}: {
+  x: EmendasMunicipio["parlamentares"][number];
+  maior: number;
+}) {
+  return (
+    <Barra
+      href={`/parlamentar/${p.id}`}
+      rotulo={p.nome_parlamentar}
+      detalhe={[p.partido, p.uf].filter(Boolean).join(" · ") + (do_estado ? "" : " · outro estado")}
+      valor={total}
+      maior={maior}
+    />
   );
 }
 

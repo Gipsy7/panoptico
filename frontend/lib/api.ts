@@ -408,6 +408,9 @@ export type ContasMunicipio = {
   receita_total: number | null;
   despesa_paga: number | null;
   despesa_por_habitante: number | null;
+  media_uf_despesa_por_habitante?: number | null;
+  municipios_na_media?: number | null;
+  media_uf_descricao?: string | null;
   camara: number | null;
   por_area: { nome: string; valor: number; percentual: number }[];
   anterior: { ano: number; despesa_paga: number | null; receita_total: number | null } | null;
@@ -578,6 +581,11 @@ export type EmendasMunicipio = {
     autores: { autor_nome: string; parlamentar_id: number | null }[];
   }[];
   numero_favorecidos: number;
+  populacao?: number | null;
+  por_habitante?: number | null;
+  media_uf_por_habitante?: number | null;
+  municipios_na_media?: number | null;
+  media_uf_descricao?: string | null;
   fonte_nome: string;
   fonte_url: string;
   atualizado_em: string | null;

@@ -6,18 +6,17 @@ import { AvisoErro } from "@/components/aviso-erro";
 import { Revelacao } from "@/components/revelacao";
 import { CompartilharWhatsApp } from "@/components/compartilhar";
 import { FonteRodape } from "@/components/fonte-rodape";
-import { EmendasMunicipioSecao } from "@/components/emendas-municipio";
 import { CamaraSecao } from "@/components/camara-secao";
 import { CanaisSecao } from "@/components/canais-secao";
-import { ContasSecao } from "@/components/contas-secao";
-import { FornecedoresPncpSecao } from "@/components/fornecedores-pncp-secao";
-import { FornecedoresSecao } from "@/components/fornecedores-secao";
 import { EleitosSecao } from "@/components/eleitos-secao";
 import { EleitosFuturosSecao } from "@/components/eleito-futuro";
 import { ExecutivoSecao } from "@/components/executivo-secao";
 import { ParlamentarCard } from "@/components/parlamentar-card";
 import {
+  type ContasMunicipio,
   type EmendasMunicipio,
+  type Fornecedores,
+  type FornecedoresPncp,
   type ParlamentarResumo,
   getDeputadosEstaduais,
   getEleitos2026,
@@ -125,7 +124,7 @@ async function Lista({ cep, uf, municipio }: Busca) {
             ? `/representantes?municipio=${localizacao.codigo_ibge}`
             : `/representantes?uf=${localizacao.uf}`
         }
-        texto={`Veja quem representa ${lugar} no Congresso e quanto cada um enviou para a cidade:`}
+        texto={`Veja quem representa ${lugar} no Congresso e para onde foi o dinheiro da cidade:`}
       />
 
       {executivo && (
@@ -149,17 +148,16 @@ async function Lista({ cep, uf, municipio }: Busca) {
         <EleitosFuturosSecao dados={eleitos2026} estado={localizacao.estado} />
       )}
 
-      {contas && localizacao.municipio && <ContasSecao dados={contas} cidade={localizacao.municipio} />}
-
-      {fornecedores && localizacao.municipio && (
-        <FornecedoresSecao dados={fornecedores} cidade={localizacao.municipio} />
+      {localizacao.codigo_ibge && localizacao.municipio && (
+        <DinheiroDaCidade
+          ibge={localizacao.codigo_ibge}
+          cidade={localizacao.municipio}
+          emendas={emendas}
+          contas={contas}
+          fornecedores={fornecedores}
+          fornecedoresPncp={fornecedoresPncp}
+        />
       )}
-
-      {fornecedoresPncp && localizacao.municipio && (
-        <FornecedoresPncpSecao dados={fornecedoresPncp} cidade={localizacao.municipio} />
-      )}
-
-      {emendas && <EmendasMunicipioSecao dados={emendas} />}
 
       {camara && localizacao.municipio && <CamaraSecao dados={camara} nome={`Câmara de ${localizacao.municipio}`} />}
 
@@ -230,7 +228,7 @@ function Secao({
       {parlamentares.length === 0 ? (
         <p className="text-muted-foreground">Nenhum dado carregado ainda.</p>
       ) : (
-        <ul className="grid border-t border-border sm:grid-cols-2 sm:gap-x-10">
+        <ul className="grid grid-cols-[minmax(0,1fr)] border-t border-border sm:grid-cols-2 sm:gap-x-10">
           {parlamentares.map((p) => (
             <li key={p.id} className="border-b border-border">
               <ParlamentarCard parlamentar={p} destaque={destaque(p.id)} />
@@ -238,6 +236,93 @@ function Secao({
           ))}
         </ul>
       )}
+    </section>
+  );
+}
+
+/** Data mais antiga entre as informadas (a mais conservadora). */
+function dataMaisAntiga(datas: (string | null | undefined)[]) {
+  const validas = datas.filter((d): d is string => Boolean(d)).sort();
+  return validas[0] ?? null;
+}
+
+function DinheiroDaCidade({
+  ibge,
+  cidade,
+  emendas,
+  contas,
+  fornecedores,
+  fornecedoresPncp,
+}: {
+  ibge: string;
+  cidade: string;
+  emendas: EmendasMunicipio | null;
+  contas: ContasMunicipio | null;
+  fornecedores: Fornecedores | null;
+  fornecedoresPncp: FornecedoresPncp | null;
+}) {
+  // Maior fornecedor nomeado: o maior valor pago pelo TCE; sem ele, o maior contrato do PNCP.
+  const tce = (fornecedores?.orgaos ?? [])
+    .flatMap((o) => o.itens)
+    .filter((f) => f.documento)
+    .sort((a, b) => b.valor_pago - a.valor_pago)[0];
+  const pncp = fornecedoresPncp?.itens.find((f) => !f.ente_publico && f.fornecedor);
+  const maior = tce
+    ? { nome: tce.fornecedor, valor: tce.valor_pago, ano: fornecedores!.ano, fonte: "pago, segundo o Tribunal de Contas" }
+    : pncp
+      ? { nome: pncp.fornecedor!, valor: pncp.valor, ano: fornecedoresPncp!.ano, fonte: "em contratos, segundo o PNCP" }
+      : null;
+  const gastoInformado = contas && contas.despesa_paga && contas.despesa_por_habitante != null;
+  const temEmendas = emendas && emendas.total > 0;
+  if (!temEmendas && !gastoInformado && !maior) return null;
+  return (
+    <section aria-labelledby="dinheiro-titulo" className="flex flex-col gap-3">
+      <h2 id="dinheiro-titulo" className="text-2xl">
+        Dinheiro de {cidade}
+      </h2>
+      <dl className="grid gap-3 sm:grid-cols-3">
+        {temEmendas && (
+          <div className="figura min-w-0">
+            <dt className="text-sm text-muted-foreground">Emendas pagas desde {emendas.desde}</dt>
+            <dd className="numero text-2xl break-words">{formatarReais(emendas.total, true)}</dd>
+          </div>
+        )}
+        {gastoInformado && contas && (
+          <div className="figura min-w-0">
+            <dt className="text-sm text-muted-foreground">Gasto da prefeitura por habitante em {contas.ano}</dt>
+            <dd className="numero text-2xl break-words">{formatarReais(contas.despesa_por_habitante!, true)}</dd>
+            {contas.media_uf_despesa_por_habitante != null && (
+              <dd className="text-xs text-muted-foreground">
+                Média dos municípios do estado: {formatarReais(contas.media_uf_despesa_por_habitante, true)}
+              </dd>
+            )}
+          </div>
+        )}
+        {maior && (
+          <div className="figura min-w-0">
+            <dt className="text-sm text-muted-foreground">Maior fornecedor em {maior.ano}</dt>
+            <dd className="numero text-2xl break-words">{formatarReais(maior.valor, true)}</dd>
+            <dd className="text-xs text-muted-foreground">
+              {maior.nome}, {maior.fonte}
+            </dd>
+          </div>
+        )}
+      </dl>
+      <Link
+        href={`/cidade/${ibge}`}
+        className="self-start text-sm font-medium text-primary underline underline-offset-4"
+      >
+        Para onde foi o dinheiro de {cidade}
+      </Link>
+      <FonteRodape
+        fonte="Portal da Transparência, Tesouro Nacional, Tribunais de Contas e PNCP"
+        url="/sobre-as-fontes"
+        atualizadoEm={dataMaisAntiga([
+          temEmendas ? emendas?.atualizado_em : null,
+          gastoInformado ? contas?.atualizado_em : null,
+          maior ? (tce ? fornecedores?.atualizado_em : fornecedoresPncp?.atualizado_em) : null,
+        ])}
+      />
     </section>
   );
 }

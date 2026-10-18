@@ -6,7 +6,15 @@ from decimal import Decimal
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
-from app.models import Emenda, EmendaPagamento, FonteIngestao, Municipio, Parlamentar
+from app.models import (
+    ContasMunicipio,
+    Emenda,
+    EmendaPagamento,
+    FonteIngestao,
+    Municipio,
+    Parlamentar,
+)
+from app.textos import sem_cpf
 from ingestion.proposicoes_comum import INICIO_LEGISLATURA
 
 FONTE_NOME = "Emendas parlamentares por favorecido (Portal da Transparência, CGU)"
@@ -59,7 +67,7 @@ def _favorecidos(pagamentos: list[EmendaPagamento], limite: int) -> tuple[list[d
         g = grupos.setdefault(
             p.favorecido_codigo,
             {
-                "nome": p.favorecido,
+                "nome": sem_cpf(p.favorecido),
                 "cnpj": p.favorecido_codigo,
                 "grupo": p.grupo,
                 "total": Decimal(0),
@@ -76,6 +84,56 @@ def _favorecidos(pagamentos: list[EmendaPagamento], limite: int) -> tuple[list[d
     for g in ordenados:
         g["autores"] = sorted(g["autores"].values(), key=lambda a: a["autor_nome"])
     return ordenados[:limite], len(ordenados)
+
+
+MEDIA_UF_DESCRICAO = (
+    "Média simples, entre os municípios do estado com população conhecida, das emendas "
+    "recebidas desde {desde} divididas pela população; quem não recebeu entra com zero. "
+    "Ficam de fora os municípios sem população nas contas do Tesouro."
+)
+
+
+def _populacao_e_media_uf(
+    session: Session, municipio: Municipio
+) -> tuple[int | None, float | None, int]:
+    """População do município e média por habitante dos municípios da UF, em uma consulta."""
+    ultimo = (
+        select(
+            ContasMunicipio.municipio_ibge.label("ibge"),
+            func.max(ContasMunicipio.ano).label("ano"),
+        )
+        .where(ContasMunicipio.populacao > 0)
+        .group_by(ContasMunicipio.municipio_ibge)
+        .subquery()
+    )
+    pago = (
+        select(
+            EmendaPagamento.municipio_ibge.label("ibge"),
+            func.sum(EmendaPagamento.valor).label("total"),
+        )
+        .group_by(EmendaPagamento.municipio_ibge)
+        .subquery()
+    )
+    razao = func.coalesce(pago.c.total, 0) / ContasMunicipio.populacao
+    media, n = session.execute(
+        select(func.avg(razao), func.count())
+        .select_from(Municipio)
+        .join(ultimo, ultimo.c.ibge == Municipio.ibge)
+        .join(
+            ContasMunicipio,
+            (ContasMunicipio.municipio_ibge == ultimo.c.ibge)
+            & (ContasMunicipio.ano == ultimo.c.ano),
+        )
+        .outerjoin(pago, pago.c.ibge == Municipio.ibge)
+        .where(Municipio.uf == municipio.uf)
+    ).one()
+    populacao = session.scalar(
+        select(ContasMunicipio.populacao)
+        .where(ContasMunicipio.municipio_ibge == municipio.ibge, ContasMunicipio.populacao > 0)
+        .order_by(ContasMunicipio.ano.desc())
+        .limit(1)
+    )
+    return populacao, (round(float(media), 2) if media is not None else None), n
 
 
 def resumo_municipio(
@@ -126,10 +184,17 @@ def resumo_municipio(
             FonteIngestao.fonte == "transparencia_emendas", FonteIngestao.status == "ok"
         )
     )
+    total_geral = sum(por_grupo.values(), start=0)
+    populacao, media_uf, n_media = _populacao_e_media_uf(session, municipio)
     return {
         "municipio": {"ibge": municipio.ibge, "nome": municipio.nome, "uf": municipio.uf},
         "desde": INICIO_LEGISLATURA.year,
-        "total": sum(por_grupo.values(), start=0),
+        "total": total_geral,
+        "populacao": populacao,
+        "por_habitante": round(float(total_geral) / populacao, 2) if populacao else None,
+        "media_uf_por_habitante": media_uf,
+        "municipios_na_media": n_media,
+        "media_uf_descricao": MEDIA_UF_DESCRICAO.format(desde=INICIO_LEGISLATURA.year),
         "total_prefeitura": por_grupo.get("prefeitura", 0),
         "total_entidades": por_grupo.get("entidade", 0),
         "por_ano": [{"ano": a, "total": t} for a, t in por_ano],

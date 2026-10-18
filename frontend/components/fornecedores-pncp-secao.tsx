@@ -32,6 +32,22 @@ function Fornecedor({ cnpj, nome, entePublico }: { cnpj: string; nome: string | 
   );
 }
 
+const VISIVEIS = 5;
+
+function ItemFornecedor({ f }: { f: FornecedoresPncp["itens"][number] }) {
+  return (
+    <li className="flex items-baseline justify-between gap-3 py-2 text-sm">
+      <span className="min-w-0">
+        <Fornecedor cnpj={f.fornecedor_cnpj} nome={f.fornecedor} entePublico={f.ente_publico} />
+        <span className="block text-sm text-muted-foreground tabular-nums">
+          {f.contratos} {f.contratos === 1 ? "contrato" : "contratos"}
+        </span>
+      </span>
+      <span className="shrink-0 tabular-nums">{formatarReais(f.valor, true)}</span>
+    </li>
+  );
+}
+
 /** Maiores fornecedores dos órgãos municipais no PNCP, no ano mais recente com dados. */
 export function FornecedoresPncpSecao({ dados, cidade }: { dados: FornecedoresPncp; cidade: string }) {
   if (dados.itens.length === 0) return null;
@@ -46,18 +62,22 @@ export function FornecedoresPncpSecao({ dados, cidade }: { dados: FornecedoresPn
         </p>
       </div>
       <ol className="lista-fios flex flex-col">
-        {dados.itens.map((f) => (
-          <li key={f.fornecedor_cnpj} className="flex items-baseline justify-between gap-3 py-2 text-sm">
-            <span className="min-w-0">
-              <Fornecedor cnpj={f.fornecedor_cnpj} nome={f.fornecedor} entePublico={f.ente_publico} />
-              <span className="block text-sm text-muted-foreground tabular-nums">
-                {f.contratos} {f.contratos === 1 ? "contrato" : "contratos"}
-              </span>
-            </span>
-            <span className="shrink-0 tabular-nums">{formatarReais(f.valor, true)}</span>
-          </li>
+        {dados.itens.slice(0, VISIVEIS).map((f) => (
+          <ItemFornecedor key={f.fornecedor_cnpj} f={f} />
         ))}
       </ol>
+      {dados.itens.length > VISIVEIS && (
+        <details className="painel">
+          <summary className="cursor-pointer font-medium">
+            Ver os outros {dados.itens.length - VISIVEIS} contratos
+          </summary>
+          <ol className="lista-fios mt-3 flex flex-col">
+            {dados.itens.slice(VISIVEIS).map((f) => (
+              <ItemFornecedor key={f.fornecedor_cnpj} f={f} />
+            ))}
+          </ol>
+        </details>
+      )}
       <p className="text-sm text-muted-foreground">
         Soma do valor global dos contratos publicados no PNCP pelos órgãos municipais, sem
         alienações{dados.soma_ate ? `, até ${formatarData(dados.soma_ate)}` : ""}. Não é o valor pago
@@ -71,9 +91,12 @@ export function FornecedoresPncpSecao({ dados, cidade }: { dados: FornecedoresPn
         </p>
       )}
       {dados.suspeitos.length > 0 && (
-        <div className="painel flex flex-col gap-2" role="note">
-          <p className="text-sm font-medium">Valores que parecem incorretos ficaram de fora</p>
-          <p className="text-sm text-muted-foreground">
+        <details className="painel" role="note">
+          <summary className="cursor-pointer font-medium">
+            {dados.suspeitos.length} {dados.suspeitos.length === 1 ? "valor ficou" : "valores ficaram"} de fora
+            por parecer{dados.suspeitos.length === 1 ? "" : "em"} erro de digitação
+          </summary>
+          <p className="mt-3 text-sm text-muted-foreground">
             Estes valores foram informados ao PNCP pelo órgão, mas passam do que a cidade paga num ano
             inteiro (ou de R$ 50 bilhões): provável erro de digitação. Não entram na soma nem na lista
             acima e não foram corrigidos; conferir na fonte.
@@ -91,7 +114,7 @@ export function FornecedoresPncpSecao({ dados, cidade }: { dados: FornecedoresPn
               </li>
             ))}
           </ul>
-        </div>
+        </details>
       )}
       <FonteRodape fonte={dados.fonte_nome} url={dados.fonte_url} atualizadoEm={dados.atualizado_em} />
     </section>

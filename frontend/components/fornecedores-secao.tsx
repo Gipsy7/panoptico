@@ -52,7 +52,7 @@ export function FornecedoresSecao({ dados, cidade }: { dados: Fornecedores; cida
         Os maiores fornecedores de cada órgão; o restante aparece somado. Pagamentos a pessoas
         físicas (servidores, autônomos, beneficiários) aparecem somados, sem nomes, e a folha de
         salários aparece separada. Por enquanto, só para cidades de São Paulo (exceto a capital,
-        fiscalizada pelo Tribunal de Contas do Município).
+        fiscalizada pelo Tribunal de Contas do Município) e do Rio Grande do Sul.
       </p>
       <FonteRodape fonte={dados.fonte_nome} url={dados.fonte_url} atualizadoEm={dados.atualizado_em} />
     </section>

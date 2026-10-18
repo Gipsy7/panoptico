@@ -131,3 +131,48 @@ def test_emendas_municipio_endpoint(client, session):
     assert corpo["outros_autores"] == [{"autor_nome": "EX DEPUTADO", "total": 30.0}]
     assert corpo["numero_autores"] == 2
     assert client.get("/municipios/0000000/emendas").status_code == 404
+
+
+def test_emendas_por_habitante_e_media_do_estado(client, session):
+    from app.models import ContasMunicipio
+
+    session.execute(
+        insert(Municipio),
+        [
+            {"ibge": "1600303", "nome": "Macapá", "uf": "AP", "nome_chave": "MACAPA"},
+            {"ibge": "1600105", "nome": "Amapá", "uf": "AP", "nome_chave": "AMAPA"},
+            {"ibge": "1600204", "nome": "Sem emenda", "uf": "AP", "nome_chave": "SEM EMENDA"},
+            {"ibge": "1600402", "nome": "Sem população", "uf": "AP", "nome_chave": "SEM POP"},
+            {"ibge": "3550308", "nome": "São Paulo", "uf": "SP", "nome_chave": "SAO PAULO"},
+        ],
+    )
+    for ibge, ano, pop in [
+        ("1600303", 2023, 999),  # ano antigo: vale o mais recente
+        ("1600303", 2024, 100),
+        ("1600105", 2024, 50),
+        ("1600204", 2024, 200),
+        ("3550308", 2024, 1),
+    ]:
+        session.add(ContasMunicipio(municipio_ibge=ibge, ano=ano, populacao=pop,
+                                    despesa_por_area={}))  # fmt: skip
+    base = {
+        "emenda_codigo": "x", "ano_emenda": 2025, "ano_mes": 202601, "autor_codigo": "1",
+        "autor_nome": "A", "favorecido": "F", "favorecido_codigo": "1", "natureza": "Município",
+        "grupo": "prefeitura", "parlamentar_id": None,
+    }  # fmt: skip
+    session.execute(
+        insert(EmendaPagamento),
+        [
+            {**base, "municipio_ibge": "1600303", "valor": Decimal("200")},  # 2,00 por hab.
+            {**base, "municipio_ibge": "1600105", "valor": Decimal("25")},  # 0,50
+            {**base, "municipio_ibge": "1600402", "valor": Decimal("777")},  # sem população
+            {**base, "municipio_ibge": "3550308", "valor": Decimal("999")},  # outra UF
+        ],
+    )  # fmt: skip
+    session.flush()
+    corpo = client.get("/municipios/1600303/emendas").json()
+    assert (corpo["populacao"], corpo["por_habitante"]) == (100, 2.0)
+    # Macapá 2,00; Amapá 0,50; "Sem emenda" entra com zero: (2 + 0,5 + 0) / 3
+    assert corpo["media_uf_por_habitante"] == 0.83
+    assert corpo["municipios_na_media"] == 3
+    assert "zero" in corpo["media_uf_descricao"]

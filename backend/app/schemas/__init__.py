@@ -569,6 +569,9 @@ class ContasMunicipioResposta(BaseModel):
     receita_total: float | None
     despesa_paga: float | None
     despesa_por_habitante: float | None
+    media_uf_despesa_por_habitante: float | None = None
+    municipios_na_media: int | None = None
+    media_uf_descricao: str | None = None
     camara: float | None
     por_area: list[AreaDespesa]
     anterior: ContasAnterior | None
@@ -596,6 +599,11 @@ class EmendasMunicipioResposta(BaseModel):
     municipio: MunicipioInfo
     desde: int
     total: float
+    populacao: int | None = None
+    por_habitante: float | None = None
+    media_uf_por_habitante: float | None = None
+    municipios_na_media: int | None = None
+    media_uf_descricao: str | None = None
     total_prefeitura: float
     total_entidades: float
     por_ano: list[EmendaAno]
