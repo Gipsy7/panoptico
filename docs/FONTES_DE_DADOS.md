@@ -251,6 +251,7 @@ Reconhecimento de 11/10/2026. As duas fontes são arquivos em lote, sem chave (a
   - texto em UTF-8 com alguns caracteres quebrados;
   - nem todo município entrega: em 2024, 5.326 de 5.571 tinham declaração;
   - a API limita a taxa de consultas (responde 429; cerca de 1 em cada 5 consultas a partir do GitHub). A carga espera o tempo do `Retry-After` e tenta de novo; um ano completo leva uns 65 minutos.
+  - **falha da API não é "sem despesa"**: até out/2026 a consulta que falhava (timeout, 5xx) virava lista vazia e a despesa ficava nula (em 2024: 405 municípios, São Paulo entre eles, apesar de a API ter a despesa paga). Agora a consulta distingue falha (None) de anexo vazio, refaz até 4 vezes e repete em até 3 rodadas só os municípios que falharam. Nulo que sobra é ausência real: 3 municípios de 2024 (2904902, 2930808, 4209508) entregaram o Anexo I-E sem a coluna "Despesas Pagas" (só empenhada/liquidada) ou vazio, e o site não mostra valor por habitante para eles (nunca R$ 0);
 - **Frequência:** anual, entregue até abril. Carga mensal.
 
 ## TCE-SP: despesas das prefeituras e câmaras paulistas
@@ -290,6 +291,8 @@ Reconhecimento de 11/10/2026. As duas fontes são arquivos em lote, sem chave (a
   - há **estornos com valor negativo** em `vl_pagamento`; entram na soma;
   - consórcios intermunicipais estão cadastrados na cidade-sede; ficam de fora (R$ 729 milhões pagos em 2025).
 - **Frequência:** o órgão envia por bimestre; o arquivo do ano é atualizado ao longo do ano seguinte (o de 2025 foi gerado em abril de 2026). Carga mensal.
+
+> **CPF no nome (TCE-SP e TCE-RS):** MEI vem com o CNPJ correto e o CPF dentro do nome do credor ("FULANO 00594280079"). O dado tratado passa por `app.textos.sem_cpf` (a mesma limpeza vale para a cota parlamentar e o PNCP); o bruto fica como veio. Ver DECISOES, "CPF no nome de fornecedor".
 
 ## TCE-MG: despesas das prefeituras e câmaras mineiras (bloqueado)
 

@@ -33,8 +33,9 @@ FUNCAO = re.compile(r"^(\d{2}) - (.+)$")  # "10 - Saúde" (subfunções têm "10
 STATUS: Counter = Counter()  # o que a API respondeu (diagnóstico no log)
 
 
-def _consultar(client: httpx.Client, ibge: str, ano: int, anexo: str) -> list[dict]:
-    """Uma consulta. Se a API pedir calma (429), espera o que ela mandar e tenta de novo."""
+def _consultar(client: httpx.Client, ibge: str, ano: int, anexo: str) -> list[dict] | None:
+    """Uma consulta. Devolve a lista (vazia se o ente não entregou o anexo) ou None se a API
+    falhou (erro de rede, 5xx, 429 sem fim): falha não pode virar "sem despesa"."""
     for tentativa in range(4):
         try:
             resposta = client.get(
@@ -44,15 +45,19 @@ def _consultar(client: httpx.Client, ibge: str, ano: int, anexo: str) -> list[di
             )
         except httpx.HTTPError as erro:
             STATUS[erro.__class__.__name__] += 1
-            return []
+            time.sleep(2 * (tentativa + 1))
+            continue
         STATUS[resposta.status_code] += 1
-        if resposta.status_code == 429 and tentativa < 3:
+        if resposta.status_code == 429 or resposta.status_code >= 500:
             time.sleep(float(resposta.headers.get("Retry-After") or 5 * (tentativa + 1)))
             continue
         if resposta.status_code != 200:
-            return []
-        return resposta.json().get("items", [])
-    return []
+            return None
+        try:
+            return resposta.json().get("items", [])
+        except ValueError:
+            return None
+    return None
 
 
 def recortar(ibge: str, receitas: list[dict], despesas: list[dict]) -> dict[str, Any] | None:
@@ -88,25 +93,39 @@ def recortar(ibge: str, receitas: list[dict], despesas: list[dict]) -> dict[str,
 
 
 def baixar(client: httpx.Client, ano: int, ibges: list[str]) -> list[dict]:
-    def um(ibge: str) -> dict | None:
-        return recortar(
-            ibge,
-            _consultar(client, ibge, ano, "DCA-Anexo I-C"),
-            _consultar(client, ibge, ano, "DCA-Anexo I-E"),
-        )
+    def um(ibge: str) -> tuple[dict | None, bool]:
+        """(recorte, completo). Incompleto = alguma consulta falhou na API."""
+        receitas = _consultar(client, ibge, ano, "DCA-Anexo I-C")
+        despesas = _consultar(client, ibge, ano, "DCA-Anexo I-E")
+        completo = receitas is not None and despesas is not None
+        return recortar(ibge, receitas or [], despesas or []), completo
 
-    resultados = []
-    with ThreadPoolExecutor(max_workers=6) as pool:
-        for i, r in enumerate(pool.map(um, ibges), start=1):
-            if r:
-                resultados.append(r)
-            if i % 250 == 0:
-                print(
-                    f"  {ano}: {i} de {len(ibges)} consultados, {len(resultados)} com contas,"
-                    f" respostas {dict(STATUS)}",
-                    flush=True,
-                )
-    return resultados
+    resultados: dict[str, dict] = {}
+    pendentes = list(ibges)
+    for rodada in range(3):  # falhas transitórias da API: repete só os que falharam
+        falhos: list[str] = []
+        with ThreadPoolExecutor(max_workers=6) as pool:
+            for i, (ibge, (r, completo)) in enumerate(
+                zip(pendentes, pool.map(um, pendentes), strict=True), 1
+            ):
+                if r:
+                    resultados[ibge] = r
+                if not completo:
+                    falhos.append(ibge)
+                if i % 250 == 0:
+                    print(
+                        f"  {ano}: {i} de {len(pendentes)} consultados, {len(resultados)} com"
+                        f" contas, respostas {dict(STATUS)}",
+                        flush=True,
+                    )
+        pendentes = falhos
+        if not pendentes:
+            break
+        print(f"  {ano}: {len(pendentes)} com consulta falha; nova rodada {rodada + 2}", flush=True)
+        time.sleep(10)
+    if pendentes:
+        print(f"  {ano}: {len(pendentes)} municípios seguem com consulta falha na API", flush=True)
+    return list(resultados.values())
 
 
 def executar(ano: int, de_raw: Path | None = None) -> int:

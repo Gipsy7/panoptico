@@ -43,3 +43,75 @@ def test_contas_do_municipio(client, session):
     assert corpo["por_area"][0] == {"nome": "Saúde", "valor": 60.0, "percentual": 85.7}
     assert corpo["anterior"]["ano"] == 2023
     assert client.get("/municipios/0000000/contas").status_code == 404
+
+
+def test_contas_media_do_estado_por_habitante(client, session):
+    session.add_all(
+        [
+            Municipio(ibge="4202404", nome="Blumenau", uf="SC", nome_chave="BLUMENAU"),
+            Municipio(ibge="4205407", nome="Florianópolis", uf="SC", nome_chave="FLORIANOPOLIS"),
+            Municipio(ibge="4200051", nome="Sem população", uf="SC", nome_chave="SEM"),
+            Municipio(ibge="4200101", nome="Outro ano", uf="SC", nome_chave="OUTRO"),
+            Municipio(ibge="3550308", nome="São Paulo", uf="SP", nome_chave="SAO PAULO"),
+        ]
+    )
+    session.flush()
+
+    def conta(ibge, ano, populacao, despesa):
+        return ContasMunicipio(municipio_ibge=ibge, ano=ano, populacao=populacao,
+                               receita_total=Decimal("1"), despesa_paga=Decimal(despesa),
+                               despesa_por_area={})  # fmt: skip
+
+    session.add_all(
+        [
+            conta("4202404", 2024, 1000, "100"),  # 0,10 por habitante
+            conta("4205407", 2024, 100, "30"),  # 0,30
+            conta("4200051", 2024, None, "500"),  # sem população: fora
+            conta("4200101", 2023, 10, "999"),  # outro ano: fora
+            conta("3550308", 2024, 10, "999"),  # outra UF: fora
+        ]
+    )
+    session.flush()
+    corpo = client.get("/municipios/4202404/contas").json()
+    assert corpo["despesa_por_habitante"] == 0.1
+    assert corpo["media_uf_despesa_por_habitante"] == 0.2  # (0,10 + 0,30) / 2
+    assert corpo["municipios_na_media"] == 2
+    assert "sem população" in corpo["media_uf_descricao"].lower()
+
+
+def test_contas_despesa_nula_nao_vira_zero(client, session):
+    session.add(Municipio(ibge="3550308", nome="São Paulo", uf="SP", nome_chave="SAO PAULO"))
+    session.flush()
+    session.add_all(
+        [
+            ContasMunicipio(municipio_ibge="3550308", ano=2024, populacao=1000,
+                            receita_total=Decimal("120"), despesa_paga=None,
+                            despesa_por_area={}),
+            ContasMunicipio(municipio_ibge="3550308", ano=2023, populacao=1000,
+                            receita_total=Decimal("100"), despesa_paga=None,
+                            despesa_por_area={}),
+        ]
+    )  # fmt: skip
+    session.flush()
+    corpo = client.get("/municipios/3550308/contas").json()
+    assert corpo["despesa_paga"] is None
+    assert corpo["despesa_por_habitante"] is None
+    assert corpo["por_area"] == [] and corpo["camara"] is None
+    assert corpo["anterior"]["despesa_paga"] is None
+
+
+def test_consulta_que_falha_nao_vira_despesa_nula(monkeypatch):
+    """Falha da API (None) é refeita; só o que a API entregou vira dado (caso São Paulo 2024)."""
+    chamadas = {"I-E": 0}
+
+    def consultar(client, ibge, ano, anexo):
+        if anexo == "DCA-Anexo I-C":
+            return RECEITAS
+        chamadas["I-E"] += 1
+        return None if chamadas["I-E"] == 1 else DESPESAS  # 1ª tentativa falha
+
+    monkeypatch.setattr(contas, "_consultar", consultar)
+    monkeypatch.setattr(contas.time, "sleep", lambda s: None)
+    [r] = contas.baixar(None, 2024, ["3550308"])
+    assert chamadas["I-E"] == 2
+    assert r["despesa_paga"] == 70.0
