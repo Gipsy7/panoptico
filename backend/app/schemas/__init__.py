@@ -1130,3 +1130,107 @@ class FornecedoresPncpResposta(BaseModel):
     fonte_nome: str
     fonte_url: str
     atualizado_em: datetime | None
+
+
+class SancaoItem(BaseModel):
+    data: date | None
+    tipo: str
+    descricao: str
+    orgao: str | None
+    numero_processo: str | None
+    situacao: str | None
+    fonte: str
+    fonte_url: str | None
+    regra: str
+    ligacao: str
+
+
+class SancoesDaPessoa(BaseModel):
+    pessoa_id: int
+    itens: list[SancaoItem]
+    fonte_nome: str
+    fonte_url: str
+    atualizado_em: datetime | None
+
+
+class CargoFederal(BaseModel):
+    funcao: str
+    sigla: str
+    nivel: str | None
+    orgao: str | None
+    origem: str
+    primeiro_mes: date
+    ultimo_mes: date
+    consta_no_cadastro_mais_recente: bool
+
+
+class ViagensDoAno(BaseModel):
+    ano: int
+    viagens: int
+    diarias: float
+    passagens: float
+    outros: float
+    devolucao: float
+    ultima_viagem: date | None
+    media_casa_viagens: float | None
+    media_casa_valor: float | None
+
+
+class CartaoDoAno(BaseModel):
+    ano: int
+    orgao: str
+    transacoes: int
+    total: float
+    saques: float
+    media_casa_total: float | None
+
+
+class MediaDaCasaFederal(BaseModel):
+    parlamentares_em_exercicio: int
+    descricao: str
+
+
+class ServicoFederalDaPessoa(BaseModel):
+    pessoa_id: int
+    regra: str | None
+    ligacao: str | None
+    cargos: list[CargoFederal]
+    viagens_por_ano: list[ViagensDoAno]
+    cartao_por_ano_e_orgao: list[CartaoDoAno]
+    media_da_casa: MediaDaCasaFederal | None
+    fonte_nome: str
+    fonte_url: str
+    atualizado_em: datetime | None
+
+
+class CandidaturaDaCarreira(BaseModel):
+    ano: int
+    cargo: str
+    uf: str
+    unidade: str
+    municipio: str | None
+    partido: str | None
+    numero: str | None
+    situacao: str | None
+    eleito: bool
+    votos: int | None
+    bens_total: float | None
+    bens_declarados: bool
+    fonte_url: str
+    regra: str
+    ligacao: str
+
+
+class RecorteDaCarreira(BaseModel):
+    texto: str
+    anos_candidaturas: list[int]
+    anos_bens: list[int]
+
+
+class CarreiraDaPessoa(BaseModel):
+    pessoa_id: int
+    itens: list[CandidaturaDaCarreira]
+    recorte: RecorteDaCarreira
+    fonte_nome: str
+    fonte_url: str
+    atualizado_em: datetime | None

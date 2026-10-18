@@ -3,19 +3,22 @@
 from datetime import date
 from typing import Annotated, Literal
 
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, Request, Response
 from sqlalchemy.orm import Session
 
 from app.db import get_session
 from app.schemas import (
+    CarreiraDaPessoa,
     CasoResposta,
     CasoResumo,
     ContratosDaPessoa,
     LinhaDoTempo,
     PessoaDoPerfil,
     PessoaResposta,
+    SancoesDaPessoa,
+    ServicoFederalDaPessoa,
 )
-from app.services import contratos_pncp, pessoas
+from app.services import contratos_pncp, cruzamentos, pessoas
 
 router = APIRouter()
 
@@ -58,6 +61,47 @@ def eventos(
 ) -> dict:
     """Linha do tempo da pessoa, com a fonte oficial de cada fato."""
     resultado = pessoas.eventos(session, pessoa_id, tipo, de, ate)
+    if resultado is None:
+        raise HTTPException(404, "Pessoa não encontrada.")
+    return resultado
+
+
+@router.get("/pessoas/{pessoa_id}/eventos.rss")
+def eventos_feed(
+    pessoa_id: int, request: Request, session: Annotated[Session, Depends(get_session)]
+) -> Response:
+    """Feed Atom 1.0 com os últimos 50 fatos oficiais da pessoa (eventos e eleições)."""
+    base = str(request.base_url).rstrip("/")
+    corpo = cruzamentos.feed_atom(
+        session, pessoa_id, f"{base}/pessoas/{pessoa_id}/eventos.rss", f"{base}/pessoas/{pessoa_id}"
+    )
+    if corpo is None:
+        raise HTTPException(404, "Pessoa não encontrada.")
+    return Response(corpo, media_type="application/atom+xml")
+
+
+@router.get("/pessoas/{pessoa_id}/sancoes", response_model=SancoesDaPessoa)
+def sancoes(pessoa_id: int, session: Annotated[Session, Depends(get_session)]) -> dict:
+    """Sanções (CGU) e decisões do TCU ligadas à pessoa, com a regra da ligação."""
+    resultado = cruzamentos.sancoes(session, pessoa_id)
+    if resultado is None:
+        raise HTTPException(404, "Pessoa não encontrada.")
+    return resultado
+
+
+@router.get("/pessoas/{pessoa_id}/servico-federal", response_model=ServicoFederalDaPessoa)
+def servico_federal(pessoa_id: int, session: Annotated[Session, Depends(get_session)]) -> dict:
+    """Cargos de confiança, viagens a serviço e cartão de pagamento do governo federal."""
+    resultado = cruzamentos.servico_federal(session, pessoa_id)
+    if resultado is None:
+        raise HTTPException(404, "Pessoa não encontrada.")
+    return resultado
+
+
+@router.get("/pessoas/{pessoa_id}/carreira", response_model=CarreiraDaPessoa)
+def carreira(pessoa_id: int, session: Annotated[Session, Depends(get_session)]) -> dict:
+    """Todas as candidaturas ligadas à pessoa, com votos e bens declarados quando há."""
+    resultado = cruzamentos.carreira(session, pessoa_id)
     if resultado is None:
         raise HTTPException(404, "Pessoa não encontrada.")
     return resultado
