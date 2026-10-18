@@ -15,7 +15,8 @@ import { FotoOuIniciais } from "@/components/eleitos-secao";
 import { ContratosSocioSecao } from "@/components/contratos-socio-secao";
 import { LinhaDoTempoSecao } from "@/components/linha-do-tempo-secao";
 import { Revelacao } from "@/components/revelacao";
-import { getCanais, getEleito, getLinhaDoTempo } from "@/lib/api";
+import { type EleitoDetalhe, getCanais, getEleito, getLinhaDoTempo } from "@/lib/api";
+import { formatarReais } from "@/lib/formato";
 
 export async function generateMetadata({ params }: PageProps<"/eleito/[id]">): Promise<Metadata> {
   const { id } = await params;
@@ -112,7 +113,7 @@ async function Perfil({ id }: { id: string }) {
 
       <CompartilharWhatsApp
         caminho={`/eleito/${e.id}`}
-        texto={`Veja os bens e a campanha de ${e.nome_urna} (${e.cargo.toLowerCase()}, ${e.unidade}), com dados oficiais do TSE:`}
+        texto={textoWhatsApp(e)}
       />
 
       {linha.ok && <AcompanharPorFeed pessoaId={linha.dados.pessoa_id} />}
@@ -164,4 +165,16 @@ function atividade(cargo: string): string {
   if (cargo.includes("Prefeito")) return "Gastos e decisões da prefeitura";
   if (cargo.includes("Governador")) return "Gastos e decisões do governo do estado";
   return "Gastos e decisões do governo federal";
+}
+
+function textoWhatsApp(e: EleitoDetalhe): string {
+  const votos = e.votos != null ? `${e.votos.toLocaleString("pt-BR")} votos` : null;
+  if (e.bens && votos) {
+    return `${e.nome_urna} declarou ${formatarReais(e.bens.total, true)} em bens ao TSE em ${e.bens.candidatura.ano} e recebeu ${votos}. Veja o perfil com dados oficiais:`;
+  }
+  if (e.bens) {
+    return `${e.nome_urna} declarou ${formatarReais(e.bens.total, true)} em bens ao TSE em ${e.bens.candidatura.ano}. Veja o perfil com dados oficiais:`;
+  }
+  if (votos) return `${e.nome_urna} recebeu ${votos} em ${e.ano_eleicao}, segundo o TSE. Veja o perfil com dados oficiais:`;
+  return `Veja os bens e a campanha de ${e.nome_urna} (${e.cargo.toLowerCase()}, ${e.unidade}), com dados oficiais do TSE:`;
 }

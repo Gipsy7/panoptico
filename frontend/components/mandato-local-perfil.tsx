@@ -103,7 +103,11 @@ export async function PerfilMandatoLocal({ id, paginaVotos }: { id: string; pagi
 
       <CompartilharWhatsApp
         caminho={rota}
-        texto={`Veja os projetos e as proposições de ${v.nome}, ${cargo.toLowerCase()}, com dados da própria ${nomeCasa}:`}
+        texto={
+          v.gastos
+            ? `${v.nome} (${cargo.toLowerCase()}) gastou ${formatarReais(v.gastos.total, true)} do gabinete em ${v.gastos.ano}, segundo a ${nomeCasa}. Veja o perfil com dados oficiais:`
+            : `${v.nome} (${cargo.toLowerCase()}) tem ${v.projetos} projetos no ano atual e no anterior, segundo a ${nomeCasa}. Veja o perfil com dados oficiais:`
+        }
       />
 
       {linha.ok && <AcompanharPorFeed pessoaId={linha.dados.pessoa_id} />}

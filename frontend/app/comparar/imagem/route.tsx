@@ -1,17 +1,12 @@
-import { ImageResponse } from "next/og";
 import type { NextRequest } from "next/server";
-import type { ReactNode } from "react";
 
 import { type ParlamentarNaLista, type ParlamentarResumo, getComparacao, getComparacaoN } from "@/lib/api";
 import { CASA_CURTA, formatarReais } from "@/lib/formato";
-import { COR_MARCA, COR_PAPEL, COR_SUAVE, COR_TINTA, LINHAS_MARCA } from "@/lib/marca-svg";
+import { COR, imagemPadrao, moldura } from "@/lib/og";
 
 // Imagem de pré-visualização do comparador. É uma rota própria (e não opengraph-image)
 // porque depende dos parâmetros da URL, que o opengraph-image não recebe.
 // Formas aceitas: ?ids=1,2,3,4 (2 a 4 pessoas) e ?a=&b= (links antigos, imagem inalterada).
-
-const TAMANHO = { width: 1200, height: 630 };
-const COR = { fundo: COR_PAPEL, texto: COR_TINTA, suave: COR_SUAVE, primaria: COR_MARCA };
 
 export async function GET(request: NextRequest) {
   const idsParam = request.nextUrl.searchParams.get("ids");
@@ -40,64 +35,6 @@ export async function GET(request: NextRequest) {
       <Lado p={d.b} />
     </div>,
     destaque,
-  );
-}
-
-function imagemPadrao() {
-  return new ImageResponse(
-    <div
-      style={{
-        width: "100%",
-        height: "100%",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        background: COR.fundo,
-        color: COR.primaria,
-        fontSize: 72,
-        fontWeight: 700,
-      }}
-    >
-      Panóptico
-    </div>,
-    TAMANHO,
-  );
-}
-
-function moldura(centro: ReactNode, destaque: string, fonteDestaque = 40) {
-  return new ImageResponse(
-    <div
-      style={{
-        width: "100%",
-        height: "100%",
-        display: "flex",
-        flexDirection: "column",
-        justifyContent: "space-between",
-        background: COR.fundo,
-        color: COR.texto,
-        padding: 64,
-      }}
-    >
-      {centro}
-      <div style={{ fontSize: fonteDestaque, textAlign: "center", display: "flex", justifyContent: "center" }}>
-        {destaque}
-      </div>
-      <div style={{ display: "flex", justifyContent: "space-between", fontSize: 26 }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          <svg width={40} height={40} viewBox="0 0 64 64" fill="none" stroke={COR.primaria} strokeLinecap="round">
-            {LINHAS_MARCA.map((l, i) => (
-              <line key={i} {...l} strokeWidth={3.6} />
-            ))}
-            <circle cx={32} cy={32} r={7.5} strokeWidth={3} />
-          </svg>
-          <div style={{ display: "flex", alignItems: "baseline", color: COR.texto, fontWeight: 700 }}>
-            Panóptico<span style={{ color: COR.primaria, fontWeight: 500 }}>.social</span>
-          </div>
-        </div>
-        <div style={{ color: COR.suave }}>Quem te representa, às claras · dados oficiais</div>
-      </div>
-    </div>,
-    TAMANHO,
   );
 }
 
