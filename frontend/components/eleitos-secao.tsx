@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { FonteRodape } from "@/components/fonte-rodape";
+import { ListaResumida } from "@/components/painel/lista-resumida";
 import { type Eleito, type ListaEleitos, urlFotoTse } from "@/lib/api";
 
 /** Vereadores de uma cidade ou deputados estaduais de um estado, como eleitos no TSE. */
@@ -10,6 +11,7 @@ export function EleitosSecao({
   explicacao,
   dados,
   recolhido = false,
+  limite,
 }: {
   id: string;
   titulo: string;
@@ -17,6 +19,8 @@ export function EleitosSecao({
   dados: ListaEleitos;
   /** Quando a câmara já mostra quem está no cargo hoje, a lista do TSE fica recolhida. */
   recolhido?: boolean;
+  /** Mostra só os primeiros; o resto fica em "Ver todos". */
+  limite?: number;
 }) {
   if (recolhido) {
     return (
@@ -45,13 +49,14 @@ export function EleitosSecao({
       {dados.itens.length === 0 ? (
         <p className="text-muted-foreground">Nenhum dado carregado ainda.</p>
       ) : (
-        <ul className="grid border-t border-border sm:grid-cols-2 sm:gap-x-10">
-          {dados.itens.map((e) => (
+        <ListaResumida
+          limite={limite}
+          itens={dados.itens.map((e) => (
             <li key={e.id} className="border-b border-border">
               <CartaoEleito eleito={e} />
             </li>
           ))}
-        </ul>
+        />
       )}
       <FonteRodape fonte={dados.fonte_nome} url={dados.fonte_url} atualizadoEm={dados.atualizado_em} />
     </section>

@@ -2,6 +2,7 @@ import Link from "next/link";
 
 import { Iniciais } from "@/components/eleitos-secao";
 import { FonteRodape } from "@/components/fonte-rodape";
+import { ListaResumida } from "@/components/painel/lista-resumida";
 import { type Camara, type VereadorItem, urlFotoTse } from "@/lib/api";
 
 /** Quem está no cargo hoje, segundo a própria casa (SAPL): câmara municipal ou assembleia. */
@@ -9,11 +10,14 @@ export function CamaraSecao({
   dados,
   nome,
   casa = "camara",
+  limite,
 }: {
   dados: Camara;
   /** "Câmara de Blumenau", "Assembleia de Roraima". */
   nome: string;
   casa?: "camara" | "assembleia";
+  /** Mostra só os primeiros; o resto fica em "Ver todos". */
+  limite?: number;
 }) {
   const id = `${casa}-titulo`;
   return (
@@ -27,8 +31,9 @@ export function CamaraSecao({
           publica: inclui suplentes que assumiram e o partido atual de cada um.
         </p>
       </div>
-      <ul className="grid border-t border-border sm:grid-cols-2 sm:gap-x-10">
-        {dados.itens.map((v) => (
+      <ListaResumida
+        limite={limite}
+        itens={dados.itens.map((v) => (
           <li key={v.id} className="border-b border-border">
             <Link
               href={`/${casa === "camara" ? "vereador" : "deputado-estadual"}/${v.id}`}
@@ -54,7 +59,7 @@ export function CamaraSecao({
             </Link>
           </li>
         ))}
-      </ul>
+      />
       <FonteRodape fonte={dados.fonte_nome} url={dados.fonte_url} atualizadoEm={dados.atualizado_em} />
     </section>
   );

@@ -1,79 +1,109 @@
-import type { Gastos, Presenca, Projetos } from "@/lib/api";
-import { formatarGastos, formatarReais } from "@/lib/formato";
+import { formatarNumero } from "@/components/painel/barra-comparacao";
+import { CartaoNumero, GradeCartoes } from "@/components/painel/cartao-numero";
+import type { Casa, CandidaturaTse, Gastos, Presenca, Projetos, Sancoes, Votos } from "@/lib/api";
+import { CASA_CURTA, formatarData, formatarGastos, formatarReaisCompacto } from "@/lib/formato";
 
-const PCT = new Intl.NumberFormat("pt-BR", { maximumFractionDigits: 0 });
-
-export type ItemResumo = { rotulo: string; valor: string; detalhe: string; ancora: string };
-type Item = ItemResumo;
-
+/**
+ * Cartões do topo do perfil federal. Cada cartão leva à seção com o detalhe (aberta em
+ * gaveta por <AbasDetalhe>, pelo id "ver-<destino>"). Cartão cujo dado falta não aparece.
+ */
 export function ResumoPerfil({
+  nome,
+  casa,
   gastos,
   presenca,
   projetos,
+  votos,
+  bens,
+  sancoes,
   subsidio,
 }: {
+  nome: string;
+  casa: Casa;
   gastos?: Gastos;
   presenca?: Presenca;
   projetos?: Projetos;
+  votos?: Votos;
+  bens?: CandidaturaTse["bens"];
+  sancoes?: Sancoes;
   subsidio: number;
 }) {
-  const itens: Item[] = [];
-  if (gastos) {
-    itens.push({
-      rotulo: `Gastos do gabinete em ${gastos.ano}`,
-      valor: formatarGastos(gastos.total, true),
-      detalhe: `Média: ${formatarReais(gastos.media_casa, true)}`,
-      ancora: "#gastos-titulo",
-    });
-  }
-  if (presenca && presenca.percentual !== null) {
-    itens.push({
-      rotulo: `Votou em ${presenca.ano}`,
-      valor: `${PCT.format(presenca.percentual)}%`,
-      detalhe:
-        presenca.media_casa_percentual === null
-          ? `${presenca.votou} de ${presenca.total_votacoes}`
-          : `Média: ${PCT.format(presenca.media_casa_percentual)}%`,
-      ancora: "#presenca-titulo",
-    });
-  }
-  if (projetos) {
-    itens.push({
-      rotulo: "Projetos como autor principal",
-      valor: String(projetos.primeiro_autor),
-      detalhe: `Média: ${projetos.media_casa_primeiro_autor.toLocaleString("pt-BR")}`,
-      ancora: "#projetos-titulo",
-    });
-  }
-  itens.push({
-    rotulo: "Salário bruto mensal",
-    valor: formatarReais(subsidio, true),
-    detalhe: "Igual para todos",
-    ancora: "#remuneracao-titulo",
-  });
+  const media = `Média ${casa === "camara" ? "da" : "do"} ${CASA_CURTA[casa]}`;
+  const governo = votos?.governo && votos.governo.total > 0 ? votos.governo : null;
 
-  return <ResumoNumeros itens={itens} />;
-}
-
-/** Os números-chave do topo do perfil, cada um levando à seção com o detalhe. */
-export function ResumoNumeros({ itens }: { itens: ItemResumo[] }) {
-  if (itens.length === 0) return null;
   return (
-    <nav aria-label="Resumo do perfil">
-      <ul className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-        {itens.map((i) => (
-          <li key={i.ancora}>
-            <a
-              href={i.ancora}
-              className="figura flex h-full flex-col gap-0.5 transition-colors duration-300 hover:border-bronze focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-bronze"
-            >
-              <span className="text-xs text-muted-foreground">{i.rotulo}</span>
-              <span className="numero text-2xl">{i.valor}</span>
-              <span className="text-xs text-muted-foreground">{i.detalhe}</span>
-            </a>
-          </li>
-        ))}
-      </ul>
-    </nav>
+    <GradeCartoes rotulo="Números principais">
+      {presenca && presenca.total_votacoes > 0 && (
+        <CartaoNumero
+          destino="presenca"
+          rotulo={`Votou em ${presenca.ano}, nas votações do Plenário`}
+          valor={String(presenca.votou)}
+          complemento={`de ${presenca.total_votacoes}`}
+          largo
+          comparacao={
+            presenca.percentual !== null && presenca.media_casa_percentual !== null
+              ? {
+                  pessoa: { rotulo: nome, valor: presenca.percentual },
+                  media: { rotulo: media, valor: presenca.media_casa_percentual },
+                  formato: "percentual",
+                  escala: 100,
+                }
+              : undefined
+          }
+        />
+      )}
+      {gastos && (
+        <CartaoNumero
+          destino="gastos"
+          rotulo={`Verba do gabinete em ${gastos.ano}`}
+          valor={gastos.total === 0 ? formatarGastos(0) : formatarReaisCompacto(gastos.total)}
+          apoio={`Média ${formatarReaisCompacto(gastos.media_casa)}`}
+        />
+      )}
+      {projetos && (
+        <CartaoNumero
+          destino="projetos"
+          rotulo={`Projetos como autor principal desde ${projetos.desde.slice(0, 4)}`}
+          valor={formatarNumero(projetos.primeiro_autor, "inteiro")}
+          apoio={`Média ${formatarNumero(projetos.media_casa_primeiro_autor, "decimal")}`}
+        />
+      )}
+      {governo && (
+        <CartaoNumero
+          destino="votos"
+          rotulo="Votou como o Governo orientou"
+          valor={`${governo.iguais} de ${governo.total}`}
+          apoio={
+            votos?.media_governo != null ? `Média ${formatarNumero(votos.media_governo, "percentual")}` : undefined
+          }
+        />
+      )}
+      {bens && (
+        <CartaoNumero
+          destino="candidatura"
+          rotulo={`Bens declarados em ${bens.candidatura.ano}`}
+          valor={formatarReaisCompacto(bens.total)}
+          apoio={
+            bens.anterior
+              ? `Em ${bens.anterior.candidatura.ano}: ${formatarReaisCompacto(bens.anterior.total)}`
+              : "Valor informado ao TSE"
+          }
+        />
+      )}
+      {sancoes && (
+        <CartaoNumero
+          destino="sancoes"
+          rotulo="Registros na CGU e no TCU"
+          valor={sancoes.itens.length === 0 ? "Nenhum" : String(sancoes.itens.length)}
+          apoio={sancoes.atualizado_em ? `Consulta de ${formatarData(sancoes.atualizado_em)}` : undefined}
+        />
+      )}
+      <CartaoNumero
+        destino="remuneracao"
+        rotulo="Salário bruto mensal"
+        valor={formatarReaisCompacto(subsidio)}
+        apoio="Igual para todos"
+      />
+    </GradeCartoes>
   );
 }

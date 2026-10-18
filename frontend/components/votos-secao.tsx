@@ -21,7 +21,7 @@ export function VotosSecao({
   const link = (pagina: number) => {
     const params = new URLSearchParams({ ano: String(dados.ano), pagina_votos: String(pagina) });
     if (dados.tema) params.set("tema", dados.tema);
-    return `/parlamentar/${parlamentarId}?${params}#votos-titulo`;
+    return `/parlamentar/${parlamentarId}?${params}#ver-votos`;
   };
 
   return (
@@ -51,17 +51,10 @@ export function VotosSecao({
           casa={casa}
         />
       </dl>
-      <p className="text-sm text-muted-foreground">
-        Contam só as votações em que deu voto (Sim, Não, Abstenção ou Obstrução).
-        {dados.governo &&
-          " Para o Governo, só quando a liderança do Governo orientou Sim, Não ou Obstrução; votações liberadas ficam de fora."}
-        {casa === "senado" &&
-          " No Senado, a maioria das votações é secreta ou não tem orientação registrada, por isso os totais são pequenos."}{" "}
-        A maioria do partido é como votaram os outros {casa === "camara" ? "deputados" : "senadores"} do
-        mesmo partido naquele dia.{" "}
-        <Link href="/sobre-as-fontes" className="underline underline-offset-2">
-          Como calculamos
-        </Link>
+      <p className="text-sm">
+        <a href="#entender-governo" className="alvo-link underline underline-offset-2">
+          Como contamos estes votos
+        </a>
       </p>
 
       {dados.temas_disponiveis.length > 0 && (

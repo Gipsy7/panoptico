@@ -525,3 +525,9 @@
     animation-delay: 0s !important;
   }
 }
+
+/* Abas do perfil: sem JS todos os painéis aparecem; com JS (html[data-js]) só o ativo, desde o
+   primeiro paint. Quando o cliente monta, passa a usar hidden="until-found" nos inativos. */
+html[data-js] [data-aba][data-ativa="false"]:not([hidden]) {
+  display: none;
+}

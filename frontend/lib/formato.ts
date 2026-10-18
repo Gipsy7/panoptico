@@ -64,4 +64,6 @@ export function formatarGastos(valor: number, curto = false): string {
 
 export const MESES = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"];
 
+/** Com artigo e preposição: "da Câmara", "do Senado". */
+export const CASA_DA: Record<Casa, string> = { camara: "da Câmara", senado: "do Senado" };
 export const CASA_CURTA: Record<Casa, string> = { camara: "Câmara", senado: "Senado" };

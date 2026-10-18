@@ -1,6 +1,6 @@
 import { FonteRodape } from "@/components/fonte-rodape";
 import type { Casa, Presenca } from "@/lib/api";
-import { CASA_CURTA, formatarData } from "@/lib/formato";
+import { CASA_DA, formatarData } from "@/lib/formato";
 
 const PCT = new Intl.NumberFormat("pt-BR", { maximumFractionDigits: 1 });
 
@@ -36,7 +36,7 @@ export function PresencaSecao({ presenca, casa }: { presenca: Presenca; casa: Ca
             </div>
             <div className="figura min-w-0">
               <dt className="text-sm text-muted-foreground">
-                Média por parlamentar do {CASA_CURTA[casa]}
+                Média por parlamentar {CASA_DA[casa]}
               </dt>
               <dd className="numero text-2xl break-words sm:text-3xl">
                 {p.media_casa_percentual === null ? "—" : `${PCT.format(p.media_casa_percentual)}%`}
@@ -84,10 +84,10 @@ export function PresencaSecao({ presenca, casa }: { presenca: Presenca; casa: Ca
             <dd className="text-right tabular-nums">{p.nao_compareceu}</dd>
           </dl>
 
-          <p className="text-sm text-muted-foreground">
-            {p.ausencia_detalhada
-              ? "Ausência justificada inclui missão oficial, licença e atividade parlamentar fora do Plenário, conforme o registro do Senado."
-              : "A Câmara publica apenas quem registrou voto. Ausências por licença ou missão oficial não aparecem separadas nestes dados."}
+          <p className="text-sm">
+            <a href="#entender-presenca" className="alvo-link underline underline-offset-2">
+              O que entra nesta conta
+            </a>
           </p>
         </>
       )}

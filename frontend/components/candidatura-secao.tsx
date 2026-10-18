@@ -75,7 +75,7 @@ export function CandidaturaSecao({
           )}
           <p className="text-sm text-muted-foreground">
             Valores como o candidato declarou, sem correção pela inflação. Bens costumam ser
-            declarados pelo valor de compra, que pode ser bem menor que o de mercado.{" "}
+            declarados pelo valor de compra, que pode ser diferente do valor de mercado.{" "}
             <a href={bens.fonte_url} target="_blank" rel="noopener noreferrer" className="underline underline-offset-2">
               Arquivo oficial
             </a>

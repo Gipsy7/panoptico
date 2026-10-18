@@ -2,7 +2,7 @@ import { TextoLongo } from "@/components/ui/texto-longo";
 import { TabelaRolavel } from "@/components/ui/tabela-rolavel";
 import { FonteRodape } from "@/components/fonte-rodape";
 import type { Casa, ProjetoItem, Projetos } from "@/lib/api";
-import { CASA_CURTA, formatarData } from "@/lib/formato";
+import { CASA_DA, formatarData } from "@/lib/formato";
 
 const NUMERO = new Intl.NumberFormat("pt-BR", { maximumFractionDigits: 1 });
 
@@ -23,7 +23,7 @@ export function ProjetosSecao({ projetos, casa }: { projetos: Projetos; casa: Ca
       <dl className="grid grid-cols-2 gap-3 sm:grid-cols-3">
         <Numero rotulo="Apresentou como autor principal" valor={projetos.primeiro_autor} />
         <Numero
-          rotulo={`Média por parlamentar do ${CASA_CURTA[casa]}`}
+          rotulo={`Média por parlamentar ${CASA_DA[casa]}`}
           valor={projetos.media_casa_primeiro_autor}
         />
         <Numero rotulo="Assinou como coautor" valor={projetos.coautor} />
@@ -71,7 +71,9 @@ export function ProjetosSecao({ projetos, casa }: { projetos: Projetos; casa: Ca
       {projetos.recentes.length > 0 ? (
         <details className="painel">
           <summary className="cursor-pointer font-medium">
-            Ver os {projetos.recentes.length} projetos mais recentes como autor principal
+            {projetos.recentes.length === 1
+              ? "Ver o projeto mais recente como autor principal"
+              : `Ver os ${projetos.recentes.length} projetos mais recentes como autor principal`}
           </summary>
           <div className="mt-3">
             <ListaProjetos itens={projetos.recentes} />

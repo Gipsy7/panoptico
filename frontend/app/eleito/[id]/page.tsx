@@ -6,7 +6,7 @@ import { notFound, redirect } from "next/navigation";
 import { AvisoErro } from "@/components/aviso-erro";
 import { SeloEleitoFuturo } from "@/components/eleito-futuro";
 import { CarreiraSecao } from "@/components/carreira-secao";
-import { SancoesSecao } from "@/components/sancoes-secao";
+import { SancoesSecao, TEXTO_REGISTRO } from "@/components/sancoes-secao";
 import { ServicoFederalSecao } from "@/components/servico-federal-secao";
 import { CandidaturaSecao } from "@/components/candidatura-secao";
 import { AcompanharPorFeed, CompartilharWhatsApp } from "@/components/compartilhar";
@@ -15,8 +15,13 @@ import { FotoOuIniciais } from "@/components/eleitos-secao";
 import { ContratosSocioSecao } from "@/components/contratos-socio-secao";
 import { LinhaDoTempoSecao } from "@/components/linha-do-tempo-secao";
 import { Revelacao } from "@/components/revelacao";
-import { type EleitoDetalhe, getCanais, getEleito, getLinhaDoTempo } from "@/lib/api";
-import { formatarReais } from "@/lib/formato";
+import { FonteRodape } from "@/components/fonte-rodape";
+import { AbasDetalhe, type AbaDetalhe } from "@/components/painel/abas-detalhe";
+import { formatarNumero } from "@/components/painel/barra-comparacao";
+import { CartaoNumero, GradeCartoes } from "@/components/painel/cartao-numero";
+import { ListaPerguntas, Pergunta } from "@/components/painel/pergunta";
+import { type EleitoDetalhe, getCanais, getCarreira, getEleito, getLinhaDoTempo, getSancoes } from "@/lib/api";
+import { formatarData, formatarReais, formatarReaisCompacto } from "@/lib/formato";
 
 export async function generateMetadata({ params }: PageProps<"/eleito/[id]">): Promise<Metadata> {
   const { id } = await params;
@@ -58,8 +63,83 @@ async function Perfil({ id }: { id: string }) {
       ? "/"
       : `/representantes?uf=${e.uf}`;
 
+  const pessoaId = linha.ok ? linha.dados.pessoa_id : null;
+  const [sancoes, carreira] = await Promise.all([
+    pessoaId !== null ? getSancoes(pessoaId) : null,
+    pessoaId !== null ? getCarreira(pessoaId) : null,
+  ]);
+  const emCargoFuturo = e.eleito_2026?.id === e.id;
+  const disputadas = carreira?.ok ? carreira.dados.itens.length : 0;
+
+  const abas: AbaDetalhe[] = [
+    {
+      id: "dinheiro",
+      rotulo: "Dinheiro",
+      secoes: [
+        {
+          id: "candidatura",
+          titulo: "Candidatura e bens",
+          conteudo: (
+            <>
+              <CandidaturaSecao dados={e} />
+              {!e.bens && !e.campanha && (
+                <p className="text-muted-foreground">
+                  O TSE não tem bens nem contas de campanha registrados para esta candidatura.
+                </p>
+              )}
+            </>
+          ),
+        },
+        {
+          id: "contratos-socio",
+          titulo: "Contratos de empresas de que é sócio",
+          conteudo: pessoaId !== null && <ContratosSocioSecao pessoaId={pessoaId} />,
+        },
+      ],
+    },
+    {
+      id: "ficha",
+      rotulo: "Ficha",
+      secoes: [
+        {
+          id: "quem-e",
+          titulo: "Quem é",
+          conteudo: (
+            <QuemESecao pessoais={e.pessoais} votos={e.votos != null ? { ano: e.ano_eleicao, total: e.votos } : null} />
+          ),
+        },
+        {
+          id: "carreira",
+          titulo: "Eleições disputadas",
+          conteudo: pessoaId !== null && <CarreiraSecao pessoaId={pessoaId} />,
+        },
+        {
+          id: "linha-do-tempo",
+          titulo: "Linha do tempo",
+          conteudo: linha.ok && <LinhaDoTempoSecao dados={linha.dados} />,
+        },
+        {
+          id: "servico-federal",
+          titulo: "Trabalho no governo federal",
+          conteudo: pessoaId !== null && <ServicoFederalSecao pessoaId={pessoaId} />,
+        },
+      ],
+    },
+    {
+      id: "justica",
+      rotulo: "Justiça",
+      secoes: [
+        {
+          id: "sancoes",
+          titulo: "Punições e contas reprovadas",
+          conteudo: pessoaId !== null && <SancoesSecao pessoaId={pessoaId} explicacao="#entender-registro" />,
+        },
+      ],
+    },
+  ];
+
   return (
-    <article className="pagina-secoes">
+    <article data-largura="larga" className="pagina-secoes">
       <header className="flex items-start gap-4">
         <FotoOuIniciais eleito={e} tamanho={72} />
         <div className="flex min-w-0 flex-col gap-1">
@@ -79,45 +159,6 @@ async function Perfil({ id }: { id: string }) {
 
       {e.eleito_2026 && <SeloEleitoFuturo eleito={e.eleito_2026} atualizadoEm={e.atualizado_em} />}
 
-      <QuemESecao pessoais={e.pessoais} votos={e.votos != null ? { ano: e.ano_eleicao, total: e.votos } : null} />
-
-      {e.eleito_2026?.id !== e.id && (
-      <section aria-labelledby="atividade-titulo" className="flex flex-col gap-3">
-        <h2 id="atividade-titulo" className="text-2xl">
-          No cargo
-        </h2>
-        <p className="text-sm text-muted-foreground">
-          {e.cargo !== "Vereador"
-            ? `${atividade(e.cargo)} ainda não estão no site. Por enquanto, aparece o que o TSE publica sobre a eleição.`
-            : temSapl
-              ? `A câmara de ${e.unidade} publica quem está no cargo hoje, mas este nome não aparece na lista dela: a pessoa pode ter deixado o cargo ou usar lá outro nome. Veja a lista da câmara na página da cidade.`
-              : `A câmara de ${e.unidade} não publica votações e projetos num formato de dados abertos que o Panóptico consiga ler (o sistema SAPL, do Interlegis). Por isso, aqui aparece só o que o TSE publica sobre a eleição.`}{" "}
-          Mudanças depois da eleição (suplente que assumiu, renúncia, cassação) também não aparecem nesta parte.
-        </p>
-        {canais?.ok && canais.dados.itens.length > 0 && (
-          <div className="flex flex-col gap-1">
-            <p className="text-sm">Os canais oficiais da cidade:</p>
-            <ul className="flex flex-wrap gap-x-4 gap-y-1 text-sm">
-              {canais.dados.itens.map((c) => (
-                <li key={c.tipo}>
-                  <a href={c.url} target="_blank" rel="noopener noreferrer" className="underline underline-offset-2">
-                    {NOME_CANAL[c.tipo] ?? c.tipo}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
-      </section>
-      )}
-
-      <CompartilharWhatsApp
-        caminho={`/eleito/${e.id}`}
-        texto={textoWhatsApp(e)}
-      />
-
-      {linha.ok && <AcompanharPorFeed pessoaId={linha.dados.pessoa_id} />}
-
       {e.depois && (
         <p className="text-sm">
           Eleito depois para{" "}
@@ -128,21 +169,124 @@ async function Perfil({ id }: { id: string }) {
         </p>
       )}
 
-      {linha.ok && <SancoesSecao pessoaId={linha.dados.pessoa_id} />}
+      <GradeCartoes rotulo="Números principais">
+        {e.votos != null && (
+          <CartaoNumero
+            destino="quem-e"
+            rotulo={`Votos recebidos em ${e.ano_eleicao}`}
+            valor={formatarNumero(e.votos, "inteiro")}
+            apoio="Número informado pelo TSE"
+          />
+        )}
+        {e.bens && (
+          <CartaoNumero
+            destino="candidatura"
+            rotulo={`Bens declarados em ${e.bens.candidatura.ano}`}
+            valor={formatarReaisCompacto(e.bens.total)}
+            apoio={
+              e.bens.anterior
+                ? `Em ${e.bens.anterior.candidatura.ano}: ${formatarReaisCompacto(e.bens.anterior.total)}`
+                : "Valor informado ao TSE"
+            }
+          />
+        )}
+        {e.campanha && (
+          <CartaoNumero
+            destino="candidatura"
+            rotulo={`Dinheiro arrecadado na campanha de ${e.campanha.candidatura.ano}`}
+            valor={formatarReaisCompacto(e.campanha.receitas_total)}
+            apoio={`Gasto declarado: ${formatarReaisCompacto(e.campanha.despesas_total)}`}
+          />
+        )}
+        {disputadas > 0 && (
+          <CartaoNumero destino="carreira" rotulo="Eleições que disputou" valor={String(disputadas)} apoio="Candidaturas no TSE" />
+        )}
+        {sancoes?.ok && (
+          <CartaoNumero
+            destino="sancoes"
+            rotulo="Registros na CGU e no TCU"
+            valor={sancoes.dados.itens.length === 0 ? "Nenhum" : String(sancoes.dados.itens.length)}
+            apoio={sancoes.dados.atualizado_em ? `Consulta de ${formatarData(sancoes.dados.atualizado_em)}` : undefined}
+          />
+        )}
+      </GradeCartoes>
+      <p className="text-sm text-muted-foreground">Toque num número para ver o detalhe, com a fonte e a data.</p>
 
-      {linha.ok && <LinhaDoTempoSecao dados={linha.dados} />}
+      <CompartilharWhatsApp caminho={`/eleito/${e.id}`} texto={textoWhatsApp(e)} />
 
-      {linha.ok && <ServicoFederalSecao pessoaId={linha.dados.pessoa_id} />}
+      {linha.ok && <AcompanharPorFeed pessoaId={linha.dados.pessoa_id} />}
 
-      {linha.ok && <ContratosSocioSecao pessoaId={linha.dados.pessoa_id} />}
+      <ListaPerguntas titulo="Para entender os números">
+        {!emCargoFuturo && (
+          <Pergunta
+            id="entender-cargo"
+            pergunta="Por que não aparecem os gastos e os votos no cargo?"
+            resposta="Aqui aparece o que o TSE publica sobre a eleição"
+          >
+            <p>
+              {e.cargo !== "Vereador"
+                ? `${atividade(e.cargo)} ainda não estão no site. Por enquanto, aparece o que o TSE publica sobre a eleição.`
+                : temSapl
+                  ? `A câmara de ${e.unidade} publica quem está no cargo hoje, mas este nome não aparece na lista dela: a pessoa pode ter deixado o cargo ou usar lá outro nome. Veja a lista da câmara na página da cidade.`
+                  : `A câmara de ${e.unidade} não publica votações e projetos num formato de dados abertos que o Panóptico consiga ler (o sistema SAPL, do Interlegis). Por isso, aqui aparece só o que o TSE publica sobre a eleição.`}{" "}
+              Mudanças depois da eleição (suplente que assumiu, renúncia, cassação) também não aparecem aqui.
+            </p>
+            {canais?.ok && canais.dados.itens.length > 0 && (
+              <div className="flex flex-col gap-1">
+                <p>Os canais oficiais da cidade:</p>
+                <ul className="flex flex-wrap gap-x-4 gap-y-1">
+                  {canais.dados.itens.map((c) => (
+                    <li key={c.tipo}>
+                      <a
+                        href={c.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="alvo-link underline underline-offset-2"
+                      >
+                        {NOME_CANAL[c.tipo] ?? c.tipo}
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </Pergunta>
+        )}
+        {(e.bens || e.campanha) && (
+          <Pergunta
+            id="entender-bens"
+            pergunta="De onde vêm os bens e o dinheiro da campanha?"
+            resposta="Do que a pessoa declarou ao TSE ao se candidatar"
+          >
+            <p>
+              Os bens são os que a própria pessoa declarou ao registrar a candidatura, com o valor que ela informou. As
+              receitas e despesas vêm da prestação de contas da campanha. O TSE não confere o valor de mercado dos bens.
+            </p>
+            <FonteRodape fonte={e.fonte_nome} url={e.fonte_url} atualizadoEm={e.atualizado_em} />
+          </Pergunta>
+        )}
+        {pessoaId !== null && (
+          <Pergunta
+            id="entender-registro"
+            pergunta="O que é um registro na CGU e no TCU?"
+            resposta="Uma punição ou decisão que um órgão público registrou"
+          >
+            <p>
+              A Controladoria-Geral da União (CGU) mantém os cadastros de quem foi punido por órgãos públicos{" "}
+              <span className="text-muted-foreground">(CEIS, CNEP e CEAF)</span>. O Tribunal de Contas da União (TCU)
+              publica quem teve as contas julgadas irregulares ou foi proibido de exercer cargo público.
+            </p>
+            <p>{TEXTO_REGISTRO}</p>
+            <p>
+              <a href="#ver-sancoes" className="alvo-link underline underline-offset-2">
+                Ver os registros desta pessoa
+              </a>
+            </p>
+          </Pergunta>
+        )}
+      </ListaPerguntas>
 
-      {linha.ok && <CarreiraSecao pessoaId={linha.dados.pessoa_id} />}
-
-      <CandidaturaSecao dados={e} />
-
-      {!e.bens && !e.campanha && (
-        <p className="text-muted-foreground">O TSE não tem bens nem contas de campanha registrados para esta candidatura.</p>
-      )}
+      <AbasDetalhe titulo="Tudo em detalhe" abas={abas} />
 
       <Link href={voltar} className="self-start text-sm underline underline-offset-4">
         {e.uf === "BR" ? "Voltar ao início" : `Ver os outros eleitos de ${e.unidade}`}

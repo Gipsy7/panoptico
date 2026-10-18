@@ -45,6 +45,7 @@ export function PresencaLocalSecao({ v, nomeCasa }: { v: VereadorDetalhe; nomeCa
           </p>
         </>
       )}
+      <FonteRodape fonte={v.fonte_nome} url={v.fonte_url} atualizadoEm={v.atualizado_em} />
     </section>
   );
 }
@@ -178,6 +179,7 @@ export function GastosLocaisSecao({ v, nomeCasa }: { v: VereadorDetalhe; nomeCas
         Valores reembolsados como a {nomeCasa} publica, por mês de fechamento. A média inclui quem
         está no cargo hoje; quem não pediu reembolso entra com zero.
       </p>
+      <FonteRodape fonte={v.fonte_nome} url={v.fonte_url} atualizadoEm={v.atualizado_em} />
     </section>
   );
 }

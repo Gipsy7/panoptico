@@ -2,7 +2,7 @@ import Link from "next/link";
 
 import { FonteRodape } from "@/components/fonte-rodape";
 import type { Casa, Gastos } from "@/lib/api";
-import { CASA_CURTA, MESES, formatarData, formatarGastos, formatarReais } from "@/lib/formato";
+import { CASA_DA, MESES, formatarData, formatarGastos, formatarReais } from "@/lib/formato";
 
 export function GastosSecao({
   gastos,
@@ -31,7 +31,7 @@ export function GastosSecao({
             {gastos.anos_disponiveis.map((ano) => (
               <Link
                 key={ano}
-                href={`/parlamentar/${parlamentarId}?ano=${ano}`}
+                href={`/parlamentar/${parlamentarId}?ano=${ano}#ver-gastos`}
                 scroll={false}
                 aria-current={ano === gastos.ano ? "page" : undefined}
                 className="px-1 py-1 text-sm text-muted-foreground underline-offset-8 transition-colors hover:text-foreground aria-[current=page]:text-foreground aria-[current=page]:underline aria-[current=page]:decoration-bronze aria-[current=page]:decoration-2"
@@ -52,7 +52,7 @@ export function GastosSecao({
           <dd className="numero text-2xl break-words sm:text-3xl">{formatarGastos(gastos.total, true)}</dd>
         </div>
         <div className="figura min-w-0">
-          <dt className="text-sm text-muted-foreground">Média por parlamentar do {CASA_CURTA[casa]}</dt>
+          <dt className="text-sm text-muted-foreground">Média por parlamentar {CASA_DA[casa]}</dt>
           <dd className="numero text-2xl break-words sm:text-3xl">
             {formatarReais(gastos.media_casa, true)}
           </dd>

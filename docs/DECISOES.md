@@ -95,6 +95,7 @@
 - [2026-10-18: modo escuro](#2026-10-18-modo-escuro)
 - [2026-10-18: acompanhar representante só por feed Atom](#2026-10-18-acompanhar-representante-só-por-feed-atom)
 - [2026-10-18: CPF no nome de fornecedor](#2026-10-18-cpf-no-nome-de-fornecedor)
+- [2026-10-18: telas em cartões, perguntas e abas](#2026-10-18-telas-em-cartões-perguntas-e-abas)
 
 ## 2026-10-06: stack inicial
 
@@ -989,3 +990,9 @@ Em 15/10 (`ibge_municipios`, ConnectTimeout) e 16/10 (`senado_votacoes`, 503 num
 - **Aproximação declarada:** número solto de 9 a 10 dígitos no nome também some (CPF digitado errado); um nome legítimo com número assim perderia o número.
 - **Dev:** corrigido por UPDATE nos valores distintos (os brutos grandes do TCE são só manifesto, sem `--de-raw`). **Produção:** o serviço já limpa na saída; o dado gravado só se regrava na próxima ingestão (TCE-SP mensal).
 
+## 2026-10-18: telas em cartões, perguntas e abas
+
+- **Contexto:** depois das seções novas, perfis e páginas de cidade viraram uma coluna longa (perfil federal ~14 mil px, representantes de SP ~25 mil px em 360 px). Três protótipos interativos com dados reais (cartões, abas, perguntas) foram mostrados a usuários; a preferência foi pelos cartões no topo, com as outras duas ideias guardadas para o que pede explicação.
+- **Decisão ("mescla"):** de cima para baixo, (1) cartões com o número grande, a palavra do dia a dia e a barra contra a média da Casa ou do estado, na mesma escala, bronze para a pessoa ou cidade e cinza para a média; o toque abre a seção numa gaveta; (2) "Para entender os números": perguntas em `<details>` para o que tem nuance (presença, orientação do Governo, registro na CGU, média do estado), para onde migram as ressalvas que estavam espalhadas; (3) "Tudo em detalhe": abas com as seções completas.
+- **Um DOM só:** cada seção existe uma vez, dentro de uma aba; o cartão é um link `#ver-<secao>` e o componente das abas apresenta o painel como gaveta (`history.pushState`, então o Voltar do celular fecha). Sem JavaScript, todos os painéis aparecem empilhados e os links rolam até eles. Componentes em `frontend/components/painel/`.
+- **Resultado:** perfil federal 14 mil → 5,4 mil px; cidade de SP 4 mil → 3,4 mil; representantes de SP 25 mil → 2,8 mil.

@@ -10,9 +10,20 @@ const ROTULO_TIPO: Record<string, string> = {
   tcu_inabilitacao: "Inabilitação para cargo público pelo TCU",
 };
 
+/** O que é um registro nos cadastros da CGU e do TCU (também usado na pergunta do perfil). */
+export const TEXTO_REGISTRO =
+  "Um registro nestes cadastros é a informação do órgão que o mantém; a situação de cada um é a que a fonte informa, e pode ter mudado depois da data de atualização.";
+
 /** Sanções (CEIS, CNEP, CEAF) e decisões do TCU ligadas à pessoa por dado seguro. Sem
  * adjetivo: o fato, o órgão, a data e a situação que a fonte informa. */
-export async function SancoesSecao({ pessoaId }: { pessoaId: number }) {
+export async function SancoesSecao({
+  pessoaId,
+  explicacao,
+}: {
+  pessoaId: number;
+  /** Âncora de uma pergunta que já explica o que é um registro; troca o parágrafo por um link. */
+  explicacao?: string;
+}) {
   const resultado = await getSancoes(pessoaId);
   if (!resultado.ok) return null;
   const d = resultado.dados;
@@ -46,10 +57,17 @@ export async function SancoesSecao({ pessoaId }: { pessoaId: number }) {
         </>
       )}
 
-      <p className="text-sm text-muted-foreground">
-        Um registro nestes cadastros é a informação do órgão que o mantém; a situação de cada um é a
-        que a fonte informa, e pode ter mudado depois da data de atualização.
-      </p>
+      {explicacao ? (
+        <p className="text-sm">
+          <a href={explicacao} className="alvo-link underline underline-offset-2">
+            O que é um registro nestes cadastros
+          </a>
+        </p>
+      ) : (
+        <p className="text-sm text-muted-foreground">
+          {TEXTO_REGISTRO}
+        </p>
+      )}
       <FonteRodape fonte={d.fonte_nome} url={d.fonte_url} atualizadoEm={d.atualizado_em} />
     </section>
   );
