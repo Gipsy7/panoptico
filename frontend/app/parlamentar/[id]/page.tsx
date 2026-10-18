@@ -7,9 +7,12 @@ import { AvisoErro } from "@/components/aviso-erro";
 import { Revelacao } from "@/components/revelacao";
 import { IndicePerfil, type ItemIndice } from "@/components/indice-perfil";
 import { Migalhas } from "@/components/ui/migalhas";
-import { CompartilharWhatsApp } from "@/components/compartilhar";
+import { AcompanharPorFeed, CompartilharWhatsApp } from "@/components/compartilhar";
 import { FonteRodape } from "@/components/fonte-rodape";
 import { SeloEleitoFuturo } from "@/components/eleito-futuro";
+import { CarreiraSecao } from "@/components/carreira-secao";
+import { SancoesSecao } from "@/components/sancoes-secao";
+import { ServicoFederalSecao } from "@/components/servico-federal-secao";
 import { CandidaturaSecao } from "@/components/candidatura-secao";
 import { QuemESecao } from "@/components/dados-pessoais";
 import { ComissoesSecao } from "@/components/comissoes-secao";
@@ -119,7 +122,10 @@ async function Perfil({
     destino.ok && { id: "destino-emendas-titulo", rotulo: "Emendas" },
     relator.ok && { id: "emendas-relator-titulo", rotulo: "Emendas de relator" },
     temas.ok && { id: "temas-titulo", rotulo: "Temas" },
+    linha.ok && { id: "sancoes-titulo", rotulo: "Punições" },
     linha.ok && { id: "linha-do-tempo-titulo", rotulo: "Linha do tempo" },
+    linha.ok && { id: "servico-federal-titulo", rotulo: "Governo federal" },
+    linha.ok && { id: "carreira-titulo", rotulo: "Eleições disputadas" },
     candidatura.ok && { id: "tse-titulo", rotulo: "Candidatura" },
     { id: "remuneracao-titulo", rotulo: "Remuneração" },
   ];
@@ -183,6 +189,8 @@ async function Perfil({
         texto={`Veja os gastos, a presença e os projetos de ${p.nome_parlamentar} (${NOME_CASA[p.casa]}), com dados oficiais:`}
       />
 
+      {linha.ok && <AcompanharPorFeed pessoaId={linha.dados.pessoa_id} />}
+
       {gastos.ok ? (
         <GastosSecao gastos={gastos.dados} casa={p.casa} parlamentarId={p.id} />
       ) : (
@@ -203,9 +211,15 @@ async function Perfil({
 
       {temas.ok && <TemasSecao dados={temas.dados} casa={p.casa} />}
 
+      {linha.ok && <SancoesSecao pessoaId={linha.dados.pessoa_id} />}
+
       {linha.ok && <LinhaDoTempoSecao dados={linha.dados} />}
 
+      {linha.ok && <ServicoFederalSecao pessoaId={linha.dados.pessoa_id} />}
+
       {linha.ok && <ContratosSocioSecao pessoaId={linha.dados.pessoa_id} />}
+
+      {linha.ok && <CarreiraSecao pessoaId={linha.dados.pessoa_id} />}
 
       {candidatura.ok && <CandidaturaSecao dados={candidatura.dados} />}
 

@@ -5,8 +5,11 @@ import { notFound, redirect } from "next/navigation";
 
 import { AvisoErro } from "@/components/aviso-erro";
 import { SeloEleitoFuturo } from "@/components/eleito-futuro";
+import { CarreiraSecao } from "@/components/carreira-secao";
+import { SancoesSecao } from "@/components/sancoes-secao";
+import { ServicoFederalSecao } from "@/components/servico-federal-secao";
 import { CandidaturaSecao } from "@/components/candidatura-secao";
-import { CompartilharWhatsApp } from "@/components/compartilhar";
+import { AcompanharPorFeed, CompartilharWhatsApp } from "@/components/compartilhar";
 import { QuemESecao } from "@/components/dados-pessoais";
 import { FotoOuIniciais } from "@/components/eleitos-secao";
 import { ContratosSocioSecao } from "@/components/contratos-socio-secao";
@@ -112,6 +115,8 @@ async function Perfil({ id }: { id: string }) {
         texto={`Veja os bens e a campanha de ${e.nome_urna} (${e.cargo.toLowerCase()}, ${e.unidade}), com dados oficiais do TSE:`}
       />
 
+      {linha.ok && <AcompanharPorFeed pessoaId={linha.dados.pessoa_id} />}
+
       {e.depois && (
         <p className="text-sm">
           Eleito depois para{" "}
@@ -122,9 +127,15 @@ async function Perfil({ id }: { id: string }) {
         </p>
       )}
 
+      {linha.ok && <SancoesSecao pessoaId={linha.dados.pessoa_id} />}
+
       {linha.ok && <LinhaDoTempoSecao dados={linha.dados} />}
 
+      {linha.ok && <ServicoFederalSecao pessoaId={linha.dados.pessoa_id} />}
+
       {linha.ok && <ContratosSocioSecao pessoaId={linha.dados.pessoa_id} />}
+
+      {linha.ok && <CarreiraSecao pessoaId={linha.dados.pessoa_id} />}
 
       <CandidaturaSecao dados={e} />
 

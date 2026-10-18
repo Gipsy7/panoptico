@@ -5,8 +5,11 @@ import { notFound } from "next/navigation";
 import { GastosLocaisSecao, PresencaLocalSecao, VotacoesLocaisSecao } from "@/components/atividade-local";
 import { AvisoErro } from "@/components/aviso-erro";
 import { FotoVereador } from "@/components/camara-secao";
+import { CarreiraSecao } from "@/components/carreira-secao";
+import { SancoesSecao } from "@/components/sancoes-secao";
+import { ServicoFederalSecao } from "@/components/servico-federal-secao";
 import { CandidaturaSecao } from "@/components/candidatura-secao";
-import { CompartilharWhatsApp } from "@/components/compartilhar";
+import { AcompanharPorFeed, CompartilharWhatsApp } from "@/components/compartilhar";
 import { QuemESecao } from "@/components/dados-pessoais";
 import { FonteRodape } from "@/components/fonte-rodape";
 import { ContratosSocioSecao } from "@/components/contratos-socio-secao";
@@ -103,6 +106,8 @@ export async function PerfilMandatoLocal({ id, paginaVotos }: { id: string; pagi
         texto={`Veja os projetos e as proposições de ${v.nome}, ${cargo.toLowerCase()}, com dados da própria ${nomeCasa}:`}
       />
 
+      {linha.ok && <AcompanharPorFeed pessoaId={linha.dados.pessoa_id} />}
+
       <GastosLocaisSecao v={v} nomeCasa={nomeCasa} />
 
       <PresencaLocalSecao v={v} nomeCasa={nomeCasa} />
@@ -175,9 +180,15 @@ export async function PerfilMandatoLocal({ id, paginaVotos }: { id: string; pagi
         <FonteRodape fonte={v.fonte_nome} url={v.fonte_url} atualizadoEm={v.atualizado_em} />
       </section>
 
+      {linha.ok && <SancoesSecao pessoaId={linha.dados.pessoa_id} />}
+
       {linha.ok && <LinhaDoTempoSecao dados={linha.dados} />}
 
+      {linha.ok && <ServicoFederalSecao pessoaId={linha.dados.pessoa_id} />}
+
       {linha.ok && <ContratosSocioSecao pessoaId={linha.dados.pessoa_id} />}
+
+      {linha.ok && <CarreiraSecao pessoaId={linha.dados.pessoa_id} />}
 
       {eleicao?.ok && (
         <CandidaturaSecao dados={eleicao.dados} />

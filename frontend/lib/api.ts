@@ -1012,3 +1012,113 @@ export type FornecedoresPncp = {
 export function getFornecedoresPncp(ibge: string) {
   return getJson<FornecedoresPncp>(`/municipios/${encodeURIComponent(ibge)}/fornecedores-pncp`);
 }
+
+export type SancaoItem = {
+  data: string | null;
+  tipo: string;
+  descricao: string;
+  orgao: string | null;
+  numero_processo: string | null;
+  situacao: string | null;
+  fonte: string | null;
+  fonte_url: string | null;
+  regra: string | null;
+  ligacao: string | null;
+};
+
+export type Sancoes = {
+  pessoa_id: number;
+  itens: SancaoItem[];
+  fonte_nome: string;
+  fonte_url: string;
+  atualizado_em: string | null;
+};
+
+export function getSancoes(pessoaId: number) {
+  return getJson<Sancoes>(`/pessoas/${pessoaId}/sancoes`);
+}
+
+export type CargoFederal = {
+  funcao: string | null;
+  sigla: string | null;
+  nivel: string | null;
+  orgao: string | null;
+  origem: string | null;
+  primeiro_mes: string | null;
+  ultimo_mes: string | null;
+  consta_no_cadastro_mais_recente: boolean;
+};
+
+export type ViagensPorAno = {
+  ano: number;
+  viagens: number;
+  diarias: number;
+  passagens: number;
+  outros: number;
+  devolucao: number;
+  ultima_viagem: string | null;
+  media_casa_viagens: number | null;
+  media_casa_valor: number | null;
+};
+
+export type CartaoPorAnoEOrgao = {
+  ano: number;
+  orgao: string | null;
+  transacoes: number;
+  total: number;
+  saques: number;
+  media_casa_total: number | null;
+};
+
+export type ServicoFederal = {
+  pessoa_id: number;
+  regra: string | null;
+  ligacao: string | null;
+  cargos: CargoFederal[];
+  viagens_por_ano: ViagensPorAno[];
+  cartao_por_ano_e_orgao: CartaoPorAnoEOrgao[];
+  media_da_casa: { parlamentares_em_exercicio: number; descricao: string } | null;
+  fonte_nome: string;
+  fonte_url: string;
+  atualizado_em: string | null;
+};
+
+export function getServicoFederal(pessoaId: number) {
+  return getJson<ServicoFederal>(`/pessoas/${pessoaId}/servico-federal`);
+}
+
+export type CandidaturaDaCarreira = {
+  ano: number;
+  cargo: string;
+  uf: string | null;
+  unidade: string | null;
+  municipio: string | null;
+  partido: string | null;
+  numero: string | number | null;
+  situacao: string | null;
+  eleito: boolean | null;
+  votos: number | null;
+  bens_total: number | null;
+  bens_declarados: boolean | null;
+  fonte_url: string | null;
+  regra: string | null;
+  ligacao: string | null;
+};
+
+export type Carreira = {
+  pessoa_id: number;
+  itens: CandidaturaDaCarreira[];
+  recorte: { texto: string; anos_candidaturas: number[]; anos_bens: number[] };
+  fonte_nome: string;
+  fonte_url: string;
+  atualizado_em: string | null;
+};
+
+export function getCarreira(pessoaId: number) {
+  return getJson<Carreira>(`/pessoas/${pessoaId}/carreira`);
+}
+
+/** Feed (Atom) público dos fatos novos da pessoa. */
+export function urlFeedDaPessoa(pessoaId: number) {
+  return `${API_PUBLICA}/pessoas/${pessoaId}/eventos.rss`;
+}

@@ -6,7 +6,7 @@ import { formatarData } from "@/lib/formato";
 
 /** Grupos da linha do tempo, na ordem em que aparecem. Tipos novos caem em "Outros
  * registros" até ganharem um grupo aqui. */
-const GRUPOS: { titulo: string; detalhe: string; tipos: string[] }[] = [
+const GRUPOS: { titulo: string; detalhe: string; tipos: string[]; ancora?: string }[] = [
   { titulo: "Eleições", detalhe: "Justiça Eleitoral (TSE)", tipos: ["eleito"] },
   { titulo: "Cargos em partidos", detalhe: "órgãos partidários registrados no TSE", tipos: ["cargo_partidario"] },
   {
@@ -32,6 +32,7 @@ const GRUPOS: { titulo: string; detalhe: string; tipos: string[] }[] = [
     titulo: "Cargos no governo federal",
     detalhe: "cargos de confiança, viagens a serviço e cartão de pagamento, no Portal da Transparência",
     tipos: ["cargo_federal", "viagem_federal", "cartao_corporativo"],
+    ancora: "servico-federal-titulo",
   },
   {
     titulo: "Sanções",
@@ -83,6 +84,11 @@ export function LinhaDoTempoSecao({ dados }: { dados: LinhaDoTempo }) {
           <h3 className="font-medium">
             {g.titulo} <span className="text-sm font-normal text-muted-foreground tabular-nums">({g.itens.length})</span>
             <span className="block text-sm font-normal text-muted-foreground">{g.detalhe}</span>
+            {g.ancora && (
+              <a href={`#${g.ancora}`} className="block text-sm font-normal underline underline-offset-2">
+                Ver o detalhe por ano
+              </a>
+            )}
           </h3>
           <ul className="lista-fios flex flex-col">
             {g.itens.slice(0, VISIVEIS_POR_GRUPO).map((item, i) => (
