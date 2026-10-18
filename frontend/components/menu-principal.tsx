@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 
+import { AlternarTema } from "@/components/alternar-tema";
+
 const ITENS = [
   { href: "/parlamentares", rotulo: "Parlamentares" },
   { href: "/comparar", rotulo: "Comparar" },
@@ -49,6 +51,7 @@ export function MenuPrincipal() {
         <Link href="/#cep" className="botao-linha px-4">
           Buscar pelo CEP
         </Link>
+        <AlternarTema />
       </nav>
 
       <div className="flex items-center gap-2 md:hidden">
@@ -80,7 +83,7 @@ export function MenuPrincipal() {
           <nav
             aria-label="Menu"
             onClick={(e) => e.stopPropagation()}
-            className="border-b border-border bg-background px-4 pb-5 shadow-[0_16px_24px_-20px_rgb(0_0_0/0.25)]"
+            className="border-b border-border bg-background px-4 pb-5 shadow-[var(--sombra-menu)]"
           >
             <ul className="lista-fios flex flex-col text-base">
               {ITENS.map((i) => (
@@ -91,6 +94,10 @@ export function MenuPrincipal() {
                 </li>
               ))}
             </ul>
+            <div className="mt-3 flex items-center justify-between gap-3 text-sm text-muted-foreground">
+              <span>Tema</span>
+              <AlternarTema />
+            </div>
           </nav>
         </div>
       )}

@@ -92,6 +92,8 @@
 - [2026-10-17: Senador Guiomard e Praia Grande, e as outras seis câmaras de fornecedor](#2026-10-17-senador-guiomard-e-praia-grande-e-as-outras-seis-câmaras-de-fornecedor)
 - [2026-10-17: câmaras de sites próprios e do Portal Modelo, rechecagem](#2026-10-17-câmaras-de-sites-próprios-e-do-portal-modelo-rechecagem)
 - [2026-10-17: convergência numa consulta só e medição das rotas](#2026-10-17-convergência-numa-consulta-só-e-medição-das-rotas)
+- [2026-10-18: modo escuro](#2026-10-18-modo-escuro)
+- [2026-10-18: acompanhar representante só por feed Atom](#2026-10-18-acompanhar-representante-só-por-feed-atom)
 
 ## 2026-10-06: stack inicial
 
@@ -965,3 +967,16 @@ Em 15/10 (`ibge_municipios`, ConnectTimeout) e 16/10 (`senado_votacoes`, 503 num
   - **Gastos:** anos e último mês saem de uma consulta só (`anos_e_ultimo_mes`, uma sondagem do índice por ano, no lugar dos dois `SELECT DISTINCT ano` e do `max(mes)`; um `GROUP BY` simples ainda lia 100 mil entradas, 55 ms), e a média da Casa vem do `resumo_parlamentar` com a mesma checagem de linha por parlamentar e o mesmo `avg`.
   - **Busca:** o `ORDER BY nome LIMIT` das pessoas ficou como estava (a ordem visível é por nome); o que mudou foi o índice `ix_pessoa_nome`, que faz o Postgres ler só as primeiras linhas em vez de ordenar as 10 mil de "silva" (150 ms de SQL para 1 ms). Teste: mesmos itens e mesma ordem com o índice e com `enable_indexscan` desligado.
   - **O que sobra na busca:** a consulta de candidaturas eleitas (`ORDER BY` por cargo e nome de urna, ~100 ms com sobrenome comum) ordena todas as que casam; resolver pede um índice por expressão de ordenação e ficou de fora por não ser barato.
+
+## 2026-10-18: modo escuro
+
+- **Decisão:** o site segue o tema do sistema (`prefers-color-scheme`) e o cidadão pode forçar claro ou escuro por um alternador no menu (Automático, Claro, Escuro). A escolha fica em `localStorage` (`tema`, sempre em try/catch) e vira `data-theme` na raiz.
+- **Por quê:** o público lê no celular, muitas vezes à noite; a paleta "papel" ofuscava. Sem conta nem cookie, o `localStorage` basta.
+- **Como:** paleta escura derivada da "papel" (grafite quente `#1c1a17`, texto creme, bronze clareado), com todos os tokens do `:root` e as razões de contraste em `docs/DESIGN.md` (seção 3). Um script mínimo no `<head>` aplica o tema antes da pintura (sem piscar); `<html>` tem `suppressHydrationWarning`. `themeColor` tem versão clara e escura. O `@custom-variant dark` casa com `data-theme` e com o sistema, então as classes `dark:` de `ui/` funcionam.
+- **Fica de fora:** as imagens Open Graph (`opengraph-image`, `comparar/imagem`, `apple-icon`) continuam claras, pois são vistas em prévias de WhatsApp fora do tema do site.
+
+## 2026-10-18: acompanhar representante só por feed Atom
+
+- **Decisão:** quem quiser acompanhar um representante usa um feed Atom (leitor de feeds ou ferramenta de avisos). O site não coleta e-mail nem telefone para avisos.
+- **Por quê:** coleta mínima (LGPD): o feed não exige dado do cidadão nem lista de contatos para guardar e proteger.
+- **Pendente:** aviso por e-mail ou WhatsApp só entra depois de uma decisão própria de LGPD (base legal, prazo de guarda, descadastro).

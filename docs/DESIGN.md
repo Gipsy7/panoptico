@@ -75,9 +75,29 @@ Tipografia (mínimo de 14 px em qualquer conteúdo; 12 px só em metadado não e
 | sobretítulo | 12 px, versalete, 0,14em (hoje 0,7rem = 11,2 px: subir) | 12 px | Geist 500 |
 | legenda e fonte | 13 px | 13 px | Geist 400 |
 
+Cores e modo escuro. A paleta escura deriva da "papel" (grafite quente, texto creme, bronze clareado) e vale quando o
+sistema pede escuro (`prefers-color-scheme`) ou com `data-theme="dark"` na raiz; `data-theme="light"` força o claro. O
+alternador (Automático, Claro, Escuro) fica no menu e guarda a escolha em `localStorage` (chave `tema`). As imagens
+Open Graph ficam sempre claras. Razões de contraste (WCAG):
+
+| Par | Claro | Escuro |
+|---|---|---|
+| texto / fundo (`#141414` / `#f4f1ea`; `#ece7dc` / `#1c1a17`) | 16,3 | 14,1 |
+| texto de apoio / fundo (`#6e6a63`; `#a39d92`) | 4,8 | 6,4 |
+| texto de apoio / cartão | 5,0 | 5,9 |
+| texto de apoio / `--muted` | 4,4 (só em pílulas, 13 px) | 5,5 |
+| bronze-texto / fundo (`#7a5a32`; `#d4a968`) | 5,6 | 8,0 |
+| primary-foreground / primary | 16,3 | 14,1 |
+| destructive / fundo (`#8a2c1c`; `#e39a86`) | 7,6 | 7,6 |
+| bronze dos gráficos / fundo (mín. 3:1) | 4,1 | 6,5 |
+
+Valores escuros: `--background #1c1a17`, `--card/--popover #24211d`, `--secondary #2b2823`, `--muted #2a2723`,
+`--accent #322e28`, `--border #3a362f`, `--input #5a554b`, `--ring/--bronze #c9954a`, `--chart-1..5` `#c9954a #8f7650 #a39d92 #5a554b #ece7dc`,
+`--sidebar* ` na mesma família. A sombra do menu é o token `--sombra-menu`.
+
 Raio: `--radius` atual (0,25 rem; 2 px em botões e pílulas). Manter retangular, nada de pílula arredondada.
 Sombras: nenhuma em cartões (o fio basta). Única exceção: painel do menu móvel e o cartão flutuante da home,
-`0 16px 24px -20px rgb(0 0 0 / .25)`. Alvos: altura mínima 44 px (botão, link isolado, seletor, linha de lista).
+`--sombra-menu` (`0 16px 24px -20px rgb(0 0 0 / .25)` no claro). Alvos: altura mínima 44 px (botão, link isolado, seletor, linha de lista).
 
 ## 4. Componentes
 
