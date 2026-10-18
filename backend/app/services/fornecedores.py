@@ -6,6 +6,7 @@ from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from app.models import DespesaFornecedor, FonteIngestao
+from app.textos import sem_cpf
 
 FONTES = {
     "tce_sp": (
@@ -43,7 +44,7 @@ def resumo(session: Session, ibge: str) -> dict | None:
                 "total_pago": sum(x.valor_pago for x in do_orgao),
                 "itens": [
                     {
-                        "fornecedor": x.fornecedor,
+                        "fornecedor": sem_cpf(x.fornecedor) or "Não identificado",
                         "documento": x.documento,
                         "valor_pago": x.valor_pago,
                         "pagamentos": x.pagamentos,

@@ -23,7 +23,7 @@ from app.models import (
     PncpSuspeito,
     SocioPessoa,
 )
-from app.textos import limpar_texto
+from app.textos import sem_cpf
 
 FONTE_NOME = "Portal Nacional de Contratações Públicas (PNCP)"
 FONTE_URL = "https://pncp.gov.br/app/contratos"
@@ -101,7 +101,7 @@ def da_pessoa(session: Session, pessoa_id: int) -> dict | None:
     empresas = [
         {
             "cnpj": s.cnpj,
-            "nome": limpar_texto(por_empresa[s.cnpj][1]),
+            "nome": sem_cpf(por_empresa[s.cnpj][1]),
             "qualificacao": s.qualificacao,
             "contratos": por_empresa[s.cnpj][0],
         }
@@ -117,7 +117,7 @@ def da_pessoa(session: Session, pessoa_id: int) -> dict | None:
     itens = [
         {
             "fornecedor_cnpj": c.fornecedor_cnpj,
-            "fornecedor_nome": limpar_texto(c.fornecedor_nome),
+            "fornecedor_nome": sem_cpf(c.fornecedor_nome),
             "orgao": c.orgao_nome,
             "municipio": c.municipio_nome,
             "uf": c.uf,
@@ -187,7 +187,7 @@ def maiores_do_municipio(session: Session, ibge: str) -> dict | None:
         "suspeitos": [
             {
                 "fornecedor_cnpj": cnpj,
-                "fornecedor": limpar_texto(nome),
+                "fornecedor": sem_cpf(nome),
                 "valor": valor,
                 "contratos": quantidade,
                 "url": (link_pncp(referencia) if referencia else None) or FONTE_URL,
@@ -197,7 +197,7 @@ def maiores_do_municipio(session: Session, ibge: str) -> dict | None:
         "itens": [
             {
                 "fornecedor_cnpj": x.fornecedor_cnpj,
-                "fornecedor": limpar_texto(x.fornecedor_nome),
+                "fornecedor": sem_cpf(x.fornecedor_nome),
                 "valor": x.valor_global,
                 "contratos": x.quantidade,
                 "ente_publico": x.fornecedor_cnpj in entes,

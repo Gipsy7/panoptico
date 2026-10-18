@@ -22,7 +22,7 @@ from sqlalchemy import delete, insert, select
 from sqlalchemy.orm import Session
 
 from app.models import DespesaFornecedor, FonteIngestao, Municipio
-from app.textos import limpar_texto
+from app.textos import sem_cpf
 from ingestion import comum
 
 FONTE = "tce_sp"
@@ -85,7 +85,7 @@ def agregar(linhas: Any) -> dict[tuple[str, str], dict[tuple[str, str | None], l
                 c for c in linha.get("nr_identificador_despesa") or "" if c.isdigit()
             )
             fornecedor = (
-                (limpar_texto(linha.get("ds_despesa")) or "Não identificado")[:300],
+                (sem_cpf(linha.get("ds_despesa")) or "Não identificado")[:300],
                 documento[:20] or None,
             )
         atual = soma[chave].setdefault(fornecedor, [Decimal(0), 0])

@@ -25,6 +25,7 @@ from sqlalchemy import delete, insert, select
 from sqlalchemy.orm import Session
 
 from app.models import DespesaFornecedor, FonteIngestao, Municipio
+from app.textos import sem_cpf
 from ingestion import comum
 from ingestion.tce import sp
 
@@ -120,7 +121,7 @@ def agregar(
         if tipo is None:
             fora["consórcio intermunicipal"] += pago
             continue
-        nome = " ".join((linha.get("nm_credor") or "Não identificado").split())[:300]
+        nome = (sem_cpf(linha.get("nm_credor")) or "Não identificado")[:300]
         documento = "".join(c for c in linha.get("cnpj_cpf") or "" if c.isdigit())
         if linha.get("tp_pessoa") == "PF" or (
             not cnpj_valido(documento.zfill(14)) and cpf_valido(documento)

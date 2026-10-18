@@ -259,6 +259,7 @@ def test_dicionario_e_leiame(banco, tmp_path):
 def test_limpar():
     assert limpar("CPF 123.456.789-01 e 12345678901") == "CPF [CPF omitido] e 12345678901"
     assert limpar("MEI 12345678901", livre=True) == "MEI [CPF omitido]"
+    assert limpar("CPF ***.123.456-** x") == "CPF [CPF omitido] x"
     assert limpar("CNPJ 12345678000190", livre=True) == "CNPJ 12345678000190"
 
 

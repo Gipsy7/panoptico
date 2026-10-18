@@ -9,6 +9,7 @@ from sqlalchemy.dialects.postgresql import distinct_on
 from sqlalchemy.orm import Session
 
 from app.models import Emenda, EmendaTransferencia, FonteIngestao, Parlamentar
+from app.textos import sem_cpf
 from ingestion.proposicoes_comum import INICIO_LEGISLATURA
 
 FONTE_NOME = "Convênios (Portal da Transparência, CGU) e transferências especiais (TransfereGov)"
@@ -101,7 +102,7 @@ def resumo(session: Session, parlamentar: Parlamentar) -> dict | None:
                 "identificador": i.identificador,
                 "situacao": i.situacao,
                 "relatorio_gestao": i.relatorio_gestao,
-                "beneficiario": i.beneficiario,
+                "beneficiario": sem_cpf(i.beneficiario),
                 "beneficiario_cnpj": i.beneficiario_cnpj,
                 "uf": i.uf,
                 "orgao_concedente": i.orgao_concedente,

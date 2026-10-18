@@ -29,3 +29,34 @@ def limpar_texto(texto: str | None) -> str | None:
         texto = _refazer_mojibake(texto)
     texto = _CONTROLE.sub("", texto)
     return " ".join(texto.split())
+
+
+# CPF solto no texto (11 dígitos, com ou sem pontuação; 12 quando a fonte digita um dígito a
+# mais, como em "JOAO 014343640062") e CPF mascarado ("***.123.456-**"). Os limites de dígito
+# impedem de morder um CNPJ (14 dígitos).
+CPF = re.compile(
+    r"(?<![\d*])(?:\d{3}\.?\d{3}\.?\d{3}-?\d{2}\d?|\*{3}\.?\d{3}\.?\d{3}-?\*{2})(?![\d*])"
+)
+
+
+# CPF digitado errado (truncado, com espaço no lugar do traço, 9 a 10 dígitos soltos no fim do
+# nome de MEI): na dúvida, número grande que não é CNPJ some do nome.
+_ROTULO_CPF = re.compile(
+    r"(?:(?<![A-Za-z])CPF\s*[:.]?\s*)?(?<![\d*])(?:"
+    r"\d{3}\.?\d{3}\.?\d{3}-?\d{2}\d?"  # 11 (ou 12) dígitos
+    r"|\*{3}\.?\d{3}\.?\d{3}-?\*{2}"  # mascarado
+    r"|\d{3}\.\d{3}\.\d{3}(?:[- ]?\d{1,2})?"  # pontuado e truncado
+    r"|\d{9,10}(?: \d{2})?"  # 9 a 10 dígitos soltos
+    r")(?![\d*])",
+    re.IGNORECASE,
+)
+
+
+def sem_cpf(texto: str | None) -> str | None:
+    """Tira CPF do texto, com o rótulo ("CPF:") e o traço que sobra na ponta. MEI traz o CPF
+    dentro da razão social ('JOSE DA SILVA 12345678901'): regra fixa, CPF não vai para API,
+    site nem exportação. Vazio vira None."""
+    if not texto:
+        return None
+    limpo = " ".join(_ROTULO_CPF.sub(" ", limpar_texto(texto) or "").split())
+    return limpo.strip(" -–—:;,/") or None

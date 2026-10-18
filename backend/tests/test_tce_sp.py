@@ -55,3 +55,21 @@ def test_fornecedores_do_municipio(client, session):
     camara = next(o for o in corpo["orgaos"] if o["orgao"] == "camara")
     assert camara["total_pago"] == 232846.0
     assert client.get("/municipios/0000000/fornecedores").status_code == 404
+
+
+def test_nome_de_mei_sai_sem_cpf_na_ingestao_e_na_api(client, session):
+    mei = {**BASE, "ds_orgao": "PREFEITURA MUNICIPAL DE BADY BASSITT", "tp_despesa": "Valor Pago", "nr_identificador_despesa": "22066839000165", "ds_despesa": "ELENISE FREIER BEIER 00594280079", "vl_despesa": "10,00"}  # fmt: skip
+    linhas = sp.linhas_para_gravar(sp.agregar([mei]), 2024, {"3504602"})
+    assert [x["fornecedor"] for x in linhas] == ["ELENISE FREIER BEIER"]
+    # Dado antigo, gravado antes da limpeza: a API também limpa na saída.
+    session.add(Municipio(ibge="3504602", nome="Bady Bassitt", uf="SP", nome_chave="BADY BASSITT"))
+    session.flush()
+    session.add(
+        DespesaFornecedor(
+            **{**linhas[0], "fornecedor": "ELENISE FREIER BEIER 00594280079", "fonte": "tce_sp"}
+        )
+    )
+    session.flush()
+    corpo = client.get("/municipios/3504602/fornecedores").json()
+    assert corpo["orgaos"][0]["itens"][0]["fornecedor"] == "ELENISE FREIER BEIER"
+    assert "00594280079" not in str(corpo)

@@ -17,6 +17,7 @@ import httpx
 from sqlalchemy.orm import Session
 
 from app.models import FonteIngestao
+from app.textos import sem_cpf
 from ingestion import comum
 
 FONTE = "camara_despesas"
@@ -40,7 +41,7 @@ def normalizar(conteudo_zip: bytes) -> list[dict[str, Any]]:
                 "id_externo_parlamentar": linha["ideCadastro"],
                 "mes": int(linha["numMes"]),
                 "categoria": comum.limpar_categoria(linha["txtDescricao"]),
-                "fornecedor": linha["txtFornecedor"].strip() or None,
+                "fornecedor": sem_cpf(linha["txtFornecedor"]),
                 "cnpj_cpf": linha["txtCNPJCPF"].strip() or None,
                 "valor": Decimal(linha["vlrLiquido"] or "0"),
                 "data": _data(linha["datEmissao"]),

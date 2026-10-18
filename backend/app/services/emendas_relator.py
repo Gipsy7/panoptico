@@ -7,6 +7,7 @@ from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from app.models import EmendaRelatorIndicacao, FonteIngestao, Parlamentar
+from app.textos import sem_cpf
 from ingestion.congresso.emendas_relator import FONTE, URL, URL_PAGINA
 
 FONTE_NOME = "Indicações de beneficiários de emendas RP9, LOA 2022 (Comissão Mista de Orçamento)"
@@ -56,7 +57,7 @@ def resumo(session: Session, parlamentar: Parlamentar) -> dict | None:
             {
                 "numero": i.numero,
                 "data_cadastro": i.data_cadastro,
-                "beneficiario": i.beneficiario,
+                "beneficiario": sem_cpf(i.beneficiario),
                 "uf": i.uf,
                 "orgao": i.orgao,
                 "objeto": i.objeto,

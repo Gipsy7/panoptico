@@ -47,7 +47,7 @@ from app.models import (
     SancaoEmpresa,
     SocioPessoa,
 )
-from app.textos import limpar_texto
+from app.textos import CPF, limpar_texto, sem_cpf  # noqa: F401 (reexportados)
 from ingestion import comum
 from ingestion.pncp import anual, suspeito
 
@@ -63,15 +63,7 @@ RELEITURA_DIAS = 7
 MAX_RELEITURAS = 20  # dias antigos relidos por coleta, por causa de aditivos
 TIPOS_PESSOA = {"PJ", "PF", "PE"}
 
-CPF = re.compile(r"(?<!\d)\d{3}\.?\d{3}\.?\d{3}-?\d{2}(?!\d)")
 Chave = tuple[str, str, str, str, str]  # órgão, município, tipo_pessoa, fornecedor, tipo
-
-
-def sem_cpf(texto: str | None) -> str | None:
-    """MEI traz o CPF dentro da razão social ('JOSE DA SILVA 12345678901'): tira."""
-    if not texto:
-        return None
-    return " ".join(CPF.sub(" ", limpar_texto(texto) or "").split()) or None
 
 
 def _digitos(valor: Any) -> str:
