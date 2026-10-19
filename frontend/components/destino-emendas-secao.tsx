@@ -141,8 +141,13 @@ function Item({ item }: { item: DestinoEmendaItem }) {
   return (
     <li className="flex flex-col gap-1 border-t pt-3 text-sm">
       <p className="font-medium">
-        {item.beneficiario ?? "Beneficiário não informado"}
+        {item.beneficiario ?? (item.nome_omitido ? "MEI (nome omitido por conter CPF)" : "Beneficiário não informado")}
         {item.uf && <span className="font-normal text-muted-foreground"> · {item.uf}</span>}
+        {!item.beneficiario && item.nome_omitido && item.beneficiario_cnpj && (
+          <span className="block text-sm font-normal text-muted-foreground tabular-nums">
+            CNPJ {item.beneficiario_cnpj}
+          </span>
+        )}
       </p>
       {item.objeto && <p>{item.objeto}</p>}
       <p className="text-muted-foreground">

@@ -229,7 +229,7 @@ async function Cidade({ ibge }: { ibge: string }) {
                   destino="pncp"
                   rotulo={`Maior contrato no PNCP em ${pncp.ano}`}
                   valor={formatarReaisCompacto(maiorPncp.valor)}
-                  apoio={maiorPncp.fornecedor ?? "Empresa sem nome informado"}
+                  apoio={maiorPncp.fornecedor ?? (maiorPncp.nome_omitido ? `MEI (nome omitido por conter CPF) · CNPJ ${maiorPncp.fornecedor_cnpj}` : "Empresa sem nome informado")}
                 />
               )}
               {fornecedores && totalTce > 0 && (

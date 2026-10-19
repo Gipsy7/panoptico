@@ -293,6 +293,7 @@ class DestinoItem(BaseModel):
     situacao: str | None
     relatorio_gestao: str | None
     beneficiario: str | None
+    nome_omitido: bool = False  # razão social de MEI com CPF: omitida
     beneficiario_cnpj: str | None
     uf: str | None
     orgao_concedente: str | None
@@ -532,6 +533,7 @@ class VereadorDetalhe(VereadorItem):
 
 class FornecedorItem(BaseModel):
     fornecedor: str
+    nome_omitido: bool = False  # razão social de MEI com CPF: omitida
     documento: str | None
     valor_pago: float
     pagamentos: int
@@ -1084,6 +1086,7 @@ class PartidoDetalheResposta(BaseModel):
 class EmpresaDoSocio(BaseModel):
     cnpj: str
     nome: str | None
+    nome_omitido: bool = False  # razão social de MEI com CPF: omitida
     qualificacao: str | None
     contratos: int
 
@@ -1091,6 +1094,7 @@ class EmpresaDoSocio(BaseModel):
 class ContratoPncpItem(BaseModel):
     fornecedor_cnpj: str
     fornecedor_nome: str | None
+    nome_omitido: bool = False  # razão social de MEI com CPF: omitida
     orgao: str | None
     municipio: str | None
     uf: str | None
@@ -1119,6 +1123,7 @@ class ContratosDaPessoa(BaseModel):
 class FornecedorPncpItem(BaseModel):
     fornecedor_cnpj: str
     fornecedor: str | None
+    nome_omitido: bool = False  # razão social de MEI com CPF: omitida
     valor: float
     contratos: int
     ente_publico: bool = False  # CNPJ de órgão público que contrata no PNCP
@@ -1127,6 +1132,7 @@ class FornecedorPncpItem(BaseModel):
 class FornecedorPncpSuspeito(BaseModel):
     fornecedor_cnpj: str
     fornecedor: str | None
+    nome_omitido: bool = False  # razão social de MEI com CPF: omitida
     valor: float
     contratos: int
     url: str

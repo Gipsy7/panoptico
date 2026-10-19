@@ -6,7 +6,7 @@ from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from app.models import DespesaFornecedor, FonteIngestao
-from app.textos import sem_cpf
+from app.services import empresas as empresas_servico
 
 FONTES = {
     "tce_sp": (
@@ -21,6 +21,11 @@ FONTES = {
 ORGAOS = ("prefeitura", "camara", "outros")
 
 
+def _fornecedor(linha: DespesaFornecedor, cadastro: dict) -> dict:
+    nome, omitido = empresas_servico.nome_da_empresa(linha.fornecedor, linha.documento, cadastro)
+    return {"fornecedor": nome or "Não identificado", "nome_omitido": omitido}
+
+
 def resumo(session: Session, ibge: str) -> dict | None:
     ano = session.scalar(
         select(func.max(DespesaFornecedor.ano)).where(DespesaFornecedor.municipio_ibge == ibge)
@@ -33,6 +38,7 @@ def resumo(session: Session, ibge: str) -> dict | None:
         .order_by(DespesaFornecedor.valor_pago.desc())
     ).all()
     fonte = linhas[0].fonte
+    cadastro = empresas_servico.nomes(session, [x.documento for x in linhas])
     orgaos = []
     for orgao in ORGAOS:
         do_orgao = [x for x in linhas if x.orgao == orgao]
@@ -44,7 +50,7 @@ def resumo(session: Session, ibge: str) -> dict | None:
                 "total_pago": sum(x.valor_pago for x in do_orgao),
                 "itens": [
                     {
-                        "fornecedor": sem_cpf(x.fornecedor) or "Não identificado",
+                        **_fornecedor(x, cadastro),
                         "documento": x.documento,
                         "valor_pago": x.valor_pago,
                         "pagamentos": x.pagamentos,

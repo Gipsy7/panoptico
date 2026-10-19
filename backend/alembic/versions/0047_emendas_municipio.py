@@ -11,7 +11,7 @@ Sem RECARREGAR_DADOS: a carga diária de emendas e do TransfereGov preenche as c
 na próxima execução (ver DECISOES, "carga na produção").
 
 Revision ID: 0047_emendas_municipio
-Revises: 0044_indice_pessoa_nome
+Revises: 0046_empresa
 Create Date: 2026-10-18
 """
 
@@ -22,7 +22,7 @@ import sqlalchemy as sa
 from alembic import op
 
 revision: str = "0047_emendas_municipio"
-down_revision: str | None = "0044_indice_pessoa_nome"
+down_revision: str | None = "0046_empresa"
 branch_labels: str | Sequence[str] | None = None
 depends_on: str | Sequence[str] | None = None
 

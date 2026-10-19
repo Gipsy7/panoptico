@@ -17,6 +17,7 @@ from app.models.emenda import Emenda
 from app.models.emenda_pagamento import EmendaPagamento
 from app.models.emenda_relator import EmendaRelatorIndicacao
 from app.models.emenda_transferencia import EmendaConvenio, EmendaTransferencia
+from app.models.empresa import Empresa
 from app.models.fonte_ingestao import DownloadCache, FonteIngestao
 from app.models.municipio import Municipio
 from app.models.parlamentar import Parlamentar
@@ -79,6 +80,7 @@ __all__ = [
     "EmendaConvenio",
     "EmendaPagamento",
     "EmendaRelatorIndicacao",
+    "Empresa",
     "EmendaTransferencia",
     "Evento",
     "DownloadCache",

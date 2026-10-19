@@ -9,7 +9,7 @@ from sqlalchemy.dialects.postgresql import distinct_on
 from sqlalchemy.orm import Session
 
 from app.models import Emenda, EmendaTransferencia, FonteIngestao, Parlamentar
-from app.textos import sem_cpf
+from app.services import empresas as empresas_servico
 from ingestion.proposicoes_comum import INICIO_LEGISLATURA
 
 FONTE_NOME = "Convênios (Portal da Transparência, CGU) e transferências especiais (TransfereGov)"
@@ -26,6 +26,14 @@ def _link(tipo: str, identificador: str) -> str:
     if tipo == "especial":
         return LINK_ESPECIAL.format(codigo=identificador)
     return LINK_CONVENIO
+
+
+def _beneficiario(item: EmendaTransferencia, cadastro: dict) -> dict:
+    """O nome da fonte (sem CPF) e, se faltar, a razão social do cadastro de empresas."""
+    nome, omitido = empresas_servico.nome_da_empresa(
+        item.beneficiario, item.beneficiario_cnpj, cadastro
+    )
+    return {"beneficiario": nome, "nome_omitido": omitido}
 
 
 def resumo(session: Session, parlamentar: Parlamentar) -> dict | None:
@@ -80,6 +88,8 @@ def resumo(session: Session, parlamentar: Parlamentar) -> dict | None:
         .limit(LIMITE)
     ).all()
 
+    cadastro = empresas_servico.nomes(session, [i.beneficiario_cnpj for i in itens])
+
     ingestoes = session.scalars(
         select(func.max(FonteIngestao.concluido_em))
         .where(
@@ -107,7 +117,7 @@ def resumo(session: Session, parlamentar: Parlamentar) -> dict | None:
                 "identificador": i.identificador,
                 "situacao": i.situacao,
                 "relatorio_gestao": i.relatorio_gestao,
-                "beneficiario": sem_cpf(i.beneficiario),
+                **_beneficiario(i, cadastro),
                 "beneficiario_cnpj": i.beneficiario_cnpj,
                 "uf": i.uf,
                 "orgao_concedente": i.orgao_concedente,

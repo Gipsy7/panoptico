@@ -56,7 +56,7 @@ def test_contratos_da_pessoa_so_das_empresas_dela_sem_alienacao(client, session)
     assert [i["publicado_em"] for i in corpo["itens"]] == ["2026-05-01", "2026-03-01"]
     assert corpo["itens"][0]["url"] == "https://pncp.gov.br/app/contratos/83551549000100/2026/2"
     assert corpo["empresas"] == [
-        {"cnpj": "11111111000111", "nome": "EMPRESA DA ANA LTDA",
+        {"cnpj": "11111111000111", "nome": "EMPRESA DA ANA LTDA", "nome_omitido": False,
          "qualificacao": "Sócio-Administrador", "contratos": 2}
     ]  # fmt: skip
     assert corpo["cobertura_desde"] == "2025-01-01"

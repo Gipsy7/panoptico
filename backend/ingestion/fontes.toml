@@ -776,3 +776,20 @@ frequencia = "semanal"
 acesso = "pedido"
 # API pública (https://eagendas.cgu.gov.br/api/v2), mas exige token gerado por uma pessoa
 # logada no gov.br (docs: github.com/cgugovbr/eagendas-publico/tree/main/api-consulta).
+
+# Cadastro de empresas por CNPJ
+[[fonte]]
+nome = "receita_empresas"
+modulo = "ingestion.receita.empresas"
+uso = "Nome da empresa (razão social) onde a fonte deixa o fornecedor ou beneficiário sem nome, e município de entes públicos pelo CNPJ (emendas Pix)"
+recorte = "só os CNPJs que aparecem em tabelas do projeto (fornecedores PNCP e TCE, cota, beneficiários de emenda, sancionadas, sócias, entes públicos): razão social, nome fantasia, natureza jurídica, situação, UF e município; razão social de MEI com CPF é omitida"
+guarda = "linhas"
+bruto = "recorte"
+frequencia = "mensal"
+acesso = "aberto"
+depende = ["cgu_sancoes", "cnpj_socios", "pncp_contratos"]
+# Base aberta do CNPJ da Receita (compartilhamento público no WebDAV, uma pasta AAAA-MM, ~7,5 GB
+# compactados, lida em fluxo: cada zip é baixado, filtrado e apagado). O bruto é o recorte
+# (zip com as linhas de interesse no formato original). Fallback --brasilapi para cadastro novo.
+# Terceira via, se a Receita sair do ar: Base dos Dados, tabela br_me_cnpj. Ver docs/DECISOES.md,
+# 18/10/2026.
