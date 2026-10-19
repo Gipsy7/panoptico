@@ -20,7 +20,9 @@ export async function ContratosSocioSecao({ pessoaId }: { pessoaId: number }) {
   const resultado = await getContratosDaPessoa(pessoaId);
   if (!resultado.ok || resultado.dados.itens.length === 0) return null;
   const d = resultado.dados;
-  const empresas = d.empresas.map((e) => e.nome ?? formatarCnpj(e.cnpj));
+  const empresas = d.empresas.map((e) =>
+    e.nome ?? (e.nome_omitido ? `MEI (nome omitido por conter CPF), CNPJ ${formatarCnpj(e.cnpj)}` : formatarCnpj(e.cnpj)),
+  );
   const desde = d.cobertura_desde ? Number(d.cobertura_desde.slice(0, 4)) : null;
 
   return (
@@ -95,10 +97,17 @@ function Contrato({ c }: { c: ContratoPncp }) {
             <dd>{orgao}</dd>
           </>
         )}
-        {c.fornecedor_nome && (
+        {(c.fornecedor_nome || c.nome_omitido) && (
           <>
             <dt className="text-muted-foreground">Empresa</dt>
-            <dd>{c.fornecedor_nome}</dd>
+            <dd>
+              {c.fornecedor_nome ?? "MEI (nome omitido por conter CPF)"}
+              {!c.fornecedor_nome && (
+                <span className="block text-sm text-muted-foreground tabular-nums">
+                  CNPJ {formatarCnpj(c.fornecedor_cnpj)}
+                </span>
+              )}
+            </dd>
           </>
         )}
         {c.valor !== null && (

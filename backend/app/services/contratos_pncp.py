@@ -23,7 +23,7 @@ from app.models import (
     PncpSuspeito,
     SocioPessoa,
 )
-from app.textos import sem_cpf
+from app.services import empresas as empresas_servico
 
 FONTE_NOME = "Portal Nacional de Contratações Públicas (PNCP)"
 FONTE_URL = "https://pncp.gov.br/app/contratos"
@@ -50,6 +50,12 @@ def _atualizado_em(session: Session) -> datetime | None:
             FonteIngestao.fonte == "pncp_contratos", FonteIngestao.status == "ok"
         )
     )
+
+
+def _nome(chave: str, nome: str | None, cnpj: str | None, cadastro: dict) -> dict:
+    """{chave: nome, "nome_omitido": ...}: o nome da fonte e, se faltar, a razão social."""
+    achado, omitido = empresas_servico.nome_da_empresa(nome, cnpj, cadastro)
+    return {chave: achado, "nome_omitido": omitido}
 
 
 def da_pessoa(session: Session, pessoa_id: int) -> dict | None:
@@ -98,10 +104,11 @@ def da_pessoa(session: Session, pessoa_id: int) -> dict | None:
             .group_by(PncpContrato.fornecedor_cnpj)
         )
     }
+    cadastro = empresas_servico.nomes(session, list(por_empresa))
     empresas = [
         {
             "cnpj": s.cnpj,
-            "nome": sem_cpf(por_empresa[s.cnpj][1]),
+            **_nome("nome", por_empresa[s.cnpj][1], s.cnpj, cadastro),
             "qualificacao": s.qualificacao,
             "contratos": por_empresa[s.cnpj][0],
         }
@@ -114,10 +121,11 @@ def da_pessoa(session: Session, pessoa_id: int) -> dict | None:
         .order_by(PncpContrato.publicado_em.desc(), PncpContrato.numero_controle)
         .limit(LIMITE_CONTRATOS)
     ).all()
+    cadastro = {**cadastro, **empresas_servico.nomes(session, [c.fornecedor_cnpj for c in linhas])}
     itens = [
         {
             "fornecedor_cnpj": c.fornecedor_cnpj,
-            "fornecedor_nome": sem_cpf(c.fornecedor_nome),
+            **_nome("fornecedor_nome", c.fornecedor_nome, c.fornecedor_cnpj, cadastro),
             "orgao": c.orgao_nome,
             "municipio": c.municipio_nome,
             "uf": c.uf,
@@ -182,12 +190,15 @@ def maiores_do_municipio(session: Session, ibge: str) -> dict | None:
             )
         )
     )
+    cadastro = empresas_servico.nomes(
+        session, [*(x.fornecedor_cnpj for x in linhas), *(s[0] for s in suspeitos)]
+    )
     return {
         "ano": ano,
         "suspeitos": [
             {
                 "fornecedor_cnpj": cnpj,
-                "fornecedor": sem_cpf(nome),
+                **_nome("fornecedor", nome, cnpj, cadastro),
                 "valor": valor,
                 "contratos": quantidade,
                 "url": (link_pncp(referencia) if referencia else None) or FONTE_URL,
@@ -197,7 +208,7 @@ def maiores_do_municipio(session: Session, ibge: str) -> dict | None:
         "itens": [
             {
                 "fornecedor_cnpj": x.fornecedor_cnpj,
-                "fornecedor": sem_cpf(x.fornecedor_nome),
+                **_nome("fornecedor", x.fornecedor_nome, x.fornecedor_cnpj, cadastro),
                 "valor": x.valor_global,
                 "contratos": x.quantidade,
                 "ente_publico": x.fornecedor_cnpj in entes,

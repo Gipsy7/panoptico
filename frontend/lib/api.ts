@@ -391,7 +391,7 @@ export type Fornecedores = {
   orgaos: {
     orgao: string;
     total_pago: number;
-    itens: { fornecedor: string; documento: string | null; valor_pago: number; pagamentos: number }[];
+    itens: { fornecedor: string; nome_omitido?: boolean; documento: string | null; valor_pago: number; pagamentos: number }[];
   }[];
   fonte_nome: string;
   fonte_url: string;
@@ -483,6 +483,7 @@ export type DestinoEmendaItem = {
   situacao: string | null;
   relatorio_gestao: string | null;
   beneficiario: string | null;
+  nome_omitido?: boolean;
   beneficiario_cnpj: string | null;
   uf: string | null;
   orgao_concedente: string | null;
@@ -968,6 +969,7 @@ export function getPartido(sigla: string, ano?: string) {
 export type ContratoPncp = {
   fornecedor_cnpj: string;
   fornecedor_nome: string | null;
+  nome_omitido?: boolean;
   orgao: string | null;
   municipio: string | null;
   uf: string | null;
@@ -983,7 +985,7 @@ export type ContratoPncp = {
 
 export type ContratosDaPessoa = {
   pessoa_id: number;
-  empresas: { cnpj: string; nome: string | null; qualificacao: string | null; contratos: number }[];
+  empresas: { cnpj: string; nome: string | null; nome_omitido?: boolean; qualificacao: string | null; contratos: number }[];
   total_contratos: number;
   valor_total: number;
   contratos_suspeitos: number;
@@ -1004,13 +1006,14 @@ export type FornecedoresPncp = {
   itens: {
     fornecedor_cnpj: string;
     fornecedor: string | null;
+    nome_omitido?: boolean;
     valor: number;
     contratos: number;
     /** O CNPJ também aparece como órgão contratante no PNCP (repasse entre órgãos). */
     ente_publico?: boolean;
   }[];
   /** Valores informados ao PNCP que parecem incorretos: fora do ranking e da soma. */
-  suspeitos: { fornecedor_cnpj: string; fornecedor: string | null; valor: number; contratos: number; url: string }[];
+  suspeitos: { fornecedor_cnpj: string; fornecedor: string | null; nome_omitido?: boolean; valor: number; contratos: number; url: string }[];
   soma_ate: string | null;
   fonte_nome: string;
   fonte_url: string;

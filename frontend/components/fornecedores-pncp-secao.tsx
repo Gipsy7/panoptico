@@ -11,11 +11,21 @@ function linkCnpj(c: string) {
   return `https://solucoes.receita.fazenda.gov.br/servicos/cnpjreva/cnpjreva_solicitacao.asp?cnpj=${c}`;
 }
 
-function Fornecedor({ cnpj, nome, entePublico }: { cnpj: string; nome: string | null; entePublico?: boolean }) {
+function Fornecedor({
+  cnpj,
+  nome,
+  omitido,
+  entePublico,
+}: {
+  cnpj: string;
+  nome: string | null;
+  omitido?: boolean;
+  entePublico?: boolean;
+}) {
   return (
     <>
       <span className="block">
-        {nome ?? "Nome não informado nesta base"}
+        {nome ?? (omitido ? "MEI (nome omitido por conter CPF)" : "Nome não informado nesta base")}
         {entePublico && (
           <span className="ml-2 whitespace-nowrap rounded-full px-2 py-0.5 text-xs text-muted-foreground ring-1 ring-foreground/20">
             órgão público
@@ -38,7 +48,7 @@ function ItemFornecedor({ f }: { f: FornecedoresPncp["itens"][number] }) {
   return (
     <li className="flex items-baseline justify-between gap-3 py-2 text-sm">
       <span className="min-w-0">
-        <Fornecedor cnpj={f.fornecedor_cnpj} nome={f.fornecedor} entePublico={f.ente_publico} />
+        <Fornecedor cnpj={f.fornecedor_cnpj} nome={f.fornecedor} omitido={f.nome_omitido} entePublico={f.ente_publico} />
         <span className="block text-sm text-muted-foreground tabular-nums">
           {f.contratos} {f.contratos === 1 ? "contrato" : "contratos"}
         </span>
@@ -104,7 +114,7 @@ export function FornecedoresPncpSecao({ dados, cidade }: { dados: FornecedoresPn
           <ul className="lista-fios flex flex-col">
             {dados.suspeitos.map((s) => (
               <li key={`${s.fornecedor_cnpj}-${s.url}`} className="flex flex-col gap-0.5 py-2 text-sm">
-                <Fornecedor cnpj={s.fornecedor_cnpj} nome={s.fornecedor} />
+                <Fornecedor cnpj={s.fornecedor_cnpj} nome={s.fornecedor} omitido={s.nome_omitido} />
                 <span className="tabular-nums">
                   Valor informado ao PNCP parece incorreto ({formatarReais(s.valor)}); conferir na fonte.{" "}
                   <a href={s.url} target="_blank" rel="noopener noreferrer" className="underline underline-offset-2">
