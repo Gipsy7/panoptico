@@ -12,7 +12,7 @@ Modo "interesse" (o único; coleta mínima): lê os arquivos em fluxo (cada zip 
 e apagado) e guarda SÓ as linhas dos CNPJs que aparecem em tabelas do projeto (fornecedores,
 beneficiários de emenda, sancionadas, sócias, entes públicos). O bruto é esse recorte (um zip
 com Empresas.csv, Estabelecimentos.csv, Municipios.csv e Naturezas.csv no formato original), em
-`data/raw/receita_cnpj/`; `--de-raw` reprocessa sem rede. A base completa (60 milhões de
+`data/raw/receita_empresas/`; `--de-raw` reprocessa sem rede. A base completa (60 milhões de
 linhas) pede junção em disco e não cabe na produção: para ela, use o minha-receita ou a Base dos
 Dados (docs/DECISOES.md, 18/10/2026).
 
