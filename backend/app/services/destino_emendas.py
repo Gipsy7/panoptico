@@ -31,7 +31,12 @@ def _link(tipo: str, identificador: str) -> str:
 def resumo(session: Session, parlamentar: Parlamentar) -> dict | None:
     codigos = (
         select(Emenda.codigo)
-        .where(Emenda.parlamentar_id == parlamentar.id, Emenda.individual)
+        .where(
+            Emenda.parlamentar_id == parlamentar.id,
+            Emenda.individual,
+            # A tabela tem todos os anos desde a migração 0047; a seção é da legislatura.
+            Emenda.ano >= INICIO_LEGISLATURA.year,
+        )
         .distinct()
     )
     base = EmendaTransferencia.emenda_codigo.in_(codigos)

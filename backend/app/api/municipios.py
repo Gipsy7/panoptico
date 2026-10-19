@@ -9,18 +9,19 @@ from app.models import CanalOficial, Municipio
 from app.schemas import (
     CanaisResposta,
     ContasMunicipioResposta,
-    EmendasMunicipioResposta,
     FornecedoresPncpResposta,
     FornecedoresResposta,
     MunicipioInfo,
 )
+from app.schemas.emendas_municipio import EmendasMunicipioCompleta
 from app.services import contas, contratos_pncp, emendas, fornecedores
 
 router = APIRouter()
 
 
-@router.get("/municipios/{ibge}/emendas", response_model=EmendasMunicipioResposta)
+@router.get("/municipios/{ibge}/emendas", response_model=EmendasMunicipioCompleta)
 def emendas_do_municipio(ibge: str, session: Annotated[Session, Depends(get_session)]) -> dict:
+    """Emendas pagas à cidade por tipo e autor, previsto nos planos Pix e convênios."""
     municipio = session.get(Municipio, ibge)
     if municipio is None:
         raise HTTPException(404, "Município não encontrado.")

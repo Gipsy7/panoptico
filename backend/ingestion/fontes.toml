@@ -128,7 +128,7 @@ depende = ["ibge_municipios"]
 nome = "transparencia_emendas"
 modulo = "ingestion.transparencia.emendas"
 uso = "Dinheiro enviado para a sua cidade"
-recorte = "emendas pagas a favorecidos da própria cidade"
+recorte = "todos os anos e tipos (individual, Pix, bancada, comissão, relator) pagos a prefeituras, fundos municipais e entidades da cidade; sem empresas, bancos e pessoas físicas"
 frequencia = "diaria"
 depende = ["camara_deputados", "senado_senadores", "ibge_municipios"]
 
@@ -144,7 +144,7 @@ depende = ["camara_deputados", "senado_senadores"]
 nome = "transferegov_convenios"
 modulo = "ingestion.transferegov.convenios"
 uso = "O que aconteceu com o dinheiro das emendas (convênios)"
-recorte = "só convênios apontados pelas emendas da base (desde 2023); CSV de 67 MB lido em fluxo, fica o recorte"
+recorte = "só convênios apontados pelas emendas (todos os anos, ~72 mil), com o município do convenente; CSV de 67 MB lido em fluxo, fica o recorte + entes do SICONFI"
 frequencia = "diaria"
 bruto = "recorte"
 depende = ["transparencia_emendas"]
@@ -153,7 +153,7 @@ depende = ["transparencia_emendas"]
 nome = "transferegov_especiais"
 modulo = "ingestion.transferegov.especiais"
 uso = "O que aconteceu com o dinheiro das emendas (transferências especiais)"
-recorte = "só planos de ação das emendas da base (desde 2023), via API aberta do TransfereGov"
+recorte = "todos os planos de ação (desde 2020, ~58 mil) com o município do beneficiário, via API aberta do TransfereGov; sem dados bancários"
 frequencia = "diaria"
 depende = ["transparencia_emendas"]
 

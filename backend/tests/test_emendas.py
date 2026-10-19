@@ -29,7 +29,9 @@ def test_chave_nome():
     assert comum.chave_nome("Sant'Ana do Livramento") == "SANT ANA DO LIVRAMENTO"
 
 
-def test_normalizar_pagamentos_filtra_natureza_tipo_e_ano():
+def test_normalizar_pagamentos_filtra_natureza_e_guarda_o_tipo():
+    from collections import Counter
+
     ind = "Emenda Individual - Transferências Especiais"
     linhas = [
         f"202512340001;1234;FULANO;0001;{ind};202603;1;PREFEITURA X;Município;PJ;SP;"
@@ -43,11 +45,29 @@ def test_normalizar_pagamentos_filtra_natureza_tipo_e_ano():
         "SÃO PAULO;10,00",
     ]
     conteudo = _zip(**{emendas.ARQUIVO_FAVORECIDOS: "\n".join([CAB_FAV, *linhas])})
-    pagamentos = emendas.normalizar_pagamentos(conteudo, 2023)
-    assert [(p["grupo"], p["valor"]) for p in pagamentos] == [
-        ("prefeitura", Decimal("1000.50")),
-        ("entidade", Decimal("10.00")),
+    descartes = Counter()
+    pagamentos = emendas.normalizar_pagamentos(conteudo, descartes=descartes)
+    # Todos os anos e tipos; Caixa (economia mista) e linha sem código ficam de fora.
+    assert [(p["grupo"], p["tipo"], p["valor"]) for p in pagamentos] == [
+        ("prefeitura", "especial", Decimal("1000.50")),
+        ("prefeitura", "bancada", Decimal("5.00")),
+        ("prefeitura", "especial", Decimal("7.00")),
+        ("entidade", "especial", Decimal("10.00")),
     ]
+    assert (descartes["sem_codigo"], descartes["sem_codigo_valor"]) == (1, Decimal("7.00"))
+    # O corte por ano continua disponível.
+    assert len(emendas.normalizar_pagamentos(conteudo, 2023)) == 3
+
+
+def test_tipo_curto_e_nome_base():
+    assert emendas.tipo_curto("Emenda de Comissão") == "comissao"
+    assert emendas.tipo_curto("Emenda de Relator") == "relator"
+    assert emendas.tipo_curto("Emenda Individual - Transferências com Finalidade Definida") == (
+        "individual"
+    )
+    assert emendas.tipo_curto("Outra coisa") is None
+    nome = "TIAGO DIMAS (EX-PARLAMENTAR LAZARO BOTELHO, NOS TERMOS ART. 78 LDO 2025)"
+    assert emendas.nome_base(nome) == "TIAGO DIMAS"
 
 
 def test_resolver_municipios_exato_aproximado_e_fora():
@@ -67,14 +87,27 @@ def test_resolver_municipios_exato_aproximado_e_fora():
 
 
 def test_vincular_autores_pelo_nome_mais_recente_e_sem_ambiguidade():
-    registros = [
-        {"individual": True, "autor_codigo": "1", "ano": 2023, "autor_nome": "NOME ANTIGO"},
-        {"individual": True, "autor_codigo": "1", "ano": 2025, "autor_nome": "DR. FLÁVIO"},
-        {"individual": True, "autor_codigo": "2", "ano": 2025, "autor_nome": "HOMONIMO"},
-        {"individual": False, "autor_codigo": "3", "ano": 2025, "autor_nome": "BANCADA"},
+    autores = [
+        ("1", "NOME ANTIGO", 2023),
+        ("1", "DR. FLÁVIO", 2025),
+        ("2", "HOMONIMO", 2025),
+        # Código que passou a outra pessoa (art. 78 da LDO 2025): o nome antigo do código
+        # não vale para o sucessor, e o sucessor só casa pelo próprio nome.
+        ("3", "LAZARO BOTELHO", 2024),
+        ("3", "TIAGO DIMAS (EX-PARLAMENTAR LAZARO BOTELHO, NOS TERMOS ART. 78)", 2025),
+        ("4", "EDUARDO BOLSONARO", 2026),
+        ("4", "MISSIONARIO JOSE OLIMPIO (EX-PARLAMENTAR EDUARDO BOLSONARO, ADPF 854)", 2026),
     ]
-    parlamentares = [(10, "Dr Flávio"), (20, "Homônimo"), (21, "Homonimo")]
-    assert emendas.vincular_autores(registros, parlamentares) == {"1": 10}
+    parlamentares = [
+        (10, "Dr Flávio"), (20, "Homônimo"), (21, "Homonimo"), (30, "Lázaro Botelho"),
+        (40, "Eduardo Bolsonaro"),
+    ]  # fmt: skip
+    assert emendas.vincular_autores(autores, parlamentares) == {
+        ("1", "NOME ANTIGO"): 10,
+        ("1", "DR. FLÁVIO"): 10,
+        ("3", "LAZARO BOTELHO"): 30,
+        ("4", "EDUARDO BOLSONARO"): 40,
+    }
 
 
 def test_emendas_municipio_endpoint(client, session):
@@ -128,7 +161,10 @@ def test_emendas_municipio_endpoint(client, session):
     assert [a["ano"] for a in corpo["por_ano"]] == [2025, 2026]
     assert corpo["parlamentares"][0]["total"] == 150
     assert corpo["parlamentares"][0]["do_estado"] == (deps[0].uf == "AP")
-    assert corpo["outros_autores"] == [{"autor_nome": "EX DEPUTADO", "total": 30.0}]
+    assert corpo["outros_autores"] == [
+        {"autor_nome": "EX DEPUTADO", "total": 30.0, "parlamentar_id": None, "pessoa_id": None,
+         "com_mandato_atual": False}
+    ]  # fmt: skip
     assert corpo["numero_autores"] == 2
     assert client.get("/municipios/0000000/emendas").status_code == 404
 
