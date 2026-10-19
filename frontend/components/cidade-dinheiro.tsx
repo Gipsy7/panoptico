@@ -80,7 +80,20 @@ async function Cidade({ ibge }: { ibge: string }) {
   const maiorAutor = maiorValorDeAutor(emendas);
   const maiorPncp = pncp?.itens.find((f) => !f.ente_publico) ?? null;
   const totalTce = fornecedores ? fornecedores.orgaos.reduce((soma, o) => soma + o.total_pago, 0) : 0;
-  const temEmendas = Boolean(emendas && emendas.total > 0);
+  // Total de todos os tipos quando a API traz; senão, só as individuais (API antiga).
+  const totalEmendas = emendas ? (emendas.total_geral ?? emendas.total) : 0;
+  const porHabEmendas = emendas ? (emendas.total_geral != null ? emendas.por_habitante_geral : emendas.por_habitante) : null;
+  const mediaEmendas = emendas
+    ? emendas.total_geral != null
+      ? emendas.media_uf_por_habitante_geral
+      : emendas.media_uf_por_habitante
+    : null;
+  const rotuloPeriodo = emendas
+    ? emendas.periodo?.inicio != null && emendas.periodo.fim != null && emendas.periodo.inicio !== emendas.periodo.fim
+      ? `de ${emendas.periodo.inicio} a ${emendas.periodo.fim}`
+      : `desde ${emendas.periodo?.inicio ?? emendas.desde}`
+    : "";
+  const temEmendas = totalEmendas > 0;
   const gastoInformado = Boolean(contas && contas.despesa_paga && contas.despesa_por_habitante != null);
   const temCartoes = temEmendas || Boolean(contas) || Boolean(maiorPncp) || totalTce > 0;
 
@@ -177,17 +190,17 @@ async function Cidade({ ibge }: { ibge: string }) {
               {emendas && temEmendas && (
                 <CartaoNumero
                   destino="emendas"
-                  rotulo={`Emendas pagas desde ${emendas.desde}`}
-                  valor={formatarReaisCompacto(emendas.total)}
-                 
+                  rotulo={`Emendas pagas ${rotuloPeriodo}`}
+                  valor={formatarReaisCompacto(totalEmendas)}
+                  apoio={emendas.total_geral != null ? "Todos os tipos de emenda" : undefined}
                   largo
                   comparacao={
-                    emendas.por_habitante != null && emendas.media_uf_por_habitante != null
+                    porHabEmendas != null && mediaEmendas != null
                       ? {
-                          pessoa: { rotulo: `${municipio}, por morador`, valor: emendas.por_habitante },
+                          pessoa: { rotulo: `${municipio}, por morador`, valor: porHabEmendas },
                           media: {
                             rotulo: rotuloMedia(emendas.municipios_na_media),
-                            valor: emendas.media_uf_por_habitante,
+                            valor: mediaEmendas,
                           },
                           formato: "reais",
                         }
@@ -252,20 +265,20 @@ async function Cidade({ ibge }: { ibge: string }) {
       </div>
 
       <ListaPerguntas titulo="Para entender os números">
-        {emendas && emendas.por_habitante != null && emendas.media_uf_por_habitante != null && (
+        {emendas && porHabEmendas != null && mediaEmendas != null && (
           <Pergunta
             id="entender-media-uf"
             pergunta={`Como ${municipio} é comparada com a média dos municípios do estado de ${estado}?`}
             resposta="Cada município conta um, grande ou pequeno"
           >
             <p>
-              {municipio} recebeu {formatarReais(emendas.por_habitante, true)} em emendas por morador. A média dos{" "}
+              {municipio} recebeu {formatarReais(porHabEmendas, true)} em emendas por morador. A média dos{" "}
               {emendas.municipios_na_media?.toLocaleString("pt-BR")} municípios de {estado} é{" "}
-              {formatarReais(emendas.media_uf_por_habitante, true)}.
+              {formatarReais(mediaEmendas, true)}.
             </p>
             <BarraComparacao
-              pessoa={{ rotulo: municipio, valor: emendas.por_habitante }}
-              media={{ rotulo: "Média dos municípios do estado", valor: emendas.media_uf_por_habitante }}
+              pessoa={{ rotulo: municipio, valor: porHabEmendas }}
+              media={{ rotulo: "Média dos municípios do estado", valor: mediaEmendas }}
               formato="reais"
             />
             <p>
@@ -285,7 +298,9 @@ async function Cidade({ ibge }: { ibge: string }) {
           >
             <p>
               Uma parte das emendas é paga à prefeitura e aos fundos municipais; outra parte é paga a entidades sem
-              fins lucrativos que atuam na cidade. Os dois valores somam o total pago desde {emendas.desde}.
+              fins lucrativos que atuam na cidade. {emendas.total_geral != null
+                ? "Os dois valores contam só as emendas individuais; bancada, comissão e relator ficam de fora desta divisão."
+                : `Os dois valores somam o total pago desde ${emendas.desde}.`}
             </p>
             <ComposicaoDestino prefeitura={emendas.total_prefeitura} entidades={emendas.total_entidades} />
             <FonteRodape fonte={emendas.fonte_nome} url={emendas.fonte_url} atualizadoEm={emendas.atualizado_em} />
@@ -297,11 +312,27 @@ async function Cidade({ ibge }: { ibge: string }) {
           resposta="Alguns tipos de emenda e de contrato não entram"
         >
           <ul className="flex list-disc flex-col gap-1 pl-5 text-muted-foreground">
-            <li>
-              As transferências especiais (&quot;emendas Pix&quot;) e os convênios não trazem o município na fonte,
-              então não aparecem nas emendas desta página.
-            </li>
-            <li>Emendas de bancada, de comissão e de relator não estão somadas, e só entra o valor já pago.</li>
+            {emendas?.total_geral != null ? (
+              <>
+                <li>
+                  Pagamentos sem código de emenda na fonte e pagamentos em que a fonte não identifica o município
+                  não entram no total.
+                </li>
+                <li>Emendas estaduais (das assembleias legislativas) ainda não foram carregadas.</li>
+                <li>
+                  O que está previsto e ainda sem pagamento, e os convênios, aparecem separados e nunca somados ao
+                  valor pago.
+                </li>
+              </>
+            ) : (
+              <>
+                <li>
+                  As transferências especiais (&quot;emendas Pix&quot;) e os convênios não trazem o município na
+                  fonte, então não aparecem nas emendas desta página.
+                </li>
+                <li>Emendas de bancada, de comissão e de relator não estão somadas, e só entra o valor já pago.</li>
+              </>
+            )}
             <li>
               Só os Tribunais de Contas de São Paulo e do Rio Grande do Sul estão carregados; os dos demais estados
               ainda não.

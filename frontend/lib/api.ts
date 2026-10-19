@@ -571,7 +571,13 @@ export type EmendasMunicipio = {
   total_entidades: number;
   por_ano: { ano: number; total: number }[];
   parlamentares: { parlamentar: ParlamentarResumo; total: number; do_estado: boolean }[];
-  outros_autores: { autor_nome: string; total: number }[];
+  outros_autores: {
+    autor_nome: string;
+    total: number;
+    parlamentar_id?: number | null;
+    pessoa_id?: number | null;
+    com_mandato_atual?: boolean;
+  }[];
   numero_autores: number;
   por_area: { area: string; total: number; percentual: number }[];
   favorecidos: {
@@ -587,6 +593,73 @@ export type EmendasMunicipio = {
   media_uf_por_habitante?: number | null;
   municipios_na_media?: number | null;
   media_uf_descricao?: string | null;
+  // Campos novos (18/10/2026); ausentes em APIs antigas, então todos opcionais.
+  periodo?: { inicio: number | null; fim: number | null };
+  tipos?: EmendaTipo[];
+  total_geral?: number;
+  por_habitante_geral?: number | null;
+  media_uf_por_habitante_geral?: number | null;
+  numero_outros_autores?: number;
+  autores_com_mandato?: number;
+  autores_sem_mandato?: number;
+  colegiados?: EmendaColegiado[];
+  previsto?: EmendasPrevistas | null;
+  convenios?: EmendasConvenios | null;
+  sem_codigo_descricao?: string;
+  fonte_nome: string;
+  fonte_url: string;
+  atualizado_em: string | null;
+};
+
+export type EmendaTipo = {
+  tipo: string;
+  rotulo: string;
+  rotulo_oficial: string;
+  total: number;
+  pagamentos: number;
+};
+
+export type EmendaColegiado = { autor_nome: string; tipo: string; rotulo: string; total: number };
+
+export type EmendasPrevistas = {
+  planos: number;
+  valor_planos: number;
+  planos_com_pagamento: number;
+  valor_planos_com_pagamento: number;
+  planos_sem_pagamento: number;
+  valor_sem_pagamento: number;
+  sem_pagamento: {
+    identificador: string;
+    emenda_codigo: string;
+    ano: number;
+    autor_nome: string | null;
+    parlamentar_id: number | null;
+    com_mandato_atual: boolean;
+    beneficiario: string | null;
+    situacao: string | null;
+    valor: number;
+    fonte_url: string;
+  }[];
+  descricao: string;
+  fonte_nome: string;
+  fonte_url: string;
+  atualizado_em: string | null;
+};
+
+export type EmendasConvenios = {
+  quantidade: number;
+  valor_total: number;
+  valor_liberado: number;
+  itens: {
+    identificador: string;
+    emendas: string[];
+    autores: string[];
+    beneficiario: string | null;
+    situacao: string | null;
+    valor_total: number;
+    valor_liberado: number;
+  }[];
+  descricao: string;
   fonte_nome: string;
   fonte_url: string;
   atualizado_em: string | null;

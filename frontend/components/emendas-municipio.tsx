@@ -8,10 +8,43 @@ const LIMITE = 5;
 
 export function EmendasMunicipioSecao({ dados }: { dados: EmendasMunicipio }) {
   const cidade = dados.municipio.nome;
-  const ultimoAno = dados.por_ano.at(-1)?.ano ?? dados.desde;
-  const top = dados.parlamentares.slice(0, LIMITE);
-  const resto = dados.parlamentares.slice(LIMITE);
-  const maior = Math.max(top[0]?.total ?? 0, dados.outros_autores[0]?.total ?? 0);
+  const novo = dados.total_geral != null;
+  const total = dados.total_geral ?? dados.total;
+  const porHabitante = novo ? dados.por_habitante_geral : dados.por_habitante;
+  const mediaUf = novo ? dados.media_uf_por_habitante_geral : dados.media_uf_por_habitante;
+  const inicio = dados.periodo?.inicio ?? dados.desde;
+  const fim = dados.periodo?.fim ?? dados.por_ano.at(-1)?.ano ?? dados.desde;
+  const periodo = inicio === fim ? `${inicio}` : `de ${inicio} a ${fim}`;
+  const tipos = (dados.tipos ?? []).filter((t) => t.total > 0);
+  const colegiados = dados.colegiados ?? [];
+  const nAutores = novo
+    ? (dados.autores_com_mandato ?? 0) + (dados.autores_sem_mandato ?? 0)
+    : dados.numero_autores;
+
+  // Autores com e sem mandato atual numa lista só, do maior valor para o menor.
+  const autores: AutorLinha[] = [
+    ...dados.parlamentares.map((x) => ({
+      chave: `p${x.parlamentar.id}`,
+      rotulo: x.parlamentar.nome_parlamentar,
+      detalhe: [x.parlamentar.partido, x.parlamentar.uf].filter(Boolean).join(" · ") + (x.do_estado ? "" : " · outro estado"),
+      total: x.total,
+      href: `/parlamentar/${x.parlamentar.id}`,
+      semMandato: false,
+    })),
+    ...(novo ? dados.outros_autores : []).map((a) => ({
+      chave: `o${a.autor_nome}`,
+      rotulo: nomeProprio(a.autor_nome),
+      detalhe: undefined,
+      total: a.total,
+      href: a.parlamentar_id ? `/parlamentar/${a.parlamentar_id}` : undefined,
+      semMandato: a.com_mandato_atual === false,
+    })),
+  ].sort((a, b) => b.total - a.total);
+  const top = autores.slice(0, LIMITE);
+  const resto = autores.slice(LIMITE);
+  const maior = Math.max(autores[0]?.total ?? 0, dados.outros_autores[0]?.total ?? 0);
+  const previsto = dados.previsto && dados.previsto.valor_sem_pagamento > 0 ? dados.previsto : null;
+  const convenios = dados.convenios && dados.convenios.quantidade > 0 ? dados.convenios : null;
 
   return (
     <section aria-labelledby="emendas-titulo" className="revelar flex flex-col gap-4">
@@ -20,13 +53,15 @@ export function EmendasMunicipioSecao({ dados }: { dados: EmendasMunicipio }) {
           Dinheiro enviado para {cidade}
         </h2>
         <p className="text-xs text-muted-foreground">
-          Emendas parlamentares individuais, orçamentos de {dados.desde} a {ultimoAno}
+          {novo
+            ? `Emendas parlamentares de todos os tipos, pagas ${periodo}`
+            : `Emendas parlamentares individuais, orçamentos de ${dados.desde} a ${fim}`}
         </p>
       </div>
 
-      {dados.total === 0 ? (
+      {total === 0 && !previsto && !convenios ? (
         <p className="text-muted-foreground">
-          Nenhum valor de emenda individual recebido por {cidade} neste período.
+          Nenhum valor de emenda recebido por {cidade} neste período.
         </p>
       ) : (
         <>
@@ -34,21 +69,22 @@ export function EmendasMunicipioSecao({ dados }: { dados: EmendasMunicipio }) {
             <div className="col-span-2 figura">
               <dt className="text-sm text-muted-foreground">Total pago à cidade</dt>
               <dd className="numero text-4xl">
-                {formatarReais(dados.total, true)}
+                {formatarReais(total, true)}
               </dd>
               <dd className="text-sm text-muted-foreground">
-                pagos desde {dados.desde}, enviados por {dados.numero_autores}{" "}
-                {dados.numero_autores === 1 ? "parlamentar" : "parlamentares"}
+                {novo ? `pagos ${periodo}` : `pagos desde ${dados.desde}`}, enviados por {nAutores}{" "}
+                {nAutores === 1 ? "parlamentar" : "parlamentares"}
+                {novo && colegiados.length > 0 && " e por bancadas, comissões ou relatores"}
               </dd>
             </div>
-            {dados.por_habitante != null && (
+            {porHabitante != null && (
               <div className="col-span-2 figura">
                 <dt className="text-sm text-muted-foreground">Por habitante</dt>
-                <dd className="numero text-2xl">{formatarReais(dados.por_habitante, true)}</dd>
-                {dados.media_uf_por_habitante != null && (
+                <dd className="numero text-2xl">{formatarReais(porHabitante, true)}</dd>
+                {mediaUf != null && (
                   <dd className="text-sm text-muted-foreground">
                     Média dos {dados.municipios_na_media?.toLocaleString("pt-BR")} municípios de{" "}
-                    {dados.municipio.uf}: {formatarReais(dados.media_uf_por_habitante, true)} por habitante
+                    {dados.municipio.uf}: {formatarReais(mediaUf, true)} por habitante
                     {dados.media_uf_descricao && (
                       <span className="block text-xs">{dados.media_uf_descricao}</span>
                     )}
@@ -56,14 +92,38 @@ export function EmendasMunicipioSecao({ dados }: { dados: EmendasMunicipio }) {
                 )}
               </div>
             )}
+          </dl>
+
+          {tipos.length > 0 && (
+            <div className="flex flex-col gap-2">
+              <h3 className="font-medium">Por tipo de emenda</h3>
+              <ul className="flex flex-col gap-3">
+                {tipos.map((t) => (
+                  <Barra
+                    key={t.tipo}
+                    rotulo={t.rotulo}
+                    detalhe={t.rotulo_oficial}
+                    valor={t.total}
+                    maior={tipos[0].total}
+                  />
+                ))}
+              </ul>
+            </div>
+          )}
+
+          <dl className="grid grid-cols-2 gap-3">
             <div className="figura">
-              <dt className="text-sm text-muted-foreground">Prefeitura e fundos municipais</dt>
+              <dt className="text-sm text-muted-foreground">
+                Prefeitura e fundos municipais{novo && " (só emendas individuais)"}
+              </dt>
               <dd className="numero text-2xl">
                 {formatarReais(dados.total_prefeitura, true)}
               </dd>
             </div>
             <div className="figura">
-              <dt className="text-sm text-muted-foreground">Entidades sem fins lucrativos</dt>
+              <dt className="text-sm text-muted-foreground">
+                Entidades sem fins lucrativos{novo && " (só emendas individuais)"}
+              </dt>
               <dd className="numero text-2xl">
                 {formatarReais(dados.total_entidades, true)}
               </dd>
@@ -72,28 +132,38 @@ export function EmendasMunicipioSecao({ dados }: { dados: EmendasMunicipio }) {
 
           {top.length > 0 && (
             <div className="flex flex-col gap-2">
-              <h3 className="font-medium">Maiores valores enviados (parlamentares em exercício)</h3>
+              <h3 className="font-medium">
+                {novo
+                  ? "Maiores valores enviados por parlamentares (emendas individuais)"
+                  : "Maiores valores enviados (parlamentares em exercício)"}
+              </h3>
               <ul className="flex flex-col gap-3">
                 {top.map((x) => (
-                  <BarraParlamentar key={x.parlamentar.id} x={x} maior={maior} />
+                  <BarraAutor key={x.chave} x={x} maior={maior} />
                 ))}
               </ul>
               {resto.length > 0 && (
                 <details className="painel">
                   <summary className="cursor-pointer font-medium">
-                    Ver todos os {dados.parlamentares.length} (mais {resto.length})
+                    Ver todos os {autores.length} (mais {resto.length})
                   </summary>
                   <ul className="mt-3 flex flex-col gap-3">
                     {resto.map((x) => (
-                      <BarraParlamentar key={x.parlamentar.id} x={x} maior={maior} />
+                      <BarraAutor key={x.chave} x={x} maior={maior} />
                     ))}
                   </ul>
                 </details>
               )}
+              {novo && (dados.autores_sem_mandato ?? 0) > 0 && (
+                <p className="text-xs text-muted-foreground">
+                  &quot;Sem mandato atual&quot; indica quem enviou o dinheiro em anos anteriores e hoje não exerce
+                  mandato de deputado ou senador.
+                </p>
+              )}
             </div>
           )}
 
-          {dados.outros_autores.length > 0 && (
+          {!novo && dados.outros_autores.length > 0 && (
             <details className="painel">
               <summary className="cursor-pointer font-medium">
                 Outros autores (fora de exercício ou não identificados)
@@ -104,6 +174,87 @@ export function EmendasMunicipioSecao({ dados }: { dados: EmendasMunicipio }) {
                 ))}
               </ul>
             </details>
+          )}
+
+          {colegiados.length > 0 && (
+            <div className="flex flex-col gap-2">
+              <h3 className="font-medium">Bancadas, comissões e relatores</h3>
+              <p className="text-xs text-muted-foreground">
+                Nestes tipos o autor é um grupo, não um parlamentar.
+              </p>
+              <ul className="flex flex-col gap-3">
+                {colegiados.map((c) => (
+                  <Barra
+                    key={`${c.tipo}-${c.autor_nome}`}
+                    rotulo={nomeProprio(c.autor_nome)}
+                    detalhe={c.rotulo}
+                    valor={c.total}
+                    maior={colegiados[0].total}
+                  />
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {previsto && (
+            <div className="painel flex flex-col gap-2">
+              <h3 className="font-medium">Previsto, ainda sem pagamento registrado</h3>
+              <p className="numero text-2xl">{formatarReais(previsto.valor_sem_pagamento, true)}</p>
+              <p className="text-sm text-muted-foreground">
+                {previsto.planos_sem_pagamento}{" "}
+                {previsto.planos_sem_pagamento === 1 ? "plano de trabalho" : "planos de trabalho"} de transferência
+                especial (&quot;emenda Pix&quot;). Este valor não está somado ao total pago acima.
+              </p>
+              {previsto.descricao && <p className="text-xs text-muted-foreground">{previsto.descricao}</p>}
+              {previsto.sem_pagamento.length > 0 && (
+                <details>
+                  <summary className="cursor-pointer text-sm font-medium">Ver os planos</summary>
+                  <ul className="lista-fios mt-2 flex flex-col">
+                    {previsto.sem_pagamento.map((p) => (
+                      <li key={p.identificador} className="flex flex-col gap-1 py-3">
+                        <div className="flex items-baseline justify-between gap-3">
+                          <span className="min-w-0 text-sm font-medium">
+                            {p.autor_nome ? nomeProprio(p.autor_nome) : "Autor não identificado"}
+                          </span>
+                          <span className="shrink-0 text-sm font-medium tabular-nums">
+                            {formatarReais(p.valor, true)}
+                          </span>
+                        </div>
+                        <p className="text-xs text-muted-foreground">
+                          Plano de {p.ano}
+                          {p.autor_nome && !p.com_mandato_atual && " · sem mandato atual"}
+                          {p.beneficiario && ` · ${p.beneficiario}`}
+                          {p.situacao && ` · ${p.situacao}`}
+                        </p>
+                      </li>
+                    ))}
+                  </ul>
+                </details>
+              )}
+              <FonteRodape
+                fonte={previsto.fonte_nome}
+                url={previsto.fonte_url}
+                atualizadoEm={previsto.atualizado_em}
+              />
+            </div>
+          )}
+
+          {convenios && (
+            <div className="painel flex flex-col gap-2">
+              <h3 className="font-medium">Convênios ligados a emendas</h3>
+              <p className="numero text-2xl">{formatarReais(convenios.valor_total, true)}</p>
+              <p className="text-sm text-muted-foreground">
+                {convenios.quantidade} {convenios.quantidade === 1 ? "convênio" : "convênios"}, dos quais{" "}
+                {formatarReais(convenios.valor_liberado, true)} já liberados. Convênio é um acordo com o governo
+                federal para uma obra ou serviço; os valores não estão somados ao total pago acima.
+              </p>
+              {convenios.descricao && <p className="text-xs text-muted-foreground">{convenios.descricao}</p>}
+              <FonteRodape
+                fonte={convenios.fonte_nome}
+                url={convenios.fonte_url}
+                atualizadoEm={convenios.atualizado_em}
+              />
+            </div>
           )}
 
           {(dados.por_area ?? []).length > 0 && (
@@ -172,11 +323,20 @@ export function EmendasMunicipioSecao({ dados }: { dados: EmendasMunicipio }) {
             </details>
           )}
 
-          <p className="text-sm text-muted-foreground">
-            Soma o que foi pago à prefeitura, aos fundos municipais e a entidades sem fins
-            lucrativos de {cidade}. Não inclui emendas de bancada, de comissão ou de relator, nem
-            valores pagos a empresas. Só o que já foi pago, não o que foi prometido (empenhado).
-          </p>
+          {novo ? (
+            <p className="text-sm text-muted-foreground">
+              O total soma só o que foi pago, de todos os tipos de emenda. O que está previsto e os convênios
+              aparecem à parte. Ficam de fora: pagamentos sem código de emenda na fonte, pagamentos em que a fonte
+              não identifica o município e emendas estaduais, que ainda não foram carregadas.
+              {dados.sem_codigo_descricao && ` ${dados.sem_codigo_descricao}`}
+            </p>
+          ) : (
+            <p className="text-sm text-muted-foreground">
+              Soma o que foi pago à prefeitura, aos fundos municipais e a entidades sem fins
+              lucrativos de {cidade}. Não inclui emendas de bancada, de comissão ou de relator, nem
+              valores pagos a empresas. Só o que já foi pago, não o que foi prometido (empenhado).
+            </p>
+          )}
         </>
       )}
 
@@ -189,22 +349,18 @@ export function EmendasMunicipioSecao({ dados }: { dados: EmendasMunicipio }) {
   );
 }
 
-function BarraParlamentar({
-  x: { parlamentar: p, total, do_estado },
-  maior,
-}: {
-  x: EmendasMunicipio["parlamentares"][number];
-  maior: number;
-}) {
-  return (
-    <Barra
-      href={`/parlamentar/${p.id}`}
-      rotulo={p.nome_parlamentar}
-      detalhe={[p.partido, p.uf].filter(Boolean).join(" · ") + (do_estado ? "" : " · outro estado")}
-      valor={total}
-      maior={maior}
-    />
-  );
+type AutorLinha = {
+  chave: string;
+  rotulo: string;
+  detalhe?: string;
+  total: number;
+  href?: string;
+  semMandato: boolean;
+};
+
+function BarraAutor({ x, maior }: { x: AutorLinha; maior: number }) {
+  const detalhe = [x.detalhe, x.semMandato ? "sem mandato atual" : null].filter(Boolean).join(" · ");
+  return <Barra href={x.href} rotulo={x.rotulo} detalhe={detalhe || undefined} valor={x.total} maior={maior} />;
 }
 
 function formatarCnpj(c: string) {
