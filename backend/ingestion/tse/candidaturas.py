@@ -46,6 +46,9 @@ CARGOS_ELEITOS = {
     "PREFEITO",
     "VICE-PREFEITO",
 }
+# Chapas do Executivo que vão ao 2º turno: entram mesmo sem ser eleitas nem ligadas a um
+# parlamentar, para o comparador do 2º turno (presidente, vice, governador e vice).
+CARGOS_2_TURNO = {"PRESIDENTE", "VICE-PRESIDENTE", "GOVERNADOR", "VICE-GOVERNADOR"}
 CARGOS_MUNICIPAIS = {"VEREADOR", "PREFEITO", "VICE-PREFEITO"}
 # Eleições antigas entram só como histórico de quem já acompanhamos (coleta mínima): a
 # candidatura fica se o título de eleitor já aparece em outra eleição guardada. A de 2020
@@ -72,35 +75,43 @@ def normalizar(linhas: Any) -> list[dict[str, Any]]:
     for linha in linhas:
         sq = linha["SQ_CANDIDATO"].strip()
         turno = int(linha.get("NR_TURNO") or 1)
-        if sq in por_sq and por_sq[sq][0] >= turno:
+        anterior = por_sq.get(sq)
+        if anterior and anterior[0] >= turno:
+            # Linha de turno anterior que chega depois (a ordem do arquivo não é garantida).
+            if turno < anterior[0] and not anterior[1]["situacao_turno"]:
+                anterior[1]["situacao_turno"] = comum_tse.texto(linha.get("DS_SIT_TOT_TURNO"))
             continue
-        por_sq[sq] = (
-            turno,
-            {
-                "ano_eleicao": int(linha["ANO_ELEICAO"]),
-                "sq_candidato": sq,
-                "cargo": linha["DS_CARGO"].strip().upper(),
-                "uf": linha["SG_UF"].strip(),
-                "unidade": comum.nome_proprio(linha["NM_UE"].strip()) or "",
-                "codigo_ue": linha["SG_UE"].strip(),
-                "nome": comum.nome_proprio(linha["NM_CANDIDATO"].strip()) or "",
-                "nome_urna": comum.nome_proprio(linha["NM_URNA_CANDIDATO"].strip()) or "",
-                "partido": comum_tse.texto(linha.get("SG_PARTIDO")),
-                "numero": comum_tse.texto(linha.get("NR_CANDIDATO")),
-                "situacao_turno": comum_tse.texto(linha.get("DS_SIT_TOT_TURNO")),
-                "situacao_candidatura": comum_tse.texto(linha.get("DS_SITUACAO_CANDIDATURA")),
-                "cpf": comum_tse.cpf(linha.get("NR_CPF_CANDIDATO")),
-                "titulo": comum_tse.titulo(linha.get("NR_TITULO_ELEITORAL_CANDIDATO")),
-                "data_nascimento": comum_tse.data(linha.get("DT_NASCIMENTO")),
-                # Data do turno que definiu o resultado (o 2º, para quem disputou dois).
-                "data_eleicao": comum_tse.data(linha.get("DT_ELEICAO")),
-                "genero": comum_tse.texto(linha.get("DS_GENERO")),
-                "cor_raca": comum_tse.texto(linha.get("DS_COR_RACA")),
-                "grau_instrucao": comum_tse.texto(linha.get("DS_GRAU_INSTRUCAO")),
-                "ocupacao": comum_tse.texto(linha.get("DS_OCUPACAO")),
-                "estado_civil": comum_tse.texto(linha.get("DS_ESTADO_CIVIL")),
-            },
-        )
+        registro = {
+            "ano_eleicao": int(linha["ANO_ELEICAO"]),
+            "sq_candidato": sq,
+            "cargo": linha["DS_CARGO"].strip().upper(),
+            "uf": linha["SG_UF"].strip(),
+            "unidade": comum.nome_proprio(linha["NM_UE"].strip()) or "",
+            "codigo_ue": linha["SG_UE"].strip(),
+            "nome": comum.nome_proprio(linha["NM_CANDIDATO"].strip()) or "",
+            "nome_urna": comum.nome_proprio(linha["NM_URNA_CANDIDATO"].strip()) or "",
+            "partido": comum_tse.texto(linha.get("SG_PARTIDO")),
+            "numero": comum_tse.texto(linha.get("NR_CANDIDATO")),
+            "situacao_turno": comum_tse.texto(linha.get("DS_SIT_TOT_TURNO")),
+            "situacao_candidatura": comum_tse.texto(linha.get("DS_SITUACAO_CANDIDATURA")),
+            "cpf": comum_tse.cpf(linha.get("NR_CPF_CANDIDATO")),
+            "titulo": comum_tse.titulo(linha.get("NR_TITULO_ELEITORAL_CANDIDATO")),
+            "data_nascimento": comum_tse.data(linha.get("DT_NASCIMENTO")),
+            # Data do turno que definiu o resultado (o 2º, para quem disputou dois).
+            "data_eleicao": comum_tse.data(linha.get("DT_ELEICAO")),
+            "genero": comum_tse.texto(linha.get("DS_GENERO")),
+            "cor_raca": comum_tse.texto(linha.get("DS_COR_RACA")),
+            "grau_instrucao": comum_tse.texto(linha.get("DS_GRAU_INSTRUCAO")),
+            "ocupacao": comum_tse.texto(linha.get("DS_OCUPACAO")),
+            "estado_civil": comum_tse.texto(linha.get("DS_ESTADO_CIVIL")),
+            # Só para o filtro (não é coluna): último turno com linha no arquivo.
+            "turno_final": turno,
+        }
+        # Linha do 2º turno ainda sem resultado (o TSE a publica com "#NULO" até a apuração):
+        # fica a situação do 1º turno ("2º TURNO"), que diz que a disputa segue.
+        if anterior and not registro["situacao_turno"]:
+            registro["situacao_turno"] = anterior[1]["situacao_turno"]
+        por_sq[sq] = (turno, registro)
     return [registro for _, registro in por_sq.values()]
 
 
@@ -191,7 +202,9 @@ def carregar_registros(
         )
         escolhidos = [r for r in registros if r.get("titulo") in conhecidos]
     else:
-        escolhidos = [r for r in registros if parlamentar_de(r) or eleito_local(r)]
+        escolhidos = [
+            r for r in registros if parlamentar_de(r) or eleito_local(r) or disputa_2_turno(r)
+        ]
     if not escolhidos:
         return 0
     municipios = mapa_municipios(
@@ -199,7 +212,7 @@ def carregar_registros(
     )
     linhas = [
         {
-            **{k: v for k, v in r.items() if k != "codigo_ue"},
+            **{k: v for k, v in r.items() if k not in ("codigo_ue", "turno_final")},
             "municipio_ibge": municipios.get((r["uf"], r["codigo_ue"])),
             "parlamentar_id": parlamentar_de(r),
             "ingestao_id": ingestao_id,
@@ -236,6 +249,16 @@ def eleito_local(registro: dict[str, Any]) -> bool:
     return registro["cargo"] in CARGOS_ELEITOS and (registro["situacao_turno"] or "").startswith(
         "ELEITO"
     )
+
+
+def disputa_2_turno(registro: dict[str, Any]) -> bool:
+    """Titular e vice de presidente e governador que disputaram o 2º turno: há linha do 2º
+    turno no arquivo (qualquer resultado, para o derrotado não sair depois da apuração) ou
+    a situação do 1º turno é "2º TURNO"."""
+    if registro["cargo"] not in CARGOS_2_TURNO:
+        return False
+    situacao = (registro["situacao_turno"] or "").upper()
+    return registro.get("turno_final") == 2 or (situacao.startswith("2") and "TURNO" in situacao)
 
 
 def ligar_chapas(session: Session, ano: int) -> None:

@@ -14,6 +14,9 @@ from app.models import FonteIngestao, Parlamentar, ResumoParlamentar, Votacao
 
 # Registrou voto (inclui a presidência da sessão, que não vota por regimento).
 VOTOU = {"Sim", "Não", "Abstenção", "Obstrução", "Votou", "Artigo 17"}
+# Votação secreta: o registro vem com o voto em branco (a fonte só guarda quem votou, não o
+# conteúdo). No SQL, "" de votação secreta vira "Votou" antes de contar; "" nas demais continua
+# "presente sem voto".
 PRESENTE_SEM_VOTO = {"P-NRV", ""}
 # Códigos do Senado para ausência com justificativa oficial.
 JUSTIFICADA = {
@@ -84,11 +87,12 @@ _SQL_CONTAGENS = """
              where v.casa = :casa and extract(year from v.data) = :ano
                and v.data >= j.inicio) as votacoes,
            coalesce((select json_object_agg(t.voto, t.n) from (
-               select o.voto, count(*) as n
+               select case when v.secreta and o.voto = '' then 'Votou' else o.voto end as voto,
+                      count(*) as n
                  from voto o join votacao v on v.id = o.votacao_id
                 where o.parlamentar_id = j.parlamentar_id
                   and extract(year from v.data) = :ano and v.data >= j.inicio
-                group by o.voto) t), '{}'::json) as votos
+                group by 1) t), '{}'::json) as votos
     from janela j
     """
 _CONTAGENS = text(_SQL_CONTAGENS)

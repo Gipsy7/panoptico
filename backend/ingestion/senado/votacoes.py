@@ -7,9 +7,15 @@ As orientações das lideranças (entre elas a do Governo) vêm de outro endpoin
 dia de sessão, e são ligadas à votação pelo número sequencial (`sequencialVotacao`).
 Só existem em parte das votações abertas; nas secretas não há orientação.
 O bruto guarda as duas respostas juntas; brutos antigos (só a lista) seguem válidos.
+
+Nas orientações, o partido vem pelo nome de uso ("Progressistas", "Podemos"), não pela sigla
+dos votos ("PP", "PODE"). A mesma resposta traz o voto de cada senador com esse nome de
+partido; casando pelo nome do senador com a lista de votos, achamos a sigla. Rótulo que não
+casa com nenhum partido (ex.: "B.Feminina") fica como a fonte publica, com tipo "outra".
 """
 
 import argparse
+from collections import Counter, defaultdict
 from datetime import date
 from pathlib import Path
 from typing import Any
@@ -35,6 +41,7 @@ ORIENTACOES = {
     "OBSTRUÇÃO": "Obstrução",
     "ABSTENÇÃO": "Abstenção",
 }
+RESULTADOS = {"A": "aprovada", "R": "rejeitada"}
 
 
 def baixar(client: httpx.Client, ano: int) -> dict[str, Any]:
@@ -60,7 +67,32 @@ def baixar(client: httpx.Client, ano: int) -> dict[str, Any]:
     return {"votacoes": votacoes, "orientacoes": orientacoes}
 
 
-def _orientacoes(payload: dict[str, Any], por_sequencial: dict[tuple[str, int], str]) -> list[dict]:
+def _siglas_dos_rotulos(
+    payload: dict[str, Any], siglas_por_nome: dict[str, dict[str, str]],
+    por_sequencial: dict[tuple[str, int], str],
+) -> dict[str, str]:  # fmt: skip
+    """Rótulo de partido das orientações ("Progressistas") -> sigla dos votos ("PP"), pela
+    sigla mais comum entre os senadores de mesmo nome nas mesmas votações."""
+    contagem: dict[str, Counter] = defaultdict(Counter)
+    for data, resposta in payload.get("orientacoes", {}).items():
+        for v in (resposta or {}).get("votacoes", []):
+            siglas = siglas_por_nome.get(por_sequencial.get((data, v.get("sequencialVotacao"))))
+            if not siglas:
+                continue
+            for x in v.get("votosParlamentar") or []:
+                sigla = siglas.get(x.get("nomeParlamentar") or "")
+                if sigla and x.get("partido"):
+                    contagem[x["partido"]][sigla] += 1
+    return {rotulo: c.most_common(1)[0][0] for rotulo, c in contagem.items()}
+
+
+def _orientacoes(
+    payload: dict[str, Any], por_sequencial: dict[tuple[str, int], str],
+    siglas_por_nome: dict[str, dict[str, str]] | None = None,
+) -> list[dict]:  # fmt: skip
+    """Orientações de lideranças (Governo...) e de partidos; outras bancadas com tipo
+    "outra". Liderança sem orientação reconhecida fica de fora, como antes."""
+    sigla_do_rotulo = _siglas_dos_rotulos(payload, siglas_por_nome or {}, por_sequencial)
     resultado = []
     for data, resposta in payload.get("orientacoes", {}).items():
         for v in (resposta or {}).get("votacoes", []):
@@ -69,11 +101,18 @@ def _orientacoes(payload: dict[str, Any], por_sequencial: dict[tuple[str, int], 
                 continue
             for o in v.get("orientacoesLideranca") or []:
                 orientacao = ORIENTACOES.get((o.get("voto") or "").strip().upper())
-                if orientacao and o.get("partido") in vc.BANCADAS:
+                rotulo = (o.get("partido") or "").strip()
+                if not orientacao or not rotulo:
+                    continue
+                registro = {"id_externo_votacao": id_externo, "orientacao": orientacao}
+                if rotulo in vc.BANCADAS:
+                    resultado.append(registro | {"bancada": rotulo, "tipo": "lideranca"})
+                elif rotulo in sigla_do_rotulo:
                     resultado.append(
-                        {"id_externo_votacao": id_externo, "bancada": o["partido"],
-                         "orientacao": orientacao}
-                    )  # fmt: skip
+                        registro | {"bancada": sigla_do_rotulo[rotulo], "tipo": "partido"}
+                    )
+                else:
+                    resultado.append(registro | {"bancada": rotulo, "tipo": "outra"})
     return resultado
 
 
@@ -82,6 +121,7 @@ def normalizar(payload: dict[str, Any] | list) -> tuple[list[dict], list[dict], 
     if isinstance(payload, list):  # bruto antigo, sem orientações
         payload = {"votacoes": payload, "orientacoes": {}}
     votacoes, votos, por_sequencial = [], [], {}
+    siglas_por_nome: dict[str, dict[str, str]] = {}
     for v in payload["votacoes"]:
         colegiado = (v.get("informeLegislativo") or {}).get("siglaColegiado", "PLEN")
         if colegiado != "PLEN" or not v.get("votos"):
@@ -99,8 +139,17 @@ def normalizar(payload: dict[str, Any] | list) -> tuple[list[dict], list[dict], 
                 else None,
                 "proposicao_ementa": " ".join((v.get("ementa") or "").split()) or None,
                 "secreta": v.get("votacaoSecreta") == "S",
+                "resultado": RESULTADOS.get(v.get("resultadoVotacao") or ""),
+                "placar_sim": v.get("totalVotosSim"),
+                "placar_nao": v.get("totalVotosNao"),
+                "placar_abstencao": v.get("totalVotosAbstencao"),
             }
         )
+        siglas_por_nome[id_externo] = {
+            x["nomeParlamentar"]: x["siglaPartidoParlamentar"]
+            for x in v["votos"]
+            if x.get("nomeParlamentar") and x.get("siglaPartidoParlamentar")
+        }
         votos.extend(
             {
                 "id_externo_votacao": id_externo,
@@ -110,7 +159,7 @@ def normalizar(payload: dict[str, Any] | list) -> tuple[list[dict], list[dict], 
             }
             for x in v["votos"]
         )
-    return votacoes, votos, _orientacoes(payload, por_sequencial)
+    return votacoes, votos, _orientacoes(payload, por_sequencial, siglas_por_nome)
 
 
 def executar(ano: int, de_raw: Path | None = None) -> int:

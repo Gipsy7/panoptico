@@ -1,6 +1,6 @@
 from datetime import date
 
-from sqlalchemy import Boolean, Date, ForeignKey, Index, String, Text, UniqueConstraint
+from sqlalchemy import Boolean, Date, ForeignKey, Index, Integer, String, Text, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.models.base import Base
@@ -25,6 +25,12 @@ class Votacao(Base):
     proposicao_id_externo: Mapped[str | None] = mapped_column(String(30), index=True)
     proposicao_ementa: Mapped[str | None] = mapped_column(Text)
     secreta: Mapped[bool] = mapped_column(Boolean, default=False)
+    # Resultado ("aprovada"/"rejeitada") e placar como a fonte publica. No Senado, o placar
+    # existe também nas votações secretas, que não têm voto nominal.
+    resultado: Mapped[str | None] = mapped_column(String(20))
+    placar_sim: Mapped[int | None] = mapped_column(Integer)
+    placar_nao: Mapped[int | None] = mapped_column(Integer)
+    placar_abstencao: Mapped[int | None] = mapped_column(Integer)
     ingestao_id: Mapped[int | None] = mapped_column(ForeignKey("fonte_ingestao.id"))
 
 
@@ -46,8 +52,10 @@ class Voto(Base):
 
 
 class Orientacao(Base):
-    """Orientação de voto de uma bancada. Guardamos só Governo, Maioria, Minoria e Oposição:
-    os blocos partidários vêm com nome truncado e não dá para ligá-los aos partidos."""
+    """Orientação de voto de uma bancada: lideranças (Governo, Maioria, Minoria, Oposição),
+    partidos, blocos e federações. O nome do bloco fica como a fonte publica (a Câmara o
+    trunca: "Bl UniPpPsd..."); `partidos` só é preenchido quando a composição vem da própria
+    fonte (docs/DECISOES.md, 2026-10-18)."""
 
     __tablename__ = "orientacao"
 
@@ -56,6 +64,10 @@ class Orientacao(Base):
     )
     bancada: Mapped[str] = mapped_column(String(30), primary_key=True)
     orientacao: Mapped[str] = mapped_column(String(30))
+    # lideranca | partido | bloco | federacao | outra; nulo nas linhas antigas (= lideranca).
+    tipo: Mapped[str | None] = mapped_column(String(12))
+    # Siglas que compõem o bloco/federação, separadas por vírgula, quando a fonte publica.
+    partidos: Mapped[str | None] = mapped_column(Text)
 
 
 class VotacaoComissao(Base):

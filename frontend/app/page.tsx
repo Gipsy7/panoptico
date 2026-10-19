@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Suspense } from "react";
 
+import { AvisoSegundoTurno } from "@/components/aviso-segundo-turno";
 import { EsqueletoSecao } from "@/components/esqueleto-secao";
 import { BuscaGeral } from "@/components/busca-geral";
 import { CepForm } from "@/components/cep-form";
@@ -34,6 +35,11 @@ export default function Home() {
           <div className="flex max-w-md flex-col gap-2">
             <BuscaGeral rotulo="Ou procure pelo nome: parlamentar, governador, prefeito ou vereador" />
           </div>
+          <Suspense fallback={null}>
+            <div className="max-w-md empty:hidden">
+              <AvisoSegundoTurno href="/segundo-turno" />
+            </div>
+          </Suspense>
         </div>
 
         <Suspense

@@ -7,7 +7,7 @@
  * Uso (servidor):
  *   <ListaPerguntas titulo="Para entender os números">
  *     <Pergunta id="entender-presenca" pergunta="O que entra na conta da presença?"
- *       resposta="Só as votações em que registrou voto">
+ *       resposta="Todas as votações do ano; só o voto registrado conta como presença">
  *       <p>Explicação curta…</p>
  *     </Pergunta>
  *   </ListaPerguntas>

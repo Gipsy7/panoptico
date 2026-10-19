@@ -12,6 +12,8 @@ from app.api import (
     pessoas,
     representantes,
     saude,
+    segundo_turno,
+    votacoes,
 )
 from app.config import settings
 
@@ -58,3 +60,5 @@ app.include_router(eleitos.router)
 app.include_router(busca.router)
 app.include_router(pessoas.router)
 app.include_router(partidos.router)
+app.include_router(segundo_turno.router)
+app.include_router(votacoes.router)

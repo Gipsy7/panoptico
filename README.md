@@ -39,6 +39,9 @@ Os dados sobre o trabalho dos parlamentares já são públicos, mas estão espal
 - **Acompanhar por feed**: cada perfil tem um feed Atom com cada fato novo, para usar num leitor de feeds; não pedimos e-mail nem telefone.
 - **Modo escuro**: segue o sistema, com alternador no menu.
 - **Para onde foi o dinheiro da cidade** (`/cidade/{ibge}`): emendas pagas ao município por parlamentar, contas da prefeitura (SICONFI) com o gasto por habitante, pagamentos a fornecedores (TCE-SP e TCE-RS) e contratos no PNCP, cada número por habitante ao lado da média dos municípios do mesmo estado, e uma seção do que ficou de fora. A página de representantes mostra um resumo de 3 números com link para ela.
+- **Comparador do 2º turno** (`/segundo-turno?cep=`): os candidatos a presidente e a governador que o eleitor encontra na urna, lado a lado, com os mesmos campos (votos no 1º turno, bens, campanha, carreira, registros na CGU e no TCU), na ordem do número na urna. Depois da apuração mostra o resultado.
+- **Votações por tema** no perfil de deputados e senadores: "votou em X de Y votações sobre Saúde", com a média da Casa, pela classificação temática oficial.
+- **Explicador de votação** (`/votacao/{casa}/{id}`): o que se votava, o placar, a orientação do Governo, das lideranças, dos partidos, blocos e federações, e como votou cada parlamentar. Votação secreta conta como presença, sem revelar o voto.
 - **Telas em três camadas**: cartões com os números principais e a média ao lado (o toque abre o detalhe numa gaveta), perguntas que explicam o que tem nuance e, no fim, todo o detalhe em abas. Vale para perfis, cidade e representantes.
 - **Cartões para compartilhar**: imagem de prévia com um número e a fonte para perfis federais, eleitos, vereadores, deputados estaduais e cidades.
 - **Busca por nome** em todos os níveis, na página inicial: parlamentares federais, presidente, governadores, prefeitos, deputados estaduais e vereadores (sem diferença de acento; também pelo nome completo), mais **partidos** (pela sigla ou pelo nome) e pessoas de eleições passadas ou suplentes, em grupos com limite. Usa índices de trigramas do Postgres (`pg_trgm` + `unaccent`, migração `0033_busca`) e cada consulta tem `LIMIT`, para não pesar no banco pago por uso; a resposta é cacheável na CDN.
@@ -308,6 +311,9 @@ Licença dos dados abertos: [Creative Commons Atribuição 4.0 (CC BY 4.0)](http
 | `GET /pessoas/{id}/servico-federal` | Cargos, viagens por ano e cartão corporativo por ano e órgão, com a média da Casa |
 | `GET /pessoas/{id}/carreira` | Candidaturas em todas as eleições carregadas, com bens declarados em cada uma e o recorte de anos |
 | `GET /pessoas/{id}/eventos.rss` | Feed Atom da linha do tempo (até 50 fatos) |
+| `GET /segundo-turno?cep=` · `GET /segundo-turno/agenda` | Candidatos do 2º turno da localidade, com os mesmos campos para todos |
+| `GET /parlamentares/{id}/votos-por-tema?ano=` | Votações por tema, com a média da Casa |
+| `GET /votacoes/{casa}/{id}` | Detalhe de uma votação nominal: placar, orientações e votos |
 | `GET /casos` · `GET /casos/{slug}` | Casos montados com documentos oficiais e o papel de cada pessoa (acervo) |
 | `GET /partidos?ano=` · `GET /partidos/{sigla}?ano=` | Finanças dos partidos na prestação de contas ao TSE: cotas, receita, gasto, repasses, receitas por fonte, despesas por categoria e FEFC por gênero e raça |
 | `GET /fontes` | Fontes e data da última atualização |

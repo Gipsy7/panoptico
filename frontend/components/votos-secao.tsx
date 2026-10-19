@@ -95,7 +95,14 @@ export function VotosSecao({
               <div className="flex flex-col gap-0.5">
                 <span className="text-xs text-muted-foreground">{formatarData(v.data)}</span>
                 {v.proposicao &&
-                  (v.url ? (
+                  (v.id_externo ? (
+                    <Link
+                      href={`/votacao/${casa}/${encodeURIComponent(v.id_externo)}`}
+                      className="font-medium underline underline-offset-2"
+                    >
+                      {v.proposicao}
+                    </Link>
+                  ) : v.url ? (
                     <a
                       href={v.url}
                       target="_blank"
@@ -114,7 +121,11 @@ export function VotosSecao({
               </div>
               <p className="line-clamp-2 text-sm text-muted-foreground">{v.descricao}</p>
               <dl className="grid grid-cols-1 gap-1 text-sm sm:grid-cols-3 sm:gap-2">
-                <Voto rotulo="Votou" valor={v.voto || "Sem voto registrado"} destaque />
+                <Voto
+                  rotulo={v.voto === "Votação secreta" ? "Voto" : "Votou"}
+                  valor={v.voto || "Sem voto registrado"}
+                  destaque
+                />
                 <Voto rotulo="Governo orientou" valor={v.orientacao_governo} />
                 <Voto rotulo={`Maioria ${v.partido ?? "do partido"}`} valor={v.maioria_partido} />
               </dl>

@@ -96,10 +96,12 @@ def test_normalizar_camara_proposicao_principal_orientacao_e_partido():
     assert votacoes[0]["proposicao_id_externo"] == "123"
     assert votacoes[0]["proposicao_ementa"] == "Dispõe sobre a vegetação."
     assert votos[0]["partido"] == "PL"
-    assert {o["bancada"]: o["orientacao"] for o in orientacoes} == {
-        "Governo": "Sim",
-        "Oposição": "Não",
+    assert {o["bancada"]: (o["tipo"], o["orientacao"]) for o in orientacoes} == {
+        "Governo": ("lideranca", "Sim"),
+        "Bl UniPpPsd...": ("bloco", "Não"),  # sem a lista de blocos: só o nome publicado
+        "Oposição": ("lideranca", "Não"),
     }
+    assert orientacoes[1]["partidos"] is None
 
 
 def test_normalizar_senado():
@@ -209,3 +211,29 @@ def test_media_da_casa_guardada_igual_a_recalculada(session):
     assert presenca.resumo(session, deps[0], 2026) == presenca.resumo(
         session, deps[0], 2026, usar_guardado=False
     )
+
+
+def test_votacao_secreta_com_voto_em_branco_conta_como_votou(client, session):
+    """Na Câmara a votação secreta lista quem votou com o voto em branco: conta como votou
+    (presença), sai do alinhamento com o Governo e a lista mostra "Votação secreta"."""
+    _popular(session)
+    d = session.scalars(select(Parlamentar).where(Parlamentar.casa == "camara")).all()[0]
+    votacoes = [
+        {"id_externo": "s", "data": date(2026, 2, 1), "descricao": "x", "proposicao": None,
+         "secreta": True},
+        {"id_externo": "a", "data": date(2026, 3, 1), "descricao": "y", "proposicao": None,
+         "secreta": False},
+    ]  # fmt: skip
+    votos = [
+        {"id_externo_votacao": "s", "parlamentar_id": d.id, "voto": ""},
+        {"id_externo_votacao": "a", "parlamentar_id": d.id, "voto": ""},  # aberta: sem voto
+    ]
+    vc.recarregar_votacoes(session, "camara", 2026, votacoes, votos, _ingestao(session))
+    session.flush()
+
+    r = presenca.resumo(session, d, 2026, usar_guardado=False)
+    assert (r["total_votacoes"], r["votou"], r["presente_sem_voto"]) == (2, 1, 1)
+    linhas = resumos.calcular(session, [2026])
+    assert next(x for x in linhas if x["parlamentar_id"] == d.id)["presenca_votou"] == 1
+    itens = client.get(f"/parlamentares/{d.id}/votos?ano=2026").json()["itens"]
+    assert {i["descricao"]: i["voto"] for i in itens} == {"x": "Votação secreta", "y": ""}

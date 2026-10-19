@@ -96,6 +96,9 @@
 - [2026-10-18: acompanhar representante só por feed Atom](#2026-10-18-acompanhar-representante-só-por-feed-atom)
 - [2026-10-18: CPF no nome de fornecedor](#2026-10-18-cpf-no-nome-de-fornecedor)
 - [2026-10-18: telas em cartões, perguntas e abas](#2026-10-18-telas-em-cartões-perguntas-e-abas)
+- [2026-10-18: comparador do 2º turno](#2026-10-18-comparador-do-2º-turno)
+- [2026-10-18: candidaturas do 2º turno (TSE)](#2026-10-18-candidaturas-do-2º-turno-tse)
+- [2026-10-18: explicador de votação e orientação dos partidos](#2026-10-18-explicador-de-votação-e-orientação-dos-partidos)
 
 ## 2026-10-06: stack inicial
 
@@ -139,6 +142,7 @@ Na Fase 2 existem só `parlamentar` e `fonte_ingestao`. `despesa` (4a) e `propos
 - Quem preside a sessão conta como presente que votou ("Artigo 17" na Câmara, "Presidente" no Senado).
 - O Senado informa justificativas (missão, licença, atividade parlamentar) e elas aparecem separadas. A Câmara não publica ausências, então lá aparece só "sem registro de voto", com essa ressalva no texto.
 - A média da Casa é a média dos percentuais dos parlamentares em exercício.
+- 2026-10-18, votação secreta: na Câmara a fonte lista quem votou com `tipoVoto` nulo (arquivo `votos.csv` com `voto` vazio; a API `/votacoes/{id}/votos` confirma, com a hora do registro, e a votação diz "Votação secreta" em `descUltimaAberturaVotacao`; ex.: PDL 995/2026, 466 registros, placar 404 a 61 e 1 abstenção). A ingestão marca `votacao.secreta`; presença e votos por tema contam o registro vazio dessas votações como "votou" (compareceu, conteúdo sigiloso). Em votação aberta o vazio continua "presente sem voto". O voto fica "Votação secreta" na lista do perfil e não entra no alinhamento com o Governo nem com o partido. O Senado já manda "Votou" nas secretas, sem mudança.
 
 ## 2026-10-06: salário
 
@@ -996,3 +1000,50 @@ Em 15/10 (`ibge_municipios`, ConnectTimeout) e 16/10 (`senado_votacoes`, 503 num
 - **Decisão ("mescla"):** de cima para baixo, (1) cartões com o número grande, a palavra do dia a dia e a barra contra a média da Casa ou do estado, na mesma escala, bronze para a pessoa ou cidade e cinza para a média; o toque abre a seção numa gaveta; (2) "Para entender os números": perguntas em `<details>` para o que tem nuance (presença, orientação do Governo, registro na CGU, média do estado), para onde migram as ressalvas que estavam espalhadas; (3) "Tudo em detalhe": abas com as seções completas.
 - **Um DOM só:** cada seção existe uma vez, dentro de uma aba; o cartão é um link `#ver-<secao>` e o componente das abas apresenta o painel como gaveta (`history.pushState`, então o Voltar do celular fecha). Sem JavaScript, todos os painéis aparecem empilhados e os links rolam até eles. Componentes em `frontend/components/painel/`.
 - **Resultado:** perfil federal 14 mil → 5,4 mil px; cidade de SP 4 mil → 3,4 mil; representantes de SP 25 mil → 2,8 mil.
+
+## 2026-10-18: comparador do 2º turno
+
+`/segundo-turno?cep=` (ou `?uf=`, `?municipio=`) mostra, lado a lado, os candidatos que o eleitor
+encontra na urna: presidente e, se o estado tiver, governador. API: `GET /segundo-turno` e
+`GET /segundo-turno/agenda` (`services/segundo_turno.py`).
+
+- **Neutralidade:** ordem pelo número na urna (nunca por votos); os mesmos campos e o mesmo
+  estilo para os dois lados; nenhuma cor por partido. Campo sem dado aparece como "não informado
+  pela fonte"; candidatura sem vínculo seguro com a pessoa mostra "não identificado na base" em
+  carreira e registros (é diferente de "nenhum").
+- **Dinheiro da campanha:** só totais e a origem agregada como o TSE classifica; nome de doador
+  pessoa física nunca aparece (LGPD).
+- **Percentual de votos:** não é mostrado. A base guarda só os candidatos de interesse, então a
+  soma dos votos carregados não é o total de votos válidos; mostrar um percentual dela seria um
+  número que não bate com a fonte. Fica para quando houver o total por disputa.
+- **Quando aparece:** a data do 2º turno é calculada (último domingo de outubro, Constituição,
+  arts. 28 e 77), não fixada no código. O link na home e em /representantes só aparece até essa
+  data e se houver candidatura com situação "2º TURNO" na base; depois do resultado o TSE troca a
+  situação e o link some sozinho.
+- **Propostas de governo:** link para o DivulgaCandContas (página inicial). O endereço de cada
+  candidato depende de um código da eleição que a base não guarda; nada é raspado.
+- **Depois do resultado:** o TSE troca "2º TURNO" por ELEITO/NÃO ELEITO e a data da eleição passa a
+  ser a do 2º turno; a página vira "Resultado do 2º turno" e mostra quem foi eleito. A coluna `votos`
+  guarda o último turno disputado, então depois do resultado ela é rotulada "votos no 2º turno" e
+  nunca como 1º. No ano seguinte a página não mostra mais a eleição passada.
+- Se faltar um dos dois candidatos de uma disputa, a coluna dele diz que os dados ainda não
+  foram carregados.
+
+## 2026-10-18: candidaturas do 2º turno (TSE)
+
+- **Por quê:** o comparador do 2º turno precisa de todos os candidatos que disputam, não só os que já estavam na base (eleitos ou parlamentares). Antes, `tse_candidaturas` guardava em 2026 só eleito ou ligado a parlamentar.
+- **O que entra a mais:** em 2026, titular e vice de presidente e governador com situação "2º TURNO" (`disputa_2_turno`). Os demais derrotados do 1º turno continuam de fora (coleta mínima): a regra é estreita de propósito, 28 candidaturas.
+- **Armadilha:** o TSE publica a linha do 2º turno com resultado `#NULO` e a ordem das linhas varia; `normalizar` mantém o "2º TURNO" do 1º turno enquanto não há resultado (senão a candidatura virava "sem situação" e saía do filtro).
+- Bens, contas de campanha, votos e fotos se penduram nas candidaturas guardadas, então 2026 entra em `anos` de `tse_bens`, `tse_campanha` e `tse_votos`. Vice não tem contas nem votos próprios. Identidade segue a regra de sempre (`ingestion.pessoas`, por CPF e título).
+
+## 2026-10-18: explicador de votação e orientação dos partidos
+
+- **O quê:** página `/votacao/{casa}/{id_externo}` (rota `GET /votacoes/{casa}/{id_externo}`, `services/votacao_detalhe.py`) com o que se votava, resultado, placar, orientação das lideranças, dos partidos, blocos e federações, e o voto de cada parlamentar. O id é o da fonte (Câmara "2645346-18", Senado "7104"): o id interno muda a cada recarga anual.
+- **Orientações guardadas:** antes só Governo, Maioria, Minoria e Oposição; agora também partidos, blocos, federações e outras bancadas, com `orientacao.tipo` (migração 0045, só colunas opcionais). Bloco e federação ficam com o **nome como a fonte publica**, mesmo truncado.
+- **Composição de bloco (sem inventar):** só anotada (`orientacao.partidos`) quando o rótulo truncado casa com um único bloco da lista oficial da Câmara: cada pedaço ("Uni", "Pp", "Psd") tem de ser o começo de um partido diferente do bloco. Limite conhecido: a Câmara só publica a composição **atual** e sem datas; um bloco antigo com o mesmo começo de nome pode ter tido outra composição no fim do nome (que o rótulo esconde). Bloco que não casa (ex.: "Bl PlUniPpPsd..." de 2025) fica só com o nome. A página diz isso.
+- **Orientação do partido na página:** a do próprio partido; se ele não orientou sozinho, a do bloco ou federação que o inclui (federação primeiro), com o nome do grupo ao lado.
+- **"Seguiu a orientação":** voto efetivo igual à orientação Sim, Não ou Obstrução (mesma regra do alinhamento com o Governo); "Liberado" e em branco ficam fora.
+- **Placar:** o do topo é o **publicado pela Casa** (`votacao.placar_*`, novo); a lista nominal pode somar menos, porque só liga quem está no cadastro de parlamentares (ex.: PLP 74/2026, Sim 346 publicado, 343 na lista: 3 deputados que deixaram o cargo). A página explica a diferença quando há.
+- **Votação secreta na Câmara:** o arquivo lista quem votou com o voto em branco; agora `secreta` = verdadeiro quando nenhum voto da votação veio preenchido e há placar (PDL 995/2026, escolha de ministro do TCU). Não muda alinhamento nem convergência (voto em branco já não contava).
+- **Neutralidade:** partidos em ordem do número de parlamentares na votação (empate alfabético); sem cor por partido nem de aprovado/rejeitado (Sim em bronze e Não em cinza só na barra do placar).
+- **Produção:** sem `RECARREGAR_DADOS`. A ingestão diária recarrega o ano corrente das votações (apaga e reinsere), então 2026 se preenche sozinho no dia seguinte. 2025 fica com os campos novos vazios até alguém rodar `python -m ingestion.camara.votacoes --ano 2025` e `python -m ingestion.senado.votacoes --ano 2025` (≈ 4 mil linhas de orientação; a tabela `orientacao` inteira de 2025 e 2026 ocupa ~1 MB no dev).

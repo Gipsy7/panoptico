@@ -153,6 +153,63 @@ def test_eleito_local_guarda_todos_os_eleitos():
     assert candidaturas.eleito_local({"cargo": "DEPUTADO DISTRITAL", "situacao_turno": "ELEITO"})
 
 
+def test_normalizar_2_turno_sem_resultado_mantem_a_situacao_do_1_turno():
+    # O TSE publica a linha do 2º turno com "#NULO" até a apuração.
+    primeiro = {**CAND[0], "ANO_ELEICAO": "2026", "SQ_CANDIDATO": "p1", "DS_CARGO": "PRESIDENTE"}
+    segundo = {**primeiro, "NR_TURNO": "2", "DS_SIT_TOT_TURNO": "#NULO", "DT_ELEICAO": "25/10/2026"}
+    (registro,) = candidaturas.normalizar([primeiro, segundo])
+    assert registro["situacao_turno"] == "2º TURNO"
+    assert candidaturas.disputa_2_turno(registro)
+    # A ordem das linhas no arquivo não importa.
+    (invertido,) = candidaturas.normalizar([segundo, primeiro])
+    assert invertido["situacao_turno"] == "2º TURNO"
+    # Com o resultado publicado, vale o do 2º turno.
+    (final,) = candidaturas.normalizar([primeiro, {**segundo, "DS_SIT_TOT_TURNO": "ELEITO"}])
+    assert final["situacao_turno"] == "ELEITO"
+
+
+def test_derrotado_do_2_turno_continua_carregado(session):
+    primeiro = {**CAND[0], "ANO_ELEICAO": "2026", "SQ_CANDIDATO": "g9", "DS_CARGO": "GOVERNADOR"}
+    segundo = {**primeiro, "NR_TURNO": "2", "DS_SIT_TOT_TURNO": "NÃO ELEITO"}
+    (registro,) = candidaturas.normalizar([primeiro, segundo])
+    assert registro["situacao_turno"] == "NÃO ELEITO"
+    assert candidaturas.disputa_2_turno(registro)
+    assert candidaturas.carregar_registros(session, [registro], 2026, _ingestao(session).id) == 1
+    assert (
+        session.scalar(select(Candidatura.situacao_turno).where(Candidatura.sq_candidato == "g9"))
+        == "NÃO ELEITO"
+    )
+    # Quem só disputou o 1º turno e perdeu não entra.
+    (fora,) = candidaturas.normalizar([{**primeiro, "DS_SIT_TOT_TURNO": "NÃO ELEITO"}])
+    assert not candidaturas.disputa_2_turno(fora)
+
+
+def test_disputa_2_turno_so_do_executivo():
+    base = {"cargo": "GOVERNADOR", "situacao_turno": "2º TURNO"}
+    assert candidaturas.disputa_2_turno(base)
+    assert candidaturas.disputa_2_turno({**base, "cargo": "VICE-PRESIDENTE"})
+    assert not candidaturas.disputa_2_turno({**base, "situacao_turno": "NÃO ELEITO"})
+    assert not candidaturas.disputa_2_turno({**base, "situacao_turno": None})
+    assert not candidaturas.disputa_2_turno({**base, "cargo": "SENADOR"})
+
+
+def test_carga_guarda_chapa_do_2_turno_e_descarta_o_resto(session):
+    base = {"ano_eleicao": 2026, "uf": "SP", "unidade": "São Paulo", "codigo_ue": "SP",
+            "nome": "X", "nome_urna": "X", "partido": "PL", "situacao_candidatura": "APTO",
+            "cpf": "12345678901", "titulo": "111"}  # fmt: skip
+    registros = [
+        {**base, "sq_candidato": "g1", "cargo": "GOVERNADOR", "numero": "22", "situacao_turno": "2º TURNO"},
+        {**base, "sq_candidato": "v1", "cargo": "VICE-GOVERNADOR", "numero": "22", "situacao_turno": "2º TURNO"},
+        {**base, "sq_candidato": "g2", "cargo": "GOVERNADOR", "numero": "13", "situacao_turno": "NÃO ELEITO"},
+        {**base, "sq_candidato": "d1", "cargo": "DEPUTADO FEDERAL", "numero": "2222", "situacao_turno": "2º TURNO"},
+    ]  # fmt: skip
+    assert candidaturas.carregar_registros(session, registros, 2026, _ingestao(session).id) == 2
+    guardadas = session.scalars(select(Candidatura).where(Candidatura.ano_eleicao == 2026)).all()
+    assert {c.sq_candidato for c in guardadas} == {"g1", "v1"}
+    vice = next(c for c in guardadas if c.sq_candidato == "v1")
+    assert vice.chapa_titular_id == next(c.id for c in guardadas if c.sq_candidato == "g1")
+
+
 def test_vereadores_e_estaduais_pela_api(client, session):
     session.add_all(
         [

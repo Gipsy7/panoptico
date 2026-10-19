@@ -30,6 +30,7 @@ import { RemuneracaoSecao } from "@/components/remuneracao-secao";
 import { ResumoPerfil } from "@/components/resumo-perfil";
 import { TemasSecao } from "@/components/temas-secao";
 import { VotosSecao } from "@/components/votos-secao";
+import { VotosTemaSecao } from "@/components/votos-tema-secao";
 import {
   getDestinoEmendas,
   getEmendasRelator,
@@ -41,6 +42,7 @@ import {
   getProjetos,
   getTemas,
   getVotos,
+  getVotosPorTema,
   getSancoes,
   getVotosComissoes,
   type Casa,
@@ -100,7 +102,7 @@ async function Perfil({
   paginaVotos?: string;
   paginaComissoes?: string;
 }) {
-  const [resultado, gastos, projetos, presenca, temas, votos, candidatura, comissoes, [linha, sancoes], destino, relator] =
+  const [resultado, gastos, projetos, presenca, temas, votos, votosTema, candidatura, comissoes, [linha, sancoes], destino, relator] =
     await Promise.all([
       getParlamentar(id),
       getGastos(id, ano),
@@ -108,6 +110,7 @@ async function Perfil({
       getPresenca(id, ano),
       getTemas(id),
       getVotos(id, { ano, tema, pagina: paginaVotos }),
+      getVotosPorTema(id, ano),
       getCandidatura(id),
       getVotosComissoes(id, paginaComissoes),
       // As sanções dependem da pessoa; a SancoesSecao repete a chamada e o fetch é memoizado.
@@ -170,6 +173,13 @@ async function Perfil({
           id: "votos",
           titulo: "Como votou",
           conteudo: votos.ok && <VotosSecao dados={votos.dados} casa={p.casa} parlamentarId={p.id} />,
+        },
+        {
+          id: "votos-tema",
+          titulo: "Votações por tema",
+          conteudo: votosTema.ok && votosTema.dados.temas.length > 0 && (
+            <VotosTemaSecao dados={votosTema.dados} casa={p.casa} parlamentarId={p.id} />
+          ),
         },
         {
           id: "comissoes",
@@ -380,7 +390,7 @@ function PerguntasPerfil({
           resposta={
             presenca.ausencia_detalhada
               ? "Votos, faltas e ausências justificadas, como o Senado registra"
-              : "Só as votações em que registrou voto"
+              : "Todas as votações do ano; só o voto registrado conta como presença"
           }
         >
           <p>
@@ -391,7 +401,7 @@ function PerguntasPerfil({
           <p className="text-muted-foreground">
             {presenca.ausencia_detalhada
               ? "Ausência justificada inclui missão oficial, licença e atividade parlamentar fora do Plenário, conforme o registro do Senado."
-              : "A Câmara publica apenas quem registrou voto. Ausências por licença ou missão oficial não aparecem separadas nestes dados; por isso o número mostra só o que a Câmara registrou."}
+              : "A Câmara publica apenas quem registrou voto. Em votação secreta, quem aparece na lista conta como quem votou, mesmo sem o voto público. Ausências por licença ou missão oficial não aparecem separadas nestes dados; por isso o número mostra só o que a Câmara registrou."}
           </p>
           <FonteRodape fonte={presenca.fonte_nome} url={presenca.fonte_url} atualizadoEm={presenca.atualizado_em} />
         </Pergunta>

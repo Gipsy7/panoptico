@@ -25,7 +25,7 @@ CATALOGO = [
         "url": "https://www.camara.leg.br/transparencia/gastos-parlamentares",
     },
     {
-        "dado": "Votações nominais (Plenário e comissões) e orientação do Governo",
+        "dado": "Votações nominais (Plenário e comissões) e orientação do Governo e dos partidos",
         "orgao": "Câmara dos Deputados e Senado Federal",
         "fontes": ["camara_votacoes", "senado_votacoes", "senado_votacoes_comissoes"],
         "url": "https://dadosabertos.camara.leg.br/",

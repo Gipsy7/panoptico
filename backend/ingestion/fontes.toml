@@ -54,7 +54,7 @@ depende = ["senado_senadores"]
 [[fonte]]
 nome = "camara_votacoes"
 modulo = "ingestion.camara.votacoes"
-uso = "Presença e como votou (Câmara)"
+uso = "Presença, como votou e explicador de votação (Câmara; orientação de lideranças, partidos, blocos e federações)"
 recorte = "ano anterior e atual"
 frequencia = "diaria"
 anos = "padrao"
@@ -63,7 +63,7 @@ depende = ["camara_deputados"]
 [[fonte]]
 nome = "senado_votacoes"
 modulo = "ingestion.senado.votacoes"
-uso = "Presença e como votou (Senado)"
+uso = "Presença, como votou e explicador de votação (Senado; orientação de lideranças e partidos)"
 recorte = "ano anterior e atual"
 frequencia = "diaria"
 anos = "padrao"
@@ -169,7 +169,7 @@ depende = ["camara_despesas", "senado_despesas", "camara_votacoes", "senado_vota
 nome = "tse_candidaturas"
 modulo = "ingestion.tse.candidaturas"
 uso = "Representantes eleitos e \"Quem é\" (TSE)"
-recorte = "eleitos e parlamentares; 2016 e 2020 só de quem já temos (pelo título), depois das demais"
+recorte = "eleitos e parlamentares; em 2026 também as chapas de presidente e governador no 2º turno (titular e vice); 2016 e 2020 só de quem já temos (pelo título), depois das demais"
 frequencia = "manual"
 anos = [2018, 2022, 2024, 2026, 2020, 2016]
 depende = ["camara_deputados", "senado_senadores", "ibge_municipios"]
@@ -181,7 +181,7 @@ modulo = "ingestion.tse.bens"
 uso = "Bens declarados"
 recorte = "candidaturas guardadas"
 frequencia = "manual"
-anos = [2018, 2022, 2024]
+anos = [2018, 2022, 2024, 2026]
 depende = ["tse_candidaturas"]
 bruto = "recorte"
 
@@ -192,7 +192,7 @@ uso = "De onde veio e para onde foi o dinheiro da campanha"
 recorte = "candidaturas guardadas"
 guarda = "somas"
 frequencia = "manual"
-anos = [2018, 2022, 2024]
+anos = [2018, 2022, 2024, 2026]
 depende = ["tse_candidaturas"]
 bruto = "recorte"
 
@@ -212,7 +212,7 @@ uso = "Votos recebidos"
 recorte = "candidaturas guardadas"
 guarda = "somas"
 frequencia = "manual"
-anos = [2018, 2022, 2024]
+anos = [2018, 2022, 2024, 2026]
 depende = ["tse_candidaturas"]
 bruto = "recorte"
 

@@ -49,7 +49,7 @@ def test_orientacoes_do_senado_ligadas_pelo_sequencial():
                         "sequencialVotacao": 4415,
                         "orientacoesLideranca": [
                             {"partido": "Governo", "voto": "SIM"},
-                            {"partido": "MDB", "voto": "NÃO"},  # partido: não guardamos
+                            {"partido": "MDB", "voto": "NÃO"},  # sem voto do MDB: "outra"
                             {"partido": "Oposição", "voto": "LIVRE"},
                         ],
                     },
@@ -63,9 +63,12 @@ def test_orientacoes_do_senado_ligadas_pelo_sequencial():
     }
     _, _, orientacoes = senado.normalizar(payload)
     assert orientacoes == [
-        {"id_externo_votacao": "7104", "bancada": "Governo", "orientacao": "Sim"},
-        {"id_externo_votacao": "7104", "bancada": "Oposição", "orientacao": "Liberado"},
-    ]
+        {"id_externo_votacao": "7104", "bancada": "Governo", "orientacao": "Sim",
+         "tipo": "lideranca"},
+        {"id_externo_votacao": "7104", "bancada": "MDB", "orientacao": "Não", "tipo": "outra"},
+        {"id_externo_votacao": "7104", "bancada": "Oposição", "orientacao": "Liberado",
+         "tipo": "lideranca"},
+    ]  # fmt: skip
 
 
 def test_espera_respeita_retry_after():

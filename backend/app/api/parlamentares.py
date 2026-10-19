@@ -16,6 +16,7 @@ from app.schemas import (
     ProjetosResposta,
     TemasResposta,
     VotosComissoesResposta,
+    VotosPorTemaResposta,
     VotosResposta,
 )
 from app.services import (
@@ -29,7 +30,9 @@ from app.services import (
     remuneracao,
     temas,
     tse,
+    votacao_detalhe,
     votos,
+    votos_tema,
 )
 
 router = APIRouter()
@@ -171,6 +174,13 @@ def temas_do_parlamentar(
     return temas.projetos_por_tema(session, _buscar(session, parlamentar_id))
 
 
+def _com_links(session: Session, p: Parlamentar, ano: int, tema: str | None, pagina: int) -> dict:
+    """Lista de votos com o id de cada votação, para o link ao explicador de votação."""
+    lista = votos.lista_votos(session, p, ano, tema, pagina)
+    ids = votacao_detalhe.ids_da_pagina(session, p, ano, tema, pagina, lista["por_pagina"])
+    return lista | {"itens": votacao_detalhe.com_ids(lista["itens"], ids)}
+
+
 @router.get("/parlamentares/{parlamentar_id}/votos", response_model=VotosResposta)
 def votos_do_parlamentar(
     parlamentar_id: int,
@@ -206,8 +216,25 @@ def votos_do_parlamentar(
         "media_partido": ranking.media_partido(session, p.casa, ano),
         "temas_disponiveis": votos.temas_disponiveis(session, p, ano),
         "tema": tema,
-        **votos.lista_votos(session, p, ano, tema, pagina),
+        **_com_links(session, p, ano, tema, pagina),
         "fonte_nome": fonte["nome"],
         "fonte_url": fonte["url"],
         "atualizado_em": lista["atualizado_em"],
     }
+
+
+@router.get("/parlamentares/{parlamentar_id}/votos-por-tema", response_model=VotosPorTemaResposta)
+def votos_por_tema(
+    parlamentar_id: int,
+    session: Annotated[Session, Depends(get_session)],
+    ano: Annotated[int | None, Query(description="Padrão: ano mais recente com dados")] = None,
+) -> dict:
+    p = _buscar(session, parlamentar_id)
+    anos = presenca.anos_disponiveis(session, p.casa)
+    if not anos:
+        raise HTTPException(404, "Ainda não há votações carregadas para esta Casa.")
+    if ano is None:
+        ano = anos[0]
+    elif ano not in anos:
+        raise HTTPException(404, f"Sem votações carregadas para {ano}.")
+    return votos_tema.votos_por_tema(session, p, ano)

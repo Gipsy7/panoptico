@@ -15,7 +15,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 
 from PIL import Image, UnidentifiedImageError
-from sqlalchemy import select
+from sqlalchemy import and_, or_, select
 from sqlalchemy.dialects.postgresql import insert
 
 from app.db import SessionLocal
@@ -73,8 +73,20 @@ def executar(ano: int, ufs: list[str] | None = None) -> int:
             session.execute(
                 select(Candidatura.sq_candidato, Candidatura.id).where(
                     Candidatura.ano_eleicao == ano,
-                    Candidatura.parlamentar_id.is_(None),
-                    Candidatura.situacao_turno.like("ELEITO%"),
+                    or_(
+                        and_(
+                            Candidatura.parlamentar_id.is_(None),
+                            Candidatura.situacao_turno.like("ELEITO%"),
+                        ),
+                        # Quem disputa o 2º turno (presidente, governador e vices), mesmo
+                        # parlamentar: o comparador mostra a foto da candidatura.
+                        and_(
+                            Candidatura.situacao_turno.like("2%TURNO"),
+                            Candidatura.cargo.in_(
+                                ["PRESIDENTE", "VICE-PRESIDENTE", "GOVERNADOR", "VICE-GOVERNADOR"]
+                            ),
+                        ),
+                    ),
                 )
             ).all()
         )

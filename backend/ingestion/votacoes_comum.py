@@ -8,8 +8,19 @@ from sqlalchemy.orm import Session
 
 from app.models import FonteIngestao, Orientacao, Votacao, VotacaoComissao, Voto, VotoComissao
 
-# Só estas bancadas têm nome estável; os blocos vêm truncados ("Bl UniPpPsd...").
+# Lideranças com nome estável. Partidos, blocos e federações também são guardados, com
+# `tipo`; o nome do bloco fica como a fonte publica (a Câmara trunca: "Bl UniPpPsd...").
 BANCADAS = {"Governo", "Maioria", "Minoria", "Oposição"}
+TIPOS = {"lideranca", "partido", "bloco", "federacao", "outra"}
+# Colunas opcionais da votação: toda linha do lote precisa ter as mesmas chaves.
+OPCIONAIS_VOTACAO = {
+    "proposicao_id_externo": None,
+    "proposicao_ementa": None,
+    "resultado": None,
+    "placar_sim": None,
+    "placar_nao": None,
+    "placar_abstencao": None,
+}
 
 
 def recarregar_votacoes(
@@ -35,8 +46,7 @@ def recarregar_votacoes(
     mapa: dict[str, int] = {}
     for inicio in range(0, len(votacoes), 2000):
         lote = [
-            {"proposicao_id_externo": None, "proposicao_ementa": None, **v}
-            | {"casa": casa, "ingestao_id": ingestao.id}
+            OPCIONAIS_VOTACAO | v | {"casa": casa, "ingestao_id": ingestao.id}
             for v in votacoes[inicio : inicio + 2000]
         ]
         resultado = session.execute(
@@ -63,12 +73,16 @@ def recarregar_votacoes(
             "votacao_id": mapa[o["id_externo_votacao"]],
             "bancada": o["bancada"],
             "orientacao": o["orientacao"],
+            "tipo": "lideranca" if o["bancada"] in BANCADAS else o["tipo"],
+            "partidos": o.get("partidos"),
         }
         for o in orientacoes or []
-        if o["id_externo_votacao"] in mapa and o["bancada"] in BANCADAS
+        if o["id_externo_votacao"] in mapa
+        and (o["bancada"] in BANCADAS or (o.get("tipo") in TIPOS and o["orientacao"]))
     }
-    if orientacoes_validas:
-        session.execute(insert(Orientacao).values(list(orientacoes_validas.values())))
+    valores_or = list(orientacoes_validas.values())
+    for inicio in range(0, len(valores_or), 5000):
+        session.execute(insert(Orientacao).values(valores_or[inicio : inicio + 5000]))
     return len(valores)
 
 

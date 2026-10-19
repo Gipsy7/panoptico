@@ -167,6 +167,15 @@ export default function SobreAsFontesPage() {
           outros parlamentares do mesmo partido naquele dia (pelo menos dois votando; empates ficam
           de fora).
         </Item>
+        <Item titulo="Página de cada votação">
+          Mostra o placar publicado pela Casa, a orientação das lideranças e de cada partido, bloco
+          e federação, e o voto de cada parlamentar. Os blocos aparecem com o nome que a Câmara
+          publica, às vezes cortado (&quot;Bl UniPpPsd...&quot;); os partidos de um bloco só são
+          listados quando o nome casa com um único bloco da lista oficial da Câmara, que traz só a
+          composição atual. Partido sem orientação própria aparece com a do seu bloco ou federação.
+          A lista nominal só traz quem está no nosso cadastro; quando ela soma menos que o placar
+          publicado, a página diz quantos votos ficaram de fora.
+        </Item>
         <Item titulo="Temas">
           Os temas são a classificação oficial de cada Casa para cada proposição (uma proposição
           pode ter vários). Na Câmara, são os temas da própria Câmara; no Senado, usamos o segundo

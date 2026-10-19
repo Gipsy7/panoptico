@@ -3,6 +3,7 @@ import Link from "next/link";
 
 import { EsqueletoSecao } from "@/components/esqueleto-secao";
 import { AvisoErro } from "@/components/aviso-erro";
+import { AvisoSegundoTurno } from "@/components/aviso-segundo-turno";
 import { Revelacao } from "@/components/revelacao";
 import { CompartilharWhatsApp } from "@/components/compartilhar";
 import { FonteRodape } from "@/components/fonte-rodape";
@@ -320,6 +321,17 @@ async function Lista({ cep, uf, municipio }: Busca) {
               : `/representantes?uf=${localizacao.uf}`
           }
           texto={`Veja quem representa ${lugar} no Congresso e para onde foi o dinheiro da cidade:`}
+        />
+
+        <AvisoSegundoTurno
+          uf={localizacao.uf}
+          href={
+            localizacao.cep
+              ? `/segundo-turno?cep=${localizacao.cep}`
+              : localizacao.codigo_ibge
+                ? `/segundo-turno?municipio=${localizacao.codigo_ibge}`
+                : `/segundo-turno?uf=${localizacao.uf}`
+          }
         />
       </div>
 

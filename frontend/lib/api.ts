@@ -682,6 +682,8 @@ export type VotoItem = {
   maioria_partido: string | null;
   partido: string | null;
   url: string | null;
+  /** Id da votação na fonte, para o link ao explicador (/votacao/[casa]/[id]). */
+  id_externo?: string | null;
 };
 
 export type Votos = {
@@ -1129,4 +1131,180 @@ export function getCarreira(pessoaId: number) {
 /** Feed (Atom) público dos fatos novos da pessoa. */
 export function urlFeedDaPessoa(pessoaId: number) {
   return `${API_PUBLICA}/pessoas/${pessoaId}/eventos.rss`;
+}
+
+export type VotoTema = {
+  tema: string;
+  total_votacoes: number;
+  votou: number;
+  percentual: number | null;
+  media_casa_percentual: number | null;
+  media_casa_votou: number | null;
+  governo_iguais: number;
+  governo_total: number;
+};
+
+export type VotosPorTema = {
+  ano: number;
+  anos_disponiveis: number[];
+  periodo_inicio: string;
+  temas: VotoTema[];
+  fonte_nome: string;
+  fonte_url: string;
+  atualizado_em: string | null;
+};
+
+export function getVotosPorTema(id: string, ano?: string) {
+  const query = ano ? `?ano=${encodeURIComponent(ano)}` : "";
+  return getJson<VotosPorTema>(`/parlamentares/${encodeURIComponent(id)}/votos-por-tema${query}`);
+}
+
+// ---- Comparador do 2º turno ----------------------------------------------------------
+
+export type CandidatoSegundoTurno = {
+  id: number;
+  nome_urna: string;
+  numero: string | null;
+  partido: string | null;
+  foto: boolean;
+  foto_url: string | null;
+  vice: { id: number; nome_urna: string; partido: string | null; foto: boolean } | null;
+  votos_1turno: number | null;
+  /** Só depois do resultado: os votos do 2º turno (a fonte troca a coluna). */
+  votos_2turno: number | null;
+  /** Nulo enquanto o 2º turno não tem resultado. */
+  eleito: boolean | null;
+  bens: {
+    ano: number;
+    total: number;
+    quantidade: number;
+    maiores: { tipo: string; descricao: string; valor: number }[];
+    anterior: { ano: number; cargo: string; total: number | null } | null;
+    fonte_url: string;
+  } | null;
+  campanha: {
+    receitas_total: number;
+    despesas_total: number;
+    receitas_por_origem: { nome: string; valor: number }[];
+    numero_doadores: number;
+    fonte_url: string;
+  } | null;
+  /** Nulo: a candidatura não está ligada a uma pessoa por dado seguro (não é "nenhum"). */
+  carreira: { ano: number; cargo: string; unidade: string; partido: string | null; situacao: string | null; eleito: boolean }[] | null;
+  sancoes: {
+    data: string | null;
+    tipo: string;
+    descricao: string;
+    orgao: string | null;
+    situacao: string | null;
+    fonte_url: string | null;
+  }[] | null;
+  pessoa_id: number | null;
+  perfil: string;
+};
+
+export type DisputaSegundoTurno = {
+  chave: string;
+  cargo: string;
+  unidade: string;
+  uf: string | null;
+  candidatos: CandidatoSegundoTurno[];
+  faltam: number;
+  /** O TSE já publicou o resultado do 2º turno desta disputa. */
+  decidida: boolean;
+};
+
+export type SegundoTurno = {
+  localizacao: Representantes["localizacao"];
+  ano_eleicao: number | null;
+  data_segundo_turno: string | null;
+  em_andamento: boolean;
+  disputas: DisputaSegundoTurno[];
+  governador_eleito_1turno: { id: number; nome_urna: string; partido: string | null; numero: string | null } | null;
+  propostas_url: string;
+  fonte_nome: string;
+  fonte_url: string;
+  contas_url: string;
+  atualizado_em: string | null;
+  sancoes_fonte_nome: string;
+  sancoes_fonte_url: string;
+  sancoes_atualizado_em: string | null;
+};
+
+export function getSegundoTurno(busca: { cep?: string; uf?: string; municipio?: string }) {
+  const params = new URLSearchParams();
+  if (busca.municipio) params.set("municipio", busca.municipio);
+  else if (busca.cep) params.set("cep", busca.cep);
+  else if (busca.uf) params.set("uf", busca.uf);
+  return getJson<SegundoTurno>(`/segundo-turno?${params}`);
+}
+
+export type AgendaSegundoTurno = {
+  ano_eleicao: number | null;
+  data_segundo_turno: string | null;
+  em_andamento: boolean;
+  presidente: boolean;
+  ufs_governador: string[];
+};
+
+export function getAgendaSegundoTurno() {
+  return getJson<AgendaSegundoTurno>("/segundo-turno/agenda");
+}
+
+// Explicador de votação (GET /votacoes/{casa}/{id_externo}).
+export type PartidoNaVotacao = {
+  partido: string;
+  parlamentares: number;
+  sim: number;
+  nao: number;
+  abstencao: number;
+  obstrucao: number;
+  outros: number;
+  votos_efetivos: number;
+  orientacao: string | null;
+  /** Bloco ou federação de onde veio a orientação (nome como a fonte publica). */
+  orientacao_por: string | null;
+  seguiram: number | null;
+};
+
+export type ParlamentarNaVotacao = {
+  parlamentar_id: number;
+  nome: string;
+  partido: string;
+  uf: string;
+  voto: string;
+  /** O voto ou, quando não é voto, o registro em linguagem do dia a dia. */
+  registro: string;
+  efetivo: boolean;
+};
+
+export type VotacaoDetalhe = {
+  casa: Casa;
+  id_externo: string;
+  data: string;
+  descricao: string;
+  proposicao: string | null;
+  proposicao_ementa: string | null;
+  proposicao_url: string | null;
+  temas: string[];
+  secreta: boolean;
+  resultado: "aprovada" | "rejeitada" | null;
+  placar: { sim: number; nao: number; abstencao: number; obstrucao: number };
+  outros_registros: { rotulo: string; quantidade: number }[];
+  placar_oficial: { sim: number | null; nao: number | null; abstencao: number | null } | null;
+  registros: number;
+  cadeiras: number;
+  liderancas: { bancada: string; orientacao: string | null }[];
+  outras_bancadas: { bancada: string; tipo: string; orientacao: string; partidos: string[] }[];
+  seguiram_governo: Placar;
+  seguiram_partido: Placar;
+  partidos: PartidoNaVotacao[];
+  parlamentares: ParlamentarNaVotacao[];
+  fonte_nome: string;
+  fonte_url: string;
+  atualizado_em: string | null;
+};
+
+export function getVotacao(casa: string, id: string) {
+  return getJson<VotacaoDetalhe>(`/votacoes/${encodeURIComponent(casa)}/${encodeURIComponent(id)}`);
 }

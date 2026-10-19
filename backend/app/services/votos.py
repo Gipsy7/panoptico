@@ -183,7 +183,7 @@ def lista_votos(
                 "proposicao": votacao.proposicao,
                 "proposicao_ementa": votacao.proposicao_ementa,
                 "temas": temas.get(votacao.proposicao_id_externo or "", []),
-                "voto": voto,
+                "voto": "Votação secreta" if votacao.secreta and not voto else voto,
                 "orientacao_governo": governo.get(votacao.id),
                 "maioria_partido": maioria,
                 "partido": partido,

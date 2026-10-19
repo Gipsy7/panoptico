@@ -699,6 +699,8 @@ class VotoItem(BaseModel):
     maioria_partido: str | None
     partido: str | None
     url: str | None
+    # Votação no explicador (/votacoes/{casa}/{id_externo}); nulo quando não deu para ligar.
+    id_externo: str | None = None
 
 
 class VotoComissaoItem(BaseModel):
@@ -1239,6 +1241,27 @@ class CarreiraDaPessoa(BaseModel):
     pessoa_id: int
     itens: list[CandidaturaDaCarreira]
     recorte: RecorteDaCarreira
+    fonte_nome: str
+    fonte_url: str
+    atualizado_em: datetime | None
+
+
+class VotoTema(BaseModel):
+    tema: str
+    total_votacoes: int
+    votou: int
+    percentual: float | None
+    media_casa_percentual: float | None
+    media_casa_votou: float | None
+    governo_iguais: int
+    governo_total: int
+
+
+class VotosPorTemaResposta(BaseModel):
+    ano: int
+    anos_disponiveis: list[int]
+    periodo_inicio: date
+    temas: list[VotoTema]
     fonte_nome: str
     fonte_url: str
     atualizado_em: datetime | None
