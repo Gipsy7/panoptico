@@ -42,6 +42,7 @@ class EmendaTransferencia(Base):
     __table_args__ = (
         UniqueConstraint("tipo", "identificador", "emenda_codigo"),
         Index("ix_emenda_transferencia_emenda", "emenda_codigo"),
+        Index("ix_emenda_transferencia_municipio", "municipio_ibge"),
     )
 
     id: Mapped[int] = mapped_column(primary_key=True)
@@ -54,6 +55,8 @@ class EmendaTransferencia(Base):
     beneficiario: Mapped[str | None] = mapped_column(String(300))
     beneficiario_cnpj: Mapped[str | None] = mapped_column(String(20))
     uf: Mapped[str | None] = mapped_column(String(2))
+    # Município do beneficiário (CNPJ -> IBGE); nulo para estados e CNPJ sem mapa.
+    municipio_ibge: Mapped[str | None] = mapped_column(String(7))
     orgao_concedente: Mapped[str | None] = mapped_column(String(200))
     objeto: Mapped[str | None] = mapped_column(Text)
     valor_total: Mapped[Decimal | None] = mapped_column(Numeric(16, 2))

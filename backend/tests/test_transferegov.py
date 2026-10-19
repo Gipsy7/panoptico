@@ -10,7 +10,7 @@ import respx
 from sqlalchemy import insert, select
 
 from app.models import Emenda, EmendaConvenio, EmendaTransferencia, FonteIngestao, Parlamentar
-from ingestion.transferegov import convenios, especiais
+from ingestion.transferegov import convenios, especiais, municipio
 from ingestion.transparencia import emendas
 from tests.test_api import _ingestao, _popular
 
@@ -148,7 +148,7 @@ OUTRO_PLANO = {**PLANO, "id_plano_acao": 1, "codigo_plano_acao": "x-1",
 
 
 @respx.mock
-def test_baixar_recorte_pagina_e_filtra_pelas_emendas_da_base():
+def test_baixar_tudo_pagina_sem_filtrar_e_traz_os_entes():
     def tabela(nome, linhas):
         def resposta(request):
             offset = int(request.url.params["offset"])
@@ -174,12 +174,24 @@ def test_baixar_recorte_pagina_e_filtra_pelas_emendas_da_base():
         [{"id_relatorio_gestao": 5, "situacao_relatorio_gestao": "EM_ELABORACAO",
           "id_plano_acao": 38450}],
     )  # fmt: skip
+    respx.get(municipio.URL_ENTES).mock(
+        return_value=httpx.Response(
+            200,
+            json={"items": [{"cod_ibge": 3128303, "uf": "MG", "esfera": "M",
+                             "cnpj": "17900473000148"}], "hasMore": False},
+        )
+    )  # fmt: skip
     with httpx.Client() as client:
-        recorte = especiais.baixar_recorte(client, {"202341400005"})
-    assert [p["id_plano_acao"] for p in recorte["planos"]] == [38450]
-    assert len(recorte["executores"]) == 1
+        recorte = especiais.baixar_tudo(client)
+    # Todos os planos, não só os das emendas da base.
+    assert [p["id_plano_acao"] for p in recorte["planos"]] == [38450, 1]
+    assert len(recorte["executores"]) == 2
+    assert recorte["entes"] == [
+        {"cnpj": "17900473000148", "ibge": "3128303", "uf": "MG", "esfera": "M"}
+    ]
     linhas = especiais.normalizar(recorte)
-    assert linhas == [
+    assert len(linhas) == 2
+    assert linhas[:1] == [
         {
             "tipo": "especial",
             "emenda_codigo": "202341400005",

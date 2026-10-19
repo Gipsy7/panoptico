@@ -2,9 +2,11 @@
 
 O arquivo de convênios do Portal da Transparência (CGU, ~67 MB, atualizado em dias úteis)
 traz todos os convênios federais desde os anos 90. Ficam só os que a base de emendas
-aponta (`emenda_convenio`, preenchida pela carga de emendas): ~17 mil. O CSV é lido em
-fluxo; o bruto guardado é só o recorte. A situação do convênio mistura execução e
-prestação de contas ("Em execução", "Prestação de contas em análise", "Aprovada"...).
+aponta (`emenda_convenio`, preenchida pela carga de emendas; desde 18/10/2026 de todos os
+anos do arquivo de emendas, ~72 mil). O CSV é lido em fluxo; o bruto guardado é o recorte e
+os entes do SICONFI (mapa CNPJ -> município, ingestion.transferegov.municipio). A situação
+do convênio mistura execução e prestação de contas ("Em execução", "Prestação de contas em
+análise", "Aprovada"...).
 """
 
 import argparse
@@ -27,6 +29,7 @@ from sqlalchemy.orm import Session
 from app.db import SessionLocal
 from app.models import EmendaConvenio, EmendaTransferencia, FonteIngestao
 from ingestion import comum
+from ingestion.transferegov import municipio
 
 FONTE = "transferegov_convenios"
 URL_PAGINA = "https://portaldatransparencia.gov.br/download-de-dados/convenios"
@@ -45,6 +48,15 @@ CAMPOS = {
     "contrapartida": "VALOR CONTRAPARTIDA",
     "inicio": "DATA INÍCIO VIGÊNCIA",
     "fim": "DATA FINAL VIGÊNCIA",
+    "municipio": "NOME MUNICÍPIO",
+    "tipo_convenente": "TIPO CONVENENTE",
+}
+# Convenentes cujo "NOME MUNICÍPIO" é a cidade que recebe. Governo estadual, agente
+# intermediário (Caixa) e pessoa física ficam sem município pelo nome.
+CONVENENTES_MUNICIPAIS = {
+    "Administração Pública Municipal",
+    "Administração Pública",
+    "Entidades Sem Fins Lucrativos",
 }
 
 
@@ -101,7 +113,7 @@ def recortar(arquivo_zip: Path | bytes, numeros: set[str]) -> list[dict[str, str
             for linha in csv.DictReader(io.TextIOWrapper(f, encoding="latin-1"), delimiter=";"):
                 numero = linha[CAMPOS["numero"]].strip()
                 if numero in numeros:
-                    achados[numero] = {k: linha[c].strip() for k, c in CAMPOS.items()}
+                    achados[numero] = {k: (linha.get(c) or "").strip() for k, c in CAMPOS.items()}
     return [achados[n] for n in sorted(achados)]
 
 
@@ -136,14 +148,33 @@ def contexto(session: Session) -> str:
     resumo = session.scalar(
         select(func.md5(func.string_agg(numero, aggregate_order_by(literal_column("','"), numero))))
     )
-    return f"convenios:{resumo}"
+    return f"convenios:{resumo}:{municipio.contexto(session)}"
+
+
+def municipios(recorte: list[dict[str, str]], mapa: municipio.Mapa) -> tuple[dict, dict]:
+    """Número do convênio -> IBGE do convenente; e a contagem por forma de resolução."""
+    saida: dict[str, str | None] = {}
+    contagem: dict[str, int] = {}
+    for r in recorte:
+        nome_municipio = (
+            r.get("municipio") if r.get("tipo_convenente") in CONVENENTES_MUNICIPAIS else None
+        )
+        ibge, como = mapa.resolver(r["cnpj"], r["uf"], r["convenente"], nome_municipio)
+        saida[r["numero"]] = ibge
+        contagem[como] = contagem.get(como, 0) + 1
+    return saida, contagem
 
 
 def carregar(session: Session, payload: bytes, ingestao: FonteIngestao) -> int:
-    recorte = json.loads(gzip.decompress(payload) if payload[:2] == b"\x1f\x8b" else payload)
+    bruto = json.loads(gzip.decompress(payload) if payload[:2] == b"\x1f\x8b" else payload)
+    # Brutos anteriores a 18/10/2026 são só a lista de convênios, sem os entes.
+    recorte = bruto["convenios"] if isinstance(bruto, dict) else bruto
+    entes = bruto.get("entes", []) if isinstance(bruto, dict) else []
     if not recorte:
         raise ValueError("Nenhum convênio das emendas no arquivo; abortando.")
     dados = normalizar(recorte)
+    ibge, contagem = municipios(recorte, municipio.montar(session, entes))
+    print(f"  convênios por forma de achar o município: {contagem}")
     ligacoes = session.execute(
         select(EmendaConvenio.emenda_codigo, EmendaConvenio.numero_convenio)
     ).all()
@@ -154,6 +185,7 @@ def carregar(session: Session, payload: bytes, ingestao: FonteIngestao) -> int:
             "ano_emenda": int(codigo[:4]),
             "identificador": numero,
             "ingestao_id": ingestao.id,
+            "municipio_ibge": ibge[numero],
             **dados[numero],
         }
         for codigo, numero in ligacoes
@@ -183,7 +215,8 @@ def executar(de_raw: Path | None = None) -> int:
             recorte = recortar(arquivo, numeros)
         finally:
             arquivo.unlink(missing_ok=True)
-        return json.dumps(recorte, ensure_ascii=False).encode()
+        bruto = {"convenios": recorte, "entes": municipio.baixar_entes(client)}
+        return json.dumps(bruto, ensure_ascii=False).encode()
 
     return comum.executar_ingestao(
         FONTE,

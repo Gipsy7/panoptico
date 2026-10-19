@@ -8,7 +8,7 @@ que a lista ordenável e o comparador respondam rápido. Uso:
 from datetime import UTC, datetime
 from decimal import Decimal
 
-from sqlalchemy import and_, delete, exists, func, insert, select
+from sqlalchemy import and_, delete, exists, func, insert, or_, select
 from sqlalchemy.orm import Session
 
 from app.db import SessionLocal
@@ -24,7 +24,8 @@ from app.models import (
 )
 from app.services import presenca, votos
 from ingestion import comum
-from ingestion.proposicoes_comum import TEMA_HOMENAGENS
+from ingestion.proposicoes_comum import INICIO_LEGISLATURA, TEMA_HOMENAGENS
+from ingestion.transparencia.emendas import TIPOS_INDIVIDUAIS
 
 FONTE = "resumos"
 
@@ -63,7 +64,13 @@ def calcular(session: Session, anos: list[int]) -> list[dict]:
     emendas = dict(
         session.execute(
             select(EmendaPagamento.parlamentar_id, func.sum(EmendaPagamento.valor))
-            .where(EmendaPagamento.parlamentar_id.is_not(None))
+            .where(
+                EmendaPagamento.parlamentar_id.is_not(None),
+                # A métrica é "emendas individuais, orçamentos de 2023 em diante"; a tabela
+                # tem todos os anos e tipos desde a migração 0047.
+                EmendaPagamento.ano_emenda >= INICIO_LEGISLATURA.year,
+                or_(EmendaPagamento.tipo.is_(None), EmendaPagamento.tipo.in_(TIPOS_INDIVIDUAIS)),
+            )
             .group_by(EmendaPagamento.parlamentar_id)
         ).all()
     )

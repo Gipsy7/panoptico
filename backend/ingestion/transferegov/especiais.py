@@ -4,7 +4,13 @@ API aberta do TransfereGov (PostgREST, sem chave): `plano_acao_especial` traz o 
 emenda (12 dígitos, o mesmo `codigo` da tabela `emenda`), o beneficiário e os valores;
 `executor_especial` o objeto; `empenho_especial` o valor empenhado (situação "Enviado");
 `relatorio_gestao_especial` a prestação de contas do beneficiário. A API pagina em 1.000
-linhas; o bruto guardado é só o recorte das emendas da base.
+linhas. Desde 18/10/2026 baixa todos os planos (desde 2020, ~58 mil), não só os das
+emendas da base, para que a página da cidade mostre o plano de quem não está mais no cargo.
+Cada plano ganha o município do beneficiário (ingestion.transferegov.municipio).
+
+O plano é o valor **previsto** (situação "CIENTE" = o beneficiário tomou ciência); o valor
+**pago** vem do arquivo por favorecido da CGU (`emenda_pagamento`). A página não soma os dois.
+Dados bancários do plano (banco, agência, conta) não são guardados.
 """
 
 import argparse
@@ -15,13 +21,12 @@ from pathlib import Path
 from typing import Any
 
 import httpx
-from sqlalchemy import delete, insert, select
+from sqlalchemy import delete, insert
 from sqlalchemy.orm import Session
 
-from app.db import SessionLocal
-from app.models import Emenda, EmendaTransferencia, FonteIngestao
+from app.models import EmendaTransferencia, FonteIngestao
 from ingestion import comum
-from ingestion.proposicoes_comum import INICIO_LEGISLATURA
+from ingestion.transferegov import municipio
 
 FONTE = "transferegov_especiais"
 BASE = "https://api.transferegov.gestao.gov.br/transferenciasespeciais"
@@ -69,62 +74,33 @@ def humanizar(texto: str | None) -> str | None:
     return texto[:1].upper() + texto[1:].lower()
 
 
-def baixar_recorte(client: httpx.Client, codigos: set[str]) -> dict[str, list[dict[str, Any]]]:
-    ano_minimo = INICIO_LEGISLATURA.year
+def baixar_tudo(client: httpx.Client) -> dict[str, list[dict[str, Any]]]:
+    """Todos os planos, executores, empenhos enviados e relatórios de gestão, e os entes do
+    SICONFI para o mapa CNPJ -> município."""
     planos = [
-        p
-        for p in paginas(
-            client,
-            "plano_acao_especial",
-            {
-                "ano_emenda_parlamentar_plano_acao": f"gte.{ano_minimo}",
-                "order": "id_plano_acao",
-            },
-        )
-        if p["numero_emenda_parlamentar_plano_acao"] in codigos
+        {k: p[k] for k in CAMPOS_PLANO}
+        for p in paginas(client, "plano_acao_especial", {"order": "id_plano_acao"})
     ]
-    planos = [{k: p[k] for k in CAMPOS_PLANO} for p in planos]
-    if not planos:
-        return {"planos": [], "executores": [], "empenhos": [], "relatorios": []}
-    primeiro = {"id_plano_acao": f"gte.{min(p['id_plano_acao'] for p in planos)}"}
-    ids = {p["id_plano_acao"] for p in planos}
-
-    def dos_planos(linhas: list[dict[str, Any]]) -> list[dict[str, Any]]:
-        return [x for x in linhas if x["id_plano_acao"] in ids]
-
-    executores = dos_planos(
-        paginas(
-            client,
-            "executor_especial",
-            {
-                **primeiro,
-                "select": "id_plano_acao,id_executor,nome_executor,objeto_executor",
-                "order": "id_executor",
-            },
-        )
-    )
-    empenhos = dos_planos(
-        paginas(
-            client,
-            "empenho_especial",
-            {
-                **primeiro,
-                "situacao_empenho": f"eq.{EMPENHO_ENVIADO}",
-                "select": "id_empenho,id_plano_acao,valor_empenho",
-                "order": "id_empenho",
-            },
-        )
-    )
-    relatorios = dos_planos(
-        paginas(
-            client,
-            "relatorio_gestao_especial",
-            {**primeiro, "select": "id_relatorio_gestao,situacao_relatorio_gestao,id_plano_acao",
-             "order": "id_relatorio_gestao"},
-        )
+    executores = paginas(
+        client,
+        "executor_especial",
+        {"select": "id_plano_acao,id_executor,nome_executor,objeto_executor",
+         "order": "id_executor"},
+    )  # fmt: skip
+    empenhos = paginas(
+        client,
+        "empenho_especial",
+        {"situacao_empenho": f"eq.{EMPENHO_ENVIADO}",
+         "select": "id_empenho,id_plano_acao,valor_empenho", "order": "id_empenho"},
+    )  # fmt: skip
+    relatorios = paginas(
+        client,
+        "relatorio_gestao_especial",
+        {"select": "id_relatorio_gestao,situacao_relatorio_gestao,id_plano_acao",
+         "order": "id_relatorio_gestao"},
     )  # fmt: skip
     return {"planos": planos, "executores": executores, "empenhos": empenhos,
-            "relatorios": relatorios}  # fmt: skip
+            "relatorios": relatorios, "entes": municipio.baixar_entes(client)}  # fmt: skip
 
 
 def normalizar(recorte: dict[str, list[dict[str, Any]]]) -> list[dict[str, Any]]:
@@ -144,7 +120,9 @@ def normalizar(recorte: dict[str, list[dict[str, Any]]]) -> list[dict[str, Any]]
     }
     linhas = []
     for p in recorte["planos"]:
-        codigo = p["numero_emenda_parlamentar_plano_acao"]
+        codigo = (p["numero_emenda_parlamentar_plano_acao"] or "").strip()
+        if len(codigo) != 12 or not codigo.isdigit():
+            continue  # plano sem número de emenda: não há a que ligar
         total = Decimal(str(p["valor_custeio_plano_acao"] or 0)) + Decimal(
             str(p["valor_investimento_plano_acao"] or 0)
         )
@@ -167,11 +145,24 @@ def normalizar(recorte: dict[str, list[dict[str, Any]]]) -> list[dict[str, Any]]
     return linhas
 
 
+def com_municipio(linhas: list[dict[str, Any]], mapa: municipio.Mapa) -> dict[str, int]:
+    """Preenche `municipio_ibge` e devolve a contagem por forma de resolução."""
+    contagem: dict[str, int] = {}
+    for r in linhas:
+        ibge, como = mapa.resolver(r["beneficiario_cnpj"], r["uf"], r["beneficiario"])
+        r["municipio_ibge"] = ibge
+        contagem[como] = contagem.get(como, 0) + 1
+    return contagem
+
+
 def carregar(session: Session, payload: bytes, ingestao: FonteIngestao) -> int:
     recorte = json.loads(gzip.decompress(payload) if payload[:2] == b"\x1f\x8b" else payload)
     if not recorte["planos"]:
         raise ValueError("Nenhum plano de ação das emendas na API; abortando.")
     linhas = [{**r, "ingestao_id": ingestao.id} for r in normalizar(recorte)]
+    entes = recorte.get("entes") or []  # brutos anteriores a 18/10/2026 não têm os entes
+    contagem = com_municipio(linhas, municipio.montar(session, entes))
+    print(f"  planos por forma de achar o município: {contagem}")
     unicas = {(r["identificador"], r["emenda_codigo"]): r for r in linhas}
     session.execute(delete(EmendaTransferencia).where(EmendaTransferencia.tipo == "especial"))
     lista = list(unicas.values())
@@ -182,10 +173,7 @@ def carregar(session: Session, payload: bytes, ingestao: FonteIngestao) -> int:
 
 def executar(de_raw: Path | None = None) -> int:
     def baixar(client: httpx.Client) -> bytes:
-        with SessionLocal() as session:
-            codigos = set(session.scalars(select(Emenda.codigo).distinct()))
-        recorte = baixar_recorte(client, codigos)
-        return json.dumps(recorte, ensure_ascii=False, sort_keys=True).encode()
+        return json.dumps(baixar_tudo(client), ensure_ascii=False, sort_keys=True).encode()
 
     return comum.executar_ingestao(
         FONTE,
@@ -194,7 +182,8 @@ def executar(de_raw: Path | None = None) -> int:
         carregar,
         de_raw=de_raw,
         extensao_raw=".json.gz",
-        incremental=comum.Incremental(chave=FONTE),  # a API não informa validadores
+        # A API não informa validadores; o mapa de fundos vem do arquivo por favorecido.
+        incremental=comum.Incremental(chave=FONTE, contexto=municipio.contexto),
     )
 
 
@@ -202,4 +191,4 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=f"Ingestão: {FONTE}")
     parser.add_argument("--de-raw", type=Path, help="Reprocessa um arquivo bruto sem baixar")
     args = parser.parse_args()
-    print(f"{FONTE}: {executar(de_raw=args.de_raw)} planos de ação ligados a emendas")
+    print(f"{FONTE}: {executar(de_raw=args.de_raw)} planos de ação de transferências especiais")

@@ -7,8 +7,9 @@ from app.models.base import Base
 
 
 class EmendaPagamento(Base):
-    """Valor de emenda individual recebido por prefeitura, fundo municipal ou entidade
-    sem fins lucrativos de um município (Portal da Transparência, por favorecido)."""
+    """Valor de emenda (individual, Pix, bancada, comissão ou relator) recebido por
+    prefeitura, fundo municipal ou entidade sem fins lucrativos de um município (Portal da
+    Transparência, por favorecido). É o valor **pago**, desde o primeiro ano do arquivo."""
 
     __tablename__ = "emenda_pagamento"
     __table_args__ = (
@@ -25,6 +26,12 @@ class EmendaPagamento(Base):
     parlamentar_id: Mapped[int | None] = mapped_column(
         ForeignKey("parlamentar.id", ondelete="SET NULL")
     )
+    # Autor ligado a `pessoa` por vínculo forte (nome exato e único entre os eleitos), para
+    # quem não está mais no cargo. Colegiados (bancada, comissão, relator) ficam nulos.
+    pessoa_id: Mapped[int | None] = mapped_column(ForeignKey("pessoa.id", ondelete="SET NULL"))
+    # individual | especial | bancada | comissao | relator (nulo só em linhas anteriores à
+    # migração 0047, até a próxima carga)
+    tipo: Mapped[str | None] = mapped_column(String(12))
     favorecido: Mapped[str] = mapped_column(String(300))
     favorecido_codigo: Mapped[str] = mapped_column(String(20))
     natureza: Mapped[str] = mapped_column(String(100))
