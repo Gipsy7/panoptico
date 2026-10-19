@@ -8,17 +8,25 @@ Fontes que bloqueiam o acesso automático ou não publicam o dado em formato abe
 | STF | Lista de inquéritos, ações penais e petições criminais com autoridade com foro como parte (LAI) | a enviar | [stf_lai.md](stf_lai.md) |
 | STJ | Liberação de acesso automatizado, ou lista de ações penais originárias da Corte Especial (LAI) | a enviar | [stj_lai.md](stj_lai.md) |
 | CNJ | Lote do Cadastro de Condenações por Improbidade e Inelegibilidade (CNIA), ou autorização para consultar por CPF em volume | a enviar | [cnj_cnia.md](cnj_cnia.md) |
-| TSE | Tabela mensal de distribuição do Fundo Partidário em formato aberto (página bloqueada a robôs; o valor é obtido da prestação de contas dos partidos, que é o declarado por eles) | a enviar | — |
+| TSE | Tabela mensal de distribuição do Fundo Partidário em formato aberto (página bloqueada a robôs; o valor é obtido da prestação de contas dos partidos, que é o declarado por eles) | a enviar (redigido em 18/10/2026) | [tse_fundo_partidario.md](tse_fundo_partidario.md) |
 | TCE-MG | Acesso à API de dados abertos (empenhos e pagamentos dos municípios) sem reCAPTCHA, ou arquivo anual em lote como o do TCE-RS (LAI); nenhum canal aberto alternativo existe | a enviar | [tce_mg.md](tce_mg.md) |
 | CMO (Congresso) | Solicitantes das emendas de relator-geral (RP9) de 2020 e 2021 e das emendas de comissão (RP8), no formato da planilha da LOA 2022 (LAI) | a enviar | [cmo_rp9_solicitantes.md](cmo_rp9_solicitantes.md) |
-| ALMG e ALESP | Votos nominais e presença em Plenário em formato aberto (LAI) | a enviar | — |
-| Câmara dos Deputados | Justificativas de ausência em votações (LAI) | a enviar | — |
+| ALMG e ALESP | Votos nominais e presença em Plenário em formato aberto (LAI) | a enviar (redigido em 18/10/2026) | [almg_alesp_votos_presenca.md](almg_alesp_votos_presenca.md) |
+| Câmara dos Deputados | Justificativas de ausência em votações (LAI) | a enviar (redigido em 18/10/2026) | [camara_justificativas_ausencia.md](camara_justificativas_ausencia.md) |
+| ALEP (PR) | Corrigir o certificado HTTPS autoassinado da API pública, ou fornecer os dados em CSV (LAI) | a enviar (redigido em 18/10/2026) | [alep_certificado.md](alep_certificado.md) |
+| ALMT (MT) | Credencial de acesso público à API (OAuth) para proposições, votos e presença (LAI) | a enviar (redigido em 18/10/2026) | [almt_proposicoes.md](almt_proposicoes.md) |
+| ALEPA (PA) | Proposições e votações nominais em formato aberto (LAI) | a enviar (redigido em 18/10/2026) | [alepa_proposicoes.md](alepa_proposicoes.md) |
+| TCE/SC | Base do Painel de Emendas (Farol), 2022–2026, com beneficiário e município (LAI, ADPF 854, IN TC 40/2025) | a enviar (redigido em 18/10/2026) | [tcesc_painel_emendas.md](tcesc_painel_emendas.md) |
+| ALESC (SC) | Emendas impositivas estaduais por autor, município, favorecido, valor e situação, desde 2019 (LAI, ADPF 854) | a enviar (redigido em 18/10/2026) | [alesc_emendas_impositivas.md](alesc_emendas_impositivas.md) |
+| 27 UFs (assembleias e governos) | Emendas parlamentares estaduais em formato aberto, modelo único (LAI, ADPF 854) | a enviar (redigido em 18/10/2026) | [emendas_estaduais_27_ufs.md](emendas_estaduais_27_ufs.md) |
+| CGU | Chave grátis da API do Portal da Transparência e, se preciso, limite maior (não é LAI: cadastro) | a fazer (redigido em 18/10/2026) | [cgu_chave_api.md](cgu_chave_api.md) |
 
 **Como enviar:**
 - STF: Central do Cidadão (portal.stf.jus.br, "Central do Cidadão" → "Lei de Acesso à Informação"), ou e-mail da Ouvidoria.
 - STJ: Ouvidoria, pelo formulário de acesso à informação.
 - TCE-MG: Ouvidoria do TCE-MG (tce.mg.gov.br, "Ouvidoria" / e-SIC).
 - CNJ: Ouvidoria do CNJ (formulário em cnj.jus.br/ouvidoria) ou Serviço de Informação ao Cidadão; o cadastro é gerido pelo Comitê Gestor dos Cadastros Nacionais (Resolução CNJ 310/2020).
+- Fala.BR (https://falabr.cgu.gov.br): pedidos a órgãos federais (TSE, Câmara, CGU); assembleias, governos e tribunais de contas estaduais têm e-SIC próprio (URL em cada pedido).
 - Prazo legal: 20 dias, prorrogáveis por mais 10. Cabe recurso se negado.
 
 Ao enviar, anote aqui a data e o protocolo, e mude o `acesso` da fonte em `backend/ingestion/fontes.toml` para `pedido` ou `lai`.
