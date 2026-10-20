@@ -20,7 +20,29 @@ import { AbasDetalhe, type AbaDetalhe } from "@/components/painel/abas-detalhe";
 import { formatarNumero } from "@/components/painel/barra-comparacao";
 import { CartaoNumero, GradeCartoes } from "@/components/painel/cartao-numero";
 import { ListaPerguntas, Pergunta } from "@/components/painel/pergunta";
-import { type EleitoDetalhe, getCanais, getCarreira, getEleito, getLinhaDoTempo, getSancoes } from "@/lib/api";
+import { AgendaSecao } from "@/components/executivo-agenda";
+import {
+  AvisoDoGoverno,
+  BlocoIndisponivel,
+  ContasDoGoverno,
+  ContratosDaCidade,
+  EmendasDaCidade,
+  comparacaoContas,
+  nomeDoGoverno,
+  num,
+  rotuloPeriodo,
+} from "@/components/executivo-dinheiro";
+import {
+  type EleitoDetalhe,
+  getAgenda,
+  getCanais,
+  getCarreira,
+  getContasEstado,
+  getEleito,
+  getLinhaDoTempo,
+  getPainelExecutivo,
+  getSancoes,
+} from "@/lib/api";
 import { formatarData, formatarReais, formatarReaisCompacto } from "@/lib/formato";
 
 export async function generateMetadata({ params }: PageProps<"/eleito/[id]">): Promise<Metadata> {
@@ -32,17 +54,38 @@ export async function generateMetadata({ params }: PageProps<"/eleito/[id]">): P
   return { title: e.nome_urna, description: descricao, openGraph: { title: `${e.nome_urna} · ${e.cargo}`, description: descricao } };
 }
 
-export default function EleitoPage({ params }: PageProps<"/eleito/[id]">) {
+const CARGO_EXECUTIVO = /^(vice-)?(presidente|governador|prefeito)/i;
+
+function texto(v: string | string[] | undefined): string | undefined {
+  return Array.isArray(v) ? v[0] : v;
+}
+
+export default function EleitoPage({ params, searchParams }: PageProps<"/eleito/[id]">) {
   return (
     <Revelacao fallback={<EsqueletoSecao rotulo="Carregando o perfil…" secoes={3} />}>
-      {params.then(({ id }) => (
-        <Perfil id={id} />
+      {Promise.all([params, searchParams]).then(([{ id }, sp]) => (
+        <Perfil
+          id={id}
+          agendaTipo={texto(sp.agenda_tipo)}
+          agendaAno={texto(sp.agenda_ano)}
+          agendaPagina={texto(sp.agenda_pagina)}
+        />
       ))}
     </Revelacao>
   );
 }
 
-async function Perfil({ id }: { id: string }) {
+async function Perfil({
+  id,
+  agendaTipo,
+  agendaAno,
+  agendaPagina,
+}: {
+  id: string;
+  agendaTipo?: string;
+  agendaAno?: string;
+  agendaPagina?: string;
+}) {
   const resultado = await getEleito(id);
   if (!resultado.ok) {
     if (resultado.status === 404) notFound();
@@ -52,9 +95,19 @@ async function Perfil({ id }: { id: string }) {
   if (e.mandato_local) {
     redirect(`/${e.mandato_local.casa === "camara" ? "vereador" : "deputado-estadual"}/${e.mandato_local.id}`);
   }
-  const [canais, linha] = await Promise.all([
+  const executivo = CARGO_EXECUTIVO.test(e.cargo);
+  const [canais, linha, painelR] = await Promise.all([
     e.municipio_ibge ? getCanais(e.municipio_ibge) : null,
     getLinhaDoTempo("candidatura", id),
+    executivo ? getPainelExecutivo(id) : null,
+  ]);
+  // API antiga sem a rota do painel: o perfil cai no comportamento de antes.
+  const painel = painelR?.ok ? painelR.dados : null;
+  const [contasEstadoR, agendaR] = await Promise.all([
+    painel?.ente.tipo === "estado" && painel.contas.disponivel && painel.ente.uf ? getContasEstado(painel.ente.uf) : null,
+    painel?.ente.tipo === "uniao" && painel.agenda.disponivel
+      ? getAgenda(id, { tipo: agendaTipo, ano: agendaAno, pagina: agendaPagina })
+      : null,
   ]);
   const temSapl = Boolean(canais?.ok && canais.dados.itens.some((c) => c.tipo === "sapl"));
   const voltar = e.municipio_ibge
@@ -71,7 +124,93 @@ async function Perfil({ id }: { id: string }) {
   const emCargoFuturo = e.eleito_2026?.id === e.id;
   const disputadas = carreira?.ok ? carreira.dados.itens.length : 0;
 
-  const abas: AbaDetalhe[] = [
+  const abas: AbaDetalhe[] = [];
+  if (painel) {
+    const d = painel.ente.tipo;
+    const secoesGoverno: AbaDetalhe["secoes"] = [
+      {
+        id: "gov-contas",
+        titulo: "Contas do governo",
+        conteudo: painel.contas.disponivel ? (
+          <ContasDoGoverno painel={painel} estado={contasEstadoR?.ok ? contasEstadoR.dados : null} />
+        ) : (
+          <BlocoIndisponivel titulo="Contas do governo" bloco={painel.contas} />
+        ),
+      },
+      {
+        id: "gov-emendas",
+        titulo: "Emendas recebidas",
+        conteudo: painel.emendas.disponivel ? (
+          <EmendasDaCidade painel={painel} />
+        ) : (
+          <BlocoIndisponivel titulo="Emendas recebidas" bloco={painel.emendas} />
+        ),
+      },
+      {
+        id: "gov-contratos",
+        titulo: "Contratos",
+        conteudo: painel.contratos.disponivel ? (
+          <ContratosDaCidade painel={painel} />
+        ) : (
+          <BlocoIndisponivel titulo="Contratos" bloco={painel.contratos} />
+        ),
+      },
+    ];
+    if (d === "uniao") {
+      secoesGoverno.push(
+        {
+          id: "gov-viagens",
+          titulo: "Viagens e cartão de pagamento",
+          conteudo: painel.viagens_cartao.disponivel ? (
+            <section className="flex flex-col gap-1">
+              <h2 className="text-2xl">Viagens e cartão de pagamento</h2>
+              <p className="text-sm">
+                Há registros no Portal da Transparência. Veja em{" "}
+                <a href="#ver-servico-federal" className="alvo-link underline underline-offset-2">
+                  Trabalho no governo federal
+                </a>
+                .
+              </p>
+              <FonteRodape
+                fonte={painel.viagens_cartao.fonte_nome ?? "Portal da Transparência"}
+                url={painel.viagens_cartao.fonte_url ?? undefined}
+                atualizadoEm={painel.viagens_cartao.atualizado_em}
+              />
+            </section>
+          ) : (
+            <BlocoIndisponivel titulo="Viagens e cartão de pagamento" bloco={painel.viagens_cartao} />
+          ),
+        },
+        {
+          id: "gov-mpv",
+          titulo: "Medidas provisórias",
+          conteudo: <BlocoIndisponivel titulo="Medidas provisórias" bloco={painel.medidas_provisorias} />,
+        },
+      );
+    }
+    abas.push({ id: "governo", rotulo: "Dinheiro do governo", secoes: secoesGoverno });
+    if (d === "uniao") {
+      abas.push({
+        id: "agenda-aba",
+        rotulo: "Agenda",
+        secoes: [
+          {
+            id: "agenda",
+            titulo: "Agenda de compromissos",
+            conteudo: agendaR?.ok ? (
+              <AgendaSecao dados={agendaR.dados} candidaturaId={painel.candidatura_id} tipo={agendaTipo} ano={agendaAno} />
+            ) : (
+              <BlocoIndisponivel
+                titulo="Agenda de compromissos"
+                bloco={painel.agenda.disponivel ? { ...painel.agenda, motivo: "Não deu para buscar a agenda agora." } : painel.agenda}
+              />
+            ),
+          },
+        ],
+      });
+    }
+  }
+  abas.push(
     {
       id: "dinheiro",
       rotulo: "Dinheiro",
@@ -136,7 +275,7 @@ async function Perfil({ id }: { id: string }) {
         },
       ],
     },
-  ];
+  );
 
   return (
     <article data-largura="larga" className="pagina-secoes">
@@ -169,7 +308,31 @@ async function Perfil({ id }: { id: string }) {
         </p>
       )}
 
+      {painel && <AvisoDoGoverno painel={painel} />}
+
       <GradeCartoes rotulo="Números principais">
+        {painel?.contas.disponivel && painel.ente.tipo !== "uniao" && (
+          <CartaoNumero
+            destino="gov-contas"
+            rotulo={`${painel.ente.nome}: gasto por habitante em ${num(painel.contas.dados, "ano")}`}
+            valor={
+              num(painel.contas.dados, "despesa_por_habitante") != null
+                ? formatarReais(num(painel.contas.dados, "despesa_por_habitante")!, true)
+                : "Não informado pela fonte"
+            }
+            apoio={painel.titular ? `Contas de ${nomeDoGoverno(painel)}` : `Número do governo, não do vice`}
+            largo
+            comparacao={comparacaoContas(painel).comparacao}
+          />
+        )}
+        {painel?.emendas.disponivel && num(painel.emendas.dados, "total_geral") != null && (
+          <CartaoNumero
+            destino="gov-emendas"
+            rotulo={`Emendas recebidas pela cidade ${rotuloPeriodo(painel.emendas.dados)}`}
+            valor={formatarReaisCompacto(num(painel.emendas.dados, "total_geral")!)}
+            apoio="Todos os tipos de emenda"
+          />
+        )}
         {e.votos != null && (
           <CartaoNumero
             destino="quem-e"
@@ -225,7 +388,9 @@ async function Perfil({ id }: { id: string }) {
           >
             <p>
               {e.cargo !== "Vereador"
-                ? `${atividade(e.cargo)} ainda não estão no site. Por enquanto, aparece o que o TSE publica sobre a eleição.`
+                ? painel
+                  ? `Os votos e as decisões do cargo ainda não estão no site. Aparece o que o TSE publica sobre a eleição e, em "Dinheiro do governo", os números de ${nomeDoGoverno(painel)}, que valem para o governo e não só para quem ocupa o cargo.`
+                  : `${atividade(e.cargo)} ainda não estão no site. Por enquanto, aparece o que o TSE publica sobre a eleição.`
                 : temSapl
                   ? `A câmara de ${e.unidade} publica quem está no cargo hoje, mas este nome não aparece na lista dela: a pessoa pode ter deixado o cargo ou usar lá outro nome. Veja a lista da câmara na página da cidade.`
                   : `A câmara de ${e.unidade} não publica votações e projetos num formato de dados abertos que o Panóptico consiga ler (o sistema SAPL, do Interlegis). Por isso, aqui aparece só o que o TSE publica sobre a eleição.`}{" "}
@@ -306,9 +471,9 @@ const NOME_CANAL: Record<string, string> = {
 function atividade(cargo: string): string {
   if (cargo === "Vereador") return "Gastos e votos na câmara municipal";
   if (cargo.startsWith("Deputado")) return "Gastos e votos na assembleia";
-  if (cargo.includes("Prefeito")) return "Gastos e decisões da prefeitura";
-  if (cargo.includes("Governador")) return "Gastos e decisões do governo do estado";
-  return "Gastos e decisões do governo federal";
+  if (cargo.includes("Prefeito")) return "As decisões da prefeitura";
+  if (cargo.includes("Governador")) return "As decisões do governo do estado";
+  return "As decisões do governo federal";
 }
 
 function textoWhatsApp(e: EleitoDetalhe): string {

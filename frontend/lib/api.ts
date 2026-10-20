@@ -1384,3 +1384,105 @@ export type VotacaoDetalhe = {
 export function getVotacao(casa: string, id: string) {
   return getJson<VotacaoDetalhe>(`/votacoes/${encodeURIComponent(casa)}/${encodeURIComponent(id)}`);
 }
+
+// ---- Executivo: painel do ente, contas do estado e agenda (docs/DECISOES.md, 19/10/2026) ----
+
+export type BlocoPainel = {
+  disponivel: boolean;
+  motivo: string | null;
+  dados: Record<string, unknown> | null;
+  rota: string | null;
+  fonte_nome: string | null;
+  fonte_url: string | null;
+  atualizado_em: string | null;
+};
+
+export type PainelExecutivo = {
+  candidatura_id: number;
+  cargo: string;
+  titular: boolean;
+  nome_urna: string;
+  ano_eleicao: number;
+  ente: { tipo: "uniao" | "estado" | "municipio"; nome: string; uf: string | null; municipio_ibge: string | null };
+  pessoa_id: number | null;
+  contas: BlocoPainel;
+  emendas: BlocoPainel;
+  contratos: BlocoPainel;
+  agenda: BlocoPainel;
+  viagens_cartao: BlocoPainel;
+  medidas_provisorias: BlocoPainel;
+};
+
+export function getPainelExecutivo(candidaturaId: string | number) {
+  return getJson<PainelExecutivo>(`/executivo/${encodeURIComponent(String(candidaturaId))}/painel`);
+}
+
+export type ContasEstado = {
+  uf: string;
+  ano: number;
+  populacao: number | null;
+  receita_total: number | null;
+  despesa_paga: number | null;
+  receita_por_habitante: number | null;
+  despesa_por_habitante: number | null;
+  media_estados_receita_por_habitante: number | null;
+  media_estados_despesa_por_habitante: number | null;
+  estados_na_media: number;
+  estados_sem_dado: number;
+  media_estados_descricao: string;
+  assembleia: number | null;
+  por_area: { nome: string; valor: number; percentual: number }[];
+  anterior: { ano: number; despesa_paga: number | null; receita_total: number | null } | null;
+  fonte_nome: string;
+  fonte_url: string;
+  atualizado_em: string | null;
+};
+
+export function getContasEstado(uf: string) {
+  return getJson<ContasEstado>(`/estados/${encodeURIComponent(uf)}/contas`);
+}
+
+export type AgendaItem = {
+  tipo: string;
+  rotulo: string;
+  id_registro: number;
+  cargo: string | null;
+  orgao: string | null;
+  data_inicio: string | null;
+  data_fim: string | null;
+  hora_inicio: string | null;
+  hora_fim: string | null;
+  forma: string | null;
+  assunto: string | null;
+  local: string | null;
+  origem: string | null;
+  destino: string | null;
+  detalhes: string | null;
+  participantes_publicos: { nome: string; cargo: string | null; orgao: string | null }[];
+  n_participantes_publicos: number;
+  entidades_privadas: string[];
+  n_participantes_privados: number;
+  url: string;
+};
+
+export type Agenda = {
+  candidatura_id: number;
+  pessoa_id: number | null;
+  total: number;
+  pagina: number;
+  por_pagina: number;
+  itens: AgendaItem[];
+  nota: string;
+  fonte_nome: string;
+  fonte_url: string;
+  atualizado_em: string | null;
+};
+
+export function getAgenda(candidaturaId: string | number, filtro: { tipo?: string; ano?: string; pagina?: string } = {}) {
+  const params = new URLSearchParams();
+  if (filtro.tipo) params.set("tipo", filtro.tipo);
+  if (filtro.ano) params.set("ano", filtro.ano);
+  if (filtro.pagina) params.set("pagina", filtro.pagina);
+  const q = params.toString();
+  return getJson<Agenda>(`/executivo/${encodeURIComponent(String(candidaturaId))}/agenda${q ? `?${q}` : ""}`);
+}
