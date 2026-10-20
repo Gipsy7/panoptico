@@ -3,8 +3,8 @@
 Só aditiva: `gasto_local_fora`, por mandato e ano (hoje preenchida pela CLDF: comprovantes sem
 data). Sem RECARREGAR_DADOS: a próxima carga da CLDF preenche.
 
-Revision ID: 0051_gasto_local_fora
-Revises: 0050_emenda_pagamento_sem_codigo
+Revision ID: 0052_gasto_local_fora
+Revises: 0051_dinheiro_federal
 Create Date: 2026-10-20
 """
 
@@ -14,8 +14,8 @@ import sqlalchemy as sa
 
 from alembic import op
 
-revision: str = "0051_gasto_local_fora"
-down_revision: str | None = "0050_emenda_pagamento_sem_codigo"
+revision: str = "0052_gasto_local_fora"
+down_revision: str | None = "0051_dinheiro_federal"
 branch_labels: str | Sequence[str] | None = None
 depends_on: str | Sequence[str] | None = None
 
