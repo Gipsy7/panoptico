@@ -5,6 +5,7 @@
 export const COR_MARCA = "#9c6a2a"; // --bronze
 export const COR_PAPEL = "#f4f1ea"; // --background
 export const COR_TINTA = "#141414"; // --foreground
+export const COR_MARCA_NOME = "#12263a"; // --marca-nome (só o nome na logo)
 export const COR_SUAVE = "#6e6a63"; // --muted-foreground
 
 const r = (n: number) => Math.round(n * 100) / 100;

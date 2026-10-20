@@ -234,3 +234,14 @@ Rota única `/comparar?ids=1,10,57,88` (mesmo parâmetro da API; `a` e `b` conti
 
 Critérios de aceite: sem rolagem horizontal da página em 360 px; todos os alvos >= 44 px; teclado percorre colunas;
 leitor de tela lê "Linha Gastos, Esperidião R$ 269.307, Ivete R$ 279.347".
+
+## 7. Marca (logo)
+
+Arte oficial: sol de 12 raios com círculo vazado, "Panóptico" em serifa própria (o "P" em caligrafia, laço longo à
+esquerda) e ".social" em serifa menor na linha de base. O nome e o ".social" são caminhos SVG vetorizados da arte
+(potrace, a partir da versão preto sobre branco) em `frontend/lib/logo-caminhos.ts`; não há fonte equivalente.
+`components/logo.tsx` (`Logo`) usa o token `--marca-nome` (`text-marca-nome`) no nome e os tokens `bronze-texto` (".social") e
+`bronze` (sol), então funciona em claro e escuro. `Marca` (só o sol) segue para rodapé e ícones. Imagens de
+compartilhamento usam `LogoCompleta` em `lib/og.tsx`, com as cores fixas da paleta clara. O nome usa o azul-marinho da
+arte (`--marca-nome`, #12263a; creme no escuro) por decisão do dono (2026-10-19), só na logo: nunca em texto, fundo ou dado. No cabeçalho de 56 px a logo tem 28 px de altura
+(173 px de largura); acima disso o botão de menu estoura 360 px.

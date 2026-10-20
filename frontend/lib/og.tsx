@@ -4,11 +4,20 @@ import type { ReactNode } from "react";
 import { formatarData } from "@/lib/formato";
 import {
   COR_MARCA,
+  COR_MARCA_NOME,
   COR_PAPEL,
   COR_SUAVE,
   COR_TINTA,
   LINHAS_MARCA,
 } from "@/lib/marca-svg";
+import {
+  CAMINHO_NOME,
+  CAMINHO_SOCIAL,
+  LOGO_ALTURA,
+  LOGO_LARGURA,
+  LOGO_SOL,
+  LOGO_VIEWBOX,
+} from "@/lib/logo-caminhos";
 
 // Cartões de prévia para compartilhar (WhatsApp, redes). Paleta clara fixa: a imagem
 // não segue o modo escuro. O gerador não lê CSS, então as cores vêm de lib/marca-svg.ts.
@@ -22,6 +31,32 @@ export const COR = {
   cartao: "#f8f6f0",
   borda: "#d9d3c7",
 };
+
+/** Logo completa (sol, nome e .social) com as cores fixas da paleta clara. */
+function LogoCompleta({ altura }: { altura: number }) {
+  return (
+    <svg
+      width={Math.round((LOGO_LARGURA * altura) / LOGO_ALTURA)}
+      height={altura}
+      viewBox={LOGO_VIEWBOX}
+    >
+      <path d={CAMINHO_NOME} fill={COR_MARCA_NOME} />
+      <path d={CAMINHO_SOCIAL} fill={COR_MARCA} />
+      <g
+        transform={`translate(${LOGO_SOL.cx} ${LOGO_SOL.cy}) scale(${LOGO_SOL.escala}) translate(-32 -32)`}
+        fill="none"
+        stroke={COR_MARCA}
+        strokeLinecap="round"
+        strokeWidth={2.6}
+      >
+        {LINHAS_MARCA.map((l, i) => (
+          <line key={i} {...l} />
+        ))}
+        <circle cx={32} cy={32} r={7.5} strokeWidth={2.1} />
+      </g>
+    </svg>
+  );
+}
 
 /** "Fonte: TSE · atualizado em 10/10/2026" (sem a data quando a fonte não a tem). */
 export function rodapeFonte(
@@ -51,7 +86,7 @@ export function imagemPadrao() {
         fontWeight: 700,
       }}
     >
-      Panóptico
+      <LogoCompleta altura={120} />
     </div>,
     TAMANHO,
   );
@@ -101,34 +136,7 @@ export function moldura(
           fontSize: 26,
         }}
       >
-        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          <svg
-            width={40}
-            height={40}
-            viewBox="0 0 64 64"
-            fill="none"
-            stroke={COR.primaria}
-            strokeLinecap="round"
-          >
-            {LINHAS_MARCA.map((l, i) => (
-              <line key={i} {...l} strokeWidth={3.6} />
-            ))}
-            <circle cx={32} cy={32} r={7.5} strokeWidth={3} />
-          </svg>
-          <div
-            style={{
-              display: "flex",
-              alignItems: "baseline",
-              color: COR.texto,
-              fontWeight: 700,
-            }}
-          >
-            Panóptico
-            <span style={{ color: COR.primaria, fontWeight: 500 }}>
-              .social
-            </span>
-          </div>
-        </div>
+        <LogoCompleta altura={44} />
         <div
           style={{
             color: COR.suave,

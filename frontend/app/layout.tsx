@@ -73,7 +73,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
             <Link
               href="/"
               aria-label="Panóptico.social, página inicial"
-              className="rounded-md focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none"
+              className="shrink-0 rounded-md focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none"
             >
               <Logo tamanho={28} />
             </Link>

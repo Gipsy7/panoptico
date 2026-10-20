@@ -35,6 +35,7 @@
   --color-chart-1: var(--chart-1);
   --color-bronze: var(--bronze);
   --color-bronze-texto: var(--bronze-texto);
+  --color-marca-nome: var(--marca-nome);
   --color-ring: var(--ring);
   --color-input: var(--input);
   --color-border: var(--border);
@@ -85,6 +86,7 @@
   --ring: #9c6a2a;
   --bronze: #9c6a2a; /* marca e gráficos */
   --bronze-texto: #7a5a32; /* textos pequenos em bronze */
+  --marca-nome: #12263a; /* só o nome na logo (marinho da arte oficial); nunca em texto ou fundo */
   --chart-1: #9c6a2a;
   --chart-2: #c4a77d;
   --chart-3: #6e6a63;
@@ -137,6 +139,7 @@
     --ring: #c9954a;
     --bronze: #c9954a;
     --bronze-texto: #d4a968;
+    --marca-nome: #ece7dc;
     --chart-1: #c9954a;
     --chart-2: #8f7650;
     --chart-3: #a39d92;
@@ -175,6 +178,7 @@
   --ring: #c9954a;
   --bronze: #c9954a;
   --bronze-texto: #d4a968;
+  --marca-nome: #ece7dc;
   --chart-1: #c9954a;
   --chart-2: #8f7650;
   --chart-3: #a39d92;

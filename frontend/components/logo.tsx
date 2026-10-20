@@ -9,6 +9,15 @@
  * (classe .logo-animada em globals.css) e respeita prefers-reduced-motion.
  */
 
+import {
+  CAMINHO_NOME,
+  CAMINHO_SOCIAL,
+  LOGO_ALTURA,
+  LOGO_LARGURA,
+  LOGO_SOL,
+  LOGO_VIEWBOX,
+} from "@/lib/logo-caminhos";
+
 const TRACOS = 12;
 const RAIO_EXTERNO = 28;
 const RAIO_INTERNO = 15;
@@ -69,15 +78,35 @@ export function Marca({
 }
 
 export function Logo({ animada = false, tamanho = 30 }: { animada?: boolean; tamanho?: number }) {
+  // `tamanho` é a altura do sol; o nome e o ".social" vêm da arte oficial (lib/logo-caminhos.ts).
+  const escala = tamanho / LOGO_ALTURA;
   return (
-    <span className="inline-flex items-center gap-2.5 text-foreground">
-      <Marca tamanho={tamanho} animada={animada} traco={2.6} className="text-bronze" />
-      <span className="flex items-baseline">
-        <span className="font-heading text-[1.4em] leading-none font-medium tracking-tight">
-          Panóptico
-        </span>
-        <span className="text-[0.8em] leading-none text-bronze-texto">.social</span>
-      </span>
-    </span>
+    <svg
+      viewBox={LOGO_VIEWBOX}
+      width={Math.round(LOGO_LARGURA * escala * 100) / 100}
+      height={tamanho}
+      role="img"
+      aria-label="Panóptico.social"
+      className="text-marca-nome"
+    >
+      <path d={CAMINHO_NOME} fill="currentColor" />
+      <path d={CAMINHO_SOCIAL} className="fill-bronze-texto" />
+      <g
+        transform={`translate(${LOGO_SOL.cx} ${LOGO_SOL.cy}) scale(${LOGO_SOL.escala}) translate(-32 -32)`}
+        fill="none"
+        strokeLinecap="round"
+        strokeWidth={2.3}
+        className={`stroke-bronze ${animada ? "logo-animada" : ""}`}
+      >
+        {LINHAS.map((l, i) => (
+          <line
+            key={i}
+            {...l}
+            style={animada ? { animationDelay: `${i * 45}ms` } : undefined}
+          />
+        ))}
+        <circle cx={32} cy={32} r={7.5} strokeWidth={1.9} className="logo-torre" />
+      </g>
+    </svg>
   );
 }
