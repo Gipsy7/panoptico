@@ -1,7 +1,7 @@
 name: Ingestão mensal
 
 # Fontes que mudam pouco: contas anuais dos municípios (SICONFI), contas anuais dos partidos
-# (TSE) e despesas por fornecedor dos Tribunais de Contas (TCE-SP; o TCE-RS não responde a conexões de fora do Brasil e roda no acervo local). Uma vez por mês, fora da ingestão diária, porque exigem
+# (TSE) e despesas por fornecedor dos Tribunais de Contas (TCE-SP; o TCE-RS não responde a conexões de fora do Brasil e roda no runner do PC no Brasil). Uma vez por mês, fora da ingestão diária, porque exigem
 # milhares de consultas ou arquivos de vários GB.
 on:
   schedule:
@@ -20,6 +20,13 @@ on:
         description: "Só as contas e fundos dos partidos (pula SICONFI e Tribunais de Contas)"
         type: boolean
         default: false
+
+# Nada aqui escreve no repositório. O job `tce-rs` roda no PC do dono, no Brasil (o TCE-RS não
+# responde a conexões de fora; ver docs/DEPLOY_GRATUITO.md, "Runner no Brasil"). Só nos gatilhos
+# acima (nunca pull_request) e só no repositório oficial. PC desligado: o job espera na fila e a
+# produção segue com a última carga e a data da fonte.
+permissions:
+  contents: read
 
 concurrency:
   group: ingestao-mensal
@@ -92,4 +99,36 @@ jobs:
           fi
           for a in $anos; do
             uv run python -m ingestion.tce.sp --ano "$a"
+          done
+
+  # Despesas por fornecedor do TCE-RS: dados.tce.rs.gov.br só responde a IP do Brasil.
+  tce-rs:
+    needs: mensal
+    if: ${{ !cancelled() && !inputs.so_partidos && github.repository == 'Gipsy7/panoptico' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev') }}
+    runs-on: [self-hosted, windows, brasil]
+    timeout-minutes: 240
+    defaults:
+      run:
+        shell: bash
+        working-directory: backend
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      ANOS: ${{ inputs.anos }}
+      PYTHONUNBUFFERED: "1"
+      PYTHONUTF8: "1"
+    steps:
+      - uses: actions/checkout@v7
+      - name: Instalar uv (versão fixa)
+        run: python -m pip install --user --quiet uv==0.12.23
+      - name: Instalar dependências
+        run: python -m uv sync --locked --no-dev
+      - name: Despesas por fornecedor (TCE-RS)
+        run: |
+          anos="$ANOS"
+          if [ -z "$anos" ]; then
+            ano=$(date +%Y)
+            anos="$((ano - 2)) $((ano - 1))"
+          fi
+          for a in $anos; do
+            python -m uv run python -m ingestion.tce.rs --ano "$a"
           done

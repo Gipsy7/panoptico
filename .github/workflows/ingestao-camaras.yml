@@ -13,6 +13,14 @@ on:
         type: string
         default: '["AC","AL","AM","AP","BA","CE","ES","GO","MA","MG","MS","MT","PA","PB","PE","PI","PR","RJ","RN","RO","RR","RS","SC","SE","SP","TO"]'
 
+# Nada aqui escreve no repositório. Os jobs com `runs-on: [self-hosted, windows, brasil]` rodam no
+# PC do dono, no Brasil (fontes que só respondem a IP brasileiro; ver docs/DEPLOY_GRATUITO.md,
+# "Runner no Brasil"). Esses jobs só existem nos gatilhos acima (schedule e workflow_dispatch,
+# nunca pull_request) e só no repositório oficial, nos branches main e dev. Se o PC estiver
+# desligado, o job espera na fila; a produção segue mostrando a última carga com a data da fonte.
+permissions:
+  contents: read
+
 concurrency:
   group: ingestao-camaras
   cancel-in-progress: false
@@ -154,24 +162,25 @@ jobs:
   # Assembleia de Minas Gerais: API de dados abertos própria (não usa o SAPL).
   almg:
     needs: catalogo
-    if: false # bloqueia IP de fora do Brasil (11/10/2026); roda no acervo local
-    runs-on: ubuntu-latest
+    if: ${{ github.repository == 'Gipsy7/panoptico' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev') }}
+    runs-on: [self-hosted, windows, brasil]
     timeout-minutes: 120
     defaults:
       run:
+        shell: bash
         working-directory: backend
     env:
       DATABASE_URL: ${{ secrets.DATABASE_URL }}
       PYTHONUNBUFFERED: "1"
+      PYTHONUTF8: "1"
     steps:
       - uses: actions/checkout@v7
-      - uses: astral-sh/setup-uv@v10.2.0
-        with:
-          version: "0.12.23"
+      - name: Instalar uv (versão fixa)
+        run: python -m pip install --user --quiet uv==0.12.23
       - name: Instalar dependências
-        run: uv sync --locked --no-dev
+        run: python -m uv sync --locked --no-dev
       - name: Assembleia de Minas Gerais (ALMG)
-        run: uv run python -m ingestion.assembleias.almg
+        run: python -m uv run python -m ingestion.assembleias.almg
 
   # Assembleia de São Paulo: arquivos XML de dados abertos (não usa o SAPL).
   alesp:
@@ -197,46 +206,48 @@ jobs:
   # Assembleia de Pernambuco: API de dados abertos própria (não usa o SAPL).
   alepe:
     needs: catalogo
-    if: false # bloqueia IP de fora do Brasil (11/10/2026); roda no acervo local
-    runs-on: ubuntu-latest
+    if: ${{ github.repository == 'Gipsy7/panoptico' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev') }}
+    runs-on: [self-hosted, windows, brasil]
     timeout-minutes: 30
     defaults:
       run:
+        shell: bash
         working-directory: backend
     env:
       DATABASE_URL: ${{ secrets.DATABASE_URL }}
       PYTHONUNBUFFERED: "1"
+      PYTHONUTF8: "1"
     steps:
       - uses: actions/checkout@v7
-      - uses: astral-sh/setup-uv@v10.2.0
-        with:
-          version: "0.12.23"
+      - name: Instalar uv (versão fixa)
+        run: python -m pip install --user --quiet uv==0.12.23
       - name: Instalar dependências
-        run: uv sync --locked --no-dev
+        run: python -m uv sync --locked --no-dev
       - name: Assembleia de Pernambuco (ALEPE)
-        run: uv run python -m ingestion.assembleias.alepe
+        run: python -m uv run python -m ingestion.assembleias.alepe
 
   # Câmara Legislativa do DF: API pública do processo legislativo (não usa o SAPL).
   cldf:
     needs: catalogo
-    if: false # bloqueia IP de fora do Brasil (11/10/2026); roda no acervo local
-    runs-on: ubuntu-latest
+    if: ${{ github.repository == 'Gipsy7/panoptico' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev') }}
+    runs-on: [self-hosted, windows, brasil]
     timeout-minutes: 30
     defaults:
       run:
+        shell: bash
         working-directory: backend
     env:
       DATABASE_URL: ${{ secrets.DATABASE_URL }}
       PYTHONUNBUFFERED: "1"
+      PYTHONUTF8: "1"
     steps:
       - uses: actions/checkout@v7
-      - uses: astral-sh/setup-uv@v10.2.0
-        with:
-          version: "0.12.23"
+      - name: Instalar uv (versão fixa)
+        run: python -m pip install --user --quiet uv==0.12.23
       - name: Instalar dependências
-        run: uv sync --locked --no-dev
+        run: python -m uv sync --locked --no-dev
       - name: Câmara Legislativa do DF (CLDF)
-        run: uv run python -m ingestion.assembleias.cldf
+        run: python -m uv run python -m ingestion.assembleias.cldf
 
   # Assembleia de Santa Catarina: páginas públicas do e-Legis (sem API), uma por vez.
   alesc:
@@ -283,68 +294,71 @@ jobs:
   # Assembleia do Rio Grande do Sul: portais da transparência e do legislativo, uma requisição por vez.
   alrs:
     needs: catalogo
-    if: false # bloqueia IP de fora do Brasil (11/10/2026); roda no acervo local
-    runs-on: ubuntu-latest
+    if: ${{ github.repository == 'Gipsy7/panoptico' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev') }}
+    runs-on: [self-hosted, windows, brasil]
     timeout-minutes: 150
     defaults:
       run:
+        shell: bash
         working-directory: backend
     env:
       DATABASE_URL: ${{ secrets.DATABASE_URL }}
       PYTHONUNBUFFERED: "1"
+      PYTHONUTF8: "1"
     steps:
       - uses: actions/checkout@v7
-      - uses: astral-sh/setup-uv@v10.2.0
-        with:
-          version: "0.12.23"
+      - name: Instalar uv (versão fixa)
+        run: python -m pip install --user --quiet uv==0.12.23
       - name: Instalar dependências
-        run: uv sync --locked --no-dev
+        run: python -m uv sync --locked --no-dev
       - name: Assembleia do Rio Grande do Sul (ALRS)
-        run: uv run python -m ingestion.assembleias.alrs
+        run: python -m uv run python -m ingestion.assembleias.alrs
 
   # Assembleia da Bahia: API pública de dados abertos do Processo Legislativo Eletrônico.
   alba:
     needs: catalogo
-    if: false # bloqueia IP de fora do Brasil (11/10/2026); roda no acervo local
-    runs-on: ubuntu-latest
+    if: ${{ github.repository == 'Gipsy7/panoptico' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev') }}
+    runs-on: [self-hosted, windows, brasil]
     timeout-minutes: 60
     defaults:
       run:
+        shell: bash
         working-directory: backend
     env:
       DATABASE_URL: ${{ secrets.DATABASE_URL }}
       PYTHONUNBUFFERED: "1"
+      PYTHONUTF8: "1"
     steps:
       - uses: actions/checkout@v7
-      - uses: astral-sh/setup-uv@v10.2.0
-        with:
-          version: "0.12.23"
+      - name: Instalar uv (versão fixa)
+        run: python -m pip install --user --quiet uv==0.12.23
       - name: Instalar dependências
-        run: uv sync --locked --no-dev
+        run: python -m uv sync --locked --no-dev
       - name: Assembleia da Bahia (ALBA)
-        run: uv run python -m ingestion.assembleias.alba
+        run: python -m uv run python -m ingestion.assembleias.alba
 
   # Assembleia do Espírito Santo: API pública do Processo Legislativo Eletrônico (filtrada por tipo de proposição).
   ales:
     needs: catalogo
-    if: false # bloqueia IP de fora do Brasil (11/10/2026); roda no acervo local
-    runs-on: ubuntu-latest
+    if: ${{ github.repository == 'Gipsy7/panoptico' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev') }}
+    runs-on: [self-hosted, windows, brasil]
     timeout-minutes: 90
     defaults:
       run:
+        shell: bash
         working-directory: backend
     env:
       DATABASE_URL: ${{ secrets.DATABASE_URL }}
       PYTHONUNBUFFERED: "1"
+      PYTHONUTF8: "1"
     steps:
       - uses: actions/checkout@v7
-      - uses: astral-sh/setup-uv@v10.2.0
-        with:
-          version: "0.12.23"
+      - name: Instalar uv (versão fixa)
+        run: python -m pip install --user --quiet uv==0.12.23
       - name: Instalar dependências
-        run: uv sync --locked --no-dev
+        run: python -m uv sync --locked --no-dev
       - name: Assembleia do Espírito Santo (ALES)
-        run: uv run python -m ingestion.assembleias.ales
+        run: python -m uv run python -m ingestion.assembleias.ales
 
   # Assembleia do Ceará: páginas públicas do site e do sistema de proposições, uma por vez.
   alece:
@@ -412,24 +426,25 @@ jobs:
   # Assembleia do Maranhão (ALEMA): API do ALEMALEGIS.
   alema:
     needs: catalogo
-    if: false # bloqueia IP de fora do Brasil (11/10/2026); roda no acervo local
-    runs-on: ubuntu-latest
+    if: ${{ github.repository == 'Gipsy7/panoptico' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev') }}
+    runs-on: [self-hosted, windows, brasil]
     timeout-minutes: 20
     defaults:
       run:
+        shell: bash
         working-directory: backend
     env:
       DATABASE_URL: ${{ secrets.DATABASE_URL }}
       PYTHONUNBUFFERED: "1"
+      PYTHONUTF8: "1"
     steps:
       - uses: actions/checkout@v7
-      - uses: astral-sh/setup-uv@v10.2.0
-        with:
-          version: "0.12.23"
+      - name: Instalar uv (versão fixa)
+        run: python -m pip install --user --quiet uv==0.12.23
       - name: Instalar dependências
-        run: uv sync --locked --no-dev
+        run: python -m uv sync --locked --no-dev
       - name: Assembleia do Maranhão (ALEMA)
-        run: uv run python -m ingestion.assembleias.alema
+        run: python -m uv run python -m ingestion.assembleias.alema
 
   # Assembleia de Mato Grosso do Sul (ALEMS): Site e portal da transparência da ALEMS.
   alems:
@@ -476,46 +491,48 @@ jobs:
   # Assembleia de Sergipe (ALESE): Site e SPL da ALESE.
   alese:
     needs: catalogo
-    if: false # bloqueia IP de fora do Brasil (11/10/2026); roda no acervo local
-    runs-on: ubuntu-latest
+    if: ${{ github.repository == 'Gipsy7/panoptico' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev') }}
+    runs-on: [self-hosted, windows, brasil]
     timeout-minutes: 20
     defaults:
       run:
+        shell: bash
         working-directory: backend
     env:
       DATABASE_URL: ${{ secrets.DATABASE_URL }}
       PYTHONUNBUFFERED: "1"
+      PYTHONUTF8: "1"
     steps:
       - uses: actions/checkout@v7
-      - uses: astral-sh/setup-uv@v10.2.0
-        with:
-          version: "0.12.23"
+      - name: Instalar uv (versão fixa)
+        run: python -m pip install --user --quiet uv==0.12.23
       - name: Instalar dependências
-        run: uv sync --locked --no-dev
+        run: python -m uv sync --locked --no-dev
       - name: Assembleia de Sergipe (ALESE)
-        run: uv run python -m ingestion.assembleias.alese
+        run: python -m uv run python -m ingestion.assembleias.alese
 
   # Assembleia do Amapá (ALAP): Portal do eLegis da ALAP.
   alap:
     needs: catalogo
-    if: false # bloqueia IP de fora do Brasil (11/10/2026); roda no acervo local
-    runs-on: ubuntu-latest
+    if: ${{ github.repository == 'Gipsy7/panoptico' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev') }}
+    runs-on: [self-hosted, windows, brasil]
     timeout-minutes: 20
     defaults:
       run:
+        shell: bash
         working-directory: backend
     env:
       DATABASE_URL: ${{ secrets.DATABASE_URL }}
       PYTHONUNBUFFERED: "1"
+      PYTHONUTF8: "1"
     steps:
       - uses: actions/checkout@v7
-      - uses: astral-sh/setup-uv@v10.2.0
-        with:
-          version: "0.12.23"
+      - name: Instalar uv (versão fixa)
+        run: python -m pip install --user --quiet uv==0.12.23
       - name: Instalar dependências
-        run: uv sync --locked --no-dev
+        run: python -m uv sync --locked --no-dev
       - name: Assembleia do Amapá (ALAP)
-        run: uv run python -m ingestion.assembleias.alap
+        run: python -m uv run python -m ingestion.assembleias.alap
 
   # Assembleia de Goiás (ALEGO): Portal da transparência da ALEGO.
   alego:
@@ -537,3 +554,59 @@ jobs:
         run: uv sync --locked --no-dev
       - name: Assembleia de Goiás (ALEGO)
         run: uv run python -m ingestion.assembleias.alego
+
+  # ---------------------------------------------------------------------------------------------
+  # Runner no Brasil (geobloqueio), além dos jobs acima que já migraram:
+  # almg, alepe, cldf, alrs, alba, ales, alema, alese, alap.
+  # AQUI ENTRAM, com o mesmo molde (runs-on [self-hosted, windows, brasil], `if` do repositório,
+  # shell bash, `python -m uv`): `alep` (Assembleia do Paraná) e `eagendas`, se forem
+  # geobloqueados; fontes abertas ficam nos jobs hospedados (ubuntu-latest).
+  # ---------------------------------------------------------------------------------------------
+
+  # Assembleia de Roraima: o SAPL de lá responde 403 aos endereços do GitHub.
+  alerr:
+    needs: catalogo
+    if: ${{ github.repository == 'Gipsy7/panoptico' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev') }}
+    runs-on: [self-hosted, windows, brasil]
+    timeout-minutes: 60
+    defaults:
+      run:
+        shell: bash
+        working-directory: backend
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      PYTHONUNBUFFERED: "1"
+      PYTHONUTF8: "1"
+    steps:
+      - uses: actions/checkout@v7
+      - name: Instalar uv (versão fixa)
+        run: python -m pip install --user --quiet uv==0.12.23
+      - name: Instalar dependências
+        run: python -m uv sync --locked --no-dev
+      - name: Assembleia de Roraima (SAPL)
+        run: python -m uv run python -m ingestion.assembleias.sapl --uf RR
+
+  # Câmaras de Porto Velho (RO) e Armação dos Búzios (RJ): só respondem a IP do Brasil. O módulo
+  # filtra por estado, então o job roda RO e RJ inteiros (a carga é idempotente; as outras câmaras
+  # desses estados também são cobertas pelo job `estado`, que segue no runner hospedado).
+  camaras-brasil:
+    needs: catalogo
+    if: ${{ github.repository == 'Gipsy7/panoptico' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev') }}
+    runs-on: [self-hosted, windows, brasil]
+    timeout-minutes: 240
+    defaults:
+      run:
+        shell: bash
+        working-directory: backend
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      PYTHONUNBUFFERED: "1"
+      PYTHONUTF8: "1"
+    steps:
+      - uses: actions/checkout@v7
+      - name: Instalar uv (versão fixa)
+        run: python -m pip install --user --quiet uv==0.12.23
+      - name: Instalar dependências
+        run: python -m uv sync --locked --no-dev
+      - name: Câmaras com SAPL em RO e RJ (Porto Velho, Armação dos Búzios)
+        run: python -m uv run python -m ingestion.camaras.sapl --uf RO RJ

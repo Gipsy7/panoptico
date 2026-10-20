@@ -101,6 +101,7 @@
 - [2026-10-18: explicador de votação e orientação dos partidos](#2026-10-18-explicador-de-votação-e-orientação-dos-partidos)
 - [2026-10-18: resgate de cobertura: emendas por município](#2026-10-18-resgate-de-cobertura-emendas-por-município)
 - [2026-10-18: cadastro de empresas por CNPJ](#2026-10-18-cadastro-de-empresas-por-cnpj)
+- [2026-10-19: runner no Brasil para as fontes com geobloqueio](#2026-10-19-runner-no-brasil-para-as-fontes-com-geobloqueio)
 
 ## 2026-10-06: stack inicial
 
@@ -1077,3 +1078,14 @@ encontra na urna: presidente e, se o estado tiver, governador. API: `GET /segund
 - **CNPJ alfanumérico (IN RFB 2229/2024):** `app/cnpj.py` aceita letras nas 12 primeiras posições e calcula o dígito verificador com valor ASCII menos 48 (confere com o exemplo oficial 12.ABC.345/01DE-35).
 - **Resultado no acervo (base 2026-10):** 495.958 CNPJs de interesse; 495.900 resolvidos (58 sem cadastro na base, cadastro novo: candidatos ao `--brasilapi`); 478.997 com razão social e 16.903 omitidos por CPF de MEI; 495.183 com município IBGE (717 nomes da Receita sem código IBGE); 19.841 de natureza municipal. Tabela de 87 MB, bruto (recorte) de 55 MB. A leitura da base inteira leva ~35 min (o servidor da Receita dá ~3 MB/s; a conexão travou uma vez sem erro, e a carga foi refeita).
 - **Pendências:** modo completo; incluir `receita_empresas` no `run_all`/workflow da produção (download de 7,8 GB por mês no runner); `nome_omitido` na tela de fornecedores dos Tribunais de Contas.
+
+## 2026-10-19: runner no Brasil para as fontes com geobloqueio
+
+- **Contexto:** nove assembleias (ALMG, ALEPE, CLDF, ALRS, ALBA, ALES, ALEMA, ALESE, ALAP), a de Roraima (SAPL), as câmaras de Porto Velho e Armação dos Búzios e o TCE-RS só respondem a IP brasileiro. Os runners hospedados do GitHub ficam nos EUA, então os jobs estavam desligados (`if: false`) e a produção ficava sem essas fontes.
+- **Decisão:** um self-hosted runner do GitHub Actions no PC do dono (Windows 11, no Brasil), com o label `brasil`. Não é proxy, VPN nem navegador disfarçado: é uma máquina no Brasil fazendo a mesma coleta pública. Respeita a regra de não contornar bloqueio deliberado (aqui não há bloqueio ao cidadão brasileiro, só geográfico).
+- **Jobs movidos:** em `ingestao-camaras.yml`, `almg`, `alepe`, `cldf`, `alrs`, `alba`, `ales`, `alema`, `alese`, `alap` (antes `if: false`) e os novos `alerr` (RR) e `camaras-brasil` (SAPL de RO e RJ); em `ingestao-mensal.yml`, o novo `tce-rs`. Os passos usam `shell: bash` (Git para Windows) e `python -m uv`.
+- **Segurança (repositório público):** só `schedule` e `workflow_dispatch`; `if` de repositório oficial e branch `main` ou `dev`; `permissions: contents: read`; `timeout-minutes`; serviço com usuário local sem admin, pasta fora do repositório; aprovação obrigatória para workflows de fork (configuração manual do dono). O `DATABASE_URL` continua só nos Secrets.
+- **PC desligado:** o job espera na fila; a produção mantém a última carga e mostra a data dela (`fonte_ingestao`). Aceito: essas fontes já eram semanais ou mensais.
+- **Fora do runner:** `querido_diario_atos` (API aberta, acesso "espelho") e `dou_atos` (acesso "aberto") não são geobloqueio; seguem sem workflow porque alimentam filas de revisão humana.
+- **Pendências:** `alep` e `eagendas` entram no mesmo molde se forem geobloqueados (comentário no `ingestao-camaras.yml`); o runner roda RO e RJ inteiros no job `camaras-brasil` porque o módulo filtra por estado, não por município.
+- Instalação e operação: `docs/DEPLOY_GRATUITO.md`, "Runner no Brasil"; `scripts/instalar-runner-brasil.ps1`.

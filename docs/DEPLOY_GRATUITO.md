@@ -221,3 +221,31 @@ Medido no banco local: `emenda_transferencia` 60 mil linhas, ~30 MB (mais ~3 MB 
 ## Indicações de emendas de relator (RP9) na produção
 
 Medido no banco local: `emenda_relator_indicacao` 7,9 mil linhas, ~4,7 MB (índices incluídos). A carga baixa uma planilha de 3 MB da CMO e, como o servidor informa ETag/Last-Modified e o arquivo é de 2022, a partir da segunda execução não baixa nada. Está no `run_all` (depois das emendas); pequena demais para exigir carga inicial separada. Migração `0041_emenda_relator` (aditiva).
+
+## Runner no Brasil
+
+Algumas fontes só respondem a IP brasileiro (geobloqueio): `acesso = "brasil"` em `backend/ingestion/fontes.toml`. Os runners hospedados do GitHub ficam nos EUA, então elas rodam num **self-hosted runner no PC do dono (Windows 11, no Brasil)**, com o label `brasil`. Não é proxy nem truque: é uma máquina no Brasil fazendo a coleta pública normal. Decisão e motivos em `docs/DECISOES.md` (2026-10-19).
+
+**Jobs que usam `runs-on: [self-hosted, windows, brasil]`:**
+- `ingestao-camaras.yml`: `almg`, `alepe`, `cldf`, `alrs`, `alba`, `ales`, `alema`, `alese`, `alap`, `alerr` (Assembleia de Roraima, SAPL) e `camaras-brasil` (SAPL de RO e RJ, que cobre Porto Velho e Armação dos Búzios). Os comentários no fim do arquivo marcam onde entram `alep` e `eagendas`.
+- `ingestao-mensal.yml`: `tce-rs` (despesas por fornecedor do TCE-RS).
+- Fora do runner: `querido_diario_atos` (acesso "espelho") e `dou_atos` (acesso "aberto") não são geobloqueio; não têm workflow porque alimentam filas de revisão humana, que ficam no acervo local.
+
+**Instalar** (o dono, uma vez; o script não é executado por agentes):
+1. Pré-requisitos no PC, instalados para todos os usuários: Git para Windows (os jobs usam `shell: bash`), Python 3.12+ no PATH, `gh` autenticado (`gh auth login`).
+2. PowerShell **como administrador**, na raiz do repositório: `powershell -ExecutionPolicy Bypass -File scripts\instalar-runner-brasil.ps1` (use `-SoConferir` para só checar os pré-requisitos). O script baixa o runner na versão fixa, confere o SHA-256, cria o usuário local `runner-panoptico` sem admin, extrai em `C:\actions-runner-panoptico` (fora do repositório), pede o token de registro ao GitHub com a sua conta e instala o serviço.
+3. No GitHub: **Settings > Actions > General > Fork pull request workflows from outside collaborators: Require approval for all outside collaborators.** Faça manualmente.
+4. Teste: Actions > Câmaras e assembleias (SAPL) > Run workflow com `ufs` = `["RR"]`; o job `alerr` deve rodar no seu PC.
+
+**Pausar e remover:**
+- Pausar: `Stop-Service "actions.runner.*"` (como administrador); `Start-Service` para voltar. Os jobs do runner ficam na fila.
+- Remover: `gh api -X POST repos/Gipsy7/panoptico/actions/runners/remove-token --jq .token` e, na pasta do runner, `.\config.cmd remove --token <token>`; depois apague a pasta e o usuário `runner-panoptico`.
+
+**PC desligado ou sem rede:** o job espera um runner livre e é cancelado pelo GitHub depois de 24 horas na fila (`timeout-minutes` só conta depois que o job começa). Nada quebra: a produção mantém a última carga, e cada seção mostra a data dela (vem de `fonte_ingestao`). O `concurrency` do workflow mantém uma só execução pendente por fila, então cargas atrasadas não se empilham.
+
+**Riscos e mitigação** (repositório público, AGPL):
+- Quem consegue rodar workflow no runner executa código na sua máquina. Mitigação: os workflows do runner só têm gatilho `schedule` e `workflow_dispatch` (nunca `pull_request`, `pull_request_target` nem `issue_comment`); cada job tem `if: github.repository == 'Gipsy7/panoptico'` e só roda nos branches `main` e `dev`; `permissions: contents: read`; `timeout-minutes` em todos. Não crie workflow novo para o runner com outro gatilho.
+- Pull requests de fora: a opção do passo 3 exige aprovação antes de qualquer workflow de fork rodar.
+- O serviço roda com usuário comum, numa pasta com acesso restrito. O `DATABASE_URL` só existe nos Secrets do GitHub e chega ao job em memória; não grave segredo no PC.
+- Um runner persistente guarda o `_work` de cada job. Não deixe ali nada que não possa ser lido pelos jobs.
+- Mantenha o Windows e o runner em dia (o serviço se atualiza sozinho; o script fixa a versão só da instalação).
