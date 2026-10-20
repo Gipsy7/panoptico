@@ -3,6 +3,11 @@ name: Ingestão mensal
 # Fontes que mudam pouco: contas anuais dos municípios (SICONFI), contas anuais dos partidos
 # (TSE) e despesas por fornecedor dos Tribunais de Contas (TCE-SP; o TCE-RS não responde a conexões de fora do Brasil e roda no runner do PC no Brasil). Uma vez por mês, fora da ingestão diária, porque exigem
 # milhares de consultas ou arquivos de vários GB.
+#
+# Primeira carga do dinheiro federal (tabelas vazias até terminar; o site mostra "sendo carregados"):
+#   gh workflow run ingestao-mensal.yml -f so_dinheiro_federal=true -f anos="2019 2020 2021 2022 2023 2024 2025 2026"
+# Com so_dinheiro_federal rodam só arrecadação, população (IBGE, sempre com os anos padrão do módulo),
+# Tesouro e Portal (estes dois com `anos`, se informado); o resto fica de fora.
 on:
   schedule:
     - cron: "0 10 15 * *" # dia 15 de cada mês, 7h em Brasília
@@ -18,6 +23,10 @@ on:
         default: false
       so_partidos:
         description: "Só as contas e fundos dos partidos (pula SICONFI e Tribunais de Contas)"
+        type: boolean
+        default: false
+      so_dinheiro_federal:
+        description: "Só as fontes do dinheiro federal (arrecadação, população, Tesouro, Portal)"
         type: boolean
         default: false
 
@@ -58,7 +67,7 @@ jobs:
 
       # Um ano por vez: se um falhar (API fora do ar), o outro já ficou gravado.
       - name: Contas dos municípios (SICONFI)
-        if: ${{ !inputs.so_tce && !inputs.so_partidos }}
+        if: ${{ !inputs.so_tce && !inputs.so_partidos && !inputs.so_dinheiro_federal }}
         run: |
           anos="$ANOS"
           if [ -z "$anos" ]; then
@@ -71,7 +80,7 @@ jobs:
 
       # Contas dos 27 governos estaduais (SICONFI/DCA), mesmos anos dos municípios.
       - name: Contas dos estados (SICONFI)
-        if: ${{ !inputs.so_tce && !inputs.so_partidos }}
+        if: ${{ !inputs.so_tce && !inputs.so_partidos && !inputs.so_dinheiro_federal }}
         run: |
           anos="$ANOS"
           if [ -z "$anos" ]; then
@@ -83,7 +92,7 @@ jobs:
       # Agenda de autoridades federais (e-Agendas, CGU): zip aberto de ~205 MB, mensal; só grava
       # agentes ligados a pessoas que acompanhamos.
       - name: Agenda de autoridades (e-Agendas)
-        if: ${{ !inputs.so_tce && !inputs.so_partidos }}
+        if: ${{ !inputs.so_tce && !inputs.so_partidos && !inputs.so_dinheiro_federal }}
         run: uv run python -m ingestion.executivo.eagendas
 
       # Dinheiro federal por estado: arrecadação (CSV de ~2,4 MB, só baixa de novo se mudou) e
@@ -129,7 +138,7 @@ jobs:
       # Prestação de contas anual dos partidos (zip de ~60 MB por exercício, lido em fluxo; ~11 MB
       # no banco por ano). O exercício atual costuma dar 404 (ainda não publicado) e é pulado.
       - name: Contas dos partidos (TSE)
-        if: ${{ !inputs.so_tce }}
+        if: ${{ !inputs.so_tce && !inputs.so_dinheiro_federal }}
         run: |
           anos="$ANOS"
           if [ -z "$anos" ]; then
@@ -142,12 +151,12 @@ jobs:
 
       # Distribuição do FEFC e do Fundo Partidário por gênero e cor ou raça (eleição de 2024).
       - name: Fundos por gênero e raça (TSE)
-        if: ${{ !inputs.so_tce }}
+        if: ${{ !inputs.so_tce && !inputs.so_dinheiro_federal }}
         run: uv run python -m ingestion.tse.fefc_fp --ano 2024
 
       # Arquivos de 2 GB compactados (15 GB ou mais descompactados), lidos em fluxo.
       - name: Despesas por fornecedor (TCE-SP)
-        if: ${{ !inputs.so_partidos }}
+        if: ${{ !inputs.so_partidos && !inputs.so_dinheiro_federal }}
         run: |
           anos="$ANOS"
           if [ -z "$anos" ]; then
@@ -161,7 +170,7 @@ jobs:
   # Despesas por fornecedor do TCE-RS: dados.tce.rs.gov.br só responde a IP do Brasil.
   tce-rs:
     needs: mensal
-    if: ${{ !cancelled() && !inputs.so_partidos && github.repository == 'Gipsy7/panoptico' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev') }}
+    if: ${{ !cancelled() && !inputs.so_partidos && !inputs.so_dinheiro_federal && github.repository == 'Gipsy7/panoptico' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev') }}
     runs-on: [self-hosted, windows, brasil]
     timeout-minutes: 240
     defaults:

@@ -150,6 +150,7 @@ def _contexto_ano(session: Session, ano: int) -> dict:
         "meses_com_dado": ordenados,
         "ano_em_curso": em_curso,
         "avisos": avisos,
+        "sem_dados": not ordenados,
     }
 
 
@@ -367,6 +368,7 @@ def municipio(session: Session, mun: Municipio) -> dict:
     return {
         "municipio": {"ibge": mun.ibge, "nome": mun.nome, "uf": mun.uf},
         "serie": serie,
+        "sem_dados": not serie,
         "contas": contas,
         "fontes": fontes,
     }

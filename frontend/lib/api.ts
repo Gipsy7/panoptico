@@ -1630,6 +1630,8 @@ export type DinheiroFederalAno = {
   meses_com_dado: number[];
   ano_em_curso: boolean;
   avisos: string[];
+  /** Sem arrecadação nem repasse carregados para o ano (a carga ainda não terminou). */
+  sem_dados?: boolean;
 };
 
 export type DinheiroFederalUF = DinheiroFederalTotais & { uf: string; nome: string; regiao: string };
@@ -1683,6 +1685,7 @@ export type DinheiroFederalMunicipio = {
   municipio: DinheiroFederalMunicipioId;
   serie: DinheiroFederalSerieAno[];
   contas: DinheiroFederalContas | null;
+  sem_dados?: boolean;
   fontes: DinheiroFederalFonte[];
 };
 

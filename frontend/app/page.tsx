@@ -6,7 +6,7 @@ import { EsqueletoSecao } from "@/components/esqueleto-secao";
 import { BuscaGeral } from "@/components/busca-geral";
 import { CepForm } from "@/components/cep-form";
 import { FonteRodape } from "@/components/fonte-rodape";
-import { reais, textoSemDado } from "@/components/dinheiro-federal/formatos";
+import { MENSAGEM_CARREGANDO, reais, textoSemDado } from "@/components/dinheiro-federal/formatos";
 import { MapaHome } from "@/components/home-mapa/mapa-home";
 import { Marca } from "@/components/logo";
 import { Foto } from "@/components/parlamentar-card";
@@ -74,6 +74,22 @@ export default function Home() {
 async function DinheiroFederalHome() {
   const r = await getDinheiroFederal();
   if (!r.ok) return null;
+  if (r.dados.sem_dados) {
+    return (
+      <section aria-labelledby="dinheiro-federal-titulo" className="revelar flex flex-col gap-3">
+        <p className="sobretitulo">Dinheiro federal</p>
+        <h2 id="dinheiro-federal-titulo" className="text-3xl leading-tight text-balance sm:text-4xl">
+          Quanto a União arrecada e repassa em cada estado
+        </h2>
+        <p className="text-muted-foreground">{MENSAGEM_CARREGANDO}</p>
+        <div>
+          <Link href="/dinheiro-federal" className="botao-linha">
+            Ir para a página do dinheiro federal
+          </Link>
+        </div>
+      </section>
+    );
+  }
   const { brasil, ufs, ano, avisos, fontes } = r.dados;
   const dataFonte = fontes.map((f) => f.atualizado_em).filter((d): d is string => Boolean(d)).sort()[0] ?? null;
   return (

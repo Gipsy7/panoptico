@@ -11,7 +11,7 @@ import {
 } from "@/lib/api";
 import { UFS } from "@/lib/ufs";
 
-import { ANO_PADRAO } from "./formatos";
+import { ANO_PADRAO, MENSAGEM_CARREGANDO } from "./formatos";
 import { PainelDinheiroFederal } from "./painel-dinheiro-federal";
 
 type Entrada = { lugar?: string[]; ano?: string | string[] };
@@ -82,6 +82,15 @@ async function Dados(entrada: Entrada) {
   if (!painel.ok) {
     if (painel.status === 404) notFound();
     return <AvisoErro titulo="Não deu para carregar o dinheiro federal" mensagem={painel.mensagem} />;
+  }
+  if (painel.dados.sem_dados) {
+    return (
+      <div className="flex flex-col gap-3">
+        <p className="sobretitulo">Dinheiro federal</p>
+        <h1 className="titulo-pagina">Quanto a União arrecada e repassa</h1>
+        <p className="text-muted-foreground">{MENSAGEM_CARREGANDO}</p>
+      </div>
+    );
   }
   if (estado && !estado.ok && estado.status === 404) notFound();
   if (municipio && !municipio.ok && municipio.status === 404) notFound();

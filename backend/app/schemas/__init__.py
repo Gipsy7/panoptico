@@ -1296,6 +1296,8 @@ class DinheiroFederalAno(BaseModel):
     meses_com_dado: list[int]
     ano_em_curso: bool
     avisos: list[str]
+    # Nenhuma linha de arrecadação nem de repasse neste ano (carga ainda não feita).
+    sem_dados: bool = False
 
 
 class DinheiroFederalUF(DinheiroFederalTotais):
@@ -1359,4 +1361,6 @@ class DinheiroFederalMunicipio(BaseModel):
     municipio: DinheiroFederalMunicipioId
     serie: list[DinheiroFederalSerieAno]
     contas: DinheiroFederalContas | None
+    # Sem repasse da União carregado para a cidade (série vazia).
+    sem_dados: bool = False
     fontes: list[DinheiroFederalFonte]

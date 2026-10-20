@@ -142,3 +142,23 @@ def test_404s(client, session):
     assert client.get("/dinheiro-federal/XX").status_code == 404
     assert client.get("/dinheiro-federal?ano=1999").status_code == 404
     assert client.get("/municipios/0000000/dinheiro-federal").status_code == 404
+
+
+def test_banco_vazio_responde_200_com_nulos_e_sem_dados(client, session):
+    from app.models import Municipio
+
+    session.add(Municipio(ibge=BLU, nome="Blumenau", uf="SC", nome_chave="blumenau"))
+    session.commit()
+    painel = client.get("/dinheiro-federal?ano=2024")
+    assert painel.status_code == 200
+    corpo = painel.json()
+    assert corpo["sem_dados"] is True and corpo["meses_com_dado"] == []
+    assert corpo["brasil"]["arrecadacao"] is None and corpo["brasil"]["repasse"] is None
+    assert all(u["repasse"] is None and u["arrecadacao"] is None for u in corpo["ufs"])
+    uf = client.get("/dinheiro-federal/SC?ano=2024")
+    assert uf.status_code == 200
+    assert uf.json()["sem_dados"] is True and uf.json()["repasse"] is None
+    assert all(c["repasse"] is None for c in uf.json()["cidades"])
+    mun = client.get(f"/municipios/{BLU}/dinheiro-federal")
+    assert mun.status_code == 200
+    assert mun.json()["sem_dados"] is True and mun.json()["serie"] == []

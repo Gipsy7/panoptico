@@ -339,7 +339,7 @@ async function Lista({ cep, uf, municipio }: Busca) {
         />
       </div>
 
-      {federal && federalUf && (
+      {federal && !federal.sem_dados && federalUf && (
         <section aria-labelledby="federal-titulo" className="flex flex-col gap-2">
           <h2 id="federal-titulo" className="text-2xl">
             Quanto a União arrecadou e repassou em {nomeEstado}

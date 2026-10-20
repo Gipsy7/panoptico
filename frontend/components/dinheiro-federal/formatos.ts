@@ -78,3 +78,7 @@ export function textoSemDado(t: Pick<DinheiroFederalTotais, "blocos_sem_dado">, 
   const nomes = t.blocos_sem_dado.map((c) => BLOCOS.find((b) => b.chave === c)?.nome ?? c);
   return `Sem dado em ${ano} para: ${nomes.join("; ")}.`;
 }
+
+/** Texto quando as tabelas de arrecadação e repasses ainda estão vazias (carga em andamento). */
+export const MENSAGEM_CARREGANDO =
+  "Os dados de arrecadação e repasses federais estão sendo carregados.";
