@@ -175,12 +175,18 @@ jobs:
       PYTHONUTF8: "1"
     steps:
       - uses: actions/checkout@v7
-      - name: Instalar uv (versão fixa)
-        run: python -m pip install --user --quiet uv==0.12.23
+      # O serviço do runner (usuário próprio) não enxerga o Python nem o Bash do dono: Git\bin
+      # entra no PATH e o uv (ação oficial) baixa um Python gerenciado no primeiro `uv sync`.
+      - name: Bash do Git no PATH
+        shell: powershell
+        run: Add-Content -Path $env:GITHUB_PATH -Value 'C:\Program Files\Git\bin'
+      - uses: astral-sh/setup-uv@v10.2.0
+        with:
+          version: "0.12.23"
       - name: Instalar dependências
-        run: python -m uv sync --locked --no-dev
+        run: uv sync --locked --no-dev
       - name: Assembleia de Minas Gerais (ALMG)
-        run: python -m uv run python -m ingestion.assembleias.almg
+        run: uv run python -m ingestion.assembleias.almg
 
   # Assembleia de São Paulo: arquivos XML de dados abertos (não usa o SAPL).
   alesp:
@@ -219,12 +225,18 @@ jobs:
       PYTHONUTF8: "1"
     steps:
       - uses: actions/checkout@v7
-      - name: Instalar uv (versão fixa)
-        run: python -m pip install --user --quiet uv==0.12.23
+      # O serviço do runner (usuário próprio) não enxerga o Python nem o Bash do dono: Git\bin
+      # entra no PATH e o uv (ação oficial) baixa um Python gerenciado no primeiro `uv sync`.
+      - name: Bash do Git no PATH
+        shell: powershell
+        run: Add-Content -Path $env:GITHUB_PATH -Value 'C:\Program Files\Git\bin'
+      - uses: astral-sh/setup-uv@v10.2.0
+        with:
+          version: "0.12.23"
       - name: Instalar dependências
-        run: python -m uv sync --locked --no-dev
+        run: uv sync --locked --no-dev
       - name: Assembleia de Pernambuco (ALEPE)
-        run: python -m uv run python -m ingestion.assembleias.alepe
+        run: uv run python -m ingestion.assembleias.alepe
 
   # Câmara Legislativa do DF: API pública do processo legislativo (não usa o SAPL).
   cldf:
@@ -242,12 +254,18 @@ jobs:
       PYTHONUTF8: "1"
     steps:
       - uses: actions/checkout@v7
-      - name: Instalar uv (versão fixa)
-        run: python -m pip install --user --quiet uv==0.12.23
+      # O serviço do runner (usuário próprio) não enxerga o Python nem o Bash do dono: Git\bin
+      # entra no PATH e o uv (ação oficial) baixa um Python gerenciado no primeiro `uv sync`.
+      - name: Bash do Git no PATH
+        shell: powershell
+        run: Add-Content -Path $env:GITHUB_PATH -Value 'C:\Program Files\Git\bin'
+      - uses: astral-sh/setup-uv@v10.2.0
+        with:
+          version: "0.12.23"
       - name: Instalar dependências
-        run: python -m uv sync --locked --no-dev
+        run: uv sync --locked --no-dev
       - name: Câmara Legislativa do DF (CLDF)
-        run: python -m uv run python -m ingestion.assembleias.cldf
+        run: uv run python -m ingestion.assembleias.cldf
 
   # Assembleia de Santa Catarina: páginas públicas do e-Legis (sem API), uma por vez.
   alesc:
@@ -333,12 +351,18 @@ jobs:
       PYTHONUTF8: "1"
     steps:
       - uses: actions/checkout@v7
-      - name: Instalar uv (versão fixa)
-        run: python -m pip install --user --quiet uv==0.12.23
+      # O serviço do runner (usuário próprio) não enxerga o Python nem o Bash do dono: Git\bin
+      # entra no PATH e o uv (ação oficial) baixa um Python gerenciado no primeiro `uv sync`.
+      - name: Bash do Git no PATH
+        shell: powershell
+        run: Add-Content -Path $env:GITHUB_PATH -Value 'C:\Program Files\Git\bin'
+      - uses: astral-sh/setup-uv@v10.2.0
+        with:
+          version: "0.12.23"
       - name: Instalar dependências
-        run: python -m uv sync --locked --no-dev
+        run: uv sync --locked --no-dev
       - name: Assembleia do Rio Grande do Sul (ALRS)
-        run: python -m uv run python -m ingestion.assembleias.alrs
+        run: uv run python -m ingestion.assembleias.alrs
 
   # Assembleia da Bahia: API pública de dados abertos do Processo Legislativo Eletrônico.
   alba:
@@ -356,12 +380,18 @@ jobs:
       PYTHONUTF8: "1"
     steps:
       - uses: actions/checkout@v7
-      - name: Instalar uv (versão fixa)
-        run: python -m pip install --user --quiet uv==0.12.23
+      # O serviço do runner (usuário próprio) não enxerga o Python nem o Bash do dono: Git\bin
+      # entra no PATH e o uv (ação oficial) baixa um Python gerenciado no primeiro `uv sync`.
+      - name: Bash do Git no PATH
+        shell: powershell
+        run: Add-Content -Path $env:GITHUB_PATH -Value 'C:\Program Files\Git\bin'
+      - uses: astral-sh/setup-uv@v10.2.0
+        with:
+          version: "0.12.23"
       - name: Instalar dependências
-        run: python -m uv sync --locked --no-dev
+        run: uv sync --locked --no-dev
       - name: Assembleia da Bahia (ALBA)
-        run: python -m uv run python -m ingestion.assembleias.alba
+        run: uv run python -m ingestion.assembleias.alba
 
   # Assembleia do Espírito Santo: API pública do Processo Legislativo Eletrônico (filtrada por tipo de proposição).
   ales:
@@ -379,12 +409,18 @@ jobs:
       PYTHONUTF8: "1"
     steps:
       - uses: actions/checkout@v7
-      - name: Instalar uv (versão fixa)
-        run: python -m pip install --user --quiet uv==0.12.23
+      # O serviço do runner (usuário próprio) não enxerga o Python nem o Bash do dono: Git\bin
+      # entra no PATH e o uv (ação oficial) baixa um Python gerenciado no primeiro `uv sync`.
+      - name: Bash do Git no PATH
+        shell: powershell
+        run: Add-Content -Path $env:GITHUB_PATH -Value 'C:\Program Files\Git\bin'
+      - uses: astral-sh/setup-uv@v10.2.0
+        with:
+          version: "0.12.23"
       - name: Instalar dependências
-        run: python -m uv sync --locked --no-dev
+        run: uv sync --locked --no-dev
       - name: Assembleia do Espírito Santo (ALES)
-        run: python -m uv run python -m ingestion.assembleias.ales
+        run: uv run python -m ingestion.assembleias.ales
 
   # Assembleia do Ceará: páginas públicas do site e do sistema de proposições, uma por vez.
   alece:
@@ -465,12 +501,18 @@ jobs:
       PYTHONUTF8: "1"
     steps:
       - uses: actions/checkout@v7
-      - name: Instalar uv (versão fixa)
-        run: python -m pip install --user --quiet uv==0.12.23
+      # O serviço do runner (usuário próprio) não enxerga o Python nem o Bash do dono: Git\bin
+      # entra no PATH e o uv (ação oficial) baixa um Python gerenciado no primeiro `uv sync`.
+      - name: Bash do Git no PATH
+        shell: powershell
+        run: Add-Content -Path $env:GITHUB_PATH -Value 'C:\Program Files\Git\bin'
+      - uses: astral-sh/setup-uv@v10.2.0
+        with:
+          version: "0.12.23"
       - name: Instalar dependências
-        run: python -m uv sync --locked --no-dev
+        run: uv sync --locked --no-dev
       - name: Assembleia do Maranhão (ALEMA)
-        run: python -m uv run python -m ingestion.assembleias.alema
+        run: uv run python -m ingestion.assembleias.alema
 
   # Assembleia de Mato Grosso do Sul (ALEMS): Site e portal da transparência da ALEMS.
   alems:
@@ -530,12 +572,18 @@ jobs:
       PYTHONUTF8: "1"
     steps:
       - uses: actions/checkout@v7
-      - name: Instalar uv (versão fixa)
-        run: python -m pip install --user --quiet uv==0.12.23
+      # O serviço do runner (usuário próprio) não enxerga o Python nem o Bash do dono: Git\bin
+      # entra no PATH e o uv (ação oficial) baixa um Python gerenciado no primeiro `uv sync`.
+      - name: Bash do Git no PATH
+        shell: powershell
+        run: Add-Content -Path $env:GITHUB_PATH -Value 'C:\Program Files\Git\bin'
+      - uses: astral-sh/setup-uv@v10.2.0
+        with:
+          version: "0.12.23"
       - name: Instalar dependências
-        run: python -m uv sync --locked --no-dev
+        run: uv sync --locked --no-dev
       - name: Assembleia de Sergipe (ALESE)
-        run: python -m uv run python -m ingestion.assembleias.alese
+        run: uv run python -m ingestion.assembleias.alese
 
   # Assembleia do Amapá (ALAP): Portal do eLegis da ALAP.
   alap:
@@ -553,12 +601,18 @@ jobs:
       PYTHONUTF8: "1"
     steps:
       - uses: actions/checkout@v7
-      - name: Instalar uv (versão fixa)
-        run: python -m pip install --user --quiet uv==0.12.23
+      # O serviço do runner (usuário próprio) não enxerga o Python nem o Bash do dono: Git\bin
+      # entra no PATH e o uv (ação oficial) baixa um Python gerenciado no primeiro `uv sync`.
+      - name: Bash do Git no PATH
+        shell: powershell
+        run: Add-Content -Path $env:GITHUB_PATH -Value 'C:\Program Files\Git\bin'
+      - uses: astral-sh/setup-uv@v10.2.0
+        with:
+          version: "0.12.23"
       - name: Instalar dependências
-        run: python -m uv sync --locked --no-dev
+        run: uv sync --locked --no-dev
       - name: Assembleia do Amapá (ALAP)
-        run: python -m uv run python -m ingestion.assembleias.alap
+        run: uv run python -m ingestion.assembleias.alap
 
   # Assembleia de Goiás (ALEGO): Portal da transparência da ALEGO.
   alego:
@@ -604,12 +658,18 @@ jobs:
       PYTHONUTF8: "1"
     steps:
       - uses: actions/checkout@v7
-      - name: Instalar uv (versão fixa)
-        run: python -m pip install --user --quiet uv==0.12.23
+      # O serviço do runner (usuário próprio) não enxerga o Python nem o Bash do dono: Git\bin
+      # entra no PATH e o uv (ação oficial) baixa um Python gerenciado no primeiro `uv sync`.
+      - name: Bash do Git no PATH
+        shell: powershell
+        run: Add-Content -Path $env:GITHUB_PATH -Value 'C:\Program Files\Git\bin'
+      - uses: astral-sh/setup-uv@v10.2.0
+        with:
+          version: "0.12.23"
       - name: Instalar dependências
-        run: python -m uv sync --locked --no-dev
+        run: uv sync --locked --no-dev
       - name: Assembleia de Roraima (SAPL)
-        run: python -m uv run python -m ingestion.assembleias.sapl --uf RR
+        run: uv run python -m ingestion.assembleias.sapl --uf RR
 
   # Câmaras de Porto Velho (RO) e Armação dos Búzios (RJ): só respondem a IP do Brasil. O módulo
   # filtra por estado, então o job roda RO e RJ inteiros (a carga é idempotente; as outras câmaras
@@ -629,9 +689,15 @@ jobs:
       PYTHONUTF8: "1"
     steps:
       - uses: actions/checkout@v7
-      - name: Instalar uv (versão fixa)
-        run: python -m pip install --user --quiet uv==0.12.23
+      # O serviço do runner (usuário próprio) não enxerga o Python nem o Bash do dono: Git\bin
+      # entra no PATH e o uv (ação oficial) baixa um Python gerenciado no primeiro `uv sync`.
+      - name: Bash do Git no PATH
+        shell: powershell
+        run: Add-Content -Path $env:GITHUB_PATH -Value 'C:\Program Files\Git\bin'
+      - uses: astral-sh/setup-uv@v10.2.0
+        with:
+          version: "0.12.23"
       - name: Instalar dependências
-        run: python -m uv sync --locked --no-dev
+        run: uv sync --locked --no-dev
       - name: Câmaras com SAPL em RO e RJ (Porto Velho, Armação dos Búzios)
-        run: python -m uv run python -m ingestion.camaras.sapl --uf RO RJ
+        run: uv run python -m ingestion.camaras.sapl --uf RO RJ

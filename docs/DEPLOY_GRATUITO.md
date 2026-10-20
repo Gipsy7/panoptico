@@ -232,7 +232,7 @@ Algumas fontes só respondem a IP brasileiro (geobloqueio): `acesso = "brasil"` 
 - Fora do runner: `querido_diario_atos` (acesso "espelho") e `dou_atos` (acesso "aberto") não são geobloqueio; não têm workflow porque alimentam filas de revisão humana, que ficam no acervo local.
 
 **Instalar** (o dono, uma vez; o script não é executado por agentes):
-1. Pré-requisitos no PC, instalados para todos os usuários: Git para Windows (os jobs usam `shell: bash`), Python 3.12+ no PATH, `gh` autenticado (`gh auth login`).
+1. Pré-requisitos no PC: Git para Windows em `C:\Program Files\Git` e `gh` autenticado (`gh auth login`). O serviço roda com um usuário próprio, que não enxerga o Python nem o PATH do dono: cada job põe `C:\Program Files\Gitin` no PATH (passo "Bash do Git no PATH") e instala o uv pela ação oficial, que baixa um Python gerenciado no primeiro `uv sync` (primeira execução de 20/10/2026 falhou com `bash: command not found` antes disso).
 2. PowerShell **como administrador**, na raiz do repositório: `powershell -ExecutionPolicy Bypass -File scripts\instalar-runner-brasil.ps1` (use `-SoConferir` para só checar os pré-requisitos). O script baixa o runner na versão fixa, confere o SHA-256, cria o usuário local `runner-panoptico` sem admin, extrai em `C:\actions-runner-panoptico` (fora do repositório), pede o token de registro ao GitHub com a sua conta e instala o serviço.
 3. No GitHub: **Settings > Actions > General > Fork pull request workflows from outside collaborators: Require approval for all outside collaborators.** Faça manualmente.
 4. Teste: Actions > Câmaras e assembleias (SAPL) > Run workflow com `ufs` = `["RR"]`; o job `alerr` deve rodar no seu PC.
