@@ -15,6 +15,11 @@ cada cidade. Bancos intermediários (Caixa, BB) e empresas ficam de fora: estão
 uma cidade e executam em outra. O município vem só por nome e UF e é ligado ao código do
 IBGE pelo nome, com correspondência aproximada dentro da UF.
 
+Linhas com código da emenda "Sem informação" (emendas de 2014 a 2020 sem identificação na
+base da CGU, pagas de 2015 em diante) trazem o tipo de emenda e o mês do pagamento, mas não o
+autor nem o ano da emenda. Vão para `emenda_pagamento_sem_codigo` com o tipo da fonte e o
+autor como veio, sem ligação a parlamentar ou pessoa (docs/DECISOES.md, 20/10/2026).
+
 Autor fora do cargo (sem parlamentar em exercício) é ligado a `pessoa` só por nome idêntico
 e único entre os eleitos para a Câmara e o Senado (vínculo forte); nome parecido não liga.
 """
@@ -39,6 +44,7 @@ from app.models import (
     Emenda,
     EmendaConvenio,
     EmendaPagamento,
+    EmendaPagamentoSemCodigo,
     FonteIngestao,
     Municipio,
     Parlamentar,
@@ -124,12 +130,18 @@ def normalizar(conteudo_zip: bytes, ano_minimo: int = 0) -> list[dict[str, Any]]
 
 
 def normalizar_pagamentos(
-    conteudo_zip: bytes, ano_minimo: int = 0, descartes: Counter | None = None
+    conteudo_zip: bytes,
+    ano_minimo: int = 0,
+    descartes: Counter | None = None,
+    sem_codigo: list[dict[str, Any]] | None = None,
 ) -> list[dict[str, Any]]:
     """Lê o arquivo por favorecido em fluxo (são centenas de MB descomprimidos).
 
     `descartes` (opcional) conta, para os favorecidos que interessam, as linhas que ficaram
-    de fora e o valor delas: sem código de emenda ("Sem informação") e tipo desconhecido."""
+    de fora e o valor delas: sem código de emenda ("Sem informação") e tipo desconhecido.
+    `sem_codigo` (opcional) recebe as linhas sem código de emenda: a fonte traz o tipo e o
+    mês do pagamento, mas não o autor nem o ano da emenda (vão para
+    `emenda_pagamento_sem_codigo`, nunca ligadas a autor)."""
     registros = []
     with zipfile.ZipFile(io.BytesIO(conteudo_zip)) as z, z.open(ARQUIVO_FAVORECIDOS) as f:
         for linha in csv.DictReader(io.TextIOWrapper(f, encoding="latin-1"), delimiter=";"):
@@ -139,10 +151,26 @@ def normalizar_pagamentos(
             codigo = linha["Código da Emenda"].strip()
             tipo = tipo_curto(linha["Tipo de Emenda"])
             if not codigo[:4].isdigit() or tipo is None:
+                motivo = "sem_codigo" if not codigo[:4].isdigit() else "tipo_desconhecido"
                 if descartes is not None:
-                    motivo = "sem_codigo" if not codigo[:4].isdigit() else "tipo_desconhecido"
                     descartes[motivo] += 1
                     descartes[f"{motivo}_valor"] += _valor(linha["Valor Recebido"])
+                if sem_codigo is not None and motivo == "sem_codigo":
+                    sem_codigo.append(
+                        {
+                            "ano_mes": int(linha["Ano/Mês"]),
+                            "tipo": tipo,
+                            "autor_codigo": linha["Código do Autor da Emenda"].strip()[:20],
+                            "autor_nome": linha["Nome do Autor da Emenda"].strip()[:200],
+                            "favorecido": linha["Favorecido"].strip()[:300],
+                            "favorecido_codigo": linha["Código do Favorecido"].strip(),
+                            "natureza": linha["Natureza Jurídica"].strip(),
+                            "grupo": grupo,
+                            "uf": linha["UF Favorecido"].strip(),
+                            "municipio_nome": linha["Município Favorecido"].strip(),
+                            "valor": _valor(linha["Valor Recebido"]),
+                        }
+                    )
                 continue
             if int(codigo[:4]) < ano_minimo:
                 continue
@@ -321,16 +349,27 @@ def carregar(session: Session, conteudo: bytes, ingestao: FonteIngestao) -> int:
     if not municipios:
         raise ValueError("Tabela de municípios vazia; rode ingestion.ibge.municipios antes.")
     descartes: Counter = Counter()
+    brutos_sem_codigo: list[dict[str, Any]] = []
+    lista_municipios = [tuple(m) for m in municipios]
     pagamentos, fora = resolver_municipios(
-        normalizar_pagamentos(conteudo, descartes=descartes), [tuple(m) for m in municipios]
+        normalizar_pagamentos(conteudo, descartes=descartes, sem_codigo=brutos_sem_codigo),
+        lista_municipios,
     )
     if not pagamentos:
         raise ValueError("Nenhum pagamento por favorecido no arquivo; abortando.")
+    sem_codigo, fora_sem_codigo = resolver_municipios(brutos_sem_codigo, lista_municipios)
     print(f"  pagamentos sem município identificado: {fora}")
     print(
-        f"  pagamentos sem código de emenda (fora): {descartes['sem_codigo']} linhas, "
-        f"R$ {descartes['sem_codigo_valor']:,.2f}"
+        f"  pagamentos sem código de emenda (tipo da fonte, sem autor nem ano): "
+        f"{descartes['sem_codigo']} linhas, R$ {descartes['sem_codigo_valor']:,.2f}; "
+        f"gravados {len(sem_codigo)}, sem município identificado {fora_sem_codigo}"
     )
+    if descartes["tipo_desconhecido"]:
+        print(
+            f"  pagamentos com código e tipo desconhecido (fora): "
+            f"{descartes['tipo_desconhecido']} linhas, "
+            f"R$ {descartes['tipo_desconhecido_valor']:,.2f}"
+        )
 
     autores = [
         (r["autor_codigo"], r["autor_nome"], r["ano"]) for r in registros if r["individual"]
@@ -378,6 +417,10 @@ def carregar(session: Session, conteudo: bytes, ingestao: FonteIngestao) -> int:
     ]
     for inicio in range(0, len(pagamentos), 5000):
         session.execute(insert(EmendaPagamento), pagamentos[inicio : inicio + 5000])
+    session.execute(delete(EmendaPagamentoSemCodigo))
+    sem_codigo = [{**p, "ingestao_id": ingestao.id} for p in sem_codigo]
+    for inicio in range(0, len(sem_codigo), 5000):
+        session.execute(insert(EmendaPagamentoSemCodigo), sem_codigo[inicio : inicio + 5000])
     convenios = normalizar_convenios(conteudo)
     session.execute(delete(EmendaConvenio))
     for inicio in range(0, len(convenios), 5000):
@@ -386,7 +429,11 @@ def carregar(session: Session, conteudo: bytes, ingestao: FonteIngestao) -> int:
             [{**c, "ingestao_id": ingestao.id} for c in convenios[inicio : inicio + 5000]],
         )
     print(f"  convênios ligados a emendas: {len(convenios)}")
-    return len(linhas) + len(pagamentos)
+    return len(linhas) + len(pagamentos) + len(sem_codigo)
+
+
+# Sobe quando a carga passa a gravar algo novo do mesmo arquivo (força uma releitura).
+VERSAO_CARGA = "2026-10-20:sem_codigo"
 
 
 def contexto(session: Session) -> str:
@@ -394,7 +441,7 @@ def contexto(session: Session) -> str:
     total, maior = session.execute(
         select(func.count(Parlamentar.id), func.max(Parlamentar.id))
     ).one()
-    return f"parlamentares:{total}:{maior}:{comum.contexto_pessoas(session)}"
+    return f"{VERSAO_CARGA}:parlamentares:{total}:{maior}:{comum.contexto_pessoas(session)}"
 
 
 def executar(de_raw: Path | None = None) -> int:

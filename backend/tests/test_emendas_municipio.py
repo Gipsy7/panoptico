@@ -21,6 +21,7 @@ from app.models import (
     Candidatura,
     ContasMunicipio,
     EmendaPagamento,
+    EmendaPagamentoSemCodigo,
     FonteIngestao,
     Municipio,
     Parlamentar,
@@ -63,6 +64,21 @@ def _arquivo_emendas(sem_codigo: str | None = None) -> bytes:
             emendas.ARQUIVO_FAVORECIDOS: "\n".join(favorecidos),
             emendas.ARQUIVO_CONVENIOS: _texto("emendas_convenios.csv"),
         }
+    )
+
+
+def _soma_da_fonte() -> Decimal:
+    """Soma literal do arquivo por favorecido para os favorecidos de interesse de Gaspar."""
+    import csv
+
+    linhas = csv.DictReader(_texto("favorecidos.csv").splitlines(), delimiter=";")
+    return sum(
+        (
+            Decimal(linha["Valor Recebido"].replace(".", "").replace(",", "."))
+            for linha in linhas
+            if linha["Natureza Jurídica"] in emendas.GRUPOS
+        ),
+        start=Decimal(0),
     )
 
 
@@ -160,16 +176,44 @@ def test_gaspar_completo_por_tipo_e_sem_dupla_contagem(client, session, gaspar):
     corpo = client.get(f"/municipios/{GASPAR}/emendas").json()
 
     # Pago (CGU, por favorecido), por tipo, desde o primeiro ano do arquivo.
+    # Cada tipo inclui os pagamentos sem código de emenda daquele tipo (tipo da fonte).
     tipos = {t["tipo"]: t["total"] for t in corpo["tipos"]}
     assert tipos == {
-        "individual": 9440887.65,
+        "individual": pytest.approx(9440887.65 + 445850.0),
         "especial": 7489500.0,
-        "bancada": 3268397.08,
+        "bancada": pytest.approx(3268397.08 + 215808.12),
         "comissao": 1613749.0,
-        "relator": 1878733.64,
+        "relator": pytest.approx(1878733.64 + 57041.03),
+    }
+    sem_codigo = {t["tipo"]: t["sem_codigo_total"] for t in corpo["tipos"]}
+    assert sem_codigo == {
+        "individual": 445850.0,
+        "especial": 0,
+        "bancada": 215808.12,
+        "comissao": 0,
+        "relator": 57041.03,
     }
     assert corpo["total_geral"] == pytest.approx(sum(tipos.values()))
-    # Os campos antigos seguem só com as individuais (com destino definido + Pix).
+    # Conferência com a fonte: soma de todas as linhas de prefeitura, fundos e entidades de
+    # Gaspar no arquivo por favorecido, inclusive as sem código de emenda.
+    assert _soma_da_fonte() == Decimal("24409966.52")
+    assert corpo["total_geral"] == pytest.approx(24409966.52)
+    # Bloco à parte, sem autor e sem ano da emenda.
+    sem = corpo["sem_identificacao"]
+    assert (sem["total"], sem["pagamentos"]) == (pytest.approx(718699.15), 23)
+    assert (sem["primeiro_pagamento"], sem["ultimo_pagamento"]) == (201512, 201905)
+    assert sem["incluido_no_total_geral"] is True
+    assert [(t["tipo"], t["pagamentos"]) for t in sem["por_tipo"]] == [
+        ("individual", 3),
+        ("bancada", 12),
+        ("relator", 8),
+    ]
+    # Nunca atribuídos a autor: nada "Sem informação" em autores ou colegiados.
+    nomes = {a["autor_nome"] for a in corpo["outros_autores"]} | {
+        c["autor_nome"] for c in corpo["colegiados"]
+    }
+    assert "Sem informação" not in nomes
+    # Os campos antigos seguem só com as individuais identificadas (com código).
     assert corpo["total"] == pytest.approx(9440887.65 + 7489500.0)
     assert corpo["total"] == pytest.approx(corpo["total_prefeitura"] + corpo["total_entidades"])
     assert corpo["periodo"] == {"inicio": 2015, "fim": 2026}
@@ -246,7 +290,7 @@ def test_convenio_sem_pagamento_por_favorecido_aparece_uma_vez(client, session, 
     assert conv["itens"][0]["autores"] == ["ROGERIO PENINHA MENDONCA"]
     assert conv["valor_liberado"] == 245850.0
     # O liberado não entra no total pago.
-    assert corpo["tipos"][0]["total"] == pytest.approx(9440887.65 - 245850)
+    assert corpo["tipos"][0]["total"] == pytest.approx(9440887.65 + 445850 - 245850)
 
 
 def test_carga_e_idempotente_e_guarda_o_tipo(session, gaspar):
@@ -258,6 +302,11 @@ def test_carga_e_idempotente_e_guarda_o_tipo(session, gaspar):
     ).all()
     # 144 linhas PJ: 132 de prefeitura, fundo ou entidade, das quais 23 sem código de emenda.
     assert len(linhas) == 109
+    sem = session.scalars(
+        select(EmendaPagamentoSemCodigo).where(EmendaPagamentoSemCodigo.municipio_ibge == GASPAR)
+    ).all()
+    assert len(sem) == 23  # recarregado, não duplicado
+    assert {p.autor_nome for p in sem} == {"Sem informação"}
     assert {p.tipo for p in linhas} == {"individual", "especial", "bancada", "comissao", "relator"}
     # Colegiado nunca liga a parlamentar nem a pessoa.
     assert all(p.parlamentar_id is None and p.pessoa_id is None for p in linhas

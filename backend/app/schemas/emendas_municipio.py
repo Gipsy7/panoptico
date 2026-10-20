@@ -20,6 +20,32 @@ class EmendaTipo(BaseModel):
     rotulo_oficial: str
     total: float
     pagamentos: int
+    # Parte de `total` que vem de pagamentos sem código de emenda na CGU (tipo informado pela
+    # fonte, autor e ano não): também está em `sem_identificacao` (20/10/2026).
+    sem_codigo_total: float = 0
+    sem_codigo_pagamentos: int = 0
+
+
+class EmendaSemIdentificacaoTipo(BaseModel):
+    tipo: str | None  # nulo quando a fonte não traz o tipo
+    rotulo: str
+    rotulo_oficial: str | None
+    total: float
+    pagamentos: int
+
+
+class EmendasSemIdentificacao(BaseModel):
+    """Pagamentos com código da emenda "Sem informação" no arquivo da CGU: sem autor e sem
+    ano da emenda. Estão somados em `total_geral` e no tipo correspondente de `tipos`, e
+    nunca em autor algum."""
+
+    total: float
+    pagamentos: int
+    primeiro_pagamento: int | None  # AAAAMM
+    ultimo_pagamento: int | None
+    por_tipo: list[EmendaSemIdentificacaoTipo]
+    incluido_no_total_geral: bool = True
+    descricao: str
 
 
 class EmendaPeriodo(BaseModel):
@@ -102,6 +128,8 @@ class EmendasMunicipioCompleta(EmendasMunicipioResposta):
     previsto: EmendasPrevistas | None
     convenios: EmendasConvenios | None
     sem_codigo_descricao: str
+    # 20/10/2026: pagamentos sem código de emenda, à vista (já somados em `total_geral`).
+    sem_identificacao: EmendasSemIdentificacao | None = None
     # Esfera estadual (19/10/2026): à parte, nunca somada aos totais federais acima. Nulo
     # onde o estado não tem fonte de emendas estaduais.
     estaduais: EmendasEstaduaisMunicipio | None = None
