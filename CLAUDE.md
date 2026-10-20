@@ -34,6 +34,8 @@ python -m uv run uvicorn app.main:app --port 8000  # sem --reload (deixa process
 npm test                                                                   # Vitest (lib/**/*.test.ts, só lógica pura)
 npx next typegen && npx tsc --noEmit && npm run lint && npm run build   # pare o `next start` antes do build
 # Worktree: copie o node_modules (robocopy); junction quebra o Turbopack, e --webpack sai sem Tailwind.
+# Mudou dependência? O npm local (11.6) tira do lock dependências opcionais de outras plataformas e o
+# `npm ci` do CI falha. Gere o lock com `npx -y npm@11.21 install --package-lock-only`.
 # Screenshot de celular: Edge headless tem janela mínima de ~500 px; use um iframe de 360 px (ver docs/DESIGN.md).
 
 # Acervo local (DATABASE_URL apontando para panoptico_acervo; ver README, "acervo local")
