@@ -83,6 +83,24 @@ def test_painel_totais_e_bloco_sem_dado(client, session):
     assert corpo["fontes"][1]["atualizado_em"] is not None
 
 
+def test_valor_sem_estado_fica_no_brasil_e_fora_dos_estados(client, session):
+    _popular(session)
+    session.add(_t(2024, 3, "LEGAIS_VOLUNTARIAS", "25", uf="ND", fonte="portal"))
+    session.flush()
+    corpo = client.get("/dinheiro-federal?ano=2024").json()
+    assert corpo["brasil"]["sem_estado"] == 25
+    assert corpo["brasil"]["repasse"] == 395
+    assert all(u["uf"] != "ND" for u in corpo["ufs"])
+    assert sum(u["repasse"] or 0 for u in corpo["ufs"]) == 370
+    cidades = client.get("/dinheiro-federal/SC?ano=2024").json()["cidades"]
+    assert sum(c["repasse"] or 0 for c in cidades) == 300
+
+
+def test_painel_sem_valor_sem_estado_e_nulo(client, session):
+    _popular(session)
+    assert client.get("/dinheiro-federal?ano=2024").json()["brasil"]["sem_estado"] is None
+
+
 def test_populacao_cai_para_o_censo_quando_o_ano_nao_tem(client, session):
     _popular(session)
     uf = client.get("/dinheiro-federal/SC?ano=2023").json()

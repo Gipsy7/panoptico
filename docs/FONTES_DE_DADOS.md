@@ -740,6 +740,34 @@ Reconhecimento de 11/10/2026. As duas fontes são arquivos em lote, sem chave (a
 - **O que guardamos (coleta mínima):** só os CNPJs que aparecem em tabelas do projeto (ver DECISOES.md, 18/10/2026): razão social (omitida se MEI com CPF), nome fantasia, natureza jurídica, situação, UF, município IBGE. Tabela `empresa`; bruto = recorte em `data/raw/receita_empresas/`.
 - **Frequência:** mensal (a Receita publica uma pasta por mês). Fallback `--brasilapi` para CNPJ novo (`https://brasilapi.com.br/api/cnpj/v1/{cnpj}`, 1,5 s entre consultas).
 
+## Tesouro Nacional: transferências obrigatórias da União (tesouro_transferencias)
+
+- **URL:** CKAN do Tesouro Transparente, `https://www.tesourotransparente.gov.br/ckan/api/3/action/package_show?id=...`, três conjuntos (nomes de arquivo estáveis; a URL de download sai do `package_show`): `transferencias-obrigatorias-da-uniao` (um CSV por tributo, linhas = estados, colunas = meses `janeiro/24`, desde 1991), `transferencias-obrigatorias-da-uniao-por-municipio` (linha = município x mês, colunas = anos) e `lista-de-municipios-do-siafi` (`tabmun.csv`).
+- **Formato:** CSV latin-1 (a leitura tenta UTF-8 antes), `;`, cabeçalhos antes da tabela nos arquivos por estado, decimal com vírgula, milhar com ponto, `-` = vazio.
+- **Campos usados:** por estado: `fpe`, `ipi-exp`, `cideest`, `iofest`, `lc176est` (e `fpm`, só para conferir a soma dos municípios); por município: `fpm`, `cide`, `iof`, `itr`, `lc-176`. Código do município (SIAFI), UF, mês, ano e valor.
+- **Blocos (tabela `transferencia_uniao`, `fonte = "tesouro"`):** FPE e IPI_EXP só por UF; FPM só por município (a soma da UF é conferida contra `fpm.csv`); OUTRAS_OBRIG (CIDE, IOF-Ouro, ITR, LC 176) com a parte dos estados (sem município) e a dos municípios, sem sobreposição. Nunca os dois níveis para o mesmo bloco, para somar por UF não contar em dobro. FEX e Kandir estão zerados desde 2019 e não são lidos; o `fundeb-por-municipio` é o fundo inteiro (impostos de estados e municípios), não repasse da União, e também não entra.
+- **Valores líquidos do Fundeb:** FPE, FPM e IPI-Exp vêm descontados da retenção de 20% do Fundeb. O município contabiliza mais (FPM de 2024: R$ 177 bi aqui; ~R$ 214 bi brutos na contabilidade dele). A complementação da União ao Fundeb entra à parte (Portal, abaixo).
+- **Ligação SIAFI para IBGE:** o código da cidade é o do SIAFI (4 dígitos), não o do IBGE. Liga só pela tabela oficial `tabmun.csv` (SIAFI;CNPJ;nome;UF;IBGE), nunca pelo nome. Código fora da tabela ou com UF diferente fica sem município (o valor continua na UF) e entra nos alertas da carga.
+- **Ano com 2 dígitos** nos arquivos por estado (`janeiro/24`; 51 a 99 = 1951 a 1999). IPI-Exp: só a parte dos estados.
+- **Coleta mínima:** o bruto é um recorte em zip (colunas de 2019 em diante, linhas de UF e município) em `data/raw/tesouro_transferencias/`; `--de-raw` reprocessa sem rede. A carga sincroniza por diferença (insere o novo, corrige o que mudou, apaga o que sumiu).
+- **Frequência:** mensal. Sem `--ano`, relê o ano anterior e o atual; a carga inicial passa todos (`--ano 2019 2020 ...`).
+
+## Portal da Transparência: transferências (portal_transferencias)
+
+- **URL:** `https://portaldatransparencia.gov.br/download-de-dados/transferencias/AAAAMM`, que redireciona para o zip em `dadosabertos-download.cgu.gov.br`. A página `.../download-de-dados/transferencias` lista os meses publicados (`arquivos.push({"ano","mes","origem"})`; em 20/10/2026 ia até 2026-10).
+- **Formato:** zip com um CSV, `;`, latin-1, 2 a 7 MB por mês (200 a 500 mil linhas). Uma linha por favorecido x ação x localizador; guardamos só a soma por UF x município x bloco x mês. Nome de coluna com acento. Decimal com vírgula e sem milhar.
+- **Campos usados:** `ANO / MÊS`, `UF`, `CÓDIGO MUNICÍPIO SIAFI`, `NOME MUNICÍPIO`, `TIPO TRANSFERÊNCIA`, `AÇÃO`, `NOME AÇÃO`, `VALOR TRANSFERIDO`.
+- **Blocos (`fonte = "portal"`):** FUNDEB_UNIAO (complementação da União ao Fundeb: ação 0E36 até 2020, 00SB desde 2022); ROYALTIES (ações 0A53 petróleo e gás, 0547 recursos minerais, 0546 recursos hídricos, 0223 Itaipu); LEGAIS_VOLUNTARIAS (toda a categoria "Legais, Voluntárias e Específicas": convênios, mas também fundo a fundo do SUS, PNAE, salário-educação, auxílios da LC 173/2020 e transferências especiais; não é só convênio).
+- **Ficam de fora, de propósito:** FPE, FPM, IPI-Exp e as demais obrigatórias (valem pelo Tesouro); a transferência ao Fundeb de estados e municípios (ação 0C33, o fundo inteiro); e as ações constitucionais que não são nenhuma das acima.
+- **Ligação ao IBGE:** código SIAFI pela mesma tabela oficial do Tesouro (`tabmun.csv`, lida do último recorte do Tesouro carregado), nunca pelo nome. Favorecido estadual vem sem município.
+- **`uf = "ND"`:** linha sem UF válida entra como "não regionalizada", para o total fechar com o Portal (2024: ~R$ 5,3 bi em LEGAIS_VOLUNTARIAS). O significado exato não está documentado na fonte. O site soma o valor no Brasil (campo `brasil.sem_estado` da API) e nunca o atribui a estado ou cidade.
+- **Ação "-1" (Sem informação)** na categoria constitucional: em 2021 são R$ 23,1 bi que o Portal não classifica, entre eles a complementação ao Fundeb. Não se adivinha: o Fundeb de 2021 fica sem valor (nunca zero) e o total sem ação entra nos alertas da carga.
+- **Diferenças Portal x Tesouro:** 2020 (MP 938, auxílio financeiro de compensação a estados e municípios); 2023 (compensação do ICMS, ação 00VP); 2025 (parcela adicional do FPM). Cada número bate com a fonte de origem e não se ajusta; o recorte por bloco (acima) define em qual fonte cada valor entra, e o que ficou sem bloco é dito no site.
+- **WAF e pausa:** depois de algumas dezenas de pedidos seguidos ao mesmo IP o Portal responde 405 ("Human Verification"), e 403/405 também valem para mês não publicado. Um download por vez, `PAUSA` de 20 s entre meses; no primeiro bloqueio a carga PARA e registra erro em `fonte_ingestao`. Sem repetir, trocar de IP ou disfarçar o cliente. Mês fora da lista da página nem é pedido.
+- **Tamanho:** `transferencia_uniao` (Tesouro e Portal) tem ~1,2 milhão de linhas mensais no acervo, ~137 MB com índices.
+- **Coleta mínima:** o bruto é o recorte do mês (CSV gz com a soma por UF x município x bloco) em `data/raw/portal_transferencias/AAAAMM_*`; `--de-raw` reprocessa um mês.
+- **Frequência:** mensal. Sem `--ano`, baixa de novo os 3 últimos meses publicados (o Portal os corrige); mês antigo já carregado é pulado (`--refazer` força).
+
 ## Acervo: cargas incrementais e conferência
 
 - **Arquivos que mudam pouco** (TSE, CGU, TCU, TCE-SP, TCE-RS) não são baixados nem recarregados quando nada mudou: o acervo guarda ETag, Last-Modified e sha256 do último download (tabela `download_cache`) e pergunta ao servidor antes. Sem mudança, `fonte_ingestao` ganha uma linha com status `sem_mudanca` e o bruto não se repete. `python -m ingestion.acervo rodar --forcar` ignora o cache.

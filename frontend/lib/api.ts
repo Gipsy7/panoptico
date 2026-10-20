@@ -1635,7 +1635,8 @@ export type DinheiroFederalAno = {
 export type DinheiroFederalUF = DinheiroFederalTotais & { uf: string; nome: string; regiao: string };
 
 export type DinheiroFederalPainel = DinheiroFederalAno & {
-  brasil: DinheiroFederalTotais;
+  /** `sem_estado`: parte do repasse sem estado definido na fonte (está no total, em nenhum estado). */
+  brasil: DinheiroFederalTotais & { sem_estado: number | null };
   ufs: DinheiroFederalUF[];
   fontes: DinheiroFederalFonte[];
 };

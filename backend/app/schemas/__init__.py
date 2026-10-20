@@ -1304,8 +1304,13 @@ class DinheiroFederalUF(DinheiroFederalTotais):
     regiao: str
 
 
+class DinheiroFederalBrasil(DinheiroFederalTotais):
+    # Parte do repasse sem estado definido na fonte (uf "ND"): está no total, em nenhum estado.
+    sem_estado: float | None = None
+
+
 class DinheiroFederalPainel(DinheiroFederalAno):
-    brasil: DinheiroFederalTotais
+    brasil: DinheiroFederalBrasil
     ufs: list[DinheiroFederalUF]
     fontes: list[DinheiroFederalFonte]
 

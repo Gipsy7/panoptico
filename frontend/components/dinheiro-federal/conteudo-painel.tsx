@@ -155,6 +155,11 @@ export function CorpoBrasil({ painel }: { painel: DinheiroFederalPainel }) {
         <Figura rotulo="Repasse por habitante" valor={porHab(repHab(b))} />
       </div>
       {nota && <p className="text-[13px] text-muted-foreground">Por habitante: {nota}.</p>}
+      {b.sem_estado != null && b.sem_estado > 0 && (
+        <p className="text-[13px] text-muted-foreground">
+          Inclui {reais(b.sem_estado)} sem estado definido na fonte (Portal da Transparência).
+        </p>
+      )}
       <p className="text-sm text-muted-foreground">
         Toque ou clique num estado do mapa para ver o número dele e as cidades.
       </p>

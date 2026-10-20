@@ -107,6 +107,7 @@
 - [2026-10-19: emendas estaduais, começando por SC (SC Transferências)](#2026-10-19-emendas-estaduais-começando-por-sc-sc-transferências)
 - [2026-10-20: pagamentos de emenda sem código na CGU](#2026-10-20-pagamentos-de-emenda-sem-código-na-cgu)
 - [2026-10-20: verbas da CLDF: formato pelo conteúdo e linhas que não entram](#2026-10-20-verbas-da-cldf-formato-pelo-conteúdo-e-linhas-que-não-entram)
+- [2026-10-20: dinheiro federal por estado e cidade](#2026-10-20-dinheiro-federal-por-estado-e-cidade)
 
 ## 2026-10-06: stack inicial
 
@@ -1171,3 +1172,15 @@ Os próximos passos mais rendosos: CE (gastos em CSV, quase direto), depois AP e
 - **Ligação ao deputado:** CPF da planilha só vale se o TSE o reconhece (o XLSX de 2025 tem CPFs com 12 dígitos e variações do mesmo deputado, ex. "010.806.391-160"); senão, pelo nome exato (urna, ou nome civil do TSE, ex. "Fábio Felix Silveira"). Nada de nome aproximado.
 - **Cobertura:** a fonte traz 11 pessoas em 2025 e 10 em 2026, de 24 deputados; 9 ficam com gasto por mês nos dois anos. Os outros deputados não aparecem na planilha, e o site não mostra seção de gastos para eles (`gastos` nulo), em vez de zero.
 
+
+## 2026-10-20: dinheiro federal por estado e cidade
+
+- **Pergunta que responde:** quanto a União arrecadou em cada estado e quanto repassou ao governo do estado e às prefeituras. Rotas `/dinheiro-federal` (Brasil e mapa), `/dinheiro-federal/[UF]` e `/dinheiro-federal/[UF]/[ibge]`; o mapa fica na home; a cidade, a página de representantes e o perfil dos parlamentares ligam para ela.
+- **Período:** 2019 a 2026 (2026 em curso, dito na tela); o padrão é 2025. Antes de 2019 não se guarda.
+- **Repasse = os blocos listados, nada além:** do Tesouro, FPE, FPM, IPI_EXP e OUTRAS_OBRIG; do Portal da Transparência, FUNDEB_UNIAO, ROYALTIES e LEGAIS_VOLUNTARIAS (detalhe em `docs/FONTES_DE_DADOS.md`). Os valores do Tesouro são líquidos da retenção de 20% do Fundeb. Bloco sem dado no ano aparece como "sem dado", nunca zero.
+- **Fora do recorte (dito no site):** INSS, Bolsa Família e BPC (arquivos pessoa a pessoa de 170 a 370 MB por mês, que a coleta mínima não quer) e o gasto direto da União (obras, compras e salários federais no estado).
+- **Aviso da Receita no DF:** de fev/2025 a jan/2026 a arrecadação do DF aparece muito maior (de R$ 184 bi em 2024 para R$ 583 bi em 2025). O número bate com a fonte e não se ajusta; a comparação entre estados em 2025 fica afetada, e a tela avisa.
+- **Por habitante:** estimativa de população do IBGE do ano, ou a mais recente anterior quando o ano não tem (2023 usa o Censo 2022). A tela diz qual foi usada.
+- **Valor sem estado:** o Portal traz parte do dinheiro sem UF (`uf = "ND"`; 2024: ~R$ 5,3 bi em LEGAIS_VOLUNTARIAS). Entra no total do Brasil (campo `brasil.sem_estado`, com uma linha discreta no painel) e nunca é atribuído a estado ou cidade; por isso a soma dos 27 estados fica abaixo do Brasil.
+- **Granularidade e peso:** guardamos o mês na tabela `transferencia_uniao` (~1,2 milhão de linhas, ~137 MB com índices no acervo). Aceito por ser da ordem do PNCP e porque o mês permite mostrar até quando vai o ano em curso. A carga é incremental (sincroniza por diferença), sem recarga completa na produção.
+- **Média ao lado:** repasse por habitante da cidade ao lado da média das cidades do estado; no estado, ao lado da média do Brasil. Sem nota, ranking nem cor de bom e ruim.

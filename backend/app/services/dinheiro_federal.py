@@ -182,6 +182,9 @@ def _arrecadacao_por_uf(session: Session, ano: int) -> dict[str, tuple]:
     }
 
 
+SEM_UF = "ND"  # valor que o Portal não regionaliza: soma no Brasil, nunca vira estado
+
+
 def _soma_ou_none(valores) -> float | None:
     v = [float(x) for x in valores if x is not None]
     return round(sum(v), 2) if v else None
@@ -211,7 +214,10 @@ def painel(session: Session, ano: int) -> dict:
     ]
     return {
         **_contexto_ano(session, ano),
-        "brasil": _totais(pops.get("1"), brasil_arrec, soma_blocos),
+        "brasil": {
+            **_totais(pops.get("1"), brasil_arrec, soma_blocos),
+            "sem_estado": _soma_ou_none(blocos_uf.get(SEM_UF, {}).values()),
+        },
         "ufs": ufs,
         "fontes": _fontes(session, list(FONTES)),
     }
