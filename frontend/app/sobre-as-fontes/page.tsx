@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 
 import { EsqueletoSecao } from "@/components/esqueleto-secao";
 import { Revelacao } from "@/components/revelacao";
@@ -31,6 +32,14 @@ export default function SobreAsFontesPage() {
           <ListaFontes />
         </Revelacao>
       </section>
+
+      <p className="revelar text-muted-foreground">
+        Não encontrou um dado do seu estado ou cargo?{" "}
+        <Link href="/sobre-as-fontes/cobertura" className="underline underline-offset-2">
+          Veja o que existe e o que falta, estado por estado
+        </Link>
+        .
+      </p>
 
       <section aria-labelledby="calculo-titulo" className="revelar flex flex-col gap-4">
         <h2 id="calculo-titulo" className="text-2xl">

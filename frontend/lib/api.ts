@@ -1486,3 +1486,36 @@ export function getAgenda(candidaturaId: string | number, filtro: { tipo?: strin
   const q = params.toString();
   return getJson<Agenda>(`/executivo/${encodeURIComponent(String(candidaturaId))}/agenda${q ? `?${q}` : ""}`);
 }
+
+// --- Cobertura: o que existe e o que falta, por casa e seção ---
+export type CoberturaContagem = {
+  sim: number;
+  parcial: number;
+  bloqueado: number;
+  pedido: number;
+  sem_fonte: number;
+  total: number;
+};
+export type CoberturaPedido = { arquivo: string; orgao: string; data: string | null; url: string };
+export type CoberturaSecao = {
+  secao: string;
+  situacao: "sim" | "parcial" | "bloqueado" | "pedido" | "sem_fonte";
+  motivo: string;
+  fonte: string;
+  pedidos: CoberturaPedido[];
+};
+export type CoberturaCasa = { casa: string; cargo: string; secoes: CoberturaSecao[] };
+export type Cobertura = {
+  ufs: string[];
+  uf: string | null;
+  nacional: CoberturaContagem;
+  resumo_uf: CoberturaContagem | null;
+  casas: CoberturaCasa[];
+  fonte_nome: string;
+  fonte_url: string;
+  atualizado_em: string;
+};
+
+export function getCobertura(uf?: string) {
+  return getJson<Cobertura>(`/cobertura${uf ? `?uf=${encodeURIComponent(uf)}` : ""}`);
+}
