@@ -81,9 +81,19 @@ def deputados(pagina: str) -> list[dict[str, str | None]]:
     return resultado
 
 
+ABREVIATURAS = {"DEL": "DELEGADO", "DR": "DOUTOR", "DRA": "DOUTORA", "PROF": "PROFESSOR"}
+
+
+def _expandido(nome: str) -> str:
+    """'DEL. JACOVÓS' -> 'DELEGADO JACOVOS': a lista de presença abrevia os títulos."""
+    return " ".join(ABREVIATURAS.get(p, p) for p in comum.chave_nome(nome).split())
+
+
 def _por_nome(nome: str, lista: list[dict]) -> str | None:
     """Slug do deputado que o nome identifica, só se a correspondência for exata e única."""
-    achado = casar_nome([nome], [(i, d["nome"]) for i, d in enumerate(lista)])
+    achado = casar_nome(
+        [_expandido(nome)], [(i, _expandido(d["nome"])) for i, d in enumerate(lista)]
+    )
     return lista[achado]["slug"] if achado is not None else None
 
 
