@@ -294,6 +294,14 @@ async function Perfil({
             Comparar com outro parlamentar
           </Link>
         </div>
+        {p.uf && (
+          <Link
+            href={`/dinheiro-federal/${p.uf}`}
+            className="alvo-link self-start text-sm text-muted-foreground underline underline-offset-4"
+          >
+            {p.uf} no mapa do dinheiro federal
+          </Link>
+        )}
         <CompartilharWhatsApp
           caminho={`/parlamentar/${p.id}`}
           texto={`Veja os gastos, a presença e os projetos de ${p.nome_parlamentar} (${NOME_CASA[p.casa]}), com dados oficiais:`}

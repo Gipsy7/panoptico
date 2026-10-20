@@ -28,6 +28,7 @@ import {
   getCamara,
   getCanais,
   getContas,
+  getDinheiroFederal,
   getFornecedores,
   getFornecedoresPncp,
   getExecutivo,
@@ -81,7 +82,7 @@ async function Lista({ cep, uf, municipio }: Busca) {
   }
 
   const { localizacao, deputados, senadores, atualizado_em } = resultado.dados;
-  const [emendasResultado, vereadoresResultado, estaduaisResultado, executivoResultado, canaisResultado, contasResultado, camaraResultado, fornecedoresResultado, fornecedoresPncpResultado, assembleiaResultado, eleitos2026Resultado] = await Promise.all([
+  const [emendasResultado, vereadoresResultado, estaduaisResultado, executivoResultado, canaisResultado, contasResultado, camaraResultado, fornecedoresResultado, fornecedoresPncpResultado, assembleiaResultado, eleitos2026Resultado, federalResultado] = await Promise.all([
     localizacao.codigo_ibge ? getEmendasMunicipio(localizacao.codigo_ibge) : null,
     localizacao.codigo_ibge ? getVereadores(localizacao.codigo_ibge) : null,
     getDeputadosEstaduais(localizacao.uf),
@@ -93,7 +94,10 @@ async function Lista({ cep, uf, municipio }: Busca) {
     localizacao.codigo_ibge ? getFornecedoresPncp(localizacao.codigo_ibge) : null,
     getAssembleia(localizacao.uf),
     getEleitos2026(localizacao.uf),
+    getDinheiroFederal(),
   ]);
+  const federal = federalResultado.ok ? federalResultado.dados : null;
+  const federalUf = federal?.ufs.find((u) => u.uf === localizacao.uf) ?? null;
   const eleitos2026 = eleitos2026Resultado.ok ? eleitos2026Resultado.dados : null;
   const assembleia = assembleiaResultado.ok ? assembleiaResultado.dados : null;
   const fornecedores = fornecedoresResultado?.ok ? fornecedoresResultado.dados : null;
@@ -334,6 +338,49 @@ async function Lista({ cep, uf, municipio }: Busca) {
           }
         />
       </div>
+
+      {federal && federalUf && (
+        <section aria-labelledby="federal-titulo" className="flex flex-col gap-2">
+          <h2 id="federal-titulo" className="text-2xl">
+            Quanto a União arrecadou e repassou em {nomeEstado}
+          </h2>
+          <dl className="grid grid-cols-2 gap-4">
+            <div>
+              <dt className="text-sm text-muted-foreground">Arrecadado em {federal.ano}</dt>
+              <dd className="numero text-2xl">
+                {federalUf.arrecadacao != null ? formatarReaisCompacto(federalUf.arrecadacao) : "sem dado"}
+              </dd>
+            </div>
+            <div>
+              <dt className="text-sm text-muted-foreground">Repassado em {federal.ano}</dt>
+              <dd className="numero text-2xl">
+                {federalUf.repasse != null ? formatarReaisCompacto(federalUf.repasse) : "sem dado"}
+              </dd>
+            </div>
+          </dl>
+          <div className="flex flex-wrap gap-x-5">
+            <Link
+              href={`/dinheiro-federal/${localizacao.uf}`}
+              className="alvo-link text-sm font-medium text-primary underline underline-offset-4"
+            >
+              Ver {nomeEstado} no mapa
+            </Link>
+            {localizacao.codigo_ibge && cidade && (
+              <Link
+                href={`/dinheiro-federal/${localizacao.uf}/${localizacao.codigo_ibge}`}
+                className="alvo-link text-sm font-medium text-primary underline underline-offset-4"
+              >
+                Ver {cidade} no mapa
+              </Link>
+            )}
+          </div>
+          <FonteRodape
+            fonte={federal.fontes[0]?.nome ?? "Tesouro Nacional e Receita Federal"}
+            url={federal.fontes[0]?.url}
+            atualizadoEm={federal.fontes.map((f) => f.atualizado_em).filter((d): d is string => Boolean(d)).sort()[0] ?? null}
+          />
+        </section>
+      )}
 
       {localizacao.codigo_ibge && cidade && (
         <DinheiroDaCidade

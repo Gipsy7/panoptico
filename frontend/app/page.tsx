@@ -5,10 +5,18 @@ import { AvisoSegundoTurno } from "@/components/aviso-segundo-turno";
 import { EsqueletoSecao } from "@/components/esqueleto-secao";
 import { BuscaGeral } from "@/components/busca-geral";
 import { CepForm } from "@/components/cep-form";
+import { FonteRodape } from "@/components/fonte-rodape";
+import { MapaHome } from "@/components/home-mapa/mapa-home";
 import { Marca } from "@/components/logo";
 import { Foto } from "@/components/parlamentar-card";
-import { type ParlamentarNaLista, type ParlamentarResumo, getComparacao, getRepresentantes } from "@/lib/api";
-import { formatarGastos } from "@/lib/formato";
+import {
+  type ParlamentarNaLista,
+  type ParlamentarResumo,
+  getComparacao,
+  getDinheiroFederal,
+  getRepresentantes,
+} from "@/lib/api";
+import { formatarGastos, formatarReaisCompacto } from "@/lib/formato";
 
 // O exemplo de comparação usa os senadores deste estado (sempre há 3 em exercício).
 const UF_DO_EXEMPLO = "SC";
@@ -53,8 +61,54 @@ export default function Home() {
         </Suspense>
       </section>
 
+      <Suspense fallback={<div className="min-h-96" aria-hidden />}>
+        <DinheiroFederalHome />
+      </Suspense>
+
       <OQueVoceEncontra />
     </div>
+  );
+}
+
+async function DinheiroFederalHome() {
+  const r = await getDinheiroFederal();
+  if (!r.ok) return null;
+  const { brasil, ufs, ano, avisos, fontes } = r.dados;
+  const dataFonte = fontes.map((f) => f.atualizado_em).filter((d): d is string => Boolean(d)).sort()[0] ?? null;
+  return (
+    <section aria-labelledby="dinheiro-federal-titulo" className="revelar grid items-start gap-8 md:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)] md:gap-16">
+      <div className="flex flex-col gap-4">
+        <p className="sobretitulo">Dinheiro federal</p>
+        <h2 id="dinheiro-federal-titulo" className="text-3xl leading-tight text-balance sm:text-4xl">
+          Quanto a União arrecada e repassa em cada estado
+        </h2>
+        <p className="text-muted-foreground">Dados de {ano}. Passe o mouse ou toque num estado para ver os números.</p>
+        <dl className="grid grid-cols-2 gap-4 border-t border-foreground pt-4">
+          <div>
+            <dt className="text-sm text-muted-foreground">Arrecadado no país</dt>
+            <dd className="numero text-2xl">{brasil.arrecadacao != null ? formatarReaisCompacto(brasil.arrecadacao) : "sem dado"}</dd>
+          </div>
+          <div>
+            <dt className="text-sm text-muted-foreground">Repassado a estados e cidades</dt>
+            <dd className="numero text-2xl">{brasil.repasse != null ? formatarReaisCompacto(brasil.repasse) : "sem dado"}</dd>
+          </div>
+        </dl>
+        {avisos.map((a) => (
+          <p key={a} className="text-sm text-muted-foreground">
+            {a}
+          </p>
+        ))}
+        <div>
+          <Link href="/dinheiro-federal" className="botao-linha">
+            Ver o mapa completo, com as 5.570 cidades
+          </Link>
+        </div>
+        <FonteRodape fonte={fontes[0]?.nome ?? "Tesouro Nacional e Receita Federal"} url={fontes[0]?.url} atualizadoEm={dataFonte} />
+      </div>
+      <MapaHome
+        ufs={ufs.map((u) => ({ uf: u.uf, nome: u.nome, arrecadacao: u.arrecadacao, repasse: u.repasse }))}
+      />
+    </section>
   );
 }
 
@@ -190,9 +244,9 @@ const RECURSOS = [
     ),
   },
   {
-    titulo: "Dinheiro para a sua cidade",
-    texto: "Emendas pagas ao seu município: quem enviou, para quais áreas e quem recebeu.",
-    href: "/#cep",
+    titulo: "Dinheiro federal por estado e cidade",
+    texto: "Quanto a União arrecada e repassa em cada estado e município, no mapa, e as emendas pagas à sua cidade.",
+    href: "/dinheiro-federal",
     icone: (
       <svg aria-hidden viewBox="0 0 24 24" className={ICONE} fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
         <path d="M12 21s-6-5.5-6-11a6 6 0 0 1 12 0c0 5.5-6 11-6 11z" />

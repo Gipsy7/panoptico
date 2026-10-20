@@ -8,6 +8,7 @@ import { AlternarTema } from "@/components/alternar-tema";
 const ITENS = [
   { href: "/parlamentares", rotulo: "Parlamentares" },
   { href: "/comparar", rotulo: "Comparar" },
+  { href: "/dinheiro-federal", rotulo: "Dinheiro federal" },
   { href: "/partidos", rotulo: "Partidos" },
   { href: "/sobre-as-fontes", rotulo: "Fontes" },
   { href: "/apoie", rotulo: "Apoie" },

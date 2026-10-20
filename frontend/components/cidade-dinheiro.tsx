@@ -16,8 +16,10 @@ import { CartaoNumero, GradeCartoes } from "@/components/painel/cartao-numero";
 import { ListaPerguntas, Pergunta } from "@/components/painel/pergunta";
 import { Revelacao } from "@/components/revelacao";
 import {
+  type DinheiroFederalMunicipio,
   type EmendasMunicipio,
   getContas,
+  getDinheiroFederalMunicipio,
   getEmendasMunicipio,
   getFornecedores,
   getFornecedoresPncp,
@@ -63,12 +65,14 @@ async function Cidade({ ibge }: { ibge: string }) {
   const { municipio, uf, estado } = rep.dados.localizacao;
   if (!municipio) notFound();
 
-  const [emendasR, contasR, fornecedoresR, pncpR] = await Promise.all([
+  const [emendasR, contasR, fornecedoresR, pncpR, federalR] = await Promise.all([
     getEmendasMunicipio(ibge),
     getContas(ibge),
     getFornecedores(ibge),
     getFornecedoresPncp(ibge),
+    getDinheiroFederalMunicipio(ibge),
   ]);
+  const federal = federalR.ok ? federalR.dados : null;
   const emendas = emendasR.ok ? emendasR.dados : null;
   const contas = contasR.ok ? contasR.dados : null;
   const fornecedores = fornecedoresR.ok ? fornecedoresR.dados : null;
@@ -258,6 +262,8 @@ async function Cidade({ ibge }: { ibge: string }) {
           </>
         )}
 
+        {federal && <DinheiroFederalCartao dados={federal} ibge={ibge} uf={uf} municipio={municipio} />}
+
         <CompartilharWhatsApp
           caminho={`/cidade/${ibge}`}
           texto={`Veja para onde foi o dinheiro de ${municipio}: emendas, contas da prefeitura e fornecedores, com dados oficiais:`}
@@ -422,6 +428,56 @@ function SemDado({ titulo, mensagem }: { titulo: string; mensagem: string }) {
     <section className="flex flex-col gap-1">
       <h2 className="text-2xl">{titulo}</h2>
       <p className="text-sm text-muted-foreground">{mensagem}</p>
+    </section>
+  );
+}
+
+/** Cartão com o último ano completo da série de repasses federais, e o link para o mapa. */
+function DinheiroFederalCartao({
+  dados,
+  ibge,
+  uf,
+  municipio,
+}: {
+  dados: DinheiroFederalMunicipio;
+  ibge: string;
+  uf: string;
+  municipio: string;
+}) {
+  const ultimo = dados.serie.at(-1);
+  if (!ultimo) return null;
+  const fonte = dados.fontes[0];
+  const datas = dados.fontes.map((f) => f.atualizado_em).filter((d): d is string => Boolean(d)).sort();
+  return (
+    <section aria-labelledby="federal-titulo" className="flex flex-col gap-2 rounded-[2px] border border-border bg-card p-4">
+      <h2 id="federal-titulo" className="text-xl">
+        Dinheiro federal nesta cidade
+      </h2>
+      <p className="text-sm text-muted-foreground">Repasses da União a {municipio} em {ultimo.ano}.</p>
+      <dl className="grid grid-cols-2 gap-4">
+        <div>
+          <dt className="text-sm text-muted-foreground">Repassado em {ultimo.ano}</dt>
+          <dd className="numero text-2xl">{formatarReaisCompacto(ultimo.repasse)}</dd>
+        </div>
+        {ultimo.por_habitante != null && (
+          <div>
+            <dt className="text-sm text-muted-foreground">Por morador</dt>
+            <dd className="numero text-2xl">{formatarReais(ultimo.por_habitante, true)}</dd>
+            {ultimo.media_estado_por_habitante != null && (
+              <dd className="text-sm text-muted-foreground">
+                Média de {uf}: <span className="tabular-nums">{formatarReais(ultimo.media_estado_por_habitante, true)}</span>
+              </dd>
+            )}
+          </div>
+        )}
+      </dl>
+      <Link
+        href={`/dinheiro-federal/${uf}/${ibge}`}
+        className="alvo-link self-start text-sm font-medium text-primary underline underline-offset-4"
+      >
+        Ver no mapa
+      </Link>
+      {fonte && <FonteRodape fonte={fonte.nome} url={fonte.url} atualizadoEm={datas[0] ?? null} />}
     </section>
   );
 }
