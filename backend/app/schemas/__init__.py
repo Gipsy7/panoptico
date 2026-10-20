@@ -1271,3 +1271,87 @@ class VotosPorTemaResposta(BaseModel):
     fonte_nome: str
     fonte_url: str
     atualizado_em: datetime | None
+
+
+class DinheiroFederalFonte(BaseModel):
+    nome: str
+    url: str
+    atualizado_em: datetime | None
+
+
+class DinheiroFederalTotais(BaseModel):
+    populacao: int | None
+    populacao_ano: int | None
+    populacao_origem: str | None
+    arrecadacao: float | None
+    previdencia: float | None
+    repasse: float | None
+    blocos: dict[str, float | None]
+    blocos_sem_dado: list[str]
+
+
+class DinheiroFederalAno(BaseModel):
+    ano: int
+    anos_disponiveis: list[int]
+    meses_com_dado: list[int]
+    ano_em_curso: bool
+    avisos: list[str]
+
+
+class DinheiroFederalUF(DinheiroFederalTotais):
+    uf: str
+    nome: str
+    regiao: str
+
+
+class DinheiroFederalPainel(DinheiroFederalAno):
+    brasil: DinheiroFederalTotais
+    ufs: list[DinheiroFederalUF]
+    fontes: list[DinheiroFederalFonte]
+
+
+class DinheiroFederalCidade(BaseModel):
+    ibge: str
+    nome: str
+    populacao: int | None
+    repasse: float | None
+    fpm: float | None
+    outros: float | None
+
+
+class DinheiroFederalEstado(DinheiroFederalAno, DinheiroFederalUF):
+    cidades: list[DinheiroFederalCidade]
+    media_estado_por_habitante: float | None
+    fontes: list[DinheiroFederalFonte]
+
+
+class DinheiroFederalMunicipioId(BaseModel):
+    ibge: str
+    nome: str
+    uf: str
+
+
+class DinheiroFederalSerieAno(BaseModel):
+    ano: int
+    repasse: float
+    fpm: float
+    outros: float
+    populacao: int | None
+    por_habitante: float | None
+    media_estado_por_habitante: float | None
+
+
+class DinheiroFederalContas(BaseModel):
+    ano: int
+    receita_total: float
+    receita_propria: float | None
+    transf_uniao: float | None
+    parte_uniao: float | None
+    parte_propria: float | None
+
+
+class DinheiroFederalMunicipio(BaseModel):
+    municipio: DinheiroFederalMunicipioId
+    serie: list[DinheiroFederalSerieAno]
+    contas: DinheiroFederalContas | None
+    fontes: list[DinheiroFederalFonte]

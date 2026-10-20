@@ -328,6 +328,17 @@ CATALOGO = [
         "decretolegislativo-172-21-dezembro-2022-793529-publicacaooriginal-166604-pl.html",
     },
     {
+        "dado": "Dinheiro federal por estado e cidade",
+        "orgao": "Receita Federal, Tesouro Nacional, Portal da Transparência e IBGE",
+        "fontes": [
+            "receita_arrecadacao_uf",
+            "tesouro_transferencias",
+            "portal_transferencias",
+            "ibge_populacao",
+        ],
+        "url": "https://www.gov.br/receitafederal/pt-br/acesso-a-informacao/dados-abertos/receitadata/arrecadacao",
+    },
+    {
         "dado": "CEP para cidade e estado (consultado na hora, não guardado)",
         "orgao": "ViaCEP",
         "fontes": [],
