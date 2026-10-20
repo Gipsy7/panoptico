@@ -228,6 +228,16 @@ anos = "dois_anteriores"
 depende = ["ibge_municipios"]
 
 [[fonte]]
+nome = "siconfi_contas_estados"
+modulo = "ingestion.siconfi.contas_estados"
+uso = "Contas do estado (governador): receita, despesa por área e por habitante, com a média dos estados"
+recorte = "dois anos anteriores"
+guarda = "somas"
+frequencia = "mensal"
+anos = "dois_anteriores"
+# Mesma API da DCA dos municípios, ente = UF (27 consultas por anexo e ano).
+
+[[fonte]]
 nome = "tce_sp"
 modulo = "ingestion.tce.sp"
 uso = "Para quem a cidade pagou (SP)"
@@ -769,13 +779,16 @@ depende = ["pessoas"]
 [[fonte]]
 nome = "eagendas"
 modulo = "ingestion.executivo.eagendas"
-situacao = "catalogada"
-uso = "Agenda de ministros e autoridades federais (com quem se reuniram)"
-recorte = "autoridades que são pessoas da base"
-frequencia = "semanal"
-acesso = "pedido"
-# API pública (https://eagendas.cgu.gov.br/api/v2), mas exige token gerado por uma pessoa
-# logada no gov.br (docs: github.com/cgugovbr/eagendas-publico/tree/main/api-consulta).
+uso = "Agenda pública (reuniões, eventos, audiências, viagens, presentes) de ministros e do vice-presidente, com quem se reuniram"
+recorte = "só agentes ligados a pessoas da base por CPF mascarado (6 dígitos do meio) + nome igual; sem CPF; participantes privados só pela entidade que representam, sem o nome da pessoa; sem afastamentos"
+bruto = "recorte"
+frequencia = "mensal"
+acesso = "aberto"
+depende = ["pessoas"]
+# Arquivo aberto, sem token: dadosabertos-download.cgu.gov.br/dados_e-agendas/dados_e-agendas.zip
+# (~205 MB, um CSV UTF-8 por mês desde 10/2022, ~1,3 milhão de linhas, atualizado mensalmente).
+# A API com token gov.br (eagendas.cgu.gov.br/api/v2) não é necessária. A agenda do presidente
+# da República não consta na base. Recarga integral a cada arquivo.
 
 # Cadastro de empresas por CNPJ
 [[fonte]]

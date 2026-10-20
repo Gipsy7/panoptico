@@ -26,7 +26,7 @@ AC,Senado Federal,senador,salario,sem_fonte,Subsídio e folha do gabinete não c
 AC,Senado Federal,senador,agenda,sem_fonte,Nenhuma fonte de agenda de parlamentares.,,
 AC,Senado Federal,senador,atos,parcial,"Nomeações no Diário Oficial da União, só depois de revisão humana.",dou_atos,
 AC,Senado Federal,senador,bens_campanha,sim,Bens e campanha declarados ao TSE.,tse_bens; tse_campanha,
-AC,Governo de AC,governador,gastos,sem_fonte,Gastos do governo não coletados para este cargo.,,
+AC,Governo de AC,governador,gastos,parcial,"Contas do estado (SICONFI): receita e despesa por área, com a média dos estados; sem pagamento por credor.",siconfi_contas_estados,
 AC,Governo de AC,governador,projetos,sem_fonte,Projetos enviados ao Legislativo não coletados.,,
 AC,Governo de AC,governador,emendas,pedido,Sem fonte aberta de emendas estaduais; pedido de acesso redigido (ADPF 854).,,emendas_estaduais_27_ufs.md
 AC,Governo de AC,governador,salario,sem_fonte,Subsídio do cargo não coletado.,,
@@ -67,7 +67,7 @@ AL,Senado Federal,senador,salario,sem_fonte,Subsídio e folha do gabinete não c
 AL,Senado Federal,senador,agenda,sem_fonte,Nenhuma fonte de agenda de parlamentares.,,
 AL,Senado Federal,senador,atos,parcial,"Nomeações no Diário Oficial da União, só depois de revisão humana.",dou_atos,
 AL,Senado Federal,senador,bens_campanha,sim,Bens e campanha declarados ao TSE.,tse_bens; tse_campanha,
-AL,Governo de AL,governador,gastos,sem_fonte,Gastos do governo não coletados para este cargo.,,
+AL,Governo de AL,governador,gastos,parcial,"Contas do estado (SICONFI): receita e despesa por área, com a média dos estados; sem pagamento por credor.",siconfi_contas_estados,
 AL,Governo de AL,governador,projetos,sem_fonte,Projetos enviados ao Legislativo não coletados.,,
 AL,Governo de AL,governador,emendas,pedido,Sem fonte aberta de emendas estaduais; pedido de acesso redigido (ADPF 854).,,emendas_estaduais_27_ufs.md
 AL,Governo de AL,governador,salario,sem_fonte,Subsídio do cargo não coletado.,,
@@ -108,7 +108,7 @@ AM,Senado Federal,senador,salario,sem_fonte,Subsídio e folha do gabinete não c
 AM,Senado Federal,senador,agenda,sem_fonte,Nenhuma fonte de agenda de parlamentares.,,
 AM,Senado Federal,senador,atos,parcial,"Nomeações no Diário Oficial da União, só depois de revisão humana.",dou_atos,
 AM,Senado Federal,senador,bens_campanha,sim,Bens e campanha declarados ao TSE.,tse_bens; tse_campanha,
-AM,Governo de AM,governador,gastos,sem_fonte,Gastos do governo não coletados para este cargo.,,
+AM,Governo de AM,governador,gastos,parcial,"Contas do estado (SICONFI): receita e despesa por área, com a média dos estados; sem pagamento por credor.",siconfi_contas_estados,
 AM,Governo de AM,governador,projetos,sem_fonte,Projetos enviados ao Legislativo não coletados.,,
 AM,Governo de AM,governador,emendas,pedido,Sem fonte aberta de emendas estaduais; pedido de acesso redigido (ADPF 854).,,emendas_estaduais_27_ufs.md
 AM,Governo de AM,governador,salario,sem_fonte,Subsídio do cargo não coletado.,,
@@ -149,7 +149,7 @@ AP,Senado Federal,senador,salario,sem_fonte,Subsídio e folha do gabinete não c
 AP,Senado Federal,senador,agenda,sem_fonte,Nenhuma fonte de agenda de parlamentares.,,
 AP,Senado Federal,senador,atos,parcial,"Nomeações no Diário Oficial da União, só depois de revisão humana.",dou_atos,
 AP,Senado Federal,senador,bens_campanha,sim,Bens e campanha declarados ao TSE.,tse_bens; tse_campanha,
-AP,Governo de AP,governador,gastos,sem_fonte,Gastos do governo não coletados para este cargo.,,
+AP,Governo de AP,governador,gastos,parcial,"Contas do estado (SICONFI): receita e despesa por área, com a média dos estados; sem pagamento por credor.",siconfi_contas_estados,
 AP,Governo de AP,governador,projetos,sem_fonte,Projetos enviados ao Legislativo não coletados.,,
 AP,Governo de AP,governador,emendas,pedido,Sem fonte aberta de emendas estaduais; pedido de acesso redigido (ADPF 854).,,emendas_estaduais_27_ufs.md
 AP,Governo de AP,governador,salario,sem_fonte,Subsídio do cargo não coletado.,,
@@ -190,7 +190,7 @@ BA,Senado Federal,senador,salario,sem_fonte,Subsídio e folha do gabinete não c
 BA,Senado Federal,senador,agenda,sem_fonte,Nenhuma fonte de agenda de parlamentares.,,
 BA,Senado Federal,senador,atos,parcial,"Nomeações no Diário Oficial da União, só depois de revisão humana.",dou_atos,
 BA,Senado Federal,senador,bens_campanha,sim,Bens e campanha declarados ao TSE.,tse_bens; tse_campanha,
-BA,Governo de BA,governador,gastos,sem_fonte,Gastos do governo não coletados para este cargo.,,
+BA,Governo de BA,governador,gastos,parcial,"Contas do estado (SICONFI): receita e despesa por área, com a média dos estados; sem pagamento por credor.",siconfi_contas_estados,
 BA,Governo de BA,governador,projetos,sem_fonte,Projetos enviados ao Legislativo não coletados.,,
 BA,Governo de BA,governador,emendas,pedido,Sem fonte aberta de emendas estaduais; pedido de acesso redigido (ADPF 854).,,emendas_estaduais_27_ufs.md
 BA,Governo de BA,governador,salario,sem_fonte,Subsídio do cargo não coletado.,,
@@ -231,7 +231,7 @@ CE,Senado Federal,senador,salario,sem_fonte,Subsídio e folha do gabinete não c
 CE,Senado Federal,senador,agenda,sem_fonte,Nenhuma fonte de agenda de parlamentares.,,
 CE,Senado Federal,senador,atos,parcial,"Nomeações no Diário Oficial da União, só depois de revisão humana.",dou_atos,
 CE,Senado Federal,senador,bens_campanha,sim,Bens e campanha declarados ao TSE.,tse_bens; tse_campanha,
-CE,Governo de CE,governador,gastos,sem_fonte,Gastos do governo não coletados para este cargo.,,
+CE,Governo de CE,governador,gastos,parcial,"Contas do estado (SICONFI): receita e despesa por área, com a média dos estados; sem pagamento por credor.",siconfi_contas_estados,
 CE,Governo de CE,governador,projetos,sem_fonte,Projetos enviados ao Legislativo não coletados.,,
 CE,Governo de CE,governador,emendas,pedido,Sem fonte aberta de emendas estaduais; pedido de acesso redigido (ADPF 854).,,emendas_estaduais_27_ufs.md
 CE,Governo de CE,governador,salario,sem_fonte,Subsídio do cargo não coletado.,,
@@ -272,7 +272,7 @@ DF,Senado Federal,senador,salario,sem_fonte,Subsídio e folha do gabinete não c
 DF,Senado Federal,senador,agenda,sem_fonte,Nenhuma fonte de agenda de parlamentares.,,
 DF,Senado Federal,senador,atos,parcial,"Nomeações no Diário Oficial da União, só depois de revisão humana.",dou_atos,
 DF,Senado Federal,senador,bens_campanha,sim,Bens e campanha declarados ao TSE.,tse_bens; tse_campanha,
-DF,Governo de DF,governador,gastos,sem_fonte,Gastos do governo não coletados para este cargo.,,
+DF,Governo de DF,governador,gastos,parcial,"Contas do estado (SICONFI): receita e despesa por área, com a média dos estados; sem pagamento por credor.",siconfi_contas_estados,
 DF,Governo de DF,governador,projetos,sem_fonte,Projetos enviados ao Legislativo não coletados.,,
 DF,Governo de DF,governador,emendas,pedido,Sem fonte aberta de emendas estaduais; pedido de acesso redigido (ADPF 854).,,emendas_estaduais_27_ufs.md
 DF,Governo de DF,governador,salario,sem_fonte,Subsídio do cargo não coletado.,,
@@ -313,7 +313,7 @@ ES,Senado Federal,senador,salario,sem_fonte,Subsídio e folha do gabinete não c
 ES,Senado Federal,senador,agenda,sem_fonte,Nenhuma fonte de agenda de parlamentares.,,
 ES,Senado Federal,senador,atos,parcial,"Nomeações no Diário Oficial da União, só depois de revisão humana.",dou_atos,
 ES,Senado Federal,senador,bens_campanha,sim,Bens e campanha declarados ao TSE.,tse_bens; tse_campanha,
-ES,Governo de ES,governador,gastos,sem_fonte,Gastos do governo não coletados para este cargo.,,
+ES,Governo de ES,governador,gastos,parcial,"Contas do estado (SICONFI): receita e despesa por área, com a média dos estados; sem pagamento por credor.",siconfi_contas_estados,
 ES,Governo de ES,governador,projetos,sem_fonte,Projetos enviados ao Legislativo não coletados.,,
 ES,Governo de ES,governador,emendas,pedido,Sem fonte aberta de emendas estaduais; pedido de acesso redigido (ADPF 854).,,emendas_estaduais_27_ufs.md
 ES,Governo de ES,governador,salario,sem_fonte,Subsídio do cargo não coletado.,,
@@ -354,7 +354,7 @@ GO,Senado Federal,senador,salario,sem_fonte,Subsídio e folha do gabinete não c
 GO,Senado Federal,senador,agenda,sem_fonte,Nenhuma fonte de agenda de parlamentares.,,
 GO,Senado Federal,senador,atos,parcial,"Nomeações no Diário Oficial da União, só depois de revisão humana.",dou_atos,
 GO,Senado Federal,senador,bens_campanha,sim,Bens e campanha declarados ao TSE.,tse_bens; tse_campanha,
-GO,Governo de GO,governador,gastos,sem_fonte,Gastos do governo não coletados para este cargo.,,
+GO,Governo de GO,governador,gastos,parcial,"Contas do estado (SICONFI): receita e despesa por área, com a média dos estados; sem pagamento por credor.",siconfi_contas_estados,
 GO,Governo de GO,governador,projetos,sem_fonte,Projetos enviados ao Legislativo não coletados.,,
 GO,Governo de GO,governador,emendas,pedido,Sem fonte aberta de emendas estaduais; pedido de acesso redigido (ADPF 854).,,emendas_estaduais_27_ufs.md
 GO,Governo de GO,governador,salario,sem_fonte,Subsídio do cargo não coletado.,,
@@ -395,7 +395,7 @@ MA,Senado Federal,senador,salario,sem_fonte,Subsídio e folha do gabinete não c
 MA,Senado Federal,senador,agenda,sem_fonte,Nenhuma fonte de agenda de parlamentares.,,
 MA,Senado Federal,senador,atos,parcial,"Nomeações no Diário Oficial da União, só depois de revisão humana.",dou_atos,
 MA,Senado Federal,senador,bens_campanha,sim,Bens e campanha declarados ao TSE.,tse_bens; tse_campanha,
-MA,Governo de MA,governador,gastos,sem_fonte,Gastos do governo não coletados para este cargo.,,
+MA,Governo de MA,governador,gastos,parcial,"Contas do estado (SICONFI): receita e despesa por área, com a média dos estados; sem pagamento por credor.",siconfi_contas_estados,
 MA,Governo de MA,governador,projetos,sem_fonte,Projetos enviados ao Legislativo não coletados.,,
 MA,Governo de MA,governador,emendas,pedido,Sem fonte aberta de emendas estaduais; pedido de acesso redigido (ADPF 854).,,emendas_estaduais_27_ufs.md
 MA,Governo de MA,governador,salario,sem_fonte,Subsídio do cargo não coletado.,,
@@ -436,7 +436,7 @@ MG,Senado Federal,senador,salario,sem_fonte,Subsídio e folha do gabinete não c
 MG,Senado Federal,senador,agenda,sem_fonte,Nenhuma fonte de agenda de parlamentares.,,
 MG,Senado Federal,senador,atos,parcial,"Nomeações no Diário Oficial da União, só depois de revisão humana.",dou_atos,
 MG,Senado Federal,senador,bens_campanha,sim,Bens e campanha declarados ao TSE.,tse_bens; tse_campanha,
-MG,Governo de MG,governador,gastos,sem_fonte,Gastos do governo não coletados para este cargo.,,
+MG,Governo de MG,governador,gastos,parcial,"Contas do estado (SICONFI): receita e despesa por área, com a média dos estados; sem pagamento por credor.",siconfi_contas_estados,
 MG,Governo de MG,governador,projetos,sem_fonte,Projetos enviados ao Legislativo não coletados.,,
 MG,Governo de MG,governador,emendas,pedido,Sem fonte aberta de emendas estaduais; pedido de acesso redigido (ADPF 854).,,emendas_estaduais_27_ufs.md
 MG,Governo de MG,governador,salario,sem_fonte,Subsídio do cargo não coletado.,,
@@ -477,7 +477,7 @@ MS,Senado Federal,senador,salario,sem_fonte,Subsídio e folha do gabinete não c
 MS,Senado Federal,senador,agenda,sem_fonte,Nenhuma fonte de agenda de parlamentares.,,
 MS,Senado Federal,senador,atos,parcial,"Nomeações no Diário Oficial da União, só depois de revisão humana.",dou_atos,
 MS,Senado Federal,senador,bens_campanha,sim,Bens e campanha declarados ao TSE.,tse_bens; tse_campanha,
-MS,Governo de MS,governador,gastos,sem_fonte,Gastos do governo não coletados para este cargo.,,
+MS,Governo de MS,governador,gastos,parcial,"Contas do estado (SICONFI): receita e despesa por área, com a média dos estados; sem pagamento por credor.",siconfi_contas_estados,
 MS,Governo de MS,governador,projetos,sem_fonte,Projetos enviados ao Legislativo não coletados.,,
 MS,Governo de MS,governador,emendas,pedido,Sem fonte aberta de emendas estaduais; pedido de acesso redigido (ADPF 854).,,emendas_estaduais_27_ufs.md
 MS,Governo de MS,governador,salario,sem_fonte,Subsídio do cargo não coletado.,,
@@ -518,7 +518,7 @@ MT,Senado Federal,senador,salario,sem_fonte,Subsídio e folha do gabinete não c
 MT,Senado Federal,senador,agenda,sem_fonte,Nenhuma fonte de agenda de parlamentares.,,
 MT,Senado Federal,senador,atos,parcial,"Nomeações no Diário Oficial da União, só depois de revisão humana.",dou_atos,
 MT,Senado Federal,senador,bens_campanha,sim,Bens e campanha declarados ao TSE.,tse_bens; tse_campanha,
-MT,Governo de MT,governador,gastos,sem_fonte,Gastos do governo não coletados para este cargo.,,
+MT,Governo de MT,governador,gastos,parcial,"Contas do estado (SICONFI): receita e despesa por área, com a média dos estados; sem pagamento por credor.",siconfi_contas_estados,
 MT,Governo de MT,governador,projetos,sem_fonte,Projetos enviados ao Legislativo não coletados.,,
 MT,Governo de MT,governador,emendas,pedido,Sem fonte aberta de emendas estaduais; pedido de acesso redigido (ADPF 854).,,emendas_estaduais_27_ufs.md
 MT,Governo de MT,governador,salario,sem_fonte,Subsídio do cargo não coletado.,,
@@ -559,7 +559,7 @@ PA,Senado Federal,senador,salario,sem_fonte,Subsídio e folha do gabinete não c
 PA,Senado Federal,senador,agenda,sem_fonte,Nenhuma fonte de agenda de parlamentares.,,
 PA,Senado Federal,senador,atos,parcial,"Nomeações no Diário Oficial da União, só depois de revisão humana.",dou_atos,
 PA,Senado Federal,senador,bens_campanha,sim,Bens e campanha declarados ao TSE.,tse_bens; tse_campanha,
-PA,Governo de PA,governador,gastos,sem_fonte,Gastos do governo não coletados para este cargo.,,
+PA,Governo de PA,governador,gastos,parcial,"Contas do estado (SICONFI): receita e despesa por área, com a média dos estados; sem pagamento por credor.",siconfi_contas_estados,
 PA,Governo de PA,governador,projetos,sem_fonte,Projetos enviados ao Legislativo não coletados.,,
 PA,Governo de PA,governador,emendas,pedido,Sem fonte aberta de emendas estaduais; pedido de acesso redigido (ADPF 854).,,emendas_estaduais_27_ufs.md
 PA,Governo de PA,governador,salario,sem_fonte,Subsídio do cargo não coletado.,,
@@ -600,7 +600,7 @@ PB,Senado Federal,senador,salario,sem_fonte,Subsídio e folha do gabinete não c
 PB,Senado Federal,senador,agenda,sem_fonte,Nenhuma fonte de agenda de parlamentares.,,
 PB,Senado Federal,senador,atos,parcial,"Nomeações no Diário Oficial da União, só depois de revisão humana.",dou_atos,
 PB,Senado Federal,senador,bens_campanha,sim,Bens e campanha declarados ao TSE.,tse_bens; tse_campanha,
-PB,Governo de PB,governador,gastos,sem_fonte,Gastos do governo não coletados para este cargo.,,
+PB,Governo de PB,governador,gastos,parcial,"Contas do estado (SICONFI): receita e despesa por área, com a média dos estados; sem pagamento por credor.",siconfi_contas_estados,
 PB,Governo de PB,governador,projetos,sem_fonte,Projetos enviados ao Legislativo não coletados.,,
 PB,Governo de PB,governador,emendas,pedido,Sem fonte aberta de emendas estaduais; pedido de acesso redigido (ADPF 854).,,emendas_estaduais_27_ufs.md
 PB,Governo de PB,governador,salario,sem_fonte,Subsídio do cargo não coletado.,,
@@ -641,7 +641,7 @@ PE,Senado Federal,senador,salario,sem_fonte,Subsídio e folha do gabinete não c
 PE,Senado Federal,senador,agenda,sem_fonte,Nenhuma fonte de agenda de parlamentares.,,
 PE,Senado Federal,senador,atos,parcial,"Nomeações no Diário Oficial da União, só depois de revisão humana.",dou_atos,
 PE,Senado Federal,senador,bens_campanha,sim,Bens e campanha declarados ao TSE.,tse_bens; tse_campanha,
-PE,Governo de PE,governador,gastos,sem_fonte,Gastos do governo não coletados para este cargo.,,
+PE,Governo de PE,governador,gastos,parcial,"Contas do estado (SICONFI): receita e despesa por área, com a média dos estados; sem pagamento por credor.",siconfi_contas_estados,
 PE,Governo de PE,governador,projetos,sem_fonte,Projetos enviados ao Legislativo não coletados.,,
 PE,Governo de PE,governador,emendas,pedido,Sem fonte aberta de emendas estaduais; pedido de acesso redigido (ADPF 854).,,emendas_estaduais_27_ufs.md
 PE,Governo de PE,governador,salario,sem_fonte,Subsídio do cargo não coletado.,,
@@ -682,7 +682,7 @@ PI,Senado Federal,senador,salario,sem_fonte,Subsídio e folha do gabinete não c
 PI,Senado Federal,senador,agenda,sem_fonte,Nenhuma fonte de agenda de parlamentares.,,
 PI,Senado Federal,senador,atos,parcial,"Nomeações no Diário Oficial da União, só depois de revisão humana.",dou_atos,
 PI,Senado Federal,senador,bens_campanha,sim,Bens e campanha declarados ao TSE.,tse_bens; tse_campanha,
-PI,Governo de PI,governador,gastos,sem_fonte,Gastos do governo não coletados para este cargo.,,
+PI,Governo de PI,governador,gastos,parcial,"Contas do estado (SICONFI): receita e despesa por área, com a média dos estados; sem pagamento por credor.",siconfi_contas_estados,
 PI,Governo de PI,governador,projetos,sem_fonte,Projetos enviados ao Legislativo não coletados.,,
 PI,Governo de PI,governador,emendas,pedido,Sem fonte aberta de emendas estaduais; pedido de acesso redigido (ADPF 854).,,emendas_estaduais_27_ufs.md
 PI,Governo de PI,governador,salario,sem_fonte,Subsídio do cargo não coletado.,,
@@ -723,7 +723,7 @@ PR,Senado Federal,senador,salario,sem_fonte,Subsídio e folha do gabinete não c
 PR,Senado Federal,senador,agenda,sem_fonte,Nenhuma fonte de agenda de parlamentares.,,
 PR,Senado Federal,senador,atos,parcial,"Nomeações no Diário Oficial da União, só depois de revisão humana.",dou_atos,
 PR,Senado Federal,senador,bens_campanha,sim,Bens e campanha declarados ao TSE.,tse_bens; tse_campanha,
-PR,Governo de PR,governador,gastos,sem_fonte,Gastos do governo não coletados para este cargo.,,
+PR,Governo de PR,governador,gastos,parcial,"Contas do estado (SICONFI): receita e despesa por área, com a média dos estados; sem pagamento por credor.",siconfi_contas_estados,
 PR,Governo de PR,governador,projetos,sem_fonte,Projetos enviados ao Legislativo não coletados.,,
 PR,Governo de PR,governador,emendas,pedido,Sem fonte aberta de emendas estaduais; pedido de acesso redigido (ADPF 854).,,emendas_estaduais_27_ufs.md
 PR,Governo de PR,governador,salario,sem_fonte,Subsídio do cargo não coletado.,,
@@ -764,7 +764,7 @@ RJ,Senado Federal,senador,salario,sem_fonte,Subsídio e folha do gabinete não c
 RJ,Senado Federal,senador,agenda,sem_fonte,Nenhuma fonte de agenda de parlamentares.,,
 RJ,Senado Federal,senador,atos,parcial,"Nomeações no Diário Oficial da União, só depois de revisão humana.",dou_atos,
 RJ,Senado Federal,senador,bens_campanha,sim,Bens e campanha declarados ao TSE.,tse_bens; tse_campanha,
-RJ,Governo de RJ,governador,gastos,sem_fonte,Gastos do governo não coletados para este cargo.,,
+RJ,Governo de RJ,governador,gastos,parcial,"Contas do estado (SICONFI): receita e despesa por área, com a média dos estados; sem pagamento por credor.",siconfi_contas_estados,
 RJ,Governo de RJ,governador,projetos,sem_fonte,Projetos enviados ao Legislativo não coletados.,,
 RJ,Governo de RJ,governador,emendas,pedido,Sem fonte aberta de emendas estaduais; pedido de acesso redigido (ADPF 854).,,emendas_estaduais_27_ufs.md
 RJ,Governo de RJ,governador,salario,sem_fonte,Subsídio do cargo não coletado.,,
@@ -805,7 +805,7 @@ RN,Senado Federal,senador,salario,sem_fonte,Subsídio e folha do gabinete não c
 RN,Senado Federal,senador,agenda,sem_fonte,Nenhuma fonte de agenda de parlamentares.,,
 RN,Senado Federal,senador,atos,parcial,"Nomeações no Diário Oficial da União, só depois de revisão humana.",dou_atos,
 RN,Senado Federal,senador,bens_campanha,sim,Bens e campanha declarados ao TSE.,tse_bens; tse_campanha,
-RN,Governo de RN,governador,gastos,sem_fonte,Gastos do governo não coletados para este cargo.,,
+RN,Governo de RN,governador,gastos,parcial,"Contas do estado (SICONFI): receita e despesa por área, com a média dos estados; sem pagamento por credor.",siconfi_contas_estados,
 RN,Governo de RN,governador,projetos,sem_fonte,Projetos enviados ao Legislativo não coletados.,,
 RN,Governo de RN,governador,emendas,pedido,Sem fonte aberta de emendas estaduais; pedido de acesso redigido (ADPF 854).,,emendas_estaduais_27_ufs.md
 RN,Governo de RN,governador,salario,sem_fonte,Subsídio do cargo não coletado.,,
@@ -846,7 +846,7 @@ RO,Senado Federal,senador,salario,sem_fonte,Subsídio e folha do gabinete não c
 RO,Senado Federal,senador,agenda,sem_fonte,Nenhuma fonte de agenda de parlamentares.,,
 RO,Senado Federal,senador,atos,parcial,"Nomeações no Diário Oficial da União, só depois de revisão humana.",dou_atos,
 RO,Senado Federal,senador,bens_campanha,sim,Bens e campanha declarados ao TSE.,tse_bens; tse_campanha,
-RO,Governo de RO,governador,gastos,sem_fonte,Gastos do governo não coletados para este cargo.,,
+RO,Governo de RO,governador,gastos,parcial,"Contas do estado (SICONFI): receita e despesa por área, com a média dos estados; sem pagamento por credor.",siconfi_contas_estados,
 RO,Governo de RO,governador,projetos,sem_fonte,Projetos enviados ao Legislativo não coletados.,,
 RO,Governo de RO,governador,emendas,pedido,Sem fonte aberta de emendas estaduais; pedido de acesso redigido (ADPF 854).,,emendas_estaduais_27_ufs.md
 RO,Governo de RO,governador,salario,sem_fonte,Subsídio do cargo não coletado.,,
@@ -887,7 +887,7 @@ RR,Senado Federal,senador,salario,sem_fonte,Subsídio e folha do gabinete não c
 RR,Senado Federal,senador,agenda,sem_fonte,Nenhuma fonte de agenda de parlamentares.,,
 RR,Senado Federal,senador,atos,parcial,"Nomeações no Diário Oficial da União, só depois de revisão humana.",dou_atos,
 RR,Senado Federal,senador,bens_campanha,sim,Bens e campanha declarados ao TSE.,tse_bens; tse_campanha,
-RR,Governo de RR,governador,gastos,sem_fonte,Gastos do governo não coletados para este cargo.,,
+RR,Governo de RR,governador,gastos,parcial,"Contas do estado (SICONFI): receita e despesa por área, com a média dos estados; sem pagamento por credor.",siconfi_contas_estados,
 RR,Governo de RR,governador,projetos,sem_fonte,Projetos enviados ao Legislativo não coletados.,,
 RR,Governo de RR,governador,emendas,pedido,Sem fonte aberta de emendas estaduais; pedido de acesso redigido (ADPF 854).,,emendas_estaduais_27_ufs.md
 RR,Governo de RR,governador,salario,sem_fonte,Subsídio do cargo não coletado.,,
@@ -928,7 +928,7 @@ RS,Senado Federal,senador,salario,sem_fonte,Subsídio e folha do gabinete não c
 RS,Senado Federal,senador,agenda,sem_fonte,Nenhuma fonte de agenda de parlamentares.,,
 RS,Senado Federal,senador,atos,parcial,"Nomeações no Diário Oficial da União, só depois de revisão humana.",dou_atos,
 RS,Senado Federal,senador,bens_campanha,sim,Bens e campanha declarados ao TSE.,tse_bens; tse_campanha,
-RS,Governo de RS,governador,gastos,sem_fonte,Gastos do governo não coletados para este cargo.,,
+RS,Governo de RS,governador,gastos,parcial,"Contas do estado (SICONFI): receita e despesa por área, com a média dos estados; sem pagamento por credor.",siconfi_contas_estados,
 RS,Governo de RS,governador,projetos,sem_fonte,Projetos enviados ao Legislativo não coletados.,,
 RS,Governo de RS,governador,emendas,pedido,Sem fonte aberta de emendas estaduais; pedido de acesso redigido (ADPF 854).,,emendas_estaduais_27_ufs.md
 RS,Governo de RS,governador,salario,sem_fonte,Subsídio do cargo não coletado.,,
@@ -969,7 +969,7 @@ SC,Senado Federal,senador,salario,sem_fonte,Subsídio e folha do gabinete não c
 SC,Senado Federal,senador,agenda,sem_fonte,Nenhuma fonte de agenda de parlamentares.,,
 SC,Senado Federal,senador,atos,parcial,"Nomeações no Diário Oficial da União, só depois de revisão humana.",dou_atos,
 SC,Senado Federal,senador,bens_campanha,sim,Bens e campanha declarados ao TSE.,tse_bens; tse_campanha,
-SC,Governo de SC,governador,gastos,sem_fonte,Gastos do governo não coletados para este cargo.,,
+SC,Governo de SC,governador,gastos,parcial,"Contas do estado (SICONFI): receita e despesa por área, com a média dos estados; sem pagamento por credor.",siconfi_contas_estados,
 SC,Governo de SC,governador,projetos,sem_fonte,Projetos enviados ao Legislativo não coletados.,,
 SC,Governo de SC,governador,emendas,pedido,Sem fonte aberta de emendas estaduais; pedido de acesso redigido (ADPF 854).,,emendas_estaduais_27_ufs.md
 SC,Governo de SC,governador,salario,sem_fonte,Subsídio do cargo não coletado.,,
@@ -1010,7 +1010,7 @@ SE,Senado Federal,senador,salario,sem_fonte,Subsídio e folha do gabinete não c
 SE,Senado Federal,senador,agenda,sem_fonte,Nenhuma fonte de agenda de parlamentares.,,
 SE,Senado Federal,senador,atos,parcial,"Nomeações no Diário Oficial da União, só depois de revisão humana.",dou_atos,
 SE,Senado Federal,senador,bens_campanha,sim,Bens e campanha declarados ao TSE.,tse_bens; tse_campanha,
-SE,Governo de SE,governador,gastos,sem_fonte,Gastos do governo não coletados para este cargo.,,
+SE,Governo de SE,governador,gastos,parcial,"Contas do estado (SICONFI): receita e despesa por área, com a média dos estados; sem pagamento por credor.",siconfi_contas_estados,
 SE,Governo de SE,governador,projetos,sem_fonte,Projetos enviados ao Legislativo não coletados.,,
 SE,Governo de SE,governador,emendas,pedido,Sem fonte aberta de emendas estaduais; pedido de acesso redigido (ADPF 854).,,emendas_estaduais_27_ufs.md
 SE,Governo de SE,governador,salario,sem_fonte,Subsídio do cargo não coletado.,,
@@ -1051,7 +1051,7 @@ SP,Senado Federal,senador,salario,sem_fonte,Subsídio e folha do gabinete não c
 SP,Senado Federal,senador,agenda,sem_fonte,Nenhuma fonte de agenda de parlamentares.,,
 SP,Senado Federal,senador,atos,parcial,"Nomeações no Diário Oficial da União, só depois de revisão humana.",dou_atos,
 SP,Senado Federal,senador,bens_campanha,sim,Bens e campanha declarados ao TSE.,tse_bens; tse_campanha,
-SP,Governo de SP,governador,gastos,sem_fonte,Gastos do governo não coletados para este cargo.,,
+SP,Governo de SP,governador,gastos,parcial,"Contas do estado (SICONFI): receita e despesa por área, com a média dos estados; sem pagamento por credor.",siconfi_contas_estados,
 SP,Governo de SP,governador,projetos,sem_fonte,Projetos enviados ao Legislativo não coletados.,,
 SP,Governo de SP,governador,emendas,pedido,Sem fonte aberta de emendas estaduais; pedido de acesso redigido (ADPF 854).,,emendas_estaduais_27_ufs.md
 SP,Governo de SP,governador,salario,sem_fonte,Subsídio do cargo não coletado.,,
@@ -1092,7 +1092,7 @@ TO,Senado Federal,senador,salario,sem_fonte,Subsídio e folha do gabinete não c
 TO,Senado Federal,senador,agenda,sem_fonte,Nenhuma fonte de agenda de parlamentares.,,
 TO,Senado Federal,senador,atos,parcial,"Nomeações no Diário Oficial da União, só depois de revisão humana.",dou_atos,
 TO,Senado Federal,senador,bens_campanha,sim,Bens e campanha declarados ao TSE.,tse_bens; tse_campanha,
-TO,Governo de TO,governador,gastos,sem_fonte,Gastos do governo não coletados para este cargo.,,
+TO,Governo de TO,governador,gastos,parcial,"Contas do estado (SICONFI): receita e despesa por área, com a média dos estados; sem pagamento por credor.",siconfi_contas_estados,
 TO,Governo de TO,governador,projetos,sem_fonte,Projetos enviados ao Legislativo não coletados.,,
 TO,Governo de TO,governador,emendas,pedido,Sem fonte aberta de emendas estaduais; pedido de acesso redigido (ADPF 854).,,emendas_estaduais_27_ufs.md
 TO,Governo de TO,governador,salario,sem_fonte,Subsídio do cargo não coletado.,,
@@ -1110,6 +1110,6 @@ BR,Presidência da República,presidente,gastos,parcial,Cartão de pagamento do 
 BR,Presidência da República,presidente,projetos,sem_fonte,Projetos enviados ao Legislativo não coletados.,,
 BR,Presidência da República,presidente,emendas,sem_fonte,O cargo não apresenta emendas.,,
 BR,Presidência da República,presidente,salario,sem_fonte,Subsídio do cargo não coletado.,,
-BR,Presidência da República,presidente,agenda,sem_fonte,"O e-Agendas está catalogado, mas a API exige token de login gov.br e não há módulo de coleta.",eagendas,
+BR,Presidência da República,presidente,agenda,parcial,"Agenda de ministros e do vice-presidente (e-Agendas, CGU, arquivo aberto desde 10/2022); a agenda do próprio presidente da República não consta nessa base.",eagendas,
 BR,Presidência da República,presidente,atos,parcial,"Atos no Diário Oficial da União, só depois de revisão humana.",dou_atos,
 BR,Presidência da República,presidente,bens_campanha,sim,Bens e campanha declarados ao TSE.,tse_bens; tse_campanha,

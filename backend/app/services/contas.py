@@ -5,7 +5,7 @@ from datetime import datetime
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
-from app.models import ContasMunicipio, FonteIngestao, Municipio
+from app.models import ContasEstado, ContasMunicipio, FonteIngestao, Municipio
 
 FONTE_NOME = "Declaração de Contas Anuais (SICONFI, Tesouro Nacional)"
 FONTE_URL = "https://siconfi.tesouro.gov.br/"
@@ -33,6 +33,90 @@ def _media_uf(session: Session, ibge: str, ano: int) -> tuple[float | None, int]
         )
     ).one()
     return (round(float(media), 2) if media is not None else None), n
+
+
+MEDIA_ESTADOS_DESCRICAO = (
+    "Média simples, entre os estados e o Distrito Federal que entregaram as contas do mesmo "
+    "ano, do valor dividido pela população de cada um. Estado sem população ou sem o valor "
+    'informado fica de fora e é contado em "estados sem dado".'
+)
+TOTAL_ESTADOS = 27  # 26 estados + DF
+
+
+def _media_estados(session: Session, ano: int, coluna) -> tuple[float | None, int]:
+    media, n = session.execute(
+        select(func.avg(coluna / ContasEstado.populacao), func.count()).where(
+            ContasEstado.ano == ano, ContasEstado.populacao > 0, coluna.is_not(None)
+        )
+    ).one()
+    return (round(float(media), 2) if media is not None else None), n
+
+
+def resumo_estado(session: Session, uf: str) -> dict | None:
+    """Contas anuais do governo do estado (SICONFI), com a média dos estados ao lado."""
+    anos = session.scalars(
+        select(ContasEstado).where(ContasEstado.uf == uf).order_by(ContasEstado.ano.desc())
+    ).all()
+    if not anos:
+        return None
+    atual, anterior = anos[0], anos[1] if len(anos) > 1 else None
+    informada = atual.despesa_paga is not None
+    total = float(atual.despesa_paga) if informada else 0.0
+    areas = sorted(atual.despesa_por_area.items(), key=lambda item: item[1], reverse=True)
+    principais = areas[:AREAS_MOSTRADAS]
+    resto = sum(v for _, v in areas[AREAS_MOSTRADAS:])
+    atualizado_em: datetime | None = session.scalar(
+        select(func.max(FonteIngestao.concluido_em)).where(
+            FonteIngestao.fonte == "siconfi_contas_estados", FonteIngestao.status == "ok"
+        )
+    )
+    media_despesa, n_despesa = _media_estados(session, atual.ano, ContasEstado.despesa_paga)
+    media_receita, n_receita = _media_estados(session, atual.ano, ContasEstado.receita_total)
+
+    def por_hab(valor) -> float | None:
+        if valor is None or not atual.populacao:
+            return None
+        return round(float(valor) / atual.populacao, 2)
+
+    return {
+        "uf": uf,
+        "ano": atual.ano,
+        "populacao": atual.populacao,
+        "receita_total": atual.receita_total,
+        "despesa_paga": atual.despesa_paga,
+        "receita_por_habitante": por_hab(atual.receita_total),
+        "despesa_por_habitante": por_hab(atual.despesa_paga),
+        "media_estados_receita_por_habitante": media_receita,
+        "media_estados_despesa_por_habitante": media_despesa,
+        "estados_na_media": n_despesa,
+        "estados_sem_dado": TOTAL_ESTADOS - n_despesa,
+        "estados_sem_dado_receita": TOTAL_ESTADOS - n_receita,
+        "media_estados_descricao": MEDIA_ESTADOS_DESCRICAO,
+        "assembleia": atual.despesa_por_area.get("Legislativa"),
+        "por_area": [
+            {
+                "nome": nome,
+                "valor": valor,
+                "percentual": round(100 * valor / total, 1) if total else 0,
+            }
+            for nome, valor in principais
+        ]
+        + (
+            [{"nome": "Outras áreas", "valor": resto, "percentual": round(100 * resto / total, 1)}]
+            if resto and total
+            else []
+        ),
+        "anterior": {
+            "ano": anterior.ano,
+            "despesa_paga": anterior.despesa_paga,
+            "receita_total": anterior.receita_total,
+        }
+        if anterior
+        else None,
+        "fonte_nome": FONTE_NOME,
+        "fonte_url": FONTE_URL,
+        "atualizado_em": atualizado_em,
+    }
 
 
 def resumo(session: Session, ibge: str) -> dict | None:

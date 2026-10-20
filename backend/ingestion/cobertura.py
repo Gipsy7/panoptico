@@ -316,13 +316,22 @@ def montar() -> list[dict]:
             uf,
             f"Governo de {uf}",
             "governador",
-            {"emendas": ("pedido", msg, "", EMENDAS_27)},
+            {
+                "emendas": ("pedido", msg, "", EMENDAS_27),
+                "gastos": (
+                    "parcial",
+                    "Contas do estado (SICONFI): receita e despesa por área, com a média dos "
+                    "estados; sem pagamento por credor.",
+                    "siconfi_contas_estados",
+                    "",
+                ),
+            },
         )
         linhas += _prefeito(uf, *prefeitos[uf])
     agenda = (
-        "sem_fonte",
-        "O e-Agendas está catalogado, mas a API exige token de login gov.br e não há "
-        "módulo de coleta.",
+        "parcial",
+        "Agenda de ministros e do vice-presidente (e-Agendas, CGU, arquivo aberto desde "
+        "10/2022); a agenda do próprio presidente da República não consta nessa base.",
         "eagendas",
         "",
     )
