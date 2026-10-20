@@ -1,195 +1,227 @@
-# Panóptico
+<h1 align="center">Panóptico</h1>
 
-**Quem te representa, às claras.**
+<p align="center">
+  <b>Quem te representa, às claras.</b><br>
+  Digite o seu CEP e veja quem representa você, do presidente ao vereador:<br>
+  o que cada um faz, gasta, vota e recebe, com dado oficial, link da fonte e data.
+</p>
 
-Digite o seu CEP e veja quem representa você no Congresso Nacional: quanto cada deputado federal e senador gasta, quanto participa das votações, quais projetos apresenta e quanto dinheiro de emendas mandou para a sua cidade. Tudo com dados oficiais e link para a fonte.
+<p align="center">
+  <a href="https://panoptico.social.br"><b>🌐 Abrir o site</b></a> ·
+  <a href="https://panoptico.social.br/sobre-as-fontes">📚 Sobre as fontes</a> ·
+  <a href="https://api.panoptico.social.br/docs">🔌 API</a> ·
+  <a href="https://panoptico.social.br/apoie">💛 Apoie</a>
+</p>
 
-🌐 [panoptico.social.br](https://panoptico.social.br) · 📚 [Sobre as fontes](https://panoptico.social.br/sobre-as-fontes) · 🔌 [API](https://api.panoptico.social.br/docs)
+<p align="center">
+  <a href="https://github.com/Gipsy7/panoptico/actions/workflows/publicar.yml"><img alt="Publicar" src="https://github.com/Gipsy7/panoptico/actions/workflows/publicar.yml/badge.svg"></a>
+  <a href="https://github.com/Gipsy7/panoptico/actions/workflows/ingestao.yml"><img alt="Ingestão diária" src="https://github.com/Gipsy7/panoptico/actions/workflows/ingestao.yml/badge.svg"></a>
+  <a href="LICENSE"><img alt="Licença AGPL-3.0" src="https://img.shields.io/badge/c%C3%B3digo-AGPL--3.0-informational"></a>
+  <a href="LICENCA-DADOS.md"><img alt="Dados CC BY 4.0" src="https://img.shields.io/badge/dados-CC%20BY%204.0-informational"></a>
+</p>
 
 ---
 
-## Por que existe
+**Pule para:** [Por que existe](#-por-que-existe) · [O que dá para ver](#-o-que-dá-para-ver) · [Princípios](#-princípios) · [Como ajudar](#-como-ajudar) · [Como funciona](#-como-funciona) · [Rodar localmente](#-rodar-localmente) · [Próximos passos](#-próximos-passos)
 
-O panóptico é uma prisão imaginada no século XVIII em que um vigia, de uma torre central, observa todos os presos sem ser visto. O projeto inverte essa lógica: **em vez de o poder observar o cidadão, o cidadão passa a enxergar o poder público.**
+---
 
-Os dados sobre o trabalho dos parlamentares já são públicos, mas estão espalhados em portais diferentes, em formatos técnicos e com nomes como "CEAP", "proposição" ou "emenda individual de transferência especial". O Panóptico junta essas informações num lugar só e as apresenta em linguagem do dia a dia, pensado para quem abre um link no celular, vindo de um grupo de WhatsApp, e quer entender em menos de um minuto quem é seu representante e o que ele tem feito.
+## 👁 Por que existe
 
-## O que dá para ver
+O panóptico é uma prisão imaginada no século XVIII: um vigia, numa torre central, observa todos sem ser visto. **Aqui a lógica se inverte: o cidadão é quem enxerga o poder público.**
 
-- **Seus representantes pelo CEP** (ou escolhendo estado e cidade):
-  - o **presidente, o governador e o prefeito** eleitos, cada um com o vice;
-  - os 3 senadores e os deputados federais do estado;
-  - os **deputados estaduais** eleitos;
-  - os **vereadores** eleitos da cidade.
-  - os **eleitos de 2026 que ainda não tomaram posse** (presidente e governador em 1º/1/2027; Congresso e assembleias em 1º/2/2027; "2º turno" onde o TSE ainda não decidiu), numa seção à parte de quem está no cargo hoje, com selo no perfil e na busca.
-- **Perfil de cada parlamentar federal**, com os números principais no topo e os detalhes abaixo:
-  - **Gastos do gabinete** (cota parlamentar): total do ano, média da Casa, gastos por categoria e os maiores gastos. Quando não há nenhum reembolso, o site diz isso e explica as causas possíveis.
-  - **Presença em votações**: em quantas votações nominais do Plenário votou, desde o início do mandato atual.
-  - **Como votou**: cada votação do Plenário, por tema oficial, com a orientação do Governo e a maioria do partido ao lado.
-  - **Votos nas comissões**: as votações nominais de comissão de que participou.
-  - **Projetos de lei** desde 2023: autor principal e coautor, os que viraram lei e os temas.
-  - **Eleição** (TSE): votos recebidos, idade, escolaridade, ocupação e redes declaradas, bens declarados na eleição mais recente comparados com a anterior, e de onde veio e para onde foi o dinheiro da campanha que deu o mandato.
-  - **Salário**: o subsídio, igual para todos, com a norma que o fixa.
-- **Perfil de vereadores, deputados estaduais, prefeitos, governadores e presidente**, com a foto da candidatura e dados do TSE (votos recebidos, dados pessoais declarados, redes sociais, bens e contas de campanha), e quando a pessoa foi eleita depois para outro cargo.
-- **Todos os perfis têm a mesma ordem**: cabeçalho, números-chave, "Quem é" (dados declarados ao TSE e votos recebidos), atividade no cargo e, por fim, a eleição (bens e campanha). Quando a câmara ou a assembleia publica a pessoa no cargo, o perfil do TSE leva ao perfil da casa, com a atividade; quando a câmara não publica dados abertos, o perfil diz isso e mostra os canais oficiais da cidade.
-- **Linha do tempo** em todos os perfis (parlamentar federal, eleito, vereador e deputado estadual): eleições vencidas, cargos em partidos, julgamentos e cassações de candidatura (TSE), representações no Conselho de Ética, contas julgadas irregulares e inabilitação (TCU), sanções (CGU), cargos de confiança no governo federal (inclui ministros, lidos das viagens), viagens a serviço e cartão de pagamento do governo federal (Portal da Transparência), processos e casos, agrupados por tipo. Cada registro mostra a situação informada pela fonte, o link oficial e a data em que foi conferido; processo sob sigilo não é detalhado. Só aparece quando o perfil está ligado à pessoa por dado seguro (CPF, título de eleitor ou revisão manual) e há algo a mostrar.
-- **Punições e contas reprovadas** em todos os perfis: sanções nos cadastros da CGU (CEIS, CNEP, CEAF) e contas julgadas irregulares ou inabilitação pelo TCU, com órgão, data, situação, processo, link da fonte e como a ligação foi feita (CPF completo, ou parte do CPF mais o nome quando a fonte oculta o resto).
-- **Trabalho no governo federal**: cargos de confiança, viagens a serviço por ano e cartão corporativo (CPGF) por ano e órgão, com a média dos deputados e senadores em exercício ao lado.
-- **Eleições que disputou**: todas as candidaturas da pessoa, eleição a eleição, com cargo, lugar, partido, resultado, votos e o total de bens declarados naquele ano (bens carregados para 2018, 2022 e 2024).
-- **Acompanhar por feed**: cada perfil tem um feed Atom com cada fato novo, para usar num leitor de feeds; não pedimos e-mail nem telefone.
-- **Modo escuro**: segue o sistema, com alternador no menu.
-- **Para onde foi o dinheiro da cidade** (`/cidade/{ibge}`): emendas pagas ao município por parlamentar, contas da prefeitura (SICONFI) com o gasto por habitante, pagamentos a fornecedores (TCE-SP e TCE-RS) e contratos no PNCP, cada número por habitante ao lado da média dos municípios do mesmo estado, e uma seção do que ficou de fora. A página de representantes mostra um resumo de 3 números com link para ela.
-- **Impostos e repasses por estado e cidade** (`/impostos-e-repasses`; o endereço antigo `/dinheiro-federal` redireciona, mapa também na home): quanto a União arrecadou em cada estado (Receita) e repassou ao governo estadual e às prefeituras (FPE, FPM, IPI-Exportação e demais obrigatórias do Tesouro Nacional; Fundeb, royalties e transferências legais e voluntárias do Portal da Transparência), de 2019 a 2026, por habitante e com a média ao lado. Fica de fora o gasto direto da União, o INSS e o Bolsa Família; o valor que o Portal não atribui a estado aparece só no total do Brasil.
-- **Comparador do 2º turno** (`/segundo-turno?cep=`): os candidatos a presidente e a governador que o eleitor encontra na urna, lado a lado, com os mesmos campos (votos no 1º turno, bens, campanha, carreira, registros na CGU e no TCU), na ordem do número na urna. Depois da apuração mostra o resultado.
-- **Votações por tema** no perfil de deputados e senadores: "votou em X de Y votações sobre Saúde", com a média da Casa, pela classificação temática oficial.
-- **Explicador de votação** (`/votacao/{casa}/{id}`): o que se votava, o placar, a orientação do Governo, das lideranças, dos partidos, blocos e federações, e como votou cada parlamentar. Votação secreta conta como presença, sem revelar o voto.
-- **Telas em três camadas**: cartões com os números principais e a média ao lado (o toque abre o detalhe numa gaveta), perguntas que explicam o que tem nuance e, no fim, todo o detalhe em abas. Vale para perfis, cidade e representantes.
-- **Cartões para compartilhar**: imagem de prévia com um número e a fonte para perfis federais, eleitos, vereadores, deputados estaduais e cidades.
-- **Busca por nome** em todos os níveis, na página inicial: parlamentares federais, presidente, governadores, prefeitos, deputados estaduais e vereadores (sem diferença de acento; também pelo nome completo), mais **partidos** (pela sigla ou pelo nome) e pessoas de eleições passadas ou suplentes, em grupos com limite. Usa índices de trigramas do Postgres (`pg_trgm` + `unaccent`, migração `0033_busca`) e cada consulta tem `LIMIT`, para não pesar no banco pago por uso; a resposta é cacheável na CDN.
-- **Comparador** (`/comparar?ids=1,2,3`): de dois a quatro parlamentares lado a lado, em colunas como num comparador de celulares: números com a média da Casa, projetos por tema, votos em comum em matriz par a par (só entre pessoas da mesma Casa) e projetos assinados juntos. Links antigos com `?a=&b=` continuam valendo.
-- **Comparador na mesma casa** (`/comparar/local`): de dois a quatro vereadores da mesma câmara, ou deputados da mesma assembleia, com projetos, proposições, presença, votos em comum e dados declarados ao TSE.
-- **Lista de todos os parlamentares federais**, ordenável por um critério factual de cada vez (gastos, presença, projetos, emendas, alinhamento com o Governo). Não há nota nem ranking.
-- **Dinheiro enviado para a sua cidade**: emendas individuais pagas à prefeitura, aos fundos municipais e a entidades, com:
-  - quem enviou;
-  - para quais áreas (saúde, educação…);
-  - quem recebeu, com o CNPJ.
-- **Emendas estaduais (Santa Catarina, na API; tela a fazer)**: emendas impositivas dos deputados estaduais executadas por convênio ou termo de fomento (SC Transferências, CGE/SC), com autor, quem recebeu e valores previsto, empenhado e pago, num bloco à parte das federais (outra esfera, nunca somada) em `/municipios/{ibge}/emendas` e em `/deputados-estaduais/{mandato_id}/emendas`, com a média dos deputados da ALESC.
-- **O que aconteceu com o dinheiro das emendas** (perfil do parlamentar): situação dos convênios e das transferências especiais ligados às emendas individuais, com prestação de contas, valores, vigência e link oficial. Mostra a situação registrada no governo federal, sem julgamento.
-- **Dinheiro dos partidos** (`/partidos`, TSE): cotas do Fundo Partidário e do fundo eleitoral, receitas, gastos e repasses a candidaturas de cada partido, com as transferências entre diretórios separadas para não contar duas vezes; o fundo eleitoral por gênero e cor ou raça (eleição de 2024).
-- **Contas da sua cidade** (SICONFI, Tesouro Nacional): quanto a prefeitura arrecadou e gastou no ano, em que áreas e quanto custou a câmara municipal.
-- **Para quem a cidade pagou** (no site, por enquanto, cidades de SP, pelo TCE-SP): os maiores fornecedores da prefeitura e da câmara no ano. O RS (TCE-RS) já está no acervo local, mas o tribunal não responde a conexões de fora do Brasil, e a ingestão de produção roda no GitHub Actions (EUA). Minas Gerais aguarda resposta do TCE-MG, cuja API exige reCAPTCHA e não tem espelho aberto (pedido em `docs/pedidos/tce_mg.md`).
-- **Câmara municipal hoje** (nas câmaras que usam o SAPL): quem está no cargo agora, inclusive suplentes, com partido atual, contato, projetos, quantos requerimentos, indicações e moções apresentou, presença nas sessões (com a média da câmara) e como votou nas votações nominais, onde a câmara registra.
-- **Câmaras que saíram do SAPL** (portal da Cittatec: Pelotas, Erechim, São Borja, Ronda Alta, Barra do Ribeiro e Palminópolis; modelo de site PHP de `vereadores.php`: Amapá, Ferreira Gomes, Tartarugalzinho, Fortim e Poranga; Portal da CR2: Beruri, Itamarandiba, Benevides e São Miguel do Guamá; portal da Nucleogov / 7Focus: Pirenópolis, Campos Belos, Cariri do Tocantins, Figueirópolis e Santa Rita do Tocantins; Portal Modelo do Interlegis: Imbuia, Santana do Piauí, Vila Flores e Campo Novo de Rondônia; site da AOS Software: Queimada Nova; sites próprios: Palmas, Teófilo Otoni e Frutal; desde 17/10/2026, também Praia Grande, Senador Guiomard, Aracruz, Cachoeiro de Itapemirim, Varjão de Minas, Nortelândia, Santa Maria do Cambucá, Alvorada, Pimenta Bueno, Perdões e Santa Cruz-PE, em leitores pequenos de site próprio ou de fornecedor): vereadores no cargo (Cittatec também com a contagem de proposições; as demais, sem projetos, votos e presença). `data/sistemas_camaras.csv` registra qual sistema cada uma das 66 câmaras com SAPL parado usa hoje, e `data/sapl_desativado.csv` as exclui da carga do SAPL.
-- **Assembleia legislativa hoje** (nas que usam o SAPL: AC, AL, AM, PB, PI, RO e TO; a de RR bloqueia o acesso a partir do GitHub Actions): o mesmo para os deputados estaduais, com perfil em `/deputado-estadual/{id}`.
-- **Assembleia de São Paulo** (dados abertos da ALESP): deputados no cargo, projetos, moções, requerimentos e indicações, e **gastos do gabinete**, com a média da assembleia, e o **voto de cada deputado nas comissões permanentes** (ano atual e anterior). Votos e presença em Plenário não estão nos dados abertos.
-- **Assembleia de Pernambuco** (API de dados abertos da ALEPE): deputados no cargo, projetos, indicações e requerimentos. A API não traz votos, presença nem gastos do gabinete.
-- **Câmara Legislativa do Distrito Federal** (API pública do processo legislativo e dados abertos da CLDF): deputados distritais no cargo, projetos, indicações, moções e requerimentos, e **gastos do gabinete** (verbas indenizatórias) de quem aparece nos arquivos da CLDF.
-- **Assembleia de Santa Catarina** (e-Legis e Portal da Transparência da ALESC, que não têm API): deputados no cargo, projetos e a contagem de requerimentos, indicações, moções e pedidos de informação, presença em plenário (lista por sessão) e gastos do gabinete (CSV anual da Transparência).
-- **Assembleia do Paraná** (site e Portal da Transparência da ALEP; a API de dados abertos tem certificado autoassinado e responde 403, e não a usamos): deputados no cargo, presença em plenário e votos nominais (planilhas de dados abertos por sessão). Proposições e gastos dependem de pedido à ALEP (a verba de ressarcimento exige reCAPTCHA).
-- **Assembleia do Rio de Janeiro** (páginas públicas do site da ALERJ, que não tem API): só os deputados em exercício, com partido, foto e contato. O processo legislativo da casa roda num sistema antigo que não permite coletar as proposições de forma confiável.
-- **Assembleia do Rio Grande do Sul** (portais da ALRS, que não tem dados abertos documentados): deputados no cargo, projetos, requerimentos, **voto de cada deputado em plenário**, **presença** e **cota parlamentar** (gastos do gabinete), com a média da assembleia.
-- **Assembleia da Bahia** (API de dados abertos da ALBA): deputados no cargo, projetos, indicações, moções e requerimentos, e **presença em plenário**. A API não traz votos nem gastos.
-- **Assembleia do Espírito Santo** (API de dados abertos da ALES): deputados no cargo, projetos, indicações e requerimentos, e **presença em plenário**. A API não traz votos nem gastos.
-- **Assembleia do Ceará** (páginas públicas do site da ALECE, que não tem dados abertos legislativos): deputados em exercício (inclusive suplentes) e projetos de lei, leis complementares, emendas à Constituição, decretos legislativos e resoluções.
-- **Assembleia do Pará** e **Assembleia de Mato Grosso** (páginas públicas dos sites): só os deputados em exercício, com partido e foto. A pesquisa de proposições da ALEPA não permite coleta confiável fora do navegador; a API da ALMT exige credencial e o `robots.txt` do site veda a pesquisa.
-- **Assembleias do MA, MS, RN, SE, AP e GO** (sites e portais de cada Casa; nenhuma usa SAPL): deputados em exercício ligados ao eleito do TSE, e o que cada uma publica de forma estruturada. MA (API do ALEMALEGIS): projetos e contagem de indicações, requerimentos e moções. RN (API da Transparência Legislativa): projetos e contagens. AP (portal do eLegis): projetos. MS (portal da transparência): gastos da cota (CEAP). GO (portal da transparência): verba indenizatória mensal. SE (Processo Legislativo): presença em plenário. O sistema de proposições de MS exige prova de trabalho contra automação, o de SE só responde a formulário com estado de sessão, e GO não publica proposições em JSON; não contornamos.
-- **Assembleia de Minas Gerais** (dados abertos da ALMG): deputados no cargo, projetos, requerimentos e **gastos do gabinete** (verba indenizatória), com a média da assembleia. A ALMG não publica o voto de cada deputado nem a presença.
-- **Canais oficiais da sua cidade**: sites da prefeitura e da câmara e os portais da transparência, num catálogo aberto (`data/canais_oficiais.csv`, gerado pela varredura, e `data/canais_curados.csv`, com as correções feitas à mão) que qualquer pessoa pode corrigir por pull request.
-- **Compartilhamento**: perfis e comparações têm imagem de pré-visualização e botão de WhatsApp.
+Os dados já são públicos, mas estão espalhados em dezenas de portais e escondidos atrás de siglas como "CEAP" ou "emenda de transferência especial". O Panóptico junta tudo num lugar só, em linguagem do dia a dia.
 
-## Princípios
+> 🎯 **Meta:** quem abre um link no celular, vindo do WhatsApp, acha o seu representante e entende o número **em menos de um minuto**.
 
-1. **Toda informação tem fonte e data de atualização.** Cada seção do site leva ao dado original.
-2. **Linguagem estritamente factual.** Sem notas, rankings, selos ou adjetivos. Mostramos o número e, ao lado, a média da Casa para comparação.
-3. **Dado bruto separado do tratado.** O arquivo baixado da fonte é guardado como veio, e o processamento pode ser refeito a partir dele.
-4. **Privacidade por padrão.** Não há cadastro, login nem cookies de rastreamento. O CEP é usado só para descobrir a cidade e não é gravado.
-5. **Processos e investigações só com fonte oficial**, número do processo, data e status atual. Ainda não estão no site e só entrarão com curadoria cuidadosa.
+## 🔎 O que dá para ver
 
-## Projeto aberto
+```mermaid
+flowchart LR
+    CEP["📮 Seu CEP"] --> R["👥 Seus representantes<br/>presidente → vereador"]
+    R --> P["👤 Perfil<br/>gastos · votos · projetos · eleição"]
+    R --> C["🏙 Sua cidade<br/>emendas · contas · fornecedores"]
+    P --> V["🗳 Cada votação<br/>placar e voto de cada um"]
+    P --> CMP["⚖️ Comparar<br/>2 a 4 lado a lado"]
+```
 
-O Panóptico é **público e aberto a contribuições**. O código está todo neste repositório, os dados vêm de fontes públicas e a metodologia de cada número está documentada em [docs/DECISOES.md](docs/DECISOES.md) e na página [Sobre as fontes](https://panoptico.social.br/sobre-as-fontes). Os padrões visuais e de celular estão em [docs/DESIGN.md](docs/DESIGN.md), e o [CLAUDE.md](CLAUDE.md) resume regras e comandos para quem trabalha com agentes de código. O roteiro do teste de usabilidade com pessoas que não acompanham política está em [docs/USABILIDADE.md](docs/USABILIDADE.md).
+| | O quê | Exemplo do que aparece |
+|---|---|---|
+| 👥 | **Seus representantes pelo CEP** | Presidente, governador e prefeito (com vices), senadores, deputados federais e estaduais, vereadores. Eleitos de 2026 que ainda não tomaram posse aparecem à parte. |
+| 💸 | **Gastos do gabinete** | Total do ano, por categoria, maiores gastos, sempre com a média da Casa ao lado. |
+| 🗳 | **Votos e presença** | "Votou em 31 de 59 votações", como votou em cada uma, orientação do Governo e do partido, votos por tema e nas comissões. |
+| 📝 | **Projetos de lei** | Desde 2023: autor principal ou coautor, temas e os que viraram lei. |
+| 🧾 | **Eleição (TSE)** | Votos, bens declarados (comparados com a eleição anterior), de onde veio e para onde foi o dinheiro da campanha, todas as eleições que disputou. |
+| 🕰 | **Linha do tempo** | Cassações, sanções da CGU, contas reprovadas no TCU, Conselho de Ética, cargos no governo federal, viagens, cartão corporativo, CPIs. Só com vínculo seguro e link oficial. |
+| 🏙 | **Sua cidade** | Emendas recebidas e quem mandou, contas da prefeitura e da câmara, maiores fornecedores, contratos no PNCP, canais oficiais. |
+| 🗺 | **Impostos e repasses** | Quanto a União arrecadou e repassou a cada estado e cidade (2019 a 2026), por habitante, em mapa. |
+| ⚖️ | **Comparadores** | Até 4 parlamentares lado a lado, vereadores da mesma câmara, e os candidatos do 2º turno com os mesmos campos. |
+| 🏛 | **Partidos** | Fundo Partidário, fundo eleitoral, receitas, gastos e repasses (TSE). |
+| 🔍 | **Busca por nome** | Todos os níveis e partidos, sem diferença de acento. |
 
-Você pode ajudar de várias formas, mesmo sem programar:
+E mais: **feed Atom** em cada perfil (sem pedir e-mail), **modo escuro**, **cartões de prévia** com botão de WhatsApp e telas em três camadas (número → pergunta que explica → detalhe completo).
 
-- **Achou um número diferente da fonte oficial?** Abra uma [issue](https://github.com/Gipsy7/panoptico/issues) com o link do perfil e da fonte.
-- **Algo confuso no site?** Sugestões de texto e de usabilidade são muito bem-vindas, principalmente vindas de quem não acompanha política.
-- **Conhece uma fonte de dados boa?** Conte para a gente numa issue.
-- **Programa?** Veja [Como contribuir](#como-contribuir).
-- **Quer ajudar com os custos?** O site é gratuito e sem anúncios; a página [Apoie](https://panoptico.social.br/apoie) mostra quanto custa mantê-lo no ar e aceita doações por Pix. Doações não mudam nada no que o site mostra, e não aceitamos doações de partidos, mandatos ou campanhas.
+<details>
+<summary><b>🏛 Cobertura de assembleias estaduais</b> (clique para abrir)</summary>
+
+<br>
+
+| Casa | Deputados | Projetos | Presença | Votos | Gastos |
+|---|:-:|:-:|:-:|:-:|:-:|
+| SAPL: AC, AL, AM, PB, PI, RO, TO | ✅ | ✅ | ✅ | ✅ ¹ | — |
+| SP (ALESP) | ✅ | ✅ | — | comissões | ✅ |
+| RS (ALRS) | ✅ | ✅ | ✅ | ✅ | ✅ |
+| MG (ALMG) | ✅ | ✅ | — | — | ✅ |
+| SC (ALESC) | ✅ | ✅ | ✅ | — | ✅ |
+| PR (ALEP) | ✅ | — ² | ✅ | ✅ | — ² |
+| DF (CLDF) | ✅ | ✅ | — | — | ✅ |
+| BA, ES | ✅ | ✅ | ✅ | — | — |
+| PE, CE, MA, RN, AP | ✅ | ✅ | — | — | — |
+| MS, GO | ✅ | — ³ | — | — | ✅ |
+| SE | ✅ | — ³ | ✅ | — | — |
+| RJ, PA, MT | ✅ | — | — | — | — |
+| RR | bloqueia acesso do GitHub Actions | | | | |
+
+¹ onde a Casa registra votação nominal. ² API com certificado autoassinado e 403, verba atrás de reCAPTCHA; pedido em [docs/pedidos/](docs/pedidos/). ³ sistema bloqueia automação; não contornamos.
+
+Emendas estaduais: SC (SC Transferências), por enquanto só na API. O que falta em cada Casa está em [data/pendencias_cobertura.csv](data/pendencias_cobertura.csv).
+
+</details>
+
+<details>
+<summary><b>🏘 Cobertura de câmaras municipais</b></summary>
+
+<br>
+
+- **Câmaras com SAPL** (Interlegis): vereadores no cargo, suplentes, projetos, requerimentos, presença e votos nominais.
+- **Câmaras que saíram do SAPL** (39 de 66 já com conector): portais Cittatec, CR2, Nucleogov/7Focus, Portal Modelo, AOS Software, modelo PHP e sites próprios. Mostram os vereadores no cargo; a Cittatec também conta proposições.
+- Qual sistema cada câmara usa hoje: [data/sistemas_camaras.csv](data/sistemas_camaras.csv). Por que as outras 27 ainda não têm: [data/pendencias_cobertura.csv](data/pendencias_cobertura.csv).
+- Pagamentos a fornecedores: SP (TCE-SP) no site; RS (TCE-RS) só no acervo local, porque o tribunal não responde fora do Brasil; MG aguarda pedido (reCAPTCHA).
+
+</details>
+
+## 📏 Princípios
+
+| | |
+|---|---|
+| 🔗 **Fonte e data em tudo** | Cada seção leva ao dado original e diz quando foi atualizada. |
+| 🧊 **Sem juízo de valor** | Nada de nota, ranking, selo ou adjetivo. O número e a média da Casa ao lado. |
+| 🗣 **Linguagem do dia a dia** | "Gastos do gabinete", não "CEAP". O termo oficial vem em letra menor. |
+| 🔒 **Privacidade** | Sem cadastro, login ou cookie de rastreamento. O CEP não é gravado. Nada de CPF, título ou data de nascimento. |
+| 🚧 **Bloqueio não se contorna** | Captcha, 403 ou `robots.txt` que veda vira pedido de acesso ou LAI ([docs/pedidos/](docs/pedidos/)), e o site diz o que falta. |
+| 📦 **Bruto separado do tratado** | O arquivo da fonte é guardado como veio; tudo pode ser reprocessado a partir dele. |
+
+## 🤝 Como ajudar
+
+Não precisa programar:
+
+- 🐛 **Número diferente da fonte?** Abra uma [issue](https://github.com/Gipsy7/panoptico/issues) com o link do perfil e da fonte.
+- 💬 **Algo confuso no site?** Sugestões de texto são muito bem-vindas, principalmente de quem não acompanha política.
+- 📡 **Conhece uma fonte boa?** Conte numa issue.
+- 🗂 **Site oficial da sua cidade errado?** Corrija [data/canais_curados.csv](data/canais_curados.csv) por pull request.
+- 💻 **Programa?** Veja [Como contribuir](#-como-contribuir).
+- 💛 **Quer ajudar com os custos?** O site é gratuito e sem anúncios. A página [Apoie](https://panoptico.social.br/apoie) mostra quanto custa mantê-lo no ar. Doação não muda nada no que o site mostra, e não aceitamos dinheiro de partidos, mandatos ou campanhas.
 
 <p align="center">
-  <img src="frontend/public/pix-qr.svg" alt="QR code Pix para apoiar o Panóptico" width="180"><br>
+  <img src="frontend/public/pix-qr.svg" alt="QR code Pix para apoiar o Panóptico" width="160"><br>
   <sub>Pix (chave aleatória): <code>4c02a34c-095e-4990-9bdb-0fe161608f8c</code></sub>
 </p>
 
 ---
 
-## Como funciona
+## ⚙ Como funciona
 
 ```mermaid
 flowchart LR
     subgraph fontes [Fontes oficiais]
-        CD[Câmara dos Deputados]
-        SF[Senado Federal]
+        CD[Câmara e Senado]
         CGU[Portal da Transparência]
-        IBGE[IBGE]
+        TSE[TSE]
+        LOC[Assembleias, câmaras,<br/>TCEs, SICONFI, IBGE...]
     end
-    CD & SF & CGU & IBGE -->|todo dia, 6h| ING[Ingestão<br/>Python · GitHub Actions]
-    ING -->|bruto| RAW[(Arquivos brutos)]
+    fontes -->|GitHub Actions<br/>diário/semanal/mensal| ING[Ingestão<br/>Python]
+    ING -->|como veio| RAW[(Brutos)]
     ING -->|tratado| DB[(PostgreSQL)]
     DB --> API[API<br/>FastAPI]
     API --> WEB[Site<br/>Next.js]
-    VIACEP[ViaCEP] -.->|CEP → cidade, na hora| API
+    VIACEP[ViaCEP] -.->|CEP → cidade, sem gravar| API
     WEB --> U((Você))
 ```
 
-1. **Ingestão** ([backend/ingestion/](backend/ingestion/)): todo dia, um workflow do GitHub Actions baixa os dados de cada fonte. Cada execução:
-   - grava o arquivo bruto como veio (`data/raw/<fonte>/`);
-   - normaliza os dados e carrega no banco numa transação;
-   - registra a execução em `fonte_ingestao` (de onde veio, quando, quantos registros, se deu certo).
+1. **Ingestão** ([backend/ingestion/](backend/ingestion/)): grava o bruto em `data/raw/<fonte>/`, carrega no banco numa transação e registra em `fonte_ingestao`. Uma fonte com falha não derruba as outras.
+2. **Banco**: PostgreSQL ([migrações](backend/alembic/)).
+3. **API** ([backend/app/](backend/app/)): só leitura; cada resposta traz a fonte e a data.
+4. **Site** ([frontend/](frontend/)): renderizado no servidor, pensado primeiro para celular e conexão fraca.
 
-   Uma falha numa fonte não impede as outras. Qualquer carga pode ser refeita a partir do bruto com `--de-raw`, sem rede.
-2. **Banco** (PostgreSQL): parlamentares, despesas, votações e votos (Plenário e comissões), proposições, autorias e temas, emendas e pagamentos, municípios, e as candidaturas, os bens e as contas de campanha do TSE. As migrações ficam em [backend/alembic/](backend/alembic/).
-3. **API** ([backend/app/](backend/app/)): FastAPI, só leitura, com respostas que já trazem a fonte e a data de cada dado. Documentação interativa em `/docs`.
-4. **Site** ([frontend/](frontend/)): Next.js com renderização no servidor e carregamento em partes, para abrir rápido em conexão fraca. Pensado primeiro para o celular.
+<details>
+<summary><b>🧮 Como os números são calculados</b></summary>
 
-### Fontes de dados
+<br>
 
-| Dado | Fonte | Como é obtido |
-|---|---|---|
-| Deputados federais em exercício | [Dados Abertos da Câmara](https://dadosabertos.camara.leg.br/) | API REST |
-| Senadores em exercício | [Dados Abertos do Senado](https://legis.senado.leg.br/dadosabertos/) | API REST |
-| Gastos do gabinete (CEAP / CEAPS) | Câmara e Senado | Arquivo anual (CSV) e API |
-| Votações nominais (Plenário e comissões) e orientação do Governo | Câmara e Senado | Arquivos anuais e API |
-| Projetos de lei e autores | Câmara e Senado | Arquivos anuais e API |
-| Emendas parlamentares e quem recebeu | [Portal da Transparência (CGU)](https://portaldatransparencia.gov.br/emendas) | Arquivo em lote |
-| O que aconteceu com o dinheiro das emendas (situação de convênios e transferências especiais, prestação de contas) | [Portal da Transparência (CGU)](https://portaldatransparencia.gov.br/convenios/consulta) e [TransfereGov](https://www.gov.br/transferegov/pt-br) | Arquivo em lote e API |
-| Emendas impositivas dos deputados estaduais de SC (autor, quem recebeu, previsto, empenhado e pago) | [SC Transferências (CGE/SC)](https://consultas.sctransferencias.cge.sc.gov.br/pesquisa-detalhada/emendas) | CSV da consulta e razão financeiro anual; só emendas executadas por convênio ou termo de fomento |
-| Indicações de emendas de relator-geral (RP9, 2022) com o parlamentar que pediu | [Comissão Mista de Orçamento](https://www2.camara.leg.br/atividade-legislativa/comissoes/comissoes-mistas/cmo/Indicacoes-para-execucao-orcamentaria-em-RP9_LOA-2022) | Planilha (xlsx); 2020 e 2021 não têm autor estruturado |
-| Candidaturas (inclusive presidente, governadores e prefeitos), bens declarados e contas de campanha (2018, 2022 e 2024) | [Dados abertos do TSE](https://dadosabertos.tse.jus.br/) | Arquivos em lote, carga manual por eleição |
-| Contas anuais dos partidos (receitas, fundo partidário e fundo eleitoral, despesas) e divisão dos fundos por gênero e cor ou raça | [Dados abertos do TSE](https://dadosabertos.tse.jus.br/) | Arquivos em lote, só no acervo local por enquanto (ainda sem página no site) |
-| Sites oficiais dos municípios | Varredura dos domínios `.gov.br` e `.leg.br` de cada cidade | Catálogo versionado, revisado por PR |
-| Contas anuais dos partidos e FEFC/FP | [TSE dados abertos](https://dadosabertos.tse.jus.br/dataset/prestacao-de-contas-partidarias-2024) | zip anual (~60 MB), mensal (workflow de ingestão mensal) |
-| Contas anuais dos municípios | [SICONFI (Tesouro Nacional)](https://siconfi.tesouro.gov.br/) | API, uma consulta por município, mensal |
-| Pagamentos das prefeituras e câmaras por fornecedor (SP) | [TCE-SP](https://transparencia.tce.sp.gov.br/conjunto-de-dados) | Arquivo anual em lote, mensal; só do Brasil (acervo local) |
-| Pagamentos das prefeituras e câmaras por fornecedor (RS) | [TCE-RS](https://dados.tce.rs.gov.br/) | Arquivo anual em lote, mensal |
-| Vereadores e deputados estaduais no cargo, projetos, votações nominais e presença | SAPL (Interlegis) de cada câmara e de sete assembleias | API, semanal, endereços do catálogo de canais |
-| Vereadores de câmaras que saíram do SAPL (6 no portal da Cittatec) | Portal legislativo de cada câmara (`cm<cidade>.cittatec.com.br`) | API (JSON), semanal |
-| Vereadores de câmaras que saíram do SAPL (5 no modelo de site PHP, AP e CE) | Página `/vereadores` de cada câmara | HTML, semanal |
-| Vereadores de câmaras que saíram do SAPL (4 no Portal da CR2) | [API de dados abertos da CR2](https://www.portalcr2.com.br/api/1.1/meta) | API (JSON), semanal |
-| Vereadores de câmaras que saíram do SAPL (5 no portal da Nucleogov / 7Focus, 4 no Portal Modelo do Interlegis, 1 no site da AOS Software, 3 em sites próprios: Palmas, Teófilo Otoni e Frutal) | [portal da Nucleogov](https://pirenopolis.go.leg.br/), [Portal Modelo de Imbuia](https://www.imbuia.sc.leg.br/processo-legislativo/parlamentares), [site de Queimada Nova](https://queimadanova.pi.leg.br/vereadores) | HTML público, semanal |
-| Deputados estaduais de SP: projetos, gastos do gabinete e votos nas comissões | [Dados abertos da ALESP](https://www.al.sp.gov.br/dados-abertos/) | Arquivos XML, semanal |
-| Deputados estaduais de PE: projetos | [Dados abertos da ALEPE](https://dadosabertos.alepe.pe.gov.br/) | API (XML e JSON), semanal |
-| Deputados distritais (DF): projetos | [API do processo legislativo da CLDF](https://dados.cl.df.gov.br/dataset/proposicoes) | API (JSON), semanal |
-| Deputados estaduais de SC: proposições, presença e gastos | [e-Legis](https://portalelegis.alesc.sc.gov.br/) e [Transparência da ALESC](https://transparencia.alesc.sc.gov.br/gabinetes-parlamentares/dados-abertos) | Páginas públicas e CSV anual, semanal |
-| Deputados estaduais do PR: presença e votos | [Portal da Transparência da ALEP](https://transparencia.assembleia.pr.leg.br/servicos/dados-abertos) | Rotas JSON e planilhas, semanal |
-| Deputados estaduais do RJ | [Site da ALERJ](https://www.alerj.rj.gov.br/Deputados/QuemSao) | Páginas públicas, semanal |
-| Deputados estaduais do RS: projetos, votos em plenário, presença e cota | [Portal da transparência da ALRS](https://transparencia.al.rs.gov.br/parlamentares) | Endereços abertos dos portais, semanal |
-| Deputados estaduais da BA: projetos e presença | [Dados abertos da ALBA](https://albalegis.nopapercloud.com.br/dados-abertos.aspx) | API (JSON), semanal |
-| Deputados estaduais do ES: projetos e presença | [Dados abertos da ALES](https://www3.al.es.gov.br/api/publico/parlamentar/) | API (JSON), semanal |
-| Deputados estaduais do CE: projetos | [Site da ALECE](https://www.al.ce.gov.br/deputados) | Páginas públicas, semanal |
-| Deputados estaduais do PA | [Portal da ALEPA](https://www.alepa.pa.gov.br/Home/Page/Deputados) | Página pública, semanal |
-| Deputados estaduais de MT | [Site da ALMT](https://www.al.mt.gov.br/parlamento/deputados) | Páginas públicas, semanal |
-| Deputados estaduais do MA, MS, RN, SE, AP e GO | Sites e portais da ALEMA, ALEMS, ALRN, ALESE, ALAP e ALEGO | Páginas públicas e APIs JSON de cada Casa, semanal |
-| Deputados estaduais de MG: projetos e gastos do gabinete | [Dados abertos da ALMG](https://dadosabertos.almg.gov.br/) | API, semanal |
-| Municípios | [IBGE](https://servicodados.ibge.gov.br/api/docs/localidades) | API REST |
-| CEP → cidade e estado | [ViaCEP](https://viacep.com.br/) | Consulta na hora, sem gravar |
-| Salário (subsídio) | [Decreto Legislativo nº 172/2022](https://www2.camara.leg.br/legin/fed/decleg/2022/decretolegislativo-172-21-dezembro-2022-793529-publicacaooriginal-166604-pl.html) | Transcrito no código |
+- **Média da Casa**: entre os parlamentares em exercício; quem não gastou ou não apresentou nada entra com zero.
+- **Presença**: conta a partir do início do ano ou do mandato, o que vier depois. Quem preside a sessão conta como presente. Votação secreta conta presença sem revelar o voto.
+- **Projetos**: PL, PLP, PEC e PDL desde fev/2023. O número principal conta só autoria principal (PECs têm dezenas de coautores).
+- **Emendas na cidade**: pagas a favorecidos da própria cidade (prefeitura, fundos, entidades). Bancos intermediários e empresas ficam de fora.
+- **Votos**: percentuais só do Plenário; comissões aparecem como lista.
+- **TSE**: bens pelo valor declarado, sem correção. Ligação por CPF e título, nunca exibidos. Doador pessoa física não tem nome exibido.
+- **Valor que parece digitado errado** (ex.: contrato maior que a despesa anual do município) fica fora das somas, com aviso, sem correção.
 
-Endereços, formatos e armadilhas de cada fonte estão em [docs/FONTES_DE_DADOS.md](docs/FONTES_DE_DADOS.md). Um exemplo de armadilha: o JSON de gastos da Câmara usa um id de deputado diferente do resto da API, e só o CSV traz o id certo.
+O porquê de cada escolha: [docs/DECISOES.md](docs/DECISOES.md).
 
-### Como os números são calculados
+</details>
 
-O resumo está abaixo; o detalhe e o porquê de cada escolha estão em [docs/DECISOES.md](docs/DECISOES.md).
+<details>
+<summary><b>📡 Fontes de dados</b></summary>
 
-- **Média da Casa**: média entre os parlamentares em exercício. Quem não gastou ou não apresentou nada entra com zero.
-- **Presença**: o período começa no início do ano ou do mandato atual, o que vier depois, para não comparar um suplente com votações de antes da posse. Quem preside a sessão conta como presente.
-- **Projetos**: PL, PLP, PEC e PDL desde fevereiro de 2023. O número principal conta só os projetos em que o parlamentar é o autor principal, porque PECs costumam ter dezenas de coautores.
-- **Emendas na cidade**: valores pagos a favorecidos da própria cidade (prefeitura, fundos municipais e entidades sem fins lucrativos). Bancos intermediários e empresas ficam de fora, porque ficam sediados numa cidade e executam em outra. A área é a função orçamentária da emenda.
-- **Votos**: presença, alinhamento com o Governo e com a maioria do partido contam só o Plenário. As comissões aparecem como lista, sem percentual, porque cada parlamentar vota só nas comissões de que faz parte.
-- **TSE**: bens pelo valor declarado, sem correção. Os parlamentares federais são ligados às candidaturas pelo CPF e pelo título de eleitor (em 2024 o TSE mascarou o CPF), que nunca são exibidos. Vereadores e deputados estaduais são os eleitos segundo o TSE; suplentes que assumiram depois não aparecem. Nomes de doadores pessoas físicas não são mostrados.
+<br>
 
-### Stack
+| Área | Fontes |
+|---|---|
+| Congresso | [Dados Abertos da Câmara](https://dadosabertos.camara.leg.br/), [do Senado](https://legis.senado.leg.br/dadosabertos/), [CMO (RP9 2022)](https://www2.camara.leg.br/atividade-legislativa/comissoes/comissoes-mistas/cmo/Indicacoes-para-execucao-orcamentaria-em-RP9_LOA-2022) |
+| Dinheiro federal | [Portal da Transparência](https://portaldatransparencia.gov.br/), [TransfereGov](https://www.gov.br/transferegov/pt-br), Tesouro Nacional, Receita Federal, [PNCP](https://pncp.gov.br/) |
+| Eleições e partidos | [Dados abertos do TSE](https://dadosabertos.tse.jus.br/) (2018, 2022, 2024 e 2026) |
+| Controle e Justiça | CGU (CEIS, CNEP, CEAF), TCU, DataJud (CNJ), Conselhos de Ética, CPIs |
+| Estados e cidades | Assembleias, câmaras (SAPL e outros), [SICONFI](https://siconfi.tesouro.gov.br/), [TCE-SP](https://transparencia.tce.sp.gov.br/conjunto-de-dados), [TCE-RS](https://dados.tce.rs.gov.br/), [SC Transferências](https://consultas.sctransferencias.cge.sc.gov.br/pesquisa-detalhada/emendas) |
+| Executivo | e-Agendas (CGU): agenda de ministros e do vice |
+| Apoio | [IBGE](https://servicodados.ibge.gov.br/api/docs/localidades), [ViaCEP](https://viacep.com.br/), base aberta do CNPJ, [Decreto Legislativo 172/2022](https://www2.camara.leg.br/legin/fed/decleg/2022/decretolegislativo-172-21-dezembro-2022-793529-publicacaooriginal-166604-pl.html) (salário) |
+
+Endereço, formato, frequência e armadilhas de cada uma: [docs/FONTES_DE_DADOS.md](docs/FONTES_DE_DADOS.md).
+
+</details>
+
+<details>
+<summary><b>🔌 Rotas da API</b></summary>
+
+<br>
+
+Documentação interativa: [api.panoptico.social.br/docs](https://api.panoptico.social.br/docs).
+
+| Rota | Retorna |
+|---|---|
+| `GET /representantes?cep=` · `?uf=` · `?municipio=` | Quem representa a localidade |
+| `GET /parlamentares/{id}` | Perfil, contato e salário |
+| `GET /parlamentares/{id}/gastos?ano=` | Gastos do gabinete e média da Casa |
+| `GET /parlamentares/{id}/presenca?ano=` | Participação em votações nominais |
+| `GET /parlamentares/{id}/projetos` | Projetos de lei desde 2023 |
+| `GET /parlamentares/{id}/votos-por-tema?ano=` | Votações por tema, com a média da Casa |
+| `GET /parlamentares/{id}/emendas-destino` | Situação dos convênios e transferências das emendas |
+| `GET /votacoes/{casa}/{id}` | Placar, orientações e voto de cada parlamentar |
+| `GET /municipios?uf=` · `GET /municipios/{ibge}/emendas` | Municípios e emendas recebidas |
+| `GET /pessoas/de?tipo=&id=` · `GET /pessoas/{id}` | A pessoa por trás de um perfil |
+| `GET /pessoas/{id}/eventos` · `/eventos.rss` | Linha do tempo (JSON ou feed Atom) |
+| `GET /pessoas/{id}/sancoes` · `/servico-federal` · `/carreira` | Sanções, governo federal e eleições disputadas |
+| `GET /segundo-turno?cep=` | Candidatos do 2º turno da localidade |
+| `GET /partidos?ano=` · `GET /partidos/{sigla}` | Finanças dos partidos |
+| `GET /estados/{uf}/contas` · `GET /executivo/{id}/painel` · `/agenda` | Contas estaduais e Executivo |
+| `GET /casos` · `GET /casos/{slug}` | Casos montados com documentos oficiais |
+| `GET /fontes` · `GET /saude` | Última atualização de cada fonte e saúde da API |
+
+</details>
+
+<details>
+<summary><b>🧱 Stack e estrutura de pastas</b></summary>
+
+<br>
 
 | Camada | Tecnologia |
 |---|---|
@@ -197,196 +229,173 @@ O resumo está abaixo; o detalhe e o porquê de cada escolha estão em [docs/DEC
 | Banco | PostgreSQL (Neon em produção) |
 | API | FastAPI, Pydantic |
 | Site | Next.js 16 (App Router, Cache Components), React 19, Tailwind CSS 4, shadcn/ui |
-| Testes e qualidade | pytest, respx, Vitest, ruff, ESLint, TypeScript |
-| Infra | Vercel (site e API), Neon (banco), GitHub Actions (ingestão e CI) |
-
-### Estrutura
+| Qualidade | pytest, respx, Vitest, ruff, ESLint, TypeScript |
+| Infra | Vercel, Neon, GitHub Actions |
 
 ```
 panoptico/
 ├── backend/
-│   ├── app/              # API: rotas (api/), modelos (models/), schemas e regras (services/)
-│   ├── ingestion/        # baixar e processar cada fonte: camara/, senado/, transparencia/, ibge/
-│   ├── alembic/          # migrações do banco
-│   ├── data/raw/         # arquivos brutos (fora do git)
+│   ├── app/          # API: rotas, schemas e regras de cálculo
+│   ├── ingestion/    # uma pasta por órgão; fontes.toml registra o acervo
+│   ├── exportar/     # dumps abertos (Parquet e CSV.gz)
+│   ├── analises/     # cruzamentos em SQL
+│   ├── alembic/      # migrações
 │   └── tests/
-├── frontend/
-│   ├── app/              # páginas: início, representantes, parlamentar, fontes, privacidade
-│   ├── components/       # seções do perfil, cards, formulário de CEP
-│   └── lib/              # cliente da API e formatação
-├── deploy/               # deploy alternativo numa VPS (docker compose + Caddy)
-├── docs/                 # plano, fontes, decisões e guias de deploy
-└── .github/workflows/    # CI e ingestão diária
+├── frontend/         # Next.js: app/, components/, lib/
+├── data/             # CSVs versionados: canais oficiais, curadoria, atos revisados
+├── docs/             # decisões, fontes, design, deploy e pedidos de acesso
+├── deploy/           # alternativa em VPS (docker compose + Caddy)
+└── .github/workflows # CI, publicação e ingestões
 ```
+
+</details>
 
 ---
 
-## Rodando localmente
+## 💻 Rodar localmente
 
-**Requisitos:** Python 3.12 com [uv](https://docs.astral.sh/uv/), Node 20 ou superior e PostgreSQL 16 ou superior (nativo, ou `docker compose up -d` na raiz).
+**Precisa de:** Python 3.12 + [uv](https://docs.astral.sh/uv/), Node 20+, PostgreSQL 16+ (nativo ou `docker compose up -d`).
 
 ```bash
 # 1. Banco
 psql -U postgres -f scripts/criar_banco.sql
 
-# 2. API
+# 2. API → http://localhost:8000/docs
 cd backend
-cp ../.env.example .env              # ajuste se necessário
+cp ../.env.example .env
 uv sync
 uv run alembic upgrade head
-uv run python -m ingestion.run_all   # baixa todas as fontes (alguns minutos)
-uv run python -m ingestion.camara.proposicoes --ano 2023 2024 2025 2026   # projetos desde 2023
-uv run uvicorn app.main:app --reload # http://localhost:8000/docs
+uv run python -m ingestion.run_all     # baixa as fontes (alguns minutos)
+uv run uvicorn app.main:app
 
-# 3. Site
+# 3. Site → http://localhost:3000
 cd ../frontend
 echo NEXT_PUBLIC_API_URL=http://localhost:8000 > .env.local
-npm install
-npm run dev                          # http://localhost:3000
+npm install && npm run dev
 ```
 
-### Ingestão
+<details>
+<summary><b>🧪 Testes</b></summary>
 
-| Comando | O que faz |
-|---|---|
-| `uv run python -m ingestion.run_all` | Atualiza tudo (ano anterior e atual) e apaga brutos antigos |
-| `uv run python -m ingestion.camara.despesas --ano 2025` | Uma fonte e um ano específicos |
-| `uv run python -m ingestion.camara.deputados --de-raw data/raw/camara_deputados/<arquivo>.json` | Reprocessa um bruto sem rede |
-
-### Acervo local
-
-As fontes novas (Justiça, órgãos de controle, partidos, contratos) são juntadas primeiro num **acervo local**: um banco à parte, sem os limites da produção, com os brutos preservados. O registro das fontes fica em [backend/ingestion/fontes.toml](backend/ingestion/fontes.toml).
-
-A regra é a **coleta mínima**: uma fonte só é coletada quando declara para que serve no site (as outras ficam só catalogadas), e das bases grandes guarda-se só o que se liga às pessoas públicas, em somas quando o site mostra somas. Ver [docs/DECISOES.md](docs/DECISOES.md), "coleta mínima".
-
-```bash
-psql -U postgres -f scripts/criar_acervo.sql         # uma vez
-cd backend
-export DATABASE_URL=postgresql+psycopg://panoptico:panoptico@localhost:5432/panoptico_acervo
-export PRESERVAR_RAW=true RAW_DIR=/e/panoptico/raw     # RAW_DIR é opcional (padrão: data/raw)
-uv run alembic upgrade head
-uv run python -m ingestion.acervo rodar --vencidas     # o que passou da frequência
-uv run python -m ingestion.acervo rodar --fonte tse_bens sapl_assembleias
-uv run python -m ingestion.acervo rodar --vencidas --forcar  # ignora o cache de downloads (padrão: pula o que não mudou)
-uv run python -m ingestion.acervo relatorio            # volume por fonte, últimas cargas, total na fonte e alertas
-uv run python -m analises                              # lista os cruzamentos (backend/analises/*.sql)
-uv run python -m ingestion.revisar                     # revisão humana dos vínculos por nome aproximado
-uv run python -m ingestion.revisar_web                 # as mesmas revisões numa página local (http://127.0.0.1:8765), com botões e atalhos
-uv run python -m ingestion.revisar --tipo diario        # revisão humana dos atos de nomeação/exoneração dos diários (data/atos_revisados.csv)
-uv run python -m ingestion.revisar --tipo cpi           # revisão humana dos pedidos de indiciamento das CPIs (data/indiciamentos_revisados.csv)
-uv run python -m ingestion.congresso.cpis                   # CPIs e CPMIs: comissões, membros e eventos (acervo local)
-uv run python -m ingestion.congresso.cpi_indiciamentos # sugestões de indiciamento dos relatórios finais (manual, baixa PDFs grandes; não publica nada)
-# Atualização diária: scripts/acervo_diario.ps1 (como registrar no Agendador do Windows está no topo do arquivo)
-uv run python -m analises fornecedores_sancionados --saida resultado.csv
-```
-
-### Dados abertos
-
-Dumps do acervo para pesquisadores e jornalistas: um arquivo **Parquet** (zstd) e um **CSV.gz** equivalente por conjunto (deputados e senadores, vereadores e deputados estaduais, eleitos, bens e campanha, linha do tempo, processos, CPIs, cota parlamentar, contas dos partidos, PNCP, pagamentos das prefeituras nos TCEs), mais `LEIAME.md` e `dicionario.json` (colunas, fonte oficial, data da última carga de cada fonte, tamanho e SHA-256). É rodado à mão, contra o banco do acervo; não faz parte da API de produção.
-
-```bash
-cd backend
-uv sync --group acervo                       # pyarrow, só para a exportação
-export DATABASE_URL=postgresql+psycopg://panoptico:panoptico@localhost:5432/panoptico_acervo
-uv run python -m exportar --listar           # os conjuntos
-uv run python -m exportar --destino /e/panoptico/dados-abertos
-uv run python -m exportar --destino saida --conjunto eventos pessoas_publicas   # só alguns
-```
-
-A leitura é em lotes de 50 mil linhas, numa transação só de leitura (retrato consistente mesmo com uma carga rodando). Nunca saem CPF, título de eleitor, data de nascimento, pessoa sem vínculo publicável (a regra `publicavel()` do site), sugestões não revisadas (atos de diários e do DOU, indiciamentos de CPI) nem casos em rascunho; os testes (`tests/test_exportar.py`) procuram esses dados nos arquivos gerados. Ver [docs/DECISOES.md](docs/DECISOES.md), "exportação aberta".
-
-Licença dos dados abertos: [Creative Commons Atribuição 4.0 (CC BY 4.0)](https://creativecommons.org/licenses/by/4.0/deed.pt-br), com a forma de citação em [LICENCA-DADOS.md](LICENCA-DADOS.md). O código segue a AGPL-3.0.
-
-### API
-
-| Rota | Retorna |
-|---|---|
-| `GET /representantes?cep=` · `?uf=` · `?municipio=` | Localização, deputados e senadores |
-| `GET /parlamentares/{id}` | Perfil, contato e salário |
-| `GET /parlamentares/{id}/gastos?ano=` | Gastos do gabinete e média da Casa |
-| `GET /parlamentares/{id}/presenca?ano=` | Participação em votações nominais |
-| `GET /parlamentares/{id}/projetos` | Projetos de lei desde 2023 |
-| `GET /parlamentares/{id}/emendas-destino` | Situação dos convênios e transferências especiais das emendas individuais |
-| `GET /municipios?uf=` | Municípios de um estado |
-| `GET /municipios/{ibge}/emendas` | Emendas recebidas pela cidade e quem enviou |
-| `GET /pessoas/de?tipo=&id=` | A pessoa por trás de um perfil do site (`tipo`: `parlamentar`, `candidatura`, `vereador` ou `deputado_estadual`); 404 se o perfil não estiver ligado por vínculo forte ou revisado |
-| `GET /pessoas/{id}` | A mesma pessoa em todas as fontes e os perfis dela no site (acervo) |
-| `GET /pessoas/{id}/eventos?tipo=&de=&ate=` | Linha do tempo da pessoa, com a fonte de cada fato e a data em que foi conferido (`conferido_em`) (acervo) |
-| `GET /pessoas/{id}/sancoes` | Sanções (CGU) e decisões do TCU ligadas à pessoa, com a regra da ligação |
-| `GET /pessoas/{id}/servico-federal` | Cargos, viagens por ano e cartão corporativo por ano e órgão, com a média da Casa |
-| `GET /pessoas/{id}/carreira` | Candidaturas em todas as eleições carregadas, com bens declarados em cada uma e o recorte de anos |
-| `GET /pessoas/{id}/eventos.rss` | Feed Atom da linha do tempo (até 50 fatos) |
-| `GET /segundo-turno?cep=` · `GET /segundo-turno/agenda` | Candidatos do 2º turno da localidade, com os mesmos campos para todos |
-| `GET /parlamentares/{id}/votos-por-tema?ano=` | Votações por tema, com a média da Casa |
-| `GET /votacoes/{casa}/{id}` | Detalhe de uma votação nominal: placar, orientações e votos |
-| `GET /casos` · `GET /casos/{slug}` | Casos montados com documentos oficiais e o papel de cada pessoa (acervo) |
-| `GET /partidos?ano=` · `GET /partidos/{sigla}?ano=` | Finanças dos partidos na prestação de contas ao TSE: cotas, receita, gasto, repasses, receitas por fonte, despesas por categoria e FEFC por gênero e raça |
-| `GET /fontes` | Fontes e data da última atualização |
-| `GET /saude` | Situação da API e do banco |
-
-### Testes
+<br>
 
 ```bash
 cd backend && uv run pytest && uv run ruff check && uv run ruff format --check
 cd frontend && npm test && npm run lint && npm run build
 ```
 
-Os testes do backend usam um banco `panoptico_test` (criado pelo `scripts/criar_banco.sql`) e simulam as APIs externas com `respx`, a partir de amostras reais em `backend/tests/fixtures/`. No site, o Vitest (`npm test`) testa as funções de `frontend/lib/` que formatam reais, datas e CEP e montam as faixas do mapa. O CI roda tudo a cada push, e um teste que falha impede a publicação.
+O backend usa o banco `panoptico_test` e simula as APIs externas com `respx`, a partir de amostras reais em `backend/tests/fixtures/`. O CI roda tudo a cada push; teste falhando impede a publicação.
 
-## Deploy
+</details>
 
-- **Hoje:** Vercel no plano gratuito (site e API), Neon no plano Launch, pago por uso (banco), e GitHub Actions (atualização diária). Ver [docs/DEPLOY_GRATUITO.md](docs/DEPLOY_GRATUITO.md).
-- **Justiça e identidade na produção.** O workflow `ingestao-justica.yml` roda toda terça e leva à produção a identidade de pessoa pública (`pessoas`), cassações do TSE, sanções da CGU, cargos federais, viagens a serviço e cartão de pagamento (Portal da Transparência), condenações do TCU, DataJud, Conselhos de Ética, CPIs, cargos partidários e a curadoria. É incremental: semana sem mudança não recarrega nada (ver "Fontes de Justiça e identidade na produção" em [docs/DEPLOY_GRATUITO.md](docs/DEPLOY_GRATUITO.md)).
-- **PNCP na produção.** O workflow `ingestao-pncp.yml` roda todo dia e leva só o recorte enxuto (contratos inteiros de empresas de sócios e sancionadas, soma anual por município dos 30 maiores fornecedores, ano atual e anterior). O perfil mostra "Contratos públicos de empresas de que é sócio(a)" e a página da cidade, os maiores contratos no PNCP. Valor que parece digitado errado (acima da despesa anual do município ou de R$ 50 bi) fica fora das somas e aparece com aviso, sem correção. A carga histórica vai como pacote gerado do acervo (`python -m ingestion.pncp.pacote gerar`, anexo de release, workflow `pncp-pacote.yml`; em blocos pela API fica como plano B; ver "PNCP na produção" em [docs/DEPLOY_GRATUITO.md](docs/DEPLOY_GRATUITO.md)); o `cnpj_socios` agora roda toda terça no workflow de Justiça, com limite de consultas.
-- **Executivo com conteúdo (API).** `python -m ingestion.executivo.eagendas` lê o arquivo aberto do e-Agendas (CGU, sem token) e guarda a agenda de ministros e do vice-presidente (reuniões, eventos, audiências, viagens e presentes), sem CPF e com participantes privados só pela entidade que representam. `python -m ingestion.siconfi.contas_estados` traz as contas dos 27 estados. Rotas novas: `GET /estados/{uf}/contas`, `GET /executivo/{candidatura_id}/painel` e `GET /executivo/{candidatura_id}/agenda`. Ver "Executivo com conteúdo" em [docs/DECISOES.md](docs/DECISOES.md).
-- **Cadastro de empresas.** `python -m ingestion.receita.empresas` lê a base aberta do CNPJ da Receita em fluxo e guarda razão social, natureza jurídica e município só dos CNPJs que aparecem nos nossos dados (tabela `empresa`); as rotas completam com ela o nome de fornecedor ou beneficiário que a fonte deixa vazio (MEI com CPF no nome fica "nome omitido"). Validador de CNPJ já aceita o formato alfanumérico. Ver "cadastro de empresas por CNPJ" em [docs/DECISOES.md](docs/DECISOES.md).
-- **Travas de custo.** O plano gratuito do Neon foi trocado pelo pago depois que a cota mensal de transferência estourou. Para o custo não disparar com muito acesso ou um ataque:
-  - as respostas da API ficam em cache na CDN (`s-maxage` de 1 hora), então a mesma consulta chega ao banco no máximo uma vez por hora;
-  - a base da lista de parlamentares fica 10 minutos em memória;
-  - o firewall da Vercel limita a API a 120 requisições por minuto por IP;
-  - o banco está travado em 0,25 CU e desliga quando fica ocioso, o que põe um teto de cerca de US$ 19 por mês no processamento;
-  - há um spending limit com alerta por e-mail.
+<details>
+<summary><b>📥 Ingestão avulsa</b></summary>
 
-  O custo esperado é de R$ 5 a 20 por mês, detalhado na página [Apoie](https://panoptico.social.br/apoie).
-- **Alternativa:** VPS única com docker compose e HTTPS automático. Ver [docs/DEPLOY.md](docs/DEPLOY.md).
+<br>
+
+| Comando | O que faz |
+|---|---|
+| `uv run python -m ingestion.run_all` | Atualiza tudo (ano anterior e atual) |
+| `uv run python -m ingestion.camara.despesas --ano 2025` | Uma fonte, um ano |
+| `uv run python -m ingestion.camara.proposicoes --ano 2023 2024 2025 2026` | Projetos desde 2023 |
+| `uv run python -m ingestion.camara.deputados --de-raw data/raw/camara_deputados/<arquivo>.json` | Reprocessa um bruto sem rede |
+
+</details>
+
+<details>
+<summary><b>🗄 Acervo local</b> (fontes novas, sem os limites da produção)</summary>
+
+<br>
+
+Fontes novas (Justiça, controle, partidos, contratos) entram primeiro num banco local à parte, com todos os brutos. Registro em [backend/ingestion/fontes.toml](backend/ingestion/fontes.toml). Regra da **coleta mínima**: só se coleta o que tem uso declarado no site, e das bases grandes só o que se liga a pessoas públicas.
+
+```bash
+psql -U postgres -f scripts/criar_acervo.sql          # uma vez
+cd backend
+export DATABASE_URL=postgresql+psycopg://panoptico:panoptico@localhost:5432/panoptico_acervo
+export PRESERVAR_RAW=true RAW_DIR=/e/panoptico/raw     # RAW_DIR opcional
+uv run alembic upgrade head
+
+uv run python -m ingestion.acervo rodar --vencidas      # o que passou da frequência
+uv run python -m ingestion.acervo rodar --fonte tse_bens sapl_assembleias
+uv run python -m ingestion.acervo relatorio             # volume, últimas cargas e alertas
+uv run python -m analises                               # lista os cruzamentos
+```
+
+Atualização diária no Windows: [scripts/acervo_diario.ps1](scripts/acervo_diario.ps1).
+
+**Revisão humana** (nada sugerido vai ao site sem ela):
+
+| Comando | Revisa |
+|---|---|
+| `uv run python -m ingestion.revisar` | Vínculos por nome aproximado |
+| `uv run python -m ingestion.revisar_web` | O mesmo, numa página local com botões (http://127.0.0.1:8765) |
+| `uv run python -m ingestion.revisar --tipo diario` | Nomeações e exonerações dos diários municipais |
+| `uv run python -m ingestion.revisar --tipo dou` | Atos de pessoal do Diário Oficial da União |
+| `uv run python -m ingestion.revisar --tipo cpi` | Pedidos de indiciamento das CPIs |
+
+</details>
+
+<details>
+<summary><b>📤 Dados abertos</b> (Parquet e CSV.gz para pesquisa e jornalismo)</summary>
+
+<br>
+
+Um arquivo por conjunto (parlamentares, vereadores, eleitos, bens e campanha, linha do tempo, processos, CPIs, cota, partidos, PNCP, TCEs), com `LEIAME.md` e `dicionario.json` (colunas, fonte, data da carga, SHA-256).
+
+```bash
+cd backend
+uv sync --group acervo
+uv run python -m exportar --listar
+uv run python -m exportar --destino saida --conjunto eventos pessoas_publicas
+```
+
+Nunca saem CPF, título, data de nascimento, pessoa sem vínculo publicável, sugestão não revisada nem caso em rascunho; os testes procuram esses dados nos arquivos gerados. Licença: [CC BY 4.0](LICENCA-DADOS.md).
+
+</details>
+
+<details>
+<summary><b>🚀 Deploy e custo</b></summary>
+
+<br>
+
+- **Hoje:** Vercel (site e API), Neon Launch (banco, pago por uso) e GitHub Actions (ingestões). Detalhes em [docs/DEPLOY_GRATUITO.md](docs/DEPLOY_GRATUITO.md).
+- **Ingestões:** diária (federal e PNCP enxuto), semanal (câmaras e assembleias; Justiça e identidade às terças, incremental), mensal (TSE partidos, SICONFI, TCEs).
+- **Travas de custo:** cache de 1 h na CDN, firewall de 120 req/min por IP, banco travado em 0,25 CU e spending limit com alerta. Custo esperado: R$ 5 a 20 por mês ([Apoie](https://panoptico.social.br/apoie)).
+- **Alternativa:** VPS única com docker compose e HTTPS automático ([docs/DEPLOY.md](docs/DEPLOY.md)).
+
+</details>
 
 ---
 
-## Como contribuir
+## 🧑‍💻 Como contribuir
 
-1. Abra uma [issue](https://github.com/Gipsy7/panoptico/issues) descrevendo o problema ou a ideia antes de começar algo grande.
-2. Faça um fork, crie um branch a partir de `dev` e envie um pull request para o `dev`. O `main` é só o que está no ar: ele é atualizado pelo workflow "Publicar" depois que os testes, as migrações e os dados estão prontos.
-3. Antes de enviar, rode os testes e os linters (veja [Testes](#testes)). O CI precisa passar.
+1. Abra uma [issue](https://github.com/Gipsy7/panoptico/issues) antes de algo grande.
+2. Fork → branch a partir de `dev` → pull request para o `dev`. O `main` é só o que está no ar (avança pelo workflow **Publicar**).
+3. Rode os [testes](#-rodar-localmente) antes de enviar; o CI precisa passar.
 
-**Combinados do projeto:**
+**Combinados:** fonte oficial com link e data · sem juízo de valor · linguagem do dia a dia · bruto separado do tratado (`--de-raw`) · decisão de metodologia vai para [docs/DECISOES.md](docs/DECISOES.md) · testes com amostras reais · tudo em português.
 
-- **Fonte sempre.** Dado novo só entra com fonte oficial, link e data de atualização visíveis no site.
-- **Sem juízo de valor.** Nada de notas, rankings, cores de "bom" e "ruim" ou adjetivos. Na dúvida, mostre o número e a média.
-- **Linguagem do dia a dia** no site ("gastos do gabinete", não "CEAP"); o termo oficial aparece em letra menor, junto à fonte.
-- **Bruto e tratado separados.** Uma nova fonte deve gravar o bruto e poder ser reprocessada com `--de-raw`.
-- **Decisões de metodologia** (o que entra numa média, o que fica de fora) vão para [docs/DECISOES.md](docs/DECISOES.md) com o motivo.
-- **Testes** para regras de normalização e cálculo, com amostras reais da fonte.
-- O código, os comentários e os textos são em português.
+Leitura útil: [docs/DESIGN.md](docs/DESIGN.md) (padrões visuais), [docs/USABILIDADE.md](docs/USABILIDADE.md) (roteiro de teste com pessoas), [CLAUDE.md](CLAUDE.md) (regras e comandos para agentes de código).
 
-### Próximos passos
+## 🗺 Próximos passos
 
-O plano completo, com a ordem das fases, está em [docs/DECISOES.md](docs/DECISOES.md) ("acervo local e regras para Justiça e controle"). Em resumo:
+- [x] Identidade única de pessoa pública e linha do tempo
+- [x] Sanções (CGU), TCU, cassações (TSE), Conselhos de Ética e CPIs na linha do tempo
+- [x] Página de finanças dos partidos
+- [x] Contratos do PNCP no perfil e na cidade
+- [ ] Revisar as 164 sugestões de indiciamento das CPIs (Brumadinho, BNDES, Pandemia)
+- [ ] Revisar os atos dos diários municipais e do DOU (cerca de 57 sugestões por mês desde 2025)
+- [ ] Publicar os casos em rascunho (Mensalão, Sanguessugas, Zelotes) depois de revisão humana
+- [ ] Partidos: pagamentos a fornecedores ligados à base, diretórios e eleições de 2016, 2020 e 2026
+- [ ] Conectores para as 27 câmaras que saíram do SAPL e ainda não têm
+- [ ] Proposições e gastos da ALEP, presença nas comissões da ALESP, tela das emendas estaduais de SC
+- [ ] Fornecedores de outros Tribunais de Contas (MG exige reCAPTCHA; falta pedir acesso)
+- [ ] Teste com pessoas reais e auditoria de acessibilidade
 
-- Acervo local com identidade única de pessoa pública e linha do tempo de eventos
-- Justiça e controle, só com registros oficiais: cassações e indeferimentos no TSE, sanções da CGU, contas julgadas pelo TCU, processos no STF e no STJ (status pelo DataJud do CNJ), conselhos de ética, participação em CPIs e CPMIs, e casos de corrupção montados só com documentos oficiais (rascunhos de Mensalão, Sanguessugas e Zelotes em `data/casos/`, ainda não publicados, à espera de revisão humana)
-- CPIs e CPMIs (Câmara, Senado e Congresso, desde 2019): a participação (presidente, relator e membros) já vira evento na linha do tempo (`python -m ingestion.congresso.cpis`, tabelas `cpi` e `cpi_participacao`). Os pedidos de indiciamento dos relatórios finais **não** são publicados: `python -m ingestion.congresso.cpi_indiciamentos` extrai os nomes como sugestões em `cpi_indiciamento_sugestao` (164 nas CPIs de Brumadinho, BNDES e Pandemia), que só viram evento depois da revisão humana (`python -m ingestion.revisar --tipo cpi`: o revisor liga o nome a uma pessoa da base ou recusa; só o aceito entra na linha do tempo, com a ressalva de que pedido de indiciamento não é acusação formal nem condenação). Falta rodar a revisão sobre as 164 sugestões
-- Partidos: a página de finanças já existe; falta exibir os pagamentos a fornecedores ligados a pessoas e empresas da base (`partido_despesa_vinculada`, depende de revisão), os diretórios e as eleições de 2016, 2020 e 2026
-- Atos de nomeação e exoneração nos diários municipais (Querido Diário): a coleta de sugestões (`python -m ingestion.diarios.atos`, tabela `diario_ato`) e a revisão humana (`python -m ingestion.revisar --tipo diario`) existem; só o que for aceito vira evento na linha do tempo. Falta rodar a revisão sobre as sugestões do acervo
-- Atos de pessoal no Diário Oficial da União, Seção 2 (dados abertos da Imprensa Nacional, ZIP mensal sem cadastro): a coleta de sugestões (`python -m ingestion.dou.atos`, tabela `dou_ato`) e a revisão humana (`python -m ingestion.revisar --tipo dou`) existem; só o que for aceito vira evento na linha do tempo. Falta rodar a carga dos meses desde 2025-01 e a revisão (cerca de 57 sugestões por mês; o ato acertou 20 de 20 na última amostra lida à mão, mas a identidade do homônimo só o revisor confirma)
-- Contratos públicos (PNCP): a coleta em somas existe no acervo (`python -m ingestion.pncp.contratos`) e o recorte enxuto (`--producao`) roda todo dia na produção e aparece no perfil e na cidade. Convênios, empresas e sócios (CNPJ)
-- As 27 câmaras cujo SAPL parou e que ainda não têm conector (39 das 66 já têm; sistema atual de cada uma em `data/sistemas_camaras.csv` e o motivo de cada pendência, reconferido em 17/10/2026, em `data/pendencias_cobertura.csv`): lista vazia ou antiga no site, página que exige login, `robots.txt` que veda, site fora do ar ou certificado inválido. Nenhum desses bloqueios é contornado.
-- Assembleias: a do Paraná (PR) tem conector com deputados, presença e votos, mas sem proposições e gastos (API com certificado autoassinado e 403; verba atrás de reCAPTCHA; pedido em `docs/pedidos/alep_certificado.md`); nenhuma Casa fica sem conector, mas várias só têm os deputados e parte do restante (votos nominais, presença e gastos: ver `data/pendencias_cobertura.csv`)
-- Presença nas reuniões das comissões da ALESP (já publicada em dados abertos; os votos nas comissões já entraram)
-- Despesas por fornecedor de outros Tribunais de Contas (o de MG exige reCAPTCHA nos dados abertos; falta pedir acesso)
-- Teste com pessoas reais e auditoria de acessibilidade
+O plano completo está em [docs/DECISOES.md](docs/DECISOES.md) ("acervo local e regras para Justiça e controle").
 
-## Licença
+## 📜 Licença
 
-O código é livre, sob a [GNU Affero General Public License v3.0](LICENSE) (AGPL-3.0). Qualquer pessoa pode usar, estudar, modificar e redistribuir. Quem publicar um site com uma versão modificada precisa oferecer o código-fonte dessa versão aos usuários, sob a mesma licença. Assim, as melhorias de um projeto de transparência continuam abertas para todos.
-
-Os dados exibidos vêm de fontes públicas oficiais e seguem as regras de cada fonte (ver [docs/FONTES_DE_DADOS.md](docs/FONTES_DE_DADOS.md)).
+- **Código:** [AGPL-3.0](LICENSE). Quem publicar uma versão modificada precisa abrir o código dela, para que as melhorias de um projeto de transparência continuem abertas.
+- **Dados abertos:** [CC BY 4.0](LICENCA-DADOS.md). Os dados de origem seguem as regras de cada fonte ([docs/FONTES_DE_DADOS.md](docs/FONTES_DE_DADOS.md)).
