@@ -318,7 +318,11 @@ async function Cidade({ ibge }: { ibge: string }) {
                   Pagamentos sem código de emenda na fonte e pagamentos em que a fonte não identifica o município
                   não entram no total.
                 </li>
-                <li>Emendas estaduais (das assembleias legislativas) ainda não foram carregadas.</li>
+                <li>
+                  {emendas.estaduais
+                    ? "Emendas de deputados estaduais aparecem à parte, só convênios e termos de fomento; repasses às prefeituras ainda ficam de fora."
+                    : "Emendas estaduais (das assembleias legislativas) ainda não foram carregadas."}
+                </li>
                 <li>
                   O que está previsto e ainda sem pagamento, e os convênios, aparecem separados e nunca somados ao
                   valor pago.

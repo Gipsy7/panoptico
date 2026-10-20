@@ -134,7 +134,7 @@ async function Perfil({
         conteudo: painel.contas.disponivel ? (
           <ContasDoGoverno painel={painel} estado={contasEstadoR?.ok ? contasEstadoR.dados : null} />
         ) : (
-          <BlocoIndisponivel titulo="Contas do governo" bloco={painel.contas} />
+          <BlocoIndisponivel titulo="Contas do governo" bloco={painel.contas} painel={painel} />
         ),
       },
       {
@@ -143,7 +143,7 @@ async function Perfil({
         conteudo: painel.emendas.disponivel ? (
           <EmendasDaCidade painel={painel} />
         ) : (
-          <BlocoIndisponivel titulo="Emendas recebidas" bloco={painel.emendas} />
+          <BlocoIndisponivel titulo="Emendas recebidas" bloco={painel.emendas} painel={painel} />
         ),
       },
       {
@@ -152,7 +152,7 @@ async function Perfil({
         conteudo: painel.contratos.disponivel ? (
           <ContratosDaCidade painel={painel} />
         ) : (
-          <BlocoIndisponivel titulo="Contratos" bloco={painel.contratos} />
+          <BlocoIndisponivel titulo="Contratos" bloco={painel.contratos} painel={painel} />
         ),
       },
     ];
@@ -178,13 +178,13 @@ async function Perfil({
               />
             </section>
           ) : (
-            <BlocoIndisponivel titulo="Viagens e cartão de pagamento" bloco={painel.viagens_cartao} />
+            <BlocoIndisponivel titulo="Viagens e cartão de pagamento" bloco={painel.viagens_cartao} painel={painel} />
           ),
         },
         {
           id: "gov-mpv",
           titulo: "Medidas provisórias",
-          conteudo: <BlocoIndisponivel titulo="Medidas provisórias" bloco={painel.medidas_provisorias} />,
+          conteudo: <BlocoIndisponivel titulo="Medidas provisórias" bloco={painel.medidas_provisorias} painel={painel} />,
         },
       );
     }
@@ -203,6 +203,7 @@ async function Perfil({
               <BlocoIndisponivel
                 titulo="Agenda de compromissos"
                 bloco={painel.agenda.disponivel ? { ...painel.agenda, motivo: "Não deu para buscar a agenda agora." } : painel.agenda}
+                painel={painel}
               />
             ),
           },

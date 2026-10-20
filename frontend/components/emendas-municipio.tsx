@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { EmendasEstaduaisCidade } from "@/components/emendas-estaduais";
 import { FonteRodape } from "@/components/fonte-rodape";
 import type { EmendasMunicipio } from "@/lib/api";
 import { formatarReais } from "@/lib/formato";
@@ -327,7 +328,10 @@ export function EmendasMunicipioSecao({ dados }: { dados: EmendasMunicipio }) {
             <p className="text-sm text-muted-foreground">
               O total soma só o que foi pago, de todos os tipos de emenda. O que está previsto e os convênios
               aparecem à parte. Ficam de fora: pagamentos sem código de emenda na fonte, pagamentos em que a fonte
-              não identifica o município e emendas estaduais, que ainda não foram carregadas.
+              não identifica o município
+              {dados.estaduais
+                ? ". As emendas de deputados estaduais aparecem à parte, abaixo, e nunca são somadas."
+                : " e emendas estaduais, que ainda não foram carregadas."}
               {dados.sem_codigo_descricao && ` ${dados.sem_codigo_descricao}`}
             </p>
           ) : (
@@ -345,6 +349,8 @@ export function EmendasMunicipioSecao({ dados }: { dados: EmendasMunicipio }) {
         url={dados.fonte_url}
         atualizadoEm={dados.atualizado_em}
       />
+
+      {dados.estaduais && <EmendasEstaduaisCidade dados={dados.estaduais} cidade={cidade} />}
     </section>
   );
 }
