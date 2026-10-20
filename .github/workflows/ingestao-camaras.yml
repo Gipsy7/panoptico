@@ -269,6 +269,9 @@ jobs:
         run: uv sync --locked --no-dev
       - name: Assembleia de Santa Catarina (ALESC)
         run: uv run python -m ingestion.assembleias.alesc
+      # Emendas estaduais de SC (SC Transferências, CGE/SC): depois da ALESC, para ligar os autores.
+      - name: Emendas estaduais de SC (SC Transferências)
+        run: uv run python -m ingestion.emendas_estaduais.sc
 
   # Assembleia do Rio de Janeiro: páginas públicas do site (sem API), uma por vez.
   alerj:
