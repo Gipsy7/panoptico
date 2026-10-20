@@ -696,10 +696,10 @@ PI,Prefeituras de PI,prefeito,salario,sem_fonte,202 de 224 municípios com canal
 PI,Prefeituras de PI,prefeito,agenda,sem_fonte,202 de 224 municípios com canal oficial achado. Nenhuma fonte de agenda coletada.,,
 PI,Prefeituras de PI,prefeito,atos,parcial,"202 de 224 municípios com canal oficial achado. Nomeações em diários municipais, só nas cidades cobertas pelo Querido Diário e depois de revisão humana.",querido_diario_atos,
 PI,Prefeituras de PI,prefeito,bens_campanha,sim,202 de 224 municípios com canal oficial achado. Bens e campanha declarados ao TSE.,tse_bens; tse_campanha,
-PR,ALPR,deputado estadual,gastos,pedido,Sem conector: a API pública da ALEP usa certificado HTTPS autoassinado e não desligamos a verificação; pedimos a correção.,https://webservices.assembleia.pr.leg.br/api/public/,alep_certificado.md
-PR,ALPR,deputado estadual,votos,pedido,Sem conector: a API pública da ALEP usa certificado HTTPS autoassinado e não desligamos a verificação; pedimos a correção.,https://webservices.assembleia.pr.leg.br/api/public/,alep_certificado.md
-PR,ALPR,deputado estadual,presenca,pedido,Sem conector: a API pública da ALEP usa certificado HTTPS autoassinado e não desligamos a verificação; pedimos a correção.,https://webservices.assembleia.pr.leg.br/api/public/,alep_certificado.md
-PR,ALPR,deputado estadual,projetos,pedido,Sem conector: a API pública da ALEP usa certificado HTTPS autoassinado e não desligamos a verificação; pedimos a correção.,https://webservices.assembleia.pr.leg.br/api/public/,alep_certificado.md
+PR,ALPR,deputado estadual,gastos,pedido,A consulta da verba de ressarcimento exige reCAPTCHA; não contornamos. Pedimos os dados em CSV.,https://transparencia.assembleia.pr.leg.br/receitas-e-despesas/verbas-de-ressarcimento,alep_certificado.md
+PR,ALPR,deputado estadual,votos,sim,Carregamos votos nominais do site oficial da Casa.,alep,
+PR,ALPR,deputado estadual,presenca,sim,Carregamos presença em plenário do site oficial da Casa.,alep,
+PR,ALPR,deputado estadual,projetos,pedido,"As proposições só estão na API da ALEP, que usa certificado HTTPS autoassinado e responde 403; não desligamos a verificação nem contornamos. Pedido redigido.",https://webservices.assembleia.pr.leg.br/api/public/,alep_certificado.md
 PR,ALPR,deputado estadual,emendas,pedido,Sem fonte aberta de emendas estaduais; pedido de acesso redigido (ADPF 854).,,emendas_estaduais_27_ufs.md
 PR,ALPR,deputado estadual,salario,sem_fonte,Subsídio e folha dos deputados estaduais não coletados.,,
 PR,ALPR,deputado estadual,agenda,sem_fonte,Nenhuma fonte de agenda de deputados estaduais.,,
@@ -942,9 +942,9 @@ RS,Prefeituras de RS,prefeito,salario,sem_fonte,360 de 496 municípios com canal
 RS,Prefeituras de RS,prefeito,agenda,sem_fonte,360 de 496 municípios com canal oficial achado. Nenhuma fonte de agenda coletada.,,
 RS,Prefeituras de RS,prefeito,atos,parcial,"360 de 496 municípios com canal oficial achado. Nomeações em diários municipais, só nas cidades cobertas pelo Querido Diário e depois de revisão humana.",querido_diario_atos,
 RS,Prefeituras de RS,prefeito,bens_campanha,sim,360 de 496 municípios com canal oficial achado. Bens e campanha declarados ao TSE.,tse_bens; tse_campanha,
-SC,ALSC,deputado estadual,gastos,sem_fonte,O conector da Casa não traz gastos do gabinete e da cota.,alesc,
-SC,ALSC,deputado estadual,votos,sem_fonte,O conector da Casa não traz votos nominais.,alesc,
-SC,ALSC,deputado estadual,presenca,sem_fonte,O conector da Casa não traz presença em plenário.,alesc,
+SC,ALSC,deputado estadual,gastos,sim,Carregamos gastos do gabinete e da cota do site oficial da Casa.,alesc,
+SC,ALSC,deputado estadual,votos,sem_fonte,As votações vistas no e-Legis são simbólicas; o extrato de voto nominal não foi localizado numa sessão com voto nominal.,alesc,
+SC,ALSC,deputado estadual,presenca,sim,Carregamos presença em plenário do site oficial da Casa.,alesc,
 SC,ALSC,deputado estadual,projetos,sim,Carregamos projetos de lei do site oficial da Casa.,alesc,
 SC,ALSC,deputado estadual,emendas,pedido,"Sem fonte aberta de emendas impositivas; pedidos à ALESC e ao TCE/SC redigidos (ADPF 854, IN TC 40/2025).",,alesc_emendas_impositivas.md; tcesc_painel_emendas.md; emendas_estaduais_27_ufs.md
 SC,ALSC,deputado estadual,salario,sem_fonte,Subsídio e folha dos deputados estaduais não coletados.,,

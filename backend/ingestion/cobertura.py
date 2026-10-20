@@ -34,6 +34,9 @@ SECOES = [
 COLUNAS = ["uf", "casa", "cargo", "secao", "situacao", "motivo", "fonte", "pedido"]
 SITUACOES = {"sim", "parcial", "bloqueado", "pedido", "sem_fonte"}
 URL_ALEP = "https://webservices.assembleia.pr.leg.br/api/public/"
+URL_ALEP_VERBA = (
+    "https://transparencia.assembleia.pr.leg.br/receitas-e-despesas/verbas-de-ressarcimento"
+)
 
 # Assembleias: fonte (nome em fontes.toml) e o que o conector carrega. Conferido com o
 # docstring de cada módulo em ingestion/assembleias/. Seção ausente = o conector não carrega.
@@ -52,11 +55,11 @@ ASSEMBLEIAS: dict[str, tuple[str, set[str]]] = {
     "MT": ("almt", set()),
     "PA": ("alepa", set()),
     "PE": ("alepe", {"projetos"}),
-    "PR": ("", set()),  # ALEP: sem conector
+    "PR": ("alep", {"votos", "presenca"}),  # projetos e gastos: pedido (API travada, reCAPTCHA)
     "RJ": ("alerj", set()),
     "RN": ("alrn", {"projetos"}),
     "RS": ("alrs", {"projetos", "votos", "presenca", "gastos"}),
-    "SC": ("alesc", {"projetos"}),
+    "SC": ("alesc", {"projetos", "gastos", "presenca"}),
     "SE": ("alese", {"presenca"}),
     "SP": ("alesp", {"projetos", "gastos"}),
 }
@@ -78,8 +81,6 @@ PEDIDO_ASSEMBLEIA = {
     ("PA", "projetos"): "alepa_proposicoes.md",
     ("PA", "votos"): "alepa_proposicoes.md",
     ("PR", "projetos"): "alep_certificado.md",
-    ("PR", "votos"): "alep_certificado.md",
-    ("PR", "presenca"): "alep_certificado.md",
     ("PR", "gastos"): "alep_certificado.md",
 }
 MOTIVO_PEDIDO = {
@@ -123,12 +124,24 @@ def _secao_legislativa(uf, secao, fonte, carrega, brasil):
         if uf == "SP" and secao == "projetos":
             m += " Votos nominais de Plenário e presença não saem dos dados abertos."
         return "sim", m, fonte, ""
-    if uf == "PR":
+    if uf == "PR" and secao == "projetos":
         m = (
-            "Sem conector: a API pública da ALEP usa certificado HTTPS autoassinado e não "
-            "desligamos a verificação; pedimos a correção."
+            "As proposições só estão na API da ALEP, que usa certificado HTTPS autoassinado e "
+            "responde 403; não desligamos a verificação nem contornamos. Pedido redigido."
         )
         return "pedido", m, URL_ALEP, pedido
+    if uf == "PR" and secao == "gastos":
+        m = (
+            "A consulta da verba de ressarcimento exige reCAPTCHA; não contornamos. "
+            "Pedimos os dados em CSV."
+        )
+        return "pedido", m, URL_ALEP_VERBA, pedido
+    if uf == "SC" and secao == "votos":
+        m = (
+            "As votações vistas no e-Legis são simbólicas; o extrato de voto nominal não foi "
+            "localizado numa sessão com voto nominal."
+        )
+        return "sem_fonte", m, fonte, ""
     if uf == "SP" and secao == "votos":
         m = (
             "Só o voto nas comissões permanentes; o voto no Plenário não está nos dados "

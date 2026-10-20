@@ -206,10 +206,16 @@ CATALOGO = [
         "url": "https://dados.cl.df.gov.br/dataset/proposicoes",
     },
     {
-        "dado": "Deputados estaduais de SC: no cargo e proposições",
-        "orgao": "Assembleia Legislativa de Santa Catarina (páginas públicas do e-Legis)",
+        "dado": "Deputados estaduais de SC: no cargo, proposições, presença e gastos do gabinete",
+        "orgao": "Assembleia Legislativa de Santa Catarina (e-Legis e Portal da Transparência)",
         "fontes": ["alesc"],
-        "url": "https://portalelegis.alesc.sc.gov.br/",
+        "url": "https://transparencia.alesc.sc.gov.br/gabinetes-parlamentares/dados-abertos",
+    },
+    {
+        "dado": "Deputados estaduais do PR: no cargo, presença em plenário e votos nominais",
+        "orgao": "Assembleia Legislativa do Paraná (site e Portal da Transparência)",
+        "fontes": ["alep"],
+        "url": "https://transparencia.assembleia.pr.leg.br/servicos/dados-abertos",
     },
     {
         "dado": "Deputados estaduais do RJ: no cargo (partido, foto e contato)",

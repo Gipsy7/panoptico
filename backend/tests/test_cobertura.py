@@ -19,12 +19,14 @@ def test_nenhuma_celula_sem_situacao_ou_motivo():
         assert x["motivo"].strip(), x
 
 
-def test_alep_aparece_sem_conector():
+def test_alep_tem_conector_e_pedido_so_no_que_falta():
     alep = [x for x in cobertura.montar() if x["uf"] == "PR" and x["casa"] == "ALPR"]
-    legislativas = [x for x in alep if x["secao"] in cobertura.ROTULO]
+    legislativas = {x["secao"]: x for x in alep if x["secao"] in cobertura.ROTULO}
     assert len(legislativas) == 4
-    assert all("sem conector" in x["motivo"].lower() for x in legislativas)
-    assert all(x["situacao"] != "sim" for x in legislativas)
+    assert legislativas["votos"]["situacao"] == legislativas["presenca"]["situacao"] == "sim"
+    for secao in ("projetos", "gastos"):  # certificado autoassinado/403 e reCAPTCHA
+        assert legislativas[secao]["situacao"] == "pedido"
+        assert legislativas[secao]["pedido"] == "alep_certificado.md"
 
 
 def test_geobloqueio_vira_bloqueado():
