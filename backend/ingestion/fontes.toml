@@ -118,6 +118,24 @@ uso = "Busca por cidade e CEP"
 frequencia = "mensal"
 
 [[fonte]]
+nome = "receita_arrecadacao_uf"
+modulo = "ingestion.receita.arrecadacao_uf"
+uso = "Dinheiro federal por estado: quanto cada estado paga em tributos federais"
+recorte = "total e receita previdenciária por estado e mês, desde 2019"
+guarda = "somas"
+frequencia = "mensal"
+acesso = "aberto"
+
+[[fonte]]
+nome = "ibge_populacao"
+modulo = "ingestion.ibge.populacao"
+uso = "Dinheiro federal por habitante (estados e cidades)"
+recorte = "Brasil, estados e municípios; estimativas 2019-2021 e 2024 em diante, Censo 2022"
+guarda = "somas"
+frequencia = "mensal"
+acesso = "aberto"
+
+[[fonte]]
 nome = "canais_oficiais"
 modulo = "ingestion.canais.catalogo"
 uso = "Canais oficiais da cidade"

@@ -20,6 +20,10 @@ class ContasMunicipio(Base):
     populacao: Mapped[int | None]
     receita_total: Mapped[Decimal | None] = mapped_column(Numeric(16, 2))
     despesa_paga: Mapped[Decimal | None] = mapped_column(Numeric(16, 2))
+    # Receita bruta realizada de impostos, taxas e contribuições de melhoria (1.1) e
+    # transferências da União (1.7.1 correntes + 2.4.1 de capital); nulo se a conta não veio.
+    receita_propria: Mapped[Decimal | None] = mapped_column(Numeric(16, 2))
+    transf_uniao: Mapped[Decimal | None] = mapped_column(Numeric(16, 2))
     # {"Saúde": 123.45, "Educação": ...}: despesa paga por função de governo.
     despesa_por_area: Mapped[dict] = mapped_column(JSON)
 

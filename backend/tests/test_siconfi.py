@@ -14,6 +14,10 @@ DESPESAS = [
 RECEITAS = [
     {"cod_conta": "TotalReceitas", "conta": "TOTAL", "coluna": "Receitas Brutas Realizadas", "valor": 120},
     {"cod_conta": "TotalReceitas", "conta": "TOTAL", "coluna": "Deduções - FUNDEB", "valor": 5},
+    {"cod_conta": "RO1.1.0.0.00.0.0", "conta": "1.1.0.0.00.0.0 - Impostos, Taxas e Contribuições de Melhoria", "coluna": "Receitas Brutas Realizadas", "valor": 30},
+    {"cod_conta": "RO1.1.0.0.00.0.0", "conta": "1.1.0.0.00.0.0 - Impostos, Taxas e Contribuições de Melhoria", "coluna": "Outras Deduções da Receita", "valor": 2},
+    {"cod_conta": "RO1.7.1.0.00.0.0", "conta": "1.7.1.0.00.0.0 - Transferências da União e de suas Entidades", "coluna": "Receitas Brutas Realizadas", "valor": 50},
+    {"cod_conta": "RO2.4.1.0.00.0.0", "conta": "2.4.1.0.00.0.0 - Transferências da União e de suas Entidades", "coluna": "Receitas Brutas Realizadas", "valor": 7.5},
 ]  # fmt: skip
 
 
@@ -22,6 +26,17 @@ def test_recortar_so_funcoes_pagas_e_total_pela_soma():
     assert r["despesa_por_area"] == {"Saúde": 60.0, "Legislativa": 10.0}
     assert (r["despesa_paga"], r["receita_total"], r["populacao"]) == (70.0, 120, 1000)
     assert contas.recortar("1", [], []) is None
+
+
+def test_recortar_receita_propria_e_transferencias_da_uniao():
+    r = contas.recortar("4202404", RECEITAS, DESPESAS)
+    assert (r["receita_propria"], r["transf_uniao"]) == (30, 57.5)
+    # Só a conta corrente da União: vale ela; sem nenhuma, fica nulo (nunca zero).
+    so_corrente = [x for x in RECEITAS if x["cod_conta"] != "RO2.4.1.0.00.0.0"]
+    assert contas.recortar("1", so_corrente, DESPESAS)["transf_uniao"] == 50
+    sem_contas = [x for x in RECEITAS if x["cod_conta"] == "TotalReceitas"]
+    r = contas.recortar("1", sem_contas, DESPESAS)
+    assert (r["receita_propria"], r["transf_uniao"]) == (None, None)
 
 
 def test_contas_do_municipio(client, session):

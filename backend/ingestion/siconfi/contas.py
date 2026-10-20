@@ -27,6 +27,12 @@ from ingestion import comum
 
 FONTE = "siconfi_contas"
 URL = "https://apidatalake.tesouro.gov.br/ords/siconfi/tt/dca"
+COLUNA_BRUTA = "Receitas Brutas Realizadas"
+CONTA_PROPRIA = "RO1.1.0.0.00.0.0"  # 1.1 Impostos, Taxas e Contribuições de Melhoria
+CONTAS_UNIAO = (
+    "RO1.7.1.0.00.0.0",
+    "RO2.4.1.0.00.0.0",
+)  # transferências da União: correntes, capital
 FUNCAO = re.compile(r"^(\d{2}) - (.+)$")  # "10 - Saúde" (subfunções têm "10.301 - ...")
 
 
@@ -72,6 +78,9 @@ def recortar(ibge: str, receitas: list[dict], despesas: list[dict]) -> dict[str,
         ),
         None,
     )
+    brutas = {r["cod_conta"]: r["valor"] for r in receitas if r["coluna"] == COLUNA_BRUTA}
+    # Nulo (nunca zero) quando a conta não veio; a soma da União vale se ao menos uma veio.
+    da_uniao = [brutas[c] for c in CONTAS_UNIAO if brutas.get(c) is not None]
     pagas = [d for d in despesas if d["coluna"] == "Despesas Pagas"]
     por_area: dict[str, float] = {}
     for d in pagas:
@@ -88,8 +97,14 @@ def recortar(ibge: str, receitas: list[dict], despesas: list[dict]) -> dict[str,
         "populacao": populacao,
         "receita_total": receita,
         "despesa_paga": total,
+        "receita_propria": brutas.get(CONTA_PROPRIA),
+        "transf_uniao": round(sum(da_uniao), 2) if da_uniao else None,
         "despesa_por_area": por_area,
     }
+
+
+def _decimal(valor: float | None) -> Decimal | None:
+    return Decimal(str(valor)) if valor is not None else None
 
 
 def baixar(client: httpx.Client, ano: int, ibges: list[str]) -> list[dict]:
@@ -147,6 +162,8 @@ def executar(ano: int, de_raw: Path | None = None) -> int:
                 "despesa_paga": Decimal(str(c["despesa_paga"]))
                 if c["despesa_paga"] is not None
                 else None,
+                "receita_propria": _decimal(c.get("receita_propria")),
+                "transf_uniao": _decimal(c.get("transf_uniao")),
                 "despesa_por_area": c["despesa_por_area"],
             }
             for c in payload

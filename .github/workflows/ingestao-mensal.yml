@@ -86,6 +86,16 @@ jobs:
         if: ${{ !inputs.so_tce && !inputs.so_partidos }}
         run: uv run python -m ingestion.executivo.eagendas
 
+      # Dinheiro federal por estado: arrecadação (CSV de ~2,4 MB, só baixa de novo se mudou) e
+      # população do IBGE (SIDRA). Leves; rodam sempre.
+      - name: Arrecadação federal por estado (Receita Federal)
+        if: ${{ !inputs.so_tce && !inputs.so_partidos }}
+        run: uv run python -m ingestion.receita.arrecadacao_uf
+
+      - name: População (IBGE)
+        if: ${{ !inputs.so_tce && !inputs.so_partidos }}
+        run: uv run python -m ingestion.ibge.populacao
+
       # Prestação de contas anual dos partidos (zip de ~60 MB por exercício, lido em fluxo; ~11 MB
       # no banco por ano). O exercício atual costuma dar 404 (ainda não publicado) e é pulado.
       - name: Contas dos partidos (TSE)

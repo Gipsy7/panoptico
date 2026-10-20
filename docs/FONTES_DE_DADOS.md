@@ -277,7 +277,30 @@ Reconhecimento de 11/10/2026. As duas fontes são arquivos em lote, sem chave (a
   - a API limita a taxa de consultas (responde 429; cerca de 1 em cada 5 consultas a partir do GitHub). A carga espera o tempo do `Retry-After` e tenta de novo; um ano completo leva uns 65 minutos.
   - **falha da API não é "sem despesa"**: até out/2026 a consulta que falhava (timeout, 5xx) virava lista vazia e a despesa ficava nula (em 2024: 405 municípios, São Paulo entre eles, apesar de a API ter a despesa paga). Agora a consulta distingue falha (None) de anexo vazio, refaz até 4 vezes e repete em até 3 rodadas só os municípios que falharam. Nulo que sobra é ausência real: 3 municípios de 2024 (2904902, 2930808, 4209508) entregaram o Anexo I-E sem a coluna "Despesas Pagas" (só empenhada/liquidada) ou vazio, e o site não mostra valor por habitante para eles (nunca R$ 0);
 - **Estados (governador):** a mesma API e os mesmos anexos, com `id_ente` de 2 dígitos (código IBGE da UF: 35 = SP, 53 = DF); 27 entes, 54 consultas por ano, sem paginação (`hasMore` falso mesmo com 600+ itens). Mesmas regras: despesa paga "exceto intraorçamentárias" = soma das funções (SP 2024: R$ 312,0 bi, igual à linha "Despesas Exceto Intraorçamentárias"; as intraorçamentárias, R$ 16,9 bi, ficam de fora, como nos municípios), receita "Receitas Brutas Realizadas" do total. Em 2023 e 2024 os 27 estados entregaram, todos com despesa paga. Tabela `contas_estado`; fonte `siconfi_contas_estados`.
+- **Receita própria e transferências da União (desde out/2026):** do mesmo Anexo I-C, coluna "Receitas Brutas Realizadas" (antes de qualquer dedução): `receita_propria` = `RO1.1.0.0.00.0.0` (Impostos, Taxas e Contribuições de Melhoria); `transf_uniao` = `RO1.7.1.0.00.0.0` (transferências correntes da União) + `RO2.4.1.0.00.0.0` (de capital; muitos municípios não têm a linha). Nulo (nunca zero) quando a conta não veio; a soma da União vale se ao menos uma das duas veio. São valores do município (regime de competência), não batem com o caixa do Tesouro, e o FPM/FPE aqui é bruto, antes da retenção do Fundeb.
 - **Frequência:** anual, entregue até abril. Carga mensal.
+
+## Receita Federal: arrecadação por estado
+
+- **URL (lote, sem chave):** `https://www.gov.br/receitafederal/dados/arrecadacao-estado.csv` (~2,4 MB, CSV de 2000 até o mês corrente). Guardamos de 2019 em diante em `arrecadacao_uf` (uf, ano, mês, `total`, `previdencia`). Módulo `ingestion/receita/arrecadacao_uf.py`; incremental (só baixa de novo se o arquivo mudou); apaga e reinsere os anos do arquivo.
+- **Formato:** latin-1, `;`, colunas `Ano;Mês;UF;<44 tributos>`; mês por extenso com acento ("Março"); decimal com vírgula; célula vazia = zero; pode haver negativo.
+- **Cálculo:** `total` = soma de todas as colunas de tributo (inclui RECEITA PREVIDENCIÁRIA, CPSSS e "ADMINISTRADAS POR OUTROS ÓRGÃOS"); `previdencia` = coluna RECEITA PREVIDENCIÁRIA. As colunas "- PRÓPRIA" e "- DEMAIS" da previdência vêm zeradas.
+- **Conferência:** soma do Brasil em 2024 = R$ 2,651 tri (balanço da Receita: R$ 2,652 tri) e em 2023 = R$ 2,318 tri (idem). 2019: 1,537; 2022: 2,218; 2025: 2,856 tri.
+- **Armadilhas:**
+  - o servidor responde 401 a `Accept: application/json` (o padrão do nosso cliente); é negociação de conteúdo, não bloqueio, e o módulo pede `text/csv`;
+  - arrecadação por **domicílio fiscal** do contribuinte (onde a empresa ou a pessoa declara), não onde a atividade acontece: SP, RJ e DF concentram sedes;
+  - **DF entre fev/2025 e jan/2026:** a Receita registrou no DF boa parte da arrecadação do país (receita previdenciária do DF de ~R$ 2,5 bi/mês para ~R$ 18 bi/mês; DF 2024: R$ 184 bi, 2025: R$ 583 bi; total do Brasil 2025: R$ 2,856 tri). O número bate com a fonte e não é ajustado; qualquer tela por estado precisa dizer isso;
+  - o ano corrente é parcial (2026 até julho em out/2026).
+- **Frequência:** mensal.
+
+## IBGE: população (estimativas e Censo)
+
+- **API SIDRA (sem chave):** `https://apisidra.ibge.gov.br/values/t/6579/{n1|n3|n6}/all/v/9324/p/{ano}` (estimativa da população residente; Brasil, UF e município). 2022 vem do Censo: `.../t/9514/{nível}/all/v/93/p/2022/c2/6794/c287/100362/c286/113635` (total de sexo, idade e forma de declaração). Módulo `ingestion/ibge/populacao.py`, tabela `populacao_ibge` (código de 1, 2 ou 7 dígitos; origem `estimativa` ou `censo`).
+- **Anos:** 2019, 2020, 2021, 2022 (Censo), 2024, 2025 e 2026 (publicado em out/2026). **2023 não existe** (o IBGE foi do Censo 2022 para a estimativa de 2024): fica sem valor, não se interpola. Ano ainda não publicado vem só com o cabeçalho e é ignorado.
+- **Formato:** JSON, a primeira linha é o cabeçalho; `V` é texto; ausentes vêm como `...`, `-` ou `X` e não são guardados. O código `D1C` é o IBGE de 7 dígitos (município), 2 (UF) ou 1 (Brasil).
+- **Conferência (aborta a carga se falhar):** soma das 27 UFs = Brasil e soma dos municípios = Brasil, em cada ano. Brasil: 2019 210.147.125; 2020 211.755.692; 2021 213.317.639; 2022 203.080.756 (Censo); 2024 212.583.750; 2025 213.421.037; 2026 214.211.951. Municípios: 5.570 até 2024 e 5.571 em 2025 e 2026.
+- **Armadilha:** as estimativas de 2019 a 2021 usam outra base que o Censo 2022, então a série tem queda em 2022 (213 mi para 203 mi); não é erro.
+- **Frequência:** mensal (ano novo aparece quando o IBGE publica).
 
 ## TCE-SP: despesas das prefeituras e câmaras paulistas
 

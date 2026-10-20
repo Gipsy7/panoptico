@@ -1,0 +1,97 @@
+/* Escala em bronze derivada dos tokens do tema (vale em claro e escuro): do papel ao bronze,
+   e a última classe escurece (claro) ou clareia (escuro) pelo próprio texto do tema. */
+.caixa {
+  --mapa-0: color-mix(in srgb, var(--muted-foreground) 20%, var(--card));
+  --mapa-1: color-mix(in srgb, var(--bronze) 16%, var(--card));
+  --mapa-2: color-mix(in srgb, var(--bronze) 38%, var(--card));
+  --mapa-3: color-mix(in srgb, var(--bronze) 66%, var(--card));
+  --mapa-4: var(--bronze);
+  --mapa-5: color-mix(in srgb, var(--bronze) 62%, var(--foreground));
+  --mapa-linha: var(--background);
+  position: relative;
+  overflow: hidden;
+}
+
+.mapa {
+  display: block;
+  width: 100%;
+  height: 100%;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.uf,
+.mun {
+  stroke: var(--mapa-linha);
+  stroke-width: 1.2px;
+  vector-effect: non-scaling-stroke;
+  cursor: pointer;
+  transition:
+    fill 0.25s,
+    opacity 0.25s;
+  outline: none;
+}
+.mun {
+  stroke-width: 0.5px;
+}
+.noEstado .mun {
+  stroke-width: 0.6px;
+}
+
+.mapa [data-c="0"] { fill: var(--mapa-0); }
+.mapa [data-c="1"] { fill: var(--mapa-1); }
+.mapa [data-c="2"] { fill: var(--mapa-2); }
+.mapa [data-c="3"] { fill: var(--mapa-3); }
+.mapa [data-c="4"] { fill: var(--mapa-4); }
+.mapa [data-c="5"] { fill: var(--mapa-5); }
+
+.alvo {
+  fill: transparent;
+  stroke: none;
+  cursor: pointer;
+}
+
+.mapa .sobre,
+.mapa .uf:focus-visible,
+.mapa .mun:focus-visible {
+  stroke: var(--foreground);
+  stroke-width: 2px;
+}
+.mapa .sel,
+.mapa .ativa {
+  stroke: var(--foreground);
+  stroke-width: 2.5px;
+}
+
+/* Exclusivos: dentro do estado só ele aparece; dentro da cidade só ela. */
+.noEstado .uf,
+.noEstado .alvo {
+  opacity: 0;
+  pointer-events: none;
+}
+.naCidade .mun:not(.ativa) {
+  opacity: 0;
+  pointer-events: none;
+}
+.carregando {
+  opacity: 0.6;
+}
+
+.dica {
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 5;
+  pointer-events: none;
+  max-width: min(18rem, 90%);
+  background: var(--card);
+  color: var(--card-foreground);
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  box-shadow: 0 4px 16px rgb(0 0 0 / 0.12);
+}
+.dica[hidden] {
+  display: none;
+}
