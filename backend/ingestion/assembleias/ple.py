@@ -184,15 +184,26 @@ def coletar(
     }
 
 
-def gravar(casa: dict, *, fonte: str, uf: str, sigla: str, url: str, minimo: int) -> int:
-    """Grava a casa e registra a carga; recusa lista curta de deputados (falha da fonte)."""
+def gravar(
+    casa: dict,
+    *,
+    fonte: str,
+    uf: str,
+    sigla: str,
+    url: str,
+    minimo: int,
+    alertas: list[str] | None = None,
+) -> int:
+    """Grava a casa e registra a carga; recusa lista curta de deputados (falha da fonte).
+    `alertas`: avisos da carga (ex.: o que a planilha traz e não entrou), mostrados em
+    `fonte_ingestao`."""
     if len(casa["vereadores"]) < minimo:
         raise ValueError(f"Só {len(casa['vereadores'])} deputados na {sigla}; abortando.")
     with SessionLocal() as session:
         total = sapl.gravar(session, None, casa, uf=uf)
         session.add(
             FonteIngestao(fonte=fonte, url=url, arquivo_raw="(não guardado)", registros=total,
-                          status="ok", concluido_em=datetime.now(UTC))
+                          status="ok", concluido_em=datetime.now(UTC), alertas=alertas or None)
         )  # fmt: skip
         session.commit()
     print(f"{sigla}: {total} deputados", flush=True)

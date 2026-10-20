@@ -20,6 +20,7 @@ def registro(
     projetos: list[dict] | None = None,
     por_tipo: dict[str, int] | None = None,
     gastos: list[dict] | None = None,
+    gastos_fora: list[dict] | None = None,
     sessoes: int | None = None,
     presencas: int | None = None,
 ) -> dict[str, Any]:
@@ -41,9 +42,56 @@ def registro(
         "proposicoes_por_tipo": por_tipo or {},
         "projetos": projetos or [],
         "gastos": gastos or [],
+        "gastos_fora": gastos_fora or [],
         "sessoes": sessoes,
         "presencas": presencas,
     }
+
+
+def nomes_do_tse(session: Any, uf: str) -> list[tuple[str, str]]:
+    """(nome de urna, nome civil) de cada candidatura a deputado estadual ou distrital na UF."""
+    from sqlalchemy import select
+
+    from app.models import Candidatura
+
+    return [
+        (urna, civil)
+        for urna, civil in session.execute(
+            select(Candidatura.nome_urna, Candidatura.nome).where(
+                Candidatura.uf == uf,
+                Candidatura.cargo.in_(("DEPUTADO ESTADUAL", "DEPUTADO DISTRITAL")),
+            )
+        )
+    ]
+
+
+def ligar_nomes_exatos(
+    chaves: set[str], deputados: list[dict], tse: list[tuple[str, str]]
+) -> tuple[dict[str, str], list[str]]:
+    """Chave de nome (`comum.chave_nome`) numa planilha de gastos -> nome do deputado, só por
+    igualdade exata (sem acento, caixa nem pontuação) com o nome do deputado na lista da Casa
+    ou, via TSE, com o nome de urna ou civil de uma candidatura que também bate com o nome da
+    lista. Nome aproximado nunca liga ("SERGIO AHUIAR" fica de fora), nem sobrenome solto.
+    Devolve também as chaves sem deputado (ex-deputados, erros de digitação)."""
+    por_chave: dict[str, set[str]] = {}
+    for d in deputados:
+        por_chave.setdefault(comum.chave_nome(d["nome"]), set()).add(d["nome"])
+    for urna, civil in tse:  # a mesma candidatura vale para os dois nomes
+        achados = por_chave.get(comum.chave_nome(urna), set()) | por_chave.get(
+            comum.chave_nome(civil), set()
+        )
+        if len(achados) == 1:
+            for n in (urna, civil):
+                if n and comum.chave_nome(n) not in por_chave:
+                    por_chave[comum.chave_nome(n)] = set(achados)
+    ligados, sobras = {}, []
+    for chave in sorted(chaves):
+        alvo = por_chave.get(chave, set())
+        if len(alvo) == 1:
+            ligados[chave] = next(iter(alvo))
+        else:
+            sobras.append(chave)
+    return ligados, sobras
 
 
 def casa(base: str, deputados: list[dict]) -> dict:

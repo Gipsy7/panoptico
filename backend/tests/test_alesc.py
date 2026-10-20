@@ -2,6 +2,9 @@
 from decimal import Decimal
 from pathlib import Path
 
+import httpx
+import respx
+
 from ingestion.assembleias import alesc
 
 # Recortes reais das páginas da ALESC (09/10/2026).
@@ -132,6 +135,85 @@ PRESENCA = """
   </tr>
 </table>
 """
+
+
+# Recortes reais da "Ordem do Dia" (sessão de 16/06/2026) e de um extrato de votação (20/10/2026).
+ORDEM_DO_DIA = (Path(__file__).parent / "fixtures" / "alesc_ordem_do_dia.html").read_text(
+    encoding="utf-8"
+)
+EXTRATO = (Path(__file__).parent / "fixtures" / "alesc_extrato_votacao.html").read_text(
+    encoding="utf-8"
+)
+
+
+def test_so_votacao_nominal_com_extrato_entra():
+    itens = alesc.votacoes_nominais(ORDEM_DO_DIA)  # há também uma simbólica e uma retirada
+    assert [(i["proposicao"], i["resultado"]) for i in itens] == [
+        ("PLC/0017/2024", "Aprovado"),
+        ("PLC/0001/2026", "Aprovado"),
+    ]
+    assert itens[0]["extrato"] == "5Z3aR"  # o código do botão "Extrato de votação"
+    assert itens[0]["ementa"].startswith("Altera e acresce dispositivos")
+
+
+def test_extrato_traz_deputado_e_voto():
+    votos = alesc.votos_do_extrato(EXTRATO)
+    assert votos == [
+        ("Alex Brasil", "Sim"),
+        ("Camilo Martins", "Sim"),
+        ("Dr. Vicente Caropreso", "Sim"),
+        ("Jessé Lopes", "Não"),
+        ("Sargento Lima", "Não"),
+    ]  # espaço sobrando no nome do site ("Camilo Martins ") é aparado
+    assert alesc.texto_do_voto("Abstenção") == "Abstenção"
+
+
+def test_montar_votacoes_liga_so_nome_exato_e_conta_o_extrato_todo():
+    item = alesc.votacoes_nominais(ORDEM_DO_DIA)[0]
+    arquivos = {
+        "indice.json": b'[{"sessao": "zer8K", "data": "2026-06-16", "nome": "x"}]',
+        "od_zer8K.html": ORDEM_DO_DIA.encode(),
+        f"ex_{item['extrato']}.html": EXTRATO.encode(),
+    }
+    lista = [
+        {"slug": "alex-brasil", "nome": "Alex Brasil"},
+        {"slug": "jesse-lopes", "nome": "Jessé Lopes"},
+        {"slug": "sargento-lima-x", "nome": "Sargento Lima Filho"},  # nome parecido: não liga
+    ]
+    votacoes, votos = alesc.montar_votacoes(arquivos, lista, [])
+    assert len(votacoes) == 1  # o segundo item não tem extrato baixado
+    v = votacoes[0]
+    assert (v["sim"], v["nao"], v["abstencoes"], v["resultado"]) == (3, 2, 0, "Aprovado")
+    assert v["data"] == "2026-06-16" and v["id_externo"] == item["extrato"]
+    assert v["url"].endswith("/sessoes-plenarias/zer8K/ordem-do-dia")
+    assert sorted((x["parlamentar"], x["voto"]) for x in votos) == [
+        ("alex-brasil", "Sim"),
+        ("jesse-lopes", "Não"),
+    ]
+
+
+@respx.mock
+def test_extrato_so_responde_a_chamada_ajax_do_site(monkeypatch):
+    monkeypatch.setattr(alesc, "PAUSA", 0)
+
+    def extrato(request):
+        if request.headers.get("x-requested-with") != "XMLHttpRequest":
+            return httpx.Response(405, text="405")
+        return httpx.Response(200, text=EXTRATO)
+
+    respx.get(f"{alesc.ELEGIS}/sessoes-plenarias/zer8K/ordem-do-dia").respond(text=ORDEM_DO_DIA)
+    for item in alesc.votacoes_nominais(ORDEM_DO_DIA):
+        respx.get(f"{alesc.ELEGIS}/extrato-votacao/{item['extrato']}").side_effect = extrato
+    sessoes = [
+        {"id": "zer8K", "data": "2026-06-16", "situacao": "Realizada"},
+        {"id": "futura", "data": "2026-12-01", "situacao": "Horário regimental"},
+    ]
+    with httpx.Client() as client:
+        arquivos = alesc.baixar_votacoes(client, sessoes)
+    assert sorted(a for a in arquivos if a.startswith("ex_")) == sorted(
+        f"ex_{i['extrato']}.html" for i in alesc.votacoes_nominais(ORDEM_DO_DIA)
+    )
+    assert "od_futura.html" not in arquivos  # sessão que não aconteceu nem é consultada
 
 
 def test_presenca_das_sessoes_realizadas():

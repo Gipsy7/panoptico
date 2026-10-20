@@ -445,7 +445,7 @@ acesso = "brasil"
 nome = "alesc"
 modulo = "ingestion.assembleias.alesc"
 uso = "Assembleia de Santa Catarina hoje"
-recorte = "deputados em exercício; proposições, presença em plenário e gastos do gabinete (CSV anual) do ano atual e anterior"
+recorte = "deputados em exercício; proposições, presença em plenário, votos nominais (extrato de votação do e-Legis) e gastos do gabinete (CSV anual) do ano atual e anterior"
 frequencia = "semanal"
 
 [[fonte]]
@@ -506,7 +506,7 @@ acesso = "brasil"
 nome = "alece"
 modulo = "ingestion.assembleias.alece"
 uso = "Assembleia do Ceará hoje"
-recorte = "deputados em exercício; projetos do ano atual e anterior (sem indicações, votos, presença e gastos)"
+recorte = "deputados em exercício; projetos e gastos do gabinete (CSV mensal de empenhos, líquido de anulações) do ano atual e anterior; nomes da planilha com erro de digitação não são atribuídos (sem indicações, votos e presença)"
 frequencia = "semanal"
 
 [[fonte]]
@@ -543,7 +543,7 @@ frequencia = "semanal"
 nome = "alrn"
 modulo = "ingestion.assembleias.alrn"
 uso = "Assembleia do Rio Grande do Norte hoje"
-recorte = "deputados em exercício; projetos do ano atual e anterior (sem votos nominais, presença e gastos)"
+recorte = "deputados em exercício; projetos e notas da verba de ressarcimento (formulário do site, por mês, sem tipo nem fornecedor) do ano atual e anterior (sem votos nominais e presença)"
 frequencia = "semanal"
 
 [[fonte]]
@@ -559,7 +559,7 @@ acesso = "brasil"
 nome = "alap"
 modulo = "ingestion.assembleias.alap"
 uso = "Assembleia do Amapá hoje"
-recorte = "deputados em exercício; projetos do ano atual e anterior (sem votos, presença e gastos)"
+recorte = "deputados em exercício; projetos do ano atual e anterior (sem votos e presença; gastos da CEAP: pedido em docs/pedidos/alap_gastos_ceap.md, robots.txt responde 403)"
 frequencia = "semanal"
 # Bloqueia IP de fora do Brasil (GitHub Actions, 11/10/2026: tempo esgotado nos EUA); roda no acervo local.
 acesso = "brasil"
