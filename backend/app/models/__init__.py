@@ -16,7 +16,7 @@ from app.models.despesa import Despesa
 from app.models.despesa_fornecedor import DespesaFornecedor
 from app.models.emenda import Emenda
 from app.models.emenda_estadual import EmendaEstadual
-from app.models.emenda_pagamento import EmendaPagamento
+from app.models.emenda_pagamento import EmendaPagamento, EmendaPagamentoSemCodigo
 from app.models.emenda_relator import EmendaRelatorIndicacao
 from app.models.emenda_transferencia import EmendaConvenio, EmendaTransferencia
 from app.models.empresa import Empresa
@@ -84,6 +84,7 @@ __all__ = [
     "Emenda",
     "EmendaConvenio",
     "EmendaPagamento",
+    "EmendaPagamentoSemCodigo",
     "EmendaRelatorIndicacao",
     "Empresa",
     "EmendaTransferencia",

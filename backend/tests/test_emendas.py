@@ -55,6 +55,12 @@ def test_normalizar_pagamentos_filtra_natureza_e_guarda_o_tipo():
         ("entidade", "especial", Decimal("10.00")),
     ]
     assert (descartes["sem_codigo"], descartes["sem_codigo_valor"]) == (1, Decimal("7.00"))
+    # A linha sem código guarda o tipo da fonte e o autor como veio (nunca ligado).
+    sem_codigo: list = []
+    emendas.normalizar_pagamentos(conteudo, sem_codigo=sem_codigo)
+    assert [(p["tipo"], p["ano_mes"], p["grupo"], p["valor"]) for p in sem_codigo] == [
+        ("especial", 202103, "prefeitura", Decimal("7.00"))
+    ]
     # O corte por ano continua disponível.
     assert len(emendas.normalizar_pagamentos(conteudo, 2023)) == 3
 

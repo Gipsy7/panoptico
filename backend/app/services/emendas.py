@@ -5,7 +5,9 @@ Três números que não se somam (docs/DECISOES.md, 2026-10-18, "Resgate de cobe
   municipais e entidades da cidade receberam, de todos os anos do arquivo e de todos os
   tipos. Os campos antigos da resposta (`total`, `parlamentares`, `por_ano`...) seguem só
   com as emendas individuais (com destino definido e Pix); `tipos` e `total_geral` trazem
-  também bancada, comissão e relator;
+  também bancada, comissão e relator e, desde 20/10/2026, os pagamentos sem código de
+  emenda (`emenda_pagamento_sem_codigo`: tipo da fonte, sem autor nem ano), que também
+  aparecem à parte em `sem_identificacao`;
 - **previsto** (planos de ação das transferências especiais, TransfereGov): só os planos sem
   pagamento na CGU com a mesma chave (código da emenda + CNPJ do beneficiário) aparecem como
   "ainda sem pagamento registrado"; os outros já estão no pago;
@@ -24,6 +26,7 @@ from app.models import (
     ContasMunicipio,
     Emenda,
     EmendaPagamento,
+    EmendaPagamentoSemCodigo,
     EmendaTransferencia,
     FonteIngestao,
     Municipio,
@@ -54,9 +57,12 @@ TIPOS = {
     "relator": ("Emenda do relator-geral do orçamento", "Emenda de Relator"),
 }  # fmt: skip
 SEM_CODIGO = (
-    "Pagamentos sem código de emenda no arquivo da CGU ficam de fora: sem o código não há "
-    "como saber o autor nem o ano da emenda."
+    "Alguns pagamentos aparecem no arquivo da CGU sem o código da emenda (são emendas de "
+    "2014 a 2020 que a base da CGU não identifica). A fonte informa o tipo de emenda e o mês "
+    "do pagamento, mas não quem é o autor nem o ano da emenda. Esses valores estão somados "
+    "no total e no tipo informado pela fonte, e não são atribuídos a nenhum autor."
 )
+TIPO_NAO_INFORMADO = "Tipo não informado pela fonte"
 PREVISTO_DESCRICAO = (
     "Plano de ação é o valor previsto de uma emenda Pix, registrado no TransfereGov. O valor "
     "só entra no total pago quando o pagamento aparece no arquivo da CGU. Aqui ficam os "
@@ -161,7 +167,10 @@ def _populacao(session: Session, municipio: Municipio) -> int | None:
 def _media_uf(
     session: Session, municipio: Municipio, filtro: ColumnElement[bool] | None
 ) -> tuple[float | None, int]:
-    """Média por habitante dos municípios da UF (quem não recebeu entra com zero)."""
+    """Média por habitante dos municípios da UF (quem não recebeu entra com zero).
+
+    Sem filtro (todos os tipos), soma também os pagamentos sem código de emenda, como o
+    `total_geral` de cada município."""
     ultimo = (
         select(
             ContasMunicipio.municipio_ibge.label("ibge"),
@@ -171,13 +180,24 @@ def _media_uf(
         .group_by(ContasMunicipio.municipio_ibge)
         .subquery()
     )
-    pago_q = select(
-        EmendaPagamento.municipio_ibge.label("ibge"),
-        func.sum(EmendaPagamento.valor).label("total"),
-    ).group_by(EmendaPagamento.municipio_ibge)
+    linhas_q = select(
+        EmendaPagamento.municipio_ibge.label("ibge"), EmendaPagamento.valor.label("valor")
+    )
     if filtro is not None:
-        pago_q = pago_q.where(filtro)
-    pago = pago_q.subquery()
+        linhas_q = linhas_q.where(filtro)
+    else:
+        linhas_q = linhas_q.union_all(
+            select(
+                EmendaPagamentoSemCodigo.municipio_ibge.label("ibge"),
+                EmendaPagamentoSemCodigo.valor.label("valor"),
+            )
+        )
+    linhas = linhas_q.subquery()
+    pago = (
+        select(linhas.c.ibge.label("ibge"), func.sum(linhas.c.valor).label("total"))
+        .group_by(linhas.c.ibge)
+        .subquery()
+    )
     razao = func.coalesce(pago.c.total, 0) / ContasMunicipio.populacao
     media, n = session.execute(
         select(func.avg(razao), func.count())
@@ -359,6 +379,36 @@ def _outros_autores(pagamentos: list[EmendaPagamento], exercicio: set[int]) -> l
     return saida
 
 
+def _sem_identificacao(linhas: list[EmendaPagamentoSemCodigo]) -> dict:
+    """Pagamentos sem código de emenda da cidade, por tipo informado pela fonte."""
+    por_tipo: dict[str | None, dict] = {}
+    for p in linhas:
+        tipo = p.tipo if p.tipo in TIPOS else None
+        t = por_tipo.setdefault(tipo, {"total": Decimal(0), "pagamentos": 0})
+        t["total"] += p.valor
+        t["pagamentos"] += 1
+    ordem = [*TIPOS, None]
+    meses = [p.ano_mes for p in linhas]
+    return {
+        "total": sum((t["total"] for t in por_tipo.values()), start=Decimal(0)),
+        "pagamentos": len(linhas),
+        "primeiro_pagamento": min(meses) if meses else None,
+        "ultimo_pagamento": max(meses) if meses else None,
+        "por_tipo": [
+            {
+                "tipo": tipo,
+                "rotulo": TIPOS[tipo][0] if tipo else TIPO_NAO_INFORMADO,
+                "rotulo_oficial": TIPOS[tipo][1] if tipo else None,
+                **por_tipo[tipo],
+            }
+            for tipo in ordem
+            if tipo in por_tipo
+        ],
+        "incluido_no_total_geral": True,
+        "descricao": SEM_CODIGO,
+    }
+
+
 def resumo_municipio(
     session: Session, municipio: Municipio, limite_outros: int = 20, limite_favorecidos: int = 15
 ) -> dict:
@@ -373,11 +423,33 @@ def resumo_municipio(
         anos[p.ano_emenda] = anos.get(p.ano_emenda, Decimal(0)) + p.valor
 
     tipos: dict[str, dict] = {}
+
+    def no_tipo(tipo: str) -> dict:
+        return tipos.setdefault(
+            tipo,
+            {"total": Decimal(0), "pagamentos": 0,
+             "sem_codigo_total": Decimal(0), "sem_codigo_pagamentos": 0},
+        )  # fmt: skip
+
     for p in todos:
-        tipo = p.tipo or "individual"
-        t = tipos.setdefault(tipo, {"total": Decimal(0), "pagamentos": 0})
+        t = no_tipo(p.tipo or "individual")
         t["total"] += p.valor
         t["pagamentos"] += 1
+
+    # Pagamentos sem código de emenda: entram no tipo informado pela fonte e no total geral,
+    # nunca num autor; o tipo desconhecido fica só no bloco `sem_identificacao`.
+    sem_codigo = session.scalars(
+        select(EmendaPagamentoSemCodigo).where(
+            EmendaPagamentoSemCodigo.municipio_ibge == municipio.ibge
+        )
+    ).all()
+    for p in sem_codigo:
+        if p.tipo in TIPOS:
+            t = no_tipo(p.tipo)
+            t["total"] += p.valor
+            t["pagamentos"] += 1
+            t["sem_codigo_total"] += p.valor
+            t["sem_codigo_pagamentos"] += 1
 
     # Parlamentares em exercício: todos, para marcar os cards.
     totais_parlamentar: dict[int, Decimal] = {}
@@ -420,7 +492,9 @@ def resumo_municipio(
         select(func.min(EmendaPagamento.ano_emenda), func.max(EmendaPagamento.ano_emenda))
     ).one()
     desde = inicio or INICIO_LEGISLATURA.year
-    total_geral = sum((t["total"] for t in tipos.values()), start=Decimal(0))
+    total_geral = sum((t["total"] for t in tipos.values()), start=Decimal(0)) + sum(
+        (p.valor for p in sem_codigo if p.tipo not in TIPOS), start=Decimal(0)
+    )
     total_individual = sum(por_grupo.values(), start=Decimal(0))
     populacao = _populacao(session, municipio)
     media_uf, n_media = _media_uf(session, municipio, _individual())
@@ -470,6 +544,7 @@ def resumo_municipio(
         "previsto": _previsto(session, municipio.ibge, pagos),
         "convenios": _convenios(session, municipio.ibge, pagos),
         "sem_codigo_descricao": SEM_CODIGO,
+        "sem_identificacao": _sem_identificacao(sem_codigo),
         # Esfera estadual: bloco à parte, fora de todos os totais acima.
         "estaduais": emendas_estaduais.bloco_municipio(session, municipio),
         "fonte_nome": FONTE_NOME,
