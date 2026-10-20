@@ -92,6 +92,18 @@ def test_painel_do_governador(client, session):
     assert client.get(f"/executivo/{vice.id}/painel").json()["titular"] is False
 
 
+def test_contas_sem_carga_nao_culpam_o_governo(client, session):
+    gov = _candidatura(session, "13", "GOVERNADOR")
+    session.flush()
+    motivo = client.get(f"/executivo/{gov.id}/painel").json()["contas"]["motivo"]
+    assert motivo == "As contas anuais (SICONFI) ainda não foram carregadas no site."
+
+    session.add(_conta("SP", 2024, 1000, "70", "120"))
+    session.flush()
+    motivo = client.get(f"/executivo/{gov.id}/painel").json()["contas"]["motivo"]
+    assert "não entregou" in motivo
+
+
 def test_painel_do_prefeito_traz_contas_do_municipio(client, session):
     _ingestao(session, "siconfi_contas")
     session.add(Municipio(ibge="4202404", nome="Blumenau", uf="SC", nome_chave="BLUMENAU"))

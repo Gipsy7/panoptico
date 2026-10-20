@@ -10,7 +10,14 @@ from datetime import datetime
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
-from app.models import AgendaCompromisso, Candidatura, FonteIngestao, Municipio
+from app.models import (
+    AgendaCompromisso,
+    Candidatura,
+    ContasEstado,
+    ContasMunicipio,
+    FonteIngestao,
+    Municipio,
+)
 from app.services import contas, contratos_pncp, cruzamentos, emendas
 from app.services import pessoas as svc_pessoas
 from app.services.representantes import UFS
@@ -99,6 +106,10 @@ def _bloco_contas(session: Session, ente: dict) -> dict:
             "media_uf_despesa_por_habitante", "municipios_na_media",
         )  # fmt: skip
     if r is None:
+        # Tabela vazia = carga ainda não feita; não dá para atribuir a falta ao governo.
+        tabela = ContasEstado if ente["tipo"] == "estado" else ContasMunicipio
+        if session.scalar(select(tabela.ano).limit(1)) is None:
+            return _ausente("As contas anuais (SICONFI) ainda não foram carregadas no site.")
         return _ausente("O ente não entregou as contas anuais ao Tesouro (SICONFI) no período.")
     return {
         "disponivel": True,
