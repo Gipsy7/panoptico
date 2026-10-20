@@ -33,7 +33,10 @@ export const NOME_INDICADOR = {
 } as const;
 export type Indicador = keyof typeof NOME_INDICADOR;
 
-export const reais = (v: number | null | undefined) => (v == null ? "sem dado" : formatarReaisCompacto(v));
+/** Reais compactos; trilhões com 2 casas ("R$ 2,65 tri"), para não arredondar a conta da fonte. */
+const TRILHAO = new Intl.NumberFormat("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+export const reais = (v: number | null | undefined) =>
+  v == null ? "sem dado" : Math.abs(v) >= 1e12 ? `R$ ${TRILHAO.format(v / 1e12)} tri` : formatarReaisCompacto(v);
 export const reaisInteiro = (v: number | null | undefined) => (v == null ? "sem dado" : formatarReais(v, true));
 export const porHab = (v: number | null | undefined) => (v == null ? "sem dado" : formatarReais(v, true));
 const DECIMAL = new Intl.NumberFormat("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -67,4 +70,11 @@ export function formatarIndicador(i: Indicador, v: number | null) {
 export function notaPopulacao(t: { populacao_ano: number | null; populacao_origem: string | null }, ano: number) {
   if (t.populacao_ano == null || t.populacao_ano === ano) return "";
   return `população de ${t.populacao_ano}${t.populacao_origem === "censo" ? ", Censo" : ", estimativa do IBGE"}`;
+}
+
+/** "Sem dado em 2025 para: Saúde, convênios e outros repasses; Escolas (parte da União)"; null se completo. */
+export function textoSemDado(t: Pick<DinheiroFederalTotais, "blocos_sem_dado">, ano: number) {
+  if (!t.blocos_sem_dado?.length) return null;
+  const nomes = t.blocos_sem_dado.map((c) => BLOCOS.find((b) => b.chave === c)?.nome ?? c);
+  return `Sem dado em ${ano} para: ${nomes.join("; ")}.`;
 }

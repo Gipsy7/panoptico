@@ -80,6 +80,21 @@
   background: var(--card);
   border-radius: 2px;
 }
+.indCel {
+  display: none;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--muted-foreground);
+  flex: 1 1 0;
+  min-width: 0;
+}
+.indCel select {
+  flex: 1 1 0;
+  min-width: 0;
+  text-overflow: ellipsis;
+  color: var(--foreground);
+}
 .busca {
   flex: 1 1 200px;
   min-width: 0;
@@ -288,16 +303,30 @@
     gap: 6px;
   }
   .busca {
-    flex: 1 1 calc(100% - 110px);
+    flex: 1 1 100%;
   }
   .abas button,
   .chips button,
   .seletor {
     min-height: 38px;
   }
+  .indCel {
+    display: flex;
+    flex: 1 1 100%;
+    order: 3;
+  }
+  .abas {
+    order: 1;
+  }
+  .barra > .seletor {
+    order: 2;
+    margin-left: auto;
+  }
+  .busca {
+    order: 4;
+  }
   .chips {
-    flex: 1 1 0;
-    min-width: 0;
+    display: none;
   }
   .grade {
     flex: 1 1 auto;

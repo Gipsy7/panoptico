@@ -25,6 +25,7 @@ import {
   getFornecedoresPncp,
   getRepresentantes,
 } from "@/lib/api";
+import { ANO_PADRAO } from "@/components/dinheiro-federal/formatos";
 import { formatarReais, formatarReaisCompacto } from "@/lib/formato";
 
 // Estados com o Tribunal de Contas carregado (ver backend/ingestion/fontes.toml).
@@ -444,7 +445,8 @@ function DinheiroFederalCartao({
   uf: string;
   municipio: string;
 }) {
-  const ultimo = dados.serie.at(-1);
+  // Último ano fechado (o ano em curso soma só os meses já publicados); sem ele, o mais recente.
+  const ultimo = dados.serie.filter((s) => s.ano <= ANO_PADRAO).at(-1) ?? dados.serie.at(-1);
   if (!ultimo) return null;
   const fonte = dados.fontes[0];
   const datas = dados.fontes.map((f) => f.atualizado_em).filter((d): d is string => Boolean(d)).sort();
@@ -453,7 +455,7 @@ function DinheiroFederalCartao({
       <h2 id="federal-titulo" className="text-xl">
         Dinheiro federal nesta cidade
       </h2>
-      <p className="text-sm text-muted-foreground">Repasses da União a {municipio} em {ultimo.ano}.</p>
+      <p className="text-sm text-muted-foreground">Repasses da União à prefeitura de {municipio} em {ultimo.ano}.</p>
       <dl className="grid grid-cols-2 gap-4">
         <div>
           <dt className="text-sm text-muted-foreground">Repassado em {ultimo.ano}</dt>

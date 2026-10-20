@@ -6,6 +6,7 @@ import { EsqueletoSecao } from "@/components/esqueleto-secao";
 import { BuscaGeral } from "@/components/busca-geral";
 import { CepForm } from "@/components/cep-form";
 import { FonteRodape } from "@/components/fonte-rodape";
+import { reais, textoSemDado } from "@/components/dinheiro-federal/formatos";
 import { MapaHome } from "@/components/home-mapa/mapa-home";
 import { Marca } from "@/components/logo";
 import { Foto } from "@/components/parlamentar-card";
@@ -16,7 +17,7 @@ import {
   getDinheiroFederal,
   getRepresentantes,
 } from "@/lib/api";
-import { formatarGastos, formatarReaisCompacto } from "@/lib/formato";
+import { formatarGastos } from "@/lib/formato";
 
 // O exemplo de comparação usa os senadores deste estado (sempre há 3 em exercício).
 const UF_DO_EXEMPLO = "SC";
@@ -86,13 +87,14 @@ async function DinheiroFederalHome() {
         <dl className="grid grid-cols-2 gap-4 border-t border-foreground pt-4">
           <div>
             <dt className="text-sm text-muted-foreground">Arrecadado no país</dt>
-            <dd className="numero text-2xl">{brasil.arrecadacao != null ? formatarReaisCompacto(brasil.arrecadacao) : "sem dado"}</dd>
+            <dd className="numero text-2xl">{reais(brasil.arrecadacao)}</dd>
           </div>
           <div>
             <dt className="text-sm text-muted-foreground">Repassado a estados e cidades</dt>
-            <dd className="numero text-2xl">{brasil.repasse != null ? formatarReaisCompacto(brasil.repasse) : "sem dado"}</dd>
+            <dd className="numero text-2xl">{reais(brasil.repasse)}</dd>
           </div>
         </dl>
+        {textoSemDado(brasil, ano) && <p className="text-sm text-muted-foreground">{textoSemDado(brasil, ano)}</p>}
         {avisos.map((a) => (
           <p key={a} className="text-sm text-muted-foreground">
             {a}

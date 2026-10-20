@@ -264,6 +264,13 @@ export function PainelDinheiroFederal({ inicial }: { inicial: EstadoInicial }) {
   const cortesLegenda = nivelMun ? cortesMun : cortesUf;
   const minimo = valoresLegenda.length ? Math.min(...valoresLegenda) : null;
   const maximo = valoresLegenda.length ? Math.max(...valoresLegenda) : null;
+  const rotulosLegenda = [minimo, cortesLegenda[1] ?? null, cortesLegenda[3] ?? null, maximo]
+    .map((v) => formatarIndicador(indEfetivo, v))
+    .filter((t, i, todos) => i === 0 || t !== todos[i - 1]);
+  const valorUnico = rotulosLegenda.length === 1;
+  const cidadesComValor = cidades.filter((c) => valorCidade(c) != null);
+  const nomeUnico = nivelMun && cidadesComValor.length === 1 ? cidadesComValor[0].nome : null;
+  const unidadeLegenda = indEfetivo === "por100" ? "a cada R$ 100" : "por habitante";
 
   // ---- lista ----
   const linhas: LinhaLista[] = nivelMun
@@ -294,7 +301,7 @@ export function PainelDinheiroFederal({ inicial }: { inicial: EstadoInicial }) {
     const topo = topoFolhaRef.current;
     const raiz = raizRef.current;
     if (!topo || !raiz) return;
-    const medir = () => raiz.style.setProperty("--espia", `${Math.min(topo.offsetHeight + 12, 200)}px`);
+    const medir = () => raiz.style.setProperty("--espia", `${Math.min(topo.offsetHeight + 20, 280)}px`);
     medir();
     const ro = new ResizeObserver(medir);
     ro.observe(topo);
@@ -344,16 +351,12 @@ export function PainelDinheiroFederal({ inicial }: { inicial: EstadoInicial }) {
   }
   if (!cabecalho) cabecalho = <CabecalhoPainel sobre="Brasil" titulo="Todos os estados" chave="" />;
 
-  const resumoOnde = !uf ? (
-    <span className={estilos.onde}>
-      <b>Brasil</b> · {anoMostrado}
-    </span>
-  ) : (
+  const resumoOnde = (
     <>
       <button
         type="button"
         className={estilos.voltar}
-        onClick={() => navegar(ibge ? { uf } : {})}
+        onClick={() => navegar(ibge ? { uf: uf ?? undefined } : {})}
       >
         <span aria-hidden>‹</span> {ibge ? ufNome : "Brasil"}
       </button>
@@ -399,6 +402,21 @@ export function PainelDinheiroFederal({ inicial }: { inicial: EstadoInicial }) {
             </button>
           ))}
         </div>
+        <label className={estilos.indCel}>
+          <span>Cores:</span>
+          <select
+            className={estilos.seletor}
+            aria-label="O que as cores mostram"
+            value={ind}
+            onChange={(e) => setInd(e.target.value as Indicador)}
+          >
+            {INDICADORES.map((k) => (
+              <option key={k} value={k}>
+                {NOME_INDICADOR[k]}
+              </option>
+            ))}
+          </select>
+        </label>
         <select
           className={estilos.seletor}
           aria-label="Ano"
@@ -437,7 +455,7 @@ export function PainelDinheiroFederal({ inicial }: { inicial: EstadoInicial }) {
                 className="h-full w-full"
               />
             </div>
-            <div className={estilos.sobre}>{resumoOnde}</div>
+            {uf && <div className={estilos.sobre}>{resumoOnde}</div>}
             {uf && !ibge && (
               <div className={estilos.zoom}>
                 <button type="button" aria-label="Aproximar" onClick={() => controle.current?.zoom(1.5)}>
@@ -456,19 +474,34 @@ export function PainelDinheiroFederal({ inicial }: { inicial: EstadoInicial }) {
                   {NOME_INDICADOR[indEfetivo]}, {anoMostrado}
                   {nivelMun ? `, cidades de ${ufNome}` : ""}
                 </span>
-                <div className={estilos.faixa} aria-hidden>
-                  {[1, 2, 3, 4, 5].map((i) => (
-                    <i key={i} style={{ background: `var(--mapa-${i})` }} />
-                  ))}
-                </div>
-                <div className={estilos.rotulos}>
-                  <span>{formatarIndicador(indEfetivo, minimo)}</span>
-                  <span>{formatarIndicador(indEfetivo, cortesLegenda[1] ?? null)}</span>
-                  <span>{formatarIndicador(indEfetivo, cortesLegenda[3] ?? null)}</span>
-                  <span>{formatarIndicador(indEfetivo, maximo)}</span>
-                </div>
+                {valorUnico ? (
+                  <>
+                    <div className={estilos.faixa} aria-hidden style={{ gridTemplateColumns: "1fr" }}>
+                      <i style={{ background: "var(--mapa-3)" }} />
+                    </div>
+                    <div className={estilos.rotulos}>
+                      <span>
+                        {`${nomeUnico ?? (nivelMun ? "Todas as cidades" : "Todos os estados")}: `}
+                        {rotulosLegenda[0]} {unidadeLegenda}
+                      </span>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <div className={estilos.faixa} aria-hidden>
+                      {[1, 2, 3, 4, 5].map((i) => (
+                        <i key={i} style={{ background: `var(--mapa-${i})` }} />
+                      ))}
+                    </div>
+                    <div className={estilos.rotulos}>
+                      {rotulosLegenda.map((t, i) => (
+                        <span key={`${i}-${t}`}>{t}</span>
+                      ))}
+                    </div>
+                  </>
+                )}
                 <span className={estilos.legendaTexto}>
-                  Cada cor reúne um quinto dos {nivelMun ? "municípios" : "estados"}. Cinza: sem dado.
+                  {valorUnico ? "" : `Cada cor reúne um quinto dos ${nivelMun ? "municípios" : "estados"}. `}Cinza: sem dado.
                   {nivelMun && ind !== "repHab"
                     ? " Nas cidades o mapa mostra o repasse por habitante: a Receita Federal não publica arrecadação por cidade."
                     : ""}

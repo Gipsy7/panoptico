@@ -43,19 +43,19 @@ export function MenuPrincipal() {
 
   return (
     <>
-      <nav aria-label="Principal" className="hidden items-center gap-6 text-sm md:flex">
+      <nav aria-label="Principal" className="hidden items-center gap-3 text-sm whitespace-nowrap xl:flex xl:gap-6">
         {ITENS.map((i) => (
           <Link key={i.href} href={i.href} className="alvo-link underline-offset-4 hover:underline">
             {i.rotulo}
           </Link>
         ))}
-        <Link href="/#cep" className="botao-linha px-4">
+        <Link href="/#cep" className="botao-linha px-4 whitespace-nowrap">
           Buscar pelo CEP
         </Link>
         <AlternarTema />
       </nav>
 
-      <div className="flex items-center gap-2 md:hidden">
+      <div className="flex items-center gap-2 xl:hidden">
         <Link href="/#cep" onClick={() => setAberto(false)} aria-label="Buscar pelo CEP" className="botao-linha px-3 whitespace-nowrap">
           Buscar CEP
         </Link>
@@ -79,7 +79,7 @@ export function MenuPrincipal() {
         <div
           id="menu-celular"
           onClick={() => setAberto(false)}
-          className="absolute inset-x-0 top-full h-[calc(100dvh-3.5rem)] bg-background/95 md:hidden"
+          className="absolute inset-x-0 top-full h-[calc(100dvh-3.5rem)] bg-background/95 xl:hidden"
         >
           <nav
             aria-label="Menu"

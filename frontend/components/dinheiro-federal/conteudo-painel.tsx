@@ -28,6 +28,7 @@ import {
   reais,
   reaisA100,
   repHab,
+  textoSemDado,
 } from "./formatos";
 import { Barras, Figura, Secao } from "./pecas";
 
@@ -80,6 +81,11 @@ export function Fontes({ fontes }: { fontes: DinheiroFederalFonte[] }) {
   );
 }
 
+function SemDado({ t, ano }: { t: DinheiroFederalTotais; ano: number }) {
+  const texto = textoSemDado(t, ano);
+  return texto ? <p className="text-[13px] text-muted-foreground">{texto}</p> : null;
+}
+
 function Blocos({ t }: { t: DinheiroFederalTotais }) {
   return (
     <>
@@ -92,11 +98,6 @@ function Blocos({ t }: { t: DinheiroFederalTotais }) {
           extra: reais(t.blocos[b.chave]),
         }))}
       />
-      {t.blocos_sem_dado.length > 0 && (
-        <p className="text-[13px] text-muted-foreground">
-          Sem dado neste ano: {t.blocos_sem_dado.map((c) => BLOCOS.find((b) => b.chave === c)?.nome ?? c).join(", ")}.
-        </p>
-      )}
     </>
   );
 }
@@ -150,6 +151,7 @@ export function CorpoBrasil({ painel }: { painel: DinheiroFederalPainel }) {
         <Num>{reais(b.repasse)}</Num> a governos de estado e prefeituras.
       </p>
       <Avisos avisos={painel.avisos} />
+      <SemDado t={b} ano={painel.ano} />
       <div className="grid grid-cols-2 gap-3">
         <Figura rotulo="Arrecadação por habitante" valor={porHab(arrHab(b))} />
         <Figura rotulo="Repasse por habitante" valor={porHab(repHab(b))} />
@@ -265,6 +267,7 @@ export function CorpoEstado({
         governo do estado e às prefeituras: {reaisA100(por100(uf))} a cada R$ 100.
       </p>
       <Avisos avisos={painel.avisos} />
+      <SemDado t={uf} ano={ano} />
       <div className="grid grid-cols-2 gap-3">
         <Figura rotulo="Repasse por habitante" valor={porHab(rep)} apoio={`Brasil: ${porHab(mediaBr)}`} />
         <Figura rotulo="Arrecadação por habitante" valor={porHab(arrHab(uf))} apoio={`Brasil: ${porHab(arrHab(b))}`} />

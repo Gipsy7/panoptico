@@ -11,7 +11,7 @@ import { useMemo, useState } from "react";
 import { MapaBrasil } from "@/components/mapa/mapa-brasil";
 import estilos from "@/components/mapa/mapa-brasil.module.css";
 import { classe, quantis, type ClasseMapa } from "@/lib/mapa";
-import { formatarReaisCompacto } from "@/lib/formato";
+import { reais } from "@/components/dinheiro-federal/formatos";
 
 export interface UfDoMapa {
   uf: string;
@@ -32,10 +32,10 @@ function Resumo({ u }: { u: UfDoMapa }) {
     <div className="flex flex-col gap-0.5 text-sm">
       <strong>{u.nome}</strong>
       <span>
-        Arrecadou <span className="tabular-nums">{u.arrecadacao != null ? formatarReaisCompacto(u.arrecadacao) : "sem dado"}</span>
+        Arrecadou <span className="tabular-nums">{reais(u.arrecadacao)}</span>
       </span>
       <span>
-        Recebeu <span className="tabular-nums">{u.repasse != null ? formatarReaisCompacto(u.repasse) : "sem dado"}</span>
+        Recebeu <span className="tabular-nums">{reais(u.repasse)}</span>
       </span>
       <span>
         A cada R$ 100 arrecadados: <span className="tabular-nums">{r != null ? REAIS_100.format(r) : "sem dado"}</span>
