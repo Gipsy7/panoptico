@@ -351,7 +351,9 @@ def _outros_autores(pagamentos: list[EmendaPagamento], exercicio: set[int]) -> l
         g["total"] += p.valor
         if p.ano_emenda > g["_ano"]:  # o nome mais recente
             g["autor_nome"], g["_ano"] = p.autor_nome, p.ano_emenda
-    saida = sorted(grupos.values(), key=lambda g: g["total"], reverse=True)
+    saida = sorted(
+        (g for g in grupos.values() if g["total"] > 0), key=lambda g: g["total"], reverse=True
+    )
     for g in saida:
         del g["_ano"]
     return saida
@@ -393,7 +395,13 @@ def resumo_municipio(
         )
     }
     com_vinculo = sorted(
-        ((em_exercicio[i], t) for i, t in totais_parlamentar.items() if i in em_exercicio),
+        # Saldo zero ou negativo (só estornos no período) não é "autor que mandou dinheiro":
+        # fica fora da lista, mas o valor continua nos totais, que são a soma literal da fonte.
+        (
+            (em_exercicio[i], t)
+            for i, t in totais_parlamentar.items()
+            if i in em_exercicio and t > 0
+        ),
         key=lambda item: item[1],
         reverse=True,
     )

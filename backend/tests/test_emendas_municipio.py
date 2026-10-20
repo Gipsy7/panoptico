@@ -287,3 +287,21 @@ def test_resumo_parlamentar_mantem_individuais_desde_2023(session, gaspar):
     # Peninha (fora do cargo) não entra; Goetten: só individuais de 2023 em diante.
     assert ids["peninha"] not in linhas
     assert linhas[ids["goetten"]]["emendas_pagas"] == Decimal("1195000.00")
+
+
+def test_estorno_sozinho_nao_aparece_como_autor():
+    from types import SimpleNamespace
+
+    from app.services.emendas import _outros_autores
+
+    def pag(nome, valor):
+        return SimpleNamespace(
+            parlamentar_id=None,
+            pessoa_id=None,
+            autor_nome=nome,
+            valor=Decimal(valor),
+            ano_emenda=2019,
+        )
+
+    saida = _outros_autores([pag("DECIO LIMA", "-1035.44"), pag("ANGELA AMIN", "600000")], set())
+    assert [a["autor_nome"] for a in saida] == ["ANGELA AMIN"]
