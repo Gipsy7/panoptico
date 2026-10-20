@@ -84,20 +84,32 @@
   display: none;
   align-items: center;
   gap: 6px;
-  font-size: 13px;
+  font-size: 12px;
   color: var(--muted-foreground);
-  flex: 1 1 0;
   min-width: 0;
 }
 .indCel select {
   flex: 1 1 0;
   min-width: 0;
+  min-height: 32px;
+  padding: 0 4px;
+  font-size: 13px;
+  border: 0;
+  background: none;
   text-overflow: ellipsis;
   color: var(--foreground);
+  font-weight: 500;
 }
-.busca {
+.buscaCx {
   flex: 1 1 200px;
   min-width: 0;
+}
+.lupa,
+.fecharBusca {
+  display: none;
+}
+.migalhas {
+  display: block;
 }
 
 .grade {
@@ -274,58 +286,92 @@
     gap: 6px;
     overflow: hidden;
   }
-  :global(html:has([data-app-mapa])),
-  :global(html:has([data-app-mapa]) body) {
+  :global(html[data-app-mapa]),
+  :global(html[data-app-mapa] body) {
     overflow: hidden;
     height: 100%;
   }
-  .topo,
   .barra {
     padding-inline: 16px;
   }
+  /* o cabeçalho do site já identifica a página; o título fica só para leitor de tela */
   .topo {
-    gap: 2px;
-  }
-  .h1 {
-    font-size: 1.05rem;
-    line-height: 1.25;
-    white-space: nowrap;
+    position: absolute;
+    width: 1px;
+    height: 1px;
     overflow: hidden;
-    text-overflow: ellipsis;
-  }
-  .longo {
-    display: none;
-  }
-  .curto {
-    display: inline;
+    clip-path: inset(50%);
+    white-space: nowrap;
   }
   .barra {
-    gap: 6px;
+    flex-wrap: nowrap;
+    gap: 8px;
+    min-height: 44px;
   }
-  .busca {
-    flex: 1 1 100%;
+  .abas button {
+    min-height: 44px;
+    padding: 0 12px;
   }
-  .abas button,
-  .chips button,
   .seletor {
-    min-height: 38px;
+    min-height: 44px;
+  }
+  .barra > .seletor {
+    margin-left: auto;
+  }
+  .lupa {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: none;
+    width: 44px;
+    height: 44px;
+    border: 1px solid var(--border);
+    background: var(--card);
+    border-radius: 2px;
+    cursor: pointer;
+    color: var(--foreground);
+  }
+  .buscaCx {
+    display: none;
+  }
+  .buscaCx.buscaAberta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    position: absolute;
+    z-index: 40;
+    top: 0;
+    left: 0;
+    right: 0;
+    padding: 8px 16px;
+    background: var(--background);
+    box-shadow: 0 8px 16px -12px rgb(0 0 0 / 0.35);
+  }
+  .buscaCx.buscaAberta > :first-child {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+  .fecharBusca {
+    display: inline-flex;
+    align-items: center;
+    flex: none;
+    min-height: 44px;
+    padding: 0 8px;
+    border: 0;
+    background: none;
+    cursor: pointer;
+    font-size: 14px;
+  }
+  .chips {
+    display: none;
+  }
+  .migalhas {
+    display: none;
   }
   .indCel {
     display: flex;
-    flex: 1 1 100%;
-    order: 3;
   }
-  .abas {
-    order: 1;
-  }
-  .barra > .seletor {
-    order: 2;
-    margin-left: auto;
-  }
-  .busca {
-    order: 4;
-  }
-  .chips {
+  .tituloLeg.trocaCel {
     display: none;
   }
   .grade {
@@ -354,7 +400,7 @@
     right: 8px;
   }
   .legenda {
-    padding: 6px 16px 8px;
+    padding: 4px 16px 8px;
     font-size: 12px;
     gap: 3px;
   }
@@ -378,7 +424,7 @@
     box-shadow: 0 -12px 24px -18px rgb(0 0 0 / 0.35);
     max-height: 82svh;
     overflow: hidden;
-    transform: translateY(calc(100% - var(--espia)));
+    transform: translateY(calc(100% - var(--espia) - env(safe-area-inset-bottom, 0px)));
     transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
     padding-bottom: env(safe-area-inset-bottom, 0px);
   }
@@ -386,12 +432,23 @@
     transform: none;
     overflow: auto;
   }
+  /* cidade: a folha abre na meia altura e o contorno da cidade fica à vista acima */
+  .painel.meia {
+    height: 55svh;
+    max-height: 55svh;
+  }
+  .raiz.comMeia {
+    padding-bottom: 55svh;
+  }
+  .cabecalhoToque {
+    cursor: pointer;
+  }
   .alca {
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 2px;
-    min-height: 36px;
+    min-height: 44px;
     border: 0;
     background: none;
     width: 100%;
@@ -407,7 +464,7 @@
     border-radius: 2px;
   }
   .cabFolha {
-    padding: 0 18px;
+    padding: 0 18px 8px;
   }
   .corpo {
     padding-top: 12px;
@@ -424,5 +481,12 @@
 @media (prefers-reduced-motion: reduce) {
   .painel {
     transition: none;
+  }
+}
+
+/* Na cidade, no celular, o nome já está na folha: sobre o mapa fica só o botão de voltar. */
+@media (max-width: 959px) {
+  .ondeCidade {
+    display: none;
   }
 }

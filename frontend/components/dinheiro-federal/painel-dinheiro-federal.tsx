@@ -84,7 +84,8 @@ export function PainelDinheiroFederal({ inicial }: { inicial: EstadoInicial }) {
   const [ano, setAno] = useState(inicial.ano);
   const [ind, setInd] = useState<Indicador>("repHab");
   const [vista, setVista] = useState<"mapa" | "lista">("mapa");
-  const [aberta, setAberta] = useState(false);
+  const [aberta, setAberta] = useState(Boolean(inicial.ibge));
+  const [buscaAberta, setBuscaAberta] = useState(false);
   const [painel, setPainel] = useState(inicial.painel);
   const [estado, setEstado] = useState(inicial.estado);
   const [municipio, setMunicipio] = useState(inicial.municipio);
@@ -93,6 +94,7 @@ export function PainelDinheiroFederal({ inicial }: { inicial: EstadoInicial }) {
   const raizRef = useRef<HTMLDivElement>(null);
   const topoFolhaRef = useRef<HTMLDivElement>(null);
   const controle = useRef<MapaControle>(null);
+  const buscaRef = useRef<HTMLDivElement>(null);
 
   // Veio outra renderização do servidor (ex.: botão voltar): acompanha o endereço novo.
   const chaveInicial = `${inicial.uf}|${inicial.ibge}|${inicial.ano}`;
@@ -102,6 +104,7 @@ export function PainelDinheiroFederal({ inicial }: { inicial: EstadoInicial }) {
     setUf(inicial.uf);
     setIbge(inicial.ibge);
     setAno(inicial.ano);
+    setAberta(Boolean(inicial.ibge));
     setPainel(inicial.painel);
     setEstado(inicial.estado);
     setMunicipio(inicial.municipio);
@@ -117,13 +120,14 @@ export function PainelDinheiroFederal({ inicial }: { inicial: EstadoInicial }) {
       setUf(e.uf);
       setIbge(e.ibge);
       setAno(e.ano);
-      setAberta(false);
+      setAberta(Boolean(e.ibge));
     };
     addEventListener("popstate", aoVoltar);
     return () => removeEventListener("popstate", aoVoltar);
   }, []);
 
-  // Marca a página como "tela de app" (celular sem rolagem) enquanto ela está aberta.
+  // Marca a página como "tela de app" (celular sem rolagem) enquanto ela está aberta. O atributo vive
+  // só no <html>: com a página anterior escondida (Activity) a limpeza do efeito o retira.
   useEffect(() => {
     document.documentElement.dataset.appMapa = "1";
     return () => {
@@ -184,7 +188,7 @@ export function PainelDinheiroFederal({ inicial }: { inicial: EstadoInicial }) {
       const novoIbge = novoUf ? (lugar.municipio ?? null) : null;
       setUf(novoUf);
       setIbge(novoIbge);
-      setAberta(false);
+      setAberta(Boolean(novoIbge));
       setErro(null);
       history.pushState(null, "", urlDe(novoUf, novoIbge, ano));
     },
@@ -301,7 +305,7 @@ export function PainelDinheiroFederal({ inicial }: { inicial: EstadoInicial }) {
     const topo = topoFolhaRef.current;
     const raiz = raizRef.current;
     if (!topo || !raiz) return;
-    const medir = () => raiz.style.setProperty("--espia", `${Math.min(topo.offsetHeight + 20, 280)}px`);
+    const medir = () => raiz.style.setProperty("--espia", `${Math.min(topo.offsetHeight + 8, 320)}px`);
     medir();
     const ro = new ResizeObserver(medir);
     ro.observe(topo);
@@ -360,7 +364,7 @@ export function PainelDinheiroFederal({ inicial }: { inicial: EstadoInicial }) {
       >
         <span aria-hidden>‹</span> {ibge ? ufNome : "Brasil"}
       </button>
-      <span className={estilos.onde}>
+      <span className={ibge ? `${estilos.onde} ${estilos.ondeCidade}` : estilos.onde}>
         {ibge ? (
           <>
             {ufNome} › <b>{nomeCidade}</b>
@@ -377,9 +381,11 @@ export function PainelDinheiroFederal({ inicial }: { inicial: EstadoInicial }) {
     : `Mapa do Brasil por estado, colorido por: ${NOME_INDICADOR[ind].toLowerCase()}`;
 
   return (
-    <div ref={raizRef} data-largura="larga" data-app-mapa className={estilos.raiz}>
+    <div ref={raizRef} data-largura="larga" className={`${estilos.raiz} ${ibge && aberta ? estilos.comMeia : ""}`}>
       <header className={estilos.topo}>
-        <Migalhas itens={migalhas} />
+        <div className={estilos.migalhas}>
+          <Migalhas itens={migalhas} />
+        </div>
         <h1 className={`${estilos.h1} font-heading`}>
           <span className={estilos.longo}>Quanto a União arrecada e quanto repassa em cada estado</span>
           <span className={estilos.curto}>Imposto federal: o que sai e o que volta</span>
@@ -395,28 +401,15 @@ export function PainelDinheiroFederal({ inicial }: { inicial: EstadoInicial }) {
             Lista
           </button>
         </div>
-        <div className={estilos.chips} role="group" aria-label="O que as cores mostram">
-          {INDICADORES.map((k) => (
-            <button key={k} type="button" aria-pressed={ind === k} onClick={() => setInd(k)}>
-              {NOME_INDICADOR[k]}
-            </button>
-          ))}
-        </div>
-        <label className={estilos.indCel}>
-          <span>Cores:</span>
-          <select
-            className={estilos.seletor}
-            aria-label="O que as cores mostram"
-            value={ind}
-            onChange={(e) => setInd(e.target.value as Indicador)}
-          >
+        {!uf && (
+          <div className={estilos.chips} role="group" aria-label="O que as cores mostram">
             {INDICADORES.map((k) => (
-              <option key={k} value={k}>
+              <button key={k} type="button" aria-pressed={ind === k} onClick={() => setInd(k)}>
                 {NOME_INDICADOR[k]}
-              </option>
+              </button>
             ))}
-          </select>
-        </label>
+          </div>
+        )}
         <select
           className={estilos.seletor}
           aria-label="Ano"
@@ -429,13 +422,32 @@ export function PainelDinheiroFederal({ inicial }: { inicial: EstadoInicial }) {
             </option>
           ))}
         </select>
-        <BuscaCidade
-          classe={estilos.busca}
-          onEscolher={(u, i) => {
-            setVista("mapa");
-            navegar({ uf: u, municipio: i });
+        <button
+          type="button"
+          className={estilos.lupa}
+          aria-label="Buscar cidade"
+          onClick={() => {
+            setBuscaAberta(true);
+            requestAnimationFrame(() => buscaRef.current?.querySelector("input")?.focus());
           }}
-        />
+        >
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
+            <circle cx="11" cy="11" r="7" />
+            <path d="m20 20-4-4" />
+          </svg>
+        </button>
+        <div ref={buscaRef} className={`${estilos.buscaCx} ${buscaAberta ? estilos.buscaAberta : ""}`}>
+          <BuscaCidade
+            onEscolher={(u, i) => {
+              setBuscaAberta(false);
+              setVista("mapa");
+              navegar({ uf: u, municipio: i });
+            }}
+          />
+          <button type="button" className={estilos.fecharBusca} onClick={() => setBuscaAberta(false)}>
+            Fechar
+          </button>
+        </div>
       </div>
 
       <div className={estilos.grade} aria-busy={carregando}>
@@ -470,10 +482,26 @@ export function PainelDinheiroFederal({ inicial }: { inicial: EstadoInicial }) {
           <div className={`${estilosMapa.caixa} ${estilos.legenda}`} hidden={vista !== "mapa" || Boolean(ibge)}>
             {valoresLegenda.length > 0 && minimo != null && maximo != null ? (
               <>
-                <span>
+                <span className={`${estilos.tituloLeg} ${nivelMun ? "" : estilos.trocaCel}`}>
                   {NOME_INDICADOR[indEfetivo]}, {anoMostrado}
                   {nivelMun ? `, cidades de ${ufNome}` : ""}
                 </span>
+                {!nivelMun && (
+                  <label className={estilos.indCel}>
+                    <span>Cores:</span>
+                    <select
+                      aria-label="O que as cores mostram"
+                      value={ind}
+                      onChange={(e) => setInd(e.target.value as Indicador)}
+                    >
+                      {INDICADORES.map((k) => (
+                        <option key={k} value={k}>
+                          {NOME_INDICADOR[k]}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                )}
                 {valorUnico ? (
                   <>
                     <div className={estilos.faixa} aria-hidden style={{ gridTemplateColumns: "1fr" }}>
@@ -531,17 +559,16 @@ export function PainelDinheiroFederal({ inicial }: { inicial: EstadoInicial }) {
         </div>
 
         <aside
-          className={`${estilos.painel} ${aberta ? estilos.aberta : ""}`}
+          className={`${estilos.painel} ${aberta ? estilos.aberta : ""} ${ibge ? estilos.meia : ""}`}
           aria-label="Números do lugar escolhido"
           aria-live="polite"
         >
-          <div ref={topoFolhaRef}>
+          <div ref={topoFolhaRef} className={estilos.cabecalhoToque} onClick={() => setAberta((a) => !a)}>
             <button
               type="button"
               className={estilos.alca}
               aria-expanded={aberta}
               aria-controls="corpo-painel-dinheiro"
-              onClick={() => setAberta((a) => !a)}
             >
               <i />
               <span>{aberta ? "Fechar" : "Puxe para ver mais"}</span>
