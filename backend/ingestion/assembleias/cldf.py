@@ -320,7 +320,7 @@ def baixar_verbas(client: Any, anos: set[int], de_raw: Path | None = None) -> li
         for fonte, _ in candidatos:
             try:
                 conteudo = fonte if isinstance(fonte, bytes) else comum.get_bytes(client, fonte)
-                ano_linhas = padronizar(ler_verbas(conteudo))
+                ano_linhas = [{**lin, "ano": ano} for lin in padronizar(ler_verbas(conteudo))]
             except (zipfile.BadZipFile, ValueError, KeyError, httpx.HTTPError) as erro:
                 origem = fonte if isinstance(fonte, str) else "raw"
                 print(f"  AVISO CLDF: verbas de {ano} ({origem}) ilegíveis: {erro!r}", flush=True)
@@ -336,6 +336,27 @@ def baixar_verbas(client: Any, anos: set[int], de_raw: Path | None = None) -> li
     if not lidos:
         raise ValueError(f"Verbas da CLDF: nenhum ano de {sorted(anos)} pôde ser lido; abortando.")
     return linhas
+
+
+MOTIVO_SEM_DATA = "O comprovante vem sem data na planilha, então não dá para somar por mês"
+
+
+def fora_da_soma(linhas: list[dict]) -> dict[str, dict[int, dict]]:
+    """Chave do deputado -> ano da planilha -> linhas sem data (contagem, valor das de valor
+    legível e quantas têm valor ilegível). É o que a planilha traz e a soma mensal não usa."""
+    saida: dict[str, dict[int, dict]] = defaultdict(dict)
+    for lin in linhas:
+        if lin["data"] is not None or not lin["cpf"] or "ano" not in lin:
+            continue
+        acc = saida[lin["cpf"]].setdefault(
+            lin["ano"], {"linhas": 0, "valor": Decimal(0), "linhas_valor_ilegivel": 0}
+        )
+        acc["linhas"] += 1
+        try:
+            acc["valor"] += _valor(lin["valor"])
+        except InvalidOperation:
+            acc["linhas_valor_ilegivel"] += 1
+    return saida
 
 
 def deputado_por_cpf(
@@ -375,7 +396,20 @@ def anexar_gastos(session: Any, casa: dict) -> int:
             lin["cpf"] = f"nome:{nome}" if nome else ""
     nome_do_cpf = {lin["cpf"]: nome_sem_titulo(lin["nome"]) for lin in verbas}
     por_nome: dict[str, list] = defaultdict(list)
+    fora_por_nome: dict[str, list] = defaultdict(list)
     sem = 0
+    for cpf, anos in fora_da_soma(verbas).items():
+        da_planilha = comum.chave_nome(nome_do_cpf.get(cpf))
+        nome = por_cpf.get(cpf) or chave.get(da_planilha) or civis.get(da_planilha)
+        for ano, dados in anos.items():
+            if not nome:
+                continue
+            ja = next((f for f in fora_por_nome[nome] if f["ano"] == ano), None)
+            if ja is None:
+                fora_por_nome[nome].append({"ano": ano, "motivo": MOTIVO_SEM_DATA, **dados})
+            else:  # o mesmo deputado com CPF certo e CPFs corrompidos na planilha
+                for campo in ("linhas", "valor", "linhas_valor_ilegivel"):
+                    ja[campo] += dados[campo]
     for cpf, lista in somar_gastos(verbas, casa.pop("anos")).items():
         da_planilha = comum.chave_nome(nome_do_cpf.get(cpf))
         nome = por_cpf.get(cpf) or chave.get(da_planilha) or civis.get(da_planilha)
@@ -385,6 +419,7 @@ def anexar_gastos(session: Any, casa: dict) -> int:
         por_nome[nome] += lista
     for v in casa["vereadores"]:
         v["gastos"] = por_nome.get(v["nome"], [])
+        v["gastos_fora"] = fora_por_nome.get(v["nome"], [])
     return sem
 
 

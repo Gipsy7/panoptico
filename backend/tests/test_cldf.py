@@ -99,6 +99,42 @@ def test_verbas_sem_data_viram_alerta_com_contagem_e_valor():
     assert "2 de 3 linhas" in alerta and "1.000,50" in alerta and "1 com valor ilegível" in alerta
 
 
+def test_fora_da_soma_por_deputado_e_ano():
+    linhas = cldf.padronizar(
+        [
+            {"NOME_PARLAMENTAR": "A", "CPF_PARLAMENTAR": "1", "DATA_COMPROVANTE": "",
+             "VALOR_DESPESA": "R$ 1.000,50"},
+            {"NOME_PARLAMENTAR": "A", "CPF_PARLAMENTAR": "1", "DATA_COMPROVANTE": "",
+             "VALOR_DESPESA": "Combustíveis"},
+            {"NOME_PARLAMENTAR": "A", "CPF_PARLAMENTAR": "1", "DATA_COMPROVANTE": "02/01/2026",
+             "VALOR_DESPESA": "9"},
+        ]
+    )  # fmt: skip
+    linhas = [{**lin, "ano": 2026} for lin in linhas]
+    assert cldf.fora_da_soma(linhas) == {
+        "1": {2026: {"linhas": 2, "valor": cldf.Decimal("1000.50"), "linhas_valor_ilegivel": 1}}
+    }
+
+
+def test_gastos_do_mandato_so_com_o_que_ficou_fora(session):
+    from app.models import GastoLocalFora, MandatoLocal
+    from app.services import camaras
+
+    m = MandatoLocal(casa="assembleia", uf="DF", id_externo="9", nome="Fulano",
+                     titular=True, em_exercicio=True, sapl_url="https://ple.cl.df.gov.br",
+                     proposicoes_por_tipo={})  # fmt: skip
+    session.add(m)
+    session.flush()
+    assert camaras.gastos(session, m) is None
+    session.add(GastoLocalFora(mandato_id=m.id, ano=2026, linhas=31, valor=cldf.Decimal("52388.65"),
+                               linhas_valor_ilegivel=0, motivo="sem data"))  # fmt: skip
+    session.flush()
+    g = camaras.gastos(session, m)
+    assert g["por_categoria"] == [] and g["media_casa"] is None
+    assert g["fora_da_soma"]["linhas"] == 31
+    assert g["fora_da_soma"]["valor"] == cldf.Decimal("52388.65")
+
+
 def test_verbas_html_de_erro_nao_e_planilha():
     import pytest
 

@@ -107,6 +107,7 @@
 - [2026-10-19: emendas estaduais, começando por SC (SC Transferências)](#2026-10-19-emendas-estaduais-começando-por-sc-sc-transferências)
 - [2026-10-20: pagamentos de emenda sem código na CGU](#2026-10-20-pagamentos-de-emenda-sem-código-na-cgu)
 - [2026-10-20: verbas da CLDF: formato pelo conteúdo e linhas que não entram](#2026-10-20-verbas-da-cldf-formato-pelo-conteúdo-e-linhas-que-não-entram)
+- [2026-10-20: o que fica fora da soma de gastos aparece no perfil](#2026-10-20-o-que-fica-fora-da-soma-de-gastos-aparece-no-perfil)
 
 ## 2026-10-06: stack inicial
 
@@ -1171,3 +1172,9 @@ Os próximos passos mais rendosos: CE (gastos em CSV, quase direto), depois AP e
 - **Ligação ao deputado:** CPF da planilha só vale se o TSE o reconhece (o XLSX de 2025 tem CPFs com 12 dígitos e variações do mesmo deputado, ex. "010.806.391-160"); senão, pelo nome exato (urna, ou nome civil do TSE, ex. "Fábio Felix Silveira"). Nada de nome aproximado.
 - **Cobertura:** a fonte traz 11 pessoas em 2025 e 10 em 2026, de 24 deputados; 9 ficam com gasto por mês nos dois anos. Os outros deputados não aparecem na planilha, e o site não mostra seção de gastos para eles (`gastos` nulo), em vez de zero.
 
+## 2026-10-20: o que fica fora da soma de gastos aparece no perfil
+
+- **Problema:** dado que some de um deputado e não de outro parece tomar partido. Na CLDF, Fábio Felix (113 comprovantes sem data) e Robério Negreiros em 2025 (150 linhas com colunas deslocadas) ficavam sem a seção de gastos, como se não tivessem pedido reembolso.
+- **Tabela `gasto_local_fora`** (migração 0051, só acréscimo; genérica para qualquer casa): por mandato e ano da planilha, nº de linhas, valor das de valor legível, nº de linhas de valor ilegível e o motivo em linguagem simples. Recriada a cada carga junto com o mandato (cascade).
+- **API:** `gastos` do mandato ganha `fora_da_soma` (campo acrescentado). Sem gasto mensal mas com linhas de fora, `gastos` vem com `por_categoria` vazio, `total` 0 e `media_casa` nula, e o site mostra só a frase "A planilha da Câmara Legislativa traz N gastos deste deputado sem data (R$ X); eles não entram na soma por mês", com fonte e data.
+- **Média da Casa não muda:** segue a regra fixa (parlamentares em exercício; quem não tem nada entra com zero). Na CLDF a planilha cobre cerca de 10 dos 24 deputados, então a média por deputado é menor do que seria entre quem a fonte cobre; a seção já diz que "quem não pediu reembolso entra com zero".

@@ -3,6 +3,7 @@ from app.models.agenda import AgendaCompromisso
 from app.models.base import Base
 from app.models.camara_municipal import (
     GastoLocal,
+    GastoLocalFora,
     MandatoLocal,
     ProjetoLocal,
     VotacaoLocal,
@@ -93,6 +94,7 @@ __all__ = [
     "FonteIngestao",
     "Foto",
     "GastoLocal",
+    "GastoLocalFora",
     "MandatoLocal",
     "VotacaoLocal",
     "VotoLocal",

@@ -162,6 +162,33 @@ export function GastosLocaisSecao({ v, nomeCasa }: { v: VereadorDetalhe; nomeCas
   const g = v.gastos;
   if (!g) return null;
   const maior = g.por_categoria[0]?.valor ?? 0;
+  const fora = g.fora_da_soma;
+  const detalhes: string[] = [];
+  if (fora && fora.valor > 0) detalhes.push(formatarReais(fora.valor, true));
+  if (fora && fora.linhas_valor_ilegivel > 0) {
+    detalhes.push(`em ${fora.linhas_valor_ilegivel} o valor não está legível na planilha`);
+  }
+  const avisoFora = fora && (
+    <p className="text-sm">
+      A planilha da {nomeCasa} traz {fora.linhas} {fora.linhas === 1 ? "gasto" : "gastos"} deste deputado sem
+      data{detalhes.length > 0 ? ` (${detalhes.join("; ")})` : ""}; eles não entram na soma por mês.{" "}
+      <span className="text-muted-foreground">Ano da planilha: {g.ano}.</span>
+    </p>
+  );
+  if (g.por_categoria.length === 0) {
+    return (
+      <section aria-labelledby="gastos-titulo" className="revelar flex flex-col gap-3">
+        <div>
+          <h2 id="gastos-titulo" className="text-2xl">
+            Gastos do gabinete
+          </h2>
+          <p className="text-sm text-muted-foreground">Verba indenizatória (reembolsos ao gabinete)</p>
+        </div>
+        {avisoFora}
+        <FonteRodape fonte={v.fonte_nome} url={v.fonte_url} atualizadoEm={v.atualizado_em} />
+      </section>
+    );
+  }
   return (
     <section aria-labelledby="gastos-titulo" className="revelar flex flex-col gap-3">
       <div>
@@ -205,6 +232,7 @@ export function GastosLocaisSecao({ v, nomeCasa }: { v: VereadorDetalhe; nomeCas
         Valores reembolsados como a {nomeCasa} publica, por mês de fechamento. A média inclui quem
         está no cargo hoje; quem não pediu reembolso entra com zero.
       </p>
+      {avisoFora}
       <FonteRodape fonte={v.fonte_nome} url={v.fonte_url} atualizadoEm={v.atualizado_em} />
     </section>
   );
