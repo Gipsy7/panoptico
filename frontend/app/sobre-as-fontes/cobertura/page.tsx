@@ -60,11 +60,11 @@ export default function CoberturaPage({ searchParams }: PageProps<"/sobre-as-fon
         <p className="sobretitulo">Método</p>
         <h1 className="titulo-pagina">O que existe e o que falta</h1>
         <p className="text-muted-foreground">
-          O Panóptico só mostra o que as fontes oficiais publicam. Quando um dado não aparece, a
-          razão está na fonte (o órgão não publica, bloqueia acesso automático ou ainda não
-          respondeu ao nosso pedido), e a mesma regra vale para todos os estados e para todos os
-          partidos. Aqui está a situação de cada cargo e de cada tipo de dado, do mesmo jeito para
-          todos.
+          O Panóptico só mostra o que as fontes oficiais publicam. Quando um dado não aparece, o
+          motivo está aqui: o órgão não publica, bloqueia acesso automático, o acesso foi pedido e
+          ainda não chegou, ou o Panóptico ainda não lê essa fonte. A mesma regra vale para todos
+          os estados e para todos os partidos. Aqui está a situação de cada cargo e de cada tipo
+          de dado, do mesmo jeito para todos.
         </p>
         <p className="text-sm text-muted-foreground">
           Voltar para{" "}
