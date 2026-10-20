@@ -178,8 +178,10 @@ jobs:
       # O serviço do runner (usuário próprio) não enxerga o Python nem o Bash do dono: Git\bin
       # entra no PATH e o uv (ação oficial) baixa um Python gerenciado no primeiro `uv sync`.
       - name: Bash do Git no PATH
-        shell: powershell
-        run: Add-Content -Path $env:GITHUB_PATH -Value 'C:\Program Files\Git\bin'
+        # cmd, e não powershell: o usuário do serviço tem a execução de scripts do PowerShell
+        # desativada (política padrão do Windows), e não vale afrouxar isso só para este passo.
+        shell: cmd
+        run: echo C:\Program Files\Git\bin>> "%GITHUB_PATH%"
       - uses: astral-sh/setup-uv@v10.2.0
         with:
           version: "0.12.23"
@@ -228,8 +230,10 @@ jobs:
       # O serviço do runner (usuário próprio) não enxerga o Python nem o Bash do dono: Git\bin
       # entra no PATH e o uv (ação oficial) baixa um Python gerenciado no primeiro `uv sync`.
       - name: Bash do Git no PATH
-        shell: powershell
-        run: Add-Content -Path $env:GITHUB_PATH -Value 'C:\Program Files\Git\bin'
+        # cmd, e não powershell: o usuário do serviço tem a execução de scripts do PowerShell
+        # desativada (política padrão do Windows), e não vale afrouxar isso só para este passo.
+        shell: cmd
+        run: echo C:\Program Files\Git\bin>> "%GITHUB_PATH%"
       - uses: astral-sh/setup-uv@v10.2.0
         with:
           version: "0.12.23"
@@ -257,8 +261,10 @@ jobs:
       # O serviço do runner (usuário próprio) não enxerga o Python nem o Bash do dono: Git\bin
       # entra no PATH e o uv (ação oficial) baixa um Python gerenciado no primeiro `uv sync`.
       - name: Bash do Git no PATH
-        shell: powershell
-        run: Add-Content -Path $env:GITHUB_PATH -Value 'C:\Program Files\Git\bin'
+        # cmd, e não powershell: o usuário do serviço tem a execução de scripts do PowerShell
+        # desativada (política padrão do Windows), e não vale afrouxar isso só para este passo.
+        shell: cmd
+        run: echo C:\Program Files\Git\bin>> "%GITHUB_PATH%"
       - uses: astral-sh/setup-uv@v10.2.0
         with:
           version: "0.12.23"
@@ -354,8 +360,10 @@ jobs:
       # O serviço do runner (usuário próprio) não enxerga o Python nem o Bash do dono: Git\bin
       # entra no PATH e o uv (ação oficial) baixa um Python gerenciado no primeiro `uv sync`.
       - name: Bash do Git no PATH
-        shell: powershell
-        run: Add-Content -Path $env:GITHUB_PATH -Value 'C:\Program Files\Git\bin'
+        # cmd, e não powershell: o usuário do serviço tem a execução de scripts do PowerShell
+        # desativada (política padrão do Windows), e não vale afrouxar isso só para este passo.
+        shell: cmd
+        run: echo C:\Program Files\Git\bin>> "%GITHUB_PATH%"
       - uses: astral-sh/setup-uv@v10.2.0
         with:
           version: "0.12.23"
@@ -383,8 +391,10 @@ jobs:
       # O serviço do runner (usuário próprio) não enxerga o Python nem o Bash do dono: Git\bin
       # entra no PATH e o uv (ação oficial) baixa um Python gerenciado no primeiro `uv sync`.
       - name: Bash do Git no PATH
-        shell: powershell
-        run: Add-Content -Path $env:GITHUB_PATH -Value 'C:\Program Files\Git\bin'
+        # cmd, e não powershell: o usuário do serviço tem a execução de scripts do PowerShell
+        # desativada (política padrão do Windows), e não vale afrouxar isso só para este passo.
+        shell: cmd
+        run: echo C:\Program Files\Git\bin>> "%GITHUB_PATH%"
       - uses: astral-sh/setup-uv@v10.2.0
         with:
           version: "0.12.23"
@@ -412,8 +422,10 @@ jobs:
       # O serviço do runner (usuário próprio) não enxerga o Python nem o Bash do dono: Git\bin
       # entra no PATH e o uv (ação oficial) baixa um Python gerenciado no primeiro `uv sync`.
       - name: Bash do Git no PATH
-        shell: powershell
-        run: Add-Content -Path $env:GITHUB_PATH -Value 'C:\Program Files\Git\bin'
+        # cmd, e não powershell: o usuário do serviço tem a execução de scripts do PowerShell
+        # desativada (política padrão do Windows), e não vale afrouxar isso só para este passo.
+        shell: cmd
+        run: echo C:\Program Files\Git\bin>> "%GITHUB_PATH%"
       - uses: astral-sh/setup-uv@v10.2.0
         with:
           version: "0.12.23"
@@ -504,8 +516,10 @@ jobs:
       # O serviço do runner (usuário próprio) não enxerga o Python nem o Bash do dono: Git\bin
       # entra no PATH e o uv (ação oficial) baixa um Python gerenciado no primeiro `uv sync`.
       - name: Bash do Git no PATH
-        shell: powershell
-        run: Add-Content -Path $env:GITHUB_PATH -Value 'C:\Program Files\Git\bin'
+        # cmd, e não powershell: o usuário do serviço tem a execução de scripts do PowerShell
+        # desativada (política padrão do Windows), e não vale afrouxar isso só para este passo.
+        shell: cmd
+        run: echo C:\Program Files\Git\bin>> "%GITHUB_PATH%"
       - uses: astral-sh/setup-uv@v10.2.0
         with:
           version: "0.12.23"
@@ -575,8 +589,10 @@ jobs:
       # O serviço do runner (usuário próprio) não enxerga o Python nem o Bash do dono: Git\bin
       # entra no PATH e o uv (ação oficial) baixa um Python gerenciado no primeiro `uv sync`.
       - name: Bash do Git no PATH
-        shell: powershell
-        run: Add-Content -Path $env:GITHUB_PATH -Value 'C:\Program Files\Git\bin'
+        # cmd, e não powershell: o usuário do serviço tem a execução de scripts do PowerShell
+        # desativada (política padrão do Windows), e não vale afrouxar isso só para este passo.
+        shell: cmd
+        run: echo C:\Program Files\Git\bin>> "%GITHUB_PATH%"
       - uses: astral-sh/setup-uv@v10.2.0
         with:
           version: "0.12.23"
@@ -604,8 +620,10 @@ jobs:
       # O serviço do runner (usuário próprio) não enxerga o Python nem o Bash do dono: Git\bin
       # entra no PATH e o uv (ação oficial) baixa um Python gerenciado no primeiro `uv sync`.
       - name: Bash do Git no PATH
-        shell: powershell
-        run: Add-Content -Path $env:GITHUB_PATH -Value 'C:\Program Files\Git\bin'
+        # cmd, e não powershell: o usuário do serviço tem a execução de scripts do PowerShell
+        # desativada (política padrão do Windows), e não vale afrouxar isso só para este passo.
+        shell: cmd
+        run: echo C:\Program Files\Git\bin>> "%GITHUB_PATH%"
       - uses: astral-sh/setup-uv@v10.2.0
         with:
           version: "0.12.23"
@@ -661,8 +679,10 @@ jobs:
       # O serviço do runner (usuário próprio) não enxerga o Python nem o Bash do dono: Git\bin
       # entra no PATH e o uv (ação oficial) baixa um Python gerenciado no primeiro `uv sync`.
       - name: Bash do Git no PATH
-        shell: powershell
-        run: Add-Content -Path $env:GITHUB_PATH -Value 'C:\Program Files\Git\bin'
+        # cmd, e não powershell: o usuário do serviço tem a execução de scripts do PowerShell
+        # desativada (política padrão do Windows), e não vale afrouxar isso só para este passo.
+        shell: cmd
+        run: echo C:\Program Files\Git\bin>> "%GITHUB_PATH%"
       - uses: astral-sh/setup-uv@v10.2.0
         with:
           version: "0.12.23"
@@ -692,8 +712,10 @@ jobs:
       # O serviço do runner (usuário próprio) não enxerga o Python nem o Bash do dono: Git\bin
       # entra no PATH e o uv (ação oficial) baixa um Python gerenciado no primeiro `uv sync`.
       - name: Bash do Git no PATH
-        shell: powershell
-        run: Add-Content -Path $env:GITHUB_PATH -Value 'C:\Program Files\Git\bin'
+        # cmd, e não powershell: o usuário do serviço tem a execução de scripts do PowerShell
+        # desativada (política padrão do Windows), e não vale afrouxar isso só para este passo.
+        shell: cmd
+        run: echo C:\Program Files\Git\bin>> "%GITHUB_PATH%"
       - uses: astral-sh/setup-uv@v10.2.0
         with:
           version: "0.12.23"
