@@ -1,8 +1,25 @@
 import Link from "next/link";
 
 import { FonteRodape } from "@/components/fonte-rodape";
+import { PorQueFalta } from "@/components/por-que-falta";
 import type { VereadorDetalhe, VotacoesLocais } from "@/lib/api";
 import { MESES, formatarData, formatarReais } from "@/lib/formato";
+
+/** Nome da assembleia na matriz de cobertura ("ALPR", "CLDF"); câmaras de vereadores não estão nela. */
+export function casaNaMatriz(v: { casa: string; uf: string }): string | undefined {
+  if (v.casa !== "assembleia") return undefined;
+  return v.uf === "DF" ? "CLDF" : `AL${v.uf}`;
+}
+
+function PorQueFaltaLocal({ v }: { v: VereadorDetalhe }) {
+  const casa = casaNaMatriz(v);
+  if (!casa) return null;
+  return (
+    <p className="text-xs">
+      <PorQueFalta uf={v.uf} casa={casa} />
+    </p>
+  );
+}
 
 const PCT = new Intl.NumberFormat("pt-BR", { maximumFractionDigits: 1 });
 
@@ -18,9 +35,12 @@ export function PresencaLocalSecao({ v, nomeCasa }: { v: VereadorDetalhe; nomeCa
         <p className="text-sm text-muted-foreground">Ano atual e anterior, durante o mandato</p>
       </div>
       {!p ? (
-        <p className="text-sm text-muted-foreground">
-          A {nomeCasa} não publica a lista de presença nas sessões em dados abertos.
-        </p>
+        <>
+          <p className="text-sm text-muted-foreground">
+            A {nomeCasa} não publica a lista de presença nas sessões em dados abertos.
+          </p>
+          <PorQueFaltaLocal v={v} />
+        </>
       ) : (
         <>
           <dl className="grid grid-cols-2 gap-3">
@@ -55,9 +75,12 @@ export function VotacoesLocaisSecao({
   dados,
   nomeCasa,
   caminho,
+  v,
 }: {
   dados: VotacoesLocais;
   nomeCasa: string;
+  /** Mandato, para o link "Por que falta este dado?" quando a casa não publica votos. */
+  v?: VereadorDetalhe;
   /** Endereço do perfil, para a paginação. */
   caminho: string;
 }) {
@@ -73,10 +96,13 @@ export function VotacoesLocaisSecao({
         </p>
       </div>
       {!dados.casa_registra ? (
-        <p className="text-sm text-muted-foreground">
-          A {nomeCasa} não publica o voto de cada parlamentar em dados abertos. Por isso,
-          aqui não aparece como cada um votou.
-        </p>
+        <>
+          <p className="text-sm text-muted-foreground">
+            A {nomeCasa} não publica o voto de cada parlamentar em dados abertos. Por isso,
+            aqui não aparece como cada um votou.
+          </p>
+          {v && <PorQueFaltaLocal v={v} />}
+        </>
       ) : dados.total === 0 ? (
         <p className="text-sm text-muted-foreground">Nenhum voto nominal registrado neste período.</p>
       ) : (

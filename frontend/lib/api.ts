@@ -606,10 +606,82 @@ export type EmendasMunicipio = {
   previsto?: EmendasPrevistas | null;
   convenios?: EmendasConvenios | null;
   sem_codigo_descricao?: string;
+  /** Emendas de deputados estaduais (outra esfera, nunca somadas às federais); só onde há fonte. */
+  estaduais?: EmendasEstaduaisMunicipio | null;
   fonte_nome: string;
   fonte_url: string;
   atualizado_em: string | null;
 };
+
+export type EmendaEstadualSomas = { previsto: number; empenhado: number; pago: number; emendas: number };
+
+export type EmendasEstaduaisMunicipio = {
+  uf: string;
+  casa: string;
+  total_previsto: number;
+  total_empenhado: number;
+  total_pago: number;
+  emendas: number;
+  por_autor: (EmendaEstadualSomas & {
+    autor_nome: string;
+    tipo: string;
+    pessoa_id: number | null;
+    mandato_id: number | null;
+    em_exercicio: boolean;
+  })[];
+  por_ano: (EmendaEstadualSomas & { ano: number })[];
+  favorecidos: (EmendaEstadualSomas & { nome: string; cnpj: string | null })[];
+  numero_favorecidos: number;
+  somado_ao_federal: boolean;
+  descricao: string;
+  recorte: string;
+  termos: string;
+  fonte_nome: string;
+  fonte_url: string;
+  atualizado_em: string | null;
+};
+
+export type EmendasDeputadoEstadual = {
+  mandato_id: number;
+  nome: string;
+  uf: string;
+  casa: string;
+  periodo: { inicio: number | null; fim: number | null };
+  total_previsto: number;
+  total_empenhado: number;
+  total_pago: number;
+  emendas: number;
+  media_casa_pago: number | null;
+  deputados_na_media: number;
+  media_descricao: string;
+  por_ano: (EmendaEstadualSomas & { ano: number })[];
+  por_municipio: (EmendaEstadualSomas & { ibge: string | null; nome: string })[];
+  numero_municipios: number;
+  itens: {
+    codigo: string;
+    ano: number;
+    municipio_ibge: string | null;
+    municipio_nome: string;
+    favorecido: string;
+    orgao: string | null;
+    objeto: string | null;
+    situacao: string | null;
+    previsto: number;
+    empenhado: number | null;
+    pago: number;
+  }[];
+  numero_itens: number;
+  descricao: string;
+  recorte: string;
+  termos: string;
+  fonte_nome: string;
+  fonte_url: string;
+  atualizado_em: string | null;
+};
+
+export function getEmendasDeputadoEstadual(mandatoId: string | number) {
+  return getJson<EmendasDeputadoEstadual>(`/deputados-estaduais/${encodeURIComponent(String(mandatoId))}/emendas`);
+}
 
 export type EmendaTipo = {
   tipo: string;

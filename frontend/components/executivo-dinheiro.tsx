@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { FonteRodape } from "@/components/fonte-rodape";
+import { PorQueFalta } from "@/components/por-que-falta";
 import { BarraComparacao } from "@/components/painel/barra-comparacao";
 import type { Comparacao } from "@/components/painel/cartao-numero";
 import type { BlocoPainel, ContasEstado, PainelExecutivo } from "@/lib/api";
@@ -20,13 +21,37 @@ export function nomeDoGoverno(p: PainelExecutivo): string {
 }
 
 /** Bloco sem dado: mesma frase para todo cargo e todo partido, com o motivo que a API deu. */
-export function BlocoIndisponivel({ titulo, bloco }: { titulo: string; bloco: BlocoPainel }) {
+export function BlocoIndisponivel({
+  titulo,
+  bloco,
+  painel,
+}: {
+  titulo: string;
+  bloco: BlocoPainel;
+  /** Com o painel, o aviso ganha o link "Por que falta este dado?" para a casa certa. */
+  painel?: PainelExecutivo;
+}) {
+  const uf = painel ? (painel.ente.tipo === "uniao" ? "BR" : painel.ente.uf) : null;
+  const casa = !painel
+    ? undefined
+    : painel.ente.tipo === "uniao"
+      ? "Presidência da República"
+      : uf
+        ? painel.ente.tipo === "estado"
+          ? `Governo de ${uf}`
+          : `Prefeituras de ${uf}`
+        : undefined;
   return (
     <section className="flex flex-col gap-1">
       <h2 className="text-2xl">{titulo}</h2>
       <p className="text-sm text-muted-foreground">
         Ainda não há dado aberto carregado para esta seção. {bloco.motivo ?? "A fonte não informou o motivo."}
       </p>
+      {painel && uf && casa && (
+        <p className="text-xs">
+          <PorQueFalta uf={uf} casa={casa} />
+        </p>
+      )}
     </section>
   );
 }

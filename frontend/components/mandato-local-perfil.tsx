@@ -2,23 +2,25 @@ import Link from "next/link";
 import { TextoLongo } from "@/components/ui/texto-longo";
 import { notFound } from "next/navigation";
 
-import { GastosLocaisSecao, PresencaLocalSecao, VotacoesLocaisSecao } from "@/components/atividade-local";
+import { GastosLocaisSecao, PresencaLocalSecao, VotacoesLocaisSecao, casaNaMatriz } from "@/components/atividade-local";
 import { AvisoErro } from "@/components/aviso-erro";
 import { FotoVereador } from "@/components/camara-secao";
 import { CarreiraSecao } from "@/components/carreira-secao";
+import { EmendasDoDeputadoEstadual } from "@/components/emendas-estaduais";
 import { SancoesSecao, TEXTO_REGISTRO } from "@/components/sancoes-secao";
 import { ServicoFederalSecao } from "@/components/servico-federal-secao";
 import { CandidaturaSecao } from "@/components/candidatura-secao";
 import { AcompanharPorFeed, CompartilharWhatsApp } from "@/components/compartilhar";
 import { QuemESecao } from "@/components/dados-pessoais";
 import { FonteRodape } from "@/components/fonte-rodape";
+import { PorQueFalta } from "@/components/por-que-falta";
 import { ContratosSocioSecao } from "@/components/contratos-socio-secao";
 import { LinhaDoTempoSecao } from "@/components/linha-do-tempo-secao";
 import { AbasDetalhe, type AbaDetalhe } from "@/components/painel/abas-detalhe";
 import { formatarNumero } from "@/components/painel/barra-comparacao";
 import { CartaoNumero, GradeCartoes } from "@/components/painel/cartao-numero";
 import { ListaPerguntas, Pergunta } from "@/components/painel/pergunta";
-import { getEleito, getLinhaDoTempo, getSancoes, getVereador, getVotacoesLocais, type VereadorDetalhe } from "@/lib/api";
+import { getEleito, getEmendasDeputadoEstadual, getLinhaDoTempo, getSancoes, getVereador, getVotacoesLocais, type VereadorDetalhe } from "@/lib/api";
 import { formatarData, formatarGastos, formatarReais, formatarReaisCompacto } from "@/lib/formato";
 
 /** Perfil de quem está no cargo numa câmara ou assembleia, com os dados da própria casa. */
@@ -33,11 +35,14 @@ export async function PerfilMandatoLocal({ id, paginaVotos }: { id: string; pagi
   const cargo = camara ? "Vereador" : v.uf === "DF" ? "Deputado distrital" : "Deputado estadual";
   const nomeCasa = camara ? "câmara" : "assembleia";
   const rota = `/${camara ? "vereador" : "deputado-estadual"}/${v.id}`;
-  const [eleicao, votacoes, linha] = await Promise.all([
+  const [eleicao, votacoes, linha, emendasEstaduaisR] = await Promise.all([
     v.candidatura_id ? getEleito(String(v.candidatura_id)) : null,
     getVotacoesLocais(String(v.id), paginaVotos),
     getLinhaDoTempo(camara ? "vereador" : "deputado_estadual", String(v.id)),
+    // Só onde a API tem a fonte (hoje SC); nas outras UFs devolve 404 e nada novo aparece.
+    camara ? null : getEmendasDeputadoEstadual(v.id),
   ]);
+  const emendasEstaduais = emendasEstaduaisR?.ok ? emendasEstaduaisR.dados : null;
   const pessoaId = linha.ok ? linha.dados.pessoa_id : null;
   const sancoes = pessoaId !== null ? await getSancoes(pessoaId) : null;
   const dEleicao = eleicao?.ok ? eleicao.dados : null;
@@ -56,6 +61,11 @@ export async function PerfilMandatoLocal({ id, paginaVotos }: { id: string; pagi
       secoes: [
         { id: "gastos", titulo: "Gastos do gabinete", conteudo: <GastosLocaisSecao v={v} nomeCasa={nomeCasa} /> },
         {
+          id: "emendas-estaduais",
+          titulo: "Emendas ao orçamento do Estado",
+          conteudo: emendasEstaduais && <EmendasDoDeputadoEstadual dados={emendasEstaduais} />,
+        },
+        {
           id: "contratos-socio",
           titulo: "Contratos de empresas de que é sócio",
           conteudo: pessoaId !== null && <ContratosSocioSecao pessoaId={pessoaId} />,
@@ -70,7 +80,7 @@ export async function PerfilMandatoLocal({ id, paginaVotos }: { id: string; pagi
         {
           id: "votos",
           titulo: "Como votou",
-          conteudo: votacoes.ok && <VotacoesLocaisSecao dados={votacoes.dados} nomeCasa={nomeCasa} caminho={rota} />,
+          conteudo: votacoes.ok && <VotacoesLocaisSecao dados={votacoes.dados} nomeCasa={nomeCasa} caminho={rota} v={v} />,
         },
       ],
     },
@@ -175,6 +185,22 @@ export async function PerfilMandatoLocal({ id, paginaVotos }: { id: string; pagi
             apoio={v.gastos.media_casa !== null ? `Média ${formatarReaisCompacto(v.gastos.media_casa)}` : undefined}
           />
         )}
+        {emendasEstaduais && (
+          <CartaoNumero
+            destino="emendas-estaduais"
+            rotulo="Emendas ao orçamento do Estado, pagas"
+            valor={formatarReaisCompacto(emendasEstaduais.total_pago)}
+            comparacao={
+              emendasEstaduais.media_casa_pago !== null
+                ? {
+                    pessoa: { rotulo: v.nome, valor: emendasEstaduais.total_pago },
+                    media: { rotulo: mediaCasa, valor: emendasEstaduais.media_casa_pago },
+                    formato: "reais-compacto",
+                  }
+                : undefined
+            }
+          />
+        )}
         {comRegistroDeVoto && votacoes.ok && (
           <CartaoNumero
             destino="votos"
@@ -249,7 +275,8 @@ export async function PerfilMandatoLocal({ id, paginaVotos }: { id: string; pagi
           {faltam.length > 0 && (
             <p>
               Para esta {nomeCasa}, não há dados abertos de: {faltam.join(", ")}. Por isso esses números não aparecem,
-              e isso não diz nada sobre a pessoa.
+              e isso não diz nada sobre a pessoa.{" "}
+              {casaNaMatriz(v) && <PorQueFalta uf={v.uf} casa={casaNaMatriz(v)} />}
             </p>
           )}
           <FonteRodape fonte={v.fonte_nome} url={v.fonte_url} atualizadoEm={v.atualizado_em} />

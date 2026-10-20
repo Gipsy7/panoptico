@@ -86,9 +86,10 @@ PEDIDO_ASSEMBLEIA = {
 MOTIVO_PEDIDO = {
     "MG": "A Casa não publica em dados abertos; pedido de acesso redigido.",
     "SP": "A Casa não publica em dados abertos; pedido de acesso redigido.",
-    "MT": "A API da Casa exige credencial de fornecedor e o robots.txt veda a pesquisa; "
-    "pedimos acesso público.",
-    "PA": "A pesquisa do portal só funciona no navegador; pedimos os dados em formato aberto.",
+    "MT": "O sistema da Casa exige senha de fornecedor e o arquivo de regras do site (robots.txt) "
+    "veda a pesquisa; pedimos acesso público.",
+    "PA": "A pesquisa do portal só funciona digitando no navegador; pedimos os dados em "
+    "formato aberto.",
 }
 EMENDAS_27 = "emendas_estaduais_27_ufs.md"
 
@@ -116,8 +117,9 @@ def _secao_legislativa(uf, secao, fonte, carrega, brasil):
     if secao in carrega:
         if brasil:
             m = (
-                f"Temos o conector ({r}), mas o site da Casa bloqueia acesso de fora do "
-                "Brasil; só o acervo local carrega, a produção não atualiza."
+                f"O site já lê {r}, mas o site da Casa só responde a acessos feitos do "
+                "Brasil; por isso só dá para atualizar a partir de um computador no Brasil, "
+                "e o site no ar não se atualiza sozinho."
             )
             return "bloqueado", m, fonte, ""
         m = f"Carregamos {r} do site oficial da Casa."
@@ -126,14 +128,15 @@ def _secao_legislativa(uf, secao, fonte, carrega, brasil):
         return "sim", m, fonte, ""
     if uf == "PR" and secao == "projetos":
         m = (
-            "As proposições só estão na API da ALEP, que usa certificado HTTPS autoassinado e "
-            "responde 403; não desligamos a verificação nem contornamos. Pedido redigido."
+            "Os projetos só estão no sistema de consulta da ALEP, que tem um certificado de "
+            "segurança sem validade reconhecida e recusa o acesso; não desligamos a "
+            "verificação nem contornamos. Pedido redigido."
         )
         return "pedido", m, URL_ALEP, pedido
     if uf == "PR" and secao == "gastos":
         m = (
-            "A consulta da verba de ressarcimento exige reCAPTCHA; não contornamos. "
-            "Pedimos os dados em CSV."
+            "A consulta da verba de ressarcimento exige verificação de humano (reCAPTCHA); "
+            "não contornamos. Pedimos os dados em planilha."
         )
         return "pedido", m, URL_ALEP_VERBA, pedido
     if uf == "SC" and secao == "votos":
@@ -151,12 +154,15 @@ def _secao_legislativa(uf, secao, fonte, carrega, brasil):
     if pedido:
         return "pedido", MOTIVO_PEDIDO[uf], fonte, pedido
     if uf == "MS" and secao == "projetos":
-        m = "O sistema de proposições exige prova de trabalho contra automação; não contornamos."
+        m = (
+            "O sistema de proposições exige uma verificação que barra acesso por programa; "
+            "não contornamos."
+        )
         return "bloqueado", m, fonte, ""
     if uf == "RJ":
         m = "O processo legislativo roda num sistema antigo que não entrega dados por consulta."
         return "sem_fonte", m, fonte, ""
-    return "sem_fonte", f"O conector da Casa não traz {r}.", fonte, ""
+    return "sem_fonte", f"O site ainda não lê {r} desta Casa.", fonte, ""
 
 
 def _assembleia(uf, acessos) -> list[dict]:
@@ -265,7 +271,7 @@ def _prefeito(uf, n, total) -> list[dict]:
     pref = f"{n} de {total} municípios com canal oficial achado. "
     gastos = (
         "parcial",
-        pref + "Contas da cidade (SICONFI), sem pagamento por credor.",
+        pref + "Contas da cidade (Tesouro Nacional, SICONFI), sem pagamento por fornecedor.",
         "siconfi_contas",
         "",
     )
@@ -279,15 +285,16 @@ def _prefeito(uf, n, total) -> list[dict]:
     elif uf == "RS":
         gastos = (
             "bloqueado",
-            pref + "Pagamento a fornecedores (TCE-RS) bloqueia acesso de fora do Brasil; "
-            "só o acervo local carrega.",
+            pref + "Pagamento a fornecedores (TCE-RS): o órgão só responde a acessos feitos "
+            "do Brasil, então só dá para atualizar a partir de um computador no Brasil.",
             "siconfi_contas; tce_rs",
             "",
         )
     elif uf == "MG":
         gastos = (
             "pedido",
-            pref + "O TCE-MG só entrega por API com reCAPTCHA; pedido de acesso redigido.",
+            pref + "O TCE-MG só entrega os dados com verificação de humano (reCAPTCHA); "
+            "pedido de acesso redigido.",
             "siconfi_contas; tce_mg",
             "tce_mg.md",
         )
@@ -336,8 +343,8 @@ def montar() -> list[dict]:
                 "emendas": ("pedido", msg, "", EMENDAS_27),
                 "gastos": (
                     "parcial",
-                    "Contas do estado (SICONFI): receita e despesa por área, com a média dos "
-                    "estados; sem pagamento por credor.",
+                    "Contas do estado (Tesouro Nacional, SICONFI): receita e despesa por área, com "
+                    "a média dos estados; sem pagamento por fornecedor.",
                     "siconfi_contas_estados",
                     "",
                 ),
