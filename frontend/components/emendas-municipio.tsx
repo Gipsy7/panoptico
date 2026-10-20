@@ -44,7 +44,11 @@ export function EmendasMunicipioSecao({ dados }: { dados: EmendasMunicipio }) {
   const top = autores.slice(0, LIMITE);
   const resto = autores.slice(LIMITE);
   const maior = Math.max(autores[0]?.total ?? 0, dados.outros_autores[0]?.total ?? 0);
-  const previsto = dados.previsto && dados.previsto.valor_sem_pagamento > 0 ? dados.previsto : null;
+  // O bloco aparece com previsto sem pagamento ou só com planos impedidos (que nunca somam).
+  const previsto =
+    dados.previsto && (dados.previsto.valor_sem_pagamento > 0 || (dados.previsto.impedidos?.planos ?? 0) > 0)
+      ? dados.previsto
+      : null;
   const semId = dados.sem_identificacao && dados.sem_identificacao.total > 0 ? dados.sem_identificacao : null;
   const convenios = dados.convenios && dados.convenios.quantidade > 0 ? dados.convenios : null;
 
@@ -220,12 +224,20 @@ export function EmendasMunicipioSecao({ dados }: { dados: EmendasMunicipio }) {
           {previsto && (
             <div className="painel flex flex-col gap-2">
               <h3 className="font-medium">Previsto, ainda sem pagamento registrado</h3>
-              <p className="numero text-2xl">{formatarReais(previsto.valor_sem_pagamento, true)}</p>
-              <p className="text-sm text-muted-foreground">
-                {previsto.planos_sem_pagamento}{" "}
-                {previsto.planos_sem_pagamento === 1 ? "plano de trabalho" : "planos de trabalho"} de transferência
-                especial (&quot;emenda Pix&quot;). Este valor não está somado ao total pago acima.
-              </p>
+              {previsto.valor_sem_pagamento > 0 ? (
+                <>
+                  <p className="numero text-2xl">{formatarReais(previsto.valor_sem_pagamento, true)}</p>
+                  <p className="text-sm text-muted-foreground">
+                    {previsto.planos_sem_pagamento}{" "}
+                    {previsto.planos_sem_pagamento === 1 ? "plano de trabalho" : "planos de trabalho"} de
+                    transferência especial (&quot;emenda Pix&quot;). Este valor não está somado ao total pago acima.
+                  </p>
+                </>
+              ) : (
+                <p className="text-sm text-muted-foreground">
+                  Nenhum plano de transferência especial (&quot;emenda Pix&quot;) válido sem pagamento registrado.
+                </p>
+              )}
               {previsto.descricao && <p className="text-xs text-muted-foreground">{previsto.descricao}</p>}
               {previsto.impedidos && (
                 <p className="text-xs text-muted-foreground">
