@@ -162,3 +162,34 @@ def test_banco_vazio_responde_200_com_nulos_e_sem_dados(client, session):
     mun = client.get(f"/municipios/{BLU}/dinheiro-federal")
     assert mun.status_code == 200
     assert mun.json()["sem_dados"] is True and mun.json()["serie"] == []
+
+
+def test_ano_em_curso_soma_ate_o_ultimo_mes_comum_as_fontes(client, session):
+    ano = datetime.now(UTC).year
+    session.add_all(
+        [
+            Municipio(ibge=BLU, nome="Blumenau", uf="SC", nome_chave="BLUMENAU"),
+            *[
+                ArrecadacaoUF(
+                    uf="SC", ano=ano, mes=m, total=Decimal("10"), previdencia=Decimal("1")
+                )
+                for m in range(1, 8)
+            ],
+            *[_t(ano, m, "FPM", "100", BLU) for m in range(1, 10)],
+            *[_t(ano, m, "FUNDEB_UNIAO", "50", BLU, fonte="portal") for m in range(1, 11)],
+        ]
+    )
+    session.flush()
+    corpo = client.get(f"/dinheiro-federal?ano={ano}").json()
+    assert corpo["meses_com_dado"] == list(range(1, 8))
+    assert corpo["brasil"]["arrecadacao"] == 70
+    assert corpo["brasil"]["repasse"] == 7 * 150
+    assert (
+        "Ano em curso: soma de janeiro a julho, último mês publicado em todas as fontes "
+        "(arrecadação até julho, Tesouro até setembro, Portal até outubro)."
+    ) in corpo["avisos"]
+    sc = client.get(f"/dinheiro-federal/SC?ano={ano}").json()
+    assert sc["repasse"] == 7 * 150
+    assert sc["cidades"][0]["repasse"] == 7 * 150
+    serie = client.get(f"/municipios/{BLU}/dinheiro-federal").json()["serie"]
+    assert serie[-1]["repasse"] == 7 * 150

@@ -129,21 +129,62 @@ def _totais(
     }
 
 
-def _contexto_ano(session: Session, ano: int) -> dict:
-    meses = set(
-        session.scalars(select(ArrecadacaoUF.mes).where(ArrecadacaoUF.ano == ano).distinct())
-    ) | set(
-        session.scalars(
-            select(TransferenciaUniao.mes).where(TransferenciaUniao.ano == ano).distinct()
+def _mes_limite(session: Session, ano: int) -> tuple[int | None, list[tuple[str, int]]]:
+    """No ano em curso, as fontes param em meses diferentes: só se soma até o último mês que
+    todas já publicaram. Devolve (limite, [(rotulo, ultimo_mes)]); anos fechados: (None, [])."""
+    if ano != date.today().year:
+        return None, []
+    candidatos = [
+        ("arrecadação", select(func.max(ArrecadacaoUF.mes)).where(ArrecadacaoUF.ano == ano)),
+        (
+            "Tesouro",
+            select(func.max(TransferenciaUniao.mes)).where(
+                TransferenciaUniao.ano == ano, TransferenciaUniao.fonte == "tesouro"
+            ),
+        ),
+        (
+            "Portal",
+            select(func.max(TransferenciaUniao.mes)).where(
+                TransferenciaUniao.ano == ano, TransferenciaUniao.fonte == "portal"
+            ),
+        ),
+    ]
+    maximos = [(r, m) for r, q in candidatos if (m := session.scalar(q)) is not None]
+    if not maximos:
+        return None, []
+    return min(m for _, m in maximos), maximos
+
+
+def _filtro_mes(coluna_ano, coluna_mes, ano: int, limite: int | None):
+    return coluna_ano == ano if limite is None else (coluna_ano == ano) & (coluna_mes <= limite)
+
+
+def _contexto_ano(session: Session, ano: int, limite: int | None, maximos: list) -> dict:
+    if limite is not None:
+        ordenados = list(range(1, limite + 1))
+    else:
+        meses = set(
+            session.scalars(select(ArrecadacaoUF.mes).where(ArrecadacaoUF.ano == ano).distinct())
+        ) | set(
+            session.scalars(
+                select(TransferenciaUniao.mes).where(TransferenciaUniao.ano == ano).distinct()
+            )
         )
-    )
-    ordenados = sorted(meses)
+        ordenados = sorted(meses)
     em_curso = ano == date.today().year
     avisos = []
     if ano in (2025, 2026):
         avisos.append(AVISO_DF)
     if em_curso and ordenados:
-        avisos.append(f"Ano em curso: soma de janeiro a {MESES[ordenados[-1] - 1]}.")
+        fim = MESES[ordenados[-1] - 1]
+        if limite is not None and len({m for _, m in maximos}) > 1:
+            detalhe = ", ".join(f"{r} até {MESES[m - 1]}" for r, m in maximos)
+            avisos.append(
+                f"Ano em curso: soma de janeiro a {fim}, último mês publicado em todas as "
+                f"fontes ({detalhe})."
+            )
+        else:
+            avisos.append(f"Ano em curso: soma de janeiro a {fim}.")
     return {
         "ano": ano,
         "anos_disponiveis": anos_disponiveis(),
@@ -155,11 +196,11 @@ def _contexto_ano(session: Session, ano: int) -> dict:
 
 
 def _blocos_por_uf(
-    session: Session, ano: int, uf: str | None = None
+    session: Session, ano: int, uf: str | None = None, limite: int | None = None
 ) -> dict[str, dict[str, float]]:
     consulta = select(
         TransferenciaUniao.uf, TransferenciaUniao.bloco, func.sum(TransferenciaUniao.valor)
-    ).where(TransferenciaUniao.ano == ano)
+    ).where(_filtro_mes(TransferenciaUniao.ano, TransferenciaUniao.mes, ano, limite))
     if uf:
         consulta = consulta.where(TransferenciaUniao.uf == uf)
     por_uf: dict[str, dict[str, float]] = defaultdict(dict)
@@ -170,14 +211,14 @@ def _blocos_por_uf(
     return por_uf
 
 
-def _arrecadacao_por_uf(session: Session, ano: int) -> dict[str, tuple]:
+def _arrecadacao_por_uf(session: Session, ano: int, limite: int | None = None) -> dict[str, tuple]:
     return {
         u: (total, prev)
         for u, total, prev in session.execute(
             select(
                 ArrecadacaoUF.uf, func.sum(ArrecadacaoUF.total), func.sum(ArrecadacaoUF.previdencia)
             )
-            .where(ArrecadacaoUF.ano == ano)
+            .where(_filtro_mes(ArrecadacaoUF.ano, ArrecadacaoUF.mes, ano, limite))
             .group_by(ArrecadacaoUF.uf)
         )
     }
@@ -192,8 +233,9 @@ def _soma_ou_none(valores) -> float | None:
 
 
 def painel(session: Session, ano: int) -> dict:
-    blocos_uf = _blocos_por_uf(session, ano)
-    arrec = _arrecadacao_por_uf(session, ano)
+    limite, maximos = _mes_limite(session, ano)
+    blocos_uf = _blocos_por_uf(session, ano, limite=limite)
+    arrec = _arrecadacao_por_uf(session, ano, limite)
     pops = _populacoes(session, ano, func.length(PopulacaoIbge.codigo) <= 2)
     brasil_arrec = (
         (_soma_ou_none(a[0] for a in arrec.values()), _soma_ou_none(a[1] for a in arrec.values()))
@@ -214,7 +256,7 @@ def painel(session: Session, ano: int) -> dict:
         for uf, nome in sorted(UFS.items(), key=lambda kv: kv[1])
     ]
     return {
-        **_contexto_ano(session, ano),
+        **_contexto_ano(session, ano, limite, maximos),
         "brasil": {
             **_totais(pops.get("1"), brasil_arrec, soma_blocos),
             "sem_estado": _soma_ou_none(blocos_uf.get(SEM_UF, {}).values()),
@@ -224,7 +266,9 @@ def painel(session: Session, ano: int) -> dict:
     }
 
 
-def _municipal_por_cidade(session: Session, uf: str, ano: int | None = None):
+def _municipal_por_cidade(
+    session: Session, uf: str, ano: int | None = None, corte: tuple[int, int] | None = None
+):
     """(ibge, ano) -> {bloco: soma}: uma consulta agregada para todas as cidades do estado."""
     consulta = select(
         TransferenciaUniao.municipio_ibge,
@@ -234,6 +278,10 @@ def _municipal_por_cidade(session: Session, uf: str, ano: int | None = None):
     ).where(TransferenciaUniao.uf == uf, TransferenciaUniao.municipio_ibge.is_not(None))
     if ano is not None:
         consulta = consulta.where(TransferenciaUniao.ano == ano)
+    if corte is not None:  # (ano em curso, último mês comum a todas as fontes)
+        consulta = consulta.where(
+            (TransferenciaUniao.ano != corte[0]) | (TransferenciaUniao.mes <= corte[1])
+        )
     dados: dict[tuple[str, int], dict[str, float]] = defaultdict(dict)
     for ibge, a, bloco, soma in session.execute(
         consulta.group_by(
@@ -254,8 +302,9 @@ def estado(session: Session, uf: str, ano: int) -> dict | None:
     if uf not in UFS:
         return None
     codigo = CODIGO_UF[uf]
-    blocos_uf = _blocos_por_uf(session, ano, uf)
-    arrec = _arrecadacao_por_uf(session, ano).get(uf)
+    limite, maximos = _mes_limite(session, ano)
+    blocos_uf = _blocos_por_uf(session, ano, uf, limite)
+    arrec = _arrecadacao_por_uf(session, ano, limite).get(uf)
     pop_uf = _populacoes(session, ano, PopulacaoIbge.codigo == codigo).get(codigo)
     municipios = session.execute(
         select(Municipio.ibge, Municipio.nome)
@@ -263,7 +312,7 @@ def estado(session: Session, uf: str, ano: int) -> dict | None:
         .order_by(Municipio.nome_chave)
     ).all()
     pops = _populacoes(session, ano, PopulacaoIbge.codigo.like(codigo + "_____"))
-    dados = _municipal_por_cidade(session, uf, ano)
+    dados = _municipal_por_cidade(session, uf, ano, (ano, limite) if limite else None)
     cidades = []
     soma_repasse = soma_pop = 0.0
     for ibge, nome in municipios:
@@ -286,7 +335,7 @@ def estado(session: Session, uf: str, ano: int) -> dict | None:
             }
         )
     return {
-        **_contexto_ano(session, ano),
+        **_contexto_ano(session, ano, limite, maximos),
         "uf": uf,
         "nome": UFS[uf],
         "regiao": REGIAO[uf],
@@ -298,7 +347,9 @@ def estado(session: Session, uf: str, ano: int) -> dict | None:
 
 
 def municipio(session: Session, mun: Municipio) -> dict:
-    dados = _municipal_por_cidade(session, mun.uf)
+    hoje = date.today().year
+    limite, _ = _mes_limite(session, hoje)
+    dados = _municipal_por_cidade(session, mun.uf, corte=(hoje, limite) if limite else None)
     pops_linhas = session.execute(
         select(PopulacaoIbge.codigo, PopulacaoIbge.ano, PopulacaoIbge.valor).where(
             PopulacaoIbge.codigo.like(CODIGO_UF[mun.uf] + "_____")
