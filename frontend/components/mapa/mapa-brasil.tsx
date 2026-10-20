@@ -20,6 +20,7 @@ import {
   carregarDetalhe,
   carregarMunicipios,
   carregarUfs,
+  SIGLA_FORA,
   type Caixa,
   type ClasseMapa,
   type Lugar,
@@ -57,6 +58,45 @@ export interface MapaBrasilProps {
   className?: string;
   /** Descrição do mapa para leitor de tela. */
   titulo?: string;
+  /** Ordem dos nomes das cidades ao aproximar (ex.: população); maior aparece primeiro. Sem ela,
+   * só ganham nome as cidades cujo desenho comporta o texto, das maiores para as menores. */
+  prioridade?: (ibge: string) => number | null | undefined;
+}
+
+// Rótulos: tamanho fixo na tela (px), desenhados numa camada por cima, sem receber toque.
+const FONTE_UF = 11;
+const FONTE_MUN = 12;
+const FONTE_CIDADE = 13;
+const ALTURA = (f: number) => f + 2;
+type Retangulo = [number, number, number, number];
+const colide = (a: Retangulo, b: Retangulo) => a[0] < b[2] && b[0] < a[2] && a[1] < b[3] && b[1] < a[3];
+
+let medidor: CanvasRenderingContext2D | null = null;
+const larguras = new Map<string, number>();
+function larguraTexto(texto: string, fonte: string): number {
+  const chave = `${fonte}|${texto}`;
+  let w = larguras.get(chave);
+  if (w == null) {
+    medidor ??= document.createElement("canvas").getContext("2d");
+    if (medidor) {
+      medidor.font = fonte;
+      w = medidor.measureText(texto).width;
+    } else {
+      w = texto.length * 7;
+    }
+    larguras.set(chave, w);
+  }
+  return w;
+}
+
+const SVG_NS = "http://www.w3.org/2000/svg";
+function texto(x: number, y: number, conteudo: string, classe: string): SVGTextElement {
+  const t = document.createElementNS(SVG_NS, "text");
+  t.setAttribute("x", x.toFixed(1));
+  t.setAttribute("y", y.toFixed(1));
+  t.setAttribute("class", classe);
+  t.textContent = conteudo;
+  return t;
 }
 
 interface CaminhoProps {
@@ -117,6 +157,7 @@ export function MapaBrasil({
   controle,
   className,
   titulo = "Mapa do Brasil",
+  prioridade,
 }: MapaBrasilProps) {
   const [ufs, setUfs] = useState<MalhaUf | null>(null);
   const [muns, setMuns] = useState<{ uf: string; geo: MalhaMun } | null>(null);
@@ -146,16 +187,161 @@ export function MapaBrasil({
     cx: 0,
     cy: 0,
   });
+  const rotulosRef = useRef<SVGSVGElement>(null);
+  const quadroRotulos = useRef(0);
   // Valores atuais para handlers nativos e callbacks estáveis.
-  const atual = useRef({ ufEf, munEf, ufs, muns, onNavegar, onSelecionar });
+  const atual = useRef({ ufEf, munEf, ufs, muns, onNavegar, onSelecionar, prioridade });
   useEffect(() => {
-    atual.current = { ufEf, munEf, ufs, muns, onNavegar, onSelecionar };
+    atual.current = { ufEf, munEf, ufs, muns, onNavegar, onSelecionar, prioridade };
   });
 
-  const setVB = useCallback((v: Vb) => {
-    vb.current = v;
-    svgRef.current?.setAttribute("viewBox", v.map((x) => x.toFixed(2)).join(" "));
+  // ---- rótulos (siglas no Brasil, nomes das cidades ao aproximar) ----
+  // Recalculados no máximo uma vez por quadro, sempre que o viewBox, o tamanho ou a malha mudam.
+  const desenharRotulosAgora = useCallback(() => {
+    const camada = rotulosRef.current;
+    const svg = svgRef.current;
+    const caixa = caixaRef.current;
+    if (!camada || !svg || !caixa) return;
+    const { ufEf, munEf, ufs, muns, prioridade } = atual.current;
+    const r = svg.getBoundingClientRect();
+    const c = caixa.getBoundingClientRect();
+    const W = r.width;
+    const H = r.height;
+    const novos: SVGElement[] = [];
+    if (!ufs || W < 10 || H < 10) return camada.replaceChildren();
+    const [vx, vy, vw, vh] = vb.current;
+    const esc = Math.max(vw / W, vh / H);
+    const ox = vx - (W * esc - vw) / 2;
+    const oy = vy - (H * esc - vh) / 2;
+    const dx = r.left - c.left;
+    const dy = r.top - c.top;
+    const tela = (x: number, y: number): [number, number] => [(x - ox) / esc + dx, (y - oy) / esc + dy];
+    const familia = getComputedStyle(caixa).fontFamily;
+
+    // Áreas que os nomes não podem cobrir (botões e avisos sobre o mapa), em px da caixa.
+    const ocupados: Retangulo[] = [];
+    const area = caixa.parentElement?.parentElement ?? caixa;
+    area.querySelectorAll<HTMLElement>("[data-mapa-evitar]").forEach((el) => {
+      const filhos = el.children.length ? Array.from(el.children) : [el];
+      for (const f of filhos) {
+        const b = f.getBoundingClientRect();
+        if (b.width && b.height) ocupados.push([b.left - c.left - 4, b.top - c.top - 4, b.right - c.left + 4, b.bottom - c.top + 4]);
+      }
+    });
+
+    if (!ufEf) {
+      const fonte = `600 ${FONTE_UF}px ${familia}`;
+      for (const [sigla, g] of Object.entries(ufs)) {
+        if (!g.l) continue;
+        const [lx, ly] = tela(g.l[0], g.l[1]);
+        const w = larguraTexto(sigla, fonte);
+        const raio = g.l[2] / esc;
+        const fora = SIGLA_FORA[sigla];
+        if (raio * 2 >= w + 4 || !fora) {
+          novos.push(texto(lx, ly, sigla, estilos.sigla));
+          continue;
+        }
+        const [fx, fy] = tela(fora[0], fora[1]);
+        // linha do estado até a borda do rótulo
+        const ang = Math.atan2(ly - fy, lx - fx);
+        const meiaL = w / 2 + 3;
+        const meiaA = ALTURA(FONTE_UF) / 2 + 1;
+        const k = Math.min(meiaL / Math.max(0.01, Math.abs(Math.cos(ang))), meiaA / Math.max(0.01, Math.abs(Math.sin(ang))));
+        const linha = document.createElementNS(SVG_NS, "path");
+        linha.setAttribute(
+          "d",
+          `M${lx.toFixed(1)} ${ly.toFixed(1)}L${(fx + Math.cos(ang) * k).toFixed(1)} ${(fy + Math.sin(ang) * k).toFixed(1)}`,
+        );
+        linha.setAttribute("class", estilos.guia);
+        const ponto = document.createElementNS(SVG_NS, "circle");
+        ponto.setAttribute("cx", lx.toFixed(1));
+        ponto.setAttribute("cy", ly.toFixed(1));
+        ponto.setAttribute("r", "1.6");
+        ponto.setAttribute("class", estilos.guiaPonto);
+        novos.push(linha, ponto, texto(fx, fy, sigla, estilos.sigla));
+      }
+    } else if (muns?.uf === ufEf) {
+      const geo = muns.geo;
+      if (munEf) {
+        const m = geo[munEf];
+        if (m) {
+          const p = m.l ?? [(m.b[0] + m.b[2]) / 2, (m.b[1] + m.b[3]) / 2, 0];
+          const [lx, ly] = tela(p[0], p[1]);
+          const w = larguraTexto(m.n, `600 ${FONTE_CIDADE}px ${familia}`);
+          // dentro da caixa e longe dos botões; se colidir, sobe para acima do desenho
+          let y = ly;
+          const caixaTexto = (yy: number): Retangulo => [lx - w / 2 - 3, yy - 9, lx + w / 2 + 3, yy + 9];
+          if (ocupados.some((o) => colide(o, caixaTexto(y)))) y = tela(0, m.b[1])[1] - 12;
+          const x = Math.min(W - w / 2 - 4, Math.max(w / 2 + 4, lx));
+          novos.push(texto(x, Math.max(14, Math.min(H - 6, y)), m.n, `${estilos.nome} ${estilos.nomeCidade}`));
+        }
+      } else {
+        const fonte = `600 ${FONTE_MUN}px ${familia}`;
+        const h = ALTURA(FONTE_MUN);
+        const cands: Array<{ x: number; y: number; n: string; w: number; p: number }> = [];
+        for (const [cod, m] of Object.entries(geo)) {
+          if (!m.l) continue;
+          const [lx, ly] = tela(m.l[0], m.l[1]);
+          if (lx < 0 || ly < 0 || lx > W || ly > H) continue;
+          const raio = m.l[2] / esc;
+          const largura = (m.b[2] - m.b[0]) / esc;
+          const w = larguraTexto(m.n, fonte);
+          const cabe = raio * 2 >= h - 2 && w <= Math.max(raio * 2.2, largura * 0.9);
+          const pop = prioridade?.(cod);
+          // Com prioridade, as cidades maiores ganham nome mesmo um pouco além do desenho,
+          // desde que ele não seja minúsculo na tela.
+          // Sem prioridade, cidades de desenho médio também ganham nome (das maiores para as menores).
+          if (!cabe && !(pop != null ? raio * 2 >= 3 : raio * 2 >= 9)) continue;
+          cands.push({ x: lx, y: ly, n: m.n, w, p: pop != null ? pop : -1 / Math.max(raio, 1e-6) });
+        }
+        cands.sort((a, b) => b.p - a.p);
+        const limite = Math.max(6, Math.floor((W * H) / 9000));
+        const postos: Retangulo[] = [];
+        for (const k of cands) {
+          if (postos.length >= limite) break;
+          const caixaTexto: Retangulo = [k.x - k.w / 2 - 3, k.y - h / 2 - 2, k.x + k.w / 2 + 3, k.y + h / 2 + 2];
+          if (caixaTexto[0] < 2 || caixaTexto[2] > W - 2 || caixaTexto[1] < 2 || caixaTexto[3] > H - 2) continue;
+          if (postos.some((o) => colide(o, caixaTexto)) || ocupados.some((o) => colide(o, caixaTexto))) continue;
+          postos.push(caixaTexto);
+          novos.push(texto(k.x, k.y, k.n, estilos.nome));
+        }
+      }
+    }
+    camada.replaceChildren(...novos);
   }, []);
+  const desenharRotulos = useCallback(() => {
+    quadroRotulos.current = 0;
+    try {
+      desenharRotulosAgora();
+    } catch (erro) {
+      // Nunca deixa rótulos velhos parados por cima do mapa.
+      rotulosRef.current?.replaceChildren();
+      console.error("Rótulos do mapa:", erro);
+    }
+  }, [desenharRotulosAgora]);
+
+  const agendarRotulos = useCallback(() => {
+    if (!quadroRotulos.current) quadroRotulos.current = requestAnimationFrame(desenharRotulos);
+  }, [desenharRotulos]);
+  // Ao esconder a página (Activity) ou desmontar: cancela o quadro pendente e zera a marca. Sem
+  // zerar, a marca ficava presa e os rótulos nunca mais eram redesenhados (siglas do Brasil
+  // paradas por cima do estado).
+  useEffect(
+    () => () => {
+      cancelAnimationFrame(quadroRotulos.current);
+      quadroRotulos.current = 0;
+    },
+    [],
+  );
+
+  const setVB = useCallback(
+    (v: Vb) => {
+      vb.current = v;
+      svgRef.current?.setAttribute("viewBox", v.map((x) => x.toFixed(2)).join(" "));
+      agendarRotulos();
+    },
+    [agendarRotulos],
+  );
 
   const enquadrar = useCallback((): Vb => {
     const { ufEf, munEf, ufs, muns } = atual.current;
@@ -237,12 +423,29 @@ export function MapaBrasil({
   }
 
   useEffect(() => {
+    // No celular a barra do navegador muda a altura sozinha: só reenquadra (e desfaz o zoom) se
+    // a largura mudar ou a altura mudar muito.
+    let ultimo = [innerWidth, innerHeight];
     const aoRedimensionar = () => {
-      if (!arrastando.current) setVB(enquadrar());
+      const mudou = innerWidth !== ultimo[0] || Math.abs(innerHeight - ultimo[1]) > 160;
+      ultimo = [innerWidth, innerHeight];
+      if (mudou && !arrastando.current) setVB(enquadrar());
+      else agendarRotulos();
     };
     addEventListener("resize", aoRedimensionar);
     return () => removeEventListener("resize", aoRedimensionar);
-  }, [enquadrar, setVB]);
+  }, [enquadrar, setVB, agendarRotulos]);
+
+  // A caixa muda de tamanho sem a janela mudar (folha de baixo, abas): redesenha os rótulos.
+  useEffect(() => {
+    const caixa = caixaRef.current;
+    if (!caixa) return;
+    const ro = new ResizeObserver(agendarRotulos);
+    ro.observe(caixa);
+    return () => ro.disconnect();
+  }, [agendarRotulos]);
+  // Malha, lugar ou prioridade mudaram: redesenha (no máximo uma vez por quadro).
+  useEffect(agendarRotulos);
 
   // ---- zoom (roda, pinça, botões) ----
   const zoomEm = useCallback(
@@ -256,10 +459,26 @@ export function MapaBrasil({
       const px = x - (r.width * esc - w0) / 2 + (cx - r.left) * esc;
       const py = y - (r.height * esc - h0) / 2 + (cy - r.top) * esc;
       const lim = caixaPara(svg, ufs[ufEf].bbox, 0.3);
-      const w = Math.min(lim[2], Math.max(lim[2] / 25, w0 / fator));
+      // Aproxima até 1/25 do estado, ou até 1/4 do enquadramento da cidade se ela for menor.
+      const minimo = Math.min(lim[2] / 25, enquadrar()[2] / 4);
+      const w = Math.min(lim[2], Math.max(minimo, w0 / fator));
       const k = w / w0;
       anim.current++;
       setVB([px - (px - x) * k, py - (py - y) * k, w, h0 * k]);
+    },
+    [setVB, enquadrar],
+  );
+
+  /** Desloca a vista em px de tela (arraste e pinça). */
+  const moverPx = useCallback(
+    (dx: number, dy: number) => {
+      const svg = svgRef.current;
+      if (!svg || (!dx && !dy)) return;
+      const [x, y, w, h] = vb.current;
+      const r = svg.getBoundingClientRect();
+      const esc = Math.max(w / r.width, h / r.height);
+      anim.current++;
+      setVB([x - dx * esc, y - dy * esc, w, h]);
     },
     [setVB],
   );
@@ -284,8 +503,22 @@ export function MapaBrasil({
       e.preventDefault();
       zoomEm(e.clientX, e.clientY, e.deltaY < 0 ? 1.25 : 0.8);
     };
+    // Reforço ao touch-action: dentro do estado, dois dedos nunca dão zoom na página (Safari
+    // dispara gesturestart; os outros, touchmove com dois toques).
+    const toque = (e: TouchEvent) => {
+      if (atual.current.ufEf && e.touches.length > 1 && e.cancelable) e.preventDefault();
+    };
+    const gesto = (e: Event) => {
+      if (atual.current.ufEf) e.preventDefault();
+    };
     svg.addEventListener("wheel", roda, { passive: false });
-    return () => svg.removeEventListener("wheel", roda);
+    svg.addEventListener("touchmove", toque, { passive: false });
+    svg.addEventListener("gesturestart", gesto);
+    return () => {
+      svg.removeEventListener("wheel", roda);
+      svg.removeEventListener("touchmove", toque);
+      svg.removeEventListener("gesturestart", gesto);
+    };
   }, [zoomEm, ufs]);
 
   // ---- alvo, seleção e ativação ----
@@ -332,6 +565,24 @@ export function MapaBrasil({
   useLayoutEffect(posicionarDica, [dica, posicionarDica]);
 
   // ---- ponteiros: hover, arraste, pinça ----
+  // Um dedo arrasta; dois dedos aproximam/afastam em torno do ponto médio (e o ponto médio
+  // arrasta junto). Ao tirar um dos dois, o arraste recomeça do dedo que ficou, na vista atual:
+  // antes ele recomeçava da vista de antes da pinça e desfazia o zoom.
+  const reiniciarGesto = () => {
+    const pts = [...ponteiros.current.values()];
+    const ini = inicio.current;
+    ini.vb = [...vb.current];
+    ini.d = null;
+    if (pts.length >= 2) {
+      const [a, b] = pts;
+      ini.d = Math.hypot(a[0] - b[0], a[1] - b[1]) || null;
+      ini.cx = (a[0] + b[0]) / 2;
+      ini.cy = (a[1] + b[1]) / 2;
+    } else if (pts.length === 1) {
+      ini.x = pts[0][0];
+      ini.y = pts[0][1];
+    }
+  };
   const aoMover = (e: React.PointerEvent<SVGSVGElement>) => {
     if (e.pointerType === "mouse" && !arrastando.current) {
       const a = alvoDe(e);
@@ -343,13 +594,18 @@ export function MapaBrasil({
     if (!ponteiros.current.has(e.pointerId) || !atual.current.ufEf) return;
     ponteiros.current.set(e.pointerId, [e.clientX, e.clientY]);
     const ini = inicio.current;
-    if (ponteiros.current.size === 2 && ini.d) {
+    if (ponteiros.current.size >= 2) {
       const [a, b] = [...ponteiros.current.values()];
       const d = Math.hypot(a[0] - b[0], a[1] - b[1]);
-      arrastando.current = true;
-      const f = d / ini.d;
-      ini.d = d;
-      zoomEm(ini.cx, ini.cy, f);
+      const cx = (a[0] + b[0]) / 2;
+      const cy = (a[1] + b[1]) / 2;
+      if (ini.d && d) {
+        zoomEm(cx, cy, d / ini.d);
+        moverPx(cx - ini.cx, cy - ini.cy);
+      }
+      ini.d = d || null;
+      ini.cx = cx;
+      ini.cy = cy;
       return;
     }
     const dx = e.clientX - ini.x;
@@ -365,19 +621,23 @@ export function MapaBrasil({
   };
   const aoApertar = (e: React.PointerEvent<SVGSVGElement>) => {
     ponteiros.current.set(e.pointerId, [e.clientX, e.clientY]);
-    inicio.current = { x: e.clientX, y: e.clientY, vb: [...vb.current], d: null, cx: 0, cy: 0 };
-    arrastando.current = false;
-    if (ponteiros.current.size === 2) {
-      const [a, b] = [...ponteiros.current.values()];
-      inicio.current.d = Math.hypot(a[0] - b[0], a[1] - b[1]);
-      inicio.current.cx = (a[0] + b[0]) / 2;
-      inicio.current.cy = (a[1] + b[1]) / 2;
+    if (ponteiros.current.size === 1) {
+      arrastando.current = false;
+      inicio.current = { x: e.clientX, y: e.clientY, vb: [...vb.current], d: null, cx: 0, cy: 0 };
+      return;
     }
+    // Segundo dedo: é pinça; nada de toque/navegação ao soltar.
+    arrastando.current = true;
+    setDica(null);
+    reiniciarGesto();
   };
   const aoSoltar = (e: React.PointerEvent<SVGSVGElement>) => {
     const era = arrastando.current;
-    ponteiros.current.delete(e.pointerId);
-    if (ponteiros.current.size) return;
+    if (!ponteiros.current.delete(e.pointerId)) return;
+    if (ponteiros.current.size) {
+      reiniciarGesto(); // continua do jeito que está, com o(s) dedo(s) que ficou(aram)
+      return;
+    }
     arrastando.current = false;
     if (e.type === "pointerup" && !era) tocar(alvoDe(e), e.pointerType);
   };
@@ -399,6 +659,8 @@ export function MapaBrasil({
     ativar(a);
   };
   const aoFocar = (e: React.FocusEvent<SVGSVGElement>) => {
+    // Só o foco de teclado seleciona; o toque também foca o desenho e deixava um contorno solto.
+    if (!(e.target as Element).matches?.(":focus-visible")) return;
     const a = alvoDoElemento(e.target);
     if (a) selecionar(a);
   };
@@ -493,6 +755,7 @@ export function MapaBrasil({
             ))}
         </g>
       </svg>
+      <svg ref={rotulosRef} className={estilos.rotulos} aria-hidden="true" />
       <div ref={dicaRef} className={estilos.dica} role="tooltip" hidden={!dica || !resumo}>
         {dica && resumo ? resumo(dica.nivel, dica.id) : null}
       </div>

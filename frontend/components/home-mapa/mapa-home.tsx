@@ -58,7 +58,7 @@ export function MapaHome({ ufs }: { ufs: UfDoMapa[] }) {
         className="mx-auto h-[360px] w-full max-w-[26rem] md:h-[420px]"
         titulo="Mapa dos estados do Brasil, colorido pelo repasse da União a cada R$ 100 arrecadados"
         toqueUnico={false}
-        onNavegar={({ uf }) => uf && router.push(`/dinheiro-federal/${uf}`)}
+        onNavegar={({ uf }) => uf && router.push(`/impostos-e-repasses/${uf}`)}
         onSelecionar={(a) => setSel(a?.id ?? null)}
         classe={(_n, id): ClasseMapa => classe(porUf.get(id) ? aCada100(porUf.get(id)!) : null, cortes)}
         rotulo={(_n, id) => {
@@ -84,7 +84,7 @@ export function MapaHome({ ufs }: { ufs: UfDoMapa[] }) {
         {escolhida ? (
           <div className="flex flex-col gap-2">
             <Resumo u={escolhida} />
-            <Link href={`/dinheiro-federal/${escolhida.uf}`} className="botao-linha self-start">
+            <Link href={`/impostos-e-repasses/${escolhida.uf}`} className="botao-linha self-start">
               Abrir {escolhida.nome}
             </Link>
           </div>

@@ -30,7 +30,7 @@ export function lerRota({ lugar, ano }: Entrada) {
 
 export async function metadadosDinheiroFederal(entrada: Entrada): Promise<Metadata> {
   const rota = lerRota(entrada);
-  const base = "Dinheiro federal: quanto a União arrecada e repassa";
+  const base = "Impostos e repasses: quanto a União arrecada e repassa em cada estado e cidade";
   if (!rota?.uf) {
     return {
       title: base,
@@ -41,7 +41,7 @@ export async function metadadosDinheiroFederal(entrada: Entrada): Promise<Metada
   const nomeUf = UFS.find((u) => u.sigla === rota.uf)?.nome ?? rota.uf;
   if (!rota.ibge) {
     return {
-      title: `Dinheiro federal em ${nomeUf}`,
+      title: `Impostos e repasses em ${nomeUf}`,
       description: `Quanto a União arrecadou em ${nomeUf} e quanto repassou ao estado e às prefeituras, com fonte e data.`,
     };
   }
@@ -62,7 +62,7 @@ export function PaginaDinheiroFederal({
   searchParams: Promise<{ ano?: string | string[] }>;
 }) {
   return (
-    <Revelacao fallback={<EsqueletoSecao rotulo="Carregando o dinheiro federal…" secoes={3} />}>
+    <Revelacao fallback={<EsqueletoSecao rotulo="Carregando os impostos e repasses…" secoes={3} />}>
       {Promise.all([params, searchParams]).then(([p, s]) => (
         <Dados lugar={p.lugar} ano={s.ano} />
       ))}
@@ -81,12 +81,12 @@ async function Dados(entrada: Entrada) {
   ]);
   if (!painel.ok) {
     if (painel.status === 404) notFound();
-    return <AvisoErro titulo="Não deu para carregar o dinheiro federal" mensagem={painel.mensagem} />;
+    return <AvisoErro titulo="Não deu para carregar impostos e repasses" mensagem={painel.mensagem} />;
   }
   if (painel.dados.sem_dados) {
     return (
       <div className="flex flex-col gap-3">
-        <p className="sobretitulo">Dinheiro federal</p>
+        <p className="sobretitulo">Impostos e repasses</p>
         <h1 className="titulo-pagina">Quanto a União arrecada e repassa</h1>
         <p className="text-muted-foreground">{MENSAGEM_CARREGANDO}</p>
       </div>

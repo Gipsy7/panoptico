@@ -7,6 +7,8 @@ export type Caixa = [number, number, number, number]; // x0, y0, x1, y1 no viewB
 export type NivelMapa = "uf" | "mun";
 /** Classe de cor: 0 = sem dado, 1..5 = escala em quantis. */
 export type ClasseMapa = 0 | 1 | 2 | 3 | 4 | 5;
+/** Ponto de rótulo [x, y, r]: interior mais distante da borda (polylabel) e essa distância. */
+export type PontoRotulo = [number, number, number];
 
 export interface UfGeo {
   cod: string;
@@ -14,6 +16,7 @@ export interface UfGeo {
   regiao: string;
   d: string;
   bbox: Caixa;
+  l?: PontoRotulo;
 }
 export type MalhaUf = Record<string, UfGeo>;
 
@@ -21,6 +24,7 @@ export interface MunGeo {
   n: string;
   d: string;
   b: Caixa;
+  l?: PontoRotulo;
 }
 export type MalhaMun = Record<string, MunGeo>;
 
@@ -29,8 +33,22 @@ export interface Lugar {
   municipio?: string;
 }
 
-/** Viewbox do Brasil inteiro. */
-export const CAIXA_BRASIL: Caixa = [0, 0, 874, 894];
+/** Viewbox do Brasil inteiro (o desenho vai até x = 874; a faixa à direita é mar para as siglas de fora). */
+export const CAIXA_BRASIL: Caixa = [0, 0, 920, 894];
+
+/** Onde vai a sigla dos estados pequenos quando ela não cabe dentro do desenho: no mar ou ao
+ * lado, com uma linha fina até o estado. Coordenadas do viewBox do Brasil. */
+export const SIGLA_FORA: Record<string, [number, number]> = {
+  RN: [897, 246],
+  PB: [897, 278],
+  PE: [897, 310],
+  AL: [897, 342],
+  SE: [897, 374],
+  ES: [796, 574],
+  RJ: [748, 680],
+  SC: [608, 768],
+  DF: [608, 458],
+};
 
 /** Cortes de quantis (n-1 valores) ignorando ausentes e não finitos. */
 export function quantis(valores: Array<number | null | undefined>, n = 5): number[] {

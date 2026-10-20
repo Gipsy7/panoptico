@@ -8,11 +8,11 @@ import {
 export async function generateMetadata({
   params,
   searchParams,
-}: PageProps<"/dinheiro-federal/[[...lugar]]">): Promise<Metadata> {
+}: PageProps<"/impostos-e-repasses/[[...lugar]]">): Promise<Metadata> {
   const [p, s] = await Promise.all([params, searchParams]);
   return metadadosDinheiroFederal({ lugar: p.lugar, ano: s.ano });
 }
 
-export default function DinheiroFederalPage({ params, searchParams }: PageProps<"/dinheiro-federal/[[...lugar]]">) {
+export default function DinheiroFederalPage({ params, searchParams }: PageProps<"/impostos-e-repasses/[[...lugar]]">) {
   return <PaginaDinheiroFederal params={params} searchParams={searchParams} />;
 }

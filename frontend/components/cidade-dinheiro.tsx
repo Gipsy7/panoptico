@@ -453,7 +453,7 @@ function DinheiroFederalCartao({
   return (
     <section aria-labelledby="federal-titulo" className="flex flex-col gap-2 rounded-[2px] border border-border bg-card p-4">
       <h2 id="federal-titulo" className="text-xl">
-        Dinheiro federal nesta cidade
+        Repasses da União nesta cidade
       </h2>
       <p className="text-sm text-muted-foreground">Repasses da União à prefeitura de {municipio} em {ultimo.ano}.</p>
       <dl className="grid grid-cols-2 gap-4">
@@ -474,7 +474,7 @@ function DinheiroFederalCartao({
         )}
       </dl>
       <Link
-        href={`/dinheiro-federal/${uf}/${ibge}`}
+        href={`/impostos-e-repasses/${uf}/${ibge}`}
         className="alvo-link self-start text-sm font-medium text-primary underline underline-offset-4"
       >
         Ver no mapa
