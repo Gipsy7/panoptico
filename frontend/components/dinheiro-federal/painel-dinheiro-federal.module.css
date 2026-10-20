@@ -427,19 +427,19 @@
     transform: translateY(calc(100% - var(--espia) - env(safe-area-inset-bottom, 0px)));
     transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
     padding-bottom: env(safe-area-inset-bottom, 0px);
+    /* fechada ou a meia altura, a folha inteira é alça */
+    touch-action: none;
   }
   .painel.aberta {
     transform: none;
     overflow: auto;
+    overscroll-behavior: contain;
+    touch-action: pan-y;
   }
-  /* meia altura (padrão na cidade): o contorno da cidade fica à vista acima; o fim do conteúdo
-     ganha folga para poder rolar até a parte visível */
+  /* meia altura (padrão na cidade): o contorno da cidade fica à vista acima; o conteúdo só rola
+     com a folha aberta por inteiro (até lá, arrastar em qualquer ponto move a folha) */
   .painel.meia {
     transform: translateY(max(0px, calc(100% - 55svh)));
-    overflow: auto;
-  }
-  .painel.meia .corpo {
-    padding-bottom: calc(20px + 27svh);
   }
   .raiz.comMeia {
     padding-bottom: 55svh;

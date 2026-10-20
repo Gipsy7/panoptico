@@ -317,98 +317,171 @@ export function PainelDinheiroFederal({ inicial }: { inicial: EstadoInicial }) {
     return () => ro.disconnect();
   }, [chaveCabecalho]);
 
-  // ---- folha de baixo (celular): arrastar pela alça/cabeçalho ----
+  // ---- folha de baixo (celular): arrastar ----
+  // Recolhida ou a meia altura, o conteúdo não rola e qualquer arraste vertical na folha a move.
+  // Aberta, o conteúdo rola; puxar para baixo com ele no topo (ou pela alça) volta a fechar.
   // Durante o gesto a folha segue o dedo (translateY sem transição); ao soltar vai para a posição
   // mais próxima entre recolhida, meia altura e aberta (passou de 30% do vão já troca), ou para a
   // seguinte num gesto rápido.
   const arrasteFolha = useRef({
-    id: null as number | null,
+    ativo: false,
     y0: 0,
     base: 0,
     pos: 0,
     moveu: false,
+    decidido: false,
+    pelaAlca: false,
     amostras: [] as Array<[number, number]>,
     suprimirClique: false,
   });
+  const folhaAtual = useRef(folha);
+  useEffect(() => {
+    folhaAtual.current = folha;
+    // Fora do estado aberto o conteúdo não rola: volta ao topo.
+    if (folha !== "aberta" && folhaRef.current) folhaRef.current.scrollTop = 0;
+  }, [folha]);
 
-  const alvosFolha = (): Record<Folha, number> => {
+  const alvosFolha = useCallback((): Record<Folha, number> => {
     const h = folhaRef.current?.offsetHeight ?? 0;
     const espia = Math.min((topoFolhaRef.current?.offsetHeight ?? 0) + 8, 320);
     const recolhida = Math.max(0, h - espia);
     const meia = Math.min(recolhida, Math.max(0, h - innerHeight * 0.55));
     return { recolhida, meia, aberta: 0 };
-  };
+  }, []);
 
-  const aoApertarFolha = (e: React.PointerEvent<HTMLDivElement>) => {
+  const comecarArraste = useCallback((y: number, pelaAlca: boolean) => {
     const el = folhaRef.current;
-    if (!el || !matchMedia("(max-width: 959px)").matches || (e.pointerType === "mouse" && e.button !== 0)) return;
+    if (!el || !matchMedia("(max-width: 959px)").matches) return false;
     const t = getComputedStyle(el).transform;
     const base = t && t !== "none" ? new DOMMatrixReadOnly(t).m42 : 0;
     arrasteFolha.current = {
-      id: e.pointerId,
-      y0: e.clientY,
+      ativo: true,
+      y0: y,
       base,
       pos: base,
       moveu: false,
-      amostras: [[performance.now(), e.clientY]],
+      decidido: false,
+      pelaAlca,
+      amostras: [[performance.now(), y]],
       suprimirClique: false,
     };
-  };
+    return true;
+  }, []);
 
-  const aoMoverFolha = (e: React.PointerEvent<HTMLDivElement>) => {
-    const a = arrasteFolha.current;
-    const el = folhaRef.current;
-    if (a.id !== e.pointerId || !el) return;
-    const dy = e.clientY - a.y0;
-    if (!a.moveu && Math.abs(dy) < 6) return;
-    if (!a.moveu) {
-      a.moveu = true;
-      e.currentTarget.setPointerCapture(e.pointerId);
-      el.style.transition = "none";
-    }
-    a.pos = Math.min(alvosFolha().recolhida, Math.max(0, a.base + dy));
-    el.style.transform = `translateY(${a.pos}px)`;
-    a.amostras.push([performance.now(), e.clientY]);
-    if (a.amostras.length > 6) a.amostras.shift();
-  };
+  const moverArraste = useCallback(
+    (y: number) => {
+      const a = arrasteFolha.current;
+      const el = folhaRef.current;
+      if (!el) return;
+      if (!a.moveu) {
+        a.moveu = true;
+        el.style.transition = "none";
+      }
+      a.pos = Math.min(alvosFolha().recolhida, Math.max(0, a.base + y - a.y0));
+      el.style.transform = `translateY(${a.pos}px)`;
+      a.amostras.push([performance.now(), y]);
+      if (a.amostras.length > 6) a.amostras.shift();
+    },
+    [alvosFolha],
+  );
 
-  const aoSoltarFolha = (e: React.PointerEvent<HTMLDivElement>) => {
-    const a = arrasteFolha.current;
-    const el = folhaRef.current;
-    if (a.id !== e.pointerId || !el) return;
-    a.id = null;
-    if (!a.moveu) return;
-    // Descarta o clique que vem logo depois do arraste; se ele não vier, a trava se desfaz.
-    a.suprimirClique = true;
-    setTimeout(() => (a.suprimirClique = false), 400);
-    let destino: Folha = folha;
-    if (e.type === "pointerup") {
-      const alvos = alvosFolha();
-      // Posições distintas, de cima (aberta) para baixo (recolhida).
-      const ordem = (["aberta", "meia", "recolhida"] as Folha[]).filter(
-        (f, i, l) => i === 0 || Math.abs(alvos[f] - alvos[l[i - 1]]) > 24,
-      );
-      const perto = (y: number) =>
-        ordem.reduce((m, f) => (Math.abs(alvos[f] - y) < Math.abs(alvos[m] - y) ? f : m), ordem[0]);
-      const [t0, y0] = a.amostras[0];
-      const [t1, y1] = a.amostras[a.amostras.length - 1];
-      const v = (y1 - y0) / Math.max(1, t1 - t0); // px/ms; positivo = para baixo
-      const dy = a.pos - a.base;
-      const i0 = ordem.indexOf(perto(a.base));
-      if (Math.abs(v) > 0.5) {
-        destino = ordem[Math.min(ordem.length - 1, Math.max(0, i0 + Math.sign(v)))];
-      } else {
-        destino = perto(a.pos);
-        const vizinho = ordem[i0 + Math.sign(dy)];
-        if (destino === ordem[i0] && vizinho && Math.abs(dy) > Math.abs(alvos[vizinho] - alvos[ordem[i0]]) * 0.3) {
-          destino = vizinho;
+  const terminarArraste = useCallback(
+    (cancelado: boolean) => {
+      const a = arrasteFolha.current;
+      const el = folhaRef.current;
+      const estava = a.ativo && a.moveu;
+      a.ativo = false;
+      if (!estava || !el) return;
+      // Descarta o clique que vem logo depois do arraste; se ele não vier, a trava se desfaz.
+      a.suprimirClique = true;
+      setTimeout(() => (a.suprimirClique = false), 400);
+      let destino: Folha = folhaAtual.current;
+      if (!cancelado) {
+        const alvos = alvosFolha();
+        // Posições distintas, de cima (aberta) para baixo (recolhida).
+        const ordem = (["aberta", "meia", "recolhida"] as Folha[]).filter(
+          (f, i, l) => i === 0 || Math.abs(alvos[f] - alvos[l[i - 1]]) > 24,
+        );
+        const perto = (y: number) =>
+          ordem.reduce((m, f) => (Math.abs(alvos[f] - y) < Math.abs(alvos[m] - y) ? f : m), ordem[0]);
+        const [t0, y0] = a.amostras[0];
+        const [t1, y1] = a.amostras[a.amostras.length - 1];
+        const v = (y1 - y0) / Math.max(1, t1 - t0); // px/ms; positivo = para baixo
+        const dy = a.pos - a.base;
+        const i0 = ordem.indexOf(perto(a.base));
+        if (Math.abs(v) > 0.5) {
+          destino = ordem[Math.min(ordem.length - 1, Math.max(0, i0 + Math.sign(v)))];
+        } else {
+          destino = perto(a.pos);
+          const vizinho = ordem[i0 + Math.sign(dy)];
+          if (destino === ordem[i0] && vizinho && Math.abs(dy) > Math.abs(alvos[vizinho] - alvos[ordem[i0]]) * 0.3) {
+            destino = vizinho;
+          }
         }
       }
-    }
-    // Tira o estilo do gesto: a transição da classe leva da posição atual até o destino.
-    el.style.transition = "";
-    el.style.transform = "";
-    setFolha(destino);
+      // Tira o estilo do gesto: a transição da classe leva da posição atual até o destino.
+      el.style.transition = "";
+      el.style.transform = "";
+      if (destino !== "aberta") el.scrollTop = 0;
+      setFolha(destino);
+    },
+    [alvosFolha],
+  );
+
+  // Toque: eventos nativos (não passivos) na folha inteira, para decidir já no primeiro movimento
+  // entre mover a folha e deixar o conteúdo rolar.
+  useEffect(() => {
+    const el = folhaRef.current;
+    if (!el) return;
+    const inicio = (e: TouchEvent) => {
+      if (e.touches.length !== 1) return terminarArraste(true);
+      comecarArraste(e.touches[0].clientY, topoFolhaRef.current?.contains(e.target as Node) ?? false);
+    };
+    const mover = (e: TouchEvent) => {
+      const a = arrasteFolha.current;
+      if (!a.ativo) return;
+      if (e.touches.length !== 1) return terminarArraste(true);
+      const y = e.touches[0].clientY;
+      if (!a.decidido) {
+        const dy = y - a.y0;
+        if (Math.abs(dy) < 6) return;
+        a.decidido = true;
+        const arrasta = folhaAtual.current !== "aberta" || a.pelaAlca || (dy > 0 && el.scrollTop <= 0);
+        if (!arrasta) {
+          a.ativo = false; // o conteúdo rola normalmente
+          return;
+        }
+      }
+      if (e.cancelable) e.preventDefault();
+      moverArraste(y);
+    };
+    const fim = (e: TouchEvent) => terminarArraste(e.type === "touchcancel");
+    el.addEventListener("touchstart", inicio, { passive: true });
+    el.addEventListener("touchmove", mover, { passive: false });
+    el.addEventListener("touchend", fim);
+    el.addEventListener("touchcancel", fim);
+    return () => {
+      el.removeEventListener("touchstart", inicio);
+      el.removeEventListener("touchmove", mover);
+      el.removeEventListener("touchend", fim);
+      el.removeEventListener("touchcancel", fim);
+    };
+  }, [comecarArraste, moverArraste, terminarArraste]);
+
+  // Mouse (janela estreita no computador): arrasta pela alça/cabeçalho.
+  const aoApertarFolha = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (e.pointerType !== "mouse" || e.button !== 0) return;
+    if (comecarArraste(e.clientY, true)) arrasteFolha.current.decidido = true;
+  };
+  const aoMoverFolha = (e: React.PointerEvent<HTMLDivElement>) => {
+    const a = arrasteFolha.current;
+    if (e.pointerType !== "mouse" || !a.ativo) return;
+    if (!a.moveu && Math.abs(e.clientY - a.y0) < 6) return;
+    if (!a.moveu) e.currentTarget.setPointerCapture(e.pointerId);
+    moverArraste(e.clientY);
+  };
+  const aoSoltarFolha = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (e.pointerType === "mouse") terminarArraste(e.type === "pointercancel");
   };
 
   // Voltando para a aba Mapa, reenquadra (o mapa escondido não tem tamanho).

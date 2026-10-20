@@ -197,8 +197,7 @@ export function MapaBrasil({
 
   // ---- rótulos (siglas no Brasil, nomes das cidades ao aproximar) ----
   // Recalculados no máximo uma vez por quadro, sempre que o viewBox, o tamanho ou a malha mudam.
-  const desenharRotulos = useCallback(() => {
-    quadroRotulos.current = 0;
+  const desenharRotulosAgora = useCallback(() => {
     const camada = rotulosRef.current;
     const svg = svgRef.current;
     const caixa = caixaRef.current;
@@ -291,7 +290,8 @@ export function MapaBrasil({
           const pop = prioridade?.(cod);
           // Com prioridade, as cidades maiores ganham nome mesmo um pouco além do desenho,
           // desde que ele não seja minúsculo na tela.
-          if (!cabe && !(pop != null && raio * 2 >= 3)) continue;
+          // Sem prioridade, cidades de desenho médio também ganham nome (das maiores para as menores).
+          if (!cabe && !(pop != null ? raio * 2 >= 3 : raio * 2 >= 9)) continue;
           cands.push({ x: lx, y: ly, n: m.n, w, p: pop != null ? pop : -1 / Math.max(raio, 1e-6) });
         }
         cands.sort((a, b) => b.p - a.p);
@@ -309,11 +309,30 @@ export function MapaBrasil({
     }
     camada.replaceChildren(...novos);
   }, []);
+  const desenharRotulos = useCallback(() => {
+    quadroRotulos.current = 0;
+    try {
+      desenharRotulosAgora();
+    } catch (erro) {
+      // Nunca deixa rótulos velhos parados por cima do mapa.
+      rotulosRef.current?.replaceChildren();
+      console.error("Rótulos do mapa:", erro);
+    }
+  }, [desenharRotulosAgora]);
 
   const agendarRotulos = useCallback(() => {
     if (!quadroRotulos.current) quadroRotulos.current = requestAnimationFrame(desenharRotulos);
   }, [desenharRotulos]);
-  useEffect(() => () => cancelAnimationFrame(quadroRotulos.current), []);
+  // Ao esconder a página (Activity) ou desmontar: cancela o quadro pendente e zera a marca. Sem
+  // zerar, a marca ficava presa e os rótulos nunca mais eram redesenhados (siglas do Brasil
+  // paradas por cima do estado).
+  useEffect(
+    () => () => {
+      cancelAnimationFrame(quadroRotulos.current);
+      quadroRotulos.current = 0;
+    },
+    [],
+  );
 
   const setVB = useCallback(
     (v: Vb) => {
@@ -640,6 +659,8 @@ export function MapaBrasil({
     ativar(a);
   };
   const aoFocar = (e: React.FocusEvent<SVGSVGElement>) => {
+    // Só o foco de teclado seleciona; o toque também foca o desenho e deixava um contorno solto.
+    if (!(e.target as Element).matches?.(":focus-visible")) return;
     const a = alvoDoElemento(e.target);
     if (a) selecionar(a);
   };
