@@ -197,7 +197,7 @@ O resumo está abaixo; o detalhe e o porquê de cada escolha estão em [docs/DEC
 | Banco | PostgreSQL (Neon em produção) |
 | API | FastAPI, Pydantic |
 | Site | Next.js 16 (App Router, Cache Components), React 19, Tailwind CSS 4, shadcn/ui |
-| Testes e qualidade | pytest, respx, ruff, ESLint, TypeScript |
+| Testes e qualidade | pytest, respx, Vitest, ruff, ESLint, TypeScript |
 | Infra | Vercel (site e API), Neon (banco), GitHub Actions (ingestão e CI) |
 
 ### Estrutura
@@ -328,10 +328,10 @@ Licença dos dados abertos: [Creative Commons Atribuição 4.0 (CC BY 4.0)](http
 
 ```bash
 cd backend && uv run pytest && uv run ruff check && uv run ruff format --check
-cd frontend && npm run lint && npm run build
+cd frontend && npm test && npm run lint && npm run build
 ```
 
-Os testes do backend usam um banco `panoptico_test` (criado pelo `scripts/criar_banco.sql`) e simulam as APIs externas com `respx`, a partir de amostras reais em `backend/tests/fixtures/`. O CI roda tudo a cada push.
+Os testes do backend usam um banco `panoptico_test` (criado pelo `scripts/criar_banco.sql`) e simulam as APIs externas com `respx`, a partir de amostras reais em `backend/tests/fixtures/`. No site, o Vitest (`npm test`) testa as funções de `frontend/lib/` que formatam reais, datas e CEP e montam as faixas do mapa. O CI roda tudo a cada push, e um teste que falha impede a publicação.
 
 ## Deploy
 

@@ -103,3 +103,65 @@ def test_votacao_secreta_com_voto_em_branco_conta_como_votou_no_tema(session):
     session.flush()
     t = _por_tema(session, d)["Economia"]
     assert (t["total_votacoes"], t["votou"]) == (1, 1)
+
+
+def test_sem_classificacao_fica_fora_e_fora_de_exercicio_nao_entra_na_media(session):
+    from datetime import date
+
+    from ingestion.proposicoes_comum import SEM_CLASSIFICACAO
+
+    a, b, c = _cenario(session)
+    _temas(session)
+    session.add(ProposicaoTema(casa="camara", proposicao_id_externo="2", tema=SEM_CLASSIFICACAO))
+    c.em_exercicio = False
+    b.em_exercicio_desde = date(2026, 3, 3)  # só v2 (03/03) e v3 (04/03) contam para B
+    session.flush()
+
+    t = _por_tema(session, a)
+    assert SEM_CLASSIFICACAO not in t
+    # Economia (só v3): A e B votaram; C saiu do exercício e não entra na média.
+    assert t["Economia"]["media_casa_percentual"] == 100.0
+    # Saúde: A 3 de 3 e B 1 de 1 (só v3 depois da posse): média 100.
+    assert t["Saúde"]["media_casa_percentual"] == 100.0
+    tb = _por_tema(session, b)
+    assert (tb["Saúde"]["total_votacoes"], tb["Saúde"]["votou"]) == (1, 1)
+    assert "Economia" in tb and tb["Educação"]["total_votacoes"] == 1  # v2
+    # Quem saiu do exercício ainda vê os próprios números.
+    tc = _por_tema(session, c)
+    assert (tc["Economia"]["votou"], tc["Economia"]["percentual"]) == (0, 0.0)
+
+
+def test_senado_tira_o_na_do_total(session):
+    from datetime import date
+
+    from sqlalchemy import select
+
+    from app.models import Parlamentar
+    from ingestion import votacoes_comum as vc
+    from tests.test_api import _ingestao, _popular
+
+    _popular(session)
+    a, b, c = session.scalars(
+        select(Parlamentar).where(Parlamentar.casa == "senado").order_by(Parlamentar.id)
+    ).all()
+    for p in (a, b, c):
+        p.em_exercicio, p.em_exercicio_desde = True, None
+    session.add(ProposicaoTema(casa="senado", proposicao_id_externo="S", tema="Economia"))
+    votacoes = [
+        {"id_externo": f"s{i}", "data": date(2026, 4, i + 1), "descricao": "x",
+         "proposicao": "PL 1/2026", "proposicao_id_externo": "S", "secreta": False}
+        for i in range(2)
+    ]  # fmt: skip
+    votos = [
+        {"id_externo_votacao": "s0", "parlamentar_id": a.id, "voto": "Sim"},
+        {"id_externo_votacao": "s1", "parlamentar_id": a.id, "voto": "Não"},
+        {"id_externo_votacao": "s0", "parlamentar_id": b.id, "voto": "NA"},
+        {"id_externo_votacao": "s1", "parlamentar_id": b.id, "voto": "Sim"},
+    ]  # C não votou em nenhuma
+    vc.recarregar_votacoes(session, "senado", 2026, votacoes, votos, _ingestao(session))
+    session.flush()
+
+    tb = _por_tema(session, b)["Economia"]
+    assert (tb["total_votacoes"], tb["votou"], tb["percentual"]) == (1, 1, 100.0)
+    # Média: A 100, B 100 (o NA saiu do total), C 0.
+    assert tb["media_casa_percentual"] == 66.7

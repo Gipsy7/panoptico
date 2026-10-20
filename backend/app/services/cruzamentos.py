@@ -35,6 +35,9 @@ REGRAS = {
     "origem": "ligado pelo próprio registro da fonte",
     "nome_nascimento": "ligado pelo nome e pela data de nascimento",
     "nome_parlamentar": "ligado pelo nome parlamentar, único no cadastro da Casa",
+    "nome_exato_casa": (
+        "ligado pelo nome, igual ao do eleito no TSE e único entre os eleitos da Casa"
+    ),
 }
 
 # Recorte do TSE (ingestion/fontes.toml: tse_candidaturas e tse_bens).

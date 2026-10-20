@@ -93,3 +93,30 @@ def test_api_indicacoes_do_parlamentar(session, client):
     assert corpo["por_orgao"][0]["orgao"] == "Ministerio Da Saude"
     assert corpo["itens"][0]["beneficiario"].startswith("FUNDO MUNICIPAL DE SAÚDE")
     assert client.get(f"/parlamentares/{sem.id}/emendas-relator").status_code == 404
+
+
+def test_resumo_orgao_ausente_tira_cpf_e_ordena_pelo_valor(session):
+    from app.services import emendas_relator as servico
+
+    p = _novo(session, "camara", "900001", "Abílio Santana")
+    assert servico.resumo(session, p) is None
+    for numero, orgao, benef, valor in (
+        (1, None, "JOSE DA SILVA 12345678901", "10.00"),
+        (2, "Ministério X", "PREFEITURA A", "500.00"),
+        (3, None, "PREFEITURA A", "40.00"),
+    ):
+        session.add(EmendaRelatorIndicacao(
+            numero=numero, ano=2022, parlamentar_id=p.id, autor_nome="Abílio",
+            beneficiario=benef, orgao=orgao, valor_solicitado=Decimal(valor),
+        ))  # fmt: skip
+    session.flush()
+    r = servico.resumo(session, p)
+    assert (r["quantidade"], r["valor_solicitado"], r["beneficiarios"]) == (3, Decimal("550.00"), 2)
+    assert r["por_orgao"] == [
+        {"orgao": "Ministério X", "quantidade": 1, "valor": Decimal("500.00")},
+        {"orgao": "Órgão não informado", "quantidade": 2, "valor": Decimal("50.00")},
+    ]
+    assert [i["numero"] for i in r["itens"]] == [2, 3, 1]
+    # CPF dentro do nome do beneficiário (MEI) nunca sai na resposta.
+    assert r["itens"][-1]["beneficiario"] == "JOSE DA SILVA"
+    assert r["atualizado_em"] is None
