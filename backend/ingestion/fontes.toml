@@ -136,6 +136,29 @@ frequencia = "mensal"
 acesso = "aberto"
 
 [[fonte]]
+nome = "tesouro_transferencias"
+modulo = "ingestion.tesouro.transferencias"
+uso = "Dinheiro federal: FPE, FPM, IPI-Exportação e demais repasses obrigatórios da União ao estado e à cidade, por mês"
+recorte = "2019 em diante; FPM e demais municipais por município (código IBGE pela tabela oficial SIAFI x IBGE), FPE e IPI-Exp por estado"
+guarda = "somas"
+frequencia = "mensal"
+acesso = "aberto"
+# Sem argumento: ano anterior e atual (CKAN do Tesouro; ~140 MB de CSV, bruto = recorte de ~6 MB).
+# Carga inicial: `--ano 2019 ... 2026`. Valores líquidos da retenção de 20% do Fundeb.
+
+[[fonte]]
+nome = "portal_transferencias"
+modulo = "ingestion.portal.transferencias"
+uso = "Dinheiro federal: complementação da União ao Fundeb, royalties e transferências legais, voluntárias e específicas, por mês"
+recorte = "2019 em diante; soma por UF, município e bloco (sem favorecido nem ação); sem FPE/FPM (valem os do Tesouro)"
+guarda = "somas"
+frequencia = "mensal"
+anos = "padrao"
+acesso = "lento"
+# Um zip por mês (2 a 7 MB). WAF do Portal: um download por vez, pausa de 20 s e parada no
+# primeiro 403/405. Mês antigo já carregado não é baixado de novo; os 3 últimos publicados, sim.
+
+[[fonte]]
 nome = "canais_oficiais"
 modulo = "ingestion.canais.catalogo"
 uso = "Canais oficiais da cidade"

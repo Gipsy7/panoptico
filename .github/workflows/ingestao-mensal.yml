@@ -96,6 +96,36 @@ jobs:
         if: ${{ !inputs.so_tce && !inputs.so_partidos }}
         run: uv run python -m ingestion.ibge.populacao
 
+      # Repasses obrigatórios da União a estados e cidades (FPE, FPM, IPI-Exp, CIDE, IOF-Ouro, ITR,
+      # LC 176): CKAN do Tesouro, ~140 MB de CSV reduzidos a um recorte de ~6 MB; só grava as linhas
+      # que mudaram. Sem `anos`: o ano anterior e o atual. Carga inicial: anos = "2019 2020 ...".
+      - name: Transferências obrigatórias da União (Tesouro)
+        if: ${{ !inputs.so_tce && !inputs.so_partidos }}
+        run: |
+          anos="$ANOS"
+          if [ -z "$anos" ]; then
+            ano=$(date +%Y)
+            anos="$((ano - 1)) $ano"
+          fi
+          uv run python -m ingestion.tesouro.transferencias --ano $anos
+
+      # Fundeb (complementação da União), royalties e transferências legais, voluntárias e
+      # específicas, do Portal da Transparência: um zip por mês, um download por vez com pausa de
+      # 20 s. Sem `anos`: os 3 últimos meses publicados (o Portal os corrige). Com `anos`: os meses
+      # publicados desses anos que ainda não foram carregados (carga inicial: "2019 ... 2026", ~1 h).
+      # O WAF do Portal responde 403/405 a quem pede demais: a carga PARA no primeiro bloqueio, grava
+      # o erro em fonte_ingestao e não tenta de novo; o resto do mês continua (continue-on-error) e
+      # a próxima execução retoma de onde parou.
+      - name: Transferências da União (Portal da Transparência)
+        if: ${{ !inputs.so_tce && !inputs.so_partidos }}
+        continue-on-error: true
+        run: |
+          if [ -n "$ANOS" ]; then
+            uv run python -m ingestion.portal.transferencias --ano $ANOS
+          else
+            uv run python -m ingestion.portal.transferencias
+          fi
+
       # Prestação de contas anual dos partidos (zip de ~60 MB por exercício, lido em fluxo; ~11 MB
       # no banco por ano). O exercício atual costuma dar 404 (ainda não publicado) e é pulado.
       - name: Contas dos partidos (TSE)
