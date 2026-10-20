@@ -78,13 +78,15 @@ function lerEndereco() {
 const valorCidade = (c: DinheiroFederalCidade | undefined) =>
   c && c.repasse != null && c.populacao ? c.repasse / c.populacao : null;
 
+type Folha = "recolhida" | "meia" | "aberta";
+
 export function PainelDinheiroFederal({ inicial }: { inicial: EstadoInicial }) {
   const [uf, setUf] = useState(inicial.uf);
   const [ibge, setIbge] = useState(inicial.ibge);
   const [ano, setAno] = useState(inicial.ano);
   const [ind, setInd] = useState<Indicador>("repHab");
   const [vista, setVista] = useState<"mapa" | "lista">("mapa");
-  const [aberta, setAberta] = useState(Boolean(inicial.ibge));
+  const [folha, setFolha] = useState<Folha>(inicial.ibge ? "meia" : "recolhida");
   const [buscaAberta, setBuscaAberta] = useState(false);
   const [painel, setPainel] = useState(inicial.painel);
   const [estado, setEstado] = useState(inicial.estado);
@@ -93,6 +95,7 @@ export function PainelDinheiroFederal({ inicial }: { inicial: EstadoInicial }) {
 
   const raizRef = useRef<HTMLDivElement>(null);
   const topoFolhaRef = useRef<HTMLDivElement>(null);
+  const folhaRef = useRef<HTMLElement>(null);
   const controle = useRef<MapaControle>(null);
   const buscaRef = useRef<HTMLDivElement>(null);
 
@@ -104,7 +107,7 @@ export function PainelDinheiroFederal({ inicial }: { inicial: EstadoInicial }) {
     setUf(inicial.uf);
     setIbge(inicial.ibge);
     setAno(inicial.ano);
-    setAberta(Boolean(inicial.ibge));
+    setFolha(inicial.ibge ? "meia" : "recolhida");
     setPainel(inicial.painel);
     setEstado(inicial.estado);
     setMunicipio(inicial.municipio);
@@ -120,7 +123,7 @@ export function PainelDinheiroFederal({ inicial }: { inicial: EstadoInicial }) {
       setUf(e.uf);
       setIbge(e.ibge);
       setAno(e.ano);
-      setAberta(Boolean(e.ibge));
+      setFolha(e.ibge ? "meia" : "recolhida");
     };
     addEventListener("popstate", aoVoltar);
     return () => removeEventListener("popstate", aoVoltar);
@@ -188,7 +191,7 @@ export function PainelDinheiroFederal({ inicial }: { inicial: EstadoInicial }) {
       const novoIbge = novoUf ? (lugar.municipio ?? null) : null;
       setUf(novoUf);
       setIbge(novoIbge);
-      setAberta(Boolean(novoIbge));
+      setFolha(novoIbge ? "meia" : "recolhida");
       setErro(null);
       history.pushState(null, "", urlDe(novoUf, novoIbge, ano));
     },
@@ -220,6 +223,8 @@ export function PainelDinheiroFederal({ inicial }: { inicial: EstadoInicial }) {
     return classe(valorCidade(porIbge.get(id)), cortesMun);
   };
 
+  // Nomes das cidades no mapa: as mais populosas aparecem primeiro.
+  const prioridadeMapa = (id: string) => porIbge.get(id)?.populacao;
   const rotuloMapa = (nivel: NivelMapa, id: string) => {
     if (nivel === "uf") {
       const u = painel.ufs.find((x) => x.uf === id);
@@ -312,6 +317,100 @@ export function PainelDinheiroFederal({ inicial }: { inicial: EstadoInicial }) {
     return () => ro.disconnect();
   }, [chaveCabecalho]);
 
+  // ---- folha de baixo (celular): arrastar pela alça/cabeçalho ----
+  // Durante o gesto a folha segue o dedo (translateY sem transição); ao soltar vai para a posição
+  // mais próxima entre recolhida, meia altura e aberta (passou de 30% do vão já troca), ou para a
+  // seguinte num gesto rápido.
+  const arrasteFolha = useRef({
+    id: null as number | null,
+    y0: 0,
+    base: 0,
+    pos: 0,
+    moveu: false,
+    amostras: [] as Array<[number, number]>,
+    suprimirClique: false,
+  });
+
+  const alvosFolha = (): Record<Folha, number> => {
+    const h = folhaRef.current?.offsetHeight ?? 0;
+    const espia = Math.min((topoFolhaRef.current?.offsetHeight ?? 0) + 8, 320);
+    const recolhida = Math.max(0, h - espia);
+    const meia = Math.min(recolhida, Math.max(0, h - innerHeight * 0.55));
+    return { recolhida, meia, aberta: 0 };
+  };
+
+  const aoApertarFolha = (e: React.PointerEvent<HTMLDivElement>) => {
+    const el = folhaRef.current;
+    if (!el || !matchMedia("(max-width: 959px)").matches || (e.pointerType === "mouse" && e.button !== 0)) return;
+    const t = getComputedStyle(el).transform;
+    const base = t && t !== "none" ? new DOMMatrixReadOnly(t).m42 : 0;
+    arrasteFolha.current = {
+      id: e.pointerId,
+      y0: e.clientY,
+      base,
+      pos: base,
+      moveu: false,
+      amostras: [[performance.now(), e.clientY]],
+      suprimirClique: false,
+    };
+  };
+
+  const aoMoverFolha = (e: React.PointerEvent<HTMLDivElement>) => {
+    const a = arrasteFolha.current;
+    const el = folhaRef.current;
+    if (a.id !== e.pointerId || !el) return;
+    const dy = e.clientY - a.y0;
+    if (!a.moveu && Math.abs(dy) < 6) return;
+    if (!a.moveu) {
+      a.moveu = true;
+      e.currentTarget.setPointerCapture(e.pointerId);
+      el.style.transition = "none";
+    }
+    a.pos = Math.min(alvosFolha().recolhida, Math.max(0, a.base + dy));
+    el.style.transform = `translateY(${a.pos}px)`;
+    a.amostras.push([performance.now(), e.clientY]);
+    if (a.amostras.length > 6) a.amostras.shift();
+  };
+
+  const aoSoltarFolha = (e: React.PointerEvent<HTMLDivElement>) => {
+    const a = arrasteFolha.current;
+    const el = folhaRef.current;
+    if (a.id !== e.pointerId || !el) return;
+    a.id = null;
+    if (!a.moveu) return;
+    // Descarta o clique que vem logo depois do arraste; se ele não vier, a trava se desfaz.
+    a.suprimirClique = true;
+    setTimeout(() => (a.suprimirClique = false), 400);
+    let destino: Folha = folha;
+    if (e.type === "pointerup") {
+      const alvos = alvosFolha();
+      // Posições distintas, de cima (aberta) para baixo (recolhida).
+      const ordem = (["aberta", "meia", "recolhida"] as Folha[]).filter(
+        (f, i, l) => i === 0 || Math.abs(alvos[f] - alvos[l[i - 1]]) > 24,
+      );
+      const perto = (y: number) =>
+        ordem.reduce((m, f) => (Math.abs(alvos[f] - y) < Math.abs(alvos[m] - y) ? f : m), ordem[0]);
+      const [t0, y0] = a.amostras[0];
+      const [t1, y1] = a.amostras[a.amostras.length - 1];
+      const v = (y1 - y0) / Math.max(1, t1 - t0); // px/ms; positivo = para baixo
+      const dy = a.pos - a.base;
+      const i0 = ordem.indexOf(perto(a.base));
+      if (Math.abs(v) > 0.5) {
+        destino = ordem[Math.min(ordem.length - 1, Math.max(0, i0 + Math.sign(v)))];
+      } else {
+        destino = perto(a.pos);
+        const vizinho = ordem[i0 + Math.sign(dy)];
+        if (destino === ordem[i0] && vizinho && Math.abs(dy) > Math.abs(alvos[vizinho] - alvos[ordem[i0]]) * 0.3) {
+          destino = vizinho;
+        }
+      }
+    }
+    // Tira o estilo do gesto: a transição da classe leva da posição atual até o destino.
+    el.style.transition = "";
+    el.style.transform = "";
+    setFolha(destino);
+  };
+
   // Voltando para a aba Mapa, reenquadra (o mapa escondido não tem tamanho).
   useEffect(() => {
     if (vista !== "mapa") return;
@@ -381,7 +480,7 @@ export function PainelDinheiroFederal({ inicial }: { inicial: EstadoInicial }) {
     : `Mapa do Brasil por estado, colorido por: ${NOME_INDICADOR[ind].toLowerCase()}`;
 
   return (
-    <div ref={raizRef} data-largura="larga" className={`${estilos.raiz} ${ibge && aberta ? estilos.comMeia : ""}`}>
+    <div ref={raizRef} data-largura="larga" className={`${estilos.raiz} ${ibge && folha === "meia" ? estilos.comMeia : ""}`}>
       <header className={estilos.topo}>
         <div className={estilos.migalhas}>
           <Migalhas itens={migalhas} />
@@ -464,12 +563,17 @@ export function PainelDinheiroFederal({ inicial }: { inicial: EstadoInicial }) {
                 resumo={resumoMapa}
                 controle={controle}
                 titulo={tituloMapa}
+                prioridade={prioridadeMapa}
                 className="h-full w-full"
               />
             </div>
-            {uf && <div className={estilos.sobre}>{resumoOnde}</div>}
+            {uf && (
+              <div className={estilos.sobre} data-mapa-evitar>
+                {resumoOnde}
+              </div>
+            )}
             {uf && !ibge && (
-              <div className={estilos.zoom}>
+              <div className={estilos.zoom} data-mapa-evitar>
                 <button type="button" aria-label="Aproximar" onClick={() => controle.current?.zoom(1.5)}>
                   +
                 </button>
@@ -559,19 +663,34 @@ export function PainelDinheiroFederal({ inicial }: { inicial: EstadoInicial }) {
         </div>
 
         <aside
-          className={`${estilos.painel} ${aberta ? estilos.aberta : ""} ${ibge ? estilos.meia : ""}`}
+          ref={folhaRef}
+          className={`${estilos.painel} ${folha !== "recolhida" ? estilos[folha] : ""}`}
           aria-label="Números do lugar escolhido"
           aria-live="polite"
         >
-          <div ref={topoFolhaRef} className={estilos.cabecalhoToque} onClick={() => setAberta((a) => !a)}>
+          <div
+            ref={topoFolhaRef}
+            className={estilos.cabecalhoToque}
+            onClick={() => {
+              if (arrasteFolha.current.suprimirClique) {
+                arrasteFolha.current.suprimirClique = false;
+                return;
+              }
+              setFolha((f) => (f !== "recolhida" ? "recolhida" : ibge ? "meia" : "aberta"));
+            }}
+            onPointerDown={aoApertarFolha}
+            onPointerMove={aoMoverFolha}
+            onPointerUp={aoSoltarFolha}
+            onPointerCancel={aoSoltarFolha}
+          >
             <button
               type="button"
               className={estilos.alca}
-              aria-expanded={aberta}
+              aria-expanded={folha !== "recolhida"}
               aria-controls="corpo-painel-dinheiro"
             >
               <i />
-              <span>{aberta ? "Fechar" : "Puxe para ver mais"}</span>
+              <span>{folha !== "recolhida" ? "Fechar" : "Puxe para ver mais"}</span>
             </button>
             <div className={estilos.cabFolha}>{cabecalho}</div>
           </div>

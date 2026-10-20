@@ -432,16 +432,22 @@
     transform: none;
     overflow: auto;
   }
-  /* cidade: a folha abre na meia altura e o contorno da cidade fica à vista acima */
+  /* meia altura (padrão na cidade): o contorno da cidade fica à vista acima; o fim do conteúdo
+     ganha folga para poder rolar até a parte visível */
   .painel.meia {
-    height: 55svh;
-    max-height: 55svh;
+    transform: translateY(max(0px, calc(100% - 55svh)));
+    overflow: auto;
+  }
+  .painel.meia .corpo {
+    padding-bottom: calc(20px + 27svh);
   }
   .raiz.comMeia {
     padding-bottom: 55svh;
   }
   .cabecalhoToque {
     cursor: pointer;
+    /* a alça e o cabeçalho arrastam a folha; o conteúdo abaixo rola normalmente */
+    touch-action: none;
   }
   .alca {
     display: flex;
