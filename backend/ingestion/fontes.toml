@@ -530,7 +530,7 @@ modulo = "ingestion.pessoas"
 uso = "Pessoa pública única e linha do tempo (/pessoas/{id}/eventos)"
 recorte = "candidaturas, parlamentares e mandatos já carregados"
 frequencia = "semanal"
-depende = ["tse_candidaturas", "camara_deputados", "senado_senadores", "sapl_camaras", "cittatec_camaras", "portal_php_camaras", "cr2_camaras", "sapl_assembleias", "almg", "alesp", "alepe", "cldf", "alesc", "alerj", "alrs", "alba", "ales", "alece", "alepa", "almt", "alema", "alems", "alrn", "alese", "alap", "alego", "nucleogov_camaras", "portal_modelo_camaras", "aos_camaras", "sistemas_camaras", "fornecedores_robin_camaras", "fornecedores_alfred_camaras", "fornecedores_batgirl_camaras"]
+depende = ["tse_candidaturas", "camara_deputados", "senado_senadores", "sapl_camaras", "cittatec_camaras", "portal_php_camaras", "cr2_camaras", "sapl_assembleias", "almg", "alesp", "alepe", "cldf", "alesc", "alep", "alerj", "alrs", "alba", "ales", "alece", "alepa", "almt", "alema", "alems", "alrn", "alese", "alap", "alego", "nucleogov_camaras", "portal_modelo_camaras", "aos_camaras", "sistemas_camaras", "fornecedores_robin_camaras", "fornecedores_alfred_camaras", "fornecedores_batgirl_camaras"]
 
 # Justiça e controle
 [[fonte]]

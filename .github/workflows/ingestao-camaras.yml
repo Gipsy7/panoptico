@@ -291,6 +291,29 @@ jobs:
       - name: Assembleia do Rio de Janeiro (ALERJ)
         run: uv run python -m ingestion.assembleias.alerj
 
+  # Assembleia do Paraná: site, transparência e dados abertos (a API própria recusa acesso; ver
+  # docs/pedidos/alep_certificado.md). ~40 min com pausa de 2 s. Se der tempo esgotado a partir dos
+  # EUA, mover para o runner no Brasil e marcar acesso = "brasil" no fontes.toml.
+  alep:
+    needs: catalogo
+    runs-on: ubuntu-latest
+    timeout-minutes: 75
+    defaults:
+      run:
+        working-directory: backend
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      PYTHONUNBUFFERED: "1"
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v10.2.0
+        with:
+          version: "0.12.23"
+      - name: Instalar dependências
+        run: uv sync --locked --no-dev
+      - name: Assembleia do Paraná (ALEP)
+        run: uv run python -m ingestion.assembleias.alep
+
   # Assembleia do Rio Grande do Sul: portais da transparência e do legislativo, uma requisição por vez.
   alrs:
     needs: catalogo
@@ -558,9 +581,8 @@ jobs:
   # ---------------------------------------------------------------------------------------------
   # Runner no Brasil (geobloqueio), além dos jobs acima que já migraram:
   # almg, alepe, cldf, alrs, alba, ales, alema, alese, alap.
-  # AQUI ENTRAM, com o mesmo molde (runs-on [self-hosted, windows, brasil], `if` do repositório,
-  # shell bash, `python -m uv`): `alep` (Assembleia do Paraná) e `eagendas`, se forem
-  # geobloqueados; fontes abertas ficam nos jobs hospedados (ubuntu-latest).
+  # Nova fonte geobloqueada entra aqui, com o mesmo molde (runs-on [self-hosted, windows, brasil],
+  # `if` do repositório, shell bash, `python -m uv`); fontes abertas ficam em ubuntu-latest.
   # ---------------------------------------------------------------------------------------------
 
   # Assembleia de Roraima: o SAPL de lá responde 403 aos endereços do GitHub.
