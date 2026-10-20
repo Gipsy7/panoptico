@@ -29,6 +29,7 @@ from app.models import (
     Municipio,
     Parlamentar,
 )
+from app.services import emendas_estaduais
 from app.services.destino_emendas import LINK_CONVENIO, LINK_ESPECIAL
 from app.textos import sem_cpf
 from ingestion.proposicoes_comum import INICIO_LEGISLATURA
@@ -461,6 +462,8 @@ def resumo_municipio(
         "previsto": _previsto(session, municipio.ibge, pagos),
         "convenios": _convenios(session, municipio.ibge, pagos),
         "sem_codigo_descricao": SEM_CODIGO,
+        # Esfera estadual: bloco à parte, fora de todos os totais acima.
+        "estaduais": emendas_estaduais.bloco_municipio(session, municipio),
         "fonte_nome": FONTE_NOME,
         "fonte_url": FONTE_URL,
         "atualizado_em": _atualizado(session, "transparencia_emendas"),

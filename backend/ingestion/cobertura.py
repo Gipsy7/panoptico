@@ -171,13 +171,16 @@ def _assembleia(uf, acessos) -> list[dict]:
         elif secao == "emendas":
             m = "Sem fonte aberta de emendas estaduais; pedido de acesso redigido (ADPF 854)."
             pedido = EMENDAS_27
+            dados = ("pedido", m, "", pedido)
             if uf == "SC":
                 m = (
-                    "Sem fonte aberta de emendas impositivas; pedidos à ALESC e ao TCE/SC "
-                    "redigidos (ADPF 854, IN TC 40/2025)."
+                    "Emendas impositivas da ALESC executadas por convênio ou termo de fomento "
+                    "(SC Transferências, CGE/SC, desde 2022): autor, cidade, quem recebeu, "
+                    "previsto, empenhado e pago. Repasses fundo a fundo e às prefeituras ficam "
+                    "de fora; pedidos à ALESC e ao TCE/SC seguem para a base completa."
                 )
                 pedido = f"alesc_emendas_impositivas.md; tcesc_painel_emendas.md; {EMENDAS_27}"
-            dados = ("pedido", m, "", pedido)
+                dados = ("parcial", m, "sctransferencias_emendas", pedido)
         elif secao == "salario":
             dados = ("sem_fonte", "Subsídio e folha dos deputados estaduais não coletados.", "", "")
         elif secao == "agenda":

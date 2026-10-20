@@ -17,7 +17,8 @@ from app.schemas import (
     VereadorDetalhe,
     VotacoesLocais,
 )
-from app.services import camaras, eleitos_futuros, tse
+from app.schemas.emendas_estaduais import EmendasDeputadoEstadual
+from app.services import camaras, eleitos_futuros, emendas_estaduais, tse
 from app.services.representantes import UFS
 
 router = APIRouter()
@@ -64,6 +65,21 @@ def deputados_estaduais(
     if uf.upper() not in UFS:
         raise HTTPException(404, "Estado não encontrado.")
     return tse.deputados_estaduais(session, uf)
+
+
+@router.get("/deputados-estaduais/{mandato_id}/emendas", response_model=EmendasDeputadoEstadual)
+def emendas_do_deputado_estadual(
+    mandato_id: int, session: Annotated[Session, Depends(get_session)]
+) -> dict:
+    """Emendas ao orçamento do estado indicadas pelo deputado estadual (esfera estadual), com a
+    média dos deputados em exercício da mesma Casa. Hoje só Santa Catarina."""
+    mandato = session.get(MandatoLocal, mandato_id)
+    if mandato is None or mandato.casa != "assembleia":
+        raise HTTPException(404, "Deputado estadual não encontrado.")
+    resultado = emendas_estaduais.deputado(session, mandato)
+    if resultado is None:
+        raise HTTPException(404, "Sem fonte de emendas estaduais para este estado.")
+    return resultado
 
 
 @router.get("/estados/{uf}/eleitos-2026", response_model=EleitosFuturos)

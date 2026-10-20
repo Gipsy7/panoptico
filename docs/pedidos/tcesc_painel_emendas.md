@@ -20,3 +20,7 @@ Não pedimos CPF nem dado pessoal de pessoa física beneficiária.
 
 Atenciosamente,
 [nome], Panóptico — [e-mail de contato]
+
+---
+
+**Nota técnica (19/10/2026, não enviar):** o painel é um aplicativo Qlik Sense (`paineistransparencia.tce.sc.gov.br/extensions/appEmendasParlamentares/`) sem exportação em arquivo, e os hosts `servicos.tcesc.tc.br` e `paineistransparencia.tce.sc.gov.br` respondem 403 (Akamai) a um robô identificado, inclusive no `robots.txt`. Não contornamos. Enquanto isso, o site usa o SC Transferências (CGE/SC), que cobre só as emendas estaduais executadas por convênio ou termo de fomento (`docs/DECISOES.md`, 19/10/2026).

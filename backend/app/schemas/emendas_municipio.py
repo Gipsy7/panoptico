@@ -11,6 +11,7 @@ from datetime import datetime
 from pydantic import BaseModel
 
 from app.schemas import EmendaOutroAutor, EmendasMunicipioResposta
+from app.schemas.emendas_estaduais import EmendasEstaduaisMunicipio
 
 
 class EmendaTipo(BaseModel):
@@ -101,3 +102,6 @@ class EmendasMunicipioCompleta(EmendasMunicipioResposta):
     previsto: EmendasPrevistas | None
     convenios: EmendasConvenios | None
     sem_codigo_descricao: str
+    # Esfera estadual (19/10/2026): à parte, nunca somada aos totais federais acima. Nulo
+    # onde o estado não tem fonte de emendas estaduais.
+    estaduais: EmendasEstaduaisMunicipio | None = None
