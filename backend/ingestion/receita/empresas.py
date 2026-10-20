@@ -10,7 +10,8 @@ separador ";" e aspas, sem cabeçalho. A base inteira tem ~7,5 GB compactados.
 
 Modo "interesse" (o único; coleta mínima): lê os arquivos em fluxo (cada zip é baixado, filtrado
 e apagado) e guarda SÓ as linhas dos CNPJs que aparecem em tabelas do projeto (fornecedores,
-beneficiários de emenda, sancionadas, sócias, entes públicos). O bruto é esse recorte (um zip
+beneficiários de emenda federal, estadual e TransfereGov, sancionadas, sócias, entes públicos).
+O bruto é esse recorte (um zip
 com Empresas.csv, Estabelecimentos.csv, Municipios.csv e Naturezas.csv no formato original), em
 `data/raw/receita_empresas/`; `--de-raw` reprocessa sem rede. A base completa (60 milhões de
 linhas) pede junção em disco e não cabe na produção: para ela, use o minha-receita ou a Base dos
@@ -29,8 +30,10 @@ consultados na BrasilAPI, um por vez, com pausa, e entram com referencia = "bras
 
 import argparse
 import csv
+import hashlib
 import io
 import re
+import shutil
 import tempfile
 import time
 import zipfile
@@ -74,6 +77,7 @@ INTERESSE = [
     ("emenda_transferencia", "beneficiario_cnpj"),
     ("emenda_relator_indicacao", "beneficiario_cnpj"),
     ("emenda_pagamento", "favorecido_codigo"),
+    ("emenda_estadual", "favorecido_cnpj"),
     ("partido_despesa_vinculada", "fornecedor_cnpj"),
     ("sancao_empresa", "cnpj"),
     ("socio_pessoa", "cnpj"),
@@ -229,15 +233,46 @@ def ultima_referencia(client: httpx.Client) -> str:
     return max(meses)
 
 
+def _baixar_arquivo(client: httpx.Client, url: str, tentativas: int = 3) -> Path:
+    """Baixa um zip da Receita. `baixar_para_arquivo` já retoma com Range quando a conexão cai;
+    aqui se recomeça do zero se o servidor travar (ReadTimeout sem fim) ou devolver erro."""
+    for tentativa in range(tentativas):
+        try:
+            return comum.baixar_para_arquivo(client, url, tentativas=4)
+        except httpx.HTTPError as erro:
+            if tentativa == tentativas - 1:
+                raise
+            print(
+                f"  {url.rsplit('/', 1)[-1]}: {erro.__class__.__name__}; nova tentativa", flush=True
+            )
+            time.sleep(30 * (tentativa + 1))
+    raise RuntimeError("inalcançável")
+
+
+def pasta_parcial(referencia: str, cnpjs: set[str]) -> Path:
+    """Pasta onde ficam os recortes já prontos de cada zip da Receita. O nome leva um resumo do
+    conjunto de CNPJs: se o conjunto mudar entre duas tentativas, o parcial antigo é ignorado."""
+    resumo = hashlib.sha1("\n".join(sorted(cnpjs)).encode()).hexdigest()[:10]
+    return comum.RAW_DIR / FONTE / "_parcial" / f"{referencia}_{resumo}"
+
+
 def baixar(client: httpx.Client, referencia: str, cnpjs: set[str]) -> Path:
-    """Baixa os zips da Receita um a um, filtra e apaga. Devolve o zip do recorte (bruto)."""
+    """Baixa os zips da Receita um a um, filtra e apaga o zip (o disco do PC é limitado).
+    Devolve o zip do recorte (bruto).
+
+    Recomeço seguro: o recorte de cada zip é gravado em `_parcial/` (arquivo temporário, renomeado
+    só quando completo). Se a execução cair no meio (o servidor da Receita já travou sem erro),
+    a próxima passa por cima dos zips já feitos e baixa só os que faltam. A pasta é apagada
+    quando o recorte final fica pronto."""
     raizes = {c[:8] for c in cnpjs}
     base = URL.format(referencia=referencia)
+    parcial = pasta_parcial(referencia, cnpjs)
+    parcial.mkdir(parents=True, exist_ok=True)
     with tempfile.NamedTemporaryFile(delete=False, suffix=".zip") as tmp:
         recorte = Path(tmp.name)
     with zipfile.ZipFile(recorte, "w", zipfile.ZIP_DEFLATED) as saida:
         for nome in ("Municipios.zip", "Naturezas.zip"):
-            arquivo = comum.baixar_para_arquivo(client, base + nome)
+            arquivo = _baixar_arquivo(client, base + nome)
             try:
                 with zipfile.ZipFile(arquivo) as z:
                     saida.writestr(nome.replace(".zip", ".csv"), z.read(z.namelist()[0]))
@@ -247,19 +282,29 @@ def baixar(client: httpx.Client, referencia: str, cnpjs: set[str]) -> Path:
             ("Estabelecimentos.csv", ARQUIVOS_ESTABELECIMENTOS, filtrar_estabelecimentos, cnpjs),
             ("Empresas.csv", ARQUIVOS_EMPRESAS, filtrar_empresas, raizes),
         ):
+            for nome in arquivos:
+                feito = parcial / f"{nome}.csv"
+                if feito.exists():
+                    print(f"  {nome}: já feito em tentativa anterior", flush=True)
+                    continue
+                inicio = time.time()
+                arquivo = _baixar_arquivo(client, base + nome)
+                try:
+                    temporario = feito.with_suffix(".tmp")
+                    with temporario.open("wb") as destino:
+                        n = filtro(_linhas(arquivo), dados, destino)
+                    temporario.replace(feito)
+                finally:
+                    arquivo.unlink(missing_ok=True)
+                print(
+                    f"  {nome}: {n} linhas de interesse ({time.time() - inicio:.0f}s)", flush=True
+                )
             with saida.open(alvo, "w", force_zip64=True) as destino:
                 for nome in arquivos:
-                    inicio = time.time()
-                    arquivo = comum.baixar_para_arquivo(client, base + nome)
-                    try:
-                        n = filtro(_linhas(arquivo), dados, destino)
-                    finally:
-                        arquivo.unlink(missing_ok=True)
-                    print(
-                        f"  {nome}: {n} linhas de interesse ({time.time() - inicio:.0f}s)",
-                        flush=True,
-                    )
+                    with (parcial / f"{nome}.csv").open("rb") as origem:
+                        shutil.copyfileobj(origem, destino)
         saida.writestr("referencia.txt", f"{referencia}\n{len(cnpjs)}\n")
+    shutil.rmtree(parcial, ignore_errors=True)
     return recorte
 
 

@@ -867,4 +867,7 @@ depende = ["cgu_sancoes", "cnpj_socios", "pncp_contratos"]
 # compactados, lida em fluxo: cada zip é baixado, filtrado e apagado). O bruto é o recorte
 # (zip com as linhas de interesse no formato original). Fallback --brasilapi para cadastro novo.
 # Terceira via, se a Receita sair do ar: Base dos Dados, tabela br_me_cnpj. Ver docs/DECISOES.md,
-# 18/10/2026.
+# 18/10/2026 e 20/10/2026.
+# Onde roda: acervo local (todos os CNPJs do acervo) e, na produção, o job `receita-empresas` de
+# ingestao-mensal.yml no runner do Brasil (dia 15, 7,8 GB a ~3 MB/s, recomeço por zip), que lê os
+# CNPJs do próprio banco de produção. Estimativa na produção: 150 a 250 mil linhas, 25 a 45 MB.

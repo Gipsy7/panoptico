@@ -35,7 +35,9 @@ export function FornecedoresSecao({ dados, cidade }: { dados: Fornecedores; cida
             {o.itens.map((f, i) => (
               <li key={i} className="flex items-baseline justify-between gap-3 py-2 text-sm">
                 <span className="min-w-0">
-                  <span className="block">{f.fornecedor}</span>
+                  <span className="block">
+                    {f.nome_omitido ? "MEI (nome omitido por conter CPF)" : f.fornecedor}
+                  </span>
                   <span className="block text-xs text-muted-foreground">
                     {[formatarCnpj(f.documento) && `CNPJ ${formatarCnpj(f.documento)}`, `${f.pagamentos} pagamentos`]
                       .filter(Boolean)
