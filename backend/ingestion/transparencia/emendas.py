@@ -52,6 +52,7 @@ from app.models import (
 )
 from app.models.pessoa import REGRAS_FORTES
 from ingestion import comum
+from ingestion.ibge import nomes_anteriores
 
 FONTE = "transparencia_emendas"
 URL = "https://portaldatransparencia.gov.br/download-de-dados/emendas-parlamentares/UNICO"
@@ -209,35 +210,62 @@ def normalizar_convenios(conteudo_zip: bytes, ano_minimo: int = 0) -> list[dict[
 
 
 def resolver_municipios(
-    pagamentos: list[dict[str, Any]], municipios: list[tuple[str, str, str]]
+    pagamentos: list[dict[str, Any]],
+    municipios: list[tuple[str, str, str]],
+    descartes: Counter | None = None,
 ) -> tuple[list[dict[str, Any]], int]:
-    """Troca (UF, nome) pelo código IBGE. Devolve os resolvidos e quantos ficaram de fora."""
+    """Troca (UF, nome) pelo código IBGE. Devolve os resolvidos e quantos ficaram de fora.
+
+    Ordem: nome atual exato; nome anterior registrado pelo IBGE (`data/municipios_nome*.csv`,
+    nunca por semelhança); grafia muito parecida (corte 0,88). Quem sobra é contado em
+    `descartes` por (UF, nome), com linhas e valor, para a carga registrar no log."""
     exato = {(uf, chave): ibge for ibge, uf, chave in municipios}
     por_uf: dict[str, dict[str, str]] = {}
     for ibge, uf, chave in municipios:
         por_uf.setdefault(uf, {})[chave] = ibge
+    anteriores = nomes_anteriores.carregar_apelidos()
 
-    cache: dict[tuple[str, str], str | None] = {}
+    cache: dict[tuple[str, str], tuple[str | None, str]] = {}
 
-    def resolver(uf: str, nome: str) -> str | None:
+    def resolver(uf: str, nome: str) -> tuple[str | None, str]:
         chave = comum.chave_nome(nome)
         if (uf, chave) not in cache:
-            ibge = exato.get((uf, chave))
+            ibge, como = exato.get((uf, chave)), "exato"
+            if ibge is None and (uf, chave) in anteriores:
+                ibge, como = anteriores[(uf, chave)], "nome_anterior"
             if ibge is None:  # grafias antigas: "SANTANA DO LIVRAMENTO", "ITAPAGE"...
                 proximos = difflib.get_close_matches(chave, por_uf.get(uf, {}), n=1, cutoff=0.88)
-                ibge = por_uf[uf][proximos[0]] if proximos else None
-            cache[(uf, chave)] = ibge
+                ibge, como = (por_uf[uf][proximos[0]], "aproximado") if proximos else (None, "sem")
+            cache[(uf, chave)] = (ibge, como)
         return cache[(uf, chave)]
 
     resolvidos, fora = [], 0
     for p in pagamentos:
-        ibge = resolver(p["uf"], p["municipio_nome"])
+        ibge, _ = resolver(p["uf"], p["municipio_nome"])
         if ibge is None:
             fora += 1
+            if descartes is not None:
+                descartes[f"sem_municipio:{p['uf']}/{p['municipio_nome']}"] += 1
+                descartes[f"sem_municipio_valor:{p['uf']}/{p['municipio_nome']}"] += p.get(
+                    "valor", 0
+                )
             continue
         resto = {k: v for k, v in p.items() if k not in ("uf", "municipio_nome")}
         resolvidos.append({**resto, "municipio_ibge": ibge})
     return resolvidos, fora
+
+
+def resumir_sem_municipio(descartes: Counter, maiores: int = 8) -> str:
+    """Texto do log: total de linhas e valor sem município e os maiores nomes."""
+    prefixo = "sem_municipio:"
+    nomes = [k[len(prefixo) :] for k in descartes if k.startswith(prefixo)]
+    valor = {n: descartes[f"sem_municipio_valor:{n}"] for n in nomes}
+    linhas = sum(descartes[f"{prefixo}{n}"] for n in nomes)
+    topo = sorted(nomes, key=lambda n: valor[n], reverse=True)[:maiores]
+    detalhe = "; ".join(f"{n} ({descartes[prefixo + n]}, R$ {valor[n]:,.2f})" for n in topo)
+    return f"{linhas} linhas, R$ {sum(valor.values()):,.2f}" + (
+        f". Maiores: {detalhe}" if topo else ""
+    )
 
 
 Par = tuple[str, str]  # (código do autor, nome do autor como veio)
@@ -351,14 +379,19 @@ def carregar(session: Session, conteudo: bytes, ingestao: FonteIngestao) -> int:
     descartes: Counter = Counter()
     brutos_sem_codigo: list[dict[str, Any]] = []
     lista_municipios = [tuple(m) for m in municipios]
+    sem_municipio: Counter = Counter()
     pagamentos, fora = resolver_municipios(
         normalizar_pagamentos(conteudo, descartes=descartes, sem_codigo=brutos_sem_codigo),
         lista_municipios,
+        sem_municipio,
     )
     if not pagamentos:
         raise ValueError("Nenhum pagamento por favorecido no arquivo; abortando.")
-    sem_codigo, fora_sem_codigo = resolver_municipios(brutos_sem_codigo, lista_municipios)
-    print(f"  pagamentos sem município identificado: {fora}")
+    sem_codigo, fora_sem_codigo = resolver_municipios(
+        brutos_sem_codigo, lista_municipios, sem_municipio_sem_codigo := Counter()
+    )
+    print(f"  com código, sem município: {resumir_sem_municipio(sem_municipio)}")
+    print(f"  sem código, sem município: {resumir_sem_municipio(sem_municipio_sem_codigo)}")
     print(
         f"  pagamentos sem código de emenda (tipo da fonte, sem autor nem ano): "
         f"{descartes['sem_codigo']} linhas, R$ {descartes['sem_codigo_valor']:,.2f}; "

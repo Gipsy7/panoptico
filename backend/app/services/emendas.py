@@ -66,7 +66,8 @@ TIPO_NAO_INFORMADO = "Tipo não informado pela fonte"
 PREVISTO_DESCRICAO = (
     "Plano de ação é o valor previsto de uma emenda Pix, registrado no TransfereGov. O valor "
     "só entra no total pago quando o pagamento aparece no arquivo da CGU. Aqui ficam os "
-    "planos ainda sem pagamento registrado; os outros já estão somados no pago."
+    "planos ainda sem pagamento registrado; os outros já estão somados no pago. Planos que o "
+    "TransfereGov marca como impedidos ficam de fora desta conta e aparecem à parte."
 )
 CONVENIOS_DESCRICAO = (
     "Convênios e contratos de repasse das emendas assinados com a prefeitura ou com entidades "
@@ -248,6 +249,13 @@ def _atualizado(session: Session, fonte: str) -> datetime | None:
     )
 
 
+def _impedido(situacao: str | None) -> bool:
+    """Plano que a fonte marca como impedido (o TransfereGov usa IMPEDIDO e
+    IMPEDIDO_REJEICAO_PLANO_TRABALHO; o outro valor é CIENTE) ou cancelado: não é previsão
+    válida, então fica fora do previsto e do "com pagamento"."""
+    return (situacao or "").strip().lower().startswith(("impedido", "cancelad"))
+
+
 def _previsto(session: Session, ibge: str, pagos: set[tuple[str, str]]) -> dict | None:
     """Planos das transferências especiais da cidade; os sem pagamento na CGU, à parte."""
     planos = session.scalars(
@@ -258,8 +266,11 @@ def _previsto(session: Session, ibge: str, pagos: set[tuple[str, str]]) -> dict 
     if not planos:
         return None
     unicos = {(p.identificador, p.emenda_codigo): p for p in planos}.values()
-    com, sem = [], []
+    com, sem, fora = [], [], []
     for p in unicos:
+        if _impedido(p.situacao):
+            fora.append(p)
+            continue
         chave = (p.emenda_codigo, _cnpj(p.beneficiario_cnpj))
         (com if chave in pagos else sem).append(p)
     autores = _autores_das_emendas(session, {p.emenda_codigo for p in sem})
@@ -285,9 +296,25 @@ def _previsto(session: Session, ibge: str, pagos: set[tuple[str, str]]) -> dict 
     def soma(lista: list[EmendaTransferencia]) -> Decimal:
         return sum((p.valor_total or Decimal(0) for p in lista), start=Decimal(0))
 
+    por_motivo: dict[str, list[EmendaTransferencia]] = {}
+    for p in fora:
+        por_motivo.setdefault(p.situacao or "Sem situação", []).append(p)
+    impedidos = (
+        {
+            "planos": len(fora),
+            "valor": soma(fora),
+            "motivos": [
+                {"situacao": m, "planos": len(ps), "valor": soma(ps)}
+                for m, ps in sorted(por_motivo.items())
+            ],
+        }
+        if fora
+        else None
+    )
     return {
         "planos": len(com) + len(sem),
         "valor_planos": soma(com) + soma(sem),
+        "impedidos": impedidos,
         "planos_com_pagamento": len(com),
         "valor_planos_com_pagamento": soma(com),
         "planos_sem_pagamento": len(sem),

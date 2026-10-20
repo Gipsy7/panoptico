@@ -227,6 +227,14 @@ export function EmendasMunicipioSecao({ dados }: { dados: EmendasMunicipio }) {
                 especial (&quot;emenda Pix&quot;). Este valor não está somado ao total pago acima.
               </p>
               {previsto.descricao && <p className="text-xs text-muted-foreground">{previsto.descricao}</p>}
+              {previsto.impedidos && (
+                <p className="text-xs text-muted-foreground">
+                  Fora desta conta: {previsto.impedidos.planos}{" "}
+                  {previsto.impedidos.planos === 1 ? "plano" : "planos"} (
+                  {formatarReais(previsto.impedidos.valor, true)}) que o TransfereGov marca como
+                  impedidos ({previsto.impedidos.motivos.map((m) => m.situacao.toLowerCase()).join("; ")}).
+                </p>
+              )}
               {previsto.sem_pagamento.length > 0 && (
                 <details>
                   <summary className="cursor-pointer text-sm font-medium">Ver os planos</summary>
