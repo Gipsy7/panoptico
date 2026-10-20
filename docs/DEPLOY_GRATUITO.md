@@ -228,7 +228,7 @@ Algumas fontes só respondem a IP brasileiro (geobloqueio): `acesso = "brasil"` 
 
 **Jobs que usam `runs-on: [self-hosted, windows, brasil]`:**
 - `ingestao-camaras.yml`: `almg`, `alepe`, `cldf`, `alrs`, `alba`, `ales`, `alema`, `alese`, `alap`, `alerr` (Assembleia de Roraima, SAPL) e `camaras-brasil` (SAPL de RO e RJ, que cobre Porto Velho e Armação dos Búzios). Os comentários no fim do arquivo marcam onde entram `alep` e `eagendas`.
-- `ingestao-mensal.yml`: `tce-rs` (despesas por fornecedor do TCE-RS).
+- `ingestao-mensal.yml`: `tce-rs` (despesas por fornecedor do TCE-RS) e `receita-empresas` (cadastro de empresas por CNPJ; não é geobloqueio, mas a base da Receita tem 7,8 GB por mês e o servidor dá ~3 MB/s, então roda no PC, depois do `tce-rs`; entrada `so_empresas=true` para rodar só ela). Lê do banco de produção os CNPJs de interesse (fornecedores PNCP e dos Tribunais de Contas, cota parlamentar, beneficiários de emendas federais e estaduais e do TransfereGov, sancionadas, sócias, entes públicos) e grava só esses em `empresa`; não precisa de `data/raw` prévio. Recomeço seguro: cada zip tem tempo limite de leitura de 10 min (o download retoma com Range), o recorte de cada zip fica em `backend/data/raw/receita_empresas/_parcial/` até o fim, e o job tenta até 3 vezes pulando os zips prontos. O zip é apagado logo depois de lido (disco do PC: o pico é um zip, ~1,2 GB). Primeira carga: Actions, "Ingestão mensal", `so_empresas=true`; depois, todo dia 15 junto com o resto.
 - Fora do runner: `querido_diario_atos` (acesso "espelho") e `dou_atos` (acesso "aberto") não são geobloqueio; não têm workflow porque alimentam filas de revisão humana, que ficam no acervo local.
 
 **Instalar** (o dono, uma vez; o script não é executado por agentes):
