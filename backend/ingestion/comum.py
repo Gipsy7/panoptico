@@ -54,6 +54,9 @@ def criar_cliente() -> httpx.Client:
         timeout=httpx.Timeout(30.0, connect=60.0, read=120.0),
         headers={"Accept": "application/json", "User-Agent": USER_AGENT},
         follow_redirects=True,
+        # Só IPv4: os runners do GitHub não têm rota IPv6, e o httpx não volta ao IPv4 quando o
+        # DNS dá o AAAA primeiro ("Network is unreachable"; TCU em 20/10/2026).
+        transport=httpx.HTTPTransport(local_address="0.0.0.0"),
     )
 
 
