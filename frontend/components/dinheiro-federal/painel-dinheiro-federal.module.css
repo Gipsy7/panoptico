@@ -1,0 +1,399 @@
+/* Layout do painel de dinheiro federal. Computador: mapa à esquerda e painel fixo à direita.
+   Celular (até 959 px): tela de app sem rolagem; o mapa fica entre a barra e a folha de baixo. */
+
+.raiz {
+  --espia: 120px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-width: 0;
+}
+
+.topo {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.h1 {
+  font-size: 2.25rem;
+  line-height: 1.1;
+}
+.longo {
+  display: inline;
+}
+.curto {
+  display: none;
+}
+
+.barra {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+.abas {
+  display: inline-flex;
+  border: 1px solid var(--border);
+  background: var(--card);
+}
+.abas button {
+  min-height: 40px;
+  padding: 0 14px;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  font-size: 14px;
+  color: var(--muted-foreground);
+}
+.abas button[aria-selected="true"] {
+  background: var(--foreground);
+  color: var(--background);
+}
+.chips {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  max-width: 100%;
+}
+.chips button {
+  flex: none;
+  min-height: 40px;
+  padding: 0 12px;
+  border: 1px solid var(--border);
+  background: var(--card);
+  border-radius: 2px;
+  cursor: pointer;
+  font-size: 14px;
+  white-space: nowrap;
+}
+.chips button[aria-pressed="true"] {
+  border-color: var(--foreground);
+  box-shadow: inset 0 0 0 1px var(--foreground);
+  font-weight: 500;
+}
+.seletor {
+  min-height: 40px;
+  padding: 0 10px;
+  font-size: 14px;
+  border: 1px solid var(--input);
+  background: var(--card);
+  border-radius: 2px;
+}
+.busca {
+  flex: 1 1 200px;
+  min-width: 0;
+}
+
+.grade {
+  display: grid;
+  gap: 20px;
+  grid-template-columns: minmax(0, 1fr);
+}
+@media (min-width: 960px) {
+  .grade {
+    grid-template-columns: minmax(0, 1fr) 380px;
+    align-items: start;
+  }
+}
+
+.palco {
+  position: relative;
+  border: 1px solid var(--border);
+  background: var(--card);
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+.mapaCaixa {
+  position: relative;
+  height: min(62vh, 620px);
+}
+.mapaCaixa[hidden] {
+  display: none;
+}
+.mapaInterno {
+  position: absolute;
+  inset: 0;
+}
+.sobre {
+  position: absolute;
+  left: 12px;
+  top: 10px;
+  right: 60px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  z-index: 4;
+  pointer-events: none;
+}
+.sobre > * {
+  pointer-events: auto;
+}
+.voltar {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 40px;
+  padding: 0 12px 0 8px;
+  border: 1px solid var(--border);
+  background: var(--background);
+  cursor: pointer;
+  border-radius: 2px;
+  font-size: 14px;
+  white-space: nowrap;
+}
+.onde {
+  font-size: 14px;
+  color: var(--muted-foreground);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  background: color-mix(in srgb, var(--card) 80%, transparent);
+  padding: 2px 4px;
+}
+.onde b {
+  color: var(--foreground);
+  font-weight: 500;
+}
+.zoom {
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
+  z-index: 4;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--border);
+  background: var(--background);
+}
+.zoom button {
+  width: 40px;
+  height: 40px;
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+  border: 0;
+  background: none;
+}
+.zoom button + button {
+  border-top: 1px solid var(--border);
+}
+
+.legenda {
+  border-top: 1px solid var(--border);
+  padding: 8px 12px 10px;
+  font-size: 13px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-width: 100%;
+}
+.legenda[hidden] {
+  display: none;
+}
+.faixa {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  height: 8px;
+  max-width: 320px;
+}
+.rotulos {
+  display: flex;
+  justify-content: space-between;
+  gap: 4px;
+  max-width: 320px;
+  font-variant-numeric: tabular-nums;
+}
+.legendaTexto {
+  color: var(--muted-foreground);
+}
+
+/* painel */
+.painel {
+  background: var(--card);
+  border: 1px solid var(--border);
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+.alca {
+  display: none;
+}
+.corpo {
+  padding: 4px 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.cabFolha {
+  padding: 18px 18px 0;
+}
+.soMobile {
+  display: none;
+}
+.soDesk {
+  display: block;
+}
+@media (min-width: 960px) {
+  .painel {
+    position: sticky;
+    top: 72px;
+    max-height: calc(100svh - 88px);
+    overflow: auto;
+  }
+  .corpo {
+    padding-top: 16px;
+  }
+}
+
+@media (max-width: 959px) {
+  .raiz {
+    position: fixed;
+    top: 56px;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 20;
+    background: var(--background);
+    padding: 8px 0 var(--espia);
+    gap: 6px;
+    overflow: hidden;
+  }
+  :global(html:has([data-app-mapa])),
+  :global(html:has([data-app-mapa]) body) {
+    overflow: hidden;
+    height: 100%;
+  }
+  .topo,
+  .barra {
+    padding-inline: 16px;
+  }
+  .topo {
+    gap: 2px;
+  }
+  .h1 {
+    font-size: 1.05rem;
+    line-height: 1.25;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .longo {
+    display: none;
+  }
+  .curto {
+    display: inline;
+  }
+  .barra {
+    gap: 6px;
+  }
+  .busca {
+    flex: 1 1 calc(100% - 110px);
+  }
+  .abas button,
+  .chips button,
+  .seletor {
+    min-height: 38px;
+  }
+  .chips {
+    flex: 1 1 0;
+    min-width: 0;
+  }
+  .grade {
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+  }
+  .palco {
+    flex: 1;
+    border-width: 1px 0;
+    min-height: 0;
+  }
+  .mapaCaixa {
+    flex: 1;
+    height: auto;
+    min-height: 0;
+  }
+  .sobre {
+    top: 8px;
+    left: 8px;
+    right: 56px;
+  }
+  .zoom {
+    top: 8px;
+    bottom: auto;
+    right: 8px;
+  }
+  .legenda {
+    padding: 6px 16px 8px;
+    font-size: 12px;
+    gap: 3px;
+  }
+  .legendaTexto {
+    display: none;
+  }
+  .faixa {
+    height: 6px;
+    max-width: none;
+  }
+  .rotulos {
+    max-width: none;
+  }
+  .painel {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 30;
+    border-width: 1px 0 0;
+    box-shadow: 0 -12px 24px -18px rgb(0 0 0 / 0.35);
+    max-height: 82svh;
+    overflow: hidden;
+    transform: translateY(calc(100% - var(--espia)));
+    transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  .painel.aberta {
+    transform: none;
+    overflow: auto;
+  }
+  .alca {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    min-height: 36px;
+    border: 0;
+    background: none;
+    width: 100%;
+    cursor: pointer;
+    padding: 8px 0 0;
+    color: var(--muted-foreground);
+    font-size: 12px;
+  }
+  .alca i {
+    width: 40px;
+    height: 4px;
+    background: var(--border);
+    border-radius: 2px;
+  }
+  .cabFolha {
+    padding: 0 18px;
+  }
+  .corpo {
+    padding-top: 12px;
+    gap: 14px;
+  }
+  .soMobile {
+    display: block;
+  }
+  .soDesk {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .painel {
+    transition: none;
+  }
+}

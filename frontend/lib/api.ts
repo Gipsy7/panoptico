@@ -1605,3 +1605,96 @@ export type Cobertura = {
 export function getCobertura(uf?: string) {
   return getJson<Cobertura>(`/cobertura${uf ? `?uf=${encodeURIComponent(uf)}` : ""}`);
 }
+
+// --- Dinheiro federal: arrecadação da União e repasses a estados e cidades ---
+export type DinheiroFederalFonte = { nome: string; url: string; atualizado_em: string | null };
+
+/** Chaves dos blocos de repasse (FPE, FPM...) para o valor somado no ano, ou null sem dado. */
+export type DinheiroFederalBlocos = Record<string, number | null>;
+
+export type DinheiroFederalTotais = {
+  populacao: number | null;
+  populacao_ano: number | null;
+  /** "censo" ou "estimativa". */
+  populacao_origem: string | null;
+  arrecadacao: number | null;
+  previdencia: number | null;
+  repasse: number | null;
+  blocos: DinheiroFederalBlocos;
+  blocos_sem_dado: string[];
+};
+
+export type DinheiroFederalAno = {
+  ano: number;
+  anos_disponiveis: number[];
+  meses_com_dado: number[];
+  ano_em_curso: boolean;
+  avisos: string[];
+};
+
+export type DinheiroFederalUF = DinheiroFederalTotais & { uf: string; nome: string; regiao: string };
+
+export type DinheiroFederalPainel = DinheiroFederalAno & {
+  brasil: DinheiroFederalTotais;
+  ufs: DinheiroFederalUF[];
+  fontes: DinheiroFederalFonte[];
+};
+
+export type DinheiroFederalCidade = {
+  ibge: string;
+  nome: string;
+  populacao: number | null;
+  repasse: number | null;
+  fpm: number | null;
+  outros: number | null;
+};
+
+export type DinheiroFederalEstado = DinheiroFederalAno &
+  DinheiroFederalUF & {
+    cidades: DinheiroFederalCidade[];
+    media_estado_por_habitante: number | null;
+    fontes: DinheiroFederalFonte[];
+  };
+
+export type DinheiroFederalMunicipioId = { ibge: string; nome: string; uf: string };
+
+export type DinheiroFederalSerieAno = {
+  ano: number;
+  repasse: number;
+  fpm: number;
+  outros: number;
+  populacao: number | null;
+  por_habitante: number | null;
+  media_estado_por_habitante: number | null;
+};
+
+export type DinheiroFederalContas = {
+  ano: number;
+  receita_total: number;
+  receita_propria: number | null;
+  transf_uniao: number | null;
+  /** Percentual (0 a 100) da receita total. */
+  parte_uniao: number | null;
+  parte_propria: number | null;
+};
+
+export type DinheiroFederalMunicipio = {
+  municipio: DinheiroFederalMunicipioId;
+  serie: DinheiroFederalSerieAno[];
+  contas: DinheiroFederalContas | null;
+  fontes: DinheiroFederalFonte[];
+};
+
+export function getDinheiroFederal(ano?: number) {
+  return getJson<DinheiroFederalPainel>(`/dinheiro-federal${ano ? `?ano=${ano}` : ""}`);
+}
+
+export function getDinheiroFederalUf(uf: string, ano?: number) {
+  return getJson<DinheiroFederalEstado>(
+    `/dinheiro-federal/${encodeURIComponent(uf)}${ano ? `?ano=${ano}` : ""}`,
+  );
+}
+
+export function getDinheiroFederalMunicipio(ibge: string) {
+  return getJson<DinheiroFederalMunicipio>(`/municipios/${encodeURIComponent(ibge)}/dinheiro-federal`);
+}
