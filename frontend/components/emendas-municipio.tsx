@@ -3,7 +3,7 @@ import Link from "next/link";
 import { EmendasEstaduaisCidade } from "@/components/emendas-estaduais";
 import { FonteRodape } from "@/components/fonte-rodape";
 import type { EmendasMunicipio } from "@/lib/api";
-import { formatarReais } from "@/lib/formato";
+import { formatarReais, MESES } from "@/lib/formato";
 
 const LIMITE = 5;
 
@@ -45,6 +45,7 @@ export function EmendasMunicipioSecao({ dados }: { dados: EmendasMunicipio }) {
   const resto = autores.slice(LIMITE);
   const maior = Math.max(autores[0]?.total ?? 0, dados.outros_autores[0]?.total ?? 0);
   const previsto = dados.previsto && dados.previsto.valor_sem_pagamento > 0 ? dados.previsto : null;
+  const semId = dados.sem_identificacao && dados.sem_identificacao.total > 0 ? dados.sem_identificacao : null;
   const convenios = dados.convenios && dados.convenios.quantidade > 0 ? dados.convenios : null;
 
   return (
@@ -106,6 +107,11 @@ export function EmendasMunicipioSecao({ dados }: { dados: EmendasMunicipio }) {
                     detalhe={t.rotulo_oficial}
                     valor={t.total}
                     maior={tipos[0].total}
+                    nota={
+                      (t.sem_codigo_total ?? 0) > 0
+                        ? `inclui ${formatarReais(t.sem_codigo_total ?? 0, true)} sem autor informado pela fonte`
+                        : undefined
+                    }
                   />
                 ))}
               </ul>
@@ -154,6 +160,20 @@ export function EmendasMunicipioSecao({ dados }: { dados: EmendasMunicipio }) {
                     ))}
                   </ul>
                 </details>
+              )}
+              {semId && (
+                <p className="painel flex flex-col gap-1 text-sm">
+                  <span className="flex items-baseline justify-between gap-3">
+                    <span className="min-w-0 font-medium">Autor não informado pela fonte (CGU)</span>
+                    <span className="shrink-0 font-medium tabular-nums">{formatarReais(semId.total, true)}</span>
+                  </span>
+                  <span className="text-xs text-muted-foreground">
+                    {semId.pagamentos} {semId.pagamentos === 1 ? "pagamento" : "pagamentos"}
+                    {periodoMes(semId.primeiro_pagamento, semId.ultimo_pagamento)}. A fonte publica esses
+                    pagamentos sem o código da emenda e sem o nome do autor; o valor está no total, mas não é
+                    atribuído a ninguém.
+                  </span>
+                </p>
               )}
               {novo && (dados.autores_sem_mandato ?? 0) > 0 && (
                 <p className="text-xs text-muted-foreground">
@@ -327,12 +347,13 @@ export function EmendasMunicipioSecao({ dados }: { dados: EmendasMunicipio }) {
           {novo ? (
             <p className="text-sm text-muted-foreground">
               O total soma só o que foi pago, de todos os tipos de emenda. O que está previsto e os convênios
-              aparecem à parte. Ficam de fora: pagamentos sem código de emenda na fonte, pagamentos em que a fonte
-              não identifica o município
+              aparecem à parte. Os pagamentos sem código de emenda na fonte (sem autor informado) entram no
+              total, mas não em nome de nenhum parlamentar. Ficam de fora: pagamentos em que a fonte não
+              identifica o município
               {dados.estaduais
                 ? ". As emendas de deputados estaduais aparecem à parte, abaixo, e nunca são somadas."
                 : " e emendas estaduais, que ainda não foram carregadas."}
-              {dados.sem_codigo_descricao && ` ${dados.sem_codigo_descricao}`}
+              {!semId && dados.sem_codigo_descricao && ` ${dados.sem_codigo_descricao}`}
             </p>
           ) : (
             <p className="text-sm text-muted-foreground">
@@ -369,6 +390,12 @@ function BarraAutor({ x, maior }: { x: AutorLinha; maior: number }) {
   return <Barra href={x.href} rotulo={x.rotulo} detalhe={detalhe || undefined} valor={x.total} maior={maior} />;
 }
 
+function periodoMes(ini: number | null, fim: number | null) {
+  const f = (v: number) => `${MESES[(v % 100) - 1] ?? ""}/${Math.floor(v / 100)}`;
+  if (!ini || !fim) return "";
+  return ini === fim ? `, em ${f(ini)}` : `, de ${f(ini)} a ${f(fim)}`;
+}
+
 function formatarCnpj(c: string) {
   const d = c.replace(/\D/g, "");
   return d.length === 14 ? d.replace(/^(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})$/, "$1.$2.$3/$4-$5") : c;
@@ -389,12 +416,14 @@ function Barra({
   valor,
   maior,
   href,
+  nota,
 }: {
   rotulo: string;
   detalhe?: string;
   valor: number;
   maior: number;
   href?: string;
+  nota?: string;
 }) {
   const largura = maior > 0 ? Math.max(1, (valor / maior) * 100) : 0;
   return (
@@ -412,6 +441,7 @@ function Barra({
         </span>
         <span className="shrink-0 font-medium tabular-nums">{formatarReais(valor, true)}</span>
       </div>
+      {nota && <p className="text-xs text-muted-foreground">{nota}</p>}
       <div className="h-2 w-full rounded-full bg-muted" aria-hidden>
         <div
           className="h-2 rounded-full bg-chart-1 transition-opacity group-hover:opacity-80"

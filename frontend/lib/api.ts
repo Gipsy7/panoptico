@@ -606,6 +606,7 @@ export type EmendasMunicipio = {
   previsto?: EmendasPrevistas | null;
   convenios?: EmendasConvenios | null;
   sem_codigo_descricao?: string;
+  sem_identificacao?: EmendaSemIdentificacao | null;
   /** Emendas de deputados estaduais (outra esfera, nunca somadas às federais); só onde há fonte. */
   estaduais?: EmendasEstaduaisMunicipio | null;
   fonte_nome: string;
@@ -689,6 +690,19 @@ export type EmendaTipo = {
   rotulo_oficial: string;
   total: number;
   pagamentos: number;
+  /** Parte do total paga sem código de emenda e sem autor na fonte; ausente em APIs antigas. */
+  sem_codigo_total?: number;
+  sem_codigo_pagamentos?: number;
+};
+
+export type EmendaSemIdentificacao = {
+  total: number;
+  pagamentos: number;
+  /** AAAAMM */
+  primeiro_pagamento: number | null;
+  ultimo_pagamento: number | null;
+  incluido_no_total_geral?: boolean;
+  descricao?: string;
 };
 
 export type EmendaColegiado = { autor_nome: string; tipo: string; rotulo: string; total: number };

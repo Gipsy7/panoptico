@@ -315,8 +315,8 @@ async function Cidade({ ibge }: { ibge: string }) {
             {emendas?.total_geral != null ? (
               <>
                 <li>
-                  Pagamentos sem código de emenda na fonte e pagamentos em que a fonte não identifica o município
-                  não entram no total.
+                  Pagamentos em que a fonte não identifica o município não entram no total. Os pagamentos sem
+                  código de emenda e sem autor entram no total, mas não são atribuídos a nenhum parlamentar.
                 </li>
                 <li>
                   {emendas.estaduais
