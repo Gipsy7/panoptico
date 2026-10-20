@@ -252,7 +252,20 @@ Reconhecimento de 11/10/2026. As duas fontes são arquivos em lote, sem chave (a
 - **Campos usados:** `classe.nome`, `orgaoJulgador.nome`, `dataAjuizamento` (`AAAAMMDDhhmmss`), `nivelSigilo`, `movimentos[]` (`dataHora`, `nome`) e `dataHoraUltimaAtualizacao`. O mesmo processo pode aparecer uma vez por grau (G1, G2): fica o atualizado por último.
 - **Instabilidade:** alguns índices respondem 504 de vez em quando. A carga tenta de novo e deixa os números do tribunal para a próxima.
 
-## Tesouro Nacional: SICONFI (contas anuais dos municípios)
+## CGU: e-Agendas (agenda pública de agentes federais)
+
+- **URL (lote, sem token):** `https://dadosabertos-download.cgu.gov.br/dados_e-agendas/dados_e-agendas.zip` (~205 MB, atualizado todo mês; verificado em 19/10/2026: 48 CSVs, `2022-10.csv` a `2026-09.csv`, 1.330.600 linhas). A API `eagendas.cgu.gov.br/api/v2` exige token gov.br e **não é necessária**; o catálogo antigo (`acesso = "pedido"`) estava errado.
+- **Formato:** CSV UTF-8, tudo entre aspas, datas `dd-mm-aaaa`, horas `HH:MM`, ausência escrita `ND`. Colunas: Nome, Cargo/Função, Tipo de exercício (Titular, Eventual, "Em substituição - X"), Órgão/Entidade, Tipo de registro, ID do registro, Data/Hora de início e término, Origem, Destino, Forma de realização, Data da publicação, Última modificação, Assunto do Compromisso, Local, Participantes, Vinculações, Objetivos, Informações complementares, Detalhes.
+- **Tipos de registro (arquivo todo):** Reunião 955.887; Evento 297.988; Audiência 33.626; Audiência pública 20.114; Afastamento 19.731 (só "fulano substitui sicrano": não carregamos); Viagem 2.992; Presentes e hospitalidades 262.
+- **Uma linha por registro x agente:** o mesmo `ID do registro` se repete para cada agente que o declarou, e a coluna `Participantes` traz todos. O ID só é único junto com o tipo.
+- **CPF só dentro de `Participantes`:** `NOME (CPF: ***.827.438-**) / CARGO / ÓRGÃO`, separados por ` | `; seções por ` || ` ("Agentes públicos participantes", "Agentes privados participantes", "Representantes de governo estrangeiro..."). Viagem, presente e afastamento não têm `Participantes`: a ligação do agente vem do mesmo nome visto com CPF em outro registro (duas passadas no arquivo).
+- **Participantes privados:** texto livre, `Fulano representando FENATRAD`, `Fulano representando Presidente - Chevron Brasil`, `... representando - Presidente - Representando - Instituto X`, ou só um nome/"Solicitante". Guardamos só a entidade (último trecho depois de "representando" e do último " - "), nunca o nome da pessoa física.
+- **Viagem/presente:** `Detalhes` traz "Hospitalidade(s) recebida(s)": tipo, item, valor e `Ofertante: Nome (CNPJ: ...)`. Ofertante com CPF vira "pessoa física". Há entidades HTML (`&gt;` em "REC&gt;POA").
+- **Quem consta:** ministros, secretários, dirigentes de autarquias e reitores. O presidente da República não consta (nenhuma linha "Luiz Inácio"); o vice-presidente aparece como ministro do MDIC (2.338 linhas).
+- **Ligação a `pessoa`:** CPF mascarado (6 dígitos do meio) + nome igual, único (regra forte `cpf_parcial_nome`, igual aos servidores). Em 19/10/2026, no banco de dev (72 mil pessoas, 54 mil com CPF): 534 nomes ligados, 70 pessoas com registro, 75.106 registros (reunião 49.026; evento 24.623; audiência 939; audiência pública 424; viagem 76; presente 18).
+- **Frequência:** mensal (recarga integral).
+
+## Tesouro Nacional: SICONFI (contas anuais dos municípios e dos estados)
 
 - **API:** `https://apidatalake.tesouro.gov.br/ords/siconfi/tt/dca?an_exercicio={ano}&no_anexo={anexo}&id_ente={ibge}`. Exige `id_ente`: não há consulta em lote, então é uma por município, anexo e ano (cerca de 0,8 s cada, a partir do Brasil).
 - **Anexos usados:** `DCA-Anexo I-C` (receitas; `cod_conta = TotalReceitas`, coluna "Receitas Brutas Realizadas") e `DCA-Anexo I-E` (despesa por função; coluna "Despesas Pagas", só as linhas de função no formato "10 - Saúde").
@@ -262,6 +275,7 @@ Reconhecimento de 11/10/2026. As duas fontes são arquivos em lote, sem chave (a
   - nem todo município entrega: em 2024, 5.326 de 5.571 tinham declaração;
   - a API limita a taxa de consultas (responde 429; cerca de 1 em cada 5 consultas a partir do GitHub). A carga espera o tempo do `Retry-After` e tenta de novo; um ano completo leva uns 65 minutos.
   - **falha da API não é "sem despesa"**: até out/2026 a consulta que falhava (timeout, 5xx) virava lista vazia e a despesa ficava nula (em 2024: 405 municípios, São Paulo entre eles, apesar de a API ter a despesa paga). Agora a consulta distingue falha (None) de anexo vazio, refaz até 4 vezes e repete em até 3 rodadas só os municípios que falharam. Nulo que sobra é ausência real: 3 municípios de 2024 (2904902, 2930808, 4209508) entregaram o Anexo I-E sem a coluna "Despesas Pagas" (só empenhada/liquidada) ou vazio, e o site não mostra valor por habitante para eles (nunca R$ 0);
+- **Estados (governador):** a mesma API e os mesmos anexos, com `id_ente` de 2 dígitos (código IBGE da UF: 35 = SP, 53 = DF); 27 entes, 54 consultas por ano, sem paginação (`hasMore` falso mesmo com 600+ itens). Mesmas regras: despesa paga "exceto intraorçamentárias" = soma das funções (SP 2024: R$ 312,0 bi, igual à linha "Despesas Exceto Intraorçamentárias"; as intraorçamentárias, R$ 16,9 bi, ficam de fora, como nos municípios), receita "Receitas Brutas Realizadas" do total. Em 2023 e 2024 os 27 estados entregaram, todos com despesa paga. Tabela `contas_estado`; fonte `siconfi_contas_estados`.
 - **Frequência:** anual, entregue até abril. Carga mensal.
 
 ## TCE-SP: despesas das prefeituras e câmaras paulistas

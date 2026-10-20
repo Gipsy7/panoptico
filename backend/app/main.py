@@ -5,6 +5,7 @@ from app.api import (
     busca,
     comparar,
     eleitos,
+    executivo,
     fontes,
     municipios,
     parlamentares,
@@ -57,6 +58,7 @@ app.include_router(municipios.router)
 app.include_router(fontes.router)
 app.include_router(comparar.router)
 app.include_router(eleitos.router)
+app.include_router(executivo.router)
 app.include_router(busca.router)
 app.include_router(pessoas.router)
 app.include_router(partidos.router)

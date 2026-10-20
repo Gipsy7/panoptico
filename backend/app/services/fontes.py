@@ -89,6 +89,18 @@ CATALOGO = [
         "url": "https://siconfi.tesouro.gov.br/",
     },
     {
+        "dado": "Contas anuais dos governos estaduais (receita, despesa e áreas)",
+        "orgao": "Tesouro Nacional (SICONFI)",
+        "fontes": ["siconfi_contas_estados"],
+        "url": "https://siconfi.tesouro.gov.br/",
+    },
+    {
+        "dado": "Agenda de ministros e do vice-presidente: reuniões, viagens e presentes",
+        "orgao": "Controladoria-Geral da União (e-Agendas)",
+        "fontes": ["eagendas"],
+        "url": "https://eagendas.cgu.gov.br/",
+    },
+    {
         "dado": "Para quem a prefeitura e a câmara pagaram (São Paulo)",
         "orgao": "Tribunal de Contas do Estado de São Paulo",
         "fontes": ["tce_sp"],
