@@ -16,6 +16,7 @@ Grava nas mesmas tabelas das assembleias, com UF "DF", pela gravação do conect
 
 import argparse
 import calendar
+import csv
 import io
 import re
 import time
@@ -23,6 +24,7 @@ import zipfile
 from collections import Counter, defaultdict
 from datetime import UTC, date, datetime, timedelta
 from decimal import Decimal, InvalidOperation
+from pathlib import Path
 from typing import Any
 from xml.etree import ElementTree
 
@@ -164,33 +166,64 @@ def ler_xlsx(conteudo: bytes) -> list[dict[str, str]]:
     return [{cabecalho[c]: v for c, v in lin.items() if c in cabecalho} for lin in linhas[1:]]
 
 
+def ler_csv(conteudo: bytes) -> list[dict[str, str]]:
+    """CSV de verbas (UTF-8 com BOM, ';'): o recurso de 2026 veio assim, rotulado XLSX."""
+    texto = conteudo.decode("utf-8-sig")
+    leitor = csv.DictReader(io.StringIO(texto), delimiter=";")
+    return [{(k or "").strip(): (v or "").strip() for k, v in lin.items()} for lin in leitor]
+
+
+def ler_verbas(conteudo: bytes) -> list[dict[str, str]]:
+    """Pelo conteúdo, não pelo rótulo do catálogo: zip (XLSX) ou CSV. HTML de erro ou
+    arquivo vazio levantam ValueError."""
+    if conteudo[:2] == b"PK":
+        return ler_xlsx(conteudo)
+    if conteudo.lstrip()[:1] == b"<" or not conteudo.strip():
+        raise ValueError("o recurso não é planilha nem CSV (HTML ou vazio)")
+    linhas = ler_csv(conteudo)
+    if linhas and not any(c in linhas[0] for c in COLUNAS["cpf"]):
+        raise ValueError("CSV sem a coluna de CPF do deputado")
+    return linhas
+
+
 def _data(valor: str, ordem: str) -> date | None:
     """Número de série do Excel (46024 -> 2026-01-02) ou data com barras, na ordem do
     arquivo ("dm" ou "md": o de 2025 usa mês/dia/ano)."""
-    valor = (valor or "").strip()
+    valor = (valor or "").strip().split(" ")[0]  # "02/01/2026 00:00" -> "02/01/2026"
     if re.fullmatch(r"\d+(\.\d+)?", valor):
         return date(1899, 12, 30) + timedelta(days=int(float(valor)))
     partes = re.fullmatch(r"(\d{1,2})/(\d{1,2})/(\d{4})", valor)
     if not partes:
         return None
     a, b, ano = (int(x) for x in partes.groups())
-    dia, mes = (a, b) if ordem == "dm" else (b, a)
-    try:
-        return date(ano, mes, dia)
-    except ValueError:
-        return None
+    pares = [(a, b), (b, a)] if ordem == "dm" else [(b, a), (a, b)]
+    for dia, mes in pares:  # o arquivo de 2026 mistura dd/mm com "8/20/2026"; a outra ordem só
+        try:  # vale quando a primeira é impossível
+            return date(ano, mes, dia)
+        except ValueError:
+            continue
+    return None
 
 
 def ordem_das_datas(valores: list[str]) -> str:
     """'dm' ou 'md', pelo arquivo inteiro: um primeiro número acima de 12 só pode ser dia;
     um segundo acima de 12, só dia na segunda posição."""
     for valor in valores:
-        partes = re.fullmatch(r"(\d{1,2})/(\d{1,2})/\d{4}", (valor or "").strip())
+        partes = re.fullmatch(r"(\d{1,2})/(\d{1,2})/\d{4}", (valor or "").strip().split(" ")[0])
         if partes and int(partes.group(1)) > 12:
             return "dm"
         if partes and int(partes.group(2)) > 12:
             return "md"
     return "dm"
+
+
+def _valor(texto: str) -> Decimal:
+    """'5600', '219.95' (XLSX) ou 'R$ 5.600,00' (CSV de 2026, vírgula decimal)."""
+    texto = (texto or "").replace("R$", "").strip()
+    if "," in texto:  # "5.600,00"; a fonte tem "5,500,00" (digitação): última vírgula decimal
+        inteiro, _, centavos = texto.replace(".", "").rpartition(",")
+        texto = f"{inteiro.replace(',', '')}.{centavos}"
+    return Decimal(texto or "0").quantize(Decimal("0.01"))
 
 
 def _sem_plural(palavra: str) -> str:
@@ -252,7 +285,7 @@ def somar_gastos(linhas: list[dict], anos: set[int]) -> dict[str, list[dict]]:
         if quando is None or quando.year not in anos or len(lin["cpf"]) != 11:
             continue
         try:
-            valor = Decimal(lin["valor"] or "0").quantize(Decimal("0.01"))
+            valor = _valor(lin["valor"])
         except InvalidOperation:
             continue
         cat = exibicao[chave_categoria(lin["classificacao"])]
@@ -263,17 +296,44 @@ def somar_gastos(linhas: list[dict], anos: set[int]) -> dict[str, list[dict]]:
     return resultado
 
 
-def baixar_verbas(client: Any, anos: set[int]) -> list[dict]:
-    """O XLSX de cada ano do período, pelo catálogo (o nome do recurso traz o ano)."""
-    recursos = comum.get_json(client, CATALOGO_VERBAS)["result"]["resources"]
-    linhas = []
+def baixar_verbas(client: Any, anos: set[int], de_raw: Path | None = None) -> list[dict]:
+    """As verbas de cada ano do período, pelo catálogo (o nome do recurso traz o ano).
+
+    O formato é lido pelo conteúdo: o rótulo do catálogo mente (o de 2026 é CSV rotulado
+    XLSX). Um ano que falha (sem recurso, HTML, formato novo) vira aviso e os outros
+    seguem; se nenhum ano vier, levanta erro, para não gravar zero no lugar de dado.
+    O bruto de cada ano vai para data/raw/cldf/; com `de_raw` (pasta), lê de lá."""
+    recursos = [] if de_raw else comum.get_json(client, CATALOGO_VERBAS)["result"]["resources"]
+    linhas, lidos = [], []
     for ano in sorted(anos):
-        recurso = next(
-            (r for r in recursos if str(ano) in r.get("name", "") and r.get("format") == "XLSX"),
-            None,
-        )
-        if recurso:
-            linhas += padronizar(ler_xlsx(comum.get_bytes(client, recurso["url"])))
+        if de_raw:
+            arquivos = sorted(de_raw.glob(f"verbas_{ano}_*"))
+            candidatos = [(a.read_bytes(), None) for a in arquivos[-1:]]
+        else:
+            achados = [r for r in recursos if str(ano) in r.get("name", "")]
+            achados.sort(key=lambda r: r.get("format") != "XLSX")  # XLSX antes do CSV
+            candidatos = [(r["url"], r) for r in achados]
+        if not candidatos:
+            print(f"  AVISO CLDF: sem recurso de verbas para {ano}", flush=True)
+            continue
+        for fonte, _ in candidatos:
+            try:
+                conteudo = fonte if isinstance(fonte, bytes) else comum.get_bytes(client, fonte)
+                ano_linhas = padronizar(ler_verbas(conteudo))
+            except (zipfile.BadZipFile, ValueError, KeyError, httpx.HTTPError) as erro:
+                origem = fonte if isinstance(fonte, str) else "raw"
+                print(f"  AVISO CLDF: verbas de {ano} ({origem}) ilegíveis: {erro!r}", flush=True)
+                continue
+            if not de_raw:
+                ext = ".xlsx" if conteudo[:2] == b"PK" else ".csv"
+                comum.salvar_raw(FONTE, conteudo, prefixo=f"verbas_{ano}_", extensao=ext)
+            linhas += ano_linhas
+            lidos.append(ano)
+            break
+        else:
+            print(f"  AVISO CLDF: nenhum recurso de {ano} pôde ser lido", flush=True)
+    if not lidos:
+        raise ValueError(f"Verbas da CLDF: nenhum ano de {sorted(anos)} pôde ser lido; abortando.")
     return linhas
 
 
@@ -314,11 +374,11 @@ def anexar_gastos(session: Any, casa: dict) -> int:
     return sem
 
 
-def coletar(hoje: date) -> dict:
+def coletar(hoje: date, de_raw: Path | None = None) -> dict:
     with comum.criar_cliente() as client:
         autores = comum.get_json(client, f"{API}/autor/listar")
         props = proposicoes(client, hoje.year - 1, hoje) + proposicoes(client, hoje.year, hoje)
-        verbas = baixar_verbas(client, {hoje.year - 1, hoje.year})
+        verbas = baixar_verbas(client, {hoje.year - 1, hoje.year}, de_raw)
     ativos = [
         a for a in autores if a.get("tipoAutor") == "PARLAMENTAR" and a.get("situacao") == "ATIVO"
     ]
@@ -355,8 +415,8 @@ def coletar(hoje: date) -> dict:
     }
 
 
-def executar() -> int:
-    casa = coletar(date.today())
+def executar(de_raw: Path | None = None) -> int:
+    casa = coletar(date.today(), de_raw)
     if len(casa["vereadores"]) < 20:  # a CLDF tem 24 cadeiras: lista curta é falha da fonte
         raise ValueError(f"Só {len(casa['vereadores'])} deputados na CLDF; abortando.")
     with SessionLocal() as session:
@@ -374,5 +434,6 @@ def executar() -> int:
 
 
 if __name__ == "__main__":
-    argparse.ArgumentParser(description=f"Ingestão: {FONTE}").parse_args()
-    executar()
+    ap = argparse.ArgumentParser(description=f"Ingestão: {FONTE}")
+    ap.add_argument("--de-raw", type=Path, help="pasta com os verbas_AAAA_* de data/raw/cldf")
+    executar(ap.parse_args().de_raw)

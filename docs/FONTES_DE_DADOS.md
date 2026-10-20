@@ -414,6 +414,8 @@ Reconhecimento de 11/10/2026. As duas fontes são arquivos em lote, sem chave (a
   - Em 2026: colunas `NOME_PARLAMENTAR`, `CPF_PARLAMENTAR`, `DATA_COMPROVANTE` (número de série do Excel), `VALOR_DESPESA`, `CLASSIFICACAO`.
   - Em 2025: `Nome do(a) Deputado(a)`, `CPF do(a) Deputado(a)`, `Data do Recibo/NF` (mês/dia/ano), `Valor`, `Classificação`.
   - Só 8 a 9 dos 24 deputados aparecem nos arquivos.
+  - **Armadilha (20/10/2026): o rótulo do catálogo mente.** O recurso de 2026 ("Até Agosto") está como `XLSX`, mas o arquivo é `ckan_csv_corrigido.csv`: CSV UTF-8 com BOM, `;`, com coluna extra `ID_REGISTRO`, valor `R$ 5.600,00` e data `02/01/2026 00:00`. O conector tratava tudo como XLSX e o job caiu com `BadZipFile`. Agora o formato vem do conteúdo (zip `PK` = XLSX; senão CSV; HTML ou vazio = erro). Um ano ilegível vira aviso e os outros carregam; se nenhum ano vier, a carga aborta. O bruto de cada ano fica em `data/raw/cldf/verbas_AAAA_*` e `python -m ingestion.assembleias.cldf --de-raw data/raw/cldf` reprocessa as verbas sem baixá-las (deputados e proposições ainda vêm da rede).
+  - **Sujeira do CSV de 2026:** 58 de 276 linhas sem data (ficam de fora, pois o gasto é por mês); datas misturadas no mesmo arquivo (`02/01/2026` dia/mês e `8/20/2026` mês/dia: vale a outra ordem quando a primeira é impossível); 5 valores digitados como `R$ 5,500,00` (lidos como 5.500,00). Os arquivos de 2024 e 2025 também existem em XLSX; o de 2024 tem ainda um CSV "até maio".
 
 ## ALESC: Assembleia Legislativa de Santa Catarina
 
