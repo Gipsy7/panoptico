@@ -946,7 +946,7 @@ SC,ALSC,deputado estadual,gastos,sim,Carregamos gastos do gabinete e da cota do 
 SC,ALSC,deputado estadual,votos,sem_fonte,As votações vistas no e-Legis são simbólicas; o extrato de voto nominal não foi localizado numa sessão com voto nominal.,alesc,
 SC,ALSC,deputado estadual,presenca,sim,Carregamos presença em plenário do site oficial da Casa.,alesc,
 SC,ALSC,deputado estadual,projetos,sim,Carregamos projetos de lei do site oficial da Casa.,alesc,
-SC,ALSC,deputado estadual,emendas,pedido,"Sem fonte aberta de emendas impositivas; pedidos à ALESC e ao TCE/SC redigidos (ADPF 854, IN TC 40/2025).",,alesc_emendas_impositivas.md; tcesc_painel_emendas.md; emendas_estaduais_27_ufs.md
+SC,ALSC,deputado estadual,emendas,parcial,"Emendas impositivas da ALESC executadas por convênio ou termo de fomento (SC Transferências, CGE/SC, desde 2022): autor, cidade, quem recebeu, previsto, empenhado e pago. Repasses fundo a fundo e às prefeituras ficam de fora; pedidos à ALESC e ao TCE/SC seguem para a base completa.",sctransferencias_emendas,alesc_emendas_impositivas.md; tcesc_painel_emendas.md; emendas_estaduais_27_ufs.md
 SC,ALSC,deputado estadual,salario,sem_fonte,Subsídio e folha dos deputados estaduais não coletados.,,
 SC,ALSC,deputado estadual,agenda,sem_fonte,Nenhuma fonte de agenda de deputados estaduais.,,
 SC,ALSC,deputado estadual,atos,sem_fonte,Diários oficiais estaduais não são lidos.,,

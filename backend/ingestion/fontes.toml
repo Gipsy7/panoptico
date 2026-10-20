@@ -407,6 +407,19 @@ recorte = "deputados em exercício; proposições, presença em plenário e gast
 frequencia = "semanal"
 
 [[fonte]]
+nome = "sctransferencias_emendas"
+modulo = "ingestion.emendas_estaduais.sc"
+uso = "Emendas de deputados estaduais de SC na página da cidade e do deputado: autor, quem recebeu, previsto, empenhado e pago (esfera estadual, à parte das federais)"
+recorte = "emendas impositivas da ALESC com proposta no SC Transferências desde 2022 (uma linha por proposta); empenhado somado do razão financeiro anual; favorecido pessoa física sem nome nem CPF (hoje só há CNPJ)"
+frequencia = "semanal"
+acesso = "aberto"
+depende = ["alesc", "pessoas"]
+# CGE/SC: CSV do botão "Baixar CSV" de consultas.sctransferencias.cge.sc.gov.br/pesquisa-detalhada/emendas
+# (sctransf-api.prod.okd4.ciasc.sc.gov.br/csv/emendas, ~1,1 MB, todas as emendas) e
+# arquivos.transparencia.sc.gov.br/sctransferencias/dados-abertos/dados_financeiros_AAAA.zip (~1 MB/ano).
+# Sem login nem captcha. Painel do TCE/SC (Farol) e Portal de Emendas: ver docs/DECISOES.md, 19/10/2026.
+
+[[fonte]]
 nome = "alep"
 modulo = "ingestion.assembleias.alep"
 uso = "Assembleia do Paraná hoje"

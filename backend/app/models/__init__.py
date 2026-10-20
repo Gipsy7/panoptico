@@ -15,6 +15,7 @@ from app.models.cpi import Cpi, CpiIndiciamentoSugestao, CpiParticipacao
 from app.models.despesa import Despesa
 from app.models.despesa_fornecedor import DespesaFornecedor
 from app.models.emenda import Emenda
+from app.models.emenda_estadual import EmendaEstadual
 from app.models.emenda_pagamento import EmendaPagamento
 from app.models.emenda_relator import EmendaRelatorIndicacao
 from app.models.emenda_transferencia import EmendaConvenio, EmendaTransferencia
@@ -78,6 +79,7 @@ __all__ = [
     "ContasEstado",
     "ContasMunicipio",
     "Despesa",
+    "EmendaEstadual",
     "DespesaFornecedor",
     "Emenda",
     "EmendaConvenio",

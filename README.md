@@ -52,6 +52,7 @@ Os dados sobre o trabalho dos parlamentares já são públicos, mas estão espal
   - quem enviou;
   - para quais áreas (saúde, educação…);
   - quem recebeu, com o CNPJ.
+- **Emendas estaduais (Santa Catarina, na API; tela a fazer)**: emendas impositivas dos deputados estaduais executadas por convênio ou termo de fomento (SC Transferências, CGE/SC), com autor, quem recebeu e valores previsto, empenhado e pago, num bloco à parte das federais (outra esfera, nunca somada) em `/municipios/{ibge}/emendas` e em `/deputados-estaduais/{mandato_id}/emendas`, com a média dos deputados da ALESC.
 - **O que aconteceu com o dinheiro das emendas** (perfil do parlamentar): situação dos convênios e das transferências especiais ligados às emendas individuais, com prestação de contas, valores, vigência e link oficial. Mostra a situação registrada no governo federal, sem julgamento.
 - **Dinheiro dos partidos** (`/partidos`, TSE): cotas do Fundo Partidário e do fundo eleitoral, receitas, gastos e repasses a candidaturas de cada partido, com as transferências entre diretórios separadas para não contar duas vezes; o fundo eleitoral por gênero e cor ou raça (eleição de 2024).
 - **Contas da sua cidade** (SICONFI, Tesouro Nacional): quanto a prefeitura arrecadou e gastou no ano, em que áreas e quanto custou a câmara municipal.
@@ -142,6 +143,7 @@ flowchart LR
 | Projetos de lei e autores | Câmara e Senado | Arquivos anuais e API |
 | Emendas parlamentares e quem recebeu | [Portal da Transparência (CGU)](https://portaldatransparencia.gov.br/emendas) | Arquivo em lote |
 | O que aconteceu com o dinheiro das emendas (situação de convênios e transferências especiais, prestação de contas) | [Portal da Transparência (CGU)](https://portaldatransparencia.gov.br/convenios/consulta) e [TransfereGov](https://www.gov.br/transferegov/pt-br) | Arquivo em lote e API |
+| Emendas impositivas dos deputados estaduais de SC (autor, quem recebeu, previsto, empenhado e pago) | [SC Transferências (CGE/SC)](https://consultas.sctransferencias.cge.sc.gov.br/pesquisa-detalhada/emendas) | CSV da consulta e razão financeiro anual; só emendas executadas por convênio ou termo de fomento |
 | Indicações de emendas de relator-geral (RP9, 2022) com o parlamentar que pediu | [Comissão Mista de Orçamento](https://www2.camara.leg.br/atividade-legislativa/comissoes/comissoes-mistas/cmo/Indicacoes-para-execucao-orcamentaria-em-RP9_LOA-2022) | Planilha (xlsx); 2020 e 2021 não têm autor estruturado |
 | Candidaturas (inclusive presidente, governadores e prefeitos), bens declarados e contas de campanha (2018, 2022 e 2024) | [Dados abertos do TSE](https://dadosabertos.tse.jus.br/) | Arquivos em lote, carga manual por eleição |
 | Contas anuais dos partidos (receitas, fundo partidário e fundo eleitoral, despesas) e divisão dos fundos por gênero e cor ou raça | [Dados abertos do TSE](https://dadosabertos.tse.jus.br/) | Arquivos em lote, só no acervo local por enquanto (ainda sem página no site) |

@@ -212,6 +212,13 @@ CATALOGO = [
         "url": "https://transparencia.alesc.sc.gov.br/gabinetes-parlamentares/dados-abertos",
     },
     {
+        "dado": "Emendas de deputados estaduais de SC (impositivas): autor, cidade, quem recebeu "
+        "e valores previsto, empenhado e pago",
+        "orgao": "Controladoria-Geral do Estado de Santa Catarina (SC Transferências)",
+        "fontes": ["sctransferencias_emendas"],
+        "url": "https://consultas.sctransferencias.cge.sc.gov.br/pesquisa-detalhada/emendas",
+    },
+    {
         "dado": "Deputados estaduais do PR: no cargo, presença em plenário e votos nominais",
         "orgao": "Assembleia Legislativa do Paraná (site e Portal da Transparência)",
         "fontes": ["alep"],
