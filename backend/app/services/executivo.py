@@ -175,6 +175,8 @@ def _bloco_agenda(session: Session, ente: dict, pessoa_id: int | None, candidatu
     filtro = AgendaCompromisso.pessoa_id == pessoa_id
     total = session.scalar(select(func.count()).select_from(AgendaCompromisso).where(filtro))
     if not total:
+        if session.scalar(select(AgendaCompromisso.id).limit(1)) is None:
+            return _ausente("A agenda federal (e-Agendas) ainda não foi carregada no site.")
         return _ausente(
             "Não há registros desta pessoa no e-Agendas (a agenda do presidente da República "
             "não consta nessa base)."
