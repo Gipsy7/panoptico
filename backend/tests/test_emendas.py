@@ -84,7 +84,7 @@ def test_resolver_municipios_exato_aproximado_e_fora():
     pagamentos = [
         {"uf": "SP", "municipio_nome": "SÃO PAULO", "valor": 1},
         {"uf": "RS", "municipio_nome": "SANTANA DO LIVRAMENTO", "valor": 2},
-        {"uf": "SP", "municipio_nome": "EMBU", "valor": 3},
+        {"uf": "SP", "municipio_nome": "LUGAR INEXISTENTE", "valor": 3},
     ]
     resolvidos, fora = emendas.resolver_municipios(pagamentos, municipios)
     assert [r["municipio_ibge"] for r in resolvidos] == ["3550308", "4317103"]

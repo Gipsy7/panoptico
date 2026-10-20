@@ -712,6 +712,11 @@ export type EmendaColegiado = { autor_nome: string; tipo: string; rotulo: string
 export type EmendasPrevistas = {
   planos: number;
   valor_planos: number;
+  impedidos?: {
+    planos: number;
+    valor: number;
+    motivos: { situacao: string; planos: number; valor: number }[];
+  } | null;
   planos_com_pagamento: number;
   valor_planos_com_pagamento: number;
   planos_sem_pagamento: number;

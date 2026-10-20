@@ -79,9 +79,22 @@ class EmendaPrevistaItem(BaseModel):
     fonte_url: str
 
 
+class PlanosImpedidosMotivo(BaseModel):
+    situacao: str
+    planos: int
+    valor: float
+
+
+class PlanosImpedidos(BaseModel):
+    planos: int
+    valor: float
+    motivos: list[PlanosImpedidosMotivo]
+
+
 class EmendasPrevistas(BaseModel):
     planos: int
     valor_planos: float
+    impedidos: PlanosImpedidos | None = None
     planos_com_pagamento: int
     valor_planos_com_pagamento: float
     planos_sem_pagamento: int

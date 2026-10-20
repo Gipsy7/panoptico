@@ -54,6 +54,7 @@ from app.models import (
 )
 from app.models.pessoa import REGRAS_FORTES
 from ingestion import comum
+from ingestion.ibge import nomes_anteriores
 
 FONTE = "sctransferencias_emendas"
 UF = "SC"
@@ -193,13 +194,15 @@ def normalizar(pacote: bytes) -> list[dict[str, Any]]:
 def resolver_municipios(
     linhas: list[dict[str, Any]], municipios: list[tuple[str, str]]
 ) -> dict[str, str | None]:
-    """Nome do município (como veio) -> código IBGE, dentro de SC: nome igual sem acento e,
-    se não houver, a grafia mais próxima (corte 0,88, como nas emendas federais)."""
+    """Nome do município (como veio) -> código IBGE, dentro de SC: nome igual sem acento, nome
+    anterior do IBGE e, se não houver, a grafia mais próxima (corte 0,88, como nas federais)."""
     por_chave = dict((chave, ibge) for ibge, chave in municipios)
     saida: dict[str, str | None] = {}
     for nome in {linha["municipio_nome"] for linha in linhas}:
         chave = comum.chave_nome(nome)
         ibge = por_chave.get(chave)
+        if ibge is None:  # nome anterior registrado pelo IBGE (tabela versionada em data/)
+            ibge = nomes_anteriores.carregar_apelidos().get(("SC", chave))
         if ibge is None:
             proximo = difflib.get_close_matches(chave, list(por_chave), n=1, cutoff=0.88)
             ibge = por_chave[proximo[0]] if proximo else None
