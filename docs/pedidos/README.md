@@ -19,6 +19,7 @@ Fontes que bloqueiam o acesso automático ou não publicam o dado em formato abe
 | TCE/SC | Base do Painel de Emendas (Farol), 2022–2026, com beneficiário e município (LAI, ADPF 854, IN TC 40/2025) | a enviar (redigido em 18/10/2026) | [tcesc_painel_emendas.md](tcesc_painel_emendas.md) |
 | ALESC (SC) | Emendas impositivas estaduais por autor, município, favorecido, valor e situação, desde 2019 (LAI, ADPF 854) | a enviar (redigido em 18/10/2026) | [alesc_emendas_impositivas.md](alesc_emendas_impositivas.md) |
 | 27 UFs (assembleias e governos) | Emendas parlamentares estaduais em formato aberto, modelo único (LAI, ADPF 854) | a enviar (redigido em 18/10/2026) | [emendas_estaduais_27_ufs.md](emendas_estaduais_27_ufs.md) |
+| ALAP (AP) | Autorização de leitura automatizada (o `robots.txt` responde 403) ou arquivo aberto da CEAP por gabinete e mês (LAI) | a enviar (redigido em 20/10/2026) | [alap_gastos_ceap.md](alap_gastos_ceap.md) |
 | CGU | Chave grátis da API do Portal da Transparência e, se preciso, limite maior (não é LAI: cadastro) | a fazer (redigido em 18/10/2026) | [cgu_chave_api.md](cgu_chave_api.md) |
 
 **Como enviar:**

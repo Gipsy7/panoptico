@@ -43,9 +43,9 @@ URL_ALEP_VERBA = (
 SAPL_UFS = ["AC", "AL", "AM", "PB", "PI", "RO", "RR", "TO"]
 ASSEMBLEIAS: dict[str, tuple[str, set[str]]] = {
     **{uf: ("sapl_assembleias", {"projetos", "votos", "presenca"}) for uf in SAPL_UFS},
-    "AP": ("alap", {"projetos"}),
+    "AP": ("alap", {"projetos"}),  # gastos: pedido (robots.txt da Casa responde 403)
     "BA": ("alba", {"projetos", "presenca"}),
-    "CE": ("alece", {"projetos"}),
+    "CE": ("alece", {"projetos", "gastos"}),
     "DF": ("cldf", {"projetos"}),
     "ES": ("ales", {"projetos", "presenca"}),
     "GO": ("alego", {"gastos"}),
@@ -57,9 +57,9 @@ ASSEMBLEIAS: dict[str, tuple[str, set[str]]] = {
     "PE": ("alepe", {"projetos"}),
     "PR": ("alep", {"votos", "presenca"}),  # projetos e gastos: pedido (API travada, reCAPTCHA)
     "RJ": ("alerj", set()),
-    "RN": ("alrn", {"projetos"}),
+    "RN": ("alrn", {"projetos", "gastos"}),
     "RS": ("alrs", {"projetos", "votos", "presenca", "gastos"}),
-    "SC": ("alesc", {"projetos", "gastos", "presenca"}),
+    "SC": ("alesc", {"projetos", "gastos", "presenca", "votos"}),
     "SE": ("alese", {"presenca"}),
     "SP": ("alesp", {"projetos", "gastos"}),
 }
@@ -82,6 +82,21 @@ PEDIDO_ASSEMBLEIA = {
     ("PA", "votos"): "alepa_proposicoes.md",
     ("PR", "projetos"): "alep_certificado.md",
     ("PR", "gastos"): "alep_certificado.md",
+    ("AP", "gastos"): "alap_gastos_ceap.md",
+}
+# Seções que carregamos mas só em parte; o motivo diz o que fica de fora.
+PARCIAL_ASSEMBLEIA = {
+    ("CE", "gastos"): (
+        "Carregamos os gastos do gabinete (verba de desempenho parlamentar) por mês, do site "
+        "oficial da Casa. A planilha escreve o nome de alguns deputados com erro de digitação; "
+        "esses lançamentos não são atribuídos a ninguém (não ligamos por nome aproximado) e ficam "
+        "de fora do total de cada deputado."
+    ),
+    ("RN", "gastos"): (
+        "Carregamos as notas da verba de ressarcimento por mês, do site oficial da Casa, sem o "
+        "tipo de gasto (a Casa não informa) e sem o fornecedor. Só dos deputados em exercício "
+        "cujo nome é igual ao do seletor da Casa."
+    ),
 }
 MOTIVO_PEDIDO = {
     "MG": "A Casa não publica em dados abertos; pedido de acesso redigido.",
@@ -90,6 +105,8 @@ MOTIVO_PEDIDO = {
     "veda a pesquisa; pedimos acesso público.",
     "PA": "A pesquisa do portal só funciona digitando no navegador; pedimos os dados em "
     "formato aberto.",
+    "AP": "O arquivo de regras do site (robots.txt) responde acesso negado, então não sabemos se "
+    "a leitura automática é permitida; não lemos e pedimos autorização ou os dados em arquivo.",
 }
 EMENDAS_27 = "emendas_estaduais_27_ufs.md"
 
@@ -122,6 +139,8 @@ def _secao_legislativa(uf, secao, fonte, carrega, brasil):
                 "e o site no ar não se atualiza sozinho."
             )
             return "bloqueado", m, fonte, ""
+        if (uf, secao) in PARCIAL_ASSEMBLEIA:
+            return "parcial", PARCIAL_ASSEMBLEIA[(uf, secao)], fonte, ""
         m = f"Carregamos {r} do site oficial da Casa."
         if uf == "SP" and secao == "projetos":
             m += " Votos nominais de Plenário e presença não saem dos dados abertos."
@@ -139,12 +158,6 @@ def _secao_legislativa(uf, secao, fonte, carrega, brasil):
             "não contornamos. Pedimos os dados em planilha."
         )
         return "pedido", m, URL_ALEP_VERBA, pedido
-    if uf == "SC" and secao == "votos":
-        m = (
-            "As votações vistas no e-Legis são simbólicas; o extrato de voto nominal não foi "
-            "localizado numa sessão com voto nominal."
-        )
-        return "sem_fonte", m, fonte, ""
     if uf == "SP" and secao == "votos":
         m = (
             "Só o voto nas comissões permanentes; o voto no Plenário não está nos dados "

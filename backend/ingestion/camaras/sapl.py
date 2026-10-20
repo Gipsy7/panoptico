@@ -543,9 +543,10 @@ def gravar(session: Session, ibge: str | None, camara: dict, uf: str | None = No
         votacao_por_externo[votacao["id_externo"]] = session.execute(
             insert(VotacaoLocal)
             .values(
-                **{k: v for k, v in votacao.items() if k not in ("materia_id", "data")},
+                **{k: v for k, v in votacao.items() if k not in ("materia_id", "data", "url")},
                 data=date.fromisoformat(votacao["data"]) if votacao["data"] else None,
-                url=camara["base"].rstrip("/") + f"/materia/{materia_id}" if materia_id else None,
+                url=votacao.get("url")  # endereço próprio da votação, quando a casa o dá
+                or (camara["base"].rstrip("/") + f"/materia/{materia_id}" if materia_id else None),
                 casa=casa,
                 uf=uf,
                 municipio_ibge=ibge,

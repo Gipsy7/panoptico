@@ -10,22 +10,41 @@ autoria, pelo site e pela API do portal de Transparência Legislativa.
   Constituição, decreto legislativo e resolução) entram com a ementa; requerimentos, pedidos de
   informação e moções, só como contagem.
 
-Sem votos nominais por deputado nem verba de gabinete nesta coleta (a rota `ultimas-votacoes`
-traz só o resultado). O `robots.txt` do site libera tudo. Uma requisição por vez, com pausa.
+- Gastos: a página "Verbas de ressarcimento" (`www.al.rn.leg.br/portal/verbas`) é um formulário
+  (mês e deputado, com o `_token` de formulário do próprio site). Sem escolher o mês, a busca
+  devolve todas as notas do deputado: data da nota, fornecedor, deputado e valor. Não há tipo de
+  gasto, então tudo entra numa categoria só; o fornecedor (pode ser pessoa física) não é guardado.
+  Soma por deputado e mês, do ano anterior em diante. Só os deputados da lista de hoje que casam
+  por nome exato com o seletor (24 de 47, o resto é ex-deputado) têm a busca feita.
+
+Sem votos nominais por deputado nesta coleta (a rota `ultimas-votacoes` traz só o resultado).
+O `robots.txt` do site libera tudo. Uma requisição por vez, com pausa.
 """
 
 import argparse
 import html
+import io
 import re
 import time
+import zipfile
+from collections import defaultdict
 from datetime import date
+from decimal import Decimal, InvalidOperation
+from pathlib import Path
 
+from app.db import SessionLocal
 from ingestion import comum
 from ingestion.assembleias import base
 
 FONTE = "alrn"
 SITE = "https://al.rn.leg.br/"
 LISTA = SITE + "deputados"
+VERBAS = "https://www.al.rn.leg.br/portal/verbas"
+CATEGORIA_VERBAS = "Verba de ressarcimento (a fonte não detalha o tipo)"
+MOTIVO_SEM_DATA = (
+    "A nota vem sem data, com data no futuro ou sem valor legível na página, "
+    "então não dá para somar por mês"
+)
 API = "https://api-transparencialegislativa.al.rn.leg.br/elegis-api-transp-legislativa/"
 PAUSA = 1.0
 PROJETOS = {
@@ -114,29 +133,167 @@ def baixar_processos(client, iniciativa: int, desde: int) -> list[dict]:
             return resultado
 
 
-def coletar(hoje: date) -> dict:
+def seletor_de_deputados(pagina: str) -> list[tuple[str, str]]:
+    """(código, nome) das opções do seletor de deputados da página de verbas (inclui
+    ex-deputados)."""
+    depois = pagina.split('name="deputado_id"', 1)[-1]
+    return [
+        (codigo, " ".join(html.unescape(nome).split()))
+        for codigo, nome in re.findall(r'<option\s+value="(\d+)"\s*>([^<]+)</option>', depois)
+    ]
+
+
+def notas_da_busca(pagina: str) -> list[dict]:
+    """Data da nota e valor de cada linha da tabela de resultados. Fornecedor e nome do
+    deputado ficam de fora de propósito. Data ou valor ilegível vira None."""
+    resultado = []
+    for linha in re.findall(r"<tr><!-- linha da tabela -->(.*?)</tr>", pagina, flags=re.S):
+        celulas = [" ".join(c.split()) for c in re.findall(r"<td[^>]*>(.*?)</td>", linha, re.S)]
+        if len(celulas) < 4:
+            continue
+        data = re.fullmatch(r"(\d{2})/(\d{2})/(\d{4})", celulas[0])
+        try:
+            quando = date(int(data[3]), int(data[2]), int(data[1])) if data else None
+        except ValueError:
+            quando = None
+        try:
+            valor = Decimal(celulas[3]).quantize(Decimal("0.01"))
+        except InvalidOperation:
+            valor = None
+        resultado.append({"data": quando, "valor": valor})
+    return resultado
+
+
+def somar_notas(
+    notas: list[dict], desde: int, ate: date | None = None
+) -> tuple[list[dict], list[dict]]:
+    """Gastos por ano e mês (do ano `desde` em diante) e, à parte, as notas sem data, com data
+    no futuro (depois de `ate`, erro de digitação na fonte: há uma de 2029) ou sem valor
+    legível. Essas vão por ano da nota; sem data ou no futuro, no ano de `ate` (ou `desde`)."""
+    soma: dict[tuple[int, int], Decimal] = defaultdict(Decimal)
+    fora: dict[int, dict] = {}
+    for n in notas:
+        futura = ate is not None and n["data"] is not None and n["data"] > ate
+        if n["data"] is not None and n["valor"] is not None and not futura:
+            if n["data"].year >= desde:
+                soma[(n["data"].year, n["data"].month)] += n["valor"]
+            continue
+        ano = n["data"].year if n["data"] and not futura else (ate.year if ate else desde)
+        if ano < desde:
+            continue
+        acc = fora.setdefault(ano, {"linhas": 0, "valor": Decimal(0), "linhas_valor_ilegivel": 0})
+        acc["linhas"] += 1
+        if n["valor"] is None:
+            acc["linhas_valor_ilegivel"] += 1
+        else:
+            acc["valor"] += n["valor"]
+    gastos = [
+        {"ano": a, "mes": m, "categoria": CATEGORIA_VERBAS, "valor": v}
+        for (a, m), v in sorted(soma.items())
+    ]
+    fora_lista = [{"ano": a, "motivo": MOTIVO_SEM_DATA, **d} for a, d in sorted(fora.items())]
+    return gastos, fora_lista
+
+
+def baixar_verbas(client, pagina: str, codigos: list[str]) -> dict[str, bytes]:
+    """A página do formulário e, por deputado, a busca sem mês (todas as notas). O `_token` é
+    o do formulário da própria página, na mesma sessão (cookie)."""
+    token = re.search(r'name="_token" value="([^"]+)"', pagina)
+    if not token:
+        raise ValueError("ALRN: formulário de verbas sem _token; a página mudou.")
+    arquivos = {"formulario.html": pagina.encode("utf-8")}
+    for codigo in codigos:
+        time.sleep(PAUSA)
+        resposta = client.post(
+            VERBAS + "/busca",
+            data={"_token": token.group(1), "mes_id": "", "deputado_id": codigo},
+        )
+        arquivos[f"{codigo}.html"] = resposta.raise_for_status().content
+    return arquivos
+
+
+def empacotar(arquivos: dict[str, bytes]) -> bytes:
+    memoria = io.BytesIO()
+    with zipfile.ZipFile(memoria, "w", zipfile.ZIP_DEFLATED) as z:
+        for nome, conteudo in sorted(arquivos.items()):
+            z.writestr(nome, conteudo)
+    return memoria.getvalue()
+
+
+def gastos_dos_deputados(
+    client,
+    lista: list[dict],
+    tse: list[tuple[str, str]],
+    desde: int,
+    de_raw: Path | None,
+    ate: date | None = None,
+) -> tuple[dict[str, tuple[list[dict], list[dict]]], list[str]]:
+    """id do deputado na lista da Casa -> (gastos, fora) e as mensagens de aviso. A busca só é
+    feita para quem casa por nome exato com o seletor (ver `base.ligar_nomes_exatos`)."""
+    if de_raw:
+        with zipfile.ZipFile(de_raw) as z:
+            arquivos = {n: z.read(n) for n in z.namelist()}
+        pagina = arquivos["formulario.html"].decode("utf-8", "replace")
+    else:
+        pagina = comum._get(client, VERBAS, None, 4).text
+        arquivos = {}
+    seletor = seletor_de_deputados(pagina)
+    ligados, sobras = base.ligar_nomes_exatos({comum.chave_nome(n) for _, n in seletor}, lista, tse)
+    codigos = [c for c, n in seletor if comum.chave_nome(n) in ligados]
+    if not de_raw:
+        arquivos = baixar_verbas(client, pagina, codigos)
+        raw = comum.salvar_raw(FONTE, empacotar(arquivos), "verbas_", ".zip")
+        print(f"  bruto das verbas: {raw}", flush=True)
+    por_deputado: dict[str, list[dict]] = defaultdict(list)
+    nome_por_id = {d["nome"]: d["id"] for d in lista}
+    for codigo, nome in seletor:
+        alvo = ligados.get(comum.chave_nome(nome))
+        if alvo and f"{codigo}.html" in arquivos:
+            texto = arquivos[f"{codigo}.html"].decode("utf-8", "replace")
+            por_deputado[nome_por_id[alvo]] += notas_da_busca(texto)
+    if not por_deputado or not any(por_deputado.values()):
+        raise ValueError("ALRN: nenhuma nota de verba lida; abortando para não zerar os gastos.")
+    avisos = []
+    sem_busca = [n for _, n in seletor if comum.chave_nome(n) not in ligados]
+    if sem_busca:
+        avisos.append(
+            f"Gastos ALRN: {len(sem_busca)} nomes do seletor de verbas sem deputado igual na "
+            "lista de hoje (ex-deputados ou grafia diferente), sem busca: " + "; ".join(sem_busca)
+        )
+    return {i: somar_notas(n, desde, ate) for i, n in por_deputado.items()}, avisos
+
+
+def coletar(hoje: date, de_raw: Path | None = None) -> tuple[dict, list[str]]:
     with comum.criar_cliente() as client:
         lista = deputados(comum._get(client, LISTA, None, 4).content.decode("utf-8", "replace"))
+        with SessionLocal() as session:
+            tse = base.nomes_do_tse(session, "RN")
+        gastos, avisos = gastos_dos_deputados(client, lista, tse, hoje.year - 1, de_raw, hoje)
         ids = iniciativas(comum.get_json(client, API + "parlamentar/").get("dados", []))
         registros = []
         for d in lista:
+            g, fora = gastos.get(d["id"], ([], []))
             iniciativa = ids.get(comum.chave_nome(d["nome"]))
             if iniciativa is None:
                 print(f"  {d['nome']}: sem iniciativa na API; entra sem proposições", flush=True)
-                registros.append(base.registro(d))
+                registros.append(base.registro(d, gastos=g, gastos_fora=fora))
                 continue
             tipos, projetos = classificar(baixar_processos(client, iniciativa, hoje.year - 1))
-            registros.append(base.registro(d, projetos=projetos, por_tipo=tipos))
-    return base.casa(LISTA, registros)
+            registros.append(
+                base.registro(d, projetos=projetos, por_tipo=tipos, gastos=g, gastos_fora=fora)
+            )
+    return base.casa(LISTA, registros), avisos
 
 
-def executar() -> int:
+def executar(de_raw: Path | None = None) -> int:
+    casa, avisos = coletar(date.today(), de_raw)
+    for a in avisos:
+        print(f"  AVISO {a}", flush=True)
     # A ALRN tem 24 cadeiras: lista curta é falha da fonte.
-    return base.gravar(
-        coletar(date.today()), fonte=FONTE, uf="RN", sigla="ALRN", url=API, minimo=20
-    )
+    return base.gravar(casa, fonte=FONTE, uf="RN", sigla="ALRN", url=API, minimo=20, alertas=avisos)
 
 
 if __name__ == "__main__":
-    argparse.ArgumentParser(description=f"Ingestão: {FONTE}").parse_args()
-    executar()
+    ap = argparse.ArgumentParser(description=f"Ingestão: {FONTE}")
+    ap.add_argument("--de-raw", type=Path, help="zip de verbas de data/raw/alrn (sem rede)")
+    executar(ap.parse_args().de_raw)

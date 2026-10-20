@@ -14,8 +14,13 @@ proposições de cada um, pelas páginas públicas da ALESC (não há API nem ex
   mês e descrição. Favorecido e trecho (diárias de funcionários) não são guardados.
 - Presença: o e-Legis lista as sessões plenárias (`/sessoes-plenarias`, mais recentes
   primeiro) e cada uma tem a página `/presenca` com "Presente" ou "Ausência justificada" por
-  deputado. Votos: as votações vistas são simbólicas; o extrato de votação nominal carrega
-  sob demanda e não foi localizado numa sessão com voto nominal (ver docs/DECISOES.md).
+  deputado.
+- Votos: a "Ordem do Dia" de cada sessão (`/sessoes-plenarias/{id}/ordem-do-dia`) marca cada
+  item como "Votação nominal" ou simbólica; nos nominais o botão "Extrato de votação" carrega
+  `/extrato-votacao/{código}`, que lista deputado e voto. Essa rota responde 405 a um GET
+  comum e 200 à mesma chamada AJAX que o botão faz (cabeçalho `X-Requested-With`, posto pelo
+  script do site); não há captcha, login nem robots que vede (o `/robots.txt` é 404). Os votos
+  só vão ao deputado de nome igual ao do site (ou do TSE); os totais contam o extrato todo.
 
 Uma requisição por vez, com pausa. Grava nas mesmas tabelas das outras casas, pela
 gravação do conector SAPL.
@@ -25,8 +30,10 @@ import argparse
 import csv
 import html
 import io
+import json
 import re
 import time
+import zipfile
 from datetime import UTC, date, datetime
 from decimal import Decimal
 from pathlib import Path
@@ -35,6 +42,7 @@ from typing import Any
 from app.db import SessionLocal
 from app.models import FonteIngestao
 from ingestion import comum
+from ingestion.assembleias import base
 from ingestion.camaras import sapl
 from ingestion.identidade import casar_nome
 
@@ -294,6 +302,141 @@ def baixar_presenca(client: Any, anos: list[int]) -> list[dict]:
     return sessoes
 
 
+VOTOS = {"SIM": "Sim", "NAO": "Não", "ABSTENCAO": "Abstenção", "ABSTER": "Abstenção"}
+
+
+def votacoes_nominais(pagina: str) -> list[dict]:
+    """Os itens da 'Ordem do Dia' de uma sessão que tiveram votação nominal e têm extrato:
+    proposição, resultado ('Aprovado', 'Rejeitado'...), ementa e o código do extrato. Itens
+    em votação simbólica, retirados de pauta ou sem extrato ficam de fora."""
+    resultado = []
+    for cartao in re.split(r'<div class="border-bottom mb-3">', pagina)[1:]:
+        extrato = re.search(r'hx-get="/extrato-votacao/(\w+)"', cartao)
+        badges = [_limpo(b) for b in re.findall(r'<span class="badge[^>]*>(.*?)</span>', cartao)]
+        if not extrato or not any(b.lower() == "votação nominal" for b in badges):
+            continue
+        proposicao = re.search(r'<a href="/proposicoes/(\w+)">([^<]+)</a>', cartao)
+        veredito = next((b for b in badges if "nominal" not in b.lower()), None)
+        ementa = re.search(r'<p class="fst-italic[^>]*>(.*?)</p>', cartao, re.S)
+        resultado.append(
+            {
+                "extrato": extrato.group(1),
+                "proposicao": _limpo(proposicao.group(2)) if proposicao else "",
+                "resultado": veredito,
+                "ementa": _limpo(ementa.group(1)) if ementa else "",
+            }
+        )
+    return resultado
+
+
+def votos_do_extrato(fragmento: str) -> list[tuple[str, str]]:
+    """(deputado, voto) de cada cartão do extrato de votação (o nome e o voto, só)."""
+    pares = re.findall(
+        r"<div>([^<]+)</div>\s*<div><span class=\"badge[^>]*>([^<]+)</span></div>", fragmento
+    )
+    return [
+        (" ".join(html.unescape(n).split()), " ".join(html.unescape(v).split())) for n, v in pares
+    ]
+
+
+def texto_do_voto(voto: str) -> str:
+    return VOTOS.get(comum.chave_nome(voto)) or voto.strip().capitalize()[:30]
+
+
+def baixar_votacoes(client: Any, sessoes: list[dict]) -> dict[str, bytes]:
+    """Para cada sessão realizada, a 'Ordem do Dia' e, de cada item com votação nominal, o
+    extrato de votos. O extrato do e-Legis só responde à chamada AJAX que a própria página faz
+    (cabeçalho `X-Requested-With`, como o script do site); sem ele a rota devolve 405. Não há
+    captcha, login nem bloqueio: é a mesma requisição que o botão 'Extrato de votação' faz."""
+    arquivos: dict[str, bytes] = {}
+    indice = []
+    for s in sessoes:
+        if s.get("situacao") != "Realizada":
+            continue
+        time.sleep(PAUSA)
+        pagina = comum._get(client, f"{ELEGIS}/sessoes-plenarias/{s['id']}/ordem-do-dia", None, 4)
+        arquivos[f"od_{s['id']}.html"] = pagina.content
+        indice.append({"sessao": s["id"], "data": s["data"], "nome": s.get("nome", "")})
+        for item in votacoes_nominais(pagina.content.decode("utf-8", "replace")):
+            time.sleep(PAUSA)
+            resposta = client.get(
+                f"{ELEGIS}/extrato-votacao/{item['extrato']}",
+                headers={"X-Requested-With": "XMLHttpRequest"},
+            )
+            arquivos[f"ex_{item['extrato']}.html"] = resposta.raise_for_status().content
+    arquivos["indice.json"] = json.dumps(indice, ensure_ascii=False).encode("utf-8")
+    return arquivos
+
+
+def empacotar(arquivos: dict[str, bytes]) -> bytes:
+    memoria = io.BytesIO()
+    with zipfile.ZipFile(memoria, "w", zipfile.ZIP_DEFLATED) as z:
+        for nome, conteudo in sorted(arquivos.items()):
+            z.writestr(nome, conteudo)
+    return memoria.getvalue()
+
+
+def montar_votacoes(
+    arquivos: dict[str, bytes], deputados_da_casa: list[dict], tse: list[tuple[str, str]]
+) -> tuple[list[dict], list[dict]]:
+    """Do bruto (ordens do dia e extratos) às votações e votos de `sapl.gravar`. O voto só vai
+    para o deputado cujo nome no extrato é igual (sem acento nem caixa) ao do site ou ao nome
+    de urna/civil do TSE da mesma candidatura; os totais da votação contam todo o extrato."""
+    indice = json.loads(arquivos["indice.json"])
+    por_nome = {comum.chave_nome(d["nome"]): d["slug"][:20] for d in deputados_da_casa}
+    nomes = {n for n, _ in _todos_os_nomes(arquivos)}
+    ligados, _ = base.ligar_nomes_exatos(
+        {comum.chave_nome(n) for n in nomes}, deputados_da_casa, tse
+    )
+    votacoes, votos, vistos = [], [], set()
+    for sessao in indice:
+        pagina = arquivos[f"od_{sessao['sessao']}.html"].decode("utf-8", "replace")
+        for item in votacoes_nominais(pagina):
+            nome_arq = f"ex_{item['extrato']}.html"
+            if item["extrato"] in vistos or nome_arq not in arquivos:
+                continue
+            vistos.add(item["extrato"])
+            linhas = votos_do_extrato(arquivos[nome_arq].decode("utf-8", "replace"))
+            if not linhas:
+                continue
+            textos = [texto_do_voto(v) for _, v in linhas]
+            materia = (
+                f"{item['proposicao']}: {item['ementa']}"[:500]
+                if item["ementa"]
+                else item["proposicao"]
+            )
+            votacoes.append(
+                {
+                    "id_externo": item["extrato"][:20],
+                    "materia": materia,
+                    "resultado": item["resultado"],
+                    "sim": textos.count("Sim"),
+                    "nao": textos.count("Não"),
+                    "abstencoes": textos.count("Abstenção"),
+                    "data": sessao["data"],
+                    "materia_id": None,
+                    "url": f"{ELEGIS}/sessoes-plenarias/{sessao['sessao']}/ordem-do-dia",
+                }
+            )
+            for (nome, _), texto in zip(linhas, textos, strict=True):
+                chave = comum.chave_nome(nome)
+                alvo = ligados.get(chave)
+                slug = por_nome.get(comum.chave_nome(alvo)) if alvo else None
+                if slug:
+                    votos.append(
+                        {"votacao": item["extrato"][:20], "parlamentar": slug, "voto": texto}
+                    )
+    return votacoes, votos
+
+
+def _todos_os_nomes(arquivos: dict[str, bytes]) -> list[tuple[str, str]]:
+    achados = []
+    for nome_arq, conteudo in arquivos.items():
+        if nome_arq.startswith("ex_"):
+            achados += votos_do_extrato(conteudo.decode("utf-8", "replace"))
+    return achados
+
+
 def baixar_lista(client: Any, lista: str, ano: int) -> list[dict]:
     """Todas as páginas de uma lista do e-Legis num ano, uma requisição por vez."""
     params = {"inicio": f"{ano}-01-01", "fim": f"{ano}-12-31"}
@@ -314,7 +457,10 @@ def baixar_lista(client: Any, lista: str, ano: int) -> list[dict]:
 
 
 def coletar(
-    hoje: date, gastos_raw: list[Path] | None = None, presenca_raw: Path | None = None
+    hoje: date,
+    gastos_raw: list[Path] | None = None,
+    presenca_raw: Path | None = None,
+    votos_raw: Path | None = None,
 ) -> dict:
     with comum.criar_cliente() as client:
         lista = deputados(comum._get(client, DEPUTADOS, None, 4).text)
@@ -327,6 +473,13 @@ def coletar(
             sessoes = comum.carregar_raw(presenca_raw)
         else:
             sessoes = baixar_presenca(client, anos)
+        if votos_raw:  # --votos-de-raw: reprocessa o zip de ordens do dia e extratos
+            with zipfile.ZipFile(votos_raw) as z:
+                extratos = {n: z.read(n) for n in z.namelist()}
+        else:
+            extratos = baixar_votacoes(client, sessoes)
+            raw = comum.salvar_raw(FONTE, empacotar(extratos), "votacoes_", ".zip")
+            print(f"  bruto das votações: {raw}", flush=True)
         props = []
         for ano in (hoje.year - 1, hoje.year):
             for nome_lista in LISTAS:
@@ -336,6 +489,10 @@ def coletar(
     for conteudo in csvs:
         for conta, itens in gastos_do_csv(conteudo).items():
             contas.setdefault(conta, {}).update(itens)
+    with SessionLocal() as session:
+        tse = base.nomes_do_tse(session, "SC")
+    votacoes, votos = montar_votacoes(extratos, lista, tse)
+    print(f"  votações nominais: {len(votacoes)}; votos de deputados da lista: {len(votos)}")
     frequencia = contar_presenca(sessoes, [d["nome"] for d in lista])
     gastos, sobras = distribuir_gastos(contas, [d["nome"] for d in lista])
     print(f"  gastos: {len(gastos)} deputados; contas sem deputado: {sobras}", flush=True)
@@ -364,13 +521,17 @@ def coletar(
         "base": ELEGIS,
         "legislatura": None,
         "vereadores": vereadores,
-        "votacoes": [],
-        "votos": [],
+        "votacoes": votacoes,
+        "votos": votos,
     }
 
 
-def executar(gastos_raw: list[Path] | None = None, presenca_raw: Path | None = None) -> int:
-    casa = coletar(date.today(), gastos_raw, presenca_raw)
+def executar(
+    gastos_raw: list[Path] | None = None,
+    presenca_raw: Path | None = None,
+    votos_raw: Path | None = None,
+) -> int:
+    casa = coletar(date.today(), gastos_raw, presenca_raw, votos_raw)
     if len(casa["vereadores"]) < 30:  # a ALESC tem 40 cadeiras: lista curta é falha da fonte
         raise ValueError(f"Só {len(casa['vereadores'])} deputados na ALESC; abortando.")
     with SessionLocal() as session:
@@ -393,5 +554,6 @@ if __name__ == "__main__":
         help="CSVs de gastos já guardados em data/raw/alesc",
     )
     parser.add_argument("--presenca-de-raw", type=Path, help="JSON de presença já guardado")
+    parser.add_argument("--votos-de-raw", type=Path, help="zip de votações já guardado")
     args = parser.parse_args()
-    executar(args.gastos_de_raw, args.presenca_de_raw)
+    executar(args.gastos_de_raw, args.presenca_de_raw, args.votos_de_raw)

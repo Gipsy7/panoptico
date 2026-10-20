@@ -1,10 +1,14 @@
 # ruff: noqa: E501  (recortes das páginas reais da ALECE)
+import zipfile
 from datetime import date
+from decimal import Decimal
+from pathlib import Path
 
 import httpx
+import pytest
 import respx
 
-from ingestion.assembleias import alece
+from ingestion.assembleias import alece, base
 
 
 def _cartao(slug, nome, partido, estado=""):
@@ -90,9 +94,112 @@ def test_proposicoes_da_listagem():
     assert lista[0]["ementa"] == "INSTITUI O DIA ESTADUAL."
 
 
+GASTOS = (Path(__file__).parent / "fixtures" / "alece_gastos_2026_08.csv").read_bytes()
+SEM_LANCAMENTOS = b";;;\r\nDEPUTADO;PERIODO;EMPENHO;DESCRICAO;CNPJ;CREDOR;VALOR\r\n"
+
+
+def test_categoria_pelo_texto_do_empenho():
+    assert alece.categoria(
+        "REFERE-SE A DISPONIBILIZACAO DO BENEFICIO ALIMENTACAO, EM AGOSTO/2026."
+    ) == ("Vale-alimentação e refeição")
+    # a anulação mantém o assunto, para o valor negativo abater o mesmo tipo
+    assert alece.categoria(
+        "ANULACAO TOTAL DA NE 2025NE000488, REFERENTE A DISPONIBILIZACAO DO BENEFICIO REFEICAO"
+    ) == ("Vale-alimentação e refeição")
+    assert alece.categoria(
+        "REFERE-SE AO CONTRATO 13/2025, DE ... PARA ABASTECIMENTO DE COMBUSTIVEIS"
+    ) == ("Combustível (cartão)")
+    assert alece.categoria(
+        "REFERE-SE AO REEMBOLSO DE DESPESAS INDENIZATORIAS CONFORME ATO NORMATIVO 343/24 DIVULGACAO DAS ATIVIDADES PARLAMENTARES"
+    ) == ("Divulgação da atividade parlamentar")
+    assert alece.categoria(
+        "REFERE-SE AO REEMBOLSO DE DESPESAS INDENIZATORIAS CONFORME ATO NORMATIVO 343/24 LOCACAO DE SOFTWARE"
+    ) == ("Site, software e pesquisa")
+    assert alece.categoria("REFERENTE A SERVICOS DE CONSULTORIA E ASSESSORIA JURIDICA") == (
+        "Consultoria e assessoria"
+    )
+    assert alece.categoria("REFERE-SE A ANULACAO PARCIAL DA AD 032700003, 2026NE001395") == "Outros"
+
+
+def test_csv_do_mes_tem_linha_de_ponto_e_virgula_antes_do_cabecalho():
+    linhas = alece.ler_mes(GASTOS)
+    assert linhas[0]["DEPUTADO"] == "DEP AGENOR NETO" and linhas[0]["PERIODO"] == "08/2026"
+    assert alece.ler_mes(SEM_LANCAMENTOS) == []  # mês que ainda não aconteceu
+    with pytest.raises(ValueError):
+        alece.ler_mes(b"<html>erro</html>")
+    with pytest.raises(ValueError):
+        alece.linhas_dos_arquivos({"2026-11.csv": SEM_LANCAMENTOS})  # nada em nenhum mês
+
+
+def test_gastos_somam_por_deputado_mes_e_tipo_com_anulacao_abatendo():
+    soma, fora = alece.somar_gastos(alece.ler_mes(GASTOS))
+    assert fora == {}
+    agenor = soma["AGENOR NETO"]
+    assert agenor[(2026, 8, "Vale-alimentação e refeição")] == Decimal("5000.00")  # 1.000 + 4.000
+    # dezembro/2025: o empenho de 2.000 e a anulação de -2.000 se cancelam
+    assert soma["DRA SILVANA"][(2025, 12, "Vale-alimentação e refeição")] == Decimal("0.00")
+    assert alece._valor("-16.000,00") == Decimal("-16000.00")
+
+
+def test_linha_sem_periodo_ou_valor_legivel_vai_para_fora_da_soma():
+    linhas = [
+        {
+            "DEPUTADO": "DEP AGENOR NETO",
+            "PERIODO": "08/2026",
+            "DESCRICAO": "X",
+            "VALOR": "1.000,00",
+        },
+        {"DEPUTADO": "DEP AGENOR NETO", "PERIODO": "", "DESCRICAO": "X", "VALOR": "300,00"},
+        {"DEPUTADO": "DEP AGENOR NETO", "PERIODO": "09/2026", "DESCRICAO": "X", "VALOR": "abc"},
+    ]
+    soma, fora = alece.somar_gastos(linhas)
+    assert sum(soma["AGENOR NETO"].values()) == Decimal("1000.00")
+    assert fora["AGENOR NETO"][0] == {
+        "linhas": 1,
+        "valor": Decimal("300.00"),
+        "linhas_valor_ilegivel": 0,
+    }
+    assert fora["AGENOR NETO"][2026] == {
+        "linhas": 1,
+        "valor": Decimal("0"),
+        "linhas_valor_ilegivel": 1,
+    }
+
+
+def test_ligacao_so_por_nome_exato_nunca_aproximado():
+    deputados = [{"nome": "Sérgio Aguiar"}, {"nome": "Dra. Silvana"}, {"nome": "Emilia Pessoa"}]
+    chaves = {
+        alece.nome_do_csv(n)
+        for n in (
+            "DEP SERGIO AGUIAR.",
+            "DEP DRA SILVANA",
+            "DEP SERGIO AHUIAR",
+            "DEP EMIILA PESSOA",
+            "DEP ACRISIO SENA",
+        )
+    }
+    ligados, sobras = base.ligar_nomes_exatos(chaves, deputados, [])
+    assert ligados == {
+        "SERGIO AGUIAR": "Sérgio Aguiar",
+        "DRA SILVANA": "Dra. Silvana",
+    }
+    assert sobras == [
+        "ACRISIO SENA",
+        "EMIILA PESSOA",
+        "SERGIO AHUIAR",
+    ]  # erro de digitação não liga
+    # via TSE: o nome civil igual ao de urna da mesma candidatura que bate com o da lista
+    ligados, _ = base.ligar_nomes_exatos(
+        {"EMILIA PESSOA MARTINS"}, deputados, [("Emilia Pessoa", "Emilia Pessoa Martins")]
+    )
+    assert ligados == {"EMILIA PESSOA MARTINS": "Emilia Pessoa"}
+
+
 @respx.mock
-def test_coletar_percorre_de_tras_para_frente(monkeypatch):
+def test_coletar_percorre_de_tras_para_frente(monkeypatch, tmp_path):
     monkeypatch.setattr(alece, "PAUSA", 0)
+    monkeypatch.setattr(alece.comum, "RAW_DIR", tmp_path)
+    respx.get(alece.GASTOS).respond(content=GASTOS)
     respx.get(alece.LISTA).respond(text=LISTA)
     respx.get(f"{alece.LISTA}/agenor-neto").respond(text=FICHA)
     respx.get(f"{alece.LISTA}/guilherme-landim").respond(text="")
@@ -125,3 +232,8 @@ def test_coletar_percorre_de_tras_para_frente(monkeypatch):
     assert len(landim["projetos"]) == 1 and landim["em_exercicio"] is False
     assert granja["titular"] is False and granja["em_exercicio"] is True
     assert agenor["email"] == "gabdepagenor.neto@al.ce.gov.br"
+    # os gastos: 10 meses de 2026 e 12 de 2025 até hoje (a 9/10/2026), um zip bruto guardado
+    assert len(casa["linhas_gastos"]) == 22 * len(alece.ler_mes(GASTOS))
+    bruto = next(tmp_path.glob("alece/gastos_*.zip"))
+    with zipfile.ZipFile(bruto) as z:
+        assert sorted(z.namelist())[0] == "2025-01.csv" and len(z.namelist()) == 22
