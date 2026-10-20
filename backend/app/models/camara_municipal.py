@@ -7,6 +7,7 @@ from sqlalchemy import (
     Date,
     ForeignKey,
     Index,
+    Integer,
     Numeric,
     SmallInteger,
     String,
@@ -139,3 +140,19 @@ class GastoLocal(Base):
     mes: Mapped[int] = mapped_column(SmallInteger)
     categoria: Mapped[str] = mapped_column(String(200))
     valor: Mapped[Decimal] = mapped_column(Numeric(14, 2))
+
+
+class GastoLocalFora(Base):
+    """O que a planilha de gastos de um parlamentar traz mas fica fora da soma por mês
+    (hoje, na CLDF: comprovantes sem data). Existe para o dado que falta não parecer zero."""
+
+    __tablename__ = "gasto_local_fora"
+    __table_args__ = (Index("ix_gasto_local_fora_mandato", "mandato_id"),)
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    mandato_id: Mapped[int] = mapped_column(ForeignKey("mandato_local.id", ondelete="CASCADE"))
+    ano: Mapped[int] = mapped_column(SmallInteger)  # ano da planilha
+    linhas: Mapped[int] = mapped_column(Integer)
+    valor: Mapped[Decimal] = mapped_column(Numeric(14, 2))  # só as linhas de valor legível
+    linhas_valor_ilegivel: Mapped[int] = mapped_column(Integer, default=0)
+    motivo: Mapped[str] = mapped_column(String(200))  # linguagem simples

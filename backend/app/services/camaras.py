@@ -14,6 +14,7 @@ from app.models import (
     FonteIngestao,
     Foto,
     GastoLocal,
+    GastoLocalFora,
     MandatoLocal,
     ProjetoLocal,
     VotacaoLocal,
@@ -161,8 +162,31 @@ def gastos(session: Session, m: MandatoLocal) -> dict | None:
     """Gastos do gabinete no ano mais recente com dados, por categoria, e a média da casa
     (entre quem está em exercício; quem não gastou nada entra com zero)."""
     ano = session.scalar(select(func.max(GastoLocal.ano)).where(GastoLocal.mandato_id == m.id))
-    if ano is None:
+    fora = session.execute(
+        select(
+            GastoLocalFora.ano,
+            func.sum(GastoLocalFora.linhas),
+            func.sum(GastoLocalFora.valor),
+            func.sum(GastoLocalFora.linhas_valor_ilegivel),
+            func.min(GastoLocalFora.motivo),
+        )
+        .where(GastoLocalFora.mandato_id == m.id)
+        .group_by(GastoLocalFora.ano)
+        .order_by(GastoLocalFora.ano.desc())
+    ).all()
+    if ano is None and not fora:
         return None
+    if ano is None:  # só há o que ficou fora da soma: a seção diz isso, sem número de gasto
+        a, linhas, valor, ilegiveis, motivo = fora[0]
+        return {
+            "ano": a,
+            "ate_mes": None,
+            "total": Decimal(0),
+            "media_casa": None,
+            "por_categoria": [],
+            "fora_da_soma": _fora(linhas, valor, ilegiveis, motivo),
+        }
+    do_ano = next((f for f in fora if f[0] == ano), None)
     categorias = session.execute(
         select(GastoLocal.categoria, func.sum(GastoLocal.valor))
         .where(GastoLocal.mandato_id == m.id, GastoLocal.ano == ano)
@@ -186,6 +210,16 @@ def gastos(session: Session, m: MandatoLocal) -> dict | None:
         "total": sum((v for _, v in categorias), Decimal(0)),
         "media_casa": soma_casa / len(colegas) if colegas else None,
         "por_categoria": [{"categoria": c, "valor": v} for c, v in categorias],
+        "fora_da_soma": _fora(*do_ano[1:]) if do_ano else None,
+    }
+
+
+def _fora(linhas, valor, ilegiveis, motivo) -> dict:
+    return {
+        "linhas": int(linhas),
+        "valor": valor or Decimal(0),
+        "linhas_valor_ilegivel": int(ilegiveis or 0),
+        "motivo": motivo,
     }
 
 

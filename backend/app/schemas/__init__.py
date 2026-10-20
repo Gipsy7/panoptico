@@ -504,12 +504,22 @@ class CategoriaGasto(BaseModel):
     valor: float
 
 
+class GastoForaDaSoma(BaseModel):
+    """O que a planilha traz mas não entra na soma por mês."""
+
+    linhas: int
+    valor: float
+    linhas_valor_ilegivel: int
+    motivo: str
+
+
 class GastosLocais(BaseModel):
     ano: int
     ate_mes: int | None
     total: float
     media_casa: float | None
     por_categoria: list[CategoriaGasto]
+    fora_da_soma: GastoForaDaSoma | None = None
 
 
 class VereadorDetalhe(VereadorItem):

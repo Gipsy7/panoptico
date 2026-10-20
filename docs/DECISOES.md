@@ -108,6 +108,7 @@
 - [2026-10-20: pagamentos de emenda sem código na CGU](#2026-10-20-pagamentos-de-emenda-sem-código-na-cgu)
 - [2026-10-20: verbas da CLDF: formato pelo conteúdo e linhas que não entram](#2026-10-20-verbas-da-cldf-formato-pelo-conteúdo-e-linhas-que-não-entram)
 - [2026-10-20: dinheiro federal por estado e cidade](#2026-10-20-dinheiro-federal-por-estado-e-cidade)
+- [2026-10-20: o que fica fora da soma de gastos aparece no perfil](#2026-10-20-o-que-fica-fora-da-soma-de-gastos-aparece-no-perfil)
 
 ## 2026-10-06: stack inicial
 
@@ -1184,3 +1185,9 @@ Os próximos passos mais rendosos: CE (gastos em CSV, quase direto), depois AP e
 - **Valor sem estado:** o Portal traz parte do dinheiro sem UF (`uf = "ND"`; 2024: ~R$ 5,3 bi em LEGAIS_VOLUNTARIAS). Entra no total do Brasil (campo `brasil.sem_estado`, com uma linha discreta no painel) e nunca é atribuído a estado ou cidade; por isso a soma dos 27 estados fica abaixo do Brasil.
 - **Granularidade e peso:** guardamos o mês na tabela `transferencia_uniao` (~1,2 milhão de linhas, ~137 MB com índices no acervo). Aceito por ser da ordem do PNCP e porque o mês permite mostrar até quando vai o ano em curso. A carga é incremental (sincroniza por diferença), sem recarga completa na produção.
 - **Média ao lado:** repasse por habitante da cidade ao lado da média das cidades do estado; no estado, ao lado da média do Brasil. Sem nota, ranking nem cor de bom e ruim.
+## 2026-10-20: o que fica fora da soma de gastos aparece no perfil
+
+- **Problema:** dado que some de um deputado e não de outro parece tomar partido. Na CLDF, Fábio Felix (113 comprovantes sem data) e Robério Negreiros em 2025 (150 linhas com colunas deslocadas) ficavam sem a seção de gastos, como se não tivessem pedido reembolso.
+- **Tabela `gasto_local_fora`** (migração 0051, só acréscimo; genérica para qualquer casa): por mandato e ano da planilha, nº de linhas, valor das de valor legível, nº de linhas de valor ilegível e o motivo em linguagem simples. Recriada a cada carga junto com o mandato (cascade).
+- **API:** `gastos` do mandato ganha `fora_da_soma` (campo acrescentado). Sem gasto mensal mas com linhas de fora, `gastos` vem com `por_categoria` vazio, `total` 0 e `media_casa` nula, e o site mostra só a frase "A planilha da Câmara Legislativa traz N gastos deste deputado sem data (R$ X); eles não entram na soma por mês", com fonte e data.
+- **Média da Casa não muda:** segue a regra fixa (parlamentares em exercício; quem não tem nada entra com zero). Na CLDF a planilha cobre cerca de 10 dos 24 deputados, então a média por deputado é menor do que seria entre quem a fonte cobre; a seção já diz que "quem não pediu reembolso entra com zero".

@@ -33,6 +33,7 @@ from app.models import (
     Candidatura,
     FonteIngestao,
     GastoLocal,
+    GastoLocalFora,
     MandatoLocal,
     Municipio,
     ProjetoLocal,
@@ -499,7 +500,7 @@ def gravar(session: Session, ibge: str | None, camara: dict, uf: str | None = No
     )
     mandato_por_parlamentar: dict[str, int] = {}
     for v in camara["vereadores"]:
-        linha = {k: val for k, val in v.items() if k not in ("projetos", "gastos")}
+        linha = {k: val for k, val in v.items() if k not in ("projetos", "gastos", "gastos_fora")}
         for campo in ("inicio", "fim"):
             linha[campo] = date.fromisoformat(linha[campo]) if linha[campo] else None
         mandato_id = session.execute(
@@ -518,6 +519,9 @@ def gravar(session: Session, ibge: str | None, camara: dict, uf: str | None = No
         gastos = [{**g, "mandato_id": mandato_id} for g in v.get("gastos", [])]
         if gastos:
             session.execute(insert(GastoLocal), gastos)
+        fora = [{**g, "mandato_id": mandato_id} for g in v.get("gastos_fora", [])]
+        if fora:
+            session.execute(insert(GastoLocalFora), fora)
         for p in v["projetos"]:
             session.execute(
                 insert(ProjetoLocal)
