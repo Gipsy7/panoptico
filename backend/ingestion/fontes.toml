@@ -142,7 +142,8 @@ uso = "Dinheiro federal: FPE, FPM, IPI-Exportação e demais repasses obrigatór
 recorte = "2019 em diante; FPM e demais municipais por município (código IBGE pela tabela oficial SIAFI x IBGE), FPE e IPI-Exp por estado"
 guarda = "somas"
 frequencia = "mensal"
-acesso = "aberto"
+acesso = "brasil"
+# O CKAN do Tesouro derruba conexões vindas do GitHub (EUA); na produção roda no runner do Brasil.
 # Sem argumento: ano anterior e atual (CKAN do Tesouro; ~140 MB de CSV, bruto = recorte de ~6 MB).
 # Carga inicial: `--ano 2019 ... 2026`. Valores líquidos da retenção de 20% do Fundeb.
 
