@@ -86,6 +86,19 @@ def test_verbas_2026_data_em_outra_ordem_e_valor_digitado_errado():
     assert cldf._valor("R$ 5.600,00") == cldf.Decimal("5600.00")
 
 
+def test_verbas_sem_data_viram_alerta_com_contagem_e_valor():
+    # "3" (dia digitado) vira série 3 = 1900: sem data; Robério 2025 tem a categoria no valor
+    linhas = cldf.padronizar(
+        [
+            {"NOME_PARLAMENTAR": "A", "DATA_COMPROVANTE": "3", "VALOR_DESPESA": "R$ 1.000,50"},
+            {"NOME_PARLAMENTAR": "B", "DATA_COMPROVANTE": "", "VALOR_DESPESA": "V- Combustíveis"},
+            {"NOME_PARLAMENTAR": "C", "DATA_COMPROVANTE": "02/01/2026", "VALOR_DESPESA": "9"},
+        ]
+    )
+    (alerta,) = cldf.alertas_verbas(linhas, {2026})
+    assert "2 de 3 linhas" in alerta and "1.000,50" in alerta and "1 com valor ilegível" in alerta
+
+
 def test_verbas_html_de_erro_nao_e_planilha():
     import pytest
 

@@ -191,7 +191,8 @@ def _data(valor: str, ordem: str) -> date | None:
     arquivo ("dm" ou "md": o de 2025 usa mês/dia/ano)."""
     valor = (valor or "").strip().split(" ")[0]  # "02/01/2026 00:00" -> "02/01/2026"
     if re.fullmatch(r"\d+(\.\d+)?", valor):
-        return date(1899, 12, 30) + timedelta(days=int(float(valor)))
+        dia = date(1899, 12, 30) + timedelta(days=int(float(valor)))
+        return dia if dia.year >= 2000 else None  # "dia 3" digitado vira série 3 (1900-01-02)
     partes = re.fullmatch(r"(\d{1,2})/(\d{1,2})/(\d{4})", valor)
     if not partes:
         return None
@@ -282,7 +283,7 @@ def somar_gastos(linhas: list[dict], anos: set[int]) -> dict[str, list[dict]]:
     soma: dict[tuple, Decimal] = defaultdict(Decimal)
     for lin in linhas:
         quando = lin["data"]
-        if quando is None or quando.year not in anos or len(lin["cpf"]) != 11:
+        if quando is None or quando.year not in anos or not lin["cpf"]:
             continue
         try:
             valor = _valor(lin["valor"])
@@ -337,9 +338,12 @@ def baixar_verbas(client: Any, anos: set[int], de_raw: Path | None = None) -> li
     return linhas
 
 
-def deputado_por_cpf(session: Any, nomes: set[str]) -> dict[str, str]:
+def deputado_por_cpf(
+    session: Any, nomes: set[str], por_nome_civil: dict[str, str] | None = None
+) -> dict[str, str]:
     """CPF -> nome do deputado ativo, pela candidatura a deputado distrital no TSE (nome de
-    urna ou civil igual ao nome no PLE)."""
+    urna ou civil igual ao nome no PLE). Se `por_nome_civil` vier, preenche nele o nome
+    civil do TSE -> deputado (a planilha de 2025 usa o nome civil, "Fábio Felix Silveira")."""
     chave = {comum.chave_nome(n): n for n in nomes}
     resultado = {}
     for cpf, urna, civil in session.execute(
@@ -350,6 +354,8 @@ def deputado_por_cpf(session: Any, nomes: set[str]) -> dict[str, str]:
         nome = chave.get(comum.chave_nome(urna)) or chave.get(comum.chave_nome(civil))
         if nome:
             resultado[cpf] = nome
+            if por_nome_civil is not None:
+                por_nome_civil[comum.chave_nome(civil)] = nome
     return resultado
 
 
@@ -357,14 +363,22 @@ def anexar_gastos(session: Any, casa: dict) -> int:
     """Põe os gastos em cada deputado: pelo CPF (via TSE) e, sem ele, pelo nome sem título
     da planilha. Devolve quantos CPFs da planilha ficaram sem deputado."""
     nomes = {v["nome"] for v in casa["vereadores"]}
-    por_cpf = deputado_por_cpf(session, nomes)
+    civis: dict[str, str] = {}
+    por_cpf = deputado_por_cpf(session, nomes, civis)
     chave = {comum.chave_nome(n): n for n in nomes}
     verbas = casa.pop("verbas")
+    # O CPF da planilha nem sempre é confiável (o XLSX de 2025 tem CPFs com 12 dígitos e
+    # variações do mesmo deputado): só vale o que o TSE reconhece; senão a chave é o nome.
+    for lin in verbas:
+        if lin["cpf"] not in por_cpf:
+            nome = comum.chave_nome(nome_sem_titulo(lin["nome"]))
+            lin["cpf"] = f"nome:{nome}" if nome else ""
     nome_do_cpf = {lin["cpf"]: nome_sem_titulo(lin["nome"]) for lin in verbas}
     por_nome: dict[str, list] = defaultdict(list)
     sem = 0
     for cpf, lista in somar_gastos(verbas, casa.pop("anos")).items():
-        nome = por_cpf.get(cpf) or chave.get(comum.chave_nome(nome_do_cpf.get(cpf)))
+        da_planilha = comum.chave_nome(nome_do_cpf.get(cpf))
+        nome = por_cpf.get(cpf) or chave.get(da_planilha) or civis.get(da_planilha)
         if nome is None:
             sem += 1
             continue
@@ -415,8 +429,30 @@ def coletar(hoje: date, de_raw: Path | None = None) -> dict:
     }
 
 
+def alertas_verbas(verbas: list[dict], anos: set[int]) -> list[str]:
+    """Linhas que não entram na soma por mês, com a contagem e o valor, para ficar visível."""
+    sem_data = [lin for lin in verbas if lin["data"] is None and lin["nome"]]
+    if not sem_data:
+        return []
+    total, ilegiveis = Decimal(0), 0
+    for lin in sem_data:
+        try:
+            total += _valor(lin["valor"])
+        except InvalidOperation:
+            ilegiveis += 1  # colunas deslocadas na planilha de origem (ex.: 2025, Robério)
+    valor = f"{total:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
+    texto = (
+        f"Verbas CLDF: {len(sem_data)} de {len(verbas)} linhas sem data do comprovante ficam "
+        f"fora da soma por mês (R$ {valor} nas de valor legível"
+    )
+    return [texto + (f"; {ilegiveis} com valor ilegível)" if ilegiveis else ")")]
+
+
 def executar(de_raw: Path | None = None) -> int:
     casa = coletar(date.today(), de_raw)
+    alertas = alertas_verbas(casa["verbas"], casa["anos"])
+    for a in alertas:
+        print(f"  AVISO {a}", flush=True)
     if len(casa["vereadores"]) < 20:  # a CLDF tem 24 cadeiras: lista curta é falha da fonte
         raise ValueError(f"Só {len(casa['vereadores'])} deputados na CLDF; abortando.")
     with SessionLocal() as session:
@@ -426,7 +462,7 @@ def executar(de_raw: Path | None = None) -> int:
         total = sapl.gravar(session, None, casa, uf="DF")
         session.add(
             FonteIngestao(fonte=FONTE, url=API, arquivo_raw="(não guardado)", registros=total,
-                          status="ok", concluido_em=datetime.now(UTC))
+                          status="ok", concluido_em=datetime.now(UTC), alertas=alertas or None)
         )  # fmt: skip
         session.commit()
     print(f"CLDF: {total} deputados distritais", flush=True)

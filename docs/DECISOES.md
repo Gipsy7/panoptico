@@ -106,6 +106,7 @@
 - [2026-10-19: resgate de cobertura: ALEP (PR) e gastos e presença da ALESC (SC)](#2026-10-19-resgate-de-cobertura-alep-pr-e-gastos-e-presença-da-alesc-sc)
 - [2026-10-19: emendas estaduais, começando por SC (SC Transferências)](#2026-10-19-emendas-estaduais-começando-por-sc-sc-transferências)
 - [2026-10-20: pagamentos de emenda sem código na CGU](#2026-10-20-pagamentos-de-emenda-sem-código-na-cgu)
+- [2026-10-20: verbas da CLDF: formato pelo conteúdo e linhas que não entram](#2026-10-20-verbas-da-cldf-formato-pelo-conteúdo-e-linhas-que-não-entram)
 
 ## 2026-10-06: stack inicial
 
@@ -1160,4 +1161,13 @@ Os próximos passos mais rendosos: CE (gastos em CSV, quase direto), depois AP e
 - **Conferência:** Gaspar no acervo (arquivo de 19/10/2026): `total_geral` R$ 24.409.966,52 = soma literal do arquivo por favorecido para prefeitura, fundos e entidades de Gaspar (R$ 23.691.267,37 com código + R$ 718.699,15 sem). Por tipo: com destino definido R$ 9.886.737,65 (R$ 445.850 sem código, 3 pagamentos de 2015 a 2017); Pix R$ 7.489.500; bancada R$ 3.484.205,20 (R$ 215.808,12 sem código, 12 pagamentos de 2018 e 2019); comissão R$ 1.613.749; relator R$ 1.935.774,67 (R$ 57.041,03 sem código, 8 pagamentos de 2018 a uma associação). No Brasil: 29.090 linhas gravadas (R$ 6.422.614.874,55); 85 sem município identificado (como acontece nas linhas com código). Teste: `tests/test_emendas_municipio.py`, com as linhas reais de Gaspar.
 - **Produção (sem recarga completa):** a migração não declara `RECARREGAR_DADOS`. O contexto da carga incremental de `transparencia_emendas` ganhou uma versão (`VERSAO_CARGA`), então a próxima ingestão diária normal relê o arquivo uma vez e preenche a tabela nova (as outras tabelas da fonte já são regravadas a cada carga dela). Acréscimo estimado: ~6 MB.
 - **Pendências:** o frontend ainda não mostra `sem_identificacao` nem `sem_codigo_total` (outra tarefa); a exportação aberta não inclui a tabela nova.
+
+## 2026-10-20: verbas da CLDF: formato pelo conteúdo e linhas que não entram
+
+- **Formato:** o recurso de 2026 do catálogo está rotulado XLSX, mas é CSV (`;`, UTF-8 com BOM). O conector decide pelo conteúdo (zip = XLSX, senão CSV; HTML ou vazio = erro). Ano ilegível vira aviso e os demais carregam; sem nenhum ano legível, a carga aborta.
+- **Leitura do valor "R$ 5,500,00":** 5 linhas do CSV de 2026 (R$ 5.500,00 x2, 3.000,00, 3.770,00 e 5.000,00; total **R$ 22.770,00** como lido) trazem vírgula também no milhar. Regra: sem pontos, a **última vírgula é o separador decimal** e as anteriores são descartadas ("5,500,00" -> 5500.00); "R$ 5.600,00" -> 5600.00; "219.95" (XLSX) fica como está. Quem conferir com a fonte deve ler essas linhas como milhar, não como 5,50.
+- **Datas:** a hora é descartada; o arquivo mistura dd/mm ("02/01/2026") e mm/dd ("8/20/2026"), então vale a ordem do arquivo e, se ela for impossível, a outra. Série do Excel antes do ano 2000 (dia digitado como "3") é tratada como sem data.
+- **Linhas sem data ficam fora da soma por mês** (o gasto é mensal) e a contagem e o valor vão para `fonte_ingestao.alertas`: em 20/10/2026, 282 de 1.361 linhas (238 de 1.085 em 2025; 44 de 276 em 2026), R$ 232.146,53 nas de valor legível e 150 de valor ilegível. Causa na fonte: Fábio Felix (113 linhas nos dois anos) não tem data em nenhuma linha e Robério Negreiros em 2025 (150 linhas) vem com colunas deslocadas (valor na coluna da data, categoria na do valor). Não adivinhamos mês nem valor.
+- **Ligação ao deputado:** CPF da planilha só vale se o TSE o reconhece (o XLSX de 2025 tem CPFs com 12 dígitos e variações do mesmo deputado, ex. "010.806.391-160"); senão, pelo nome exato (urna, ou nome civil do TSE, ex. "Fábio Felix Silveira"). Nada de nome aproximado.
+- **Cobertura:** a fonte traz 11 pessoas em 2025 e 10 em 2026, de 24 deputados; 9 ficam com gasto por mês nos dois anos. Os outros deputados não aparecem na planilha, e o site não mostra seção de gastos para eles (`gastos` nulo), em vez de zero.
 
