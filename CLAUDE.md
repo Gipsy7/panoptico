@@ -31,6 +31,7 @@ python -m uv run alembic upgrade head              # migrações no banco do DAT
 python -m uv run uvicorn app.main:app --port 8000  # sem --reload (deixa processo órfão no Windows)
 
 # Frontend (cd frontend)
+npm test                                                                   # Vitest (lib/**/*.test.ts, só lógica pura)
 npx next typegen && npx tsc --noEmit && npm run lint && npm run build   # pare o `next start` antes do build
 # Worktree: copie o node_modules (robocopy); junction quebra o Turbopack, e --webpack sai sem Tailwind.
 # Screenshot de celular: Edge headless tem janela mínima de ~500 px; use um iframe de 360 px (ver docs/DESIGN.md).
