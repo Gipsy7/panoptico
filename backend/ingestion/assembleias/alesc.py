@@ -7,24 +7,39 @@ proposições de cada um, pelas páginas públicas da ALESC (não há API nem ex
   (projetos, guardados com ementa) e as da "atividade parlamentar" (requerimentos,
   indicações, moções e pedidos de informação, só como contagem), 10 por página, filtradas
   por data de entrada. A autoria vem como "Deputado Altair Silva".
+- Gastos de gabinete: a Transparência da ALESC publica um CSV por ano
+  (transparencia.alesc.sc.gov.br/gabinetes-parlamentares/csv/AAAA; o endereço antigo
+  `gabinetes_csv.php?ano=` redireciona para ele). Uma linha por pagamento (verba, descrição,
+  "conta" = nome do deputado, favorecido, trecho, data, valor); entra só a soma por deputado,
+  mês e descrição. Favorecido e trecho (diárias de funcionários) não são guardados.
+- Presença: o e-Legis lista as sessões plenárias (`/sessoes-plenarias`, mais recentes
+  primeiro) e cada uma tem a página `/presenca` com "Presente" ou "Ausência justificada" por
+  deputado. Votos: as votações vistas são simbólicas; o extrato de votação nominal carrega
+  sob demanda e não foi localizado numa sessão com voto nominal (ver docs/DECISOES.md).
 
 Uma requisição por vez, com pausa. Grava nas mesmas tabelas das outras casas, pela
-gravação do conector SAPL. Votos, presença e gastos não estão nessas páginas.
+gravação do conector SAPL.
 """
 
 import argparse
+import csv
 import html
+import io
 import re
 import time
 from datetime import UTC, date, datetime
+from decimal import Decimal
+from pathlib import Path
 from typing import Any
 
 from app.db import SessionLocal
 from app.models import FonteIngestao
 from ingestion import comum
 from ingestion.camaras import sapl
+from ingestion.identidade import casar_nome
 
 FONTE = "alesc"
+GASTOS = "https://transparencia.alesc.sc.gov.br/gabinetes-parlamentares/csv/{ano}"
 DEPUTADOS = "https://www.alesc.sc.gov.br/deputados"
 ELEGIS = "https://portalelegis.alesc.sc.gov.br"
 LISTAS = ("processo-legislativo", "atividade-parlamentar")
@@ -147,6 +162,138 @@ def distribuir(props: list[dict], nomes: set[str]) -> dict[str, dict]:
     return por_deputado
 
 
+def _valor(texto: str) -> Decimal:
+    """'1.018,80' -> Decimal('1018.80')."""
+    return Decimal(texto.strip().replace(".", "").replace(",", ".") or "0")
+
+
+def gastos_do_csv(conteudo: bytes) -> dict[str, dict[tuple[int, int, str], Decimal]]:
+    """O CSV anual (UTF-8 com BOM, separado por ponto e vírgula) -> conta -> {(ano, mês,
+    descrição): soma}. Devolução de diária vem com valor negativo e entra na soma."""
+    texto = conteudo.decode("utf-8-sig")
+    resultado: dict[str, dict[tuple[int, int, str], Decimal]] = {}
+    for linha in csv.DictReader(io.StringIO(texto, newline=""), delimiter=";"):
+        data = re.match(r"(\d{2})/(\d{2})/(\d{4})", (linha.get("Data de Referência") or "").strip())
+        conta = " ".join((linha.get("Conta") or "").split())
+        if not data or not conta:
+            continue
+        categoria = " ".join((linha.get("Descrição") or linha.get("Verba") or "Outros").split())
+        chave = (int(data[3]), int(data[2]), categoria[:200])
+        por_conta = resultado.setdefault(conta, {})
+        por_conta[chave] = por_conta.get(chave, Decimal(0)) + _valor(linha.get("Valor") or "")
+    return resultado
+
+
+def distribuir_gastos(
+    contas: dict[str, dict[tuple[int, int, str], Decimal]], nomes: list[str]
+) -> tuple[dict[str, list[dict]], list[str]]:
+    """Liga cada conta ao deputado pelo nome (exato e único, ver `casar_nome`). Devolve os
+    gastos por nome de deputado e as contas que não casaram (ex-deputados e suplentes)."""
+    pares = list(enumerate(nomes))
+    por_deputado: dict[str, list[dict]] = {}
+    sobras = []
+    for conta, itens in contas.items():
+        apelido = re.findall(r"\(([^)]+)\)", conta)  # "Ana Paula da Silva (Paulinha)"
+        achado = casar_nome([conta, *apelido], pares)
+        if achado is None:
+            sobras.append(conta)
+            continue
+        lista = por_deputado.setdefault(nomes[achado], [])
+        lista += [
+            {"ano": a, "mes": m, "categoria": c, "valor": v}
+            for (a, m, c), v in sorted(itens.items())
+        ]
+    return por_deputado, sobras
+
+
+def baixar_gastos(client: Any, anos: list[int]) -> dict[int, bytes]:
+    """Um CSV por ano, gravado no bruto (`data/raw/alesc/`) antes de processar."""
+    arquivos = {}
+    for ano in anos:
+        time.sleep(PAUSA)
+        conteudo = comum.get_bytes(client, GASTOS.format(ano=ano), 4)
+        comum.salvar_raw(FONTE, conteudo, f"gastos_{ano}_", ".csv.gz")
+        arquivos[ano] = conteudo
+    return arquivos
+
+
+def sessoes_realizadas(pagina: str) -> list[dict]:
+    """Os cartões da lista de sessões plenárias do e-Legis: id, nome, data e situação."""
+    resultado = []
+    for cartao in re.split(r'<div class="card card-alesc', pagina)[1:]:
+        id_ = re.search(r"/sessoes-plenarias/(\w+)/presenca", cartao)
+        if not id_:
+            continue
+        nome = re.search(r'<h4 class="mb-1">(.*?)</h4>', cartao, re.S)
+        quando = re.search(r"(\d{2})/(\d{2})/(\d{4})", cartao)
+        situacao = re.search(r"badge rounded-pill[^>]*>(.*?)</span>", cartao, re.S)
+        resultado.append(
+            {
+                "id": id_.group(1),
+                "nome": _limpo(nome.group(1)) if nome else "",
+                "data": f"{quando[3]}-{quando[2]}-{quando[1]}" if quando else None,
+                "situacao": _limpo(situacao.group(1)) if situacao else "",
+            }
+        )
+    return resultado
+
+
+def presenca_da_sessao(pagina: str) -> list[tuple[str, str]]:
+    """(deputado, situação) de cada linha da lista de presença: 'Presente' ou 'Ausência
+    justificada'. Sessão que ainda não aconteceu vem sem linhas."""
+    return [
+        (_limpo(n), _limpo(s))
+        for n, s in re.findall(r"<tr>\s*<td>(.*?)</td>\s*<td>(.*?)</td>\s*</tr>", pagina, re.S)
+    ]
+
+
+def contar_presenca(sessoes: list[dict], nomes: list[str]) -> dict[str, tuple[int, int]]:
+    """nome -> (sessões em que constava na lista, presenças) nas sessões realizadas. Um nome da
+    lista só conta se casar com um único deputado (ver `casar_nome`)."""
+    pares = list(enumerate(nomes))
+    ligacao: dict[str, str | None] = {}
+    total: dict[str, int] = {}
+    presentes: dict[str, int] = {}
+    for sessao in sessoes:
+        if sessao["situacao"] != "Realizada":
+            continue
+        for nome, situacao in sessao["linhas"]:
+            if nome not in ligacao:
+                achado = casar_nome([nome], pares)
+                ligacao[nome] = nomes[achado] if achado is not None else None
+            deputado = ligacao[nome]
+            if deputado:
+                total[deputado] = total.get(deputado, 0) + 1
+                presentes[deputado] = presentes.get(deputado, 0) + (situacao == "Presente")
+    return {n: (total[n], presentes.get(n, 0)) for n in total}
+
+
+def baixar_presenca(client: Any, anos: list[int]) -> list[dict]:
+    """Sessões desde 1º de janeiro do primeiro ano, com a lista de presença das realizadas
+    (a lista de sessões vem da mais recente para a mais antiga)."""
+    inicio = f"{min(anos)}-01-01"
+    sessoes, pagina = [], 1
+    while True:
+        time.sleep(PAUSA)
+        itens = sessoes_realizadas(
+            comum._get(client, f"{ELEGIS}/sessoes-plenarias", {"page": pagina}, 4).text
+        )
+        if not itens:
+            break
+        sessoes += [s for s in itens if s["data"] and s["data"] >= inicio]
+        if max(s["data"] or "" for s in itens) < inicio:
+            break
+        pagina += 1
+    for s in sessoes:
+        s["linhas"] = []
+        if s["situacao"] == "Realizada":
+            time.sleep(PAUSA)
+            url = f"{ELEGIS}/sessoes-plenarias/{s['id']}/presenca"
+            s["linhas"] = presenca_da_sessao(comum._get(client, url, None, 4).text)
+    comum.salvar_raw(FONTE, sessoes, "presenca_")
+    return sessoes
+
+
 def baixar_lista(client: Any, lista: str, ano: int) -> list[dict]:
     """Todas as páginas de uma lista do e-Legis num ano, uma requisição por vez."""
     params = {"inicio": f"{ano}-01-01", "fim": f"{ano}-12-31"}
@@ -166,14 +313,32 @@ def baixar_lista(client: Any, lista: str, ano: int) -> list[dict]:
         pagina += 1
 
 
-def coletar(hoje: date) -> dict:
+def coletar(
+    hoje: date, gastos_raw: list[Path] | None = None, presenca_raw: Path | None = None
+) -> dict:
     with comum.criar_cliente() as client:
         lista = deputados(comum._get(client, DEPUTADOS, None, 4).text)
+        anos = [hoje.year - 1, hoje.year]
+        if gastos_raw:  # --gastos-de-raw: reprocessa os CSVs já guardados
+            csvs = [comum.carregar_raw(Path(a)) for a in gastos_raw]
+        else:
+            csvs = list(baixar_gastos(client, anos).values())
+        if presenca_raw:
+            sessoes = comum.carregar_raw(presenca_raw)
+        else:
+            sessoes = baixar_presenca(client, anos)
         props = []
         for ano in (hoje.year - 1, hoje.year):
             for nome_lista in LISTAS:
                 props += baixar_lista(client, nome_lista, ano)
     autoria = distribuir(props, {d["nome"] for d in lista})
+    contas: dict[str, dict[tuple[int, int, str], Decimal]] = {}
+    for conteudo in csvs:
+        for conta, itens in gastos_do_csv(conteudo).items():
+            contas.setdefault(conta, {}).update(itens)
+    frequencia = contar_presenca(sessoes, [d["nome"] for d in lista])
+    gastos, sobras = distribuir_gastos(contas, [d["nome"] for d in lista])
+    print(f"  gastos: {len(gastos)} deputados; contas sem deputado: {sobras}", flush=True)
     vereadores = [
         {
             "id_externo": d["slug"][:20],
@@ -189,8 +354,9 @@ def coletar(hoje: date) -> dict:
             "fim": None,
             "proposicoes_por_tipo": autoria[d["nome"]]["contagem"],
             "projetos": autoria[d["nome"]]["projetos"],
-            "sessoes": None,
-            "presencas": None,
+            "gastos": gastos.get(d["nome"], []),
+            "sessoes": frequencia.get(d["nome"], (None, None))[0],
+            "presencas": frequencia.get(d["nome"], (None, None))[1],
         }
         for d in lista
     ]
@@ -203,8 +369,8 @@ def coletar(hoje: date) -> dict:
     }
 
 
-def executar() -> int:
-    casa = coletar(date.today())
+def executar(gastos_raw: list[Path] | None = None, presenca_raw: Path | None = None) -> int:
+    casa = coletar(date.today(), gastos_raw, presenca_raw)
     if len(casa["vereadores"]) < 30:  # a ALESC tem 40 cadeiras: lista curta é falha da fonte
         raise ValueError(f"Só {len(casa['vereadores'])} deputados na ALESC; abortando.")
     with SessionLocal() as session:
@@ -219,5 +385,13 @@ def executar() -> int:
 
 
 if __name__ == "__main__":
-    argparse.ArgumentParser(description=f"Ingestão: {FONTE}").parse_args()
-    executar()
+    parser = argparse.ArgumentParser(description=f"Ingestão: {FONTE}")
+    parser.add_argument(
+        "--gastos-de-raw",
+        type=Path,
+        nargs="+",
+        help="CSVs de gastos já guardados em data/raw/alesc",
+    )
+    parser.add_argument("--presenca-de-raw", type=Path, help="JSON de presença já guardado")
+    args = parser.parse_args()
+    executar(args.gastos_de_raw, args.presenca_de_raw)

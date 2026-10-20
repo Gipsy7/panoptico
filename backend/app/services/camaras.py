@@ -28,6 +28,11 @@ FONTES = {
 # Assembleias com conector próprio (não usam o SAPL).
 FONTES_PROPRIAS = {
     "MG": ("almg", "Dados abertos da Assembleia de Minas Gerais (ALMG)"),
+    "SC": (
+        "alesc",
+        "E-Legis e Transparência da Assembleia Legislativa de Santa Catarina (ALESC)",
+    ),
+    "PR": ("alep", "Site e Portal da Transparência da Assembleia Legislativa do Paraná (ALEP)"),
     "SP": ("alesp", "Dados abertos da Assembleia de São Paulo (ALESP)"),
     "RJ": ("alerj", "Site da Assembleia Legislativa do Rio de Janeiro (ALERJ)"),
     "RS": ("alrs", "Portais da Assembleia Legislativa do Rio Grande do Sul (ALRS)"),

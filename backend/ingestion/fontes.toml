@@ -393,7 +393,14 @@ acesso = "brasil"
 nome = "alesc"
 modulo = "ingestion.assembleias.alesc"
 uso = "Assembleia de Santa Catarina hoje"
-recorte = "deputados em exercício; proposições do ano atual e anterior"
+recorte = "deputados em exercício; proposições, presença em plenário e gastos do gabinete (CSV anual) do ano atual e anterior"
+frequencia = "semanal"
+
+[[fonte]]
+nome = "alep"
+modulo = "ingestion.assembleias.alep"
+uso = "Assembleia do Paraná hoje"
+recorte = "deputados em exercício; presença e votos nominais em plenário do ano atual e anterior (sem proposições nem verba: a API trava no certificado e o ressarcimento exige reCAPTCHA)"
 frequencia = "semanal"
 
 [[fonte]]
