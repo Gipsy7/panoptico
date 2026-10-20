@@ -61,10 +61,10 @@ export type EstadoInicial = {
 const INDICADORES = Object.keys(NOME_INDICADOR) as Indicador[];
 
 function urlDe(uf: string | null, ibge: string | null, ano: number) {
-  return `/dinheiro-federal${uf ? `/${uf}` : ""}${uf && ibge ? `/${ibge}` : ""}${ano !== ANO_PADRAO ? `?ano=${ano}` : ""}`;
+  return `/impostos-e-repasses${uf ? `/${uf}` : ""}${uf && ibge ? `/${ibge}` : ""}${ano !== ANO_PADRAO ? `?ano=${ano}` : ""}`;
 }
 
-/** Lê /dinheiro-federal/SC/4205407?ano=2024 da barra de endereço (botão voltar do navegador). */
+/** Lê /impostos-e-repasses/SC/4205407?ano=2024 da barra de endereço (botão voltar do navegador). */
 function lerEndereco() {
   const partes = location.pathname.split("/").filter(Boolean).slice(1);
   const ano = Number(new URLSearchParams(location.search).get("ano"));
@@ -420,7 +420,7 @@ export function PainelDinheiroFederal({ inicial }: { inicial: EstadoInicial }) {
 
   const migalhas = [
     { rotulo: "Início", href: "/" },
-    { rotulo: "Dinheiro federal" },
+    { rotulo: "Impostos e repasses" },
   ];
 
   let cabecalho;

@@ -296,10 +296,10 @@ async function Perfil({
         </div>
         {p.uf && (
           <Link
-            href={`/dinheiro-federal/${p.uf}`}
+            href={`/impostos-e-repasses/${p.uf}`}
             className="alvo-link self-start text-sm text-muted-foreground underline underline-offset-4"
           >
-            {p.uf} no mapa do dinheiro federal
+            {p.uf} no mapa de impostos e repasses
           </Link>
         )}
         <CompartilharWhatsApp

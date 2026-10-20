@@ -1177,6 +1177,7 @@ Os próximos passos mais rendosos: CE (gastos em CSV, quase direto), depois AP e
 ## 2026-10-20: dinheiro federal por estado e cidade
 
 - **Pergunta que responde:** quanto a União arrecadou em cada estado e quanto repassou ao governo do estado e às prefeituras. Rotas `/dinheiro-federal` (Brasil e mapa), `/dinheiro-federal/[UF]` e `/dinheiro-federal/[UF]/[ibge]`; o mapa fica na home; a cidade, a página de representantes e o perfil dos parlamentares ligam para ela.
+- **Nome e endereço (renomeado depois):** a página pública passou a se chamar "Impostos e repasses", em `/impostos-e-repasses`; `/dinheiro-federal` (e subcaminhos, com `?ano=`) redireciona de forma permanente (308) no `next.config.ts`. Os caminhos da API não mudaram.
 - **Período:** 2019 a 2026 (2026 em curso, dito na tela); o padrão é 2025. Antes de 2019 não se guarda.
 - **Repasse = os blocos listados, nada além:** do Tesouro, FPE, FPM, IPI_EXP e OUTRAS_OBRIG; do Portal da Transparência, FUNDEB_UNIAO, ROYALTIES e LEGAIS_VOLUNTARIAS (detalhe em `docs/FONTES_DE_DADOS.md`). Os valores do Tesouro são líquidos da retenção de 20% do Fundeb. Bloco sem dado no ano aparece como "sem dado", nunca zero.
 - **Fora do recorte (dito no site):** INSS, Bolsa Família e BPC (arquivos pessoa a pessoa de 170 a 370 MB por mês, que a coleta mínima não quer) e o gasto direto da União (obras, compras e salários federais no estado).

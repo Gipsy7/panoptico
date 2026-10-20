@@ -360,14 +360,14 @@ async function Lista({ cep, uf, municipio }: Busca) {
           </dl>
           <div className="flex flex-wrap gap-x-5">
             <Link
-              href={`/dinheiro-federal/${localizacao.uf}`}
+              href={`/impostos-e-repasses/${localizacao.uf}`}
               className="alvo-link text-sm font-medium text-primary underline underline-offset-4"
             >
               Ver {nomeEstado} no mapa
             </Link>
             {localizacao.codigo_ibge && cidade && (
               <Link
-                href={`/dinheiro-federal/${localizacao.uf}/${localizacao.codigo_ibge}`}
+                href={`/impostos-e-repasses/${localizacao.uf}/${localizacao.codigo_ibge}`}
                 className="alvo-link text-sm font-medium text-primary underline underline-offset-4"
               >
                 Ver {cidade} no mapa

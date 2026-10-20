@@ -76,15 +76,15 @@ async function DinheiroFederalHome() {
   if (!r.ok) return null;
   if (r.dados.sem_dados) {
     return (
-      <section aria-labelledby="dinheiro-federal-titulo" className="revelar flex flex-col gap-3">
-        <p className="sobretitulo">Dinheiro federal</p>
-        <h2 id="dinheiro-federal-titulo" className="text-3xl leading-tight text-balance sm:text-4xl">
+      <section aria-labelledby="impostos-titulo" className="revelar flex flex-col gap-3">
+        <p className="sobretitulo">Impostos e repasses</p>
+        <h2 id="impostos-titulo" className="text-3xl leading-tight text-balance sm:text-4xl">
           Quanto a União arrecada e repassa em cada estado
         </h2>
         <p className="text-muted-foreground">{MENSAGEM_CARREGANDO}</p>
         <div>
-          <Link href="/dinheiro-federal" className="botao-linha">
-            Ir para a página do dinheiro federal
+          <Link href="/impostos-e-repasses" className="botao-linha">
+            Ir para a página de impostos e repasses
           </Link>
         </div>
       </section>
@@ -93,10 +93,10 @@ async function DinheiroFederalHome() {
   const { brasil, ufs, ano, avisos, fontes } = r.dados;
   const dataFonte = fontes.map((f) => f.atualizado_em).filter((d): d is string => Boolean(d)).sort()[0] ?? null;
   return (
-    <section aria-labelledby="dinheiro-federal-titulo" className="revelar grid items-start gap-8 md:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)] md:gap-16">
+    <section aria-labelledby="impostos-titulo" className="revelar grid items-start gap-8 md:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)] md:gap-16">
       <div className="flex flex-col gap-4">
-        <p className="sobretitulo">Dinheiro federal</p>
-        <h2 id="dinheiro-federal-titulo" className="text-3xl leading-tight text-balance sm:text-4xl">
+        <p className="sobretitulo">Impostos e repasses</p>
+        <h2 id="impostos-titulo" className="text-3xl leading-tight text-balance sm:text-4xl">
           Quanto a União arrecada e repassa em cada estado
         </h2>
         <p className="text-muted-foreground">Dados de {ano}. Passe o mouse ou toque num estado para ver os números.</p>
@@ -117,7 +117,7 @@ async function DinheiroFederalHome() {
           </p>
         ))}
         <div>
-          <Link href="/dinheiro-federal" className="botao-linha">
+          <Link href="/impostos-e-repasses" className="botao-linha">
             Ver o mapa completo, com as 5.570 cidades
           </Link>
         </div>
@@ -262,9 +262,9 @@ const RECURSOS = [
     ),
   },
   {
-    titulo: "Dinheiro federal por estado e cidade",
+    titulo: "Impostos e repasses por estado e cidade",
     texto: "Quanto a União arrecada e repassa em cada estado e município, no mapa, e as emendas pagas à sua cidade.",
-    href: "/dinheiro-federal",
+    href: "/impostos-e-repasses",
     icone: (
       <svg aria-hidden viewBox="0 0 24 24" className={ICONE} fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
         <path d="M12 21s-6-5.5-6-11a6 6 0 0 1 12 0c0 5.5-6 11-6 11z" />

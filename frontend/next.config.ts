@@ -4,6 +4,12 @@ const nextConfig: NextConfig = {
   // O Dockerfile define NEXT_OUTPUT=standalone para gerar um servidor enxuto.
   output: process.env.NEXT_OUTPUT === "standalone" ? "standalone" : undefined,
   cacheComponents: true,
+  async redirects() {
+    return [
+      { source: "/dinheiro-federal", destination: "/impostos-e-repasses", permanent: true },
+      { source: "/dinheiro-federal/:path*", destination: "/impostos-e-repasses/:path*", permanent: true },
+    ];
+  },
   partialPrefetching: true,
   images: {
     remotePatterns: [
