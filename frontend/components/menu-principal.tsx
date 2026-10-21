@@ -19,7 +19,8 @@ const ITENS = [
  * Menu do topo. No computador, links em linha. No celular, o botão "Buscar pelo CEP" fica sempre
  * visível e o menu é um botão (`aria-expanded`) que abre um painel sob o cabeçalho; o painel fecha
  * ao tocar num link, ao tocar fora e com Esc, e trava a rolagem do fundo. Não lê a URL atual de
- * propósito: no layout, isso obrigaria a renderizar o cabeçalho a cada pedido.
+ * propósito: no layout, isso obrigaria a renderizar o cabeçalho a cada pedido. O botão de tema
+ * (só o ícone de sol/lua) fica no cabeçalho; em telas abaixo de 640 px, no topo do painel do menu.
  */
 export function MenuPrincipal() {
   const [aberto, setAberto] = useState(false);
@@ -57,6 +58,10 @@ export function MenuPrincipal() {
       </nav>
 
       <div className="flex items-center gap-2 xl:hidden">
+        {/* Botão de tema no cabeçalho quando cabe (a partir de 640 px); abaixo disso, no topo do menu. */}
+        <div className="hidden sm:block">
+          <AlternarTema />
+        </div>
         <Link href="/#cep" onClick={() => setAberto(false)} aria-label="Buscar pelo CEP" className="botao-linha px-3 whitespace-nowrap">
           Buscar CEP
         </Link>
@@ -87,6 +92,9 @@ export function MenuPrincipal() {
             onClick={(e) => e.stopPropagation()}
             className="border-b border-border bg-background px-4 pb-5 shadow-[var(--sombra-menu)]"
           >
+            <div className="flex justify-end pt-1 sm:hidden">
+              <AlternarTema />
+            </div>
             <ul className="lista-fios flex flex-col text-base">
               {ITENS.map((i) => (
                 <li key={i.href}>
@@ -96,10 +104,6 @@ export function MenuPrincipal() {
                 </li>
               ))}
             </ul>
-            <div className="mt-3 flex items-center justify-between gap-3 text-sm text-muted-foreground">
-              <span>Tema</span>
-              <AlternarTema />
-            </div>
           </nav>
         </div>
       )}

@@ -1,6 +1,8 @@
 import Link from "next/link";
 
 import { FonteRodape } from "@/components/fonte-rodape";
+import { CampoSelect, type FiltroAtivo, PilulasAtivas, SemResultados } from "@/components/ui/campos-filtro";
+import { PainelFiltros } from "@/components/ui/painel-filtros";
 import type { Agenda } from "@/lib/api";
 import { formatarData } from "@/lib/formato";
 
@@ -38,6 +40,21 @@ export function AgendaSecao({
     params.set("agenda_pagina", String(pagina));
     return `/eleito/${candidaturaId}?${params}#ver-agenda`;
   };
+  const comFiltro = (mudanca: { agenda_tipo?: string; agenda_ano?: string }) => {
+    const params = new URLSearchParams();
+    const t = "agenda_tipo" in mudanca ? mudanca.agenda_tipo : tipo;
+    const a = "agenda_ano" in mudanca ? mudanca.agenda_ano : ano;
+    if (t) params.set("agenda_tipo", t);
+    if (a) params.set("agenda_ano", a);
+    const consulta = params.toString();
+    return `/eleito/${candidaturaId}${consulta ? `?${consulta}` : ""}#ver-agenda`;
+  };
+  const limparHref = `/eleito/${candidaturaId}#ver-agenda`;
+  const nomeTipo = TIPOS.find(([v]) => v === tipo)?.[1] ?? tipo;
+  const ativos: FiltroAtivo[] = [
+    ...(tipo ? [{ rotulo: `Tipo: ${nomeTipo}`, href: comFiltro({ agenda_tipo: "" }) }] : []),
+    ...(ano ? [{ rotulo: `Ano: ${ano}`, href: comFiltro({ agenda_ano: "" }) }] : []),
+  ];
   return (
     <section aria-labelledby="agenda-titulo" className="revelar flex flex-col gap-4">
       <div>
@@ -50,41 +67,33 @@ export function AgendaSecao({
         </p>
       </div>
 
-      <form method="get" action={`/eleito/${candidaturaId}#ver-agenda`} className="flex flex-wrap items-end gap-3 text-sm">
-        <label className="flex flex-col gap-1">
-          <span className="text-muted-foreground">Tipo</span>
-          <select name="agenda_tipo" defaultValue={tipo ?? ""} className="alvo-link rounded-md bg-card px-2 py-1.5 ring-1 ring-foreground/20">
-            <option value="">Todos</option>
-            {TIPOS.map(([v, r]) => (
-              <option key={v} value={v}>
-                {r}
-              </option>
-            ))}
-          </select>
-        </label>
-        <label className="flex flex-col gap-1">
-          <span className="text-muted-foreground">Ano</span>
-          <select name="agenda_ano" defaultValue={ano ?? ""} className="alvo-link rounded-md bg-card px-2 py-1.5 ring-1 ring-foreground/20">
-            <option value="">Todos</option>
-            {ANOS.map((a) => (
-              <option key={a} value={a}>
-                {a}
-              </option>
-            ))}
-          </select>
-        </label>
-        <button type="submit" className="alvo-link rounded-md px-3 py-1.5 font-medium underline underline-offset-4">
-          Filtrar
-        </button>
-      </form>
+      <div className="flex flex-col gap-[var(--esp-4)]">
+        <PainelFiltros
+          key={`${tipo ?? ""}-${ano ?? ""}`}
+          action={`/eleito/${candidaturaId}`}
+          ancora="ver-agenda"
+          ativos={ativos.length}
+          limparHref={limparHref}
+          titulo="Filtrar a agenda"
+          sempreVisivel
+          rotuloAplicar="Filtrar"
+        >
+          <CampoSelect rotulo="Tipo" name="agenda_tipo" defaultValue={tipo} opcoes={[{ valor: "", rotulo: "Todos os tipos" }, ...TIPOS.map(([v, r]) => ({ valor: v, rotulo: r }))]} />
+          <CampoSelect rotulo="Ano" name="agenda_ano" defaultValue={ano} opcoes={[{ valor: "", rotulo: "Todos os anos" }, ...ANOS.map((a) => ({ valor: String(a), rotulo: String(a) }))]} />
+        </PainelFiltros>
+        <PilulasAtivas itens={ativos} limparHref={limparHref} />
+      </div>
 
-      <p className="text-sm text-muted-foreground">
+      <p className="text-sm font-medium">
         <span className="tabular-nums">{dados.total.toLocaleString("pt-BR")}</span>{" "}
         {dados.total === 1 ? "registro" : "registros"}
       </p>
 
       {dados.itens.length === 0 ? (
-        <p className="text-sm text-muted-foreground">Nenhum registro com esse filtro.</p>
+        <SemResultados
+          mensagem={ativos.length ? "Nenhum compromisso com esses filtros." : "Nenhum compromisso registrado."}
+          limparHref={ativos.length ? limparHref : undefined}
+        />
       ) : (
         <ul className="flex flex-col gap-3">
           {dados.itens.map((i) => (

@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Form from "next/form";
 import Link from "next/link";
 
 import { CabecalhoPagina } from "@/components/ui/cabecalho-pagina";
@@ -8,7 +7,9 @@ import { AvisoErro } from "@/components/aviso-erro";
 import { Revelacao } from "@/components/revelacao";
 import { FonteRodape } from "@/components/fonte-rodape";
 import { Foto } from "@/components/parlamentar-card";
-import { BarraFiltros } from "@/components/ui/barra-filtros";
+import { CampoSelect, CampoTexto, type FiltroAtivo, PilulasAtivas, SemResultados } from "@/components/ui/campos-filtro";
+import { CamposOrdenacao } from "@/components/ui/campos-filtro-cliente";
+import { PainelFiltros } from "@/components/ui/painel-filtros";
 import { Resumo2x2 } from "@/components/ui/resumo-2x2";
 import {
   type CriterioId,
@@ -58,6 +59,7 @@ async function Lista({ filtros }: { filtros: FiltrosLista }) {
   const dados = resultado.dados;
   const criterio = dados.criterios.find((c) => c.id === dados.ordenar)!;
   const paginas = Math.max(1, Math.ceil(dados.total / dados.por_pagina));
+  const ativos = filtrosAtivos(dados, filtros);
 
   return (
     <>
@@ -77,7 +79,7 @@ async function Lista({ filtros }: { filtros: FiltrosLista }) {
           },
         ]}
       />
-      <BarraFiltrosLista dados={dados} filtros={filtros} />
+      <FiltrosDaLista dados={dados} filtros={filtros} ativos={ativos} />
 
       <section aria-labelledby="lista-titulo" className="revelar flex flex-col gap-3">
         <div className="nota flex flex-col gap-1 text-sm">
@@ -101,7 +103,9 @@ async function Lista({ filtros }: { filtros: FiltrosLista }) {
         </div>
 
         {dados.itens.length === 0 ? (
-          <p className="text-muted-foreground">Ninguém encontrado com esses filtros.</p>
+          <SemResultados mensagem="Nenhum parlamentar com esses filtros." limparHref={ativos.length ? "/parlamentares" : undefined}>
+            <p className="text-sm text-muted-foreground">Tire um filtro acima ou confira a grafia do nome.</p>
+          </SemResultados>
         ) : (
           <ul className="grid border-t border-border sm:grid-cols-2 sm:gap-x-10">
             {dados.itens.map((p) => (
@@ -142,135 +146,88 @@ function enderecoLista(filtros: FiltrosLista, mudanca: Partial<Record<keyof Filt
   return texto ? `/parlamentares?${texto}` : "/parlamentares";
 }
 
-function BarraFiltrosLista({ dados, filtros }: { dados: ListaParlamentares; filtros: FiltrosLista }) {
-  const ativos = [
-    filtros.busca && { rotulo: `Nome: ${filtros.busca}`, campo: "busca" as const },
-    filtros.uf && { rotulo: `Estado: ${filtros.uf.toUpperCase()}`, campo: "uf" as const },
-    filtros.partido && { rotulo: `Partido: ${filtros.partido}`, campo: "partido" as const },
-  ].filter((a): a is { rotulo: string; campo: "busca" | "uf" | "partido" } => Boolean(a));
-  const contador = ativos.length + (filtros.casa ? 1 : 0) + (dados.ordenar !== "nome" ? 1 : 0);
-  const casas = [
-    { valor: "", rotulo: "Câmara e Senado" },
-    { valor: "camara", rotulo: "Câmara" },
-    { valor: "senado", rotulo: "Senado" },
+const NOME_CASA: Record<string, string> = { camara: "Câmara", senado: "Senado" };
+
+/** Filtros ativos, cada um com o endereço da lista sem ele. */
+function filtrosAtivos(dados: ListaParlamentares, filtros: FiltrosLista): FiltroAtivo[] {
+  const anoPadrao = Math.max(...dados.anos_disponiveis);
+  const criterio = dados.criterios.find((c) => c.id === dados.ordenar);
+  const ativos: (FiltroAtivo | null)[] = [
+    filtros.busca ? { rotulo: `Nome: ${filtros.busca}`, href: enderecoLista(filtros, { busca: "" }) } : null,
+    filtros.casa && NOME_CASA[filtros.casa]
+      ? { rotulo: `Só ${NOME_CASA[filtros.casa]}`, href: enderecoLista(filtros, { casa: "" }) }
+      : null,
+    filtros.uf ? { rotulo: `Estado: ${nomeUf(filtros.uf)}`, href: enderecoLista(filtros, { uf: "" }) } : null,
+    filtros.partido ? { rotulo: `Partido: ${filtros.partido}`, href: enderecoLista(filtros, { partido: "" }) } : null,
+    dados.ordenar !== "nome" && criterio
+      ? {
+          rotulo: `Ordem: ${criterio.nome.toLowerCase()} (${dados.ordem === "desc" ? "maior primeiro" : "menor primeiro"})`,
+          href: enderecoLista(filtros, { ordenar: "", ordem: "" }),
+        }
+      : dados.ordenar === "nome" && dados.ordem === "desc"
+        ? { rotulo: "Ordem: de Z a A", href: enderecoLista(filtros, { ordem: "" }) }
+        : null,
+    dados.ano !== anoPadrao ? { rotulo: `Ano: ${dados.ano}`, href: enderecoLista(filtros, { ano: "" }) } : null,
   ];
-  return (
-    <BarraFiltros
-      contador={contador}
-      limparHref="/parlamentares"
-      painel={<Filtros dados={dados} filtros={filtros} />}
-      grupos={[
-        ...(ativos.length
-          ? [
-              {
-                itens: ativos.map((a) => ({
-                  rotulo: a.rotulo,
-                  href: enderecoLista(filtros, { [a.campo]: "" }),
-                  remover: true,
-                })),
-              },
-            ]
-          : []),
-        {
-          titulo: "Casa",
-          itens: casas.map((c) => ({
-            rotulo: c.rotulo,
-            href: enderecoLista(filtros, { casa: c.valor }),
-            ativa: (filtros.casa ?? "") === c.valor,
-          })),
-        },
-        {
-          titulo: "Ordenar por",
-          itens: dados.criterios.map((c) => ({
-            rotulo: c.nome,
-            href: enderecoLista(filtros, { ordenar: c.id, ordem: c.id === "nome" ? "asc" : "desc" }),
-            ativa: dados.ordenar === c.id,
-          })),
-        },
-      ]}
-    />
-  );
+  return ativos.filter((a): a is FiltroAtivo => a !== null);
 }
 
-const SELECT =
-  "seletor w-full";
+function nomeUf(sigla: string) {
+  return UFS.find((u) => u.sigla === sigla.toUpperCase())?.nome ?? sigla.toUpperCase();
+}
 
-function Filtros({ dados, filtros }: { dados: ListaParlamentares; filtros: FiltrosLista }) {
+function FiltrosDaLista({ dados, filtros, ativos }: { dados: ListaParlamentares; filtros: FiltrosLista; ativos: FiltroAtivo[] }) {
+  const anoPadrao = Math.max(...dados.anos_disponiveis);
+  const chave = new URLSearchParams(Object.entries(filtros) as [string, string][]).toString();
   return (
-    <Form action="/parlamentares" className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-      <label className="col-span-2 flex flex-col gap-1 text-sm sm:col-span-3">
-        Nome
-        <input
-          type="search"
-          name="busca"
-          defaultValue={filtros.busca}
-          placeholder="Parte do nome"
-          className={SELECT}
+    <section aria-label="Filtros da lista" className="flex flex-col gap-[var(--esp-4)]">
+      <PainelFiltros
+        key={chave}
+        action="/parlamentares"
+        ativos={ativos.length}
+        limparHref="/parlamentares"
+        padroes={{ ordenar: "nome", ordem: "asc", ano: String(anoPadrao) }}
+      >
+        <CampoTexto rotulo="Nome" name="busca" defaultValue={filtros.busca} placeholder="Parte do nome" className="md:col-span-3" />
+        <CampoSelect
+          rotulo="Casa"
+          name="casa"
+          defaultValue={filtros.casa}
+          opcoes={[
+            { valor: "", rotulo: "Câmara e Senado" },
+            { valor: "camara", rotulo: "Câmara dos Deputados" },
+            { valor: "senado", rotulo: "Senado" },
+          ]}
         />
-      </label>
-      <label className="flex flex-col gap-1 text-sm">
-        Casa
-        <select name="casa" defaultValue={filtros.casa ?? ""} className={SELECT}>
-          <option value="">Câmara e Senado</option>
-          <option value="camara">Câmara</option>
-          <option value="senado">Senado</option>
-        </select>
-      </label>
-      <label className="flex flex-col gap-1 text-sm">
-        Estado
-        <select name="uf" defaultValue={filtros.uf ?? ""} className={SELECT}>
-          <option value="">Todos</option>
-          {UFS.map((uf) => (
-            <option key={uf.sigla} value={uf.sigla}>
-              {uf.nome}
-            </option>
-          ))}
-        </select>
-      </label>
-      <label className="flex flex-col gap-1 text-sm">
-        Partido
-        <select name="partido" defaultValue={filtros.partido ?? ""} className={SELECT}>
-          <option value="">Todos</option>
-          {dados.partidos.map((p) => (
-            <option key={p} value={p}>
-              {p}
-            </option>
-          ))}
-        </select>
-      </label>
-      <label className="flex flex-col gap-1 text-sm">
-        Ordenar por
-        <select name="ordenar" defaultValue={dados.ordenar} className={SELECT}>
-          {dados.criterios.map((c) => (
-            <option key={c.id} value={c.id}>
-              {c.nome}
-            </option>
-          ))}
-        </select>
-      </label>
-      <label className="flex flex-col gap-1 text-sm">
-        Ordem
-        <select name="ordem" defaultValue={dados.ordem} className={SELECT}>
-          <option value="asc">Crescente</option>
-          <option value="desc">Decrescente</option>
-        </select>
-      </label>
-      {dados.anos_disponiveis.length > 1 && (
-        <label className="flex flex-col gap-1 text-sm">
-          Ano
-          <select name="ano" defaultValue={String(dados.ano)} className={SELECT}>
-            {dados.anos_disponiveis.map((a) => (
-              <option key={a} value={a}>
-                {a}
-              </option>
-            ))}
-          </select>
-        </label>
-      )}
-      <button type="submit" className="botao col-span-2 sm:col-span-3">
-        Aplicar
-      </button>
-    </Form>
+        <CampoSelect
+          rotulo="Estado"
+          name="uf"
+          defaultValue={filtros.uf?.toUpperCase()}
+          opcoes={[{ valor: "", rotulo: "Todos os estados" }, ...UFS.map((u) => ({ valor: u.sigla, rotulo: u.nome }))]}
+        />
+        <CampoSelect
+          rotulo="Partido"
+          name="partido"
+          defaultValue={filtros.partido}
+          opcoes={[{ valor: "", rotulo: "Todos os partidos" }, ...dados.partidos.map((p) => ({ valor: p, rotulo: p }))]}
+        />
+        <CamposOrdenacao
+          criterios={dados.criterios.map((c) => ({ valor: c.id, rotulo: c.nome }))}
+          ordenar={dados.ordenar}
+          ordem={dados.ordem}
+          textuais={["nome"]}
+        />
+        {dados.anos_disponiveis.length > 1 && (
+          <CampoSelect
+            rotulo="Ano dos números"
+            name="ano"
+            defaultValue={String(dados.ano)}
+            opcoes={dados.anos_disponiveis.map((a) => ({ valor: String(a), rotulo: a === anoPadrao ? `${a} (mais recente)` : String(a) }))}
+          />
+        )}
+      </PainelFiltros>
+      <PilulasAtivas itens={ativos} limparHref="/parlamentares" />
+    </section>
   );
 }
 
@@ -344,13 +301,13 @@ function LinkPagina({
   ativo: boolean;
   children: React.ReactNode;
 }) {
-  if (!ativo) return <span className="text-muted-foreground/50">{children}</span>;
+  if (!ativo) return <span aria-hidden className="invisible">{children}</span>;
   const params = new URLSearchParams();
   for (const [chave, valor] of Object.entries({ ...filtros, pagina: String(pagina) })) {
     if (valor) params.set(chave, valor);
   }
   return (
-    <Link href={`/parlamentares?${params}`} className="font-medium underline underline-offset-4">
+    <Link href={`/parlamentares?${params}`} className="alvo-link px-1 font-medium underline underline-offset-4">
       {children}
     </Link>
   );

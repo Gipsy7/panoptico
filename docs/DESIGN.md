@@ -44,7 +44,7 @@ Adotar do 12axes:
 - Sobretítulo + título + subtítulo em toda página interna (já é o padrão; padronizar).
 - Cartão-resumo 2x2 no alto de listas (ex.: /partidos: partidos, deputados, senadores, gasto médio).
 - Migalhas de pão em páginas internas (partido, perfil, comparar).
-- Barra de filtros com contador e pílulas roláveis em /parlamentares e /partidos.
+- Filtros com contador e pílulas dos filtros ativos (ver "Filtros" na seção 4; as pílulas quebram linha, não rolam).
 - Ação primária única no cabeçalho do celular ("Buscar pelo CEP" sempre visível) além do menu.
 - Texto longo cortado com "ver mais" em vez de blocos de 10 linhas.
 - Índice de seções no perfil (o 12axes tem âncoras `#como-funciona`, `#guia-eixos`).
@@ -76,8 +76,12 @@ Tipografia (mínimo de 14 px em qualquer conteúdo; 12 px só em metadado não e
 | legenda e fonte | 13 px | 13 px | Geist 400 |
 
 Cores e modo escuro. A paleta escura deriva da "papel" (grafite quente, texto creme, bronze clareado) e vale quando o
-sistema pede escuro (`prefers-color-scheme`) ou com `data-theme="dark"` na raiz; `data-theme="light"` força o claro. O
-alternador (Automático, Claro, Escuro) fica no menu e guarda a escolha em `localStorage` (chave `tema`). As imagens
+sistema pede escuro (`prefers-color-scheme`) ou com `data-theme="dark"` na raiz; `data-theme="light"` força o claro. Por
+padrão o site segue o sistema; não há opção "Automático" escrita. O botão de tema (`components/alternar-tema.tsx`) é um
+ícone só, que alterna entre claro e escuro e mostra para onde vai (lua no claro, sol no escuro), com `aria-label` e `title`
+"Usar tema escuro"/"Usar tema claro". A escolha fica em `localStorage` (chave `tema`) e o script do `<head>` a aplica antes
+da pintura. Fica no cabeçalho a partir de 640 px; abaixo disso (o cabeçalho não tem espaço ao lado do logo, do "Buscar CEP"
+e do menu), no topo do painel do menu. As imagens
 Open Graph ficam sempre claras. Razões de contraste (WCAG):
 
 | Par | Claro | Escuro |
@@ -123,6 +127,22 @@ sombra de borda (gradiente de 8 px) à direita indicando que há mais; linhas co
 **Menu móvel.** Cabeçalho 56 px: logo, botão "Buscar pelo CEP" (44 px) e botão de menu (44x44). Painel em tela cheia
 sob o cabeçalho, links de 48 px, fecha ao tocar num link, ao tocar fora, e com Esc; trava a rolagem do fundo.
 Migrar de `<details>` para botão com `aria-expanded` + `useState`.
+
+**Filtros (padrão único).** `components/ui/painel-filtros.tsx` + `ui/campos-filtro.tsx` (+ `ui/campos-filtro-cliente.tsx`
+para campos que dependem um do outro). Regras:
+- Celular (< 768 px): botão "Filtrar" de largura total com "N filtros ativos"; abre uma folha que sobe de baixo, com título,
+  "×", campos de 48 px (texto de 16 px) e rodapé fixo com "Limpar" e "Aplicar". Fecha com Esc, "×" ou toque fora; trava o
+  fundo e prende o Tab na folha. Computador: os mesmos campos à vista, em grade de 3 colunas. Filtros de 1 ou 2 campos dentro
+  de uma seção (agenda, tema dos votos) usam `sempreVisivel`.
+- Estado sempre na URL: aplicar navega para o endereço sem os campos vazios nem os de valor padrão (`padroes`), sem rolar a
+  página. A página passa `key` com a consulta atual para os campos voltarem ao que está na URL (voltar do navegador).
+- Sem JavaScript: é um formulário GET aberto (a folha só se esconde com `data-js` na raiz).
+- Filtros ativos como pílulas removíveis (×) logo abaixo (`PilulasAtivas`), que quebram linha; com 2 ou mais, "Limpar tudo".
+- Contagem de resultados no título da lista; lista vazia com `SemResultados` ("Nenhum ... com esses filtros." + "Limpar os filtros").
+- Estado: select grande com os 27 nomes. Cidade: select que só aparece com estado escolhido, recarregado ao trocar o estado,
+  com caixa "Procurar cidade" quando a lista passa de 40. Ordenação: trocar o critério põe a ordem natural (texto A-Z,
+  números do maior para o menor).
+- Filtros que rodam no navegador (quem votou, como votou cada parlamentar) usam as mesmas pílulas e o mesmo estado vazio.
 
 **Índice de seções (perfil).** No celular: fileira horizontal fixa sob o cabeçalho, com pílulas de 44 px de altura
 (Gastos, Presença, Votos, Projetos, Emendas...), `scroll-snap-type: x proximity`, destaca a seção visível (peso 600 e fio

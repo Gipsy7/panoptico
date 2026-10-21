@@ -8,6 +8,7 @@ import Link from "next/link";
 import { useMemo } from "react";
 
 import { PlacarPorUf } from "@/components/placar-por-uf";
+import { PilulasAtivas } from "@/components/ui/campos-filtro";
 import { SeletorUf, useUfEscolhida } from "@/components/uf-escolhida";
 import type { GrupoQuemVotou, PorUf } from "@/lib/api";
 import { filtrarGruposPorUf } from "@/lib/projetos";
@@ -33,14 +34,11 @@ export function QuemVotou({
   return (
     <div className="flex flex-col gap-5">
       <SeletorUf id={idSeletor} uf={uf} onChange={escolher} rotulo="Ver só quem é do meu estado" />
-      {nomeUf && (
-        <p className="nota text-sm" aria-live="polite">
-          Mostrando só quem representa {nomeUf}.{" "}
-          <button type="button" onClick={() => escolher(null)} className="underline underline-offset-4">
-            Ver todos
-          </button>
-        </p>
-      )}
+      <div aria-live="polite">
+        {nomeUf && (
+          <PilulasAtivas itens={[{ rotulo: `Só quem representa ${nomeUf}`, aoRemover: () => escolher(null) }]} />
+        )}
+      </div>
 
       {visiveis.map((g) => (
         <section key={g.chave} aria-label={g.rotulo} className="flex flex-col gap-2">

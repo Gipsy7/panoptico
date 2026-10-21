@@ -126,13 +126,13 @@ async function Conteudo({ uf }: { uf?: string }) {
 
 function SeletorUf({ ufs, atual }: { ufs: string[]; atual: string | null }) {
   return (
-    <form method="get" className="flex flex-wrap items-end gap-2">
-      <label className="flex flex-col gap-1 text-sm">
-        <span className="text-muted-foreground">Estado</span>
+    <form key={atual ?? ""} method="get" className="flex flex-col gap-3 sm:flex-row sm:items-end">
+      <label className="flex min-w-0 flex-col gap-1 text-sm font-medium sm:w-72">
+        Estado
         <select
           name="uf"
           defaultValue={atual ?? ""}
-          className="min-h-11 rounded-lg bg-card px-3 ring-1 ring-foreground/20"
+          className="campo-filtro font-normal"
         >
           <option value="" disabled>
             Escolha…
@@ -144,11 +144,8 @@ function SeletorUf({ ufs, atual }: { ufs: string[]; atual: string | null }) {
           ))}
         </select>
       </label>
-      <button
-        type="submit"
-        className="min-h-11 rounded-lg bg-primary px-4 text-primary-foreground"
-      >
-        Ver
+      <button type="submit" className="botao">
+        Ver o estado
       </button>
     </form>
   );

@@ -30,6 +30,15 @@ const CAMPOS_PROJETOS: (keyof FiltrosProjetos)[] = [
   "pagina",
 ];
 
+/** Código IBGE de cada estado: os dois primeiros dígitos do código das cidades dele. */
+export const CODIGO_IBGE_UF: Record<string, string> = {
+  RO: "11", AC: "12", AM: "13", RR: "14", PA: "15", AP: "16", TO: "17",
+  MA: "21", PI: "22", CE: "23", RN: "24", PB: "25", PE: "26", AL: "27", SE: "28", BA: "29",
+  MG: "31", ES: "32", RJ: "33", SP: "35",
+  PR: "41", SC: "42", RS: "43",
+  MS: "50", MT: "51", GO: "52", DF: "53",
+};
+
 /** Lê os filtros da busca de /projetos a partir dos `searchParams`, descartando valores inválidos. */
 export function lerFiltrosProjetos(sp: Record<string, string | string[] | undefined>): FiltrosProjetos {
   const f: FiltrosProjetos = {};
@@ -47,6 +56,8 @@ export function lerFiltrosProjetos(sp: Record<string, string | string[] | undefi
     else delete f.uf;
   }
   if (f.municipio && !/^\d{7}$/.test(f.municipio)) delete f.municipio;
+  // Cidade de outro estado (ex.: trocou o estado no formulário sem JavaScript): a cidade sai.
+  if (f.municipio && f.uf && f.municipio.slice(0, 2) !== CODIGO_IBGE_UF[f.uf]) delete f.municipio;
   if (f.ano && !/^\d{4}$/.test(f.ano)) delete f.ano;
   if (f.pagina && !/^[1-9]\d{0,3}$/.test(f.pagina)) delete f.pagina;
   if (f.q) f.q = f.q.slice(0, 200);

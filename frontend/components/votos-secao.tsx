@@ -1,6 +1,7 @@
-import Form from "next/form";
 import Link from "next/link";
 
+import { CampoSelect, PilulasAtivas } from "@/components/ui/campos-filtro";
+import { PainelFiltros } from "@/components/ui/painel-filtros";
 import { TextoLongo } from "@/components/ui/texto-longo";
 import { FonteRodape } from "@/components/fonte-rodape";
 import type { Casa, Placar, Votos } from "@/lib/api";
@@ -58,30 +59,31 @@ export function VotosSecao({
       </p>
 
       {dados.temas_disponiveis.length > 0 && (
-        <Form action={`/parlamentar/${parlamentarId}`} className="flex flex-wrap items-end gap-2">
-          <input type="hidden" name="ano" value={dados.ano} />
-          <label className="flex min-w-0 flex-1 flex-col gap-1 text-sm">
-            Filtrar por tema
-            <select
+        <div className="flex flex-col gap-[var(--esp-4)]">
+          <PainelFiltros
+            key={dados.tema ?? ""}
+            action={`/parlamentar/${parlamentarId}`}
+            ancora="ver-votos"
+            ativos={dados.tema ? 1 : 0}
+            limparHref={`/parlamentar/${parlamentarId}?ano=${dados.ano}#ver-votos`}
+            ocultos={{ ano: String(dados.ano) }}
+            titulo="Filtrar as votações por tema"
+            sempreVisivel
+            rotuloAplicar="Filtrar"
+          >
+            <CampoSelect
+              rotulo="Tema da votação"
               name="tema"
               defaultValue={dados.tema ?? ""}
-              className="seletor w-full"
-            >
-              <option value="">Todos os temas</option>
-              {dados.temas_disponiveis.map((t) => (
-                <option key={t} value={t}>
-                  {t}
-                </option>
-              ))}
-            </select>
-          </label>
-          <button
-            type="submit"
-            className="botao-linha"
-          >
-            Filtrar
-          </button>
-        </Form>
+              opcoes={[{ valor: "", rotulo: "Todos os temas" }, ...dados.temas_disponiveis.map((t) => ({ valor: t, rotulo: t }))]}
+            />
+          </PainelFiltros>
+          {dados.tema && (
+            <PilulasAtivas
+              itens={[{ rotulo: `Tema: ${dados.tema}`, href: `/parlamentar/${parlamentarId}?ano=${dados.ano}#ver-votos` }]}
+            />
+          )}
+        </div>
       )}
 
       <div className="flex flex-col gap-1">

@@ -7,7 +7,9 @@ import { PlacarCompacto } from "@/components/barra-placar";
 import { EsqueletoSecao } from "@/components/esqueleto-secao";
 import { FonteRodape } from "@/components/fonte-rodape";
 import { Revelacao } from "@/components/revelacao";
-import { BarraFiltros } from "@/components/ui/barra-filtros";
+import { CampoSelect, CampoTexto, type FiltroAtivo, PilulasAtivas, SemResultados } from "@/components/ui/campos-filtro";
+import { CamposUfCidade } from "@/components/ui/campos-filtro-cliente";
+import { PainelFiltros } from "@/components/ui/painel-filtros";
 import { CabecalhoPagina } from "@/components/ui/cabecalho-pagina";
 import {
   type BuscaProjetos,
@@ -62,11 +64,14 @@ async function Conteudo({ filtros }: { filtros: FiltrosProjetos }) {
   // null se a rota falhar: o filtro volta a ser um campo de texto.
   const temas = listaTemas.ok ? listaTemas.dados.temas : null;
   const primeiraPagina = !filtros.pagina || filtros.pagina === "1";
+  const ativos = filtrosAtivos(filtros, cidades);
+  // A pauta só aparece na lista sem busca nem filtro: com filtro, o resultado vem logo abaixo.
+  const semFiltro = ativos.length === 0 && !filtros.q;
 
   return (
     <>
-      <BarraDeBusca filtros={filtros} cidades={cidades} temas={temas} />
-      {primeiraPagina && <NaPauta />}
+      <BarraDeBusca filtros={filtros} cidades={cidades} temas={temas} ativos={ativos} />
+      {primeiraPagina && semFiltro && <NaPauta />}
       {resultado.ok ? (
         <Lista filtros={filtros} dados={resultado.dados} />
       ) : (
@@ -85,40 +90,70 @@ const ESFERAS = [
   { valor: "municipal", rotulo: "Câmara de uma cidade" },
 ];
 
-function BarraDeBusca({ filtros, cidades, temas }: { filtros: FiltrosProjetos; cidades: Municipio[]; temas: string[] | null }) {
+const CASAS: Record<string, string> = {
+  camara: "Câmara dos Deputados",
+  senado: "Senado",
+  assembleia: "Assembleias",
+  camara_municipal: "Câmaras municipais",
+};
+
+/** Filtros ativos (sem a busca por texto, que tem o seu campo), cada um com o endereço sem ele. */
+function filtrosAtivos(filtros: FiltrosProjetos, cidades: Municipio[]): FiltroAtivo[] {
+  const nomeUf = filtros.uf ? (UFS.find((u) => u.sigla === filtros.uf)?.nome ?? filtros.uf) : null;
+  const nomeCidade = filtros.municipio ? (cidades.find((c) => c.ibge === filtros.municipio)?.nome ?? filtros.municipio) : null;
+  const sem = (m: Partial<FiltrosProjetos>) => enderecoProjetos(filtros, m);
+  const ativos: (FiltroAtivo | null)[] = [
+    filtros.esfera ? { rotulo: ESFERAS.find((e) => e.valor === filtros.esfera)?.rotulo ?? filtros.esfera, href: sem({ esfera: "" }) } : null,
+    filtros.casa ? { rotulo: `Casa: ${CASAS[filtros.casa] ?? filtros.casa}`, href: sem({ casa: "" }) } : null,
+    nomeUf ? { rotulo: `Estado: ${nomeUf}`, href: sem({ uf: "", municipio: "" }) } : null,
+    nomeCidade ? { rotulo: `Cidade: ${nomeCidade}`, href: sem({ municipio: "" }) } : null,
+    filtros.tema ? { rotulo: `Tema: ${filtros.tema}`, href: sem({ tema: "" }) } : null,
+    filtros.ano ? { rotulo: `Ano: ${filtros.ano}`, href: sem({ ano: "" }) } : null,
+    filtros.votacao
+      ? { rotulo: filtros.votacao === "com" ? "Teve votação nominal" : "Não teve votação nominal", href: sem({ votacao: "" }) }
+      : null,
+  ];
+  return ativos.filter((a): a is FiltroAtivo => a !== null);
+}
+
+function BarraDeBusca({
+  filtros,
+  cidades,
+  temas,
+  ativos,
+}: {
+  filtros: FiltrosProjetos;
+  cidades: Municipio[];
+  temas: string[] | null;
+  ativos: FiltroAtivo[];
+}) {
   const nomeUf = filtros.uf ? UFS.find((u) => u.sigla === filtros.uf)?.nome : null;
-  const nomeCidade = filtros.municipio ? cidades.find((c) => c.ibge === filtros.municipio)?.nome : null;
-  const ativos = [
-    filtros.esfera && { rotulo: ESFERAS.find((e) => e.valor === filtros.esfera)?.rotulo ?? filtros.esfera, campo: "esfera" as const },
-    nomeUf && { rotulo: `Estado: ${nomeUf}`, campo: "uf" as const },
-    filtros.municipio && { rotulo: `Cidade: ${nomeCidade ?? filtros.municipio}`, campo: "municipio" as const },
-    filtros.tema && { rotulo: `Tema: ${filtros.tema}`, campo: "tema" as const },
-    filtros.ano && { rotulo: `Ano: ${filtros.ano}`, campo: "ano" as const },
-    filtros.votacao && {
-      rotulo: filtros.votacao === "com" ? "Com votação nominal" : "Sem votação nominal",
-      campo: "votacao" as const,
-    },
-  ].filter((a): a is { rotulo: string; campo: "esfera" | "uf" | "municipio" | "tema" | "ano" | "votacao" } => Boolean(a));
+  // Volta a ter só a busca por texto (ou nada).
+  const limparHref = filtros.q ? enderecoProjetos({ q: filtros.q }, {}) : "/projetos";
+  const chave = enderecoProjetos(filtros, { pagina: filtros.pagina ?? "" });
+  const pilulas: FiltroAtivo[] = filtros.q
+    ? [{ rotulo: `Busca: ${filtros.q}`, href: enderecoProjetos(filtros, { q: "" }) }, ...ativos]
+    : ativos;
 
   return (
-    <section aria-labelledby="busca-titulo" className="flex flex-col gap-3">
+    <section aria-labelledby="busca-titulo" className="flex flex-col gap-[var(--esp-4)]">
       <h2 id="busca-titulo" className="sr-only">
         Buscar projetos
       </h2>
-      <Form action="/projetos" className="flex flex-col gap-3 sm:flex-row sm:items-end">
-        <label className="flex min-w-0 flex-1 flex-col gap-1 text-sm">
+      <Form key={`q-${chave}`} action="/projetos" role="search" className="flex flex-col gap-3 sm:flex-row sm:items-end">
+        <label className="flex min-w-0 flex-1 flex-col gap-1 text-sm font-medium">
           Número ou assunto
           <input
             type="search"
             name="q"
             defaultValue={filtros.q}
             placeholder="Ex.: PL 2338/2023 ou saúde mental"
-            className="campo"
+            className="campo text-base font-normal"
             enterKeyHint="search"
           />
         </label>
         {/* Os demais filtros acompanham a busca em campos ocultos; o painel abaixo os muda. */}
-        {(["esfera", "uf", "municipio", "tema", "ano", "votacao"] as const).map(
+        {(["esfera", "casa", "uf", "municipio", "tema", "ano", "votacao"] as const).map(
           (c) => filtros[c] && <input key={c} type="hidden" name={c} value={filtros[c]} />,
         )}
         <button type="submit" className="botao sm:w-auto">
@@ -126,40 +161,55 @@ function BarraDeBusca({ filtros, cidades, temas }: { filtros: FiltrosProjetos; c
         </button>
       </Form>
 
-      <BarraFiltros
-        contador={ativos.length}
-        limparHref={filtros.q ? enderecoProjetos({ q: filtros.q }, {}) : "/projetos"}
-        painel={<PainelFiltros filtros={filtros} cidades={cidades} temas={temas} />}
-        grupos={[
-          ...(ativos.length
-            ? [
-                {
-                  itens: ativos.map((a) => ({
-                    rotulo: a.rotulo,
-                    href: enderecoProjetos(filtros, a.campo === "uf" ? { uf: "", municipio: "" } : { [a.campo]: "" }),
-                    remover: true,
-                  })),
-                },
-              ]
-            : []),
-          {
-            titulo: "Onde",
-            itens: ESFERAS.map((e) => ({
-              rotulo: e.rotulo,
-              href: enderecoProjetos(filtros, { esfera: e.valor }),
-              ativa: (filtros.esfera ?? "") === e.valor,
-            })),
-          },
-          {
-            titulo: "Votação nominal",
-            itens: [
-              { rotulo: "Todos", href: enderecoProjetos(filtros, { votacao: "" }), ativa: !filtros.votacao },
-              { rotulo: "Teve", href: enderecoProjetos(filtros, { votacao: "com" }), ativa: filtros.votacao === "com" },
-              { rotulo: "Não teve", href: enderecoProjetos(filtros, { votacao: "sem" }), ativa: filtros.votacao === "sem" },
-            ],
-          },
-        ]}
-      />
+      <PainelFiltros
+        key={chave}
+        action="/projetos"
+        ativos={ativos.length}
+        limparHref={limparHref}
+        ocultos={{ q: filtros.q, casa: filtros.casa }}
+        titulo="Filtrar projetos"
+      >
+        <CampoSelect rotulo="Onde" name="esfera" defaultValue={filtros.esfera} opcoes={ESFERAS} />
+        <CamposUfCidade
+          ufs={UFS.map((u) => ({ valor: u.sigla, rotulo: u.nome }))}
+          uf={filtros.uf}
+          municipio={filtros.municipio}
+          cidades={cidades.map((c) => ({ ibge: c.ibge, nome: c.nome }))}
+        />
+        {temas ? (
+          <CampoSelect
+            rotulo="Tema"
+            name="tema"
+            defaultValue={filtros.tema}
+            ajuda="Só os projetos do Congresso têm tema."
+            opcoes={[
+              { valor: "", rotulo: "Todos os temas" },
+              ...(filtros.tema && !temas.includes(filtros.tema) ? [filtros.tema, ...temas] : temas).map((t) => ({ valor: t, rotulo: t })),
+            ]}
+          />
+        ) : (
+          <CampoTexto rotulo="Tema (só do Congresso)" name="tema" defaultValue={filtros.tema} placeholder="Ex.: Saúde" />
+        )}
+        <CampoSelect
+          rotulo="Ano do projeto"
+          name="ano"
+          defaultValue={filtros.ano}
+          opcoes={[{ valor: "", rotulo: "Todos os anos" }, ...anosParaFiltro(new Date().getFullYear()).map((a) => ({ valor: String(a), rotulo: String(a) }))]}
+        />
+        <CampoSelect
+          rotulo="Votação nominal (cada voto registrado)"
+          name="votacao"
+          defaultValue={filtros.votacao}
+          opcoes={[
+            { valor: "", rotulo: "Com ou sem votação" },
+            { valor: "com", rotulo: "Teve votação nominal" },
+            { valor: "sem", rotulo: "Não teve votação nominal" },
+          ]}
+        />
+      </PainelFiltros>
+
+      <PilulasAtivas itens={pilulas} limparHref={pilulas.length > 1 ? "/projetos" : undefined} />
+
       {(filtros.uf || filtros.municipio) && !filtros.esfera && (
         <p className="text-sm text-muted-foreground">
           Com estado ou cidade escolhidos, a lista mostra projetos da assembleia e das câmaras municipais. Os do Congresso
@@ -171,88 +221,6 @@ function BarraDeBusca({ filtros, cidades, temas }: { filtros: FiltrosProjetos; c
         </p>
       )}
     </section>
-  );
-}
-
-function PainelFiltros({ filtros, cidades, temas }: { filtros: FiltrosProjetos; cidades: Municipio[]; temas: string[] | null }) {
-  const ano = new Date().getFullYear();
-  return (
-    <Form action="/projetos" className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-      {filtros.q && <input type="hidden" name="q" value={filtros.q} />}
-      <label className="col-span-2 flex flex-col gap-1 text-sm sm:col-span-1">
-        Onde
-        <select name="esfera" defaultValue={filtros.esfera ?? ""} className="seletor w-full">
-          {ESFERAS.map((e) => (
-            <option key={e.valor} value={e.valor}>
-              {e.rotulo}
-            </option>
-          ))}
-        </select>
-      </label>
-      <label className="col-span-2 flex flex-col gap-1 text-sm sm:col-span-1">
-        Estado
-        <select name="uf" defaultValue={filtros.uf ?? ""} className="seletor w-full">
-          <option value="">Todos</option>
-          {UFS.map((u) => (
-            <option key={u.sigla} value={u.sigla}>
-              {u.nome}
-            </option>
-          ))}
-        </select>
-      </label>
-      {filtros.uf && cidades.length > 0 ? (
-        <label className="col-span-2 flex flex-col gap-1 text-sm sm:col-span-1">
-          Cidade
-          <select name="municipio" defaultValue={filtros.municipio ?? ""} className="seletor w-full">
-            <option value="">Todas</option>
-            {cidades.map((c) => (
-              <option key={c.ibge} value={c.ibge}>
-                {c.nome}
-              </option>
-            ))}
-          </select>
-        </label>
-      ) : (
-        <p className="col-span-2 self-end text-sm text-muted-foreground sm:col-span-1">Escolha um estado e aplique para listar as cidades.</p>
-      )}
-      <label className="col-span-2 flex flex-col gap-1 text-sm sm:col-span-1">
-        Tema (só do Congresso)
-        {temas ? (
-          <select name="tema" defaultValue={filtros.tema ?? ""} className="seletor w-full">
-            <option value="">Todos</option>
-            {(filtros.tema && !temas.includes(filtros.tema) ? [filtros.tema, ...temas] : temas).map((t) => (
-              <option key={t} value={t}>
-                {t}
-              </option>
-            ))}
-          </select>
-        ) : (
-          <input name="tema" defaultValue={filtros.tema} placeholder="Ex.: Saúde" className="seletor w-full" />
-        )}
-      </label>
-      <label className="flex flex-col gap-1 text-sm">
-        Ano do projeto
-        <select name="ano" defaultValue={filtros.ano ?? ""} className="seletor w-full">
-          <option value="">Todos</option>
-          {anosParaFiltro(ano).map((a) => (
-            <option key={a} value={a}>
-              {a}
-            </option>
-          ))}
-        </select>
-      </label>
-      <label className="flex flex-col gap-1 text-sm">
-        Votação nominal
-        <select name="votacao" defaultValue={filtros.votacao ?? ""} className="seletor w-full">
-          <option value="">Todos</option>
-          <option value="com">Teve votação nominal</option>
-          <option value="sem">Não teve</option>
-        </select>
-      </label>
-      <button type="submit" className="botao col-span-2 sm:col-span-3">
-        Aplicar
-      </button>
-    </Form>
   );
 }
 
@@ -368,29 +336,24 @@ function Lista({ filtros, dados }: { filtros: FiltrosProjetos; dados: BuscaProje
 }
 
 function Vazio({ filtrando, q }: { filtrando: boolean; q?: string }) {
+  if (!filtrando) return <p className="text-muted-foreground">Ainda não há projetos carregados.</p>;
   return (
-    <div className="flex flex-col gap-3">
-      <p className="text-muted-foreground">
-        {q ? `Nenhum projeto encontrado para "${q}".` : filtrando ? "Nenhum projeto encontrado com esses filtros." : "Ainda não há projetos carregados."}
-      </p>
-      {filtrando && (
-        <>
-          <p className="text-sm">Algumas ideias: confira o número (ex.: PL 2338/2023), tente uma palavra só do assunto ou tire algum filtro.</p>
-          <ul className="flex flex-wrap gap-2">
-            {["saúde", "educação", "transporte", "segurança"].map((t) => (
-              <li key={t}>
-                <Link href={enderecoProjetos({}, { q: t })} className="pilula inline-flex min-h-11 items-center">
-                  {t}
-                </Link>
-              </li>
-            ))}
-          </ul>
-          <Link href="/projetos" className="alvo-link self-start text-sm font-medium underline underline-offset-4">
-            Limpar a busca
-          </Link>
-        </>
-      )}
-    </div>
+    <SemResultados
+      mensagem={q ? `Nenhum projeto encontrado para "${q}".` : "Nenhum projeto com esses filtros."}
+      limparHref="/projetos"
+      rotuloLimpar={q ? "Limpar a busca e os filtros" : undefined}
+    >
+      <p className="text-sm">Confira o número (ex.: PL 2338/2023), tente uma palavra só do assunto ou tire um filtro acima. Algumas buscas:</p>
+      <ul className="flex flex-wrap gap-2">
+        {["saúde", "educação", "transporte", "segurança"].map((t) => (
+          <li key={t}>
+            <Link href={enderecoProjetos({}, { q: t })} className="botao-linha px-[var(--esp-4)]">
+              {t}
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </SemResultados>
   );
 }
 
@@ -446,9 +409,9 @@ function Cartao({ item: i, uf }: { item: ItemProjeto; uf?: string }) {
 }
 
 function LinkPagina({ href, ativo, children }: { href: string; ativo: boolean; children: React.ReactNode }) {
-  if (!ativo) return <span className="inline-flex min-h-11 items-center text-muted-foreground/50">{children}</span>;
+  if (!ativo) return <span aria-hidden className="invisible">{children}</span>;
   return (
-    <Link href={href} className="alvo-link font-medium underline underline-offset-4">
+    <Link href={href} className="alvo-link px-1 font-medium underline underline-offset-4">
       {children}
     </Link>
   );
