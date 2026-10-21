@@ -5,14 +5,14 @@ Fixtures reais recortadas: `camara_autores_misto.csv` (arquivo de autores de 202
 (lista geral de processos e fichas por `codigoMateria`)."""
 
 import json
-from datetime import date
+from datetime import UTC, date, datetime
 from pathlib import Path
 
 import httpx
 import respx
 from sqlalchemy import select
 
-from app.models import Proposicao, Votacao
+from app.models import Parlamentar, Proposicao, Votacao
 from ingestion import proposicoes_comum as pc
 from ingestion.camara import proposicoes as camara
 from ingestion.senado import proposicoes as senado
@@ -55,13 +55,33 @@ def test_autores_que_nao_sao_deputados_viram_descricao():
         "2622472": "Poder Executivo",
         "2599331": "Comissão de Desenvolvimento Urbano",
         "2646600": "Senado Federal - Rogério Carvalho",
+        # Deputado com perfil (sem cadastro informado, todo deputado conta como ligado) e o
+        # senador coautor, que não tem perfil de deputado: o senador aparece pelo nome.
+        "2598952": "Eduardo Gomes",
     }
-    # 2598919 (dois registros do mesmo deputado) e 2598952 (deputado e senador) têm deputado.
-    assert "2598919" not in descricoes and "2598952" not in descricoes
+    # 2598919: dois registros do mesmo deputado, ligado ao perfil.
+    assert "2598919" not in descricoes
+
+
+def test_deputado_repetido_fora_do_cadastro_aparece_uma_vez_com_partido():
+    descricoes = camara.normalizar_autores_externos(AUTORES, deputados_no_cadastro=set())
+    assert descricoes["2598919"] == "Deputado(a) Hildo Rocha (MDB-MA)"
 
 
 def test_carregar_autores_grava_descricao_e_limpa_quem_ganhou_deputado(session):
     ingestao = _ingestao(session)
+    # Hildo Rocha (178884) tem perfil: a autoria liga ao perfil e a descrição antiga é limpa.
+    session.add(
+        Parlamentar(
+            casa="camara",
+            id_externo="178884",
+            nome_parlamentar="Hildo Rocha",
+            uf="MA",
+            fonte_url="https://dadosabertos.camara.leg.br/api/v2/deputados/178884",
+            atualizado_em=datetime.now(UTC),
+        )
+    )
+    session.flush()
     pc.upsert_proposicoes(
         session,
         "camara",
@@ -233,3 +253,23 @@ def test_senado_baixar_pede_lista_geral_e_ficha_das_votadas(monkeypatch):
 def test_tipos_da_legislatura_nao_mudam():
     # As siglas votadas (MPV, PLV...) entram só como "votada"; o recorte da legislatura fica.
     assert pc.TIPOS == {"PL", "PLP", "PEC", "PDL"}
+
+
+def test_deputado_fora_do_cadastro_aparece_pelo_nome_publicado():
+    """PLP 74/2026: o autor (José Guimarães, 141470) não estava no cadastro de deputados do
+    site; a ficha ficava sem autor nenhum. Agora entra como a Câmara publica."""
+    cabecalho = (
+        '"idProposicao";"uriProposicao";"idDeputadoAutor";"uriAutor";"codTipoAutor";"tipoAutor";'
+        '"nomeAutor";"siglaPartidoAutor";"uriPartidoAutor";"siglaUFAutor";"ordemAssinatura";'
+        '"proponente"\n'
+    )
+    linhas = (
+        '"2611313";"u";"141470";"u";"10000";"Deputado(a)";"José Guimarães";"PT";"u";"CE";"1";"1"\n'
+        '"2611313";"u";"220542";"u";"10000";"Deputado(a)";"Alexandre Guimarães";"MDB";"u";"TO";'
+        '"2";"1"\n'
+    )
+    conteudo = (cabecalho + linhas).encode("utf-8")
+    descricoes = camara.normalizar_autores_externos(conteudo, {"220542"})
+    assert descricoes == {"2611313": "Deputado(a) José Guimarães (PT-CE)"}
+    # Todos no cadastro: nada a descrever (a ficha mostra os perfis).
+    assert camara.normalizar_autores_externos(conteudo, {"220542", "141470"}) == {}

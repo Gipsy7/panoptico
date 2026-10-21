@@ -78,25 +78,37 @@ def normalizar_autores(conteudo: bytes) -> list[dict[str, Any]]:
     ]
 
 
-def normalizar_autores_externos(conteudo: bytes) -> dict[str, str]:
-    """Proposições sem nenhum deputado autor -> quem as apresentou ("Poder Executivo",
-    "Comissão de ...", "Senado Federal - Fulano"), na ordem de assinatura. O arquivo traz
-    o nome do órgão ou da pessoa em `nomeAutor`; deputado nunca entra aqui."""
-    com_deputado: set[str] = set()
-    outros: dict[str, list[tuple[int, str]]] = {}
+def normalizar_autores_externos(
+    conteudo: bytes, deputados_no_cadastro: set[str] | None = None
+) -> dict[str, str]:
+    """Autores que a página não consegue ligar a um perfil -> como a Câmara os publica, na ordem
+    de assinatura: órgãos e pessoas de fora ("Poder Executivo", "Comissão de ...", "Senado
+    Federal - Fulano") e deputados que não estão no cadastro do site (ex.: fora do exercício do
+    mandato), estes como "Deputado(a) Nome (PARTIDO-UF)". Assim nenhum autor some da ficha.
+    Sem `deputados_no_cadastro`, todo deputado conta como ligado (comportamento antigo)."""
+    # Por proposição: chave do autor (id do deputado ou nome) -> (ordem, nome). O mesmo deputado
+    # pode vir em duas linhas, uma delas sem partido: fica a que tem partido e UF.
+    outros: dict[str, dict[str, tuple[int, str]]] = {}
     for linha in _linhas(conteudo):
-        if linha["codTipoAutor"] == COD_TIPO_DEPUTADO and linha["idDeputadoAutor"]:
-            com_deputado.add(linha["idProposicao"])
-            continue
         nome = " ".join(linha["nomeAutor"].split())
+        chave = nome
+        if linha["codTipoAutor"] == COD_TIPO_DEPUTADO and linha["idDeputadoAutor"]:
+            if deputados_no_cadastro is None or linha["idDeputadoAutor"] in deputados_no_cadastro:
+                continue
+            chave = "dep:" + linha["idDeputadoAutor"]
+            partido_uf = "-".join(
+                p for p in (linha.get("siglaPartidoAutor"), linha.get("siglaUFAutor")) if p
+            )
+            nome = f"Deputado(a) {nome}" + (f" ({partido_uf})" if partido_uf else "")
         if nome:
             ordem = int(linha["ordemAssinatura"] or 0)
-            outros.setdefault(linha["idProposicao"], []).append((ordem, nome))
+            autores = outros.setdefault(linha["idProposicao"], {})
+            anterior = autores.get(chave)
+            if anterior is None or len(nome) > len(anterior[1]):
+                autores[chave] = (min(ordem, anterior[0]) if anterior else ordem, nome)
     descricoes = {}
     for id_proposicao, autores in outros.items():
-        if id_proposicao in com_deputado:
-            continue
-        nomes = list(dict.fromkeys(n for _, n in sorted(autores)))
+        nomes = list(dict.fromkeys(n for _, n in sorted(autores.values())))
         descricoes[id_proposicao] = "; ".join(nomes)[:DESCRICAO_MAX]
     return descricoes
 
@@ -181,7 +193,9 @@ def carregar_autores(session: Session, conteudo: bytes, ingestao: FonteIngestao)
         if a["id_proposicao"] in proposicoes and a["id_deputado"] in deputados
     ]
     alvo = [id_ for id_externo, id_ in proposicoes.items() if id_externo in ids_do_arquivo]
-    _gravar_descricoes(session, proposicoes, ids_do_arquivo, normalizar_autores_externos(conteudo))
+    _gravar_descricoes(
+        session, proposicoes, ids_do_arquivo, normalizar_autores_externos(conteudo, set(deputados))
+    )
     return pc.substituir_autorias(session, alvo, autorias)
 
 
@@ -191,8 +205,9 @@ def _gravar_descricoes(
     ids_do_arquivo: set[str],
     descricoes: dict[str, str],
 ) -> None:
-    """`autor_descricao` só das proposições sem deputado autor; quem passou a ter deputado
-    volta a ficar sem. O arquivo cita só as proposições que têm autor registrado."""
+    """`autor_descricao` das proposições com algum autor sem perfil no site; a que passou a ter
+    todos os autores ligados volta a ficar sem. O arquivo cita só as proposições que têm autor
+    registrado."""
     parametros = [
         {"alvo": proposicoes[i], "d": d} for i, d in descricoes.items() if i in proposicoes
     ]
