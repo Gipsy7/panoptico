@@ -1,0 +1,23 @@
+{
+ "id": 2611313,
+ "siglaTipo": "PLP",
+ "numero": 74,
+ "ano": 2026,
+ "ementa": "Dispõe sobre regras relativas a benefícios tributários e despesas obrigatórias no exercício de 2026.",
+ "statusProposicao": {
+  "dataHora": "2026-09-04T00:00",
+  "sequencia": 50,
+  "siglaOrgao": "MESA",
+  "uriOrgao": "https://dadosabertos.camara.leg.br/api/v2/orgaos/4",
+  "uriUltimoRelator": "https://dadosabertos.camara.leg.br/api/v2/deputados/204436",
+  "regime": "Urgência (Art. 155, RICD)",
+  "descricaoTramitacao": "Transformado em Norma Jurídica com Veto Parcial",
+  "codTipoTramitacao": "1012",
+  "descricaoSituacao": "Transformado em Norma Jurídica",
+  "codSituacao": 1140,
+  "despacho": "Transformado na Lei Complementar 237/2026. DOU 15/09/2026 PÁG 01 COL 01 - Edição Extra C. Vetado parcialmente. MSC-PE 751/26. Razões do veto: DOU 15/09/2026 PÁG 03 COL 01 - Edição Extra C.",
+  "url": null,
+  "ambito": "Regimental",
+  "apreciacao": "Proposição Sujeita à Apreciação do Plenário"
+ }
+}

@@ -128,6 +128,40 @@ frequencia = "diaria"
 depende = ["senado_senadores", "senado_votacoes"]
 
 [[fonte]]
+nome = "camara_pauta"
+modulo = "ingestion.camara.pauta"
+uso = "Pauta da semana no Plenário da Câmara (projetos e votações)"
+recorte = "sessões de hoje a +14 dias; a janela é recarregada inteira a cada carga"
+frequencia = "diaria"
+depende = ["camara_votacoes"]
+
+[[fonte]]
+nome = "senado_pauta"
+modulo = "ingestion.senado.pauta"
+uso = "Pauta da semana no Plenário do Senado (projetos e votações)"
+recorte = "sessões de hoje a +14 dias; a janela é recarregada inteira a cada carga"
+frequencia = "diaria"
+depende = ["senado_votacoes"]
+
+[[fonte]]
+nome = "camara_tramitacoes"
+modulo = "ingestion.camara.tramitacoes"
+uso = "Caminho do projeto (tramitação) e relator, na página de votações e projetos"
+recorte = "proposições com votação nominal no ano anterior e no atual e as da pauta; no acervo (--todas), também todos os PL, PLP, PEC e PDL desde 2023"
+frequencia = "diaria"
+args = { todas = true }
+depende = ["camara_votacoes", "camara_pauta", "camara_proposicoes"]
+
+[[fonte]]
+nome = "senado_tramitacoes"
+modulo = "ingestion.senado.tramitacoes"
+uso = "Caminho do projeto (tramitação) e relator, na página de votações e projetos"
+recorte = "matérias com votação nominal no ano anterior e no atual e as da pauta; no acervo (--todas), também todos os PL, PLP, PEC e PDL desde 2023"
+frequencia = "diaria"
+args = { todas = true }
+depende = ["senado_votacoes", "senado_pauta", "senado_proposicoes"]
+
+[[fonte]]
 nome = "ibge_municipios"
 modulo = "ingestion.ibge.municipios"
 uso = "Busca por cidade e CEP"

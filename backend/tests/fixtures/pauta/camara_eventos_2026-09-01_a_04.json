@@ -1,0 +1,70 @@
+[
+ {
+  "id": 82944,
+  "uri": "https://dadosabertos.camara.leg.br/api/v2/eventos/82944",
+  "dataHoraInicio": "2026-09-01T15:07",
+  "dataHoraFim": "2026-09-01T22:56",
+  "situacao": "Encerrada",
+  "descricaoTipo": "Sessão Deliberativa",
+  "descricao": "Sessão Deliberativa Extraordinária Semipresencial (AM nº 123/2020)",
+  "localExterno": null,
+  "localCamara": {
+   "nome": "Plenário da Câmara dos Deputados",
+   "predio": null,
+   "sala": null,
+   "andar": null
+  },
+  "urlRegistro": "https://www.youtube.com/watch?v=uP6PJScvbDo"
+ },
+ {
+  "id": 82955,
+  "uri": "https://dadosabertos.camara.leg.br/api/v2/eventos/82955",
+  "dataHoraInicio": "2026-09-02T11:23",
+  "dataHoraFim": "2026-09-02T12:07",
+  "situacao": "Encerrada",
+  "descricaoTipo": "Sessão Deliberativa",
+  "descricao": "Sessão Deliberativa Extraordinária Semipresencial (AM nº 123/2020)",
+  "localExterno": null,
+  "localCamara": {
+   "nome": "Plenário da Câmara dos Deputados",
+   "predio": null,
+   "sala": null,
+   "andar": null
+  },
+  "urlRegistro": "https://www.youtube.com/watch?v=jMn5XGelQ-Y"
+ },
+ {
+  "id": 82956,
+  "uri": "https://dadosabertos.camara.leg.br/api/v2/eventos/82956",
+  "dataHoraInicio": "2026-09-02T15:04",
+  "dataHoraFim": "2026-09-02T19:28",
+  "situacao": "Encerrada",
+  "descricaoTipo": "Sessão Deliberativa",
+  "descricao": "Sessão Deliberativa Extraordinária Semipresencial (AM nº 123/2020)",
+  "localExterno": null,
+  "localCamara": {
+   "nome": "Plenário da Câmara dos Deputados",
+   "predio": null,
+   "sala": null,
+   "andar": null
+  },
+  "urlRegistro": "https://www.youtube.com/watch?v=z5EkQw7pnHY"
+ },
+ {
+  "id": 82965,
+  "uri": "https://dadosabertos.camara.leg.br/api/v2/eventos/82965",
+  "dataHoraInicio": "2026-09-03T15:55",
+  "dataHoraFim": "2026-09-03T17:29",
+  "situacao": "Encerrada",
+  "descricaoTipo": "Sessão Deliberativa",
+  "descricao": "Sessão Deliberativa Extraordinária Semipresencial (AM nº 123/2020)",
+  "localExterno": null,
+  "localCamara": {
+   "nome": "Plenário da Câmara dos Deputados",
+   "predio": null,
+   "sala": null,
+   "andar": null
+  },
+  "urlRegistro": "https://www.youtube.com/watch?v=68JqpyMQVuY"
+ }
+]
