@@ -249,3 +249,7 @@ Algumas fontes só respondem a IP brasileiro (geobloqueio): `acesso = "brasil"` 
 - O serviço roda com usuário comum, numa pasta com acesso restrito. O `DATABASE_URL` só existe nos Secrets do GitHub e chega ao job em memória; não grave segredo no PC.
 - Um runner persistente guarda o `_work` de cada job. Não deixe ali nada que não possa ser lido pelos jobs.
 - Mantenha o Windows e o runner em dia (o serviço se atualiza sozinho; o script fixa a versão só da instalação).
+
+## IndexNow (aviso aos buscadores)
+
+`.github/workflows/indexnow.yml` avisa Bing, Yandex etc. das páginas atualizadas depois de cada ingestão bem-sucedida (diária: home e `/parlamentar/`; SAPL: `/deputado-estadual/`; mensal: `/cidade/`; TSE: `/eleito/`). Sem segredos: a chave é pública, em `frontend/public/<chave>.txt`. Envio manual: Actions > IndexNow > Run workflow, com `padrao` (regex) opcional. Local: `python scripts/indexnow.py --simular [--padrao REGEX]`. O envio falha se o arquivo da chave ainda não estiver no ar (deploy da Vercel pendente).

@@ -113,6 +113,7 @@
 - [2026-10-20: o que fica fora da soma de gastos aparece no perfil](#2026-10-20-o-que-fica-fora-da-soma-de-gastos-aparece-no-perfil)
 - [2026-10-20: município por nome anterior, plano Pix impedido e naturezas fora do recorte](#2026-10-20-município-por-nome-anterior-plano-pix-impedido-e-naturezas-fora-do-recorte)
 - [2026-10-20: acompanhar atualizações e notícias (para depois)](#2026-10-20-acompanhar-atualizações-e-notícias-para-depois)
+- [2026-10-20: IndexNow após as ingestões](#2026-10-20-indexnow-após-as-ingestões)
 
 ## 2026-10-06: stack inicial
 
@@ -1232,3 +1233,7 @@ Ideias da conversa de 20/10/2026, registradas para não se perderem; nada será 
 
 - **Acompanhar atualizações:** cada perfil já tem feed Atom, sem pedir e-mail. O passo seguinte é um botão "acompanhar" que explique o feed e gere o link para um leitor. Aviso por e-mail ou WhatsApp fica para depois: obriga a guardar contato do cidadão (LGPD, coleta mínima, consentimento e descadastro) e tem custo de envio; precisa de decisão própria antes.
 - **Notícias sobre o representante:** esbarra na regra de só dado oficial, sem juízo. Se entrar, começa só pelas fontes oficiais (Agência Câmara, Agência Senado, sites das assembleias e câmaras), com título, data e link, sem resumo nem classificação feitos por nós. Imprensa comercial, no máximo como link de busca externa, com aviso de que não é dado do Panóptico. Nunca seleção editorial nossa.
+
+## 2026-10-20: IndexNow após as ingestões
+
+Para Bing, Yandex e outros buscadores saberem das páginas novas ou atualizadas sem esperar o rastreio, o site adotou o IndexNow. A chave (`4c18fd44f1bd172d267096252df88142`) é pública por definição e fica no git, em `frontend/public/<chave>.txt`. `scripts/indexnow.py` (só biblioteca padrão) lê o `sitemap.xml`, filtra por regex e envia em lotes de até 10.000 URLs; antes confere que o arquivo da chave responde 200 no site. O workflow `indexnow.yml` roda ao fim bem-sucedido das ingestões (diária: home e `/parlamentar/`; câmaras e assembleias: `/deputado-estadual/`; mensal: `/cidade/`; TSE: `/eleito/`) e manualmente, com padrão opcional. Sem segredos. O Google não participa do IndexNow; para ele vale o sitemap.

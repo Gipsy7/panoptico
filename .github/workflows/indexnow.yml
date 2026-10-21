@@ -1,0 +1,46 @@
+name: IndexNow
+
+# Avisa Bing, Yandex etc. das páginas que mudaram depois de cada ingestão. Sem segredos:
+# a chave do IndexNow é pública (frontend/public/<chave>.txt). Ver docs/DEPLOY_GRATUITO.md.
+on:
+  workflow_dispatch:
+    inputs:
+      padrao:
+        description: "Regex das URLs a enviar (vazio = todas do sitemap)"
+        required: false
+        default: ""
+  workflow_run:
+    workflows:
+      - Ingestão diária
+      - Câmaras e assembleias (SAPL)
+      - Ingestão mensal
+      - Ingestão TSE
+    types: [completed]
+
+permissions:
+  contents: read
+
+jobs:
+  avisar:
+    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Enviar ao IndexNow
+        env:
+          PADRAO: ${{ inputs.padrao }}
+          ORIGEM: ${{ github.event.workflow_run.name }}
+        run: |
+          args=()
+          case "$ORIGEM" in
+            "Ingestão diária") args=(--padrao '^https://[^/]+/?$' --padrao '/parlamentar/') ;;
+            "Câmaras e assembleias (SAPL)") args=(--padrao '/deputado-estadual/') ;;
+            "Ingestão mensal") args=(--padrao '/cidade/') ;;
+            "Ingestão TSE") args=(--padrao '/eleito/') ;;
+            *) if [ -n "$PADRAO" ]; then args=(--padrao "$PADRAO"); fi ;;
+          esac
+          python scripts/indexnow.py "${args[@]}"
