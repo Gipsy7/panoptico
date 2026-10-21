@@ -20,7 +20,7 @@ from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from app.models import FonteIngestao, Orientacao, Parlamentar, ProposicaoTema, Votacao, Voto
-from app.services import presenca
+from app.services import discursos_projeto, presenca, projeto_fontes
 from app.services.votos import ORIENTACAO_VALIDA, VOTO_EFETIVO, url_votacao
 from ingestion.proposicoes_comum import SEM_CLASSIFICACAO
 
@@ -169,6 +169,7 @@ def detalhe(session: Session, casa: str, id_externo: str) -> dict | None:
         else []
     )
     fonte = presenca.FONTES[casa]
+    por_uf = _por_uf(parlamentares)
     tem_oficial = votacao.placar_sim is not None or votacao.placar_nao is not None
     return {
         "casa": casa,
@@ -205,6 +206,49 @@ def detalhe(session: Session, casa: str, id_externo: str) -> dict | None:
         "fonte_nome": fonte["nome"],
         "fonte_url": url_dados(votacao),
         "atualizado_em": _atualizado_em(session, casa),
+        "por_uf": por_uf,
+        "discursos": _discursos(session, votacao),
+    }
+
+
+def _por_uf(parlamentares: list[dict]) -> list[dict]:
+    """Placar por estado: Sim, Não e os demais registros. Estados do maior para o menor número
+    de registros; empate em ordem alfabética."""
+    ufs: dict[str, dict] = {}
+    for p in parlamentares:
+        grupo = ufs.setdefault(p["uf"], {"uf": p["uf"], "sim": 0, "nao": 0, "outros": 0})
+        grupo["sim" if p["voto"] == "Sim" else "nao" if p["voto"] == "Não" else "outros"] += 1
+    resultado = [g | {"total": g["sim"] + g["nao"] + g["outros"]} for g in ufs.values()]
+    return sorted(resultado, key=lambda g: (-g["total"], g["uf"]))
+
+
+def _discursos(session: Session, votacao: Votacao) -> dict | None:
+    """Discursos do dia sobre o projeto, agrupados pelo voto nesta votação. Só quando esta é a
+    última votação nominal do projeto no dia (os discursos se ligam ao projeto e ao dia, não a
+    uma votação específica); nas outras do mesmo dia o campo fica vazio."""
+    if not votacao.proposicao_id_externo:
+        return None
+    votacoes = discursos_projeto.votacoes_do_projeto(
+        session, votacao.casa, votacao.proposicao_id_externo
+    )
+    final = discursos_projeto.final_de_cada_dia(votacoes).get(votacao.data)
+    if final is None or final.id != votacao.id:
+        return None
+    dias = discursos_projeto.discursos_por_dia(
+        session, votacao.casa, votacao.proposicao_id_externo, votacoes, apenas_dia=votacao.data
+    )
+    grupos = (
+        dias[0]["grupos"]
+        if dias
+        else [
+            {"chave": c, "rotulo": r, "quantidade": 0, "discursos": []}
+            for c, r in discursos_projeto.GRUPOS
+        ]
+    )
+    return {
+        "total": sum(g["quantidade"] for g in grupos),
+        "grupos": grupos,
+        **projeto_fontes.fonte_do_bloco(session, "discursos", votacao.casa),
     }
 
 

@@ -2,9 +2,11 @@
 
 Só aditiva: `proposicao.autor_descricao` e `proposicao.origem`; em `votacao_local`,
 `materia_id_externo`, `materia_ementa` e `projeto_local_id` (FK opcional para `projeto_local`,
-SET NULL); e índices GIN por expressão `to_tsvector('portuguese', ementa)` em `proposicao`,
-`projeto_local` e `votacao_local.materia_ementa`. Sem extensão nova (a busca sem acento fica
-para a normalização da API, porque `unaccent` exigiria `CREATE EXTENSION`). Sem
+SET NULL); e índices GIN por expressão
+`to_tsvector('portuguese', translate(lower(ementa), ...))` em `proposicao`,
+`projeto_local` e `votacao_local.materia_ementa`. A expressão
+normaliza acento com `translate(lower(...))` (IMMUTABLE), sem extensão nova, para a busca sem
+acento ("saude mental" acha "saúde mental"). Sem
 RECARREGAR_DADOS: as próximas cargas preenchem as colunas novas.
 
 Revision ID: 0056_proposicao_ampliada
@@ -22,6 +24,12 @@ revision: str = "0056_proposicao_ampliada"
 down_revision: str | None = "0055_pauta_tramitacao"
 branch_labels: str | Sequence[str] | None = None
 depends_on: str | Sequence[str] | None = None
+
+# Mesma expressão de app/services/texto_busca.sql_tsvector (um teste compara os dois): minúsculas
+# e sem acento, para "saude mental" achar "saúde mental". `translate` e `lower` são IMMUTABLE.
+ACENTUADAS = "áàâãäéèêëíìîïóòôõöúùûüçñÁÀÂÃÄÉÈÊËÍÌÎÏÓÒÔÕÖÚÙÛÜÇÑ"
+SEM_ACENTO = "aaaaaeeeeiiiiooooouuuucnaaaaaeeeeiiiiooooouuuucn"
+EXPRESSAO = "to_tsvector('portuguese', translate(lower({coluna}), '{de}', '{para}'))"
 
 INDICES_BUSCA = [
     ("ix_proposicao_ementa_busca", "proposicao", "ementa"),
@@ -63,7 +71,7 @@ def upgrade() -> None:
     for nome, tabela, coluna in INDICES_BUSCA:
         op.execute(
             f"CREATE INDEX IF NOT EXISTS {nome} ON {tabela} "
-            f"USING gin (to_tsvector('portuguese', {coluna}))"
+            f"USING gin ({EXPRESSAO.format(coluna=coluna, de=ACENTUADAS, para=SEM_ACENTO)})"
         )
 
 

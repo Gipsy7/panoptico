@@ -211,3 +211,46 @@ def test_lista_de_votos_do_perfil_leva_o_id_da_votacao(client, session):
     itens = client.get(f"/parlamentares/{deputados[0].id}/votos?ano=2026").json()["itens"]
     assert [i["id_externo"] for i in itens] == ["1-1", "2-1"]
     assert date.fromisoformat(itens[0]["data"]) == date(2026, 9, 3)
+
+
+def test_campos_novos_por_uf_e_discursos_no_explicador(client, session):
+    """`por_uf` e `discursos` são opcionais e novos; o formato antigo não muda."""
+    from datetime import datetime
+
+    from app.models import Discurso
+    from tests.helpers_projetos import parlamentar, votacao
+
+    ana = parlamentar(session, "Ana", "SC", "PXX")
+    bia = parlamentar(session, "Bia", "SC", "PYY")
+    caio = parlamentar(session, "Caio", "AC", "PXX")
+    votacao(session, "50-1", "900", date(2026, 9, 3), {ana.id: "Sim"},
+            descricao="Aprovado o texto-base.")  # fmt: skip
+    votacao(session, "50-2", "900", date(2026, 9, 3),
+            {ana.id: "Sim", bia.id: "Não", caio.id: "Abstenção"},
+            descricao="Aprovada a redação final.")  # fmt: skip
+    ing = _ingestao(session)
+    session.add(
+        Discurso(casa="camara", id_externo="d1", parlamentar_id=bia.id, data=date(2026, 9, 3),
+                 data_hora=datetime(2026, 9, 3, 15), fase="Ordem do Dia", tipo="DISCUSSÃO",
+                 sumario="Resumo.", url_texto="https://t", proposicao_id_externo="900",
+                 ingestao_id=ing.id)
+    )  # fmt: skip
+    session.flush()
+
+    corpo = client.get("/votacoes/camara/50-2").json()
+    assert corpo["por_uf"] == [
+        {"uf": "SC", "sim": 1, "nao": 1, "outros": 0, "total": 2},
+        {"uf": "AC", "sim": 0, "nao": 0, "outros": 1, "total": 1},
+    ]
+    discursos = corpo["discursos"]
+    assert discursos["total"] == 1
+    assert [g["chave"] for g in discursos["grupos"]] == ["sim", "nao", "outro", "sem_voto"]
+    assert discursos["grupos"][1]["discursos"][0]["nome"] == "Bia"
+    assert discursos["fonte_nome"]
+    # Campos de antes continuam lá.
+    assert {"placar", "partidos", "parlamentares", "liderancas"} <= set(corpo)
+
+    # A primeira votação do dia não é a final: os discursos do dia não se ligam a ela.
+    anterior = client.get("/votacoes/camara/50-1").json()
+    assert anterior["discursos"] is None
+    assert anterior["por_uf"] == [{"uf": "SC", "sim": 1, "nao": 0, "outros": 0, "total": 1}]

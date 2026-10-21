@@ -13,6 +13,7 @@ from app.api import (
     parlamentares,
     partidos,
     pessoas,
+    projetos,
     representantes,
     saude,
     segundo_turno,
@@ -67,4 +68,6 @@ app.include_router(busca.router)
 app.include_router(pessoas.router)
 app.include_router(partidos.router)
 app.include_router(segundo_turno.router)
+# projetos antes de votacoes: /votacoes/local/{id} precisa vir antes de /votacoes/{casa}/{id}.
+app.include_router(projetos.router)
 app.include_router(votacoes.router)
