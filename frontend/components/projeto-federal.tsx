@@ -22,7 +22,7 @@ import { QuemVotou } from "@/components/quem-votou";
 import { Revelacao } from "@/components/revelacao";
 import { type ProjetoFederal, getProjetoFederal } from "@/lib/api";
 import { CASA_CURTA, CASA_DA, NOME_CASA, formatarData, textoResultado } from "@/lib/formato";
-import { caminhoInterno, lerUf, placarDaVotacao, recortar, situacaoSimples, textoCompartilharProjeto } from "@/lib/projetos";
+import { caminhoInterno, lerUf, placarDaVotacao, placarMaiorQueALista, recortar, situacaoSimples, textoCompartilharProjeto } from "@/lib/projetos";
 
 const INTEIRO = new Intl.NumberFormat("pt-BR");
 const n = (v: number) => INTEIRO.format(v);
@@ -329,6 +329,7 @@ function QuemVotouSecao({ d, ufInicial }: { d: ProjetoFederal; ufInicial: string
       </section>
     );
   }
+  const diferenca = placarMaiorQueALista(b.votacao.placar_publicado, b.grupos);
   return (
     <section aria-labelledby="quem-titulo" className="flex flex-col gap-4">
       <div>
@@ -343,6 +344,17 @@ function QuemVotouSecao({ d, ufInicial }: { d: ProjetoFederal; ufInicial: string
         </Link>
       </div>
       <QuemVotou grupos={b.grupos} porUf={b.por_uf} ufInicial={ufInicial} />
+      {diferenca && (
+        <div className="nota text-sm tabular-nums">
+          <p className="font-medium">Por que a lista soma menos que o placar?</p>
+          <p>
+            O placar publicado pela Casa tem Sim {diferenca.sim.toLocaleString("pt-BR")} e Não{" "}
+            {diferenca.nao.toLocaleString("pt-BR")}; a lista desta página tem Sim{" "}
+            {diferenca.listaSim.toLocaleString("pt-BR")} e Não {diferenca.listaNao.toLocaleString("pt-BR")}. Os votos de
+            quem já deixou o cargo contam no placar, mas não estão no nosso cadastro.
+          </p>
+        </div>
+      )}
       <p className="text-xs text-muted-foreground">{b.regra}</p>
       <FonteRodape fonte={b.fonte_nome} url={b.fonte_url} atualizadoEm={b.atualizado_em} />
     </section>

@@ -217,6 +217,10 @@ def test_escolher_principal_cai_na_ultima_quando_todas_sao_acessorias(session):
     b = votacao(session, "1-2", "5", date(2026, 1, 2), descricao="Rejeitada a emenda nº 3.")
     assert escolher_principal([a, b]) is b
     assert escolher_principal([]) is None
+    c = votacao(session, "1-3", "5", date(2026, 1, 3), descricao="Rejeitado o Recurso nº 2.")
+    assert escolher_principal([a, b, c]) is c  # recurso também é acessório
+    d = votacao(session, "1-0", "5", date(2025, 12, 1), descricao="Aprovado o texto.")
+    assert escolher_principal([d, a, b, c]) is d
 
 
 def test_discursos_agrupados_pelo_voto_do_orador(client, session):

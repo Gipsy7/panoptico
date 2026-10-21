@@ -34,7 +34,7 @@ from app.models import (
     VotacaoLocal,
 )
 from app.services import discursos_projeto, projeto_fontes, texto_busca
-from app.services.projeto_detalhe import _contagens
+from app.services.projeto_detalhe import _contagens, escolher_principal
 
 POR_PAGINA = 20
 SIGLAS = {
@@ -74,6 +74,8 @@ def reconhecer_numero(q: str) -> dict | None:
     sigla = achou["sigla"].upper() if achou["sigla"] else None
     if sigla and sigla not in SIGLAS:
         return None
+    if sigla == "MP":  # medida provisória: a sigla oficial nas bases é MPV
+        sigla = "MPV"
     return {
         "sigla": sigla,
         "numero": int(achou["numero"].replace(".", "")),
@@ -383,7 +385,7 @@ def _filtros(q, esfera, casa, uf, municipio, tema, ano, votacao) -> dict:
 
 
 def _ultimas_votacoes(session: Session, linhas: list) -> dict[tuple, dict]:
-    """Última votação nominal de cada item da página, por (tipo, casa, ref)."""
+    """Votação principal (mesma regra do detalhe) de cada item da página, por (tipo, casa, ref)."""
     resultado: dict[tuple, dict] = {}
     federais = [(r.casa, r.ref) for r in linhas if r.tipo == "proposicao"]
     if federais:
@@ -396,7 +398,7 @@ def _ultimas_votacoes(session: Session, linhas: list) -> dict[tuple, dict]:
         for v in votacoes:
             por_projeto[(v.casa, v.proposicao_id_externo)].append(v)
         ultimas = {
-            chave: max(vs, key=discursos_projeto.ordem_da_votacao)
+            chave: escolher_principal(sorted(vs, key=discursos_projeto.ordem_da_votacao))
             for chave, vs in por_projeto.items()
         }
         sem_publicado = [v.id for v in ultimas.values() if v.placar_sim is None]

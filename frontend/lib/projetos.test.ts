@@ -11,6 +11,7 @@ import {
   lerFiltrosProjetos,
   lerUf,
   placarDaVotacao,
+  placarMaiorQueALista,
   ordenarGruposDiscurso,
   ordenarGruposVoto,
   situacaoSimples,
@@ -163,6 +164,21 @@ describe("placarDaVotacao", () => {
   it("prefere o placar publicado pela Casa", () => {
     expect(placarDaVotacao({ ...base, placar_publicado: { sim: 12, nao: 6, abstencao: 0 } })).toEqual({ sim: 12, nao: 6, daFonte: true });
     expect(placarDaVotacao({ ...base, placar_publicado: null })).toEqual({ sim: 10, nao: 5, daFonte: false });
+  });
+});
+
+describe("placarMaiorQueALista", () => {
+  const grupos = [
+    { chave: "sim", quantidade: 343 },
+    { chave: "nao", quantidade: 90 },
+  ];
+  it("devolve os números quando o placar publicado é maior que a lista", () => {
+    expect(placarMaiorQueALista({ sim: 346, nao: 90 }, grupos)).toEqual({ sim: 346, nao: 90, listaSim: 343, listaNao: 90 });
+  });
+  it("devolve null quando bate, quando é menor ou quando não há placar publicado", () => {
+    expect(placarMaiorQueALista({ sim: 343, nao: 90 }, grupos)).toBeNull();
+    expect(placarMaiorQueALista({ sim: 300, nao: 80 }, grupos)).toBeNull();
+    expect(placarMaiorQueALista(null, grupos)).toBeNull();
   });
 });
 

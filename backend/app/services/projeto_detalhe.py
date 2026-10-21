@@ -3,7 +3,7 @@ quem votou, discursos, caminho da tramitação e pauta, cada bloco com fonte e d
 
 Regras (docs/DECISOES.md, 2026-10-21):
 - Votação principal: a última votação nominal do texto, isto é, a mais recente cuja descrição
-  não fala em "Requerimento", "Destaque" ou "Emenda"; se todas falam, a última de todas.
+  não fala em "Requerimento", "Destaque", "Emenda" ou "Recurso"; se todas falam, a última de todas.
 - Grupos de quem votou sempre na ordem Sim, Não, outros registros; pessoas em ordem
   alfabética; partidos e estados do maior para o menor número, depois alfabética.
 - Discursos: ligados ao projeto e ao dia, agrupados pelo voto do orador na última votação
@@ -34,7 +34,7 @@ from app.services.votos import VOTO_EFETIVO, url_votacao
 from ingestion.proposicoes_comum import SEM_CLASSIFICACAO
 
 ROTULO_RE = re.compile(r"^\s*([A-Za-z]+)\s+0*(\d+)\s*/\s*(\d{4})")
-NAO_PRINCIPAL = re.compile(r"\b(requerimento|destaque|emenda)")
+NAO_PRINCIPAL = re.compile(r"\b(requerimento|destaque|emenda|recurso)")
 
 AVISO_SEM_VOTACAO = (
     "Ainda não teve votação nominal no Plenário. Pode ter sido votado de forma simbólica, "
@@ -58,7 +58,7 @@ AVISO_DO_DIA = (
 )
 REGRA_PRINCIPAL = (
     "Última votação nominal do texto: a mais recente cuja descrição não fala em requerimento, "
-    "destaque ou emenda; se todas falam, a última de todas."
+    "destaque, emenda ou recurso; se todas falam, a última de todas."
 )
 
 

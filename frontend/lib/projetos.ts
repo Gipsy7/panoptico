@@ -202,6 +202,24 @@ export function placarDaVotacao(v: VotacaoDoProjeto): { sim: number; nao: number
   return { sim: o?.sim ?? v.placar_contado.sim, nao: o?.nao ?? v.placar_contado.nao, daFonte };
 }
 
+/**
+ * Quando o placar publicado pela Casa é maior que a soma do grupo correspondente da lista
+ * (votos de quem já deixou o cargo contam no placar, mas não estão no nosso cadastro),
+ * devolve os números de Sim e Não; senão null.
+ */
+export function placarMaiorQueALista(
+  publicado: { sim: number | null; nao: number | null } | null | undefined,
+  grupos: Pick<GrupoQuemVotou, "chave" | "quantidade">[],
+): { sim: number; nao: number; listaSim: number; listaNao: number } | null {
+  if (!publicado) return null;
+  const listaSim = grupos.find((g) => g.chave === "sim")?.quantidade ?? 0;
+  const listaNao = grupos.find((g) => g.chave === "nao")?.quantidade ?? 0;
+  const sim = publicado.sim ?? 0;
+  const nao = publicado.nao ?? 0;
+  if (sim <= listaSim && nao <= listaNao) return null;
+  return { sim, nao, listaSim, listaNao };
+}
+
 export type VotoLocal = { mandato_id: number; nome: string; partido: string | null; voto: string };
 
 /**
