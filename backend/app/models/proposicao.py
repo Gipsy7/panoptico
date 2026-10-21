@@ -25,6 +25,13 @@ class Proposicao(Base):
     url: Mapped[str] = mapped_column(String(500))
     ingestao_id: Mapped[int | None] = mapped_column(ForeignKey("fonte_ingestao.id"))
 
+    # Relator (tramitação): nome como a Casa publica e, quando é parlamentar que temos, o id.
+    # Preenchido por ingestion.*.tramitacoes.
+    relator: Mapped[str | None] = mapped_column(String(200))
+    relator_parlamentar_id: Mapped[int | None] = mapped_column(
+        ForeignKey("parlamentar.id", ondelete="SET NULL")
+    )
+
 
 class Autoria(Base):
     __tablename__ = "autoria"

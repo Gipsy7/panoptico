@@ -114,6 +114,7 @@
 - [2026-10-20: município por nome anterior, plano Pix impedido e naturezas fora do recorte](#2026-10-20-município-por-nome-anterior-plano-pix-impedido-e-naturezas-fora-do-recorte)
 - [2026-10-20: acompanhar atualizações e notícias (para depois)](#2026-10-20-acompanhar-atualizações-e-notícias-para-depois)
 - [2026-10-20: IndexNow após as ingestões](#2026-10-20-indexnow-após-as-ingestões)
+- [2026-10-21: ingestão de pauta e tramitação](#2026-10-21-ingestão-de-pauta-e-tramitação)
 
 ## 2026-10-06: stack inicial
 
@@ -1237,3 +1238,25 @@ Ideias da conversa de 20/10/2026, registradas para não se perderem; nada será 
 ## 2026-10-20: IndexNow após as ingestões
 
 Para Bing, Yandex e outros buscadores saberem das páginas novas ou atualizadas sem esperar o rastreio, o site adotou o IndexNow. A chave (`4c18fd44f1bd172d267096252df88142`) é pública por definição e fica no git, em `frontend/public/<chave>.txt`. `scripts/indexnow.py` (só biblioteca padrão) lê o `sitemap.xml`, filtra por regex e envia em lotes de até 10.000 URLs; antes confere que o arquivo da chave responde 200 no site. O workflow `indexnow.yml` roda ao fim bem-sucedido das ingestões (diária: home e `/parlamentar/`; câmaras e assembleias: `/deputado-estadual/`; mensal: `/cidade/`; TSE: `/eleito/`) e manualmente, com padrão opcional. Sem segredos. O Google não participa do IndexNow; para ele vale o sitemap.
+
+## 2026-10-21: ingestão de pauta e tramitação
+
+Onda 2 de "Projetos e votações" (migração `0054_pauta_tramitacao`, só acréscimos, sem `RECARREGAR_DADOS`). Continuação do reconhecimento da mesma data; fontes e armadilhas em [FONTES_DE_DADOS.md](FONTES_DE_DADOS.md).
+
+- **Tabelas novas:** `pauta_item` (casa, data, sessão, ordem, rótulo, `proposicao_id_externo`, ementa, url) e `tramitacao` (casa, `proposicao_id_externo`, ordem, data e hora, órgão, tipo, descrição, situação, `fonte_marca`). Em `proposicao`, `relator` e `relator_parlamentar_id` (FK opcional, `SET NULL`). A tramitação **não depende** de a proposição estar em `proposicao`: matéria antiga votada tem tramitação e fica sem relator gravado.
+- **Colunas além das combinadas:** `tramitacao.tipo` (o ato como a Câmara classifica: "Votação (Plenário)"; no Senado fica vazio) para quem fizer o mapa de etapas; e `tramitacao.fonte_marca`, a marca da fonte na hora da busca, que sustenta o incremental sem tabela de controle nem coluna em `proposicao`.
+- **Pauta:** janela de hoje a +14 dias, recarga integral por Casa a cada carga (apaga a Casa inteira e regrava; sessões passadas saem). Janela vazia **não aborta** (período eleitoral e recesso são legítimos: em 21/10/2026 as duas Casas deram 0 itens). Câmara: `/eventos?idOrgao=180` + `/eventos/{id}/pauta`, uma matéria por sessão (o item se repete por votação), com a `proposicaoRelacionada_` quando existe (MPV e matérias com parecer: PAR/PEP, ano 0). Senado: `/plenario/agenda/mes/{data}`, com uma segunda chamada quando a janela cruza o mês; sessão cancelada fica fora.
+- **Tramitação, recorte padrão (produção e acervo):** proposições com votação nominal (`votacao`) do ano anterior e do atual, mais as que estão em `pauta_item`. `--todas` (só no acervo, documentado nos dois módulos e em `fontes.toml` com `args = { todas = true }`) soma tudo de `proposicao`. A produção roda o `run_all` sem `--todas`.
+- **Incremental:** a "sonda" é barata e a busca pesada só ocorre quando a marca muda. Câmara: a ficha `/proposicoes/{id}` (data e sequência do `statusProposicao`) decide se busca `/tramitacoes` e o relator. Senado: `/processo?codigoMateria=` (ponte codigoMateria → idProcesso) traz `dataUltimaAtualizacao`; só então busca `/processo/{id}` e `/processo/relatoria`. Quando a marca muda, as linhas da proposição são apagadas e reinseridas. Processo do Senado **sem** `dataUltimaAtualizacao` na lista (27 de 167 no teste real, ex.: PEC 81/2015) é sempre rebuscado: `None == None` jamais conta como "sem mudança" (bug achado na carga real).
+- **Ordem e texto:** `ordem` é a posição por (data, sequência), porque a `sequencia` da Câmara tem buracos; o último status da ficha pode ser mais novo que a última linha de `/tramitacoes` (PLP 74/2026: sequência 50 na ficha, 49 na lista), por isso a marca vem da ficha. Câmara: `descricao` = `despacho` (o texto que explica), com `descricaoTramitacao` quando falta; Senado: o informe legislativo, com a situação do processo vigente na data.
+- **Relator:** o **último relator designado**, não necessariamente o atual. Câmara: `uriUltimoRelator` da ficha + nome em `/deputados/{id}` (uma chamada por relator novo). Senado: designação mais recente de `/processo/relatoria` (mesmo já encerrada: PEC 22/2025 tem a relatoria encerrada por deliberação). O id do parlamentar só é gravado se o parlamentar já está na tabela.
+- **Medido (banco descartável, cópia das votações do dev, API real de 21/10/2026):**
+
+| Casa | Proposições | Linhas | Observação |
+|---|---|---|---|
+| Câmara | 226 | 13.753 (média 61; mais que as 10 mil estimadas, porque requerimentos e emendas votadas têm tramitação longa) | 239 s na carga inicial, 87 s no incremental sem mudança |
+| Senado | 167 | 4.345 (média 26) | 208 s + 87 s; 1ª passada parou em 140 pelo `None == None` acima |
+| Total | 393 | 18.098 | `tramitacao` com índice: 7,2 MB (`pg_total_relation_size`); relator gravado em 153 proposições |
+
+  Descrição: média de 150 caracteres, máximo de 8.307. Pauta real de 21/10/2026: 0 itens nas duas Casas.
+- **Pendências para as próximas ondas:** a API precisa do mapa "etapas do dia a dia" (textos variados, ver FONTES_DE_DADOS.md); `app/services/fontes.py` (página "Sobre as fontes") ainda não lista `camara_pauta`, `senado_pauta`, `camara_tramitacoes` e `senado_tramitacoes`.

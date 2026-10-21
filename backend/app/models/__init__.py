@@ -31,6 +31,7 @@ from app.models.partido_conta import (
     PartidoDespesaVinculada,
     PartidoFefcFp,
 )
+from app.models.pauta import PautaItem, Tramitacao
 from app.models.pessoa import (
     Caso,
     CasoDocumento,
@@ -105,6 +106,7 @@ __all__ = [
     "Municipio",
     "Orientacao",
     "Parlamentar",
+    "PautaItem",
     "PartidoContaSoma",
     "PartidoCotaMensal",
     "PartidoDespesaVinculada",
@@ -129,6 +131,7 @@ __all__ = [
     "CpgfPortadorMes",
     "ServidorFederal",
     "SocioPessoa",
+    "Tramitacao",
     "ViagemFederalAno",
     "Votacao",
     "VotacaoComissao",

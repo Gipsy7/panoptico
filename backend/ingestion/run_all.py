@@ -9,16 +9,20 @@ from collections.abc import Callable
 from ingestion import comum, limpar_raw, resumos
 from ingestion.camara import deputados
 from ingestion.camara import despesas as despesas_camara
+from ingestion.camara import pauta as pauta_camara
 from ingestion.camara import proposicoes as proposicoes_camara
 from ingestion.camara import temas as temas_camara
+from ingestion.camara import tramitacoes as tramitacoes_camara
 from ingestion.camara import votacoes as votacoes_camara
 from ingestion.canais import catalogo as canais
 from ingestion.congresso import emendas_relator
 from ingestion.ibge import municipios
 from ingestion.senado import despesas as despesas_senado
+from ingestion.senado import pauta as pauta_senado
 from ingestion.senado import proposicoes as proposicoes_senado
 from ingestion.senado import senadores
 from ingestion.senado import temas as temas_senado
+from ingestion.senado import tramitacoes as tramitacoes_senado
 from ingestion.senado import votacoes as votacoes_senado
 from ingestion.senado import votacoes_comissoes as comissoes_senado
 from ingestion.transferegov import convenios as convenios_emendas
@@ -43,6 +47,11 @@ def _tarefas() -> list[tuple[str, Callable[[], int]]]:
     # Depois das votações: busca na API os temas das matérias votadas que faltarem.
     tarefas.append((temas_camara.FONTE, temas_camara.executar))
     tarefas.append((temas_senado.FONTE, temas_senado.executar))
+    # Pauta do Plenário (hoje a +14 dias) e, em seguida, a tramitação do recorte: votadas e pauta.
+    tarefas.append((pauta_camara.FONTE, pauta_camara.executar))
+    tarefas.append((pauta_senado.FONTE, pauta_senado.executar))
+    tarefas.append((tramitacoes_camara.FONTE, tramitacoes_camara.executar))
+    tarefas.append((tramitacoes_senado.FONTE, tramitacoes_senado.executar))
     tarefas.append((municipios.FONTE, municipios.executar))
     tarefas.append((canais.FONTE, canais.executar))  # catálogo versionado; não acessa sites
     tarefas.append((emendas.FONTE, emendas.executar))
