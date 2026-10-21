@@ -379,3 +379,14 @@ def test_senado_pede_um_mes_do_calendario_por_vez(monkeypatch):
     senado.baixar(None, date(2025, 2, 1), date(2025, 3, 15), True)
     assert urls[0].endswith("/20250201/20250228")
     assert urls[1].endswith("/20250301/20250315")
+
+
+def test_resumo_sem_html():
+    from ingestion import discursos_comum as dc
+
+    assert (
+        dc.limpar_texto("O Deputado discutiu o&nbsp;Projeto de Lei Complementar nº 74")
+        == "O Deputado discutiu o Projeto de Lei Complementar nº 74"
+    )
+    assert dc.limpar_texto("<p>Defendeu a&amp;nbsp;aprovação.</p>") == "Defendeu a aprovação."
+    assert dc.limpar_texto("  ") is None

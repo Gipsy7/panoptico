@@ -36,6 +36,9 @@ function ItemDiscurso({ d }: { d: DiscursoNaVotacao }) {
       ) : (
         <p className="text-sm text-muted-foreground">A Casa não publicou resumo deste discurso.</p>
       )}
+      {!d.url_texto && !d.url_video && (
+        <p className="text-xs text-muted-foreground">A Casa ainda não publicou o texto integral deste discurso.</p>
+      )}
       {(d.url_texto || d.url_video) && (
         <p className="flex flex-wrap gap-x-4 text-sm">
           {d.url_texto && (

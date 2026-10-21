@@ -146,7 +146,7 @@ def normalizar(payload: dict[str, Any]) -> list[dict[str, Any]]:
             if len(instante) < 10:
                 continue
             n = ocorrencia[instante] = ocorrencia.get(instante, 0) + 1
-            sumario = " ".join((d.get("sumario") or "").split()) or None
+            sumario = dc.limpar_texto(d.get("sumario"))
             registros.append(
                 {
                     "id_externo": f"{id_deputado}:{instante}:{n}",

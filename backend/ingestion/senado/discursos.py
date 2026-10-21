@@ -76,7 +76,7 @@ def normalizar(payload: dict[str, Any]) -> list[dict[str, Any]]:
                 dia = p.get("Data") or sessao.get("DataSessao")
                 if not codigo or not dia:
                     continue
-                resumo = " ".join((p.get("Resumo") or "").split()) or None
+                resumo = dc.limpar_texto(p.get("Resumo"))
                 registros.append(
                     {
                         "id_externo": str(p["CodigoPronunciamento"]),

@@ -9,6 +9,7 @@ Câmara, abaixo do limite de 90%). `proposicao_id_externo` só é preenchido qua
 sem casamento único, fica nulo (vira "discurso do dia").
 """
 
+import html
 import re
 import unicodedata
 from collections import defaultdict
@@ -43,6 +44,15 @@ _RX_CURTO = re.compile(
     r"\b(PLP|PLV|PDL|PRC|PEC|MPV|MP|PL)\s*(?:n[ºo°]\.?\s*)?([\d\.]+)\s*(?:/|,?\s*de\s+)\s*(\d{2,4})\b"
 )
 _RX_ROTULO = re.compile(r"^([A-Z]+) (\d+)/(\d{4})")
+
+
+def limpar_texto(texto: str | None) -> str | None:
+    """Resumo oficial como texto simples: a fonte às vezes manda HTML (`&nbsp;`, `<p>`). Converte
+    entidades, tira marcações e junta os espaços; vazio vira None."""
+    if not texto:
+        return None
+    sem_tags = re.sub(r"<[^>]+>", " ", html.unescape(html.unescape(texto)))
+    return " ".join(sem_tags.replace(" ", " ").split()) or None
 
 
 def _sem_acento(texto: str) -> str:
