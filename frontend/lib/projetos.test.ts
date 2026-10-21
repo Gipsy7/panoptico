@@ -32,6 +32,12 @@ describe("lerFiltrosProjetos", () => {
     const f = lerFiltrosProjetos({ q: " saude ", esfera: "mundial", uf: "sc", ano: "20x", pagina: "3", votacao: "com" });
     expect(f).toEqual({ q: "saude", uf: "SC", pagina: "3", votacao: "com" });
   });
+
+  it("tira a cidade que não é do estado escolhido", () => {
+    expect(lerFiltrosProjetos({ uf: "SC", municipio: "4205902" }).municipio).toBe("4205902");
+    expect(lerFiltrosProjetos({ uf: "RJ", municipio: "4205902" }).municipio).toBeUndefined();
+    expect(lerFiltrosProjetos({ municipio: "4205902" }).municipio).toBe("4205902");
+  });
 });
 
 describe("enderecoProjetos", () => {

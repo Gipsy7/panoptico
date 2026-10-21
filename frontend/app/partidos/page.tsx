@@ -7,7 +7,9 @@ import { TabelaRolavel } from "@/components/ui/tabela-rolavel";
 import { AvisoErro } from "@/components/aviso-erro";
 import { FonteRodape } from "@/components/fonte-rodape";
 import { Revelacao } from "@/components/revelacao";
-import { BarraFiltros } from "@/components/ui/barra-filtros";
+import { CampoSelect, type FiltroAtivo, PilulasAtivas } from "@/components/ui/campos-filtro";
+import { CamposOrdenacao } from "@/components/ui/campos-filtro-cliente";
+import { PainelFiltros } from "@/components/ui/painel-filtros";
 import { Resumo2x2 } from "@/components/ui/resumo-2x2";
 import { type PartidoNaLista, getPartidos } from "@/lib/api";
 import { formatarReais, formatarReaisCompacto } from "@/lib/formato";
@@ -67,6 +69,21 @@ async function Tabela({ ano, ordenar, ordem }: { ano?: string; ordenar?: string;
 
   const soma = (campo: keyof Omit<PartidoNaLista, "sigla">) => dados.partidos.reduce((t, p) => t + p[campo], 0);
   const gastoMedio = dados.partidos.length ? soma("gasto") / dados.partidos.length : 0;
+  const anoPadrao = Math.max(...dados.anos_disponiveis);
+  const nomeColuna = COLUNAS.find((c) => c.id === coluna)!.rotulo;
+  const ativos: FiltroAtivo[] = [
+    ...(dados.ano !== anoPadrao ? [{ rotulo: `Contas de ${dados.ano}`, href: href(anoPadrao, coluna, sentido) }] : []),
+    ...(coluna !== "sigla" || sentido !== "asc"
+      ? [
+          {
+            rotulo: `Ordem: ${nomeColuna.toLowerCase()} (${
+              coluna === "sigla" ? "de Z a A" : sentido === "desc" ? "maior primeiro" : "menor primeiro"
+            })`,
+            href: href(dados.ano, "sigla", "asc"),
+          },
+        ]
+      : []),
+  ];
 
   return (
     <>
@@ -83,28 +100,30 @@ async function Tabela({ ano, ordenar, ordem }: { ano?: string; ordenar?: string;
           },
         ]}
       />
-      <BarraFiltros
-        contador={(dados.ano !== dados.anos_disponiveis[0] ? 1 : 0) + (coluna !== "sigla" ? 1 : 0)}
-        limparHref="/partidos"
-        grupos={[
-          {
-            titulo: "Contas de",
-            itens: dados.anos_disponiveis.map((a) => ({
-              rotulo: String(a),
-              href: href(a, coluna, sentido),
-              ativa: a === dados.ano,
-            })),
-          },
-          {
-            titulo: "Ordenar por",
-            itens: COLUNAS.map((c) => ({
-              rotulo: c.rotulo,
-              href: href(dados.ano, c.id, c.id === "sigla" ? "asc" : "desc"),
-              ativa: c.id === coluna,
-            })),
-          },
-        ]}
-      />
+      <section aria-label="Filtros da tabela" className="flex flex-col gap-[var(--esp-4)]">
+        <PainelFiltros
+          key={`${dados.ano}-${coluna}-${sentido}`}
+          action="/partidos"
+          ativos={ativos.length}
+          limparHref="/partidos"
+          padroes={{ ano: String(anoPadrao), ordenar: "sigla" }}
+          titulo="Ano e ordem da tabela"
+        >
+          <CampoSelect
+            rotulo="Contas do ano"
+            name="ano"
+            defaultValue={String(dados.ano)}
+            opcoes={dados.anos_disponiveis.map((a) => ({ valor: String(a), rotulo: a === anoPadrao ? `${a} (mais recente)` : String(a) }))}
+          />
+          <CamposOrdenacao
+            criterios={COLUNAS.map((c) => ({ valor: c.id, rotulo: c.rotulo }))}
+            ordenar={coluna}
+            ordem={sentido}
+            textuais={["sigla"]}
+          />
+        </PainelFiltros>
+        <PilulasAtivas itens={ativos} limparHref="/partidos" />
+      </section>
 
       <section aria-labelledby="partidos-titulo" className="revelar flex flex-col gap-3">
         <h2 id="partidos-titulo" className="text-xl">
@@ -127,7 +146,7 @@ async function Tabela({ ano, ordenar, ordem }: { ano?: string; ordenar?: string;
                       aria-sort={ativa ? (sentido === "asc" ? "ascending" : "descending") : undefined}
                       className={`py-2 pr-3 align-bottom font-medium ${c.id === "sigla" ? "" : "text-right"}`}
                     >
-                      <Link href={href(dados.ano, c.id, proximo)} className="underline-offset-4 hover:underline">
+                      <Link href={href(dados.ano, c.id, proximo)} scroll={false} className="alvo-link underline-offset-4 hover:underline">
                         {c.rotulo}
                         {ativa && <span aria-hidden> {sentido === "asc" ? "↑" : "↓"}</span>}
                       </Link>

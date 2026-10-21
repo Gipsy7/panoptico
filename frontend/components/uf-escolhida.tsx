@@ -60,13 +60,13 @@ export function SeletorUf({
   rotulo?: string;
 }) {
   return (
-    <label htmlFor={id} className="flex min-w-0 flex-col gap-1 text-sm">
+    <label htmlFor={id} className="flex min-w-0 flex-col gap-[var(--esp-1)] text-sm font-medium">
       {rotulo}
       <select
         id={id}
         value={uf ?? ""}
         onChange={(e) => onChange(lerUf(e.target.value))}
-        className="seletor w-full sm:w-64"
+        className="campo-filtro font-normal sm:w-72"
       >
         <option value="">Todos os estados</option>
         {UFS.map((u) => (

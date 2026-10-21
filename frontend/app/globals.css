@@ -396,6 +396,59 @@
   }
 }
 
+/* Campo grande de filtro (seletor ou busca): 48 px, texto de 16 px (o iOS não dá zoom). */
+/* Borda em --muted-foreground: contraste de 4,8:1 (claro) e 6,4:1 (escuro), acima dos 3:1 de componente. */
+@utility campo-filtro {
+  height: 3rem;
+  width: 100%;
+  min-width: 0;
+  border: 1px solid var(--muted-foreground);
+  border-radius: 2px;
+  background-color: var(--background);
+  color: var(--foreground);
+  padding-inline: 0.75rem;
+  font-size: 1rem;
+  &::placeholder {
+    color: var(--muted-foreground);
+  }
+  &:focus-visible {
+    outline: 2px solid var(--bronze);
+    outline-offset: 1px;
+    border-color: var(--foreground);
+  }
+}
+
+/* Folha de filtros (ui/painel-filtros.tsx). Sem JavaScript fica aberta, no fluxo da página.
+   Com JavaScript, no celular, some até o botão "Filtrar" abrir e então sobe de baixo. */
+@media (max-width: 47.99rem) {
+  :root[data-js] .folha-filtros:not([data-aberto]) {
+    display: none;
+  }
+  :root[data-js] .folha-filtros[data-aberto] {
+    position: fixed;
+    inset-inline: 0;
+    bottom: 0;
+    z-index: 51;
+    max-height: 88dvh;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    background: var(--background);
+    border-top: 1px solid var(--foreground);
+    padding: var(--esp-4) var(--esp-4) env(safe-area-inset-bottom);
+  }
+}
+@media (prefers-reduced-motion: no-preference) and (max-width: 47.99rem) {
+  :root[data-js] .folha-filtros[data-aberto] {
+    animation: folha-sobe var(--duracao-entrada) var(--curva-suave);
+  }
+}
+@keyframes folha-sobe {
+  from {
+    transform: translateY(1.5rem);
+    opacity: 0;
+  }
+}
+
 /* ---------- Movimento ----------
    Tudo aqui é progressivo: sem suporte do navegador ou com "reduzir movimento" ligado,
    a página aparece pronta, sem animação. */

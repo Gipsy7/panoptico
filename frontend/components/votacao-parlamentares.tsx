@@ -9,6 +9,7 @@ import Link from "next/link";
 import { useDeferredValue, useMemo, useState } from "react";
 
 import { PlacarPorUf } from "@/components/placar-por-uf";
+import { PilulasAtivas, SemResultados } from "@/components/ui/campos-filtro";
 import { SeletorUf, useUfEscolhida } from "@/components/uf-escolhida";
 import type { ParlamentarNaVotacao, PorUf } from "@/lib/api";
 import { UFS } from "@/lib/ufs";
@@ -56,26 +57,31 @@ export function VotacaoParlamentares({
   }, [parlamentares, ordemPartidos, termo, agrupar, uf]);
 
   const quem = casa === "camara" ? "deputado" : "senador";
+  const limpar = () => {
+    setBusca("");
+    escolherUf(null);
+  };
   const nomeUf = uf ? (UFS.find((u) => u.sigla === uf)?.nome ?? uf) : null;
 
   return (
     <div className="flex flex-col gap-4">
       <SeletorUf id="uf-votacao" uf={uf} onChange={escolherUf} rotulo="Ver só quem é do meu estado" />
       <PlacarPorUf porUf={porUf} uf={uf} />
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
-        <label className="flex min-w-0 flex-1 flex-col gap-1 text-sm">
+      <div className="flex flex-col gap-[var(--esp-4)] sm:flex-row sm:items-end">
+        <label className="flex min-w-0 flex-1 flex-col gap-[var(--esp-1)] text-sm font-medium">
           Buscar por nome, partido ou estado
           <input
             type="search"
             value={busca}
             onChange={(e) => setBusca(e.target.value)}
             placeholder={`Ex.: nome do ${quem}, PT, SP`}
-            className="campo w-full"
+            enterKeyHint="search"
+            className="campo-filtro font-normal"
           />
         </label>
-        <fieldset className="flex flex-col gap-1 text-sm">
-          <legend className="mb-1">Agrupar por</legend>
-          <div className="flex gap-2">
+        <fieldset className="flex flex-col gap-[var(--esp-1)] text-sm">
+          <legend className="mb-1 font-medium">Agrupar por</legend>
+          <div className="flex gap-[var(--esp-2)]">
             {(
               [
                 ["partido", "Partido"],
@@ -87,7 +93,7 @@ export function VotacaoParlamentares({
                 type="button"
                 aria-pressed={agrupar === valor}
                 onClick={() => setAgrupar(valor)}
-                className={`botao-linha ${agrupar === valor ? "border-foreground font-semibold" : "text-muted-foreground"}`}
+                className={`botao-linha h-12 flex-1 sm:flex-none ${agrupar === valor ? "border-foreground bg-accent font-semibold" : "text-muted-foreground"}`}
               >
                 {rotulo}
               </button>
@@ -95,11 +101,21 @@ export function VotacaoParlamentares({
           </div>
         </fieldset>
       </div>
-      <p className="text-sm text-muted-foreground" aria-live="polite">
+      <PilulasAtivas
+        itens={[
+          ...(nomeUf ? [{ rotulo: `Estado: ${nomeUf}`, aoRemover: () => escolherUf(null) }] : []),
+          ...(termo ? [{ rotulo: `Busca: ${busca.trim()}`, aoRemover: () => setBusca("") }] : []),
+        ]}
+        aoLimpar={limpar}
+      />
+      <p className="text-sm font-medium" aria-live="polite">
         {grupos.total.toLocaleString("pt-BR")} {grupos.total === 1 ? "registro" : "registros"}
         {nomeUf && ` de ${nomeUf}`}
         {termo && ` para "${busca.trim()}"`}
       </p>
+      {grupos.total === 0 && (
+        <SemResultados mensagem={`Nenhum ${quem} encontrado com esses filtros.`} aoLimpar={limpar} />
+      )}
       {grupos.lista.map((g) => (
         <section key={g.nome} aria-label={g.nome} className="flex flex-col gap-1">
           <h4 className="text-base font-semibold">
