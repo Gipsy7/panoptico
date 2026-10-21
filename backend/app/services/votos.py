@@ -188,6 +188,8 @@ def lista_votos(
                 "maioria_partido": maioria,
                 "partido": partido,
                 "url": url_votacao(votacao),
+                "id_externo": votacao.id_externo,
+                "proposicao_id_externo": votacao.proposicao_id_externo,
             }
         )
     return {"total": total or 0, "pagina": pagina, "por_pagina": POR_PAGINA, "itens": itens}

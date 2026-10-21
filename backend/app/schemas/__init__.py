@@ -713,6 +713,8 @@ class VotoItem(BaseModel):
     url: str | None
     # Votação no explicador (/votacoes/{casa}/{id_externo}); nulo quando não deu para ligar.
     id_externo: str | None = None
+    # Id do projeto na Casa, para o link /projeto/{casa}/{id}; nulo sem proposição ligada.
+    proposicao_id_externo: str | None = None
 
 
 class VotoComissaoItem(BaseModel):

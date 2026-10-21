@@ -15,6 +15,7 @@ import {
   type ItemProjeto,
   type Municipio,
   getMunicipios,
+  getTemasProjetos,
   getPauta,
   buscarProjetos,
 } from "@/lib/api";
@@ -52,16 +53,19 @@ async function Conteudo({ filtros }: { filtros: FiltrosProjetos }) {
   // No Congresso o estado não filtra a lista (vale para o país todo); fica no endereço dos cartões, para
   // a página do projeto abrir já com "quem votou" do estado.
   const consulta: FiltrosProjetos = filtros.esfera === "federal" ? { ...filtros, uf: undefined, municipio: undefined } : filtros;
-  const [resultado, municipios] = await Promise.all([
+  const [resultado, municipios, listaTemas] = await Promise.all([
     buscarProjetos(consulta),
     filtros.uf ? getMunicipios(filtros.uf) : null,
+    getTemasProjetos(filtros.casa),
   ]);
   const cidades = municipios?.ok ? municipios.dados : [];
+  // null se a rota falhar: o filtro volta a ser um campo de texto.
+  const temas = listaTemas.ok ? listaTemas.dados.temas : null;
   const primeiraPagina = !filtros.pagina || filtros.pagina === "1";
 
   return (
     <>
-      <BarraDeBusca filtros={filtros} cidades={cidades} />
+      <BarraDeBusca filtros={filtros} cidades={cidades} temas={temas} />
       {primeiraPagina && <NaPauta />}
       {resultado.ok ? (
         <Lista filtros={filtros} dados={resultado.dados} />
@@ -81,7 +85,7 @@ const ESFERAS = [
   { valor: "municipal", rotulo: "Câmara de uma cidade" },
 ];
 
-function BarraDeBusca({ filtros, cidades }: { filtros: FiltrosProjetos; cidades: Municipio[] }) {
+function BarraDeBusca({ filtros, cidades, temas }: { filtros: FiltrosProjetos; cidades: Municipio[]; temas: string[] | null }) {
   const nomeUf = filtros.uf ? UFS.find((u) => u.sigla === filtros.uf)?.nome : null;
   const nomeCidade = filtros.municipio ? cidades.find((c) => c.ibge === filtros.municipio)?.nome : null;
   const ativos = [
@@ -125,7 +129,7 @@ function BarraDeBusca({ filtros, cidades }: { filtros: FiltrosProjetos; cidades:
       <BarraFiltros
         contador={ativos.length}
         limparHref={filtros.q ? enderecoProjetos({ q: filtros.q }, {}) : "/projetos"}
-        painel={<PainelFiltros filtros={filtros} cidades={cidades} />}
+        painel={<PainelFiltros filtros={filtros} cidades={cidades} temas={temas} />}
         grupos={[
           ...(ativos.length
             ? [
@@ -170,22 +174,7 @@ function BarraDeBusca({ filtros, cidades }: { filtros: FiltrosProjetos; cidades:
   );
 }
 
-const TEMAS_COMUNS = [
-  "Saúde",
-  "Educação",
-  "Economia",
-  "Administração Pública",
-  "Direito Penal e Processual Penal",
-  "Meio Ambiente e Desenvolvimento Sustentável",
-  "Trabalho e Emprego",
-  "Previdência e Assistência Social",
-  "Direitos Humanos e Minorias",
-  "Cidades e Desenvolvimento Urbano",
-  "Ciência, Tecnologia e Inovação",
-  "Viação, Transporte e Mobilidade",
-];
-
-function PainelFiltros({ filtros, cidades }: { filtros: FiltrosProjetos; cidades: Municipio[] }) {
+function PainelFiltros({ filtros, cidades, temas }: { filtros: FiltrosProjetos; cidades: Municipio[]; temas: string[] | null }) {
   const ano = new Date().getFullYear();
   return (
     <Form action="/projetos" className="grid grid-cols-2 gap-3 sm:grid-cols-3">
@@ -228,12 +217,18 @@ function PainelFiltros({ filtros, cidades }: { filtros: FiltrosProjetos; cidades
       )}
       <label className="col-span-2 flex flex-col gap-1 text-sm sm:col-span-1">
         Tema (só do Congresso)
-        <input name="tema" list="temas-projetos" defaultValue={filtros.tema} placeholder="Ex.: Saúde" className="seletor w-full" />
-        <datalist id="temas-projetos">
-          {TEMAS_COMUNS.map((t) => (
-            <option key={t} value={t} />
-          ))}
-        </datalist>
+        {temas ? (
+          <select name="tema" defaultValue={filtros.tema ?? ""} className="seletor w-full">
+            <option value="">Todos</option>
+            {(filtros.tema && !temas.includes(filtros.tema) ? [filtros.tema, ...temas] : temas).map((t) => (
+              <option key={t} value={t}>
+                {t}
+              </option>
+            ))}
+          </select>
+        ) : (
+          <input name="tema" defaultValue={filtros.tema} placeholder="Ex.: Saúde" className="seletor w-full" />
+        )}
       </label>
       <label className="flex flex-col gap-1 text-sm">
         Ano do projeto

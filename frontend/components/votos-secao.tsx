@@ -115,6 +115,14 @@ export function VotosSecao({
                     <span className="font-medium">{v.proposicao}</span>
                   ))}
                 {v.proposicao_ementa && <TextoLongo linhas={3}>{v.proposicao_ementa}</TextoLongo>}
+                {v.proposicao_id_externo && (
+                  <Link
+                    href={`/projeto/${casa}/${encodeURIComponent(v.proposicao_id_externo)}`}
+                    className="alvo-link text-sm font-medium underline underline-offset-2"
+                  >
+                    Ver o projeto
+                  </Link>
+                )}
                 {v.temas.length > 0 && (
                   <p className="text-sm text-muted-foreground">{v.temas.join(" · ")}</p>
                 )}

@@ -84,6 +84,8 @@ def test_lista_de_votos_e_convergencia(session):
     assert lista["total"] == 4
     assert lista["itens"][0]["proposicao"] == "PL 3/2026"  # mais recente primeiro
     assert lista["itens"][0]["orientacao_governo"] == "Obstrução"
+    assert lista["itens"][0]["proposicao_id_externo"]  # id do projeto, para o link
+    assert lista["itens"][0]["id_externo"]
 
     conv = votos.convergencia(session, a, b, 2026)
     # Votaram juntos em v0..v3; iguais em v0 e v2.

@@ -851,6 +851,8 @@ export type VotoItem = {
   url: string | null;
   /** Id da votação na fonte, para o link ao explicador (/votacao/[casa]/[id]). */
   id_externo?: string | null;
+  /** Id do projeto na Casa, para o link /projeto/[casa]/[id]. */
+  proposicao_id_externo?: string | null;
 };
 
 export type Votos = {
@@ -1803,6 +1805,20 @@ export function buscarProjetos(filtros: FiltrosProjetos) {
   const params = new URLSearchParams();
   for (const [chave, valor] of Object.entries(filtros)) if (valor) params.set(chave, valor);
   return getJson<BuscaProjetos>(`/projetos?${params}`);
+}
+
+/** Temas dos projetos do Congresso (GET /projetos/temas), para o filtro de /projetos. */
+export function getTemasProjetos(casa?: string) {
+  const params = new URLSearchParams();
+  if (casa === "camara" || casa === "senado") params.set("casa", casa);
+  return getJson<{ casa: string | null; temas: string[] }>(`/projetos/temas?${params}`);
+}
+
+/** Projetos do Congresso com votação nominal, só casa, id e data (GET /projetos/ids), para o sitemap. */
+export function getIdsProjetos(limite = 5000) {
+  return getJson<{ itens: { casa: string; id_externo: string; data: string }[] }>(
+    `/projetos/ids?votacao=com&limite=${limite}`,
+  );
 }
 
 export type AutorProjeto = {

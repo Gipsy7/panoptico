@@ -281,3 +281,18 @@ class Pauta(FonteBloco):
     dias: int
     itens: list[ItemDePauta]
     aviso: str | None
+
+
+class TemasProjetos(BaseModel):
+    casa: str | None
+    temas: list[str]
+
+
+class ProjetoId(BaseModel):
+    casa: str
+    id_externo: str
+    data: date
+
+
+class ProjetosIds(BaseModel):
+    itens: list[ProjetoId]

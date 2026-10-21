@@ -1,18 +1,23 @@
 from typing import Annotated, Literal
 
 from fastapi import APIRouter, Depends, HTTPException, Query
+from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from app.db import get_session
+from app.models import ProposicaoTema, Votacao
 from app.schemas.projeto import (
     BuscaProjetos,
     Pauta,
     ProjetoDetalhe,
     ProjetoLocalDetalhe,
+    ProjetosIds,
+    TemasProjetos,
     VotacaoLocalDetalhe,
 )
 from app.services import pauta as servico_pauta
 from app.services import projeto_detalhe, projetos_busca, votacao_local_detalhe
+from ingestion.proposicoes_comum import SEM_CLASSIFICACAO
 
 router = APIRouter()
 
@@ -36,6 +41,38 @@ def buscar_projetos(
     return projetos_busca.buscar(
         session, q, esfera, casa, uf, municipio, tema, ano, votacao, pagina
     )
+
+
+@router.get("/projetos/temas", response_model=TemasProjetos)
+def temas_projetos(
+    session: Annotated[Session, Depends(get_session)],
+    casa: Literal["camara", "senado"] | None = None,
+) -> dict:
+    """Temas distintos dos projetos do Congresso (sem "Sem classificação"), em ordem alfabética."""
+    consulta = select(ProposicaoTema.tema).where(ProposicaoTema.tema != SEM_CLASSIFICACAO)
+    if casa:
+        consulta = consulta.where(ProposicaoTema.casa == casa)
+    temas = session.scalars(consulta.distinct().order_by(ProposicaoTema.tema)).all()
+    return {"casa": casa, "temas": list(temas)}
+
+
+@router.get("/projetos/ids", response_model=ProjetosIds)
+def ids_projetos(
+    session: Annotated[Session, Depends(get_session)],
+    votacao: Literal["com"] = "com",
+    limite: Annotated[int, Query(ge=1, le=20000)] = 5000,
+) -> dict:
+    """Só casa, id e data da última votação dos projetos do Congresso com votação nominal
+    (para o sitemap). Mais recentes primeiro."""
+    ultima = func.max(Votacao.data).label("data")
+    linhas = session.execute(
+        select(Votacao.casa, Votacao.proposicao_id_externo, ultima)
+        .where(Votacao.proposicao_id_externo.is_not(None))
+        .group_by(Votacao.casa, Votacao.proposicao_id_externo)
+        .order_by(ultima.desc(), Votacao.proposicao_id_externo)
+        .limit(limite)
+    ).all()
+    return {"itens": [{"casa": c, "id_externo": i, "data": d} for c, i, d in linhas]}
 
 
 # Rotas fixas antes das com parâmetro: "local" não é uma casa.

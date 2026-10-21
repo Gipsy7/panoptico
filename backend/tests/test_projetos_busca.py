@@ -267,3 +267,34 @@ def test_fontes_por_bloco_e_validacao(client, session):
     assert corpo["fontes"][1]["atualizado_em"] is None
     assert client.get("/projetos", params={"esfera": "mundial"}).status_code == 422
     assert client.get("/projetos", params={"pagina": 0}).status_code == 422
+
+
+def test_temas_dos_projetos_sem_classificacao_e_em_ordem(client, session):
+    for casa, tema in [
+        ("camara", "Saúde"),
+        ("camara", "Educação"),
+        ("camara", "Sem classificação"),
+        ("senado", "Economia"),
+        ("senado", "Saúde"),
+    ]:
+        session.add(ProposicaoTema(casa=casa, proposicao_id_externo="1", tema=tema))
+    session.flush()
+    todos = client.get("/projetos/temas").json()
+    assert todos["temas"] == ["Economia", "Educação", "Saúde"]
+    camara = client.get("/projetos/temas", params={"casa": "camara"}).json()
+    assert (camara["casa"], camara["temas"]) == ("camara", ["Educação", "Saúde"])
+
+
+def test_ids_dos_projetos_com_votacao_para_o_sitemap(client, session):
+    proposicao(session, "1", "PL", 1, 2025, "Um.")
+    proposicao(session, "2", "PL", 2, 2025, "Dois.")
+    proposicao(session, "3", "PL", 3, 2025, "Sem votação.")
+    votacao(session, "v1", "1", date(2026, 8, 1))
+    votacao(session, "v1b", "1", date(2026, 9, 1))
+    votacao(session, "v2", "2", date(2026, 10, 1))
+    corpo = client.get("/projetos/ids", params={"votacao": "com"}).json()
+    assert corpo["itens"] == [
+        {"casa": "camara", "id_externo": "2", "data": "2026-10-01"},
+        {"casa": "camara", "id_externo": "1", "data": "2026-09-01"},
+    ]
+    assert len(client.get("/projetos/ids", params={"limite": 1}).json()["itens"]) == 1
