@@ -7,7 +7,7 @@ import traceback
 from collections.abc import Callable
 
 from ingestion import comum, limpar_raw, resumos
-from ingestion.camara import deputados
+from ingestion.camara import deputados, proposicoes_votadas
 from ingestion.camara import despesas as despesas_camara
 from ingestion.camara import discursos as discursos_camara
 from ingestion.camara import pauta as pauta_camara
@@ -46,6 +46,8 @@ def _tarefas() -> list[tuple[str, Callable[[], int]]]:
             tarefas.append((f"{modulo.FONTE} {ano}", lambda m=modulo, a=ano: m.executar(a)))
         tarefas.append((f"camara_proposicoes {ano}", lambda a=ano: proposicoes_camara.executar(a)))
     tarefas.append((proposicoes_senado.FONTE, proposicoes_senado.executar))
+    # Depois das votações e das proposições: ficha das votadas que faltam (antigas, MPV).
+    tarefas.append((proposicoes_votadas.FONTE, proposicoes_votadas.executar))
     # Depois das votações: busca na API os temas das matérias votadas que faltarem.
     tarefas.append((temas_camara.FONTE, temas_camara.executar))
     tarefas.append((temas_senado.FONTE, temas_senado.executar))

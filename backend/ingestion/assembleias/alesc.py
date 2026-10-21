@@ -322,6 +322,7 @@ def votacoes_nominais(pagina: str) -> list[dict]:
             {
                 "extrato": extrato.group(1),
                 "proposicao": _limpo(proposicao.group(2)) if proposicao else "",
+                "proposicao_id": proposicao.group(1) if proposicao else None,
                 "resultado": veredito,
                 "ementa": _limpo(ementa.group(1)) if ementa else "",
             }
@@ -415,6 +416,9 @@ def montar_votacoes(
                     "abstencoes": textos.count("Abstenção"),
                     "data": sessao["data"],
                     "materia_id": None,
+                    # O código da proposição no e-Legis é o mesmo `id_externo` do projeto.
+                    "materia_id_externo": item["proposicao_id"],
+                    "materia_ementa": item["ementa"] or None,
                     "url": f"{ELEGIS}/sessoes-plenarias/{sessao['sessao']}/ordem-do-dia",
                 }
             )

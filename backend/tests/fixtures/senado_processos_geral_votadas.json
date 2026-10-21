@@ -1,0 +1,51 @@
+{
+ "geral": [
+  {
+   "autoria": "Câmara dos Deputados",
+   "casaIdentificadora": "SF",
+   "codigoMateria": 156347,
+   "dataApresentacao": "2023-03-16",
+   "ementa": "Dispõe sobre a composição, o funcionamento e a competência do Conselho Superior da Justiça do Trabalho; e altera a Consolidação das Leis do Trabalho, aprovada pelo Decreto-Lei nº 5.452, de 1º de maio de 1943.",
+   "identificacao": "PL 1219/2023",
+   "situacaoAtual": "TRANSFORMADA EM NORMA JURÍDICA"
+  },
+  {
+   "autoria": "Comissão de Segurança Pública",
+   "casaIdentificadora": "SF",
+   "codigoMateria": 166490,
+   "dataApresentacao": "2024-12-10",
+   "ementa": "Altera o Decreto-Lei nº 3.689, de 3 de outubro de 1941 (Código de Processo Penal); o Decreto-Lei nº 2.848, de 7 de dezembro de 1940 (Código Penal); a Lei nº 10.826, de 22 de dezembro de 2003 (Estatuto do Desarmamento); a Lei nº 8.072, de 25 de julho de 1990 (Lei de Crimes Hediondos); a Lei nº 11.343, de 23 de agosto de 2006 (Lei de Drogas), e a Lei nº 14.133, de 1º de abril de 2021 (Lei de Licitações), para endurecer a resposta penal aos crimes cometidos com violência.",
+   "identificacao": "PL 4809/2024",
+   "situacaoAtual": "REMETIDA À CÂMARA DOS DEPUTADOS"
+  },
+  {
+   "autoria": "Senador Paulo Paim (PT/RS)",
+   "casaIdentificadora": "SF",
+   "codigoMateria": 155732,
+   "dataApresentacao": "2022-12-27",
+   "ementa": "Dispõe sobre a obrigatoriedade da assinatura física das pessoas idosas em contratos de operação de crédito firmados por meio eletrônico ou telefônico.",
+   "identificacao": "PL 74/2023",
+   "situacaoAtual": "AGUARDANDO DESIGNAÇÃO DO RELATOR"
+  }
+ ],
+ "votadas": [
+  {
+   "autoria": "Presidência da República",
+   "casaIdentificadora": "CN",
+   "codigoMateria": 166971,
+   "dataApresentacao": "2025-01-09",
+   "ementa": "Institui apoio financeiro à pessoa com deficiência decorrente de síndrome congênita associada à infecção pelo vírus Zika.",
+   "identificacao": "MPV 1287/2025",
+   "situacaoAtual": "SEM EFICÁCIA"
+  },
+  {
+   "autoria": "Senador Jaime Bagattoli (PL/RO), Senador Esperidião Amin (PP/SC), Senador Plínio Valério (PSDB/AM), Senador Laércio Oliv",
+   "casaIdentificadora": "SF",
+   "codigoMateria": 168484,
+   "dataApresentacao": "2025-05-08",
+   "ementa": "Acrescenta o art. 139 ao Ato das Disposições Constitucionais Transitórias (ADCT), para instituir a Política Nacional de Apoio à Atividade de Transporte Rodoviário Profissional.",
+   "identificacao": "PEC 22/2025",
+   "situacaoAtual": "REMETIDA À CÂMARA DOS DEPUTADOS"
+  }
+ ]
+}

@@ -186,8 +186,26 @@ def _data(valor: str | None) -> str | None:
     return valor[:10] if valor else None
 
 
-def coletar_votacoes(sapl: "Sapl", anos: set[int], parlamentares: set[int]) -> dict:
-    """Votações nominais do período e os votos de quem está no cargo hoje."""
+def ficha_da_materia(sapl: "Sapl", materia_id: int, fichas: dict[int, dict | None]) -> dict | None:
+    """A ficha da matéria votada (`materia/materialegislativa/{id}/`), uma só chamada por
+    matéria dentro da carga. `fichas` já traz as que o lote de projetos leu."""
+    if materia_id not in fichas:
+        try:
+            fichas[materia_id] = sapl.talvez(f"materia/materialegislativa/{materia_id}/")
+        except httpx.HTTPError:  # ficha fechada ou fora do ar: a votação entra sem a ementa
+            fichas[materia_id] = None
+    return fichas[materia_id]
+
+
+def coletar_votacoes(
+    sapl: "Sapl",
+    anos: set[int],
+    parlamentares: set[int],
+    fichas: dict[int, dict | None] | None = None,
+) -> dict:
+    """Votações nominais do período e os votos de quem está no cargo hoje. De cada matéria
+    votada guarda o id e a ementa da ficha (o texto do registro só diz "Requerimento nº 62")."""
+    fichas = {} if fichas is None else fichas
     registros = {}
     for ano in sorted(anos):
         for r in sapl.todos("sessao/registrovotacao/", data_hora__year=ano):
@@ -210,16 +228,22 @@ def coletar_votacoes(sapl: "Sapl", anos: set[int], parlamentares: set[int]) -> d
         if str(id_) not in com_voto:  # votação simbólica: ninguém votou nominalmente
             continue
         materia, resultado = ler_registro(r.get("__str__", ""))
+        materia_id = r.get("materia")
+        ficha = ficha_da_materia(sapl, materia_id, fichas) if materia_id else None
+        if ficha and ficha.get("__str__") and not REGISTRO.search(r.get("__str__", "")):
+            materia = " ".join(ficha["__str__"].split())  # o registro não seguiu o padrão
         votacoes.append(
             {
                 "id_externo": str(id_),
                 "materia": materia,
+                "materia_id_externo": str(materia_id) if materia_id else None,
+                "materia_ementa": " ".join(((ficha or {}).get("ementa") or "").split()) or None,
                 "resultado": resultado,
                 "sim": r.get("numero_votos_sim") or 0,
                 "nao": r.get("numero_votos_nao") or 0,
                 "abstencoes": r.get("numero_abstencoes") or 0,
                 "data": _data(r.get("data_hora")),
-                "materia_id": r.get("materia"),
+                "materia_id": materia_id,
             }
         )
     return {"votacoes": votacoes, "votos": votos}
@@ -418,7 +442,7 @@ def coletar(base: str, hoje: date) -> dict | None:
         ids = {int(v["id_externo"]) for v in vereadores}
         # Votos e presença são extras: se falharem, a casa entra sem eles.
         try:
-            votacoes = coletar_votacoes(sapl, anos, ids)
+            votacoes = coletar_votacoes(sapl, anos, ids, dict(materias or {}))
         except httpx.HTTPError as erro:
             print(f"  {base}: votações não lidas ({erro.__class__.__name__})", flush=True)
             votacoes = {"votacoes": [], "votos": []}
@@ -537,13 +561,31 @@ def gravar(session: Session, ibge: str | None, camara: dict, uf: str | None = No
                 )
                 .on_conflict_do_nothing()
             )
+    # A matéria votada que também é um projeto guardado desta casa (id da matéria = id do
+    # projeto; vários vereadores podem assinar o mesmo, vale o primeiro).
+    projeto_por_materia = dict(
+        session.execute(
+            select(ProjetoLocal.id_externo, func.min(ProjetoLocal.id))
+            .where(ProjetoLocal.mandato_id.in_(list(mandato_por_parlamentar.values())))
+            .group_by(ProjetoLocal.id_externo)
+        ).all()
+    )
     votacao_por_externo: dict[str, int] = {}
     for votacao in camara.get("votacoes", []):
         materia_id = votacao.get("materia_id")
+        materia_externa = votacao.get("materia_id_externo") or (
+            str(materia_id) if materia_id else None
+        )
         votacao_por_externo[votacao["id_externo"]] = session.execute(
             insert(VotacaoLocal)
             .values(
-                **{k: v for k, v in votacao.items() if k not in ("materia_id", "data", "url")},
+                **{
+                    k: v
+                    for k, v in votacao.items()
+                    if k not in ("materia_id", "materia_id_externo", "data", "url")
+                },
+                materia_id_externo=materia_externa,
+                projeto_local_id=projeto_por_materia.get(materia_externa),
                 data=date.fromisoformat(votacao["data"]) if votacao["data"] else None,
                 url=votacao.get("url")  # endereço próprio da votação, quando a casa o dá
                 or (camara["base"].rstrip("/") + f"/materia/{materia_id}" if materia_id else None),

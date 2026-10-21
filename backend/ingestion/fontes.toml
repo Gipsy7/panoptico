@@ -88,6 +88,14 @@ anos = "desde_2023"
 depende = ["camara_deputados"]
 
 [[fonte]]
+nome = "camara_proposicoes_votadas"
+modulo = "ingestion.camara.proposicoes_votadas"
+uso = "Ficha dos projetos votados no Plenário que não estão entre os apresentados desde 2023 (antigos, MPV)"
+recorte = "só as proposições citadas nas votações nominais carregadas"
+frequencia = "diaria"
+depende = ["camara_votacoes", "camara_proposicoes"]
+
+[[fonte]]
 nome = "senado_proposicoes"
 modulo = "ingestion.senado.proposicoes"
 uso = "Projetos de lei do senador"

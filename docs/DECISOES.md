@@ -115,7 +115,9 @@
 - [2026-10-20: acompanhar atualizações e notícias (para depois)](#2026-10-20-acompanhar-atualizações-e-notícias-para-depois)
 - [2026-10-20: IndexNow após as ingestões](#2026-10-20-indexnow-após-as-ingestões)
 - [2026-10-21: projetos e votações (reconhecimento)](#2026-10-21-projetos-e-votações-reconhecimento)
+- [2026-10-21: projetos e votações (ingestão de discursos)](#2026-10-21-projetos-e-votações-ingestão-de-discursos)
 - [2026-10-21: ingestão de pauta e tramitação](#2026-10-21-ingestão-de-pauta-e-tramitação)
+- [2026-10-21: proposições ampliadas e matéria das votações locais](#2026-10-21-proposições-ampliadas-e-matéria-das-votações-locais)
 
 ## 2026-10-06: stack inicial
 
@@ -1278,8 +1280,6 @@ Onda 1 da funcionalidade "Projetos e votações": só leitura das fontes e medi�
 
 ## 2026-10-21: projetos e votações (ingestão de discursos)
 
-Bloco "Ingestão de discursos" da onda 2 (acrescentar à seção "projetos e votações (reconhecimento)" ao juntar os branches). Migração `0053_discurso`; módulos `ingestion/camara/discursos.py`, `ingestion/senado/discursos.py` e `ingestion/discursos_comum.py`; fontes `camara_discursos` e `senado_discursos` (diárias, depois das votações).
-
 - **Recorte:** só discurso de Plenário de um **dia com votação nominal da casa** (tabela `votacao`) cujo sumário/resumo **cita ao menos uma matéria**; ano anterior e atual. Nunca a transcrição (nem no bruto da Câmara). Só quem está em `parlamentar`.
 - **Ligação:** ao projeto e ao dia, nunca à votação específica. `proposicao_id_externo` só com 1 ou 2 matérias citadas e **exatamente uma** delas votada no dia (rótulo de `votacao.proposicao` sem sufixo, ex.: "PL 2159/2021"); duas votadas no mesmo dia, nenhuma ou 3+ citadas deixam nulo ("discurso do dia"). `materias_citadas` guarda quantas. O Senado liga por data e matéria (a tabela `votacao` não guarda o `codigoSessao`); o `CodigoSessao` do pronunciamento fica em `sessao_id_externo`.
 - **Câmara:** `/deputados/{id}/discursos` por deputado da tabela (vínculo por id). Sem id de discurso na fonte: `id_externo` = "deputado:AAAA-MM-DDTHH:MM:ocorrência". O extrator reconhece também "PL nº 5.063 de 2023" (sigla com "de"); citação sem ano não conta. Citações vêm de sumário + palavras-chave.
@@ -1308,3 +1308,13 @@ Onda 2 de "Projetos e votações" (migração `0054_pauta_tramitacao`, só acré
 
   Descrição: média de 150 caracteres, máximo de 8.307. Pauta real de 21/10/2026: 0 itens nas duas Casas.
 - **Pendências para as próximas ondas:** a API precisa do mapa "etapas do dia a dia" (textos variados, ver FONTES_DE_DADOS.md); `app/services/fontes.py` (página "Sobre as fontes") ainda não lista `camara_pauta`, `senado_pauta`, `camara_tramitacoes` e `senado_tramitacoes`.
+
+## 2026-10-21: proposições ampliadas e matéria das votações locais
+
+- **Migração `0055_proposicao_ampliada` (só aditiva, sem `RECARREGAR_DADOS`):** `proposicao.autor_descricao` (300) e `proposicao.origem` (`legislatura` | `votada`); em `votacao_local`, `materia_id_externo`, `materia_ementa` e `projeto_local_id` (FK opcional, SET NULL, com índice). As próximas cargas preenchem; a migração é idempotente (confere as colunas antes) e o `downgrade` foi testado.
+- **Câmara:** nada muda no recorte (`TIPOS` continua PL/PLP/PEC/PDL desde 01/02/2023, qualquer autor). `autor_descricao` sai do arquivo de autores (`nomeAutor` de quem não é deputado) só para quem não tem deputado autor; quem ganha deputado volta a `NULL`. As votadas fora da tabela (~78: PL/PEC antigos, MPV, outras siglas) ganham ficha pela API (`camara_proposicoes_votadas`, `--votadas`), com `origem="votada"`; é `ON CONFLICT DO NOTHING`, então uma linha de legislatura nunca vira "votada". MPV entra aqui e só aqui.
+- **Senado:** a lista geral `/processo?sigla=&ano=` (16 chamadas) traz os ~2.000 PL/PLP/PEC/PDL desde 2023 sem senador em exercício autor, com `autor_descricao` = texto de `autoria` ("Câmara dos Deputados", comissão, CPI). As ~18 votadas antigas vêm por `/processo?codigoMateria=`. Tudo na mesma carga e na mesma transação de `senado_proposicoes`; o bruto ganha `__geral` e `__votadas`, e bruto antigo continua valendo. Se uma matéria votada passa a aparecer na lista geral, vira `legislatura`; o inverso nunca acontece.
+- **Perfil não muda:** `services/projetos.py` só conta o que tem `Autoria`, e as linhas novas não têm. `test_projetos.py` trava `primeiro_autor`, `coautor`, `viraram_norma` e a média da Casa com linhas de Executivo, comissão e votadas.
+- **SAPL:** de cada votação nominal guardamos `materia_id_externo` e a `materia_ementa` da ficha da matéria (uma chamada por matéria dentro da carga; o lote de projetos já lido serve de cache). `projeto_local_id` só quando o id da matéria é o `id_externo` de um `projeto_local` da mesma casa. A ementa é a da ficha, não a do projeto. ALESC: o id da proposição no HTML da Ordem do Dia é o mesmo `id_externo` do projeto; ALEP e ALRS ficam sem id (só texto). O SAPL não tem bruto por casa hoje, então as fichas não vão para `data/raw/` (pendência de arquitetura, igual ao resto da fonte).
+- **Busca por ementa:** índices GIN por expressão `to_tsvector('portuguese', ementa)` em `proposicao`, `projeto_local` e `votacao_local.materia_ementa`; sem extensão nova. O dicionário `portuguese` faz radical mas **não tira acento**: com 5.089 ementas reais do Senado, "saude mental" acha 0 e "saúde mental" acha 12. Como `unaccent` exigiria `CREATE EXTENSION`, não foi criado; a API (onda 3) deve consultar com a expressão idêntica à do índice (`to_tsvector('portuguese', ementa)`) e aceitar a busca sem acento por outro caminho (por exemplo, comparar também a forma sem acento da consulta com ementas já normalizadas, ou pedir a extensão ao dono do banco).
+- **Tamanho:** medido em 5.089 ementas reais (média de 222 caracteres): 0,86 MB de índice, cerca de 170 bytes por linha. Para 28 mil proposições, ~5 MB; `projeto_local` e `votacao_local` são pequenas (dezenas de milhares de linhas, < 1 MB cada). Colunas novas: ~0,5 MB na `proposicao`. Medido num esquema temporário do banco de teste, não na produção.
