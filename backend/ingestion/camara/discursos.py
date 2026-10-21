@@ -14,6 +14,7 @@ mesma carga sem rede. A carga apaga e reinsere os discursos da janela.
 
 import argparse
 import time
+from concurrent.futures import ThreadPoolExecutor
 from datetime import date, timedelta
 from pathlib import Path
 from typing import Any
@@ -31,6 +32,12 @@ API = "https://dadosabertos.camara.leg.br/api/v2"
 URL = API + "/deputados/{id}/discursos"
 MARGEM_DIAS = 7
 PAUSA = 0.3  # segundos entre chamadas (cortesia com a API)
+# Deputados baixados ao mesmo tempo (cada um com a sua pausa): ~4x mais rápido, ~13 pedidos/s.
+PARALELO = 4
+# Sem carga anterior, a ingestão diária cobre só estes dias: o histórico desde o ano anterior
+# (~11 mil pedidos, horas) vem do workflow manual "Discursos da Câmara: histórico" (--desde),
+# para a primeira carga não estourar o tempo do job diário (docs/DECISOES.md, 2026-10-21).
+PRIMEIRA_CARGA_DIAS = 45
 TENTATIVAS_MES = 2  # o pedido do mês inteiro ainda tenta de novo (falha passageira de rede)
 CAMPOS = ("dataHoraInicio", "tipoDiscurso", "urlTexto", "urlVideo", "keywords", "sumario")
 
@@ -63,6 +70,7 @@ def baixar_deputado(
     discursos = []
     for de, ate in _meses(inicio, fim):
         discursos += _baixar_periodo(client, id_deputado, de, ate, falhas, TENTATIVAS_MES)
+        time.sleep(PAUSA)
     return discursos
 
 
@@ -120,12 +128,17 @@ def _baixar_paginas(
 def baixar(
     client: httpx.Client, ids: list[str], inicio: date, fim: date, completa: bool
 ) -> dict[str, Any]:
-    deputados, falhas = {}, []
-    for id_deputado in ids:
+    falhas: list = []
+
+    def um(id_deputado: str) -> tuple[str, list]:
         discursos = baixar_deputado(client, id_deputado, inicio, fim, falhas)
-        if discursos:
-            deputados[id_deputado] = discursos
         time.sleep(PAUSA)
+        return id_deputado, discursos
+
+    with ThreadPoolExecutor(max_workers=PARALELO) as grupo:
+        resultados = list(grupo.map(um, ids))  # mesma ordem de `ids`
+    deputados = {id_deputado: d for id_deputado, d in resultados if d}
+    falhas.sort(key=lambda f: (f["deputado"], f["dia"]))
     return {
         "inicio": inicio.isoformat(),
         "fim": fim.isoformat(),
@@ -190,6 +203,9 @@ def executar(de_raw: Path | None = None, desde: date | None = None) -> int:
                 inicio, completa = max(desde, piso), desde <= piso
             else:
                 inicio, completa = dc.inicio_incremental(session, FONTE, MARGEM_DIAS, piso, hoje)
+                if completa:  # sem carga anterior: janela curta; o histórico vem do --desde
+                    inicio = max(piso, hoje - timedelta(days=PRIMEIRA_CARGA_DIAS))
+                    completa = False
             estado = {
                 "inicio": inicio,
                 "completa": completa,

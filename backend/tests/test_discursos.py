@@ -390,3 +390,18 @@ def test_resumo_sem_html():
     )
     assert dc.limpar_texto("<p>Defendeu a&amp;nbsp;aprovação.</p>") == "Defendeu a aprovação."
     assert dc.limpar_texto("  ") is None
+
+
+def test_camara_baixa_em_paralelo_na_ordem_dos_ids(monkeypatch):
+    from ingestion.camara import discursos as camara
+
+    monkeypatch.setattr(camara.time, "sleep", lambda s: None)
+    monkeypatch.setattr(
+        camara,
+        "baixar_deputado",
+        lambda client, id_deputado, inicio, fim, falhas: (
+            [{"id": id_deputado}] if id_deputado != "3" else []
+        ),
+    )
+    payload = camara.baixar(None, ["1", "2", "3", "4"], date(2026, 9, 1), date(2026, 9, 30), False)
+    assert list(payload["deputados"]) == ["1", "2", "4"]
