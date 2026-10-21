@@ -4,8 +4,8 @@ Só aditiva: tabela `discurso` (sumário oficial e links; nunca a transcrição)
 parlamentar e, quando o sumário cita 1 ou 2 matérias votadas no dia, ao projeto. Sem
 RECARREGAR_DADOS: a carga própria (camara_discursos, senado_discursos) preenche.
 
-Revision ID: 0054_discurso
-Revises: 0053_emenda_estadual_chaves
+Revision ID: 0053_discurso
+Revises: 0052_gasto_local_fora
 Create Date: 2026-10-21
 """
 
@@ -15,8 +15,8 @@ import sqlalchemy as sa
 
 from alembic import op
 
-revision: str = "0054_discurso"
-down_revision: str | None = "0053_emenda_estadual_chaves"
+revision: str = "0053_discurso"
+down_revision: str | None = "0052_gasto_local_fora"
 branch_labels: str | Sequence[str] | None = None
 depends_on: str | Sequence[str] | None = None
 

@@ -9,8 +9,8 @@ normaliza acento com `translate(lower(...))` (IMMUTABLE), sem extensão nova, pa
 acento ("saude mental" acha "saúde mental"). Sem
 RECARREGAR_DADOS: as próximas cargas preenchem as colunas novas.
 
-Revision ID: 0056_proposicao_ampliada
-Revises: 0055_pauta_tramitacao
+Revision ID: 0055_proposicao_ampliada
+Revises: 0054_pauta_tramitacao
 Create Date: 2026-10-21
 """
 
@@ -20,8 +20,8 @@ import sqlalchemy as sa
 
 from alembic import op
 
-revision: str = "0056_proposicao_ampliada"
-down_revision: str | None = "0055_pauta_tramitacao"
+revision: str = "0055_proposicao_ampliada"
+down_revision: str | None = "0054_pauta_tramitacao"
 branch_labels: str | Sequence[str] | None = None
 depends_on: str | Sequence[str] | None = None
 

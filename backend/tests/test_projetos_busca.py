@@ -54,7 +54,7 @@ def test_palavras_nao_sao_numero(texto):
 
 def test_expressao_do_indice_e_a_da_consulta():
     """A migração e a consulta usam o mesmo texto de expressão (senão o índice não é usado)."""
-    migracao = Path(__file__).parents[1] / "alembic/versions/0056_proposicao_ampliada.py"
+    migracao = Path(__file__).parents[1] / "alembic/versions/0055_proposicao_ampliada.py"
     texto = migracao.read_text(encoding="utf-8")
     modelo = ("to_tsvector('portuguese', translate(lower({coluna}), '{de}', '{para}'))").format(
         coluna="ementa", de=texto_busca.ACENTUADAS, para=texto_busca.SEM_ACENTO
