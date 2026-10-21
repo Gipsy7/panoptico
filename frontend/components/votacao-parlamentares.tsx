@@ -8,7 +8,10 @@
 import Link from "next/link";
 import { useDeferredValue, useMemo, useState } from "react";
 
-import type { ParlamentarNaVotacao } from "@/lib/api";
+import { PlacarPorUf } from "@/components/placar-por-uf";
+import { SeletorUf, useUfEscolhida } from "@/components/uf-escolhida";
+import type { ParlamentarNaVotacao, PorUf } from "@/lib/api";
+import { UFS } from "@/lib/ufs";
 
 function chave(texto: string) {
   return texto.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
@@ -18,19 +21,27 @@ export function VotacaoParlamentares({
   parlamentares,
   ordemPartidos,
   casa,
+  porUf = [],
+  ufInicial = null,
 }: {
   parlamentares: ParlamentarNaVotacao[];
   ordemPartidos: string[];
   casa: "camara" | "senado";
+  /** Placar por estado (Sim, Não, outros), quando a API traz. */
+  porUf?: PorUf[];
+  /** Estado vindo de `?uf=`; sem ele, vale o que o aparelho lembrou. */
+  ufInicial?: string | null;
 }) {
+  const [uf, escolherUf] = useUfEscolhida(ufInicial);
   const [busca, setBusca] = useState("");
   const [agrupar, setAgrupar] = useState<"partido" | "uf">("partido");
   const termo = chave(useDeferredValue(busca).trim());
 
   const grupos = useMemo(() => {
+    const doEstado = uf ? parlamentares.filter((p) => p.uf === uf) : parlamentares;
     const filtrados = termo
-      ? parlamentares.filter((p) => chave(`${p.nome} ${p.partido} ${p.uf}`).includes(termo))
-      : parlamentares;
+      ? doEstado.filter((p) => chave(`${p.nome} ${p.partido} ${p.uf}`).includes(termo))
+      : doEstado;
     const mapa = new Map<string, ParlamentarNaVotacao[]>();
     for (const p of filtrados) {
       const g = agrupar === "partido" ? p.partido : p.uf;
@@ -42,12 +53,15 @@ export function VotacaoParlamentares({
         ? ordemPartidos.filter((g) => mapa.has(g))
         : [...mapa.keys()].sort((a, b) => a.localeCompare(b, "pt-BR"));
     return { total: filtrados.length, lista: ordem.map((g) => ({ nome: g, itens: mapa.get(g)! })) };
-  }, [parlamentares, ordemPartidos, termo, agrupar]);
+  }, [parlamentares, ordemPartidos, termo, agrupar, uf]);
 
   const quem = casa === "camara" ? "deputado" : "senador";
+  const nomeUf = uf ? (UFS.find((u) => u.sigla === uf)?.nome ?? uf) : null;
 
   return (
     <div className="flex flex-col gap-4">
+      <SeletorUf id="uf-votacao" uf={uf} onChange={escolherUf} rotulo="Ver só quem é do meu estado" />
+      <PlacarPorUf porUf={porUf} uf={uf} />
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
         <label className="flex min-w-0 flex-1 flex-col gap-1 text-sm">
           Buscar por nome, partido ou estado
@@ -83,6 +97,7 @@ export function VotacaoParlamentares({
       </div>
       <p className="text-sm text-muted-foreground" aria-live="polite">
         {grupos.total.toLocaleString("pt-BR")} {grupos.total === 1 ? "registro" : "registros"}
+        {nomeUf && ` de ${nomeUf}`}
         {termo && ` para "${busca.trim()}"`}
       </p>
       {grupos.lista.map((g) => (

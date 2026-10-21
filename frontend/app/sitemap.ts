@@ -10,6 +10,7 @@ type Entrada = MetadataRoute.Sitemap[number];
 const FIXAS = [
   "/",
   "/parlamentares",
+  "/projetos",
   "/partidos",
   "/impostos-e-repasses",
   "/segundo-turno",

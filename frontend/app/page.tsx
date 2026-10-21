@@ -251,6 +251,17 @@ const RECURSOS = [
     ),
   },
   {
+    titulo: "Projetos e votações",
+    texto: "Procure um projeto pelo número ou assunto: o que diz, quem votou e o que disseram no Plenário.",
+    href: "/projetos",
+    icone: (
+      <svg aria-hidden viewBox="0 0 24 24" className={ICONE} fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="10.5" cy="10.5" r="6" />
+        <path d="M15 15l5 5M8 10.5h5M10.5 8v5" />
+      </svg>
+    ),
+  },
+  {
     titulo: "Projetos",
     texto: "O que apresentou como autor principal e o que virou lei.",
     href: "/parlamentares?ordenar=projetos&ordem=desc",

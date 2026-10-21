@@ -14,6 +14,7 @@ const TEXTO = `# Panóptico
 - Cidade (vereadores, prefeitura, repasses): ${SITE_URL}/cidade/{codigo-ibge}
 - [Representantes](${SITE_URL}/representantes): quem representa o cidadão em cada nível.
 - [Partidos](${SITE_URL}/partidos): dinheiro público e contas dos partidos.
+- [Projetos e votações](${SITE_URL}/projetos): busca por número ou assunto; cada projeto mostra o que diz, as votações nominais, quem votou, o que disseram em Plenário e o caminho. Páginas: ${SITE_URL}/projeto/{camara|senado}/{id}, ${SITE_URL}/projeto/local/{id}, ${SITE_URL}/votacao/{camara|senado}/{id}, ${SITE_URL}/votacao/local/{id}.
 
 ## Páginas principais
 

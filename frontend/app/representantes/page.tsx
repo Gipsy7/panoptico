@@ -402,6 +402,20 @@ async function Lista({ cep, uf, municipio }: Busca) {
       >
         Comparar os números de todos de {nomeEstado}
       </Link>
+      <div className="flex flex-col gap-1">
+        <Link
+          href={`/projetos?esfera=federal&votacao=com&uf=${localizacao.uf}`}
+          className="alvo-link self-start text-sm font-medium text-primary underline underline-offset-4"
+        >
+          Veja como votaram em projetos do Congresso (com quem representa {nomeEstado})
+        </Link>
+        <Link
+          href={`/projetos?uf=${localizacao.uf}`}
+          className="alvo-link self-start text-sm font-medium text-primary underline underline-offset-4"
+        >
+          Projetos e votações da assembleia e das câmaras de {nomeEstado}
+        </Link>
+      </div>
 
       <FonteRodape fonte="Dados Abertos da Câmara e do Senado" atualizadoEm={atualizado_em} />
     </article>

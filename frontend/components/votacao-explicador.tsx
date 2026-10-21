@@ -7,8 +7,11 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
+import Link from "next/link";
+
 import { AvisoErro } from "@/components/aviso-erro";
 import { CompartilharWhatsApp } from "@/components/compartilhar";
+import { AvisoDiscursos, GruposDeDiscursos } from "@/components/discursos-secao";
 import { EsqueletoSecao } from "@/components/esqueleto-secao";
 import { FonteRodape } from "@/components/fonte-rodape";
 import { AbasDetalhe, type AbaDetalhe } from "@/components/painel/abas-detalhe";
@@ -18,6 +21,7 @@ import { Revelacao } from "@/components/revelacao";
 import { VotacaoParlamentares } from "@/components/votacao-parlamentares";
 import { type VotacaoDetalhe, getVotacao } from "@/lib/api";
 import { CASA_CURTA, CASA_DA, formatarData } from "@/lib/formato";
+import { idDaProposicao, lerUf } from "@/lib/projetos";
 
 const INTEIRO = new Intl.NumberFormat("pt-BR");
 const n = (v: number) => INTEIRO.format(v);
@@ -62,17 +66,23 @@ export async function metadadosVotacao(casa: string, id: string): Promise<Metada
   };
 }
 
-export function PaginaVotacao({ params }: { params: Promise<{ casa: string; id: string }> }) {
+export function PaginaVotacao({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ casa: string; id: string }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
   return (
     <Revelacao fallback={<EsqueletoSecao rotulo="Carregando a votação…" secoes={3} />}>
-      {params.then(({ casa, id }) => (
-        <Votacao casa={casa} id={id} />
+      {Promise.all([params, searchParams]).then(([{ casa, id }, sp]) => (
+        <Votacao casa={casa} id={id} ufInicial={lerUf(sp.uf)} />
       ))}
     </Revelacao>
   );
 }
 
-async function Votacao({ casa, id }: { casa: string; id: string }) {
+async function Votacao({ casa, id, ufInicial }: { casa: string; id: string; ufInicial: string | null }) {
   if (casa !== "camara" && casa !== "senado") notFound();
   const r = await getVotacao(casa, id);
   if (!r.ok) {
@@ -89,6 +99,7 @@ async function Votacao({ casa, id }: { casa: string; id: string }) {
   const listados = d.secreta ? votaramSecreto : d.placar.sim + d.placar.nao;
   const diferenca = p.daFonte && publicados > listados ? publicados - listados : 0;
   const rodape = <FonteRodape fonte={d.fonte_nome} url={d.fonte_url} atualizadoEm={d.atualizado_em} />;
+  const idProjeto = idDaProposicao(d.proposicao_url);
 
   const abas: AbaDetalhe[] = [
     {
@@ -119,12 +130,19 @@ async function Votacao({ casa, id }: { casa: string; id: string }) {
                 parlamentares={d.parlamentares}
                 ordemPartidos={d.partidos.map((x) => x.partido)}
                 casa={d.casa}
+                porUf={d.por_uf ?? []}
+                ufInicial={ufInicial}
               />
               {rodape}
             </section>
           ),
         },
       ],
+    },
+    {
+      id: "discursos",
+      rotulo: "O que disseram",
+      secoes: [{ id: "discursos", titulo: "O que disseram", conteudo: <Discursos d={d} idProjeto={idProjeto} /> }],
     },
     {
       id: "proposicao",
@@ -189,6 +207,11 @@ async function Votacao({ casa, id }: { casa: string; id: string }) {
           )}
         </GradeCartoes>
         <p className="text-sm text-muted-foreground">Toque num número para ver o detalhe, com a fonte e a data.</p>
+        {idProjeto && (
+          <Link href={`/projeto/${d.casa}/${idProjeto}`} className="botao-linha self-start">
+            Ver tudo sobre o projeto
+          </Link>
+        )}
         <CompartilharWhatsApp
           caminho={`/votacao/${d.casa}/${d.id_externo}`}
           texto={`${d.proposicao ?? "Votação"} no ${casaCurta}: ${d.resultado ? `${RESULTADO[d.resultado].toLowerCase()}, ` : ""}Sim ${n(p.sim)} x Não ${n(p.nao)}. Veja como votou cada partido e cada parlamentar:`}
@@ -438,6 +461,35 @@ function Partidos({ d, rodape }: { d: VotacaoDetalhe; rodape: React.ReactNode })
         </div>
       )}
       {rodape}
+    </section>
+  );
+}
+
+function Discursos({ d, idProjeto }: { d: VotacaoDetalhe; idProjeto: string | null }) {
+  const projeto = idProjeto ? `/projeto/${d.casa}/${idProjeto}` : null;
+  const disc = d.discursos;
+  return (
+    <section aria-labelledby="discursos-titulo" className="flex flex-col gap-4">
+      <h3 id="discursos-titulo" className="text-2xl">
+        O que disseram
+      </h3>
+      {disc ? (
+        <>
+          <AvisoDiscursos extra="Discursos de Plenário deste dia sobre o projeto, separados pelo voto que quem discursou registrou nesta votação." />
+          <GruposDeDiscursos grupos={disc.grupos} />
+          <FonteRodape fonte={disc.fonte_nome} url={disc.fonte_url} atualizadoEm={disc.atualizado_em} />
+        </>
+      ) : (
+        <p className="nota text-sm">
+          Os discursos desse dia aparecem na última votação do projeto naquele dia, para não ligar a fala a uma votação que
+          não é a dela. {projeto && "Veja todos na página do projeto."}
+        </p>
+      )}
+      {projeto && (
+        <Link href={projeto} className="alvo-link self-start font-medium underline underline-offset-4">
+          Ver tudo sobre o projeto
+        </Link>
+      )}
     </section>
   );
 }

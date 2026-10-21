@@ -1,4 +1,4 @@
-import type { Casa } from "@/lib/api";
+import type { Casa, CasaProjeto } from "@/lib/api";
 
 export function formatarCep(valor: string): string {
   const digitos = valor.replace(/\D/g, "").slice(0, 8);
@@ -67,3 +67,34 @@ export const MESES = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "s
 /** Com artigo e preposição: "da Câmara", "do Senado". */
 export const CASA_DA: Record<Casa, string> = { camara: "da Câmara", senado: "do Senado" };
 export const CASA_CURTA: Record<Casa, string> = { camara: "Câmara", senado: "Senado" };
+
+/** Casas que aparecem em projetos e votações (Congresso, assembleia estadual e câmara municipal). */
+export const CASA_PROJETO_NOME: Record<CasaProjeto, string> = {
+  camara: "Câmara dos Deputados",
+  senado: "Senado Federal",
+  assembleia: "Assembleia Legislativa",
+  camara_municipal: "Câmara Municipal",
+};
+
+export const CASA_PROJETO_CURTA: Record<CasaProjeto, string> = {
+  camara: "Câmara",
+  senado: "Senado",
+  assembleia: "Assembleia",
+  camara_municipal: "Câmara Municipal",
+};
+
+/** "Câmara Municipal de Gaspar/SC", "Assembleia Legislativa de SC", "Senado Federal". */
+export function lugarDoProjeto(casa: CasaProjeto, uf: string | null, municipio: string | null): string {
+  const nome = CASA_PROJETO_NOME[casa];
+  if (casa === "camara_municipal") return municipio ? `${nome} de ${municipio}${uf ? `/${uf}` : ""}` : nome;
+  if (casa === "assembleia") return uf ? `${nome} de ${uf}` : nome;
+  return nome;
+}
+
+export const RESULTADO_VOTACAO: Record<string, string> = { aprovada: "Aprovada", rejeitada: "Rejeitada" };
+
+/** Resultado como a fonte publica; Câmara e Senado usam "aprovada"/"rejeitada", as câmaras locais, texto livre. */
+export function textoResultado(resultado: string | null | undefined): string | null {
+  if (!resultado) return null;
+  return RESULTADO_VOTACAO[resultado.toLowerCase()] ?? resultado;
+}
