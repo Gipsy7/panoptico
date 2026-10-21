@@ -3,8 +3,8 @@
 Só aditiva: tabelas `pauta_item` e `tramitacao` (cargas próprias, sem RECARREGAR_DADOS) e as
 colunas opcionais `relator` e `relator_parlamentar_id` em `proposicao`.
 
-Revision ID: 0054_pauta_tramitacao
-Revises: 0053_discurso
+Revision ID: 0055_pauta_tramitacao
+Revises: 0054_discurso
 Create Date: 2026-10-21
 """
 
@@ -14,8 +14,8 @@ import sqlalchemy as sa
 
 from alembic import op
 
-revision: str = "0054_pauta_tramitacao"
-down_revision: str | None = "0053_discurso"
+revision: str = "0055_pauta_tramitacao"
+down_revision: str | None = "0054_discurso"
 branch_labels: str | Sequence[str] | None = None
 depends_on: str | Sequence[str] | None = None
 

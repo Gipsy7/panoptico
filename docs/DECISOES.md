@@ -1289,7 +1289,7 @@ Onda 1 da funcionalidade "Projetos e votações": só leitura das fontes e medi�
 
 ## 2026-10-21: ingestão de pauta e tramitação
 
-Onda 2 de "Projetos e votações" (migração `0054_pauta_tramitacao`, só acréscimos, sem `RECARREGAR_DADOS`). Continuação do reconhecimento da mesma data; fontes e armadilhas em [FONTES_DE_DADOS.md](FONTES_DE_DADOS.md).
+Onda 2 de "Projetos e votações" (migração `0055_pauta_tramitacao`, só acréscimos, sem `RECARREGAR_DADOS`). Continuação do reconhecimento da mesma data; fontes e armadilhas em [FONTES_DE_DADOS.md](FONTES_DE_DADOS.md).
 
 - **Tabelas novas:** `pauta_item` (casa, data, sessão, ordem, rótulo, `proposicao_id_externo`, ementa, url) e `tramitacao` (casa, `proposicao_id_externo`, ordem, data e hora, órgão, tipo, descrição, situação, `fonte_marca`). Em `proposicao`, `relator` e `relator_parlamentar_id` (FK opcional, `SET NULL`). A tramitação **não depende** de a proposição estar em `proposicao`: matéria antiga votada tem tramitação e fica sem relator gravado.
 - **Colunas além das combinadas:** `tramitacao.tipo` (o ato como a Câmara classifica: "Votação (Plenário)"; no Senado fica vazio) para quem fizer o mapa de etapas; e `tramitacao.fonte_marca`, a marca da fonte na hora da busca, que sustenta o incremental sem tabela de controle nem coluna em `proposicao`.
@@ -1311,7 +1311,7 @@ Onda 2 de "Projetos e votações" (migração `0054_pauta_tramitacao`, só acré
 
 ## 2026-10-21: proposições ampliadas e matéria das votações locais
 
-- **Migração `0055_proposicao_ampliada` (só aditiva, sem `RECARREGAR_DADOS`):** `proposicao.autor_descricao` (300) e `proposicao.origem` (`legislatura` | `votada`); em `votacao_local`, `materia_id_externo`, `materia_ementa` e `projeto_local_id` (FK opcional, SET NULL, com índice). As próximas cargas preenchem; a migração é idempotente (confere as colunas antes) e o `downgrade` foi testado.
+- **Migração `0056_proposicao_ampliada` (só aditiva, sem `RECARREGAR_DADOS`):** `proposicao.autor_descricao` (300) e `proposicao.origem` (`legislatura` | `votada`); em `votacao_local`, `materia_id_externo`, `materia_ementa` e `projeto_local_id` (FK opcional, SET NULL, com índice). As próximas cargas preenchem; a migração é idempotente (confere as colunas antes) e o `downgrade` foi testado.
 - **Câmara:** nada muda no recorte (`TIPOS` continua PL/PLP/PEC/PDL desde 01/02/2023, qualquer autor). `autor_descricao` sai do arquivo de autores (`nomeAutor` de quem não é deputado) só para quem não tem deputado autor; quem ganha deputado volta a `NULL`. As votadas fora da tabela (~78: PL/PEC antigos, MPV, outras siglas) ganham ficha pela API (`camara_proposicoes_votadas`, `--votadas`), com `origem="votada"`; é `ON CONFLICT DO NOTHING`, então uma linha de legislatura nunca vira "votada". MPV entra aqui e só aqui.
 - **Senado:** a lista geral `/processo?sigla=&ano=` (16 chamadas) traz os ~2.000 PL/PLP/PEC/PDL desde 2023 sem senador em exercício autor, com `autor_descricao` = texto de `autoria` ("Câmara dos Deputados", comissão, CPI). As ~18 votadas antigas vêm por `/processo?codigoMateria=`. Tudo na mesma carga e na mesma transação de `senado_proposicoes`; o bruto ganha `__geral` e `__votadas`, e bruto antigo continua valendo. Se uma matéria votada passa a aparecer na lista geral, vira `legislatura`; o inverso nunca acontece.
 - **Perfil não muda:** `services/projetos.py` só conta o que tem `Autoria`, e as linhas novas não têm. `test_projetos.py` trava `primeiro_autor`, `coautor`, `viraram_norma` e a média da Casa com linhas de Executivo, comissão e votadas.
