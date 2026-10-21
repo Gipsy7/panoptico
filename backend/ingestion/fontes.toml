@@ -112,6 +112,22 @@ frequencia = "diaria"
 depende = ["senado_votacoes", "senado_proposicoes"]
 
 [[fonte]]
+nome = "camara_discursos"
+modulo = "ingestion.camara.discursos"
+uso = "Discursos em Plenário no dia em que o projeto foi votado (Câmara; só o sumário oficial e o link)"
+recorte = "Plenário, dias de votação nominal, sumário que cita alguma matéria; ano anterior e atual"
+frequencia = "diaria"
+depende = ["camara_deputados", "camara_votacoes"]
+
+[[fonte]]
+nome = "senado_discursos"
+modulo = "ingestion.senado.discursos"
+uso = "Discursos em Plenário no dia em que o projeto foi votado (Senado; só o resumo oficial e o link)"
+recorte = "Plenário, dias de votação nominal, resumo que cita alguma matéria; ano anterior e atual"
+frequencia = "diaria"
+depende = ["senado_senadores", "senado_votacoes"]
+
+[[fonte]]
 nome = "ibge_municipios"
 modulo = "ingestion.ibge.municipios"
 uso = "Busca por cidade e CEP"
