@@ -73,7 +73,7 @@ Teste: `https://<endereço>.vercel.app/saude` deve responder `{"status":"ok","ba
 |---|---|
 | `NEXT_PUBLIC_API_URL` | `https://api.panoptico.social.br` |
 | `NEXT_PUBLIC_SITE_URL` | `https://panoptico.social.br` |
-| `NEXT_PUBLIC_CONTATO_EMAIL` | (opcional) |
+| `NEXT_PUBLIC_CONTATO_EMAIL` | (opcional; vazio = `contato@panoptico.social.br`) |
 
 Em **Settings → Domains**, adicione `panoptico.social.br` e `www.panoptico.social.br` (marque o `www` para redirecionar).
 

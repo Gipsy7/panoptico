@@ -24,4 +24,4 @@ Para cobrir as emendas parlamentares, as sanções (CEIS, CNEP, CEAF) e as viage
 **Pedimos:** (1) a elevação do limite por minuto da nossa chave, durante a carga inicial ou de forma permanente, ou (2) a indicação do arquivo em lote equivalente (download de dados abertos), que preferimos por pesar menos nos servidores. **Periodicidade de uso:** carga inicial uma vez e atualizações diárias/semanais incrementais.
 
 Atenciosamente,
-[nome], Panóptico — [e-mail de contato]
+[nome], Panóptico — contato@panoptico.social.br

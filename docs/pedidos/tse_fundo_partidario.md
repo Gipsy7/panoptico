@@ -19,4 +19,4 @@ Queremos mostrar, na página de cada partido, quanto recebeu do Fundo Partidári
 Ficamos à disposição para ajustar a frequência ou o horário das consultas.
 
 Atenciosamente,
-[nome], Panóptico — [e-mail de contato]
+[nome], Panóptico — contato@panoptico.social.br

@@ -18,4 +18,4 @@ Os dados abertos trazem o voto de cada deputado, mas **não trazem o motivo das 
 5. A licença de uso dos dados.
 
 Atenciosamente,
-[nome], Panóptico — [e-mail de contato]
+[nome], Panóptico — contato@panoptico.social.br

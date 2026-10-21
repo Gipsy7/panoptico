@@ -19,4 +19,4 @@ Ficamos à disposição para ajustar volume, horário e formato conforme a orien
 
 Atenciosamente,
 [nome], responsável pelo projeto Panóptico
-[e-mail de contato]
+contato@panoptico.social.br

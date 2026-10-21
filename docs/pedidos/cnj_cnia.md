@@ -17,4 +17,4 @@ Solicitamos, em ordem de preferência:
 Ficamos à disposição para ajustar a frequência ou o horário das consultas.
 
 Atenciosamente,
-[nome], Panóptico — [e-mail de contato]
+[nome], Panóptico — contato@panoptico.social.br

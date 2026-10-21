@@ -26,4 +26,4 @@ Também pedimos a indicação da licença de uso e do dicionário de dados (layo
 Ficamos à disposição para ajustar a frequência ou o horário das consultas.
 
 Atenciosamente,
-[nome], Panóptico — [e-mail de contato]
+[nome], Panóptico — contato@panoptico.social.br

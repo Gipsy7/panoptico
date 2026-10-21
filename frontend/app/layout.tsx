@@ -4,7 +4,7 @@ import Link from "next/link";
 
 import { Logo, Marca } from "@/components/logo";
 import { MenuPrincipal } from "@/components/menu-principal";
-import { SITE_URL } from "@/lib/site";
+import { CONTATO_EMAIL, SITE_URL } from "@/lib/site";
 
 import "./globals.css";
 
@@ -19,8 +19,6 @@ const newsreader = Newsreader({
   subsets: ["latin"],
   axes: ["opsz"],
 });
-
-const CONTATO = process.env.NEXT_PUBLIC_CONTATO_EMAIL;
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -108,11 +106,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
               <Link href="/apoie" className={LINK}>
                 Apoie
               </Link>
-              {CONTATO && (
-                <a href={`mailto:${CONTATO}`} className={LINK}>
-                  Contato
-                </a>
-              )}
+              <a href={`mailto:${CONTATO_EMAIL}`} className={LINK}>
+                {CONTATO_EMAIL}
+              </a>
             </nav>
             <p>
               Dados públicos e oficiais da Câmara dos Deputados, do Senado Federal, do Portal da

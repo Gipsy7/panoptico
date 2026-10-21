@@ -115,6 +115,8 @@ Emendas estaduais: SC (SC Transferências), por enquanto só na API. O que falta
 
 Não precisa programar:
 
+- ✉️ **Contato:** [contato@panoptico.social.br](mailto:contato@panoptico.social.br) (imprensa, órgãos públicos, correções e dúvidas sobre dados).
+
 - 🐛 **Número diferente da fonte?** Abra uma [issue](https://github.com/Gipsy7/panoptico/issues) com o link do perfil e da fonte.
 - 💬 **Algo confuso no site?** Sugestões de texto são muito bem-vindas, principalmente de quem não acompanha política.
 - 📡 **Conhece uma fonte boa?** Conte numa issue.

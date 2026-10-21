@@ -19,7 +19,7 @@ O Tribunal mantém o Painel de Emendas (Farol) com as emendas parlamentares exec
 Não pedimos CPF nem dado pessoal de pessoa física beneficiária.
 
 Atenciosamente,
-[nome], Panóptico — [e-mail de contato]
+[nome], Panóptico — contato@panoptico.social.br
 
 ---
 

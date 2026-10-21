@@ -112,6 +112,7 @@
 - [2026-10-20: dinheiro federal por estado e cidade](#2026-10-20-dinheiro-federal-por-estado-e-cidade)
 - [2026-10-20: o que fica fora da soma de gastos aparece no perfil](#2026-10-20-o-que-fica-fora-da-soma-de-gastos-aparece-no-perfil)
 - [2026-10-20: município por nome anterior, plano Pix impedido e naturezas fora do recorte](#2026-10-20-município-por-nome-anterior-plano-pix-impedido-e-naturezas-fora-do-recorte)
+- [2026-10-20: acompanhar atualizações e notícias (para depois)](#2026-10-20-acompanhar-atualizações-e-notícias-para-depois)
 
 ## 2026-10-06: stack inicial
 
@@ -1225,3 +1226,9 @@ Vem da conferência de 20/10 (`docs/conferencias/2026-10-20.md`), que achou 2 BU
 - **ALESC, votos nominais: existem e foram lidos.** A Ordem do Dia de cada sessão marca "Votação nominal" e o "Extrato de votação" é `GET /extrato-votacao/{código}`, que só responde à chamada AJAX do site (`X-Requested-With: XMLHttpRequest`, posto pelo script da própria página; sem o cabeçalho, 405). Não é captcha, login nem robots; usamos o User-Agent do projeto. Julgamento a revisar: replicar esse cabeçalho é o que o botão do site faz, não disfarça o cliente. 101 votações (96 aprovadas, 5 rejeitadas), 2.623 votos ligados; carga semanal de ~410 requisições com pausa. `sapl.gravar` passou a aceitar `url` própria na votação.
 - **ALESC, gastos:** recarregados junto (39 deputados com gasto; 2025 R$ 17.902.419,13).
 - **Carga:** `ingestao-camaras.yml` já tem jobs `alece`, `alrn` e `alesc` (semanais; timeouts 90, 45 e 120 min) que rodam os mesmos módulos, então cobrem as novas cargas sem edição. Atenção: o `alrn` agora faz ~25 buscas a mais (cabe nos 45 min) e o `alesc` ~410 requisições a mais de 0,5 s (cabe nos 120 min, mas o tempo total fica perto de 40 min). Não testado nos EUA (GitHub Actions). Sem migração nova.
+## 2026-10-20: acompanhar atualizações e notícias (para depois)
+
+Ideias da conversa de 20/10/2026, registradas para não se perderem; nada será feito agora (a prioridade é dado, revisão humana e divulgação).
+
+- **Acompanhar atualizações:** cada perfil já tem feed Atom, sem pedir e-mail. O passo seguinte é um botão "acompanhar" que explique o feed e gere o link para um leitor. Aviso por e-mail ou WhatsApp fica para depois: obriga a guardar contato do cidadão (LGPD, coleta mínima, consentimento e descadastro) e tem custo de envio; precisa de decisão própria antes.
+- **Notícias sobre o representante:** esbarra na regra de só dado oficial, sem juízo. Se entrar, começa só pelas fontes oficiais (Agência Câmara, Agência Senado, sites das assembleias e câmaras), com título, data e link, sem resumo nem classificação feitos por nós. Imprensa comercial, no máximo como link de busca externa, com aviso de que não é dado do Panóptico. Nunca seleção editorial nossa.

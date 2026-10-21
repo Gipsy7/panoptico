@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 
+import { CONTATO_EMAIL } from "@/lib/site";
+
 export const metadata: Metadata = {
   title: "Privacidade",
   description: "Como o Panóptico trata os seus dados.",
@@ -46,7 +48,11 @@ export default function PrivacidadePage() {
       <Secao titulo="Seus direitos">
         Como não coletamos dados pessoais de quem usa o site, não há dados seus para consultar,
         corrigir ou apagar. Em caso de dúvida sobre a Lei Geral de Proteção de Dados (Lei nº
-        13.709/2018), use o link de contato no rodapé do site.
+        13.709/2018), escreva para{" "}
+        <a href={`mailto:${CONTATO_EMAIL}`} className="underline underline-offset-2">
+          {CONTATO_EMAIL}
+        </a>
+        .
       </Secao>
 
       <p className="text-xs text-muted-foreground">Última atualização: outubro de 2026.</p>

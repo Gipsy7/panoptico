@@ -17,4 +17,4 @@ O Panóptico (panoptico.social.br) é um projeto sem fins lucrativos de transpar
 4. **Periodicidade:** atualização diária ou semanal. Identificamos o robô no User-Agent ("Panoptico/0.1 (+https://panoptico.social.br)"), com uma requisição por vez.
 
 Atenciosamente,
-[nome], Panóptico — [e-mail de contato]
+[nome], Panóptico — contato@panoptico.social.br

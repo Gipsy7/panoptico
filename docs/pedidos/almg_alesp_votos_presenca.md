@@ -24,4 +24,4 @@ A Casa já publica dados abertos de proposições e de gastos, e usamos esses ar
 Não pedimos CPF, endereço nem qualquer dado pessoal além do nome parlamentar e do partido, que já são públicos.
 
 Atenciosamente,
-[nome], Panóptico — [e-mail de contato]
+[nome], Panóptico — contato@panoptico.social.br

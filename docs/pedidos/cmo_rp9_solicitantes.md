@@ -12,4 +12,4 @@ Para a LOA 2021, a relação de beneficiários publicada não traz o solicitante
 **Justificativa** (não obrigatória): projeto aberto e sem fins lucrativos Panóptico (https://panoptico.social.br), de transparência sobre quem exerce função pública, com fonte oficial e linguagem factual em cada dado.
 
 [nome]
-[e-mail]
+contato@panoptico.social.br

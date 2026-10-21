@@ -19,4 +19,4 @@ A página "Verbas de Ressarcimento" do Portal da Transparência só devolve dado
 **Periodicidade:** atualização mensal. Se houver documentação da API ou dos campos e limites de uso, pedimos o envio.
 
 Atenciosamente,
-[nome], Panóptico — [e-mail de contato]
+[nome], Panóptico — contato@panoptico.social.br

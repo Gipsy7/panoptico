@@ -16,4 +16,4 @@ Adicionalmente, informo que a consulta processual (processo.stj.jus.br) responde
 **Justificativa** (não obrigatória): projeto aberto e sem fins lucrativos Panóptico (https://panoptico.social.br), de transparência sobre quem exerce função pública, com fonte oficial e linguagem factual em cada dado.
 
 [nome]
-[e-mail]
+contato@panoptico.social.br

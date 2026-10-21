@@ -40,7 +40,7 @@ from app.models import (
 )
 
 RAW_DIR = settings.raw_dir
-USER_AGENT = "Panoptico/0.1 (+https://panoptico.social.br)"
+USER_AGENT = "Panoptico/0.1 (+https://panoptico.social.br; contato@panoptico.social.br)"
 # Brutos maiores que isto não são lidos para a memória: carregar_raw devolve o caminho.
 LIMITE_EM_MEMORIA = 200_000_000
 

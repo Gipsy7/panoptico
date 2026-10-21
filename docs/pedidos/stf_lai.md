@@ -17,4 +17,4 @@ Solicito, em formato aberto e legível por máquina (CSV, JSON ou planilha), a r
 Caso parte dos campos não possa ser fornecida, solicito o envio dos demais, com a indicação do fundamento legal da restrição (art. 7º, § 2º). Caso o volume seja um obstáculo, aceito o recorte das partes que exercem ou exerceram mandato eletivo federal.
 
 [nome]
-[e-mail]
+contato@panoptico.social.br

@@ -19,4 +19,4 @@ O Portal da Transparência da ALAP publica a CEAP por gabinete e mês (`www.al.a
 Não pedimos CPF, endereço nem qualquer dado pessoal além do nome parlamentar, que já é público.
 
 Atenciosamente,
-[nome], Panóptico — [e-mail de contato]
+[nome], Panóptico — contato@panoptico.social.br

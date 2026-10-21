@@ -15,4 +15,4 @@ O Panóptico (panoptico.social.br) é um projeto sem fins lucrativos de transpar
 4. A licença de uso dos dados.
 
 Atenciosamente,
-[nome], Panóptico — [e-mail de contato]
+[nome], Panóptico — contato@panoptico.social.br
