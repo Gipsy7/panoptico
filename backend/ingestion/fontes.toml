@@ -821,6 +821,41 @@ depende = ["pessoas"]
 # (as sugestões de cada execução), não os diários.
 
 [[fonte]]
+nome = "sigpub_atos"
+modulo = "ingestion.diarios.sigpub"
+uso = "Fila de revisão: sugestões de atos de nomeação, exoneração e designação nos diários das associações de municípios hospedados no SIGPub (diariomunicipal.com.br: AM, AL, BA, CE, GO, MG, PA, PB, PE, PR, RJ, RN, RO, RR, RS e outros), por município (nada é publicado sem revisão humana)"
+recorte = "últimos 90 dias na primeira carga e depois só as edições novas; só matérias de prefeituras e câmaras de município identificado (IBGE); só prefeitos, vice-prefeitos e vereadores em mandato, nome completo (3+ palavras) e palavra de ato no mesmo trecho; trecho de até 500 caracteres + link da edição e código da matéria"
+guarda = "linhas"
+bruto = "completo"
+frequencia = "semanal"
+acesso = "aberto"
+depende = ["pessoas"]
+# SIGPub (Vox Tecnologia): uma edição PDF com texto por dia e instância (AMM-MG, AMUPE, FAMUP,
+# FEMURN, APRECE, AMP, FAMURS...), com dezenas ou centenas de prefeituras. robots.txt aberto;
+# calendário público (POST com token CSRF da página) e PDF; a busca avançada tem reCAPTCHA e
+# não é usada. Lógica do calendário do raspador do Querido Diário (MIT). Bruto: texto de cada
+# edição em data/raw/sigpub_atos/<instância>/ (--de-raw reprocessa sem rede). Roda só no acervo
+# (volume); não tem workflow no GitHub Actions. Acesso a partir do runner dos EUA não foi
+# testado; se bloquear, só no runner brasil.
+
+[[fonte]]
+nome = "domsc_ciga_atos"
+modulo = "ingestion.diarios.domsc"
+uso = "Fila de revisão: sugestões de atos de nomeação, exoneração e designação no Diário Oficial dos Municípios de Santa Catarina (DOM/SC, ~290 municípios), pelos dados abertos do CIGA (nada é publicado sem revisão humana)"
+recorte = "últimos 90 dias na primeira carga e depois só os lotes novos; só publicações de prefeituras e câmaras nas categorias de ato (portarias, decretos, outras publicações, extratos, concursos, resoluções, atos da presidência), sem títulos de compras; só prefeitos, vice-prefeitos e vereadores em mandato; trecho de até 500 caracteres + link do PDF do ato"
+guarda = "linhas"
+bruto = "recorte"
+frequencia = "semanal"
+acesso = "aberto"
+depende = ["pessoas"]
+# O site diariomunicipal.sc.gov.br veda rastreadores no robots.txt (User-agent: * / Disallow: /)
+# e NÃO é rastreado. Os dados abertos do próprio consórcio (dados.ciga.sc.gov.br, CKAN,
+# conjuntos mensais domsc-publicacoes-de-MM-AAAA com ZIPs de JSON por dia e faixa de horário)
+# são o canal de reúso: só as páginas de conjunto e de download (/api/ é vedado e não é usado),
+# 1 requisição a cada 10 s (Crawl-Delay). Bruto: o recorte por lote em data/raw/domsc_ciga_atos/.
+# Roda só no acervo; sem workflow no GitHub Actions (acesso do runner dos EUA não testado).
+
+[[fonte]]
 nome = "dou_atos"
 modulo = "ingestion.dou.atos"
 uso = "Fila de revisão: sugestões de atos de nomeação, exoneração, designação e dispensa na Seção 2 do Diário Oficial da União que citam o nome completo de uma pessoa que acompanhamos (nada é publicado sem revisão humana)"
