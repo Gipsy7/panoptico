@@ -42,16 +42,44 @@ import {
   getLinhaDoTempo,
   getPainelExecutivo,
   getSancoes,
+  urlFotoTse,
 } from "@/lib/api";
 import { formatarData, formatarReais, formatarReaisCompacto } from "@/lib/formato";
+import { JsonLdPerfil, montarDescricao, nomeComSigla } from "@/components/json-ld";
 
 export async function generateMetadata({ params }: PageProps<"/eleito/[id]">): Promise<Metadata> {
   const { id } = await params;
   const resultado = await getEleito(id);
   if (!resultado.ok) return { title: "Eleito" };
   const e = resultado.dados;
-  const descricao = `${e.cargo} em ${e.unidade} (${[e.partido, e.uf].filter(Boolean).join("-")}): bens declarados e contas de campanha, com dados oficiais do TSE.`;
-  return { title: e.nome_urna, description: descricao, openGraph: { title: `${e.nome_urna} · ${e.cargo}`, description: descricao } };
+  const bens = e.bens && e.bens.quantidade > 0 ? e.bens.total : null;
+  const descricao = montarDescricao([
+    `${e.cargo} em ${e.unidade}${e.ano_eleicao ? `, eleição de ${e.ano_eleicao}` : ""}.`,
+    bens !== null && bens > 0 && `Declarou bens de ${formatarReais(bens, true)} ao TSE.`,
+    "Contas de campanha e bens declarados.",
+  ], "Dados oficiais do TSE com fonte.");
+  return {
+    title: `${nomeComSigla(e.nome_urna, e.partido, e.uf)}: ${e.cargo.toLowerCase()}, bens e contas de campanha`,
+    description: descricao,
+    openGraph: { title: `${e.nome_urna} · ${e.cargo}`, description: descricao },
+  };
+}
+
+async function DadosEstruturados({ id }: { id: string }) {
+  const resultado = await getEleito(id);
+  if (!resultado.ok || resultado.dados.mandato_local) return null;
+  const e = resultado.dados;
+  return (
+    <JsonLdPerfil
+      caminho={`/eleito/${e.id}`}
+      nome={e.nome_urna}
+      cargo={e.cargo}
+      casa={e.unidade}
+      partido={e.partido}
+      uf={e.uf}
+      imagem={e.foto ? urlFotoTse(e.id) : null}
+    />
+  );
 }
 
 const CARGO_EXECUTIVO = /^(vice-)?(presidente|governador|prefeito)/i;
@@ -64,12 +92,15 @@ export default function EleitoPage({ params, searchParams }: PageProps<"/eleito/
   return (
     <Revelacao fallback={<EsqueletoSecao rotulo="Carregando o perfil…" secoes={3} />}>
       {Promise.all([params, searchParams]).then(([{ id }, sp]) => (
-        <Perfil
-          id={id}
-          agendaTipo={texto(sp.agenda_tipo)}
-          agendaAno={texto(sp.agenda_ano)}
-          agendaPagina={texto(sp.agenda_pagina)}
-        />
+        <>
+          <DadosEstruturados id={id} />
+          <Perfil
+            id={id}
+            agendaTipo={texto(sp.agenda_tipo)}
+            agendaAno={texto(sp.agenda_ano)}
+            agendaPagina={texto(sp.agenda_pagina)}
+          />
+        </>
       ))}
     </Revelacao>
   );

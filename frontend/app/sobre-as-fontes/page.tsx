@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
+import { JsonLdDataset } from "@/components/json-ld";
 import { EsqueletoSecao } from "@/components/esqueleto-secao";
 import { Revelacao } from "@/components/revelacao";
 import { getFontes } from "@/lib/api";
@@ -14,6 +15,10 @@ export const metadata: Metadata = {
 export default function SobreAsFontesPage() {
   return (
     <article className="pagina-secoes">
+      <JsonLdDataset
+        nome="Panóptico: dados públicos sobre representantes políticos do Brasil"
+        descricao="Dados oficiais de deputados, senadores, vereadores e partidos (gastos, votações, bens declarados, contratos), reunidos com fonte e data."
+      />
       <header className="flex flex-col gap-[var(--esp-2)]">
         <p className="sobretitulo">Método</p>
         <h1 className="titulo-pagina">Sobre as fontes</h1>

@@ -153,7 +153,7 @@ flowchart LR
 1. **Ingestão** ([backend/ingestion/](backend/ingestion/)): grava o bruto em `data/raw/<fonte>/`, carrega no banco numa transação e registra em `fonte_ingestao`. Uma fonte com falha não derruba as outras.
 2. **Banco**: PostgreSQL ([migrações](backend/alembic/)).
 3. **API** ([backend/app/](backend/app/)): só leitura; cada resposta traz a fonte e a data.
-4. **Site** ([frontend/](frontend/)): renderizado no servidor, pensado primeiro para celular e conexão fraca.
+4. **Site** ([frontend/](frontend/)): renderizado no servidor, pensado primeiro para celular e conexão fraca. Para buscadores e IAs: `/sitemap.xml` com os perfis, `/robots.txt`, `/llms.txt`, endereço canônico e dados estruturados (JSON-LD de perfil e de conjunto de dados).
 
 <details>
 <summary><b>🧮 Como os números são calculados</b></summary>

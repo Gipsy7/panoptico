@@ -22,6 +22,7 @@ const newsreader = Newsreader({
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
+  alternates: { canonical: "./" },
   title: { default: "Panóptico: quem te representa, às claras", template: "%s · Panóptico" },
   description:
     "Digite seu CEP e veja quem te representa no Congresso, com dados oficiais e link para a fonte.",

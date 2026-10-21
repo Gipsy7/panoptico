@@ -50,7 +50,8 @@ import {
   type Presenca,
   type Votos,
 } from "@/lib/api";
-import { CASA_CURTA, FONTE_CASA, NOME_CASA } from "@/lib/formato";
+import { CASA_CURTA, FONTE_CASA, NOME_CASA, formatarReais } from "@/lib/formato";
+import { JsonLdPerfil, montarDescricao, nomeComSigla } from "@/components/json-ld";
 
 export async function generateMetadata({
   params,
@@ -59,9 +60,21 @@ export async function generateMetadata({
   const resultado = await getParlamentar(id);
   if (!resultado.ok) return { title: "Parlamentar" };
   const p = resultado.dados;
-  const descricao = `Gastos do gabinete, presença em votações e projetos de lei de ${p.nome_parlamentar} (${[p.partido, p.uf].filter(Boolean).join("-")}), com dados oficiais e link para a fonte.`;
+  const [gastos, presenca] = await Promise.all([getGastos(id), getPresenca(id)]);
+  const media = `média ${p.casa === "camara" ? "da" : "do"} ${CASA_CURTA[p.casa]}`;
+  const g = gastos.ok && gastos.dados.total > 0 ? gastos.dados : null;
+  const pr = presenca.ok && presenca.dados.total_votacoes > 0 ? presenca.dados : null;
+  const generica = `Gastos do gabinete, presença em votações e projetos de lei de ${p.nome_parlamentar} (${[p.partido, p.uf].filter(Boolean).join("-")}), com dados oficiais e link para a fonte.`;
+  const descricao =
+    g || pr
+      ? montarDescricao([
+          g &&
+            `Gastou ${formatarReais(g.total, true)} do gabinete em ${g.ano}${g.media_casa > 0 ? ` (${media}: ${formatarReais(g.media_casa, true)})` : ""}.`,
+          pr && `Votou em ${pr.votou} de ${pr.total_votacoes} votações em ${pr.ano}.`,
+        ])
+      : generica;
   return {
-    title: p.nome_parlamentar,
+    title: `${nomeComSigla(p.nome_parlamentar, p.partido, p.uf)}: gastos, votações e presença`,
     description: descricao,
     openGraph: { title: `${p.nome_parlamentar} · ${NOME_CASA[p.casa]}`, description: descricao },
   };
@@ -249,6 +262,16 @@ async function Perfil({
 
   return (
     <article data-largura="larga" className="pagina-secoes">
+      <JsonLdPerfil
+        caminho={`/parlamentar/${p.id}`}
+        nome={p.nome_parlamentar}
+        cargo={p.casa === "senado" ? "Senador" : "Deputado federal"}
+        casa={NOME_CASA[p.casa]}
+        partido={p.partido}
+        uf={p.uf}
+        imagem={p.foto_url}
+        oficial={p.pagina_url}
+      />
       <div className="flex flex-col gap-4">
         <Migalhas
           itens={[
