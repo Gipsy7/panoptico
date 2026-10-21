@@ -353,7 +353,7 @@ def test_camara_pede_mes_a_mes_e_pula_so_o_dia_com_erro_da_fonte(monkeypatch):
 
     pedidos = []
 
-    def falso(client, id_deputado, inicio, fim):
+    def falso(client, id_deputado, inicio, fim, tentativas=1):
         pedidos.append((inicio, fim))
         if inicio <= date(2026, 10, 3) <= fim:
             resposta = httpx.Response(500, request=httpx.Request("GET", "https://x"))

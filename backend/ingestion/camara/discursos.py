@@ -31,6 +31,7 @@ API = "https://dadosabertos.camara.leg.br/api/v2"
 URL = API + "/deputados/{id}/discursos"
 MARGEM_DIAS = 7
 PAUSA = 0.3  # segundos entre chamadas (cortesia com a API)
+TENTATIVAS_MES = 2  # o pedido do mês inteiro ainda tenta de novo (falha passageira de rede)
 CAMPOS = ("dataHoraInicio", "tipoDiscurso", "urlTexto", "urlVideo", "keywords", "sumario")
 
 
@@ -61,15 +62,22 @@ def baixar_deputado(
     falhando fica de fora e vai para `falhas` (deputado, dia), em vez de abortar a carga inteira."""
     discursos = []
     for de, ate in _meses(inicio, fim):
-        discursos += _baixar_periodo(client, id_deputado, de, ate, falhas)
+        discursos += _baixar_periodo(client, id_deputado, de, ate, falhas, TENTATIVAS_MES)
     return discursos
 
 
 def _baixar_periodo(
-    client: httpx.Client, id_deputado: str, inicio: date, fim: date, falhas: list | None
+    client: httpx.Client,
+    id_deputado: str,
+    inicio: date,
+    fim: date,
+    falhas: list | None,
+    tentativas: int = 1,
 ) -> list:
+    # Na divisão, uma tentativa só: o 500 de registro defeituoso não passa tentando de novo, e
+    # cada nova tentativa custa até 30 s de espera (antes, ~3 min por deputado afetado).
     try:
-        return _baixar_paginas(client, id_deputado, inicio, fim)
+        return _baixar_paginas(client, id_deputado, inicio, fim, tentativas)
     except httpx.HTTPStatusError as erro:
         if erro.response.status_code < 500:
             raise
@@ -84,7 +92,9 @@ def _baixar_periodo(
     )
 
 
-def _baixar_paginas(client: httpx.Client, id_deputado: str, inicio: date, fim: date) -> list:
+def _baixar_paginas(
+    client: httpx.Client, id_deputado: str, inicio: date, fim: date, tentativas: int = 1
+) -> list:
     discursos, pagina = [], 1
     while True:
         resposta = comum.get_json(
@@ -98,6 +108,7 @@ def _baixar_paginas(client: httpx.Client, id_deputado: str, inicio: date, fim: d
                 "ordenarPor": "dataHoraInicio",
                 "ordem": "ASC",
             },
+            tentativas=tentativas,
         )
         discursos += [_enxuto(d) for d in resposta.get("dados", [])]
         if not any(link.get("rel") == "next" for link in resposta.get("links", [])):
