@@ -98,7 +98,7 @@ def projeto(session: Session, projeto_id: int) -> dict | None:
                 "sim": v.sim,
                 "nao": v.nao,
                 "abstencoes": v.abstencoes,
-                "link": f"/votacoes/local/{v.id}",
+                "link": f"/votacao/local/{v.id}",
             }
             for v in votacoes
         ],

@@ -1455,6 +1455,7 @@ export type VotacaoDetalhe = {
   proposicao: string | null;
   proposicao_ementa: string | null;
   proposicao_url: string | null;
+  proposicao_id_externo?: string | null;
   temas: string[];
   secreta: boolean;
   resultado: "aprovada" | "rejeitada" | null;

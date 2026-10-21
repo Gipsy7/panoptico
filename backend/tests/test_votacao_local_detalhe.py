@@ -83,7 +83,7 @@ def test_projeto_local_lista_as_votacoes_ligadas(client, session):
     assert corpo["autor"] == {"mandato_id": ana.id, "nome": "Ana", "partido": "PXX"}
     assert corpo["em_tramitacao"] is True
     assert [v["id"] for v in corpo["votacoes"]] == [segunda.id, primeira.id]
-    assert corpo["votacoes"][0]["link"] == f"/votacoes/local/{segunda.id}"
+    assert corpo["votacoes"][0]["link"] == f"/votacao/local/{segunda.id}"
     assert corpo["votacoes"][0]["resultado"] == "Rejeitado"
     assert corpo["sem_orientacao"] is True and corpo["sem_discursos"] is True
     assert corpo["url_oficial"] == "https://camara.exemplo/projeto/1"

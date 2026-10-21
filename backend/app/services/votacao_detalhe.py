@@ -179,6 +179,7 @@ def detalhe(session: Session, casa: str, id_externo: str) -> dict | None:
         "proposicao": votacao.proposicao,
         "proposicao_ementa": votacao.proposicao_ementa,
         "proposicao_url": url_votacao(votacao),
+        "proposicao_id_externo": votacao.proposicao_id_externo,
         "temas": temas,
         "secreta": votacao.secreta,
         "resultado": votacao.resultado,

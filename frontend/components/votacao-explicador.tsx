@@ -99,7 +99,7 @@ async function Votacao({ casa, id, ufInicial }: { casa: string; id: string; ufIn
   const listados = d.secreta ? votaramSecreto : d.placar.sim + d.placar.nao;
   const diferenca = p.daFonte && publicados > listados ? publicados - listados : 0;
   const rodape = <FonteRodape fonte={d.fonte_nome} url={d.fonte_url} atualizadoEm={d.atualizado_em} />;
-  const idProjeto = idDaProposicao(d.proposicao_url);
+  const idProjeto = d.proposicao_id_externo ?? idDaProposicao(d.proposicao_url);
 
   const abas: AbaDetalhe[] = [
     {

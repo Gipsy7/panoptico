@@ -116,6 +116,8 @@ class VotacaoDetalhe(BaseModel):
     proposicao: str | None
     proposicao_ementa: str | None
     proposicao_url: str | None
+    # Id da proposição na fonte, para o link à página do projeto (/projeto/{casa}/{id}).
+    proposicao_id_externo: str | None = None
     temas: list[str]
     secreta: bool
     resultado: str | None

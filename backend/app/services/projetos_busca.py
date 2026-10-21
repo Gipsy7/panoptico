@@ -431,7 +431,7 @@ def _ultimas_votacoes(session: Session, linhas: list) -> dict[tuple, dict]:
                 "sim": v.sim,
                 "nao": v.nao,
                 "descricao": v.materia,
-                "link": f"/votacoes/local/{v.id}",
+                "link": f"/votacao/local/{v.id}",
             }
 
         for v in locais:
@@ -493,7 +493,7 @@ def buscar(
         elif r.tipo == "votacao_local":
             casa_item = CASA_DO_LOCAL[r.casa]
             esfera_item = "estadual" if r.casa == "assembleia" else "municipal"
-            link = f"/votacoes/local/{r.ref}"
+            link = f"/votacao/local/{r.ref}"
             ultima = ultimas.get(("votacao_local", r.casa, r.ref))
         else:
             casa_item = CASA_DO_LOCAL[r.casa]

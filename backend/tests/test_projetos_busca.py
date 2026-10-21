@@ -229,7 +229,7 @@ def test_local_projeto_e_votacao_nao_ligada(client, session):
     assert projeto["link"] == f"/projeto/local/{p_local.id}"
     assert projeto["municipio"] == "Florianópolis"
     assert projeto["uf"] == "SC"
-    assert projeto["ultima_votacao"]["link"] == f"/votacoes/local/{ligada.id}"
+    assert projeto["ultima_votacao"]["link"] == f"/votacao/local/{ligada.id}"
     assert projeto["situacao"] == "Em tramitação"
 
     estadual = _busca(client, esfera="estadual", uf="ac")
@@ -250,7 +250,7 @@ def test_local_projeto_e_votacao_nao_ligada(client, session):
     # Votação local sem ementa e sem projeto: aparece com o texto da matéria.
     sem_ementa = next(i for i in todos["itens"] if i["rotulo"].startswith("Requerimento"))
     assert sem_ementa["ementa"] is None
-    assert sem_ementa["link"].startswith("/votacoes/local/")
+    assert sem_ementa["link"].startswith("/votacao/local/")
     # Tema só existe no Congresso; "sem votação" tira as votações locais.
     assert _busca(client, tema="Educação")["total"] == 0
     assert [i["tipo"] for i in _busca(client, votacao="sem")["itens"]] == ["projeto_local"]
