@@ -859,3 +859,11 @@ Reconhecimento (2026-10-11):
 Armadilhas do xlsx: cabeçalho com erro de digitação ("Cnpj beneficário"; o leitor acha a coluna pelo prefixo); datas em número serial do Excel; autor em **nome civil** ("Iraja Silvestre Filho"), diferente do nome parlamentar; vários autores da legislatura passada que não estão na base; valor é o **solicitado** (não há empenho nem pagamento por indicação); servidor da Câmara responde 406 a `Accept: application/json` (a carga manda `*/*`). O servidor informa ETag/Last-Modified (arquivo de 24/10/2022), então o download incremental só baixa de novo se mudar.
 
 Coleta: só Deputado e Senador (usuário externo = prefeito, entidade ou particular, fica de fora), ligados à base pelo nome civil ou parlamentar sem acentos, **na mesma Casa, correspondência exata e única**. Resultado: 13.429 indicações de parlamentares → 7.918 ligadas a 235 parlamentares da base (R$ 5,07 bi indicados), 5.511 de autores fora da base (deputados e senadores da legislatura anterior), 0 ambíguas. Tabela `emenda_relator_indicacao` (4,7 MB). Módulo `ingestion/congresso/emendas_relator.py` (xlsx lido com zip + xml da biblioteca padrão).
+
+## Discursos em Plenário: o que a ingestão guarda (21/10/2026)
+
+Aplica-se às seções "Câmara: discursos em Plenário" e "Senado: discursos em Plenário" do reconhecimento.
+
+- **Câmara (`camara_discursos`):** API por deputado, 100 itens por página (`links` com `rel=next`), pausa de 0,3 s. O bruto (`data/raw/camara_discursos/*.json`) guarda `dataHoraInicio`, fase (`faseEvento.titulo`), `tipoDiscurso`, `urlTexto`, `urlVideo`, `keywords` e `sumario`; a `transcricao` é descartada no download. `urlVideo` e `urlTexto` vêm nulos com frequência.
+- **Senado (`senado_discursos`):** a resposta pode trazer `Sessao` e `Pronunciamento` como objeto (item único) ou lista; as sessões do Congresso (`SiglaCasa` CN) e os pronunciamentos sem `CodigoParlamentar` (autoridades, convidados) ficam de fora. `Data` só tem o dia.
+- A resposta do período é guardada no bruto como veio, junto com a janela (`inicio`, `fim`, `completa`).

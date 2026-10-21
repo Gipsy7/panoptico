@@ -16,6 +16,7 @@ from app.models.cpi import Cpi, CpiIndiciamentoSugestao, CpiParticipacao
 from app.models.despesa import Despesa
 from app.models.despesa_fornecedor import DespesaFornecedor
 from app.models.dinheiro_federal import ArrecadacaoUF, PopulacaoIbge, TransferenciaUniao
+from app.models.discurso import Discurso
 from app.models.emenda import Emenda
 from app.models.emenda_estadual import EmendaEstadual
 from app.models.emenda_pagamento import EmendaPagamento, EmendaPagamentoSemCodigo
@@ -84,6 +85,7 @@ __all__ = [
     "PopulacaoIbge",
     "TransferenciaUniao",
     "Despesa",
+    "Discurso",
     "EmendaEstadual",
     "DespesaFornecedor",
     "Emenda",
