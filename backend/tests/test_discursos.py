@@ -342,3 +342,40 @@ def test_de_raw_reprocessa_sem_rede(banco):
         ).all()
         assert [i.status for i in ingestoes] == ["ok", "ok"]
         assert ingestoes[0].concluido_em > datetime.now(UTC) - timedelta(minutes=5)
+
+
+def test_camara_pede_mes_a_mes_e_pula_so_o_dia_com_erro_da_fonte(monkeypatch):
+    """A API da Câmara dá 500 num período com registro defeituoso (deputado 141456, outubro de
+    2026). A coleta divide o período até o dia e deixa só esse dia de fora."""
+    import httpx
+
+    from ingestion.camara import discursos as camara
+
+    pedidos = []
+
+    def falso(client, id_deputado, inicio, fim):
+        pedidos.append((inicio, fim))
+        if inicio <= date(2026, 10, 3) <= fim:
+            resposta = httpx.Response(500, request=httpx.Request("GET", "https://x"))
+            raise httpx.HTTPStatusError("500", request=resposta.request, response=resposta)
+        return [{"dataHoraInicio": f"{inicio}T10:00"}]
+
+    monkeypatch.setattr(camara, "_baixar_paginas", falso)
+    falhas = []
+    discursos = camara.baixar_deputado(
+        None, "141456", date(2026, 9, 20), date(2026, 10, 21), falhas
+    )
+    assert falhas == [{"deputado": "141456", "dia": "2026-10-03"}]
+    assert (date(2026, 9, 20), date(2026, 9, 30)) in pedidos  # primeiro, o mês de setembro
+    assert discursos  # os outros dias vieram
+
+
+def test_senado_pede_um_mes_do_calendario_por_vez(monkeypatch):
+    from ingestion.senado import discursos as senado
+
+    urls = []
+    monkeypatch.setattr(senado.comum, "get_json", lambda client, url, **k: urls.append(url) or {})
+    monkeypatch.setattr(senado.time, "sleep", lambda s: None)
+    senado.baixar(None, date(2025, 2, 1), date(2025, 3, 15), True)
+    assert urls[0].endswith("/20250201/20250228")
+    assert urls[1].endswith("/20250301/20250315")

@@ -14,7 +14,7 @@ mesma carga sem rede. A carga apaga e reinsere os discursos da janela.
 
 import argparse
 import time
-from datetime import date
+from datetime import date, timedelta
 from pathlib import Path
 from typing import Any
 
@@ -41,7 +41,50 @@ def _enxuto(d: dict[str, Any]) -> dict[str, Any]:
     return resumo
 
 
-def baixar_deputado(client: httpx.Client, id_deputado: str, inicio: date, fim: date) -> list:
+def _meses(inicio: date, fim: date) -> list[tuple[date, date]]:
+    """Janela em meses do calendário: a API dá 500 em períodos longos e num período com registro
+    defeituoso; pedir mês a mês limita o estrago."""
+    blocos, de = [], inicio
+    while de <= fim:
+        proximo = date(de.year + de.month // 12, de.month % 12 + 1, 1)
+        ate = min(proximo - timedelta(days=1), fim)
+        blocos.append((de, ate))
+        de = ate + timedelta(days=1)
+    return blocos
+
+
+def baixar_deputado(
+    client: httpx.Client, id_deputado: str, inicio: date, fim: date, falhas: list | None = None
+) -> list:
+    """Discursos do deputado na janela, mês a mês. Se a API der erro de servidor num período
+    (registro defeituoso na fonte), divide o período ao meio até isolar o dia; o dia que continua
+    falhando fica de fora e vai para `falhas` (deputado, dia), em vez de abortar a carga inteira."""
+    discursos = []
+    for de, ate in _meses(inicio, fim):
+        discursos += _baixar_periodo(client, id_deputado, de, ate, falhas)
+    return discursos
+
+
+def _baixar_periodo(
+    client: httpx.Client, id_deputado: str, inicio: date, fim: date, falhas: list | None
+) -> list:
+    try:
+        return _baixar_paginas(client, id_deputado, inicio, fim)
+    except httpx.HTTPStatusError as erro:
+        if erro.response.status_code < 500:
+            raise
+    if inicio == fim:
+        if falhas is not None:
+            falhas.append({"deputado": id_deputado, "dia": inicio.isoformat()})
+        print(f"  {FONTE}: deputado {id_deputado}, {inicio}: erro da fonte, dia fica de fora")
+        return []
+    meio = inicio + (fim - inicio) // 2
+    return _baixar_periodo(client, id_deputado, inicio, meio, falhas) + _baixar_periodo(
+        client, id_deputado, meio + timedelta(days=1), fim, falhas
+    )
+
+
+def _baixar_paginas(client: httpx.Client, id_deputado: str, inicio: date, fim: date) -> list:
     discursos, pagina = [], 1
     while True:
         resposta = comum.get_json(
@@ -66,9 +109,9 @@ def baixar_deputado(client: httpx.Client, id_deputado: str, inicio: date, fim: d
 def baixar(
     client: httpx.Client, ids: list[str], inicio: date, fim: date, completa: bool
 ) -> dict[str, Any]:
-    deputados = {}
+    deputados, falhas = {}, []
     for id_deputado in ids:
-        discursos = baixar_deputado(client, id_deputado, inicio, fim)
+        discursos = baixar_deputado(client, id_deputado, inicio, fim, falhas)
         if discursos:
             deputados[id_deputado] = discursos
         time.sleep(PAUSA)
@@ -77,6 +120,8 @@ def baixar(
         "fim": fim.isoformat(),
         "completa": completa,
         "deputados": deputados,
+        # Dias que a API não conseguiu servir (erro 5xx persistente), por deputado.
+        "falhas": falhas,
     }
 
 

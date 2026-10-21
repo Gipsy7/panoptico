@@ -30,7 +30,8 @@ FONTE = "senado_discursos"
 CASA = "senado"
 URL = "https://legis.senado.leg.br/dadosabertos/plenario/lista/discursos/{ini}/{fim}"
 MARGEM_DIAS = 21
-BLOCO_DIAS = 31  # um mês por chamada (~600 KB)
+# Um mês do calendário por chamada: a API recusa (400) período maior que um mês (01/02 a 02/03
+# dá 400; 01/02 a 01/03 e 01/01 a 31/01 passam).
 PAUSA = 0.3
 
 
@@ -44,7 +45,8 @@ def _lista(valor: Any) -> list:
 def baixar(client: httpx.Client, inicio: date, fim: date, completa: bool) -> dict[str, Any]:
     respostas, de = [], inicio
     while de <= fim:
-        ate = min(de + timedelta(days=BLOCO_DIAS - 1), fim)
+        proximo = date(de.year + de.month // 12, de.month % 12 + 1, 1)
+        ate = min(proximo - timedelta(days=1), fim)
         respostas.append(
             comum.get_json(client, URL.format(ini=f"{de:%Y%m%d}", fim=f"{ate:%Y%m%d}"))
         )
