@@ -113,3 +113,66 @@ def test_projetos_endpoint(client, session):
     assert [t["sigla"] for t in corpo["por_tipo"]] == ["PL", "PEC"]
     assert [r["numero"] for r in corpo["recentes"]] == [2, 1]
     assert [r["numero"] for r in corpo["viraram_norma_lista"]] == [2]
+
+
+def test_linhas_sem_senador_ou_deputado_nao_mexem_nos_numeros_do_perfil(client, session):
+    """Proposições de comissão, do Executivo ou só votadas (sem Autoria) entram na tabela,
+    mas o perfil conta apenas as que têm o parlamentar como autor."""
+    _popular(session)
+    deps = session.scalars(select(Parlamentar).where(Parlamentar.casa == "camara")).all()
+    ingestao = _ingestao(session)
+    base = {"ementa": "E.", "situacao": None, "virou_lei": False, "url": "u", "ano": 2024}
+    mapa = pc.upsert_proposicoes(
+        session,
+        "camara",
+        [
+            {**base, "id_externo": "a", "sigla_tipo": "PL", "numero": 1,
+             "data_apresentacao": date(2024, 1, 1), "origem": "legislatura",
+             "autor_descricao": None},
+            {**base, "id_externo": "b", "sigla_tipo": "PEC", "numero": 2,
+             "data_apresentacao": date(2024, 2, 1), "virou_lei": True, "origem": "legislatura",
+             "autor_descricao": None, "situacao": "Transformada em norma jurídica"},
+        ],
+        ingestao,
+    )  # fmt: skip
+    pc.substituir_autorias(
+        session,
+        list(mapa.values()),
+        [
+            {"proposicao_id": mapa["a"], "parlamentar_id": deps[0].id, "primeiro_autor": True},
+            {"proposicao_id": mapa["b"], "parlamentar_id": deps[0].id, "primeiro_autor": False},
+            {"proposicao_id": mapa["b"], "parlamentar_id": deps[1].id, "primeiro_autor": True},
+        ],
+    )
+    session.flush()
+    antes = {d.id: client.get(f"/parlamentares/{d.id}/projetos").json() for d in deps}
+
+    pc.upsert_proposicoes(
+        session,
+        "camara",
+        [
+            {**base, "id_externo": "x", "sigla_tipo": "PL", "numero": 7,
+             "data_apresentacao": date(2024, 5, 1), "origem": "legislatura",
+             "autor_descricao": "Poder Executivo", "virou_lei": True},
+            {**base, "id_externo": "y", "sigla_tipo": "PL", "numero": 8,
+             "data_apresentacao": date(2024, 6, 1), "origem": "legislatura",
+             "autor_descricao": "Comissão de Desenvolvimento Urbano"},
+        ],
+        ingestao,
+    )  # fmt: skip
+    pc.inserir_votadas(
+        session,
+        "camara",
+        [{**base, "id_externo": "z", "sigla_tipo": "MPV", "numero": 1, "ano": 2019,
+          "data_apresentacao": date(2019, 3, 1)}],
+        ingestao,
+    )  # fmt: skip
+    session.flush()
+    depois = {d.id: client.get(f"/parlamentares/{d.id}/projetos").json() for d in deps}
+    assert depois == antes
+    assert antes[deps[0].id]["primeiro_autor"] == 1
+    assert antes[deps[0].id]["coautor"] == 1
+    assert (
+        antes[deps[0].id]["media_casa_primeiro_autor"]
+        == antes[deps[1].id]["media_casa_primeiro_autor"]
+    )

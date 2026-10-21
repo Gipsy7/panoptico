@@ -23,6 +23,11 @@ class Proposicao(Base):
     situacao: Mapped[str | None] = mapped_column(String(200))
     virou_lei: Mapped[bool] = mapped_column(Boolean, default=False)
     url: Mapped[str] = mapped_column(String(500))
+    # Onda "Projetos e votações": quem apresentou quando não é parlamentar ("Poder Executivo",
+    # "Câmara dos Deputados", uma comissão) e de onde a linha veio: "legislatura" (PL, PLP, PEC
+    # e PDL desde 2023) ou "votada" (anterior a 2023 ou outra sigla, só por ter sido votada).
+    autor_descricao: Mapped[str | None] = mapped_column(String(300))
+    origem: Mapped[str | None] = mapped_column(String(12))
     ingestao_id: Mapped[int | None] = mapped_column(ForeignKey("fonte_ingestao.id"))
 
 
