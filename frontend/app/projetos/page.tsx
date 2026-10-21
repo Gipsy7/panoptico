@@ -22,7 +22,7 @@ import {
   buscarProjetos,
 } from "@/lib/api";
 import { CASA_PROJETO_CURTA, formatarData, lugarDoProjeto, textoResultado } from "@/lib/formato";
-import { anosParaFiltro, caminhoInterno, enderecoProjetos, lerFiltrosProjetos, situacaoSimples } from "@/lib/projetos";
+import { anosParaFiltro, caminhoInterno, enderecoProjetos, lerFiltrosProjetos, recortar, situacaoSimples } from "@/lib/projetos";
 import { UFS } from "@/lib/ufs";
 
 export const metadata: Metadata = {
@@ -404,6 +404,7 @@ function Cartao({ item: i, uf }: { item: ItemProjeto; uf?: string }) {
           {v ? `Votação nominal${v.data ? ` em ${formatarData(v.data)}` : ""}${resultado ? ` · ${resultado}` : ""}` : "Sem votação nominal registrada"}
         </p>
       )}
+      {i.tipo === "proposicao" && v?.descricao && <p className="text-xs text-muted-foreground">Votação: {recortar(v.descricao, 140)}</p>}
     </Link>
   );
 }

@@ -15,7 +15,13 @@ AVISO = (
     "A casa publica o resultado e o voto de cada parlamentar, mas não publica orientação de "
     "bancada nem discursos neste formato aberto."
 )
-AVISO_SEM_EMENTA = " A casa não publica a ementa da matéria votada nesta votação."
+AVISO_SEM_EMENTA = (
+    " Esta votação não traz o resumo (ementa) da matéria. Veja a matéria no site da casa."
+)
+AVISO_VETO = (
+    " Em votação de veto, o voto Sim ou Não se refere ao veto, conforme o regimento da casa; "
+    "veja a matéria no link oficial."
+)
 ORDEM_VOTO = {"Sim": 0, "Não": 1}
 
 
@@ -57,7 +63,9 @@ def votacao(session: Session, votacao_id: int) -> dict | None:
         "url_oficial": v.url,
         "sem_orientacao": True,
         "sem_discursos": True,
-        "aviso": AVISO + ("" if v.materia_ementa else AVISO_SEM_EMENTA),
+        "aviso": AVISO
+        + ("" if v.materia_ementa else AVISO_SEM_EMENTA)
+        + (AVISO_VETO if (v.materia or "").strip().lower().startswith("veto") else ""),
         **projeto_fontes.fonte_local(session, v.url),
     }
 

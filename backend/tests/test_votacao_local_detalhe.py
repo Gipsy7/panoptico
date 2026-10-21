@@ -49,7 +49,8 @@ def test_votacao_local_sem_materia_ligada_nem_ementa(client, session):
     assert corpo["ementa"] is None
     assert corpo["projeto_local_id"] is None
     assert corpo["projeto_link"] is None
-    assert "não publica a ementa" in corpo["aviso"]
+    assert "não traz o resumo (ementa)" in corpo["aviso"]
+    assert "Em votação de veto" in corpo["aviso"]
     assert corpo["atualizado_em"] is None
 
 

@@ -40,6 +40,8 @@ def _rotulos(corpo: dict) -> list[str]:
         ("2338/2023", (None, 2338, 2023)),
         ("2338", (None, 2338, None)),
         ("PEC 3/2021", ("PEC", 3, 2021)),
+        ("MP 1343", ("MPV", 1343, None)),
+        ("MP 1343/2026", ("MPV", 1343, 2026)),
     ],
 )
 def test_reconhece_o_numero_em_varios_formatos(texto, esperado):
@@ -151,6 +153,21 @@ def test_placar_contado_quando_a_fonte_nao_publica(client, session):
     votacao(session, "v1", "10", date(2026, 8, 1), {a.id: "Sim", b.id: "Sim", c.id: "Não"})
     item = _busca(client, q="PL 10/2026")["itens"][0]
     assert (item["ultima_votacao"]["sim"], item["ultima_votacao"]["nao"]) == (2, 1)
+
+
+def test_cartao_usa_a_votacao_principal_e_mp_acha_mpv(client, session):
+    a = parlamentar(session, "A", "SC", "PXX")
+    proposicao(session, "20", "MPV", 1343, 2026, "Medida provisória.")
+    votacao(session, "1-1", "20", date(2026, 8, 1), {a.id: "Sim"},
+            descricao="Aprovada a Medida Provisória.")  # fmt: skip
+    votacao(session, "1-2", "20", date(2026, 8, 2), {a.id: "Não"},
+            descricao="Rejeitado o Recurso nº 2.")  # fmt: skip
+    for q in ("MP 1343", "MP 1343/2026", "MPV 1343/2026"):
+        corpo = _busca(client, q=q)
+        assert corpo["total"] == 1, q
+    item = _busca(client, q="MP 1343")["itens"][0]
+    assert item["ultima_votacao"]["descricao"] == "Aprovada a Medida Provisória."
+    assert item["ultima_votacao"]["link"] == "/votacao/camara/1-1"
 
 
 def test_filtros_de_votacao_tema_ano_e_casa(client, session):
