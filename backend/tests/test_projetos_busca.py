@@ -1,15 +1,16 @@
 """Busca de projetos e votações: GET /projetos."""
 
-from datetime import date
+from datetime import date, datetime
 from pathlib import Path
 
 import pytest
 
-from app.models import PautaItem, ProposicaoTema, Tramitacao
+from app.models import CanalOficial, Discurso, PautaItem, ProposicaoTema, Tramitacao
 from app.services import projetos_busca, texto_busca
 from tests.helpers_projetos import (
     ingestao,
     mandato_local,
+    municipio,
     parlamentar,
     projeto_local,
     proposicao,
@@ -210,7 +211,7 @@ def test_ordem_na_pauta_primeiro_e_depois_data(client, session):
                    data=date(2026, 10, 1), descricao="Algo.", ingestao_id=ing.id)
     )  # fmt: skip
     session.flush()
-    corpo = projetos_busca.buscar(session, hoje=HOJE)
+    corpo = projetos_busca.buscar(session, hoje=HOJE, ordem="recentes")
     assert [i["rotulo"] for i in corpo["itens"]] == [
         "PL 4/2025",
         "PL 1/2025",
@@ -315,3 +316,110 @@ def test_ids_dos_projetos_com_votacao_para_o_sitemap(client, session):
         {"casa": "camara", "id_externo": "1", "data": "2026-09-01"},
     ]
     assert len(client.get("/projetos/ids", params={"limite": 1}).json()["itens"]) == 1
+
+
+def _completo(session, ing):
+    """PL 1/2026: votação, 2 discursos, 3 passos no caminho, situação e tema (nível 5)."""
+    proposicao(session, "1", "PL", 1, 2026, situacao="Aguardando sanção",
+               data_apresentacao=date(2026, 1, 10))  # fmt: skip
+    votacao(session, "v1", "1", date(2026, 5, 1))
+    session.add(ProposicaoTema(casa="camara", proposicao_id_externo="1", tema="Saúde"))
+    for n in range(3):
+        session.add(
+            Tramitacao(casa="camara", proposicao_id_externo="1", ordem=n + 1,
+                       data=datetime(2026, 6, 1), descricao="Andou.", ingestao_id=ing.id)
+        )  # fmt: skip
+    for n in range(2):
+        session.add(
+            Discurso(casa="camara", id_externo=f"d{n}", data=date(2026, 5, 1),
+                     proposicao_id_externo="1", ingestao_id=ing.id)
+        )  # fmt: skip
+    session.flush()
+
+
+def test_ordem_padrao_por_informacao_publicada(client, session):
+    ing = ingestao(session, "camara_tramitacao")
+    _completo(session, ing)
+    # Votação mais recente que a do PL 1, mas só votação, situação e tema (nível 3).
+    proposicao(session, "2", "PL", 2, 2026, situacao="Em comissão",
+               data_apresentacao=date(2026, 1, 5))  # fmt: skip
+    votacao(session, "v2", "2", date(2026, 9, 1))
+    session.add(ProposicaoTema(casa="camara", proposicao_id_externo="2", tema="Educação"))
+    # "Sem classificação" não conta como tema.
+    session.add(ProposicaoTema(casa="camara", proposicao_id_externo="2", tema="Sem classificação"))
+    # Votação local com ementa e resultado (nível 3), votada depois do PL 2: vem antes dele.
+    votacao_local(session, "camara", "SC", materia="Projeto de Lei nº 9/2026",
+                  materia_ementa="Cria a feira.", data=date(2026, 9, 10))  # fmt: skip
+    # Sem votação: situação e tema (nível 2), apresentado há pouco.
+    proposicao(session, "3", "PL", 3, 2026, situacao="Aguardando parecer",
+               data_apresentacao=date(2026, 10, 1))  # fmt: skip
+    session.add(ProposicaoTema(casa="camara", proposicao_id_externo="3", tema="Saúde"))
+    # Nada além da ementa (nível 0), o mais recente de todos.
+    proposicao(session, "4", "PL", 4, 2026, data_apresentacao=date(2026, 10, 15))
+    session.flush()
+
+    corpo = _busca(client)
+    assert corpo["ordem"] == "informacao"
+    assert _rotulos(corpo) == [
+        "PL 1/2026",
+        "Projeto de Lei nº 9/2026",
+        "PL 2/2026",
+        "PL 3/2026",
+        "PL 4/2026",
+    ]
+    assert [i["nivel_informacao"] for i in corpo["itens"]] == [5, 3, 3, 2, 0]
+    primeiro = corpo["itens"][0]
+    assert (primeiro["discursos"], primeiro["passos_caminho"]) == (2, 3)
+    assert (corpo["itens"][2]["discursos"], corpo["itens"][2]["passos_caminho"]) == (0, 0)
+    # Itens locais não têm discursos nem caminho.
+    assert (corpo["itens"][1]["discursos"], corpo["itens"][1]["passos_caminho"]) == (None, None)
+
+    # A mesma regra vale com busca e filtro.
+    assert _rotulos(_busca(client, esfera="federal", ano=2026)) == [
+        "PL 1/2026", "PL 2/2026", "PL 3/2026", "PL 4/2026",
+    ]  # fmt: skip
+    # "recentes": a data da última votação ou movimentação, da mais nova para a mais antiga.
+    recentes = _busca(client, ordem="recentes")
+    assert recentes["ordem"] == "recentes"
+    assert _rotulos(recentes) == [
+        "PL 4/2026",
+        "PL 3/2026",
+        "Projeto de Lei nº 9/2026",
+        "PL 2/2026",
+        "PL 1/2026",
+    ]
+    assert client.get("/projetos", params={"ordem": "relevancia"}).status_code == 422
+
+
+def test_cobertura_da_cidade_e_do_estado(client, session):
+    # Florianópolis tem câmara carregada; Gaspar não, mas tem o site da câmara no catálogo.
+    mandato_local(session, "Vera", "camara", "SC", "4205407")
+    municipio(session, "4205902", "Gaspar", "SC")
+    session.add(CanalOficial(municipio_ibge="4205902", tipo="prefeitura",
+                             url="https://gaspar.sc.gov.br/"))  # fmt: skip
+    session.add(CanalOficial(municipio_ibge="4205902", tipo="camara",
+                             url="https://camaragaspar.sc.gov.br/"))  # fmt: skip
+    session.flush()
+
+    assert _busca(client)["cobertura"] is None
+    gaspar = _busca(client, uf="SC", municipio="4205902")
+    assert gaspar["total"] == 0
+    assert gaspar["cobertura"] == {
+        "uf": "SC",
+        "camara": {
+            "municipio_ibge": "4205902",
+            "municipio": "Gaspar",
+            "tem_dados": False,
+            "canal_url": "https://camaragaspar.sc.gov.br/",
+        },
+        "assembleia": {"uf": "SC", "tem_dados": False},
+    }
+    mandato_local(session, "Dani", "assembleia", "SC")
+    floripa = _busca(client, municipio="4205407")
+    assert floripa["cobertura"]["uf"] == "SC"  # vem do município
+    assert floripa["cobertura"]["camara"]["tem_dados"] is True
+    assert floripa["cobertura"]["camara"]["canal_url"] is None
+    assert floripa["cobertura"]["assembleia"]["tem_dados"] is True
+    so_estado = _busca(client, uf="sc")["cobertura"]
+    assert so_estado["camara"] is None
+    assert so_estado["assembleia"] == {"uf": "SC", "tem_dados": True}

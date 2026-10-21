@@ -28,7 +28,7 @@ const INTEIRO = new Intl.NumberFormat("pt-BR");
 const n = (v: number) => INTEIRO.format(v);
 
 export const AVISO_SEM_VOTACAO =
-  "Este projeto ainda não teve votação nominal no Plenário. Pode ter sido votado de forma simbólica, que não registra o voto de cada um, ou ainda não ter sido votado.";
+  "Este projeto ainda não teve votação nominal no Plenário; quando tiver, o placar e o voto de cada um aparecem aqui. Decisões em votação simbólica, que não registra o voto de cada um, não entram.";
 
 export async function metadadosProjetoFederal(casa: string, id: string): Promise<Metadata> {
   if (casa !== "camara" && casa !== "senado") return { title: "Projeto" };
@@ -77,13 +77,27 @@ async function Projeto({ casa, id, ufInicial }: { casa: string; id: string; ufIn
   const ultimoPasso = d.caminho.itens.at(-1);
   const etapaDoPasso = ultimoPasso && ultimoPasso.etapa !== "Outro andamento" ? ultimoPasso.etapa : null;
   const proxima = d.pauta.proxima;
+  // Só aparece o que existe: aba, cartão e pergunta sem conteúdo ficam de fora (e o que falta é dito numa frase).
+  const temVotacao = d.votacoes.itens.length > 0;
+  const temDiscursos = d.discursos.dias.some((x) => x.total > 0) || d.discursos_do_dia.quantidade_nao_atribuida > 0;
+  const passos = d.caminho.itens.length;
+  const situacao = sit.rotulo ?? etapaDoPasso ?? sit.oficial;
+  const autores = d.ficha.autores.filter((a) => a.primeiro_autor);
 
   const abas: AbaDetalhe[] = [
     { id: "trata", rotulo: "Do que se trata", secoes: [{ id: "do-que-se-trata", titulo: "Do que se trata", conteudo: <DoQueSeTrata d={d} sit={sit} /> }] },
-    { id: "votacoes", rotulo: "Votações", secoes: [{ id: "votacoes", titulo: "Votações no Plenário", conteudo: <Votacoes d={d} /> }] },
-    { id: "quem", rotulo: "Quem votou", secoes: [{ id: "quem-votou", titulo: "Quem votou", conteudo: <QuemVotouSecao d={d} ufInicial={ufInicial} /> }] },
-    { id: "disseram", rotulo: "O que disseram", secoes: [{ id: "discursos", titulo: "O que disseram", conteudo: <Discursos d={d} /> }] },
-    { id: "caminho", rotulo: "Caminho", secoes: [{ id: "caminho", titulo: "Caminho do projeto", conteudo: <Caminho d={d} /> }] },
+    ...(temVotacao
+      ? [
+          { id: "votacoes", rotulo: "Votações", secoes: [{ id: "votacoes", titulo: "Votações no Plenário", conteudo: <Votacoes d={d} /> }] },
+          { id: "quem", rotulo: "Quem votou", secoes: [{ id: "quem-votou", titulo: "Quem votou", conteudo: <QuemVotouSecao d={d} ufInicial={ufInicial} /> }] },
+        ]
+      : []),
+    ...(temDiscursos
+      ? [{ id: "disseram", rotulo: "O que disseram", secoes: [{ id: "discursos", titulo: "O que disseram", conteudo: <Discursos d={d} /> }] }]
+      : []),
+    ...(passos > 0
+      ? [{ id: "caminho", rotulo: "Caminho", secoes: [{ id: "caminho", titulo: "Caminho do projeto", conteudo: <Caminho d={d} /> }] }]
+      : []),
   ];
 
   return (
@@ -103,19 +117,24 @@ async function Projeto({ casa, id, ufInicial }: { casa: string; id: string; ufIn
         </div>
 
         <GradeCartoes rotulo="Números deste projeto">
-          <CartaoNumero
-            destino="caminho"
-            rotulo="Situação"
-            valor={sit.rotulo ?? etapaDoPasso ?? "Sem situação publicada"}
-            apoio={sit.oficial ? `Texto oficial: ${sit.oficial}` : ultimoPasso ? `Último andamento em ${formatarData(ultimoPasso.data)}` : undefined}
-          />
-          <CartaoNumero
-            destino="votacoes"
-            rotulo="Votações nominais"
-            valor={n(d.votacoes.itens.length)}
-            apoio={d.votacoes.itens.length ? "no Plenário" : "Nenhuma até agora"}
-          />
-          {placar && ultima ? (
+          {situacao && (
+            <CartaoNumero
+              destino={passos > 0 ? "caminho" : "do-que-se-trata"}
+              rotulo="Situação"
+              valor={situacao}
+              apoio={
+                sit.oficial && sit.oficial !== situacao
+                  ? `Texto oficial: ${sit.oficial}`
+                  : ultimoPasso
+                    ? `Último andamento em ${formatarData(ultimoPasso.data)}`
+                    : undefined
+              }
+            />
+          )}
+          {temVotacao && (
+            <CartaoNumero destino="votacoes" rotulo="Votações nominais" valor={n(d.votacoes.itens.length)} apoio="no Plenário" />
+          )}
+          {placar && ultima && (
             <CartaoPlacarLink
               destino="quem-votou"
               rotulo={`Última votação nominal · ${formatarData(ultima.data)}`}
@@ -123,16 +142,34 @@ async function Projeto({ casa, id, ufInicial }: { casa: string; id: string; ufIn
               nao={placar.nao}
               apoio={placar.daFonte ? `placar publicado ${CASA_DA[d.casa]}` : "contagem da lista nominal"}
             />
-          ) : (
-            <CartaoNumero destino="votacoes" rotulo="Última votação nominal" valor="Nenhuma" apoio="Ainda não registrada no Plenário" />
           )}
-          <CartaoNumero
-            destino="caminho"
-            rotulo="Na pauta do Plenário"
-            valor={proxima ? formatarData(proxima.data) : "Sem data"}
-            apoio={proxima ? proxima.sessao : "Não está na pauta dos próximos dias"}
-          />
+          {proxima && (
+            <CartaoNumero destino={passos > 0 ? "caminho" : "do-que-se-trata"} rotulo="Na pauta do Plenário" valor={formatarData(proxima.data)} apoio={proxima.sessao} />
+          )}
+          {passos > 0 && (!temVotacao || !proxima) && (
+            <CartaoNumero
+              destino="caminho"
+              rotulo="Caminho"
+              valor={`${n(passos)} ${passos === 1 ? "passo" : "passos"}`}
+              apoio={ultimoPasso ? `o último em ${formatarData(ultimoPasso.data)}` : undefined}
+            />
+          )}
+          {!temVotacao && d.ficha.data_apresentacao && (
+            <CartaoNumero destino="do-que-se-trata" rotulo="Apresentado em" valor={formatarData(d.ficha.data_apresentacao)} />
+          )}
+          {!temVotacao && autores.length > 0 && (
+            <CartaoNumero
+              destino="do-que-se-trata"
+              rotulo={autores.length > 1 ? "Autores" : "Autor"}
+              valor={autores.length > 1 ? `${autores[0].nome} e mais ${n(autores.length - 1)}` : autores[0].nome}
+              apoio={[autores[0].partido, autores[0].uf].filter(Boolean).join(" · ") || undefined}
+            />
+          )}
+          {!temVotacao && autores.length === 0 && d.ficha.autor_descricao && (
+            <CartaoNumero destino="do-que-se-trata" rotulo="Autoria" valor={recortar(d.ficha.autor_descricao, 60)} apoio="como a fonte descreve" />
+          )}
         </GradeCartoes>
+        {!temVotacao && <p className="nota text-sm">{AVISO_SEM_VOTACAO}</p>}
         <p className="text-sm text-muted-foreground">Toque num número para ver o detalhe, com a fonte e a data.</p>
         <CompartilharWhatsApp
           caminho={`/projeto/${d.casa}/${d.id_externo}`}
@@ -157,25 +194,32 @@ async function Projeto({ casa, id, ufInicial }: { casa: string; id: string; ufIn
             andado sem nenhuma votação listada.
           </p>
         </Pergunta>
-        <Pergunta
-          id="entender-quem-votou"
-          pergunta="Qual votação aparece em &quot;Quem votou&quot;?"
-          resposta="A última votação nominal do texto"
-        >
-          <p>{d.votacao_principal?.regra ?? "Quando o projeto tem votação nominal, mostramos a mais recente que não seja de requerimento, destaque ou emenda."}</p>
-          <p>As outras votações do projeto estão na aba &quot;Votações&quot;, cada uma com a sua página.</p>
-        </Pergunta>
-        <Pergunta
-          id="entender-discursos"
-          pergunta="Como os discursos são separados?"
-          resposta="Pelo voto que quem discursou registrou"
-        >
-          <p>
-            Ligamos cada discurso de Plenário ao projeto e ao dia em que ele foi falado. Dentro do dia, o discurso fica no
-            grupo do voto que o orador registrou na última votação nominal do projeto: Votou Sim, Votou Não, Outro registro
-            ou Falou e não registrou voto. A separação é só pelo voto registrado; não lemos nem interpretamos o que foi dito.
-          </p>
-        </Pergunta>
+        {temVotacao && (
+          <Pergunta
+            id="entender-quem-votou"
+            pergunta="Qual votação aparece em &quot;Quem votou&quot;?"
+            resposta="A última votação nominal do texto"
+          >
+            <p>
+              {d.votacao_principal?.regra ??
+                "Quando o projeto tem votação nominal, mostramos a mais recente que não seja de requerimento, destaque ou emenda."}
+            </p>
+            <p>As outras votações do projeto estão na aba &quot;Votações&quot;, cada uma com a sua página.</p>
+          </Pergunta>
+        )}
+        {temDiscursos && (
+          <Pergunta
+            id="entender-discursos"
+            pergunta="Como os discursos são separados?"
+            resposta="Pelo voto que quem discursou registrou"
+          >
+            <p>
+              Ligamos cada discurso de Plenário ao projeto e ao dia em que ele foi falado. Dentro do dia, o discurso fica no
+              grupo do voto que o orador registrou na última votação nominal do projeto: Votou Sim, Votou Não, Outro registro
+              ou Falou e não registrou voto. A separação é só pelo voto registrado; não lemos nem interpretamos o que foi dito.
+            </p>
+          </Pergunta>
+        )}
       </ListaPerguntas>
 
       <AbasDetalhe titulo="Tudo em detalhe" abas={abas} />
@@ -264,6 +308,19 @@ function DoQueSeTrata({ d, sit }: { d: ProjetoFederal; sit: ReturnType<typeof si
             <p className="font-medium">{f.relator}</p>
           )}
         </div>
+      )}
+
+      {f.data_apresentacao && (
+        <div className="flex flex-col gap-0.5">
+          <p className="text-sm text-muted-foreground">Apresentado em</p>
+          <p className="font-medium tabular-nums">{formatarData(f.data_apresentacao)}</p>
+        </div>
+      )}
+
+      {d.caminho.itens.length === 0 && (
+        <p className="text-sm text-muted-foreground">
+          O caminho do projeto (cada passo da tramitação) ainda não foi carregado aqui; está na ficha oficial, no link abaixo.
+        </p>
       )}
 
       {f.url_oficial && (

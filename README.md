@@ -52,7 +52,7 @@ flowchart LR
 | 💸 | **Gastos do gabinete** | Total do ano, por categoria, maiores gastos, sempre com a média da Casa ao lado. |
 | 🗳 | **Votos e presença** | "Votou em 31 de 59 votações", como votou em cada uma, orientação do Governo e do partido, votos por tema e nas comissões. |
 | 📝 | **Projetos de lei** | Desde 2023: autor principal ou coautor, temas e os que viraram lei. |
-| 📜 | **Projetos e votações** | Busca pelo número ("PL 2338/2023") ou por palavra, com ou sem acento, no Congresso, nas assembleias e nas câmaras. Em cada projeto: do que se trata, todas as votações nominais, quem votou Sim e quem votou Não (com filtro do seu estado e placar por estado), o que disseram os parlamentares no dia da votação (resumo oficial e link, agrupado pelo voto de quem falou), o caminho do projeto e a pauta da semana. |
+| 📜 | **Projetos e votações** | Busca pelo número ("PL 2338/2023") ou por palavra, com ou sem acento, no Congresso, nas assembleias e nas câmaras. Em cada projeto: do que se trata, todas as votações nominais, quem votou Sim e quem votou Não (com filtro do seu estado e placar por estado), o que disseram os parlamentares no dia da votação (resumo oficial e link, agrupado pelo voto de quem falou), o caminho do projeto e a pauta da semana. A lista começa pelos projetos com mais informação publicada (votação nominal, discursos, caminho), e a cidade sem dados diz por quê. |
 | 🧾 | **Eleição (TSE)** | Votos, bens declarados (comparados com a eleição anterior), de onde veio e para onde foi o dinheiro da campanha, todas as eleições que disputou. |
 | 🕰 | **Linha do tempo** | Cassações, sanções da CGU, contas reprovadas no TCU, Conselho de Ética, cargos no governo federal, viagens, cartão corporativo, CPIs. Só com vínculo seguro e link oficial. |
 | 🏙 | **Sua cidade** | Emendas recebidas e quem mandou, contas da prefeitura e da câmara, maiores fornecedores, contratos no PNCP, canais oficiais. |
@@ -210,7 +210,7 @@ Documentação interativa: [api.panoptico.social.br/docs](https://api.panoptico.
 | `GET /parlamentares/{id}/votos-por-tema?ano=` | Votações por tema, com a média da Casa |
 | `GET /parlamentares/{id}/emendas-destino` | Situação dos convênios e transferências das emendas |
 | `GET /votacoes/{casa}/{id}` | Placar, orientações, voto de cada parlamentar, placar por estado e discursos do dia |
-| `GET /projetos?q=&esfera=&uf=&municipio=&tema=&ano=&votacao=` | Busca de projetos e votações (Congresso, assembleias e câmaras) |
+| `GET /projetos?q=&esfera=&uf=&municipio=&tema=&ano=&votacao=&ordem=` | Busca de projetos e votações (Congresso, assembleias e câmaras); por padrão, primeiro os com mais informação publicada; `cobertura` diz quando a câmara ou a assembleia não tem dados aqui |
 | `GET /projetos/{casa}/{id}` · `GET /projetos/local/{id}` | Projeto: ficha, votações, quem votou, discursos e caminho |
 | `GET /votacoes/local/{id}` · `GET /pauta?casa=&dias=` · `GET /projetos/temas` | Votação local, pauta do Plenário e temas |
 | `GET /municipios?uf=` · `GET /municipios/{ibge}/emendas` | Municípios e emendas recebidas |

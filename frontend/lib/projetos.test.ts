@@ -7,6 +7,7 @@ import {
   caminhoInterno,
   enderecoProjetos,
   idDaProposicao,
+  indicadoresDoItem,
   filtrarGruposPorUf,
   lerFiltrosProjetos,
   lerUf,
@@ -38,6 +39,28 @@ describe("lerFiltrosProjetos", () => {
     expect(lerFiltrosProjetos({ uf: "SC", municipio: "4205902" }).municipio).toBe("4205902");
     expect(lerFiltrosProjetos({ uf: "RJ", municipio: "4205902" }).municipio).toBeUndefined();
     expect(lerFiltrosProjetos({ municipio: "4205902" }).municipio).toBe("4205902");
+  });
+});
+
+describe("ordem da lista", () => {
+  it("só guarda 'recentes' (a ordem por informação é a padrão)", () => {
+    expect(lerFiltrosProjetos({ ordem: "recentes" }).ordem).toBe("recentes");
+    expect(lerFiltrosProjetos({ ordem: "informacao" }).ordem).toBeUndefined();
+    expect(lerFiltrosProjetos({ ordem: "relevancia" }).ordem).toBeUndefined();
+    expect(enderecoProjetos({ ordem: "recentes", pagina: "2" }, { uf: "SC" })).toBe("/projetos?uf=SC&ordem=recentes");
+  });
+});
+
+describe("indicadoresDoItem", () => {
+  const votacao = { data: "2026-09-01", resultado: null, sim: 1, nao: 0, descricao: null, link: "/votacao/camara/1" };
+  it("diz só o que existe, com plural certo", () => {
+    expect(indicadoresDoItem({ ultima_votacao: votacao, discursos: 6, passos_caminho: 34 })).toEqual([
+      "Votação nominal",
+      "6 discursos",
+      "34 passos no caminho",
+    ]);
+    expect(indicadoresDoItem({ ultima_votacao: null, discursos: 1, passos_caminho: 1 })).toEqual(["1 discurso", "1 passo no caminho"]);
+    expect(indicadoresDoItem({ ultima_votacao: null, discursos: 0, passos_caminho: null })).toEqual([]);
   });
 });
 

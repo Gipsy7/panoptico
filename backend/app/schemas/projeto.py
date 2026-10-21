@@ -42,6 +42,31 @@ class ItemProjeto(BaseModel):
     na_pauta: date | None
     ultima_movimentacao: date | None
     link: str
+    # Quantos itens de informação o projeto tem publicados (ver NIVEL em projetos_busca).
+    nivel_informacao: int | None = None
+    # Só no federal: discursos ligados ao projeto e passos do caminho (tramitação).
+    discursos: int | None = None
+    passos_caminho: int | None = None
+
+
+class CoberturaCamara(BaseModel):
+    municipio_ibge: str
+    municipio: str
+    tem_dados: bool  # há vereadores, projetos ou votações da câmara carregados
+    canal_url: str | None  # site oficial da câmara, do catálogo de canais
+
+
+class CoberturaAssembleia(BaseModel):
+    uf: str
+    tem_dados: bool
+
+
+class CoberturaBusca(BaseModel):
+    """Só quando há filtro de estado ou cidade: o que existe aqui dessas casas."""
+
+    uf: str | None
+    camara: CoberturaCamara | None
+    assembleia: CoberturaAssembleia | None
 
 
 class BuscaProjetos(BaseModel):
@@ -51,6 +76,8 @@ class BuscaProjetos(BaseModel):
     por_pagina: int
     itens: list[ItemProjeto]
     fontes: list[FonteBloco]
+    ordem: str = "informacao"  # informacao | recentes
+    cobertura: CoberturaBusca | None = None
 
 
 # ---- Projeto federal ----

@@ -13,6 +13,7 @@ import { PainelFiltros } from "@/components/ui/painel-filtros";
 import { CabecalhoPagina } from "@/components/ui/cabecalho-pagina";
 import {
   type BuscaProjetos,
+  type CoberturaBusca,
   type FiltrosProjetos,
   type ItemProjeto,
   type Municipio,
@@ -22,7 +23,15 @@ import {
   buscarProjetos,
 } from "@/lib/api";
 import { CASA_PROJETO_CURTA, formatarData, lugarDoProjeto, textoResultado } from "@/lib/formato";
-import { anosParaFiltro, caminhoInterno, enderecoProjetos, lerFiltrosProjetos, recortar, situacaoSimples } from "@/lib/projetos";
+import {
+  anosParaFiltro,
+  caminhoInterno,
+  enderecoProjetos,
+  indicadoresDoItem,
+  lerFiltrosProjetos,
+  recortar,
+  situacaoSimples,
+} from "@/lib/projetos";
 import { UFS } from "@/lib/ufs";
 
 export const metadata: Metadata = {
@@ -112,6 +121,7 @@ function filtrosAtivos(filtros: FiltrosProjetos, cidades: Municipio[]): FiltroAt
     filtros.votacao
       ? { rotulo: filtros.votacao === "com" ? "Teve votação nominal" : "Não teve votação nominal", href: sem({ votacao: "" }) }
       : null,
+    filtros.ordem === "recentes" ? { rotulo: "Ordem: mais recentes primeiro", href: sem({ ordem: "" }) } : null,
   ];
   return ativos.filter((a): a is FiltroAtivo => a !== null);
 }
@@ -153,7 +163,7 @@ function BarraDeBusca({
           />
         </label>
         {/* Os demais filtros acompanham a busca em campos ocultos; o painel abaixo os muda. */}
-        {(["esfera", "casa", "uf", "municipio", "tema", "ano", "votacao"] as const).map(
+        {(["esfera", "casa", "uf", "municipio", "tema", "ano", "votacao", "ordem"] as const).map(
           (c) => filtros[c] && <input key={c} type="hidden" name={c} value={filtros[c]} />,
         )}
         <button type="submit" className="botao sm:w-auto">
@@ -167,6 +177,7 @@ function BarraDeBusca({
         ativos={ativos.length}
         limparHref={limparHref}
         ocultos={{ q: filtros.q, casa: filtros.casa }}
+        padroes={{ ordem: "informacao" }}
         titulo="Filtrar projetos"
       >
         <CampoSelect rotulo="Onde" name="esfera" defaultValue={filtros.esfera} opcoes={ESFERAS} />
@@ -204,6 +215,15 @@ function BarraDeBusca({
             { valor: "", rotulo: "Com ou sem votação" },
             { valor: "com", rotulo: "Teve votação nominal" },
             { valor: "sem", rotulo: "Não teve votação nominal" },
+          ]}
+        />
+        <CampoSelect
+          rotulo="Ordem da lista"
+          name="ordem"
+          defaultValue={filtros.ordem ?? "informacao"}
+          opcoes={[
+            { valor: "informacao", rotulo: "Mais informação publicada primeiro" },
+            { valor: "recentes", rotulo: "Mais recentes primeiro" },
           ]}
         />
       </PainelFiltros>
@@ -295,12 +315,31 @@ function Lista({ filtros, dados }: { filtros: FiltrosProjetos; dados: BuscaProje
           {dados.total.toLocaleString("pt-BR")} {dados.total === 1 ? "resultado" : "resultados"}
           {filtros.q && <> para &quot;{filtros.q}&quot;</>}
         </h2>
+        {dados.total > 0 && (
         <p className="text-muted-foreground">
-          Ordem: primeiro o que está na pauta, depois o que teve votação ou andamento mais recente. Não é ranking nem destaque.
+          {filtros.ordem === "recentes" ? (
+            <>
+              Primeiro o que está na pauta; depois, o que teve votação ou andamento mais recente.{" "}
+              <Link href={enderecoProjetos(filtros, { ordem: "" })} className="underline underline-offset-4">
+                Ver primeiro os que têm mais informação
+              </Link>
+            </>
+          ) : (
+            <>
+              Primeiro os projetos com mais informação publicada (votação nominal, discursos, caminho, situação e tema); depois,
+              os mais recentes. A ordem não é ranking nem destaque de assunto.{" "}
+              <Link href={enderecoProjetos(filtros, { ordem: "recentes" })} className="underline underline-offset-4">
+                Ver os mais recentes primeiro
+              </Link>
+            </>
+          )}
         </p>
+        )}
       </div>
 
-      {dados.itens.length === 0 ? (
+      {dados.itens.length === 0 && dados.cobertura && semCobertura(dados.cobertura, filtros) ? (
+        <SemCobertura cobertura={dados.cobertura} filtros={filtros} />
+      ) : dados.itens.length === 0 ? (
         <Vazio filtrando={filtrando} q={filtros.q} />
       ) : (
         <ul className="grid border-t border-border">
@@ -332,6 +371,64 @@ function Lista({ filtros, dados }: { filtros: FiltrosProjetos; dados: BuscaProje
         ))}
       </div>
     </section>
+  );
+}
+
+/** A lista veio vazia porque a casa filtrada não tem dados aqui (e não porque a busca não achou nada). */
+function semCobertura(c: CoberturaBusca, filtros: FiltrosProjetos): boolean {
+  if (filtros.q) return false;
+  if (c.camara) return !c.camara.tem_dados && filtros.esfera !== "estadual";
+  return Boolean(c.assembleia && !c.assembleia.tem_dados);
+}
+
+function SemCobertura({ cobertura: c, filtros }: { cobertura: CoberturaBusca; filtros: FiltrosProjetos }) {
+  const uf = c.uf ?? filtros.uf;
+  const nomeUf = uf ? (UFS.find((u) => u.sigla === uf)?.nome ?? uf) : null;
+  return (
+    <div className="flex flex-col items-start gap-[var(--esp-3)] border-t border-border pt-[var(--esp-4)]">
+      {c.camara ? (
+        <>
+          <p className="font-medium">A Câmara Municipal de {c.camara.municipio} não tem projetos nem votações no Panóptico.</p>
+          <p className="text-sm">
+            Ela não publica votações e projetos num formato de dados abertos que o Panóptico consiga ler (o sistema SAPL, do
+            Interlegis), ou o site dela recusa o acesso automático. O que a câmara publica fica no site oficial dela.
+          </p>
+          {c.camara.canal_url && (
+            <a href={c.camara.canal_url} target="_blank" rel="noopener noreferrer" className="alvo-link font-medium underline underline-offset-4">
+              Site oficial da Câmara de {c.camara.municipio}
+            </a>
+          )}
+        </>
+      ) : (
+        <>
+          <p className="font-medium">
+            A Assembleia Legislativa {nomeUf ? `de ${nomeUf}` : "deste estado"} não tem projetos nem votações no Panóptico.
+          </p>
+          <p className="text-sm">Ela não publica projetos e votações num formato de dados abertos que o Panóptico consiga ler.</p>
+        </>
+      )}
+      <ul className="flex flex-wrap gap-2">
+        <li>
+          <Link href={enderecoProjetos({}, { esfera: "federal", uf: uf ?? "" })} className="botao-linha px-[var(--esp-4)]">
+            Ver projetos do Congresso
+          </Link>
+        </li>
+        {c.camara && c.assembleia?.tem_dados && uf && (
+          <li>
+            <Link href={enderecoProjetos({}, { esfera: "estadual", uf })} className="botao-linha px-[var(--esp-4)]">
+              Ver a Assembleia de {uf}
+            </Link>
+          </li>
+        )}
+      </ul>
+      <p className="text-xs text-muted-foreground">
+        O que cada casa publica, estado por estado:{" "}
+        <Link href="/sobre-as-fontes/cobertura" className="underline underline-offset-4">
+          cobertura do Panóptico
+        </Link>
+        .
+      </p>
+    </div>
   );
 }
 
@@ -368,6 +465,7 @@ function Cartao({ item: i, uf }: { item: ItemProjeto; uf?: string }) {
   const sit = i.tipo === "proposicao" ? situacaoSimples(i.situacao, i.virou_lei) : { rotulo: null, oficial: i.situacao };
   const v = i.ultima_votacao;
   const resultado = textoResultado(v?.resultado ?? null);
+  const indicadores = indicadoresDoItem(i);
   return (
     <Link
       href={uf && i.esfera === "federal" ? `${caminhoInterno(i.link)}?uf=${uf}` : caminhoInterno(i.link)}
@@ -400,11 +498,22 @@ function Cartao({ item: i, uf }: { item: ItemProjeto; uf?: string }) {
           </p>
         </div>
       ) : (
-        <p className="text-xs text-muted-foreground">
-          {v ? `Votação nominal${v.data ? ` em ${formatarData(v.data)}` : ""}${resultado ? ` · ${resultado}` : ""}` : "Sem votação nominal registrada"}
-        </p>
+        v && (
+          <p className="text-xs text-muted-foreground">
+            {`Votação nominal${v.data ? ` em ${formatarData(v.data)}` : ""}${resultado ? ` · ${resultado}` : ""}`}
+          </p>
+        )
       )}
       {i.tipo === "proposicao" && v?.descricao && <p className="text-xs text-muted-foreground">Votação: {recortar(v.descricao, 140)}</p>}
+      {indicadores.length > 0 && (
+        <p className="text-xs text-muted-foreground tabular-nums">
+          <span className="sr-only">O que este projeto tem publicado: </span>
+          {indicadores.join(" · ")}
+        </p>
+      )}
+      {!v && i.ultima_movimentacao && (
+        <p className="text-xs text-muted-foreground tabular-nums">Sem votação nominal · última movimentação em {formatarData(i.ultima_movimentacao)}</p>
+      )}
     </Link>
   );
 }

@@ -6,8 +6,13 @@ Une quatro origens numa lista só:
 - projetos locais (`projeto_local`: câmaras municipais e assembleias);
 - votações locais (`votacao_local`) que não estão ligadas a um projeto local.
 
-Ordem: o que está na pauta primeiro (a data mais próxima), depois a data da última votação ou
-movimentação, da mais recente para a mais antiga. Nunca relevância editorial.
+Ordem (`ordem`):
+- "informacao" (padrão): primeiro os itens com mais informação publicada (`nivel`, uma contagem
+  de itens que existem ou não; ver NIVEL), depois a data da última votação nominal e a da última
+  movimentação, da mais recente para a mais antiga.
+- "recentes": o que está na pauta primeiro (a data mais próxima), depois a data da última
+  votação ou movimentação, da mais recente para a mais antiga.
+Nunca relevância editorial: assunto, partido, autor, resultado e placar não entram na ordem.
 
 `q` reconhece número ("PL 2338/2023", "pl 2338", "PL nº 2.338, de 2023", "2338/2023"); fora
 disso são palavras na ementa, todas exigidas, sem acento (app/services/texto_busca.py).
@@ -23,6 +28,8 @@ from sqlalchemy import func, literal_column, select
 from sqlalchemy.orm import Session
 
 from app.models import (
+    CanalOficial,
+    Discurso,
     MandatoLocal,
     Municipio,
     PautaItem,
@@ -35,6 +42,7 @@ from app.models import (
 )
 from app.services import discursos_projeto, projeto_fontes, texto_busca
 from app.services.projeto_detalhe import _contagens, escolher_principal
+from ingestion.proposicoes_comum import SEM_CLASSIFICACAO
 
 POR_PAGINA = 20
 SIGLAS = {
@@ -53,6 +61,20 @@ TIPO_LOCAL = {
     "PRE": ("Projeto de Resolu%", None),
     "REQ": ("Requerimento%", None),
     "VET": ("Veto%", None),
+}
+ORDENS = ("informacao", "recentes")
+# Nível de informação publicada: quantos destes itens o projeto tem (cada um vale 1). Só a presença
+# do dado conta, nunca o conteúdo. Decisão em docs/DECISOES.md, 2026-10-21 ("Ordem por informação").
+NIVEL = {
+    "proposicao": [
+        "votação nominal (ao menos uma)",
+        "discursos ligados ao projeto",
+        "caminho (passos da tramitação)",
+        "situação publicada",
+        "tema oficial",
+    ],
+    "projeto_local": ["votação nominal ligada", "ementa", "situação (em tramitação ou não)"],
+    "votacao_local": ["votação nominal (sempre)", "ementa da matéria", "resultado"],
 }
 LOCAL_POR_CASA = {"assembleia": "assembleia", "camara_municipal": "camara"}
 CASA_DO_LOCAL = {"assembleia": "assembleia", "camara": "camara_municipal"}
@@ -119,6 +141,38 @@ def _ultima_tramitacao():
     )
 
 
+def _discursos_por_projeto():
+    return (
+        select(
+            Discurso.casa.label("casa"),
+            Discurso.proposicao_id_externo.label("pid"),
+            func.count().label("n"),
+        )
+        .where(Discurso.proposicao_id_externo.is_not(None))
+        .group_by(Discurso.casa, Discurso.proposicao_id_externo)
+        .subquery("disc")
+    )
+
+
+def _tem_tema(casa, pid):
+    """Tem tema oficial (sem contar "Sem classificação"). Subconsulta sem correlação: o Postgres
+    monta uma tabela de hash uma vez e só consulta por linha (correlacionada, sondava o índice a
+    cada linha e custava 4 vezes mais)."""
+    com_tema = select(ProposicaoTema.casa, ProposicaoTema.proposicao_id_externo).where(
+        ProposicaoTema.tema != SEM_CLASSIFICACAO
+    )
+    return sa.tuple_(casa, pid).in_(com_tema)
+
+
+def _tem(condicao):
+    """1 quando a condição vale, 0 senão (para somar o nível de informação)."""
+    return sa.case((condicao, 1), else_=0)
+
+
+def _texto_ok(coluna):
+    return coluna.is_not(None) & (func.length(func.trim(coluna)) > 0)
+
+
 def _proxima_pauta(hoje: date):
     return (
         select(
@@ -135,6 +189,7 @@ def _proxima_pauta(hoje: date):
 def _federais(f: dict, hoje: date) -> list:
     """Consultas A (proposicao) e B (só em votacao), no formato comum da união."""
     vot, tram, pauta = _ultima_votacao_por_projeto(), _ultima_tramitacao(), _proxima_pauta(hoje)
+    disc = _discursos_por_projeto()
     numero = f["numero"]
     rotulo_a = func.concat(Proposicao.sigla_tipo, " ", Proposicao.numero, "/", Proposicao.ano)
     a = (
@@ -153,6 +208,14 @@ def _federais(f: dict, hoje: date) -> list:
                 "data_ord"
             ),
             pauta.c.data.label("na_pauta"),
+            (
+                _tem(vot.c.data_ult.is_not(None))
+                + _tem(disc.c.pid.is_not(None))
+                + _tem(tram.c.pid.is_not(None))
+                + _tem(_texto_ok(Proposicao.situacao))
+                + _tem(_tem_tema(Proposicao.casa, Proposicao.id_externo))
+            ).label("nivel"),
+            vot.c.data_ult.label("data_vot"),
         )
         .select_from(Proposicao)
         .outerjoin(vot, (vot.c.casa == Proposicao.casa) & (vot.c.pid == Proposicao.id_externo))
@@ -160,6 +223,7 @@ def _federais(f: dict, hoje: date) -> list:
         .outerjoin(
             pauta, (pauta.c.casa == Proposicao.casa) & (pauta.c.pid == Proposicao.id_externo)
         )
+        .outerjoin(disc, (disc.c.casa == Proposicao.casa) & (disc.c.pid == Proposicao.id_externo))
     )
     if f["casa_federal"]:
         a = a.where(Proposicao.casa == f["casa_federal"])
@@ -190,6 +254,7 @@ def _federais(f: dict, hoje: date) -> list:
 
     # B: votadas que só existem na tabela de votações.
     tram_b, pauta_b = _ultima_tramitacao(), _proxima_pauta(hoje)
+    disc_b = _discursos_por_projeto()
     g = (
         select(
             Votacao.casa.label("casa"),
@@ -216,10 +281,18 @@ def _federais(f: dict, hoje: date) -> list:
             sa.cast(sa.null(), sa.Boolean).label("virou_lei"),
             func.greatest(g.c.data_ult, tram_b.c.data_ult).label("data_ord"),
             pauta_b.c.data.label("na_pauta"),
+            (
+                1  # votação nominal: sempre (só existe na tabela de votações)
+                + _tem(disc_b.c.pid.is_not(None))
+                + _tem(tram_b.c.pid.is_not(None))
+                + _tem(_tem_tema(g.c.casa, g.c.pid))
+            ).label("nivel"),
+            g.c.data_ult.label("data_vot"),
         )
         .select_from(g)
         .outerjoin(tram_b, (tram_b.c.casa == g.c.casa) & (tram_b.c.pid == g.c.pid))
         .outerjoin(pauta_b, (pauta_b.c.casa == g.c.casa) & (pauta_b.c.pid == g.c.pid))
+        .outerjoin(disc_b, (disc_b.c.casa == g.c.casa) & (disc_b.c.pid == g.c.pid))
         .where(
             ~select(Proposicao.id)
             .where(Proposicao.casa == g.c.casa, Proposicao.id_externo == g.c.pid)
@@ -263,14 +336,13 @@ def _filtro_local(f: dict, coluna_casa, coluna_uf, coluna_ibge):
 def _locais(f: dict) -> list:
     numero = f["numero"]
     # Votações locais que não estão ligadas a um projeto local (as ligadas aparecem no projeto).
-    nome_municipio = Municipio.nome.label("municipio")
     c = (
         select(
             sa.literal_column("'votacao_local'").label("tipo"),
             VotacaoLocal.casa.label("casa"),
             VotacaoLocal.uf.label("uf"),
             VotacaoLocal.municipio_ibge.label("municipio_ibge"),
-            nome_municipio,
+            _nulo_texto.label("municipio"),  # o nome vem depois, só para a página
             sa.cast(VotacaoLocal.id, sa.String).label("ref"),
             VotacaoLocal.materia.label("rotulo"),
             VotacaoLocal.materia_ementa.label("ementa"),
@@ -278,13 +350,27 @@ def _locais(f: dict) -> list:
             sa.cast(sa.null(), sa.Boolean).label("virou_lei"),
             VotacaoLocal.data.label("data_ord"),
             _nulo_data.label("na_pauta"),
+            (
+                1  # votação nominal: sempre
+                + _tem(_texto_ok(VotacaoLocal.materia_ementa))
+                + _tem(_texto_ok(VotacaoLocal.resultado))
+            ).label("nivel"),
+            VotacaoLocal.data.label("data_vot"),
         )
         .select_from(VotacaoLocal)
-        .outerjoin(Municipio, Municipio.ibge == VotacaoLocal.municipio_ibge)
         .where(
             VotacaoLocal.projeto_local_id.is_(None),
             *_filtro_local(f, VotacaoLocal.casa, VotacaoLocal.uf, VotacaoLocal.municipio_ibge),
         )
+    )
+    vl = (
+        select(
+            VotacaoLocal.projeto_local_id.label("pid"),
+            func.max(VotacaoLocal.data).label("data_ult"),
+        )
+        .where(VotacaoLocal.projeto_local_id.is_not(None))
+        .group_by(VotacaoLocal.projeto_local_id)
+        .subquery("vl")
     )
     d = (
         select(
@@ -292,7 +378,7 @@ def _locais(f: dict) -> list:
             MandatoLocal.casa.label("casa"),
             MandatoLocal.uf.label("uf"),
             ProjetoLocal.municipio_ibge.label("municipio_ibge"),
-            nome_municipio,
+            _nulo_texto.label("municipio"),  # o nome vem depois, só para a página
             sa.cast(ProjetoLocal.id, sa.String).label("ref"),
             func.concat(
                 ProjetoLocal.tipo,
@@ -307,26 +393,24 @@ def _locais(f: dict) -> list:
                 else_=None,
             ).label("situacao"),
             sa.cast(sa.null(), sa.Boolean).label("virou_lei"),
-            func.coalesce(
-                select(func.max(VotacaoLocal.data))
-                .where(VotacaoLocal.projeto_local_id == ProjetoLocal.id)
-                .scalar_subquery(),
-                ProjetoLocal.data_apresentacao,
-            ).label("data_ord"),
+            func.coalesce(vl.c.data_ult, ProjetoLocal.data_apresentacao).label("data_ord"),
             _nulo_data.label("na_pauta"),
+            (
+                _tem(vl.c.pid.is_not(None))
+                + _tem(_texto_ok(ProjetoLocal.ementa))
+                + _tem(ProjetoLocal.em_tramitacao.is_not(None))
+            ).label("nivel"),
+            vl.c.data_ult.label("data_vot"),
         )
         .select_from(ProjetoLocal)
         .join(MandatoLocal, MandatoLocal.id == ProjetoLocal.mandato_id)
-        .outerjoin(Municipio, Municipio.ibge == ProjetoLocal.municipio_ibge)
+        .outerjoin(vl, vl.c.pid == ProjetoLocal.id)
         .where(*_filtro_local(f, MandatoLocal.casa, MandatoLocal.uf, ProjetoLocal.municipio_ibge))
     )
-    tem_votacao = (
-        select(VotacaoLocal.id).where(VotacaoLocal.projeto_local_id == ProjetoLocal.id).exists()
-    )
     if f["votacao"] == "com":
-        d = d.where(tem_votacao)
+        d = d.where(vl.c.pid.is_not(None))
     elif f["votacao"] == "sem":
-        d = d.where(~tem_votacao)
+        d = d.where(vl.c.pid.is_(None))
         c = c.where(sa.false())
 
     if numero:
@@ -458,6 +542,7 @@ def buscar(
     votacao: str | None = None,
     pagina: int = 1,
     hoje: date | None = None,
+    ordem: str = "informacao",
 ) -> dict:
     hoje = hoje or date.today()
     f = _filtros(q, esfera, casa, uf, municipio, tema, ano, votacao)
@@ -470,15 +555,21 @@ def buscar(
     if consultas:
         u = sa.union_all(*consultas).subquery("u")
         total = session.scalar(select(func.count()).select_from(u)) or 0
-        linhas = session.execute(
-            select(u)
-            .order_by(
+        if ordem == "recentes":
+            criterio = [
                 u.c.na_pauta.is_not(None).desc(),
                 u.c.na_pauta.asc().nullslast(),
                 u.c.data_ord.desc().nullslast(),
-                u.c.rotulo,
-                u.c.ref,
-            )
+            ]
+        else:
+            criterio = [
+                u.c.nivel.desc(),
+                u.c.data_vot.desc().nullslast(),
+                u.c.data_ord.desc().nullslast(),
+            ]
+        linhas = session.execute(
+            select(u)
+            .order_by(*criterio, u.c.rotulo, u.c.ref)
             .limit(POR_PAGINA)
             .offset((max(pagina, 1) - 1) * POR_PAGINA)
         ).all()
@@ -486,6 +577,10 @@ def buscar(
         total, linhas = 0, []
 
     ultimas = _ultimas_votacoes(session, linhas)
+    contagens = _contagens_federais(session, linhas)
+    ibges = {r.municipio_ibge for r in linhas if r.municipio_ibge}
+    consulta_nomes = select(Municipio.ibge, Municipio.nome).where(Municipio.ibge.in_(ibges))
+    nomes = {ibge: nome for ibge, nome in session.execute(consulta_nomes)} if ibges else {}
     itens = []
     for r in linhas:
         if r.tipo == "proposicao":
@@ -511,13 +606,20 @@ def buscar(
                 "casa": casa_item,
                 "uf": r.uf,
                 "municipio_ibge": r.municipio_ibge,
-                "municipio": r.municipio,
+                "municipio": nomes.get(r.municipio_ibge),
                 "situacao": r.situacao,
                 "virou_lei": r.virou_lei,
                 "ultima_votacao": ultima,
                 "na_pauta": r.na_pauta,
                 "ultima_movimentacao": r.data_ord,
                 "link": link,
+                "nivel_informacao": r.nivel,
+                "discursos": contagens["discursos"].get((r.casa, r.ref), 0)
+                if r.tipo == "proposicao"
+                else None,
+                "passos_caminho": contagens["passos"].get((r.casa, r.ref), 0)
+                if r.tipo == "proposicao"
+                else None,
             }
         )
     return {
@@ -527,7 +629,81 @@ def buscar(
         "por_pagina": POR_PAGINA,
         "itens": itens,
         "fontes": _fontes(session),
+        "ordem": ordem,
+        "cobertura": _cobertura(session, f) if f["uf"] or f["municipio"] else None,
     }
+
+
+def _contagens_federais(session: Session, linhas: list) -> dict[str, dict[tuple, int]]:
+    """Discursos ligados e passos do caminho de cada projeto federal da página."""
+    chaves = [(r.casa, r.ref) for r in linhas if r.tipo == "proposicao"]
+    saida: dict[str, dict[tuple, int]] = {"discursos": {}, "passos": {}}
+    if not chaves:
+        return saida
+    for nome, modelo in (("discursos", Discurso), ("passos", Tramitacao)):
+        consulta = (
+            select(modelo.casa, modelo.proposicao_id_externo, func.count())
+            .where(sa.tuple_(modelo.casa, modelo.proposicao_id_externo).in_(chaves))
+            .group_by(modelo.casa, modelo.proposicao_id_externo)
+        )
+        saida[nome] = {(c, p): n for c, p, n in session.execute(consulta)}
+    return saida
+
+
+TIPOS_CANAL_CAMARA = ("sapl", "sistema_legislativo", "camara")
+
+
+def _cobertura(session: Session, f: dict) -> dict:
+    """O que a lista tem (ou não) da cidade e do estado filtrados: se há dado da câmara e da
+    assembleia aqui, e o site oficial da câmara, para explicar uma lista vazia."""
+    uf = f["uf"]
+    camara = None
+    if f["municipio"]:
+        municipio = session.get(Municipio, f["municipio"])
+        if municipio is not None:
+            uf = uf or municipio.uf
+            ibge = municipio.ibge
+            tem = session.scalar(
+                select(
+                    select(MandatoLocal.id)
+                    .where(MandatoLocal.casa == "camara", MandatoLocal.municipio_ibge == ibge)
+                    .exists()
+                    | select(VotacaoLocal.id)
+                    .where(VotacaoLocal.casa == "camara", VotacaoLocal.municipio_ibge == ibge)
+                    .exists()
+                    | select(ProjetoLocal.id).where(ProjetoLocal.municipio_ibge == ibge).exists()
+                )
+            )
+            canais = {
+                c.tipo: c.url
+                for c in session.scalars(
+                    select(CanalOficial).where(
+                        CanalOficial.municipio_ibge == ibge,
+                        CanalOficial.tipo.in_(TIPOS_CANAL_CAMARA),
+                    )
+                )
+            }
+            canal = next((canais[t] for t in TIPOS_CANAL_CAMARA if t in canais), None)
+            camara = {
+                "municipio_ibge": ibge,
+                "municipio": municipio.nome,
+                "tem_dados": bool(tem),
+                "canal_url": canal,
+            }
+    assembleia = None
+    if uf:
+        tem = session.scalar(
+            select(
+                select(MandatoLocal.id)
+                .where(MandatoLocal.casa == "assembleia", MandatoLocal.uf == uf)
+                .exists()
+                | select(VotacaoLocal.id)
+                .where(VotacaoLocal.casa == "assembleia", VotacaoLocal.uf == uf)
+                .exists()
+            )
+        )
+        assembleia = {"uf": uf, "tem_dados": bool(tem)}
+    return {"uf": uf, "camara": camara, "assembleia": assembleia}
 
 
 def _fontes(session: Session) -> list[dict]:

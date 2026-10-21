@@ -62,19 +62,25 @@ async function ProjetoLocalConteudo({ id }: { id: string }) {
   const lugar = lugarDoProjeto(d.casa, d.uf, d.municipio);
   const rodape = <FonteRodape fonte={d.fonte_nome} url={d.fonte_url} atualizadoEm={d.atualizado_em} />;
   const situacao =
-    d.em_tramitacao === true ? "Em tramitação" : d.em_tramitacao === false ? "Não está mais em tramitação" : "Não informada";
+    d.em_tramitacao === true ? "Em tramitação" : d.em_tramitacao === false ? "Não está mais em tramitação" : null;
+  const temVotacao = d.votacoes.length > 0;
 
+  // Só o que existe: sem votação, a aba some e uma frase diz o que falta.
   const abas: AbaDetalhe[] = [
     {
       id: "trata",
       rotulo: "Do que se trata",
       secoes: [{ id: "do-que-se-trata", titulo: "Do que se trata", conteudo: <DoQueSeTrataLocal d={d} rodape={rodape} /> }],
     },
-    {
-      id: "votacoes",
-      rotulo: "Votações",
-      secoes: [{ id: "votacoes", titulo: "Votações", conteudo: <VotacoesLocais d={d} rodape={rodape} /> }],
-    },
+    ...(temVotacao
+      ? [
+          {
+            id: "votacoes",
+            rotulo: "Votações",
+            secoes: [{ id: "votacoes", titulo: "Votações", conteudo: <VotacoesLocais d={d} rodape={rodape} /> }],
+          },
+        ]
+      : []),
   ];
 
   return (
@@ -86,20 +92,21 @@ async function ProjetoLocalConteudo({ id }: { id: string }) {
           <p className="text-lg leading-snug">{d.ementa}</p>
         </div>
         <GradeCartoes rotulo="Números deste projeto">
-          <CartaoNumero destino="do-que-se-trata" rotulo="Situação" valor={situacao} apoio="Como a casa publica" />
-          <CartaoNumero
-            destino="votacoes"
-            rotulo="Votações nominais"
-            valor={n(d.votacoes.length)}
-            apoio={d.votacoes.length ? "com o voto de cada um" : "Nenhuma publicada"}
-          />
+          {situacao && <CartaoNumero destino="do-que-se-trata" rotulo="Situação" valor={situacao} apoio="Como a casa publica" />}
+          {temVotacao && (
+            <CartaoNumero destino="votacoes" rotulo="Votações nominais" valor={n(d.votacoes.length)} apoio="com o voto de cada um" />
+          )}
           <CartaoNumero
             destino="do-que-se-trata"
             rotulo="Apresentado em"
             valor={d.data_apresentacao ? formatarData(d.data_apresentacao) : String(d.ano)}
             apoio={d.data_apresentacao ? undefined : "Só o ano é publicado"}
           />
+          {d.autor && (
+            <CartaoNumero destino="do-que-se-trata" rotulo="Autor" valor={d.autor.nome} apoio={d.autor.partido ?? undefined} />
+          )}
         </GradeCartoes>
+        {/* Sem votação, o aviso da API já diz o que falta (não tem votação nominal registrada nesta fonte). */}
         <p className="nota text-sm">{d.aviso}</p>
         <CompartilharWhatsApp
           caminho={`/projeto/local/${d.id}`}
@@ -162,10 +169,11 @@ function VotacoesLocais({ d, rodape }: { d: ProjetoLocal; rodape: React.ReactNod
         <ul className="lista-fios">
           {d.votacoes.map((v) => (
             <li key={v.id} className="flex flex-col gap-2 py-4">
-              <p className="text-sm text-muted-foreground tabular-nums">
-                {v.data ? formatarData(v.data) : "Sem data"}
-                {v.resultado && ` · ${textoResultado(v.resultado)}`}
-              </p>
+              {(v.data || v.resultado) && (
+                <p className="text-sm text-muted-foreground tabular-nums">
+                  {[v.data ? formatarData(v.data) : null, v.resultado ? textoResultado(v.resultado) : null].filter(Boolean).join(" · ")}
+                </p>
+              )}
               <p className="text-sm leading-relaxed">{v.materia}</p>
               <PlacarCompacto sim={v.sim} nao={v.nao} />
               {v.abstencoes > 0 && (

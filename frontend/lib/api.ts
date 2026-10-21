@@ -1778,6 +1778,18 @@ export type ItemProjeto = {
   na_pauta: string | null;
   ultima_movimentacao: string | null;
   link: string;
+  /** Quantos itens de informação o projeto tem publicados (votação, discursos, caminho, situação, tema). */
+  nivel_informacao?: number | null;
+  /** Só no Congresso: discursos ligados ao projeto e passos do caminho. */
+  discursos?: number | null;
+  passos_caminho?: number | null;
+};
+
+/** Só com filtro de estado ou cidade: se há dado da câmara e da assembleia aqui. */
+export type CoberturaBusca = {
+  uf: string | null;
+  camara: { municipio_ibge: string; municipio: string; tem_dados: boolean; canal_url: string | null } | null;
+  assembleia: { uf: string; tem_dados: boolean } | null;
 };
 
 export type BuscaProjetos = {
@@ -1787,6 +1799,8 @@ export type BuscaProjetos = {
   por_pagina: number;
   itens: ItemProjeto[];
   fontes: FonteBloco[];
+  ordem?: "informacao" | "recentes";
+  cobertura?: CoberturaBusca | null;
 };
 
 export type FiltrosProjetos = {
@@ -1798,6 +1812,7 @@ export type FiltrosProjetos = {
   tema?: string;
   ano?: string;
   votacao?: string;
+  ordem?: string;
   pagina?: string;
 };
 

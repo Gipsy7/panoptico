@@ -3,7 +3,7 @@
  * situação em linguagem do dia a dia, ordem fixa dos grupos de voto e texto de compartilhamento.
  * Fica aqui para ser testada (Vitest) sem subir o site.
  */
-import type { FiltrosProjetos, GrupoDiscursos, GrupoQuemVotou, PessoaQueVotou, VotacaoDoProjeto } from "@/lib/api";
+import type { FiltrosProjetos, GrupoDiscursos, ItemProjeto, GrupoQuemVotou, PessoaQueVotou, VotacaoDoProjeto } from "@/lib/api";
 import { UFS } from "@/lib/ufs";
 
 const SEM_ACENTO = /[̀-ͯ]/g;
@@ -27,6 +27,7 @@ const CAMPOS_PROJETOS: (keyof FiltrosProjetos)[] = [
   "tema",
   "ano",
   "votacao",
+  "ordem",
   "pagina",
 ];
 
@@ -50,6 +51,8 @@ export function lerFiltrosProjetos(sp: Record<string, string | string[] | undefi
   if (f.esfera && !["federal", "estadual", "municipal"].includes(f.esfera)) delete f.esfera;
   if (f.casa && !["camara", "senado", "assembleia", "camara_municipal"].includes(f.casa)) delete f.casa;
   if (f.votacao && !["com", "sem"].includes(f.votacao)) delete f.votacao;
+  // "informacao" é a ordem padrão: fica fora do endereço.
+  if (f.ordem && f.ordem !== "recentes") delete f.ordem;
   if (f.uf) {
     const uf = lerUf(f.uf);
     if (uf) f.uf = uf;
@@ -62,6 +65,20 @@ export function lerFiltrosProjetos(sp: Record<string, string | string[] | undefi
   if (f.pagina && !/^[1-9]\d{0,3}$/.test(f.pagina)) delete f.pagina;
   if (f.q) f.q = f.q.slice(0, 200);
   return f;
+}
+
+const plural = (n: number, um: string, varios: string) => `${n.toLocaleString("pt-BR")} ${n === 1 ? um : varios}`;
+
+/**
+ * O que o projeto da lista tem publicado, em pedaços curtos e factuais para o cartão
+ * ("Votação nominal", "6 discursos", "34 passos no caminho"). Só o que existe; nada de juízo.
+ */
+export function indicadoresDoItem(i: Pick<ItemProjeto, "ultima_votacao" | "discursos" | "passos_caminho">): string[] {
+  const partes: string[] = [];
+  if (i.ultima_votacao) partes.push("Votação nominal");
+  if (i.discursos) partes.push(plural(i.discursos, "discurso", "discursos"));
+  if (i.passos_caminho) partes.push(plural(i.passos_caminho, "passo no caminho", "passos no caminho"));
+  return partes;
 }
 
 /** Endereço de /projetos com uma mudança nos filtros; volta à página 1 (a menos que `pagina` venha na mudança). */
