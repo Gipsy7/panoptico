@@ -103,6 +103,71 @@ Endpoints conferidos em 2026-10-06.
 - O nome do partido na orientação é o de uso ("Progressistas", "Podemos", "Republicanos"), diferente da sigla dos votos ("PP", "PODE", "REPUBLICANOS"). A mesma resposta traz `votosParlamentar[]` (nome do senador e esse nome de partido); casamos pelo nome do senador com a lista de votos para achar a sigla. "B.Feminina"/"Banc Fem" (bancada feminina) fica como `outra`.
 - `resultadoVotacao` (A/R) e `totalVotosSim`/`totalVotosNao`/`totalVotosAbstencao`, preenchidos nas votações secretas (sem voto nominal).
 
+## Câmara: discursos em Plenário (reconhecimento de 21/10/2026, ainda sem ingestão)
+
+- **Duas rotas, mesmo conteúdo:**
+  - API v2, por deputado: `GET https://dadosabertos.camara.leg.br/api/v2/deputados/{id}/discursos?dataInicio=AAAA-MM-DD&dataFim=AAAA-MM-DD&itens=100&pagina=N&ordenarPor=dataHoraInicio&ordem=ASC`. Campos: `dataHoraInicio`, `faseEvento.titulo` ("Ordem do Dia", "Breves Comunicações", "Encerramento", "Homenagem", "Comissão Geral"), `tipoDiscurso` ("PELA ORDEM", "DISCUSSÃO", "ENCAMINHAMENTO DE VOTAÇÃO", "COMO LÍDER", "PARECER", "ORIENTAÇÃO DE BANCADA"...), `sumario`, `keywords`, `urlTexto`, `urlVideo`, `urlAudio`, `transcricao` (texto inteiro, ~3 KB por discurso; não guardar).
+  - Webservice antigo, por período (todos os oradores numa chamada): `GET https://www.camara.leg.br/SitCamaraWS/SessoesReunioes.asmx/ListarDiscursosPlenario?dataIni=DD/MM/AAAA&dataFim=DD/MM/AAAA&codigoSessao=&parteNomeParlamentar=&siglaPartido=&siglaUF=` (XML). Por discurso: sessão (`codigo` "160.2026"), fase (código e descrição), orador (nome, partido, UF, **sem id**), `horaInicioDiscurso`, `txtIndexacao`, `numeroQuarto`, `numeroInsercao`, `sumario`. Um mês inteiro numa chamada (~1,4 MB).
+- **Não há ligação direta com a votação.** `uriEvento` vem sempre vazio na API (0 de 358 numa amostra); `/eventos/{id}/discursos` não existe (405). `faseEvento` só traz o título. A ligação é pelo **sumário**, que cita a matéria por extenso ("Projeto de Lei Complementar nº 74, de 2026"; às vezes "PL nº&nbsp;5.063 de 2023", "Projeto de Decreto Legislativo (PDL) nº 214", "Projeto de Complementar nº 235", número com ponto de milhar).
+- **Volume (Plenário, todos os tipos):** 16.810 discursos em 2025 e 7.430 em 2026 até 20/10. Sumário + indexação: ~716 caracteres em média. 855 sem sumário (sessões recentes ainda sem indexação).
+- **Armadilhas:**
+  - a orientação de bancada vem como `tipoDiscurso` "PELA ORDEM" (sumário "O Deputado orientou a bancada na votação..."); só 7 de 4.041 vieram como "ORIENTAÇÃO DE BANCADA". Filtrar por tipo perde a maior parte das falas sobre a votação;
+  - a **fase do webservice não bate com a da API** (Chico Alencar 2025: 235 discursos na Ordem do Dia pela API, 40 pelo webservice, que põe a maioria em "Breves Comunicações"); o tipo da sessão vem sempre "Ordinária - CD";
+  - `horaInicioDiscurso` às vezes vem só com a data (25 de 24.240);
+  - `urlTexto` da API aponta para a página do Diário da Câmara e vem nulo nas sessões recentes (301 de 323 preenchidos em 2025 para um deputado; nulo em 09/2026); `urlVideo` veio nulo em todos. O texto taquigráfico abre por `https://www.camara.leg.br/internet/sitaqweb/TextoHTML.asp?etapa=5&nuSessao={sessão}&nuQuarto={quarto}&nuOrador={n}&nuInsercao={inserção}&dtHorarioQuarto=HH:MM&sgFaseSessao={fase}&Data=DD/MM/AAAA` (respondeu 200);
+  - o webservice não traz id do deputado: o nome casa exato e único com `deputado_nome` do arquivo de votos em 99,9% dos discursos ligados a votações (6.965 de 6.973); quem não casa é senador, ministro ou governador em Comissão Geral.
+- **Requisições:** API, ~2 por deputado-ano (30 deputados, 2025: 62 chamadas, 4.041 discursos) → carga de 2 anos ≈ 1.200–1.500 chamadas; diária ≈ 513 (uma por deputado em exercício). Webservice: 1 chamada por mês (22 para 2025–2026, 30 MB de XML).
+- **robots.txt** (www.camara.leg.br): veda rotas de busca do site, não `SitCamaraWS` nem `sitaqweb`.
+
+## Senado: discursos em Plenário (reconhecimento de 21/10/2026, ainda sem ingestão)
+
+- **Por período (todas as sessões):** `GET https://legis.senado.leg.br/dadosabertos/plenario/lista/discursos/{AAAAMMDD}/{AAAAMMDD}` (JSON com `Accept: application/json`). `Sessoes.Sessao[]` (`CodigoSessao`, `TipoSessao`, `DataSessao`, `SiglaCasa` SF ou CN) → `Pronunciamentos.Pronunciamento[]`: `CodigoPronunciamento`, `TipoUsoPalavra.Descricao`, `Data` (sem hora), `Resumo`, `Indexacao`, `TextoIntegral` (página), `TextoIntegralTxt`, `CodigoParlamentar`, `NomeAutor`, `Partido`, `UF`, `TipoAutor`, `Publicacoes` (página do Diário).
+- **Por senador:** `GET /dadosabertos/senador/{codigo}/discursos?dataInicio=AAAAMMDD&dataFim=AAAAMMDD` (sem período, últimos 30 dias); traz também a `SessaoPlenaria.CodigoSessao`.
+- **Ligação direta (sem resumo):** `GET /dadosabertos/plenario/encontro/{codigoSessao}` (~250 KB) traz `encontroRealizado.usosPalavra.usoPalavra[]` com `codItemPauta`, tipo, parlamentar e hora (`evento.dthEvento`), e `itensPauta.itemPauta[]` com `codMateria`. O `codigoSessao` é o mesmo da API de votações. Nas 57 sessões com votação nominal de 2025–2026: 3.307 usos da palavra, 1.580 com item da pauta (quase todas as orientações e discussões), só 30 com resumo.
+- **Volume:** 6.868 pronunciamentos em 2025–2026 (4.396 e 2.472), 1.293 de autor externo (sem `CodigoParlamentar`); 22 chamadas mensais, 12 MB.
+- **Armadilhas:**
+  - o `Resumo` das falas de votação é **descritivo, não traz o argumento**: "Orientação à bancada, pelo Partido PL, sobre o Projeto de Lei Complementar (PLP) n° 128, de 2025, que ...". O argumento só está no texto integral (link);
+  - defasagem de ~1 semana: as sessões de 14 e 15/10/2026 ainda não tinham pronunciamentos em 21/10, embora o encontro já listasse os usos da palavra;
+  - juntar pronunciamento e uso da palavra por (sessão, parlamentar, tipo) é único em 1.834 de 2.768 casos, ambíguo em 775;
+  - `identificacao` das votações com sufixo ("PLP 235/2019 (Substitutivo-CD)", "PEC 66/2023 (fase 2)"); usar `sigla`, `numero` e `ano`;
+  - MPV votada como PLV: o resumo cita "Projeto de Lei de Conversão nº 4, de 2025", não a MPV 1.300;
+  - `https://legis.senado.leg.br/robots.txt` responde 403 ("Request forbidden by administrative rules"); a API de dados abertos responde normalmente.
+
+## Câmara e Senado: pauta do Plenário (reconhecimento de 21/10/2026)
+
+- **Câmara:** `GET /api/v2/eventos?idOrgao=180&dataInicio=AAAA-MM-DD&dataFim=AAAA-MM-DD&itens=100` (sessões do Plenário; `descricaoTipo` "Sessão Deliberativa", "Sessão Não Deliberativa Solene"...; `situacao` "Convocada", "Encerrada") e `GET /api/v2/eventos/{id}/pauta`: `ordem`, `topico`, `regime`, `titulo` ("MPV 1357/2026"), `proposicao_` (id, siglaTipo, numero, ano, ementa), `proposicaoRelacionada_`, `relator`, `uriVotacao`, `situacaoItem`.
+  - **Armadilhas:** o item se repete uma vez por votação (mesmo `ordem`, `uriVotacao` diferente); em MPV o `proposicao_` é o **parecer** (`siglaTipo` "PAR", `ano` 0) e a matéria está em `proposicaoRelacionada_`. Em 21/10/2026 (período eleitoral) os próximos 14 dias só tinham uma sessão solene.
+  - Há também `https://dadosabertos.camara.leg.br/arquivos/eventos/csv/eventos-{ano}.csv` (1 MB); não há arquivo de pautas (`eventosPautas` dá 404).
+- **Senado:** `GET /dadosabertos/plenario/agenda/mes/{AAAAMMDD}` (da data até o fim do mês) ou `/plenario/agenda/dia/{AAAAMMDD}`. `Sessoes.Sessao[]` (`CodigoSessao`, `TipoSessao`, `SituacaoSessao` "Agendada"/"Encerrada"/"Sessão não realizada") → `Materias.Materia[]`: `CodigoMateria` (o mesmo `proposicao_id_externo` das votações), `DescricaoIdentificacaoMateria` ("PEC 221/2019"), `NumeroMateria` com zeros ("00221"), `Ementa`, `Parecer` (com o relator, em texto), `Apreciacao`, `DescricaoTipoPauta`. `/plenario/agenda/cn/{data}` (Congresso) veio vazio.
+- **Frequência sugerida:** diária, janela de 14 dias (a Câmara convoca com poucos dias de antecedência).
+
+## Câmara: tramitação das proposições (reconhecimento de 21/10/2026)
+
+- **API:** `GET /api/v2/proposicoes/{id}/tramitacoes` (todas numa resposta, sem paginação): `dataHora`, `sequencia`, `siglaOrgao`, `descricaoTramitacao`, `descricaoSituacao`, `despacho` (o texto que explica), `regime`, `apreciacao`, `uriUltimoRelator`, `url`. `GET /api/v2/proposicoes/{id}` traz `statusProposicao` (situação e `uriUltimoRelator`), inclusive de projetos antigos (PL 2694/2015, PEC 302/2017).
+- **Relator sem chamada extra:** `proposicoes-{ano}.csv` já traz `ultimoStatus_uriRelator`, `ultimoStatus_descricaoSituacao`, `ultimoStatus_despacho` e `ultimoStatus_dataHora` (este serve para a carga incremental: só rebuscar quem mudou).
+- **Volume (amostra de 30):** projetos com votação nominal: média 45 linhas (mediana 37); projetos quaisquer desde 2023: média 10,9 (mediana 5). ~690 bytes por linha no JSON; ~130 caracteres de texto (despacho + descrição).
+- **Armadilhas:**
+  - o arquivo em lote `arquivos/proposicoesTramitacoes/csv/proposicoesTramitacoes-{ano}.csv` (35–52 MB/ano; o ano é o da tramitação, não o do projeto) **não bate com a API**: PL 2528559 tem 32 linhas na API e 1 no arquivo; 2461480 tem 22 e 24; `idTramitacao` não é identificador (603 valores distintos em 500 mil linhas) e há 436 pares (proposição, sequência) repetidos. Não usar;
+  - `sequencia` tem buracos (não é contagem de linhas);
+  - `descricaoTramitacao` às vezes não descreve o ato (última linha de um projeto que virou lei: "Apresentação de Proposição" com despacho "Remessa do Ofício... informando restituição de autógrafo sancionado"): mostrar o `despacho`.
+- **Textos reais (para o mapa de etapas):** "Apresentação de Proposição", "Recebimento - Relator(a)", "Designação de Relator(a)", "Parecer do(a) Relator(a)", "Aprovação de Urgência (154, 155 ou 64 CF)", "Votação (Plenário)", "Aprovação de Proposição (Plenário)", "Rejeição de Proposição (Plenário)", "Remessa ao Senado Federal" (no despacho), situações "Aguardando Designação de Relator(a)", "Tramitando em Conjunto", "Pronta para Pauta", "Aguardando Apreciação pelo Senado Federal", "Transformado em Norma Jurídica", "Transformado em Norma Jurídica com Veto Parcial", "Arquivada", "Retirado pelo(a) Autor(a)".
+
+## Senado: tramitação dos processos e relatorias (reconhecimento de 21/10/2026)
+
+- **Processo:** `GET /dadosabertos/processo/{idProcesso}` (~50 KB): `autuacoes[].informesLegislativos[]` (data, colegiado, `descricao`: o texto da tramitação), `autuacoes[].situacoes[]` (sigla, descrição, início e fim), `deliberacao`, `normaGerada`, `outrosNumeros[]` (o processo da outra Casa, ex.: PEC 22/2025 na Câmara), `ordensDoDia[]` (sessões em que entrou na pauta), `codigoMateria`, `dthUltimaAtualizacao`.
+- **Relatoria:** `GET /dadosabertos/processo/relatoria?idProcesso={id}`: `nomeParlamentar`, `codigoParlamentar`, `nomeColegiado`, `dataDesignacao`, `dataDestituicao`, `descricaoTipoEncerramento`.
+- **Lista:** `GET /dadosabertos/processo?sigla={PL|PLP|PEC|PDL}&ano={ano}` (aqui `ano` filtra): 5.089 processos numerados no Senado em 2023–2026 (PL 3.524, PDL 1.206, PLP 225, PEC 134), com `autoria`, `objetivo` (Iniciadora/Revisora), `situacaoAtual`, `dataUltimaAtualizacao` (para carga incremental).
+- **Volume (amostra de 30):** votados: média 34 informes (mediana 24) e 14,6 situações; quaisquer: média 24 (mediana 6). ~196 caracteres por informe.
+- **Textos reais:** situações "AGUARDANDO DESIGNAÇÃO DO RELATOR", "MATÉRIA COM A RELATORIA", "PRONTA PARA A PAUTA NA COMISSÃO", "APROVADO PARECER NA COMISSÃO", "INCLUÍDA EM ORDEM DO DIA", "PRONTO PARA DELIBERAÇÃO DO PLENÁRIO", "APROVADA", "REMETIDA À CÂMARA DOS DEPUTADOS", "REMETIDA À SANÇÃO", "TRANSFORMADA EM NORMA JURÍDICA (COM VETO PARCIAL)", "APRECIADA EM DECISÃO TERMINATIVA PELAS COMISSÕES", "ARQUIVADA AO FINAL DA LEGISLATURA"; informes como "Distribuído à Senadora Leila Barros, para emitir relatório." e "Remetido Ofício SF nº 289 ... encaminhando autógrafo do projeto para revisão".
+- **Numeração única desde 2019:** PL que vem da Câmara mantém o número (PL 2159/2021 nas duas Casas), o que permite ligar as duas fichas pelo rótulo ou por `outrosNumeros`.
+
+## Votações locais: a matéria votada (reconhecimento de 21/10/2026)
+
+- **SAPL:** `sessao/registrovotacao/` traz o campo `materia` (id da matéria) em 100% das votações nominais medidas (ALEAC: 42 de 42 em 2025–2026; Rio Branco: 1.270 de 1.270). A ficha vem por `materia/materialegislativa/{id}/` (todas com ementa na amostra). O conector já lê o id (`materia_id`), mas só o usa para montar o link.
+- **O que é votado nominalmente** (pelo `__str__`): ALEAC, 36 vetos, 3 PDL, 2 PEC, 1 PLC; Rio Branco, 401 requerimentos, 233 projetos de lei, 193 atas, 177 emendas, 107 PDL, 41 PLC, 38 vetos, 37 projetos de resolução. Na amostra das fichas, a maior parte é do Executivo (vetos, PEC) ou requerimento: **casar com `projeto_local` (só projetos de autoria dos vereadores/deputados em exercício) cobre a minoria**; a ementa da matéria votada precisa vir da própria ficha.
+- **Armadilhas:** em Rio Branco quase todo registro tem voto por parlamentar (1.270 de 1.271), inclusive atas; Cruzeiro do Sul não tem nenhum registro; João Pessoa respondeu 503 na hora do teste (falha passageira, não bloqueio).
+- **Conectores próprios das assembleias:** ALEP (título e ementa no texto de `materia`, sem id), ALESC (link `/proposicoes/{id}` e ementa no cartão da Ordem do Dia; o id está no HTML, hoje não guardado), ALRS (sigla, número/ano e assunto no texto), ALESP (votos de comissão, com o código do documento). As demais não publicam votação nominal em formato aberto.
+
 ## Portal da Transparência: emendas parlamentares
 
 - **URL (lote, sem chave):** `https://portaldatransparencia.gov.br/download-de-dados/emendas-parlamentares/UNICO` (zip de ~32 MB com três CSVs em latin-1, separador `;`)

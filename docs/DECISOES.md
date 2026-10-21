@@ -114,6 +114,7 @@
 - [2026-10-20: município por nome anterior, plano Pix impedido e naturezas fora do recorte](#2026-10-20-município-por-nome-anterior-plano-pix-impedido-e-naturezas-fora-do-recorte)
 - [2026-10-20: acompanhar atualizações e notícias (para depois)](#2026-10-20-acompanhar-atualizações-e-notícias-para-depois)
 - [2026-10-20: IndexNow após as ingestões](#2026-10-20-indexnow-após-as-ingestões)
+- [2026-10-21: projetos e votações (reconhecimento)](#2026-10-21-projetos-e-votações-reconhecimento)
 
 ## 2026-10-06: stack inicial
 
@@ -1237,3 +1238,39 @@ Ideias da conversa de 20/10/2026, registradas para não se perderem; nada será 
 ## 2026-10-20: IndexNow após as ingestões
 
 Para Bing, Yandex e outros buscadores saberem das páginas novas ou atualizadas sem esperar o rastreio, o site adotou o IndexNow. A chave (`4c18fd44f1bd172d267096252df88142`) é pública por definição e fica no git, em `frontend/public/<chave>.txt`. `scripts/indexnow.py` (só biblioteca padrão) lê o `sitemap.xml`, filtra por regex e envia em lotes de até 10.000 URLs; antes confere que o arquivo da chave responde 200 no site. O workflow `indexnow.yml` roda ao fim bem-sucedido das ingestões (diária: home e `/parlamentar/`; câmaras e assembleias: `/deputado-estadual/`; mensal: `/cidade/`; TSE: `/eleito/`) e manualmente, com padrão opcional. Sem segredos. O Google não participa do IndexNow; para ele vale o sitemap.
+
+## 2026-10-21: projetos e votações (reconhecimento)
+
+Onda 1 da funcionalidade "Projetos e votações": só leitura das fontes e medição, sem banco. Fontes, campos e armadilhas em [FONTES_DE_DADOS.md](FONTES_DE_DADOS.md) (discursos, pauta, tramitação e votação local). Amostras e scripts ficaram fora do repositório.
+
+- **Câmara: não há ligação direta discurso → votação.** `uriEvento` vem vazio em todos os discursos e não existe `/eventos/{id}/discursos`. A ligação possível é o **sumário oficial citar a matéria** ("Projeto de Lei Complementar nº 74, de 2026") no **mesmo dia** em que ela teve votação nominal.
+  - Cobertura: 517 de 555 votações nominais de 2025–2026 (93,2%) têm ao menos um discurso assim; 247 de 269 pares (dia, proposição) (91,8%). Nas 20 votações conferidas (PLP 74/2026, PL 2159/2021, PEC 3/2021, PL 5582/2025, PL 2162/2023, PLP 108/2024, PEC 66/2023, MPV 1300/2025, PEC 5/2023, PEC 383/2017...) todas tiveram de 7 a 148 discursos ligados.
+  - Acerto ao nível do **projeto** (conferência manual de 40 sorteados): 39 de 40 (97,5%). O erro: discurso sobre a MPV 1.300 que critica de passagem a PEC 3/2021, votada no mesmo dia.
+  - Acerto ao nível da **votação específica** (próxima votação nominal do mesmo projeto depois do horário do discurso): 28 de 36 (78%). Erra quando a fala é sobre algo votado de forma simbólica (requerimento de retirada, encerramento de discussão), porque a "próxima nominal" é outra. A checagem automática por classe (urgência/requerimento/emenda/texto) dá 95,2% (3.488 de 3.664) e superestima.
+  - PLP 74/2026 (03/09/2026): 7 discursos citam o projeto; 6 tratam dele (parecer, discussão, fala do relator) e 1 é um balanço da semana que cita 5 projetos.
+  - A orientação de bancada vem como `tipoDiscurso` "PELA ORDEM": filtrar por tipo perde a maioria das falas. O filtro certo é a citação.
+- **Senado:** ligação forte por **matéria + sessão**: o `CodigoSessao` dos discursos é o mesmo das votações, e o resumo cita a matéria. 73 de 80 votações nominais (fora autoridades) têm pronunciamento citando a matéria; 30 de 30 conferidos à mão estão certos; nenhum cita duas matérias votadas na mesma sessão. As faltas: 3 requerimentos sem fala, MPV citada como PLV, e as sessões de 14 e 15/10/2026, ainda sem pronunciamentos publicados (defasagem de ~1 semana). O encontro do Plenário liga uso da palavra → item da pauta → matéria direto (74 de 80), mas sem resumo.
+  - **Atenção:** o resumo do Senado para falas de votação é descritivo ("Orientação à bancada, pelo Partido PT, sobre o PLP nº 14, de 2026, que ...") e **não traz o argumento**; na Câmara o sumário traz ("defendeu", "criticou"). No Senado a justificativa só está no texto integral (link).
+- **Recomendação (discursos):** abaixo de 90% na votação específica, então nas duas Casas a ligação guardada é **projeto + dia/sessão** (`proposicao_id_externo` + data), nunca `votacao_id_externo`. A página do projeto mostra "falou no dia em que o projeto foi votado", agrupando cada pessoa pelo voto que registrou na votação nominal **final** do projeto naquele dia (texto principal ou redação final, a última do dia). Discurso que cita 3 ou mais matérias fica fora da ligação. O resto é "discursos do dia", sem atribuição.
+- **Fonte dos discursos da Câmara:** a API por deputado (`/deputados/{id}/discursos`) tem o id oficial, o tipo e o link do Diário; carga de 2 anos ≈ 1.200–1.500 chamadas, diária ≈ 513 (5 min com pausa de 0,6 s). Alternativa: o webservice `ListarDiscursosPlenario` traz todo o Plenário de um mês numa chamada, sem id do orador (nome casa exato e único em 99,9% dos ligados) e com a fase menos confiável. Sugestão: API no acervo e na produção; o webservice só como conferência.
+- **Volumes estimados (2025–2026; ~1,1 KB por linha com índices):**
+
+| Tabela | Recorte | Linhas | Tamanho |
+|---|---|---|---|
+| discurso (Câmara) | ligados a votação nominal (cita o projeto, mesmo dia) | 6.973 | ~8 MB |
+| discurso (Câmara) | todo discurso de Plenário que cita alguma matéria | 11.653 | ~13 MB |
+| discurso (Câmara) | todos do Plenário | 24.240 | ~27 MB |
+| discurso (Senado) | ligados (nas 57 sessões com votação nominal) | ~1.000 | ~1 MB |
+| discurso (Senado) | todos do Plenário | 6.868 | ~7,5 MB |
+| pauta_item | janela de 14 dias, duas Casas | < 300 | < 0,1 MB |
+| tramitacao (Câmara) | (a) 226 projetos com votação nominal × 45 | ~10 mil | ~4 MB |
+| tramitacao (Câmara) | (b) 25.775 PL/PLP/PEC/PDL desde 2023 × 10,9 | ~280 mil | ~100 MB |
+| tramitacao (Senado) | (a) 54 matérias votadas × 34 | ~2 mil | ~1 MB |
+| tramitacao (Senado) | (b) 5.089 processos desde 2023 × 24 | ~122 mil | ~45 MB |
+| proposicao extra (Câmara) | votadas fora da tabela (50 PL/PLP/PEC/PDL antigos, 12 MPV, 16 outros) | 78 | < 0,1 MB |
+| proposicao extra (Senado) | sem senador autor (1.920 vindas da Câmara, resto comissões/CPIs) + 18 antigas votadas | ~2.000 | ~2 MB |
+
+- **Recomendação (tramitação):** produção só com o recorte (a), mais o que estiver na pauta (~12 mil linhas, ~5 MB); acervo com o (b). Carga inicial (b) da Câmara: 25.775 chamadas (~4–5 h); incremental pelo `ultimoStatus_dataHora` do arquivo anual de proposições (Câmara) e `dataUltimaAtualizacao` da lista de processos (Senado). O arquivo em lote de tramitações da Câmara **não bate com a API** e não deve ser usado. O relator da Câmara já vem no arquivo de proposições (`ultimoStatus_uriRelator`); o do Senado, por `/processo/relatoria`.
+- **Proposições ampliadas:** na Câmara não falta linha: `normalizar_proposicoes` já grava todo PL/PLP/PEC/PDL desde 01/02/2023 de qualquer autor; 2.773 de 25.775 não têm autor deputado (2.244 comissões, 364 Senado, 102 Executivo, 22 Judiciário...) e só ficam sem `Autoria`; falta a coluna `autor_descricao`. No Senado a carga é por senador autor e `casaIdentificadora = SF`: entram as ~2.000 restantes pela lista `/processo?sigla=&ano=`. Votadas antigas: a ficha vem pela API nas duas Casas.
+- **Votação local ↔ matéria:** o SAPL dá o id da matéria em 100% das votações nominais medidas; mas o que se vota nominalmente é sobretudo veto, PEC do Executivo, requerimento, ata e emenda, e `projeto_local` só tem projetos de autoria de quem está no cargo. Recomendação: guardar `materia_id_externo` sempre e a ementa da matéria votada pela ficha (`materia/materialegislativa/{id}/`, uma chamada por matéria); `projeto_local_id` só quando casar. Nas assembleias com conector próprio, ALESC tem o id no HTML; ALEP e ALRS só texto (número e ementa).
+- **Bloqueios:** nenhum. O SAPL de João Pessoa respondeu 503 (passageiro); o `robots.txt` do Senado responde 403, mas a API de dados abertos funciona e já é usada. Sem pedido novo.
