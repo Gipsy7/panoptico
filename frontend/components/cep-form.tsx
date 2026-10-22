@@ -12,9 +12,10 @@ const CAMPO =
 
 type Cidades = { uf: string; estado: "vazio" | "carregando" | "pronto"; lista: Municipio[] };
 
-export function CepForm() {
+/** `semCepInicial` abre direto na escolha de estado e cidade (usado quando o CEP não existe). */
+export function CepForm({ semCepInicial = false }: { semCepInicial?: boolean } = {}) {
   const [cep, setCep] = useState("");
-  const [semCep, setSemCep] = useState(false);
+  const [semCep, setSemCep] = useState(semCepInicial);
   const [cidades, setCidades] = useState<Cidades>({ uf: "", estado: "vazio", lista: [] });
   const ufAtual = useRef("");
 

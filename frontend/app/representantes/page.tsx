@@ -4,6 +4,7 @@ import Link from "next/link";
 import { EsqueletoSecao } from "@/components/esqueleto-secao";
 import { AvisoErro } from "@/components/aviso-erro";
 import { AvisoSegundoTurno } from "@/components/aviso-segundo-turno";
+import { CepForm } from "@/components/cep-form";
 import { Revelacao } from "@/components/revelacao";
 import { CompartilharWhatsApp } from "@/components/compartilhar";
 import { FonteRodape } from "@/components/fonte-rodape";
@@ -69,6 +70,25 @@ async function Lista({ cep, uf, municipio }: Busca) {
   }
 
   const resultado = await getRepresentantes({ cep, uf, municipio });
+  if (!resultado.ok && resultado.status === 404 && cep && !municipio) {
+    // CEP que os Correios não têm: em geral o "CEP geral" (final 000) de cidade que usa CEP por rua.
+    const geral = cep.replace(/\D/g, "").endsWith("000");
+    return (
+      <div className="flex flex-col gap-6">
+        <AvisoErro
+          titulo="Não encontramos esse CEP"
+          mensagem={
+            geral
+              ? "Os Correios não têm esse CEP. Cidades com CEP por rua não usam o CEP terminado em 000: digite o CEP da sua rua ou escolha o estado e a cidade abaixo."
+              : "Os Correios não têm esse CEP. Confira os números ou escolha o estado e a cidade abaixo."
+          }
+        />
+        <div className="painel max-w-md">
+          <CepForm semCepInicial />
+        </div>
+      </div>
+    );
+  }
   if (!resultado.ok) {
     const titulo =
       resultado.status === 404
