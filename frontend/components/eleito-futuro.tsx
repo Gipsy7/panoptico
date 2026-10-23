@@ -33,6 +33,13 @@ export function SeloEleitoFuturo({ eleito, atualizadoEm }: { eleito: EleitoFutur
       <p className="font-medium">{fraseEleitoFuturo(eleito)}</p>
       <p className="mt-1 text-sm text-muted-foreground">
         {[eleito.partido, eleito.unidade].filter(Boolean).join(" · ")}
+        {eleito.vice && <> · vice: {eleito.vice}</>}
+        {eleito.votos != null && (
+          <>
+            {" "}
+            · {eleito.votos.toLocaleString("pt-BR")} {eleito.segundo_turno ? "votos no 1º turno" : "votos"}
+          </>
+        )}
         {eleito.situacao && !eleito.segundo_turno && <> · {eleito.situacao}</>}
         {eleito.ja_no_cargo && <> · Segue no mandato de hoje até a posse.</>}
       </p>
@@ -58,7 +65,7 @@ function Lista({ itens }: { itens: EleitoFuturo[] }) {
       {itens.map((e) => (
         <li key={e.id} className="border-b border-border">
           <Link
-            href={e.parlamentar_id ? `/parlamentar/${e.parlamentar_id}` : `/eleito/${e.id}`}
+            href={e.perfil}
             className="flex flex-col py-3 transition-colors duration-300 hover:bg-accent/50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-bronze"
           >
             <span className="truncate text-base font-semibold">{e.nome_urna}</span>

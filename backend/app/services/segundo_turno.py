@@ -15,7 +15,7 @@ from sqlalchemy import and_, extract, func, or_, select
 from sqlalchemy.orm import Session
 
 from app.models import Candidatura, Parlamentar, PessoaVinculo
-from app.services import cruzamentos, tse
+from app.services import cruzamentos, perfil_unico, tse
 from app.services.pessoas import publicavel
 from app.services.representantes import UFS
 
@@ -128,6 +128,15 @@ def _campanha(session: Session, c: Candidatura) -> dict | None:
     }
 
 
+def _foto(session: Session, c: Candidatura) -> dict:
+    ref = perfil_unico.fotos(session, [c]).get(c.id)
+    return {
+        "foto": ref is not None,
+        "foto_de": ref[0] if ref and ref[1] else None,
+        "foto_ano": ref[1] if ref else None,
+    }
+
+
 def _vice(session: Session, c: Candidatura) -> dict | None:
     vice = session.scalars(
         select(Candidatura).where(Candidatura.chapa_titular_id == c.id).order_by(Candidatura.id)
@@ -138,7 +147,7 @@ def _vice(session: Session, c: Candidatura) -> dict | None:
         "id": vice.id,
         "nome_urna": vice.nome_urna,
         "partido": vice.partido,
-        "foto": bool(tse._com_foto(session, [vice.id])),
+        **_foto(session, vice),
     }
 
 
@@ -157,7 +166,7 @@ def _candidato(session: Session, c: Candidatura) -> dict:
         "nome_urna": c.nome_urna,
         "numero": c.numero,
         "partido": c.partido,
-        "foto": bool(tse._com_foto(session, [c.id])),
+        **_foto(session, c),
         "foto_url": foto_parlamentar,
         "vice": _vice(session, c),
         # A coluna guarda os votos do último turno disputado: antes do resultado, os do 1º
@@ -197,7 +206,10 @@ def _candidato(session: Session, c: Candidatura) -> dict:
         if sancoes
         else None,
         "pessoa_id": pessoa_id,
-        "perfil": f"/parlamentar/{c.parlamentar_id}" if c.parlamentar_id else f"/eleito/{c.id}",
+        # O perfil de quem já está no cargo, se houver; senão a página da candidatura.
+        "perfil": perfil_unico.principais(session, [c], qualquer_situacao=True).get(
+            c.id, f"/eleito/{c.id}"
+        ),
     }
 
 
@@ -227,7 +239,13 @@ def _governador_eleito(session: Session, ano: int, uf: str) -> dict | None:
     ).first()
     if c is None:
         return None
-    return {"id": c.id, "nome_urna": c.nome_urna, "partido": c.partido, "numero": c.numero}
+    return {
+        "id": c.id,
+        "nome_urna": c.nome_urna,
+        "partido": c.partido,
+        "numero": c.numero,
+        "perfil": perfil_unico.principais(session, [c], qualquer_situacao=True).get(c.id),
+    }
 
 
 def comparar(session: Session, uf: str) -> dict:

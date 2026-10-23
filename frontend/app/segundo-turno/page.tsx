@@ -190,7 +190,7 @@ function Resultado({ dados }: { dados: SegundoTurno }) {
             {cap(emEstado(loc.estado))} não há 2º turno para governador: {dados.governador_eleito_1turno.nome_urna}
             {dados.governador_eleito_1turno.partido ? ` (${dados.governador_eleito_1turno.partido})` : ""} foi eleito(a)
             no 1º turno.{" "}
-            <Link href={`/eleito/${dados.governador_eleito_1turno.id}`} className="underline underline-offset-2">
+            <Link href={dados.governador_eleito_1turno.perfil ?? `/eleito/${dados.governador_eleito_1turno.id}`} className="underline underline-offset-2">
               Ver perfil
             </Link>
           </p>

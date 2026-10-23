@@ -20,6 +20,7 @@ from app.models import (
     Parlamentar,
     RedeSocial,
 )
+from app.services import perfil_unico
 
 FONTE_NOME = "Tribunal Superior Eleitoral (dados abertos)"
 FONTE_URL = "https://dadosabertos.tse.jus.br/"
@@ -159,10 +160,17 @@ def resumo(session: Session, parlamentar: Parlamentar) -> dict:
     }
 
 
-def _eleito(c: Candidatura, depois: Candidatura | None = None, foto: bool = False) -> dict:
+def _eleito(
+    c: Candidatura,
+    depois: Candidatura | None = None,
+    foto: tuple[int, int | None] | None = None,
+) -> dict:
+    """`foto` é (candidatura dona da foto, ano dela se for de outra candidatura da pessoa)."""
     return {
         "id": c.id,
-        "foto": foto,
+        "foto": foto is not None,
+        "foto_de": foto[0] if foto and foto[1] else None,
+        "foto_ano": foto[1] if foto else None,
         "nome_urna": c.nome_urna,
         "partido": c.partido,
         "numero": c.numero,
@@ -240,6 +248,36 @@ def _eleitos_depois(session: Session, candidaturas: list[Candidatura]) -> dict[i
     return resultado
 
 
+def eleicao_recente(
+    session: Session, futuro: dict | None, base: Candidatura | None = None
+) -> dict | None:
+    """Bens, campanha e dados pessoais da candidatura de uma eleição cuja posse ainda não
+    aconteceu, para o perfil principal da pessoa não perder o que a página dela mostrava. Nulo
+    se o perfil já é o da própria eleição recente. `base` é a candidatura do perfil aberto: os
+    bens dela entram como comparação ("na eleição anterior")."""
+    if futuro is None or (base is not None and futuro["id"] == base.id):
+        return None
+    c = session.get(Candidatura, futuro["id"])
+    if c is None:
+        return None
+    return {
+        "id": c.id,
+        "ano_eleicao": c.ano_eleicao,
+        "cargo": c.cargo.capitalize(),
+        "unidade": c.unidade,
+        "bens": _bens(
+            session, c, base if base is not None and _tem_bens(session, base.id) else None
+        )
+        if _tem_bens(session, c.id)
+        else None,
+        "campanha": _campanha(session, c),
+        "pessoais": _pessoais(session, [c]),
+        "fonte_nome": FONTE_NOME,
+        "fonte_url": URL_CANDIDATOS.format(ano=c.ano_eleicao),
+        "atualizado_em": _atualizado_em(session),
+    }
+
+
 def mandato_em_curso():
     """Só eleições cuja posse já aconteceu (a posse é no ano seguinte ao da eleição): os
     eleitos de uma eleição recente ainda não assumiram e não aparecem como no cargo."""
@@ -261,8 +299,8 @@ def _lista(session: Session, *condicoes) -> tuple[int | None, list[dict]]:
         .order_by(Candidatura.nome_urna)
     ).all()
     depois = _eleitos_depois(session, list(lista))
-    fotos = _com_foto(session, [c.id for c in lista])
-    return ano, [_eleito(c, depois.get(c.id), c.id in fotos) for c in lista]
+    fotos = perfil_unico.fotos(session, list(lista))
+    return ano, [_eleito(c, depois.get(c.id), fotos.get(c.id)) for c in lista]
 
 
 def _resposta_lista(session: Session, ano: int | None, itens: list[dict], ano_padrao: int) -> dict:
@@ -299,24 +337,28 @@ def eleito(session: Session, candidatura: Candidatura) -> dict:
             MandatoLocal.candidatura_id == candidatura.id
         )
     ).first()
+    futuro = eleitos_futuros.da_pessoa(
+        session,
+        candidatura=candidatura,
+        parlamentar_id=candidatura.parlamentar_id,
+        titulo=candidatura.titulo,
+        cpf=candidatura.cpf,
+    )
     return {
         "mandato_local": {"id": mandato.id, "casa": mandato.casa} if mandato else None,
         **_eleito(
             candidatura,
             _eleitos_depois(session, [candidatura]).get(candidatura.id),
-            bool(_com_foto(session, [candidatura.id])),
+            perfil_unico.fotos(session, [candidatura]).get(candidatura.id),
         ),
+        "perfil_principal": perfil_unico.principais(session, [candidatura]).get(candidatura.id),
         "pessoais": _pessoais(session, [candidatura]),
         "cargo": candidatura.cargo.capitalize(),
         "unidade": candidatura.unidade,
         "municipio_ibge": candidatura.municipio_ibge,
         "ano_eleicao": candidatura.ano_eleicao,
-        "eleito_2026": eleitos_futuros.da_pessoa(
-            session,
-            candidatura=candidatura,
-            parlamentar_id=candidatura.parlamentar_id,
-            titulo=candidatura.titulo,
-        ),
+        "eleito_2026": futuro,
+        "eleicao_recente": eleicao_recente(session, futuro, candidatura),
         "bens": _bens(session, candidatura, None) if _tem_bens(session, candidatura.id) else None,
         "campanha": _campanha(session, candidatura),
         "fonte_nome": FONTE_NOME,
@@ -331,12 +373,13 @@ def _chapa(session: Session, titular: Candidatura | None) -> dict | None:
     vice = session.scalars(
         select(Candidatura).where(Candidatura.chapa_titular_id == titular.id)
     ).first()
+    fotos = perfil_unico.fotos(session, [titular] + ([vice] if vice else []))
     return {
         "cargo": titular.cargo.capitalize(),
         "unidade": titular.unidade,
         "ano_eleicao": titular.ano_eleicao,
-        "titular": _eleito(titular, foto=bool(_com_foto(session, [titular.id]))),
-        "vice": _eleito(vice, foto=bool(_com_foto(session, [vice.id]))) if vice else None,
+        "titular": _eleito(titular, foto=fotos.get(titular.id)),
+        "vice": _eleito(vice, foto=fotos.get(vice.id)) if vice else None,
     }
 
 

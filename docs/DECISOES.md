@@ -121,6 +121,7 @@
 - [2026-10-21: API de projetos e votações](#2026-10-21-api-de-projetos-e-votações)
 - [2026-10-21: ordem por informação publicada em /projetos](#2026-10-21-ordem-por-informação-publicada-em-projetos)
 - [2026-10-23: carreira desde 1994 (candidaturas antigas do TSE)](#2026-10-23-carreira-desde-1994-candidaturas-antigas-do-tse)
+- [2026-10-23: um perfil por pessoa (reeleitos e 2º turno)](#2026-10-23-um-perfil-por-pessoa-reeleitos-e-2º-turno)
 
 ## 2026-10-06: stack inicial
 
@@ -1367,3 +1368,12 @@ Problema: o perfil do Lula mostrava só 2022 e 2026 na Carreira; faltavam 1994 a
 - **Rótulos:** "MÉDIA" vira "ELEITO POR MÉDIA" (mesmo sentido) e os dois "RENÚNCIA/FALECIMENTO/CASSAÇÃO ... ELEIÇÃO" (46 caracteres) são abreviados para caber em `situacao_turno` (40), sem migração.
 - **Votos de presidente em 1998:** só existem no arquivo `_BRASIL`; só as linhas de presidente dele são lidas (`PRESIDENTE_SO_NO_BRASIL`).
 - **Volume no acervo:** 339 (1994), 527 (1998), 728 (2002), 987 (2006), 1.325 (2010) e 1.921 (2014) candidaturas, 5.827 no total. Na produção, no máximo isso (o recorte de títulos conhecidos lá é igual ou menor), na casa de poucos MB; carga incremental por ano, sem recarga completa.
+
+## 2026-10-23: um perfil por pessoa (reeleitos e 2º turno)
+
+O site abria uma página por candidatura: o Jorginho Mello tinha /eleito de 2022 (com foto) e /eleito de 2026 (sem foto, porque só há fotos de 2022 e 2024). Agora `perfil_principal` (`app/services/perfil_unico.py`, em GET /eleitos/{id}) aponta o perfil canônico:
+- **Antes da posse:** candidatura de 2026 eleita ou no 2º turno, da mesma pessoa (título, CPF ou `parlamentar_id`) de um mandato em curso, leva ao perfil desse mandato (/parlamentar, /vereador, /deputado-estadual ou /eleito). Ele ganha os dados de 2026 (`eleicao_recente`: bens, campanha, dados pessoais; selo com vice e votos).
+- **Depois da posse** (1º/1 no Executivo, 1º/2 nos demais): o /eleito do mandato anterior leva ao novo. Parlamentar, vereador e deputado estadual não redirecionam; mostram o link para o novo mandato.
+- **Redirecionamento temporário (307)**, não permanente: o canônico muda com a posse e o navegador guardaria o 308.
+- **Foto:** sem foto própria, usa a da candidatura mais recente da mesma pessoa, com a legenda do ano ("foto de 2022").
+- Comparador do 2º turno, eleitos 2026 e busca apontam direto para o principal (campo `perfil`).

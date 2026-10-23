@@ -18,6 +18,16 @@ export function urlFotoTse(candidaturaId: number) {
   return `${API_PUBLICA}/fotos/${candidaturaId}.webp`;
 }
 
+/** Foto de quem tem a foto de outra eleição: usa a candidatura dona da foto, se houver. */
+export function urlFotoDe(candidato: { id: number; foto_de?: number | null }) {
+  return urlFotoTse(candidato.foto_de ?? candidato.id);
+}
+
+/** "foto de 2022", só quando a foto vem de outra eleição da mesma pessoa. */
+export function legendaFoto(candidato: { foto_ano?: number | null }): string | null {
+  return candidato.foto_ano ? `foto de ${candidato.foto_ano}` : null;
+}
+
 export type Casa = "camara" | "senado";
 
 export type ParlamentarResumo = {
@@ -199,6 +209,11 @@ export type EleitoFuturo = {
   /** Já exerce hoje um mandato federal (por exemplo, reeleito). */
   ja_no_cargo: boolean;
   vice: string | null;
+  /** Onde o site abre a pessoa: o perfil de quem já está no cargo, se houver. */
+  perfil: string;
+  foto?: boolean;
+  foto_de?: number | null;
+  foto_ano?: number | null;
 };
 
 export type EleitosFuturos = {
@@ -220,6 +235,9 @@ export function getEleitos2026(uf: string) {
 export type Eleito = {
   id: number;
   foto?: boolean;
+  /** Candidatura dona da foto, quando a foto é de outra eleição da mesma pessoa. */
+  foto_de?: number | null;
+  foto_ano?: number | null;
   nome_urna: string;
   partido: string | null;
   numero: string | null;
@@ -249,6 +267,15 @@ export type ListaEleitos = {
   atualizado_em: string | null;
 };
 
+/** Bens, campanha e dados da candidatura de uma eleição cuja posse ainda não aconteceu. */
+export type EleicaoRecente = Pick<CandidaturaTse, "bens" | "campanha" | "fonte_nome" | "fonte_url" | "atualizado_em"> & {
+  id: number;
+  ano_eleicao: number;
+  cargo: string;
+  unidade: string;
+  pessoais: Pessoais | null;
+};
+
 export type EleitoDetalhe = Eleito &
   Pick<CandidaturaTse, "bens" | "campanha" | "fonte_nome" | "fonte_url" | "atualizado_em"> & {
     /** Quando a própria casa (SAPL) lista a pessoa no cargo: o perfil com a atividade. */
@@ -259,6 +286,9 @@ export type EleitoDetalhe = Eleito &
     municipio_ibge: string | null;
     ano_eleicao: number;
     eleito_2026?: EleitoFuturo | null;
+    /** Caminho do perfil principal da pessoa; a página da candidatura nova redireciona para ele. */
+    perfil_principal?: string | null;
+    eleicao_recente?: EleicaoRecente | null;
   };
 
 export type Chapa = {
@@ -311,6 +341,8 @@ export type Camara = {
 };
 
 export type VereadorDetalhe = VereadorItem & {
+  eleito_2026?: EleitoFuturo | null;
+  eleicao_recente?: EleicaoRecente | null;
   /** "camara" (vereador) ou "assembleia" (deputado estadual). */
   casa: "camara" | "assembleia";
   uf: string;
@@ -1338,8 +1370,10 @@ export type CandidatoSegundoTurno = {
   numero: string | null;
   partido: string | null;
   foto: boolean;
+  foto_de?: number | null;
+  foto_ano?: number | null;
   foto_url: string | null;
-  vice: { id: number; nome_urna: string; partido: string | null; foto: boolean } | null;
+  vice: { id: number; nome_urna: string; partido: string | null; foto: boolean; foto_de?: number | null; foto_ano?: number | null } | null;
   votos_1turno: number | null;
   /** Só depois do resultado: os votos do 2º turno (a fonte troca a coluna). */
   votos_2turno: number | null;
@@ -1391,7 +1425,7 @@ export type SegundoTurno = {
   data_segundo_turno: string | null;
   em_andamento: boolean;
   disputas: DisputaSegundoTurno[];
-  governador_eleito_1turno: { id: number; nome_urna: string; partido: string | null; numero: string | null } | null;
+  governador_eleito_1turno: { id: number; nome_urna: string; partido: string | null; numero: string | null; perfil?: string | null } | null;
   propostas_url: string;
   fonte_nome: string;
   fonte_url: string;

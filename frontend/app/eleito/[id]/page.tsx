@@ -42,7 +42,7 @@ import {
   getLinhaDoTempo,
   getPainelExecutivo,
   getSancoes,
-  urlFotoTse,
+  urlFotoDe,
 } from "@/lib/api";
 import { formatarData, formatarReais, formatarReaisCompacto } from "@/lib/formato";
 import { JsonLdPerfil, montarDescricao, nomeComSigla } from "@/components/json-ld";
@@ -52,6 +52,8 @@ export async function generateMetadata({ params }: PageProps<"/eleito/[id]">): P
   const resultado = await getEleito(id);
   if (!resultado.ok) return { title: "Eleito" };
   const e = resultado.dados;
+  // Candidatura nova de quem já tem perfil: quem indexa deve guardar o perfil principal.
+  if (e.perfil_principal) return { title: e.nome_urna, alternates: { canonical: e.perfil_principal } };
   const bens = e.bens && e.bens.quantidade > 0 ? e.bens.total : null;
   const descricao = montarDescricao([
     `${e.cargo} em ${e.unidade}${e.ano_eleicao ? `, eleição de ${e.ano_eleicao}` : ""}.`,
@@ -67,7 +69,7 @@ export async function generateMetadata({ params }: PageProps<"/eleito/[id]">): P
 
 async function DadosEstruturados({ id }: { id: string }) {
   const resultado = await getEleito(id);
-  if (!resultado.ok || resultado.dados.mandato_local) return null;
+  if (!resultado.ok || resultado.dados.mandato_local || resultado.dados.perfil_principal) return null;
   const e = resultado.dados;
   return (
     <JsonLdPerfil
@@ -77,7 +79,7 @@ async function DadosEstruturados({ id }: { id: string }) {
       casa={e.unidade}
       partido={e.partido}
       uf={e.uf}
-      imagem={e.foto ? urlFotoTse(e.id) : null}
+      imagem={e.foto ? urlFotoDe(e) : null}
     />
   );
 }
@@ -123,6 +125,10 @@ async function Perfil({
     return <AvisoErro titulo="Não deu para carregar" mensagem={resultado.mensagem} />;
   }
   const e = resultado.dados;
+  // Eleito de novo (ou no 2º turno) por quem já tem perfil: um perfil só, com os dados de 2026
+  // dentro dele. A página da candidatura nova não abre; o redirecionamento é temporário porque
+  // o perfil principal muda com a posse.
+  if (e.perfil_principal) redirect(e.perfil_principal);
   if (e.mandato_local) {
     redirect(`/${e.mandato_local.casa === "camara" ? "vereador" : "deputado-estadual"}/${e.mandato_local.id}`);
   }
@@ -153,6 +159,8 @@ async function Perfil({
     pessoaId !== null ? getCarreira(pessoaId) : null,
   ]);
   const emCargoFuturo = e.eleito_2026?.id === e.id;
+  const recente = e.eleicao_recente ?? null;
+  const posseRecente = recente ? `a da eleição para o mandato que começa em ${recente.ano_eleicao + 1}` : undefined;
   const disputadas = carreira?.ok ? carreira.dados.itens.length : 0;
 
   const abas: AbaDetalhe[] = [];
@@ -253,12 +261,24 @@ async function Perfil({
           conteudo: (
             <>
               <CandidaturaSecao dados={e} />
-              {!e.bens && !e.campanha && (
+              {!e.bens && !e.campanha && !recente?.bens && !recente?.campanha && (
                 <p className="text-muted-foreground">
                   O TSE não tem bens nem contas de campanha registrados para esta candidatura.
                 </p>
               )}
             </>
+          ),
+        },
+        {
+          id: "candidatura-recente",
+          titulo: recente ? `Candidatura e bens de ${recente.ano_eleicao}` : "Candidatura e bens",
+          conteudo: recente && (
+            <CandidaturaSecao
+              dados={recente}
+              idTitulo="tse-recente-titulo"
+              titulo={`Eleição de ${recente.ano_eleicao}`}
+              posse={posseRecente}
+            />
           ),
         },
         {
@@ -276,7 +296,7 @@ async function Perfil({
           id: "quem-e",
           titulo: "Quem é",
           conteudo: (
-            <QuemESecao pessoais={e.pessoais} votos={e.votos != null ? { ano: e.ano_eleicao, total: e.votos } : null} />
+            <QuemESecao pessoais={recente?.pessoais ?? e.pessoais} votos={e.votos != null ? { ano: e.ano_eleicao, total: e.votos } : null} />
           ),
         },
         {
@@ -312,7 +332,7 @@ async function Perfil({
   return (
     <article data-largura="larga" className="pagina-secoes">
       <header className="flex items-start gap-4">
-        <FotoOuIniciais eleito={e} tamanho={72} />
+        <FotoOuIniciais eleito={e} tamanho={72} legenda />
         <div className="flex min-w-0 flex-col gap-1">
           <p className="sobretitulo">Eleito</p>
           <h1 className="titulo-pagina">{e.nome_urna}</h1>
@@ -330,7 +350,7 @@ async function Perfil({
 
       {e.eleito_2026 && <SeloEleitoFuturo eleito={e.eleito_2026} atualizadoEm={e.atualizado_em} />}
 
-      {e.depois && (
+      {e.depois && e.depois.id !== e.eleito_2026?.id && (
         <p className="text-sm">
           Eleito depois para{" "}
           <Link href={`/eleito/${e.depois.id}`} className="font-medium underline underline-offset-2">
@@ -383,6 +403,26 @@ async function Perfil({
                 ? `Em ${e.bens.anterior.candidatura.ano}: ${formatarReaisCompacto(e.bens.anterior.total)}`
                 : "Valor informado ao TSE"
             }
+          />
+        )}
+        {recente?.bens && (
+          <CartaoNumero
+            destino="candidatura-recente"
+            rotulo={`Bens declarados em ${recente.bens.candidatura.ano}`}
+            valor={formatarReaisCompacto(recente.bens.total)}
+            apoio={
+              recente.bens.anterior
+                ? `Em ${recente.bens.anterior.candidatura.ano}: ${formatarReaisCompacto(recente.bens.anterior.total)}`
+                : "Valor informado ao TSE"
+            }
+          />
+        )}
+        {recente?.campanha && (
+          <CartaoNumero
+            destino="candidatura-recente"
+            rotulo={`Dinheiro arrecadado na campanha de ${recente.campanha.candidatura.ano}`}
+            valor={formatarReaisCompacto(recente.campanha.receitas_total)}
+            apoio={`Gasto declarado: ${formatarReaisCompacto(recente.campanha.despesas_total)}`}
           />
         )}
         {e.campanha && (
@@ -449,7 +489,7 @@ async function Perfil({
             )}
           </Pergunta>
         )}
-        {(e.bens || e.campanha) && (
+        {(e.bens || e.campanha || recente?.bens || recente?.campanha) && (
           <Pergunta
             id="entender-bens"
             pergunta="De onde vêm os bens e o dinheiro da campanha?"

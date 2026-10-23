@@ -12,6 +12,7 @@ import { ServicoFederalSecao } from "@/components/servico-federal-secao";
 import { CandidaturaSecao } from "@/components/candidatura-secao";
 import { AcompanharPorFeed, CompartilharWhatsApp } from "@/components/compartilhar";
 import { QuemESecao } from "@/components/dados-pessoais";
+import { SeloEleitoFuturo } from "@/components/eleito-futuro";
 import { FonteRodape } from "@/components/fonte-rodape";
 import { PorQueFalta } from "@/components/por-que-falta";
 import { ContratosSocioSecao } from "@/components/contratos-socio-secao";
@@ -110,6 +111,18 @@ export async function PerfilMandatoLocal({ id, paginaVotos }: { id: string; pagi
         },
         { id: "candidatura", titulo: "Candidatura e bens", conteudo: dEleicao && <CandidaturaSecao dados={dEleicao} /> },
         {
+          id: "candidatura-recente",
+          titulo: v.eleicao_recente ? `Candidatura e bens de ${v.eleicao_recente.ano_eleicao}` : "Candidatura e bens",
+          conteudo: v.eleicao_recente && (
+            <CandidaturaSecao
+              dados={v.eleicao_recente}
+              idTitulo="tse-recente-titulo"
+              titulo={`Eleição de ${v.eleicao_recente.ano_eleicao}`}
+              posse={`a da eleição para o mandato que começa em ${v.eleicao_recente.ano_eleicao + 1}`}
+            />
+          ),
+        },
+        {
           id: "linha-do-tempo",
           titulo: "Linha do tempo",
           conteudo: linha.ok && <LinhaDoTempoSecao dados={linha.dados} />,
@@ -156,6 +169,8 @@ export async function PerfilMandatoLocal({ id, paginaVotos }: { id: string; pagi
           )}
         </div>
       </header>
+
+      {v.eleito_2026 && <SeloEleitoFuturo eleito={v.eleito_2026} atualizadoEm={v.atualizado_em} />}
 
       <GradeCartoes rotulo="Números principais">
         {v.presenca && v.presenca.sessoes > 0 && (
@@ -216,6 +231,18 @@ export async function PerfilMandatoLocal({ id, paginaVotos }: { id: string; pagi
           valor={formatarNumero(v.projetos, "inteiro")}
           apoio={`${formatarNumero(v.proposicoes, "inteiro")} proposições no total`}
         />
+        {v.eleicao_recente?.bens && (
+          <CartaoNumero
+            destino="candidatura-recente"
+            rotulo={`Bens declarados em ${v.eleicao_recente.bens.candidatura.ano}`}
+            valor={formatarReaisCompacto(v.eleicao_recente.bens.total)}
+            apoio={
+              v.eleicao_recente.bens.anterior
+                ? `Em ${v.eleicao_recente.bens.anterior.candidatura.ano}: ${formatarReaisCompacto(v.eleicao_recente.bens.anterior.total)}`
+                : "Valor informado ao TSE"
+            }
+          />
+        )}
         {dEleicao?.bens && (
           <CartaoNumero
             destino="candidatura"

@@ -2,7 +2,7 @@ import Link from "next/link";
 
 import { FonteRodape } from "@/components/fonte-rodape";
 import { ListaResumida } from "@/components/painel/lista-resumida";
-import { type Eleito, type ListaEleitos, urlFotoTse } from "@/lib/api";
+import { type Eleito, type ListaEleitos, legendaFoto, urlFotoDe } from "@/lib/api";
 
 /** Vereadores de uma cidade ou deputados estaduais de um estado, como eleitos no TSE. */
 export function EleitosSecao({
@@ -94,19 +94,32 @@ function CartaoEleito({ eleito }: { eleito: Eleito }) {
 }
 
 /** Foto do TSE quando houver; senão, as iniciais. */
-export function FotoOuIniciais({ eleito, tamanho = 44 }: { eleito: Eleito; tamanho?: number }) {
+export function FotoOuIniciais({
+  eleito,
+  tamanho = 44,
+  legenda = false,
+}: {
+  eleito: Pick<Eleito, "id" | "nome_urna" | "foto" | "foto_de" | "foto_ano">;
+  tamanho?: number;
+  /** Mostra "foto de 2022" abaixo quando a foto vem de outra eleição da mesma pessoa. */
+  legenda?: boolean;
+}) {
   if (!eleito.foto) return <Iniciais nome={eleito.nome_urna} tamanho={tamanho} />;
+  const ano = legenda ? legendaFoto(eleito) : null;
   return (
-    // eslint-disable-next-line @next/next/no-img-element -- WebP pequeno, já reduzido e com cache longo na CDN
-    <img
-      src={urlFotoTse(eleito.id)}
-      alt={`Foto de ${eleito.nome_urna}`}
-      width={tamanho}
-      height={Math.round((tamanho * 4) / 3)}
-      loading="lazy"
-      className="shrink-0 rounded-[2px] bg-muted object-cover"
-      style={{ width: tamanho, height: Math.round((tamanho * 4) / 3) }}
-    />
+    <span className="flex shrink-0 flex-col items-center gap-0.5">
+      {/* eslint-disable-next-line @next/next/no-img-element -- WebP pequeno, já reduzido e com cache longo na CDN */}
+      <img
+        src={urlFotoDe(eleito)}
+        alt={`Foto de ${eleito.nome_urna}`}
+        width={tamanho}
+        height={Math.round((tamanho * 4) / 3)}
+        loading="lazy"
+        className="shrink-0 rounded-[2px] bg-muted object-cover"
+        style={{ width: tamanho, height: Math.round((tamanho * 4) / 3) }}
+      />
+      {ano && <span className="text-[0.7rem] leading-none text-muted-foreground">{ano}</span>}
+    </span>
   );
 }
 

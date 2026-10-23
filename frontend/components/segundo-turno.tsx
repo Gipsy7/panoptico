@@ -9,7 +9,7 @@ import type { ReactNode } from "react";
 
 import { Iniciais } from "@/components/eleitos-secao";
 import { FonteRodape } from "@/components/fonte-rodape";
-import { type CandidatoSegundoTurno, type DisputaSegundoTurno, type SegundoTurno, urlFotoTse } from "@/lib/api";
+import { type CandidatoSegundoTurno, type DisputaSegundoTurno, type SegundoTurno, legendaFoto, urlFotoDe } from "@/lib/api";
 import { formatarData, formatarReais, formatarReaisCompacto } from "@/lib/formato";
 
 const NAO_INFORMADO = "não informado pela fonte";
@@ -48,20 +48,30 @@ export function tituloDisputa(d: DisputaSegundoTurno): string {
   return d.chave === "presidente" ? "Presidente da República" : `Governador ${deEstado(d.unidade)}`;
 }
 
-function Foto({ c, tamanho }: { c: { id: number; nome_urna: string; foto: boolean; foto_url?: string | null }; tamanho: number }) {
-  const src = c.foto ? urlFotoTse(c.id) : (c.foto_url ?? null);
+function Foto({
+  c,
+  tamanho,
+}: {
+  c: { id: number; nome_urna: string; foto: boolean; foto_de?: number | null; foto_ano?: number | null; foto_url?: string | null };
+  tamanho: number;
+}) {
+  const src = c.foto ? urlFotoDe(c) : (c.foto_url ?? null);
   if (!src) return <Iniciais nome={c.nome_urna} tamanho={tamanho} />;
+  const legenda = c.foto ? legendaFoto(c) : null;
   return (
-    // eslint-disable-next-line @next/next/no-img-element -- foto do TSE ou da Casa, já pequena
-    <img
-      src={src}
-      alt={`Foto de ${c.nome_urna}`}
-      width={tamanho}
-      height={Math.round((tamanho * 4) / 3)}
-      loading="lazy"
-      className="shrink-0 rounded-[2px] bg-muted object-cover"
-      style={{ width: tamanho, height: Math.round((tamanho * 4) / 3) }}
-    />
+    <span className="flex shrink-0 flex-col items-center gap-0.5">
+      {/* eslint-disable-next-line @next/next/no-img-element -- foto do TSE ou da Casa, já pequena */}
+      <img
+        src={src}
+        alt={`Foto de ${c.nome_urna}`}
+        width={tamanho}
+        height={Math.round((tamanho * 4) / 3)}
+        loading="lazy"
+        className="shrink-0 rounded-[2px] bg-muted object-cover"
+        style={{ width: tamanho, height: Math.round((tamanho * 4) / 3) }}
+      />
+      {legenda && <span className="text-[0.7rem] leading-none text-muted-foreground">{legenda}</span>}
+    </span>
   );
 }
 
