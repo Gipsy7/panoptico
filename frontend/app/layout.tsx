@@ -87,13 +87,23 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
             <div className="flex items-start gap-3">
               <Marca tamanho={28} traco={2.4} className="shrink-0 text-bronze" />
               <p className="max-w-prose text-sm leading-relaxed">
-                O panóptico era uma prisão em que um vigia, de uma torre, via todos sem ser visto.
-                Aqui é o contrário: todos podem ver quem os representa.
+                O{" "}
+                <Link href="/o-panoptico" className="underline underline-offset-2 hover:text-foreground">
+                  panóptico
+                </Link>{" "}
+                era uma prisão em que um vigia, de uma torre, via todos sem ser visto. Aqui é o
+                contrário: todos podem ver quem os representa.
               </p>
             </div>
             <nav aria-label="Rodapé" className="flex flex-wrap gap-x-6 gap-y-1">
               <Link href="/partidos" className={LINK}>
                 Dinheiro dos partidos
+              </Link>
+              <Link href="/o-panoptico" className={LINK}>
+                O que é o Panóptico
+              </Link>
+              <Link href="/perguntas" className={LINK}>
+                Perguntas frequentes
               </Link>
               <Link href="/sobre-as-fontes" className={LINK}>
                 Sobre as fontes
@@ -106,6 +116,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
               </a>
               <Link href="/apoie" className={LINK}>
                 Apoie
+              </Link>
+              <Link href="/apoiadores" className={LINK}>
+                Apoiadores
               </Link>
               <a href={`mailto:${CONTATO_EMAIL}`} className={LINK}>
                 {CONTATO_EMAIL}

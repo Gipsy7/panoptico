@@ -20,6 +20,9 @@ const FIXAS = [
   "/status",
   "/privacidade",
   "/apoie",
+  "/apoiadores",
+  "/o-panoptico",
+  "/perguntas",
 ];
 
 const url = (caminho: string) => `${SITE_URL}${caminho === "/" ? "" : caminho}`;

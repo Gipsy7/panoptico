@@ -11,7 +11,6 @@ const ITENS = [
   { href: "/comparar", rotulo: "Comparar" },
   { href: "/impostos-e-repasses", rotulo: "Impostos e repasses" },
   { href: "/partidos", rotulo: "Partidos" },
-  { href: "/sobre-as-fontes", rotulo: "Fontes" },
   { href: "/apoie", rotulo: "Apoie" },
 ];
 

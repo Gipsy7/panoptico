@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 
 import { CopiarPix } from "@/components/copiar-pix";
+import { CONTATO_EMAIL } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: "Apoie",
@@ -94,6 +96,17 @@ export default function ApoiePage() {
             </p>
           </div>
         </div>
+        <p className="text-sm text-muted-foreground">
+          Quer ter o seu nome na{" "}
+          <Link href="/apoiadores" className="underline underline-offset-2">
+            lista de apoiadores
+          </Link>
+          ? Escreva para{" "}
+          <a href={`mailto:${CONTATO_EMAIL}`} className="underline underline-offset-2">
+            {CONTATO_EMAIL}
+          </a>{" "}
+          autorizando. Sem essa autorização, nenhum nome é publicado.
+        </p>
       </section>
 
       <section className="nota flex flex-col gap-2 text-sm text-muted-foreground">

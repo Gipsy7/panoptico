@@ -483,6 +483,24 @@
   }
 }
 
+/* Apoiadores: os raios do sol se desenham ao abrir a página, e os nomes aparecem em seguida. */
+@media (prefers-reduced-motion: no-preference) {
+  .sol-raio {
+    stroke-dasharray: var(--len);
+    stroke-dashoffset: var(--len);
+    animation: desenhar-traco 700ms var(--curva-suave) var(--atraso) forwards;
+  }
+  .sol-nome {
+    opacity: 0;
+    animation: sol-nome-aparece 500ms ease-out var(--atraso) forwards;
+  }
+}
+@keyframes sol-nome-aparece {
+  to {
+    opacity: 1;
+  }
+}
+
 @keyframes desenhar-traco {
   to {
     stroke-dashoffset: 0;

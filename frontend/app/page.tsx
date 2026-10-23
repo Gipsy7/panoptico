@@ -9,6 +9,7 @@ import { FonteRodape } from "@/components/fonte-rodape";
 import { MENSAGEM_CARREGANDO, reais, textoSemDado } from "@/components/dinheiro-federal/formatos";
 import { MapaHome } from "@/components/home-mapa/mapa-home";
 import { Marca } from "@/components/logo";
+import { PanopticoDesenho } from "@/components/panoptico-desenho";
 import { Foto } from "@/components/parlamentar-card";
 import {
   type ParlamentarNaLista,
@@ -67,6 +68,8 @@ export default function Home() {
       </Suspense>
 
       <OQueVoceEncontra />
+
+      <PorQuePanoptico />
     </div>
   );
 }
@@ -325,6 +328,29 @@ function OQueVoceEncontra() {
           </li>
         ))}
       </ul>
+    </section>
+  );
+}
+
+function PorQuePanoptico() {
+  return (
+    <section aria-labelledby="porque-titulo" className="revelar grid items-center gap-8 md:grid-cols-[minmax(0,1fr)_minmax(0,18rem)] md:gap-16">
+      <div className="flex flex-col gap-3">
+        <p className="sobretitulo">A ideia</p>
+        <h2 id="porque-titulo" className="text-4xl leading-tight text-balance">
+          Por que &ldquo;Panóptico&rdquo;?
+        </h2>
+        <p className="max-w-lg text-muted-foreground">
+          Uma prisão imaginada em 1791 para vigiar todos, usada aqui ao contrário: quem está sob o
+          olhar de todos é quem exerce o mandato.
+        </p>
+        <div>
+          <Link href="/o-panoptico" className="botao-linha">
+            Entenda a ideia →
+          </Link>
+        </div>
+      </div>
+      <PanopticoDesenho estado={4} idBase="home" className="mx-auto h-auto w-full max-w-64 md:order-last" />
     </section>
   );
 }
