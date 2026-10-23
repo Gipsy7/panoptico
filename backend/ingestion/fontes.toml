@@ -269,9 +269,9 @@ depende = ["camara_despesas", "senado_despesas", "camara_votacoes", "senado_vota
 nome = "tse_candidaturas"
 modulo = "ingestion.tse.candidaturas"
 uso = "Representantes eleitos e \"Quem é\" (TSE)"
-recorte = "eleitos e parlamentares; em 2026 também as chapas de presidente e governador no 2º turno (titular e vice); 2016 e 2020 só de quem já temos (pelo título), depois das demais"
+recorte = "eleitos e parlamentares; em 2026 também as chapas de presidente e governador no 2º turno (titular e vice); de 1998 a 2020 só de quem já temos (pelo título), depois das demais; 1994 só com nome e nascimento idênticos a uma candidatura guardada"
 frequencia = "manual"
-anos = [2018, 2022, 2024, 2026, 2020, 2016]
+anos = [2018, 2022, 2024, 2026, 2020, 2016, 2014, 2010, 2006, 2002, 1998, 1994]
 depende = ["camara_deputados", "senado_senadores", "ibge_municipios"]
 bruto = "recorte"
 
@@ -312,7 +312,7 @@ uso = "Votos recebidos"
 recorte = "candidaturas guardadas"
 guarda = "somas"
 frequencia = "manual"
-anos = [2018, 2022, 2024, 2026]
+anos = [2018, 2022, 2024, 2026, 2014, 2010, 2006, 2002, 1998, 1994]
 depende = ["tse_candidaturas"]
 bruto = "recorte"
 

@@ -41,11 +41,12 @@ REGRAS = {
 }
 
 # Recorte do TSE (ingestion/fontes.toml: tse_candidaturas e tse_bens).
-ANOS_CANDIDATURAS = [2016, 2018, 2020, 2022, 2024, 2026]
+ANOS_CANDIDATURAS = [1994, 1998, 2002, 2006, 2010, 2014, 2016, 2018, 2020, 2022, 2024, 2026]
 ANOS_BENS = [2018, 2022, 2024]
 RECORTE_CARREIRA = (
     "Candidaturas de 2018, 2022, 2024 e 2026 completas para eleitos e parlamentares; "
-    "2016 e 2020 só de quem já está na base. Bens declarados só das eleições de 2018, 2022 "
+    "1994 a 2020 só de quem já está na base (o TSE não publica o cadastro de candidaturas "
+    "de antes de 1994). Bens declarados só das eleições de 2018, 2022 "
     "e 2024; votos só quando a fonte os traz."
 )
 

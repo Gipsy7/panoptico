@@ -11,12 +11,13 @@ De onde vem o CPF:
 """
 
 import argparse
+from collections import Counter
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from typing import Any
 
 import httpx
-from sqlalchemy import delete, select, update
+from sqlalchemy import delete, func, select, update
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.orm import Session, aliased
 
@@ -53,8 +54,15 @@ CARGOS_MUNICIPAIS = {"VEREADOR", "PREFEITO", "VICE-PREFEITO"}
 # Eleições antigas entram só como histórico de quem já acompanhamos (coleta mínima): a
 # candidatura fica se o título de eleitor já aparece em outra eleição guardada. A de 2020
 # traz o CPF completo, que o TSE mascarou em 2024, e assim os políticos municipais passam a
-# se ligar por CPF às sanções e aos processos. Rode depois das eleições mais recentes.
-SO_CONHECIDOS = {2016, 2020}
+# se ligar por CPF às sanções e aos processos. De 1998 a 2014 o arquivo traz o título de
+# quase todos. Rode depois das eleições mais recentes.
+SO_CONHECIDOS = {1998, 2002, 2006, 2010, 2014, 2016, 2020}
+# 1994 não traz CPF nem título: entra só quem tem nome completo e data de nascimento
+# idênticos aos de uma candidatura já guardada, e só quando a correspondência é única.
+SO_CONHECIDOS_POR_NOME = {1994}
+# Anos em que a situação final ("Eleito", "Não eleito") às vezes vem vazia (#NULO) no arquivo
+# de candidaturas; vem do arquivo de votação (ingestion/tse/votos.py), quando ele a traz.
+ANOS_SITUACAO_PELA_VOTACAO = {1994, 1998, 2002, 2006, 2010, 2014}
 # Vice -> titular da mesma chapa.
 TITULAR_DO_VICE = {
     "VICE-PRESIDENTE": "PRESIDENTE",
@@ -68,18 +76,32 @@ GRAFIAS_TSE = {
 }
 
 
+# Rótulos de 1998 a 2010 que a coluna (40 caracteres) não comporta ou que dizem o mesmo que o
+# rótulo atual: "MÉDIA" é "ELEITO POR MÉDIA". Só abreviam; o sentido é o do TSE.
+SITUACOES_ANTIGAS = {
+    "MÉDIA": "ELEITO POR MÉDIA",
+    "RENÚNCIA/FALECIMENTO/CASSAÇÃO ANTES DA ELEIÇÃO": "RENÚNCIA/FALEC./CASSAÇÃO ANTES ELEIÇÃO",
+    "RENÚNCIA/FALECIMENTO/CASSAÇÃO APÓS A ELEIÇÃO": "RENÚNCIA/FALEC./CASSAÇÃO APÓS ELEIÇÃO",
+}
+
+
+def situacao_final(linha: dict[str, str]) -> str | None:
+    situacao = comum_tse.texto(linha.get("DS_SIT_TOT_TURNO"))
+    return SITUACOES_ANTIGAS.get(situacao, situacao) if situacao else None
+
+
 def normalizar(linhas: Any) -> list[dict[str, Any]]:
     """Uma linha por candidatura. Quem disputou dois turnos aparece duas vezes no arquivo;
     fica a linha do último turno, que tem o resultado final."""
     por_sq: dict[str, tuple[int, dict[str, Any]]] = {}
     for linha in linhas:
-        sq = linha["SQ_CANDIDATO"].strip()
+        sq = comum_tse.sq_candidato(linha)
         turno = int(linha.get("NR_TURNO") or 1)
         anterior = por_sq.get(sq)
         if anterior and anterior[0] >= turno:
             # Linha de turno anterior que chega depois (a ordem do arquivo não é garantida).
             if turno < anterior[0] and not anterior[1]["situacao_turno"]:
-                anterior[1]["situacao_turno"] = comum_tse.texto(linha.get("DS_SIT_TOT_TURNO"))
+                anterior[1]["situacao_turno"] = situacao_final(linha)
             continue
         registro = {
             "ano_eleicao": int(linha["ANO_ELEICAO"]),
@@ -92,7 +114,7 @@ def normalizar(linhas: Any) -> list[dict[str, Any]]:
             "nome_urna": comum.nome_proprio(linha["NM_URNA_CANDIDATO"].strip()) or "",
             "partido": comum_tse.texto(linha.get("SG_PARTIDO")),
             "numero": comum_tse.texto(linha.get("NR_CANDIDATO")),
-            "situacao_turno": comum_tse.texto(linha.get("DS_SIT_TOT_TURNO")),
+            "situacao_turno": situacao_final(linha),
             "situacao_candidatura": comum_tse.texto(linha.get("DS_SITUACAO_CANDIDATURA")),
             "cpf": comum_tse.cpf(linha.get("NR_CPF_CANDIDATO")),
             "titulo": comum_tse.titulo(linha.get("NR_TITULO_ELEITORAL_CANDIDATO")),
@@ -192,7 +214,9 @@ def carregar_registros(
     def parlamentar_de(r: dict[str, Any]) -> int | None:
         return por_cpf.get(r["cpf"]) or por_titulo.get(r.get("titulo"))
 
-    if ano in SO_CONHECIDOS:
+    if ano in SO_CONHECIDOS_POR_NOME:
+        escolhidos = escolher_por_nome(registros, pessoas_guardadas(session, ano))
+    elif ano in SO_CONHECIDOS:
         conhecidos = set(
             session.scalars(
                 select(Candidatura.titulo).where(
@@ -223,6 +247,11 @@ def carregar_registros(
         lote = linhas[inicio : inicio + 2000]
         stmt = insert(Candidatura).values(lote)
         colunas = {c: stmt.excluded[c] for c in lote[0] if c not in ("ano_eleicao", "sq_candidato")}
+        if ano in ANOS_SITUACAO_PELA_VOTACAO:
+            # Não apaga a situação que veio do arquivo de votação.
+            colunas["situacao_turno"] = func.coalesce(
+                stmt.excluded.situacao_turno, Candidatura.situacao_turno
+            )
         session.execute(
             stmt.on_conflict_do_update(index_elements=["ano_eleicao", "sq_candidato"], set_=colunas)
         )
@@ -241,6 +270,48 @@ def carregar_registros(
         )
     ligar_chapas(session, ano)
     return len(linhas)
+
+
+def pessoas_guardadas(
+    session: Session, ano: int
+) -> dict[tuple[str, Any], tuple[set[str], set[str]]]:
+    """(nome, data de nascimento) -> (títulos, CPFs) das candidaturas de outros anos."""
+    guardadas: dict[tuple[str, Any], tuple[set[str], set[str]]] = {}
+    consulta = select(
+        Candidatura.nome, Candidatura.data_nascimento, Candidatura.titulo, Candidatura.cpf
+    )
+    consulta = consulta.where(
+        Candidatura.ano_eleicao != ano, Candidatura.data_nascimento.is_not(None)
+    )
+    for nome, nascimento, titulo, cpf in session.execute(consulta):
+        titulos, cpfs = guardadas.setdefault((comum.chave_nome(nome), nascimento), (set(), set()))
+        if titulo:
+            titulos.add(titulo)
+        if cpf:
+            cpfs.add(cpf)
+    return guardadas
+
+
+def escolher_por_nome(
+    registros: list[dict[str, Any]],
+    guardadas: dict[tuple[str, Any], tuple[set[str], set[str]]],
+) -> list[dict[str, Any]]:
+    """Candidaturas sem CPF nem título (1994): fica a de nome completo e data de nascimento
+    idênticos aos de uma única pessoa já guardada (um só título e um só CPF), e que é a única
+    do arquivo com essa chave. Qualquer dúvida (homônimo, nascimento ausente, mais de uma
+    pessoa) deixa de fora. A candidatura herda o título e o CPF dessa pessoa, para que a
+    identidade (ingestion/pessoas.py) a ligue como as demais."""
+    chaves = [(comum.chave_nome(r["nome"]), r["data_nascimento"]) for r in registros]
+    repetidas = {c for c, n in Counter(chaves).items() if n > 1}
+    escolhidas = []
+    for r, chave in zip(registros, chaves, strict=True):
+        titulos, cpfs = guardadas.get(chave, (set(), set()))
+        if not r["data_nascimento"] or chave in repetidas:
+            continue
+        if len(titulos) > 1 or len(cpfs) > 1 or not (titulos or cpfs):
+            continue
+        escolhidas.append({**r, "titulo": next(iter(titulos), None), "cpf": next(iter(cpfs), None)})
+    return escolhidas
 
 
 def eleito_local(registro: dict[str, Any]) -> bool:
