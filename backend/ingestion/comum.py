@@ -323,6 +323,16 @@ cargas_sem_mudanca = 0
 forcar = os.environ.get("PANOPTICO_FORCAR", "") in ("1", "true", "sim")
 
 
+def ultima_carga_ok(fonte: str) -> datetime | None:
+    """Quando terminou a última carga bem-sucedida da fonte (None se nunca houve)."""
+    with SessionLocal() as session:
+        return session.scalar(
+            select(func.max(FonteIngestao.concluido_em)).where(
+                FonteIngestao.fonte == fonte, FonteIngestao.status.in_(STATUS_SUCESSO)
+            )
+        )
+
+
 @dataclass
 class Incremental:
     """Liga a carga incremental numa fonte (opt-in).

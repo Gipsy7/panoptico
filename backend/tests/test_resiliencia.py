@@ -159,3 +159,22 @@ def test_socios_prazo_vale_dentro_da_consulta(monkeypatch):
         pedidos.clear()
         assert socios.consultar(client, "12345678000199", time.monotonic() - 1) is None
     assert pedidos == []  # prazo vencido: nem tenta
+
+
+def test_municipios_so_baixa_uma_vez_por_mes(monkeypatch):
+    from datetime import UTC, datetime, timedelta
+
+    from ingestion.ibge import municipios
+
+    baixou = []
+    monkeypatch.setattr(comum, "forcar", False)
+    monkeypatch.setattr(comum, "executar_ingestao", lambda *a, **k: baixou.append(1) or 5571)
+
+    monkeypatch.setattr(comum, "ultima_carga_ok", lambda _: datetime.now(UTC) - timedelta(days=3))
+    assert municipios.executar() == 0 and not baixou
+
+    monkeypatch.setattr(comum, "ultima_carga_ok", lambda _: datetime.now(UTC) - timedelta(days=31))
+    assert municipios.executar() == 5571
+
+    monkeypatch.setattr(comum, "ultima_carga_ok", lambda _: None)
+    assert municipios.executar() == 5571 and len(baixou) == 2
