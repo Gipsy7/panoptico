@@ -162,12 +162,10 @@ async function ExemploDeComparacao() {
         </div>
         <dl className="flex flex-col px-4 sm:px-5">
           {linhas.map((l) => (
-            <div key={l.rotulo} className="border-b border-border py-3">
-              <dt className="text-sm text-muted-foreground">{l.rotulo}</dt>
-              <div className="mt-1 grid grid-cols-2 gap-3 sm:gap-4">
-                <dd className="numero text-xl">{l.a}</dd>
-                <dd className="numero text-xl">{l.b}</dd>
-              </div>
+            <div key={l.rotulo} className="grid grid-cols-2 gap-x-3 gap-y-1 border-b border-border py-3 sm:gap-x-4">
+              <dt className="col-span-2 text-sm text-muted-foreground">{l.rotulo}</dt>
+              <dd className="numero text-xl">{l.a}</dd>
+              <dd className="numero text-xl">{l.b}</dd>
             </div>
           ))}
         </dl>

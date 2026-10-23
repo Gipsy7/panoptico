@@ -61,8 +61,8 @@ export function MenuPrincipal() {
         <div className="hidden sm:block">
           <AlternarTema />
         </div>
-        <Link href="/#cep" onClick={() => setAberto(false)} aria-label="Buscar pelo CEP" className="botao-linha px-3 whitespace-nowrap">
-          Buscar CEP
+        <Link href="/#cep" onClick={() => setAberto(false)} aria-label="Buscar seus representantes" className="botao-linha px-3 whitespace-nowrap">
+          Buscar
         </Link>
         <button
           ref={botao}

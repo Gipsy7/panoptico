@@ -131,7 +131,7 @@ export function Iniciais({ nome, tamanho = 44 }: { nome: string; tamanho?: numbe
     <span
       aria-hidden
       style={{ width: tamanho, height: Math.round((tamanho * 4) / 3) }}
-      className="flex shrink-0 items-center justify-center rounded-[2px] bg-muted font-heading text-lg text-muted-foreground"
+      className="flex shrink-0 items-center justify-center rounded-[2px] bg-muted font-heading text-lg text-foreground"
     >
       {iniciais}
     </span>
