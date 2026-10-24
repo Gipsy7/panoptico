@@ -4,6 +4,7 @@ import Form from "next/form";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 
+import { useCidadeAchada } from "@/components/localizacao-home";
 import { type Municipio, getMunicipios } from "@/lib/api";
 import { formatarCep } from "@/lib/formato";
 import { type CidadeAchada, acharCidade } from "@/lib/localizacao";
@@ -64,6 +65,13 @@ export function CepForm({ semCepInicial = false }: { semCepInicial?: boolean } =
     | { estado: "achou"; cidade: CidadeAchada }
   >({ estado: "ocioso" });
   const confirmacao = useRef<HTMLParagraphElement>(null);
+  // Compartilha a cidade achada com o exemplo e as curiosidades da home (só em memória).
+  const { definirCidade } = useCidadeAchada();
+  const cidadeAchada = loc.estado === "achou" ? loc.cidade : null;
+  useEffect(() => {
+    definirCidade(cidadeAchada);
+    return () => definirCidade(null);
+  }, [cidadeAchada, definirCidade]);
   const nomeUf = (sigla: string) => UFS.find((u) => u.sigla === sigla)?.nome ?? sigla;
 
   function irParaCep() {

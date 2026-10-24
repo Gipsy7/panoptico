@@ -606,3 +606,18 @@
 html[data-js] [data-aba][data-ativa="false"]:not([hidden]) {
   display: none;
 }
+
+/* Conteúdo que entra depois de uma busca (exemplo regional, curiosidades da cidade): só esmaece. */
+@media (prefers-reduced-motion: no-preference) {
+  .troca-suave {
+    animation: entrar-suave 320ms ease-out both;
+  }
+}
+@keyframes entrar-suave {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}

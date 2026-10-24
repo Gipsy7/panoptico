@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { UFS } from "@/lib/ufs";
+import { doEstado, UFS } from "@/lib/ufs";
 
 describe("UFS", () => {
   it("são 27 unidades da federação", () => expect(UFS).toHaveLength(27));
@@ -17,5 +17,14 @@ describe("UFS", () => {
     expect(por.DF).toBe("Distrito Federal");
     expect(por.SP).toBe("São Paulo");
     expect(por.AC).toBe("Acre");
+  });
+});
+
+describe("doEstado", () => {
+  it("usa a preposição certa", () => {
+    expect(doEstado("PB")).toBe("da Paraíba");
+    expect(doEstado("AC")).toBe("do Acre");
+    expect(doEstado("PE")).toBe("de Pernambuco");
+    expect(doEstado("MS")).toBe("de Mato Grosso do Sul");
   });
 });

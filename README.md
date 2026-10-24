@@ -48,7 +48,7 @@ flowchart LR
 
 | | O quê | Exemplo do que aparece |
 |---|---|---|
-| 👥 | **Seus representantes pela localização, CEP ou cidade** | A localização é usada só no celular para achar a cidade (não é enviada). Presidente, governador e prefeito (com vices), senadores, deputados federais e estaduais, vereadores. Eleitos de 2026 que ainda não tomaram posse aparecem à parte. |
+| 👥 | **Seus representantes pela localização, CEP ou cidade** | A localização é usada só no celular para achar a cidade (não é enviada). Presidente, governador e prefeito (com vices), senadores, deputados federais e estaduais, vereadores. Eleitos de 2026 que ainda não tomaram posse aparecem à parte. Ao achar a cidade, a home mostra um número sorteado dela (com a média do estado) e um exemplo de comparação com parlamentares do estado; sem localização, a dupla do exemplo é sorteada. |
 | 💸 | **Gastos do gabinete** | Total do ano, por categoria, maiores gastos, sempre com a média da Casa ao lado. |
 | 🗳 | **Votos e presença** | "Votou em 31 de 59 votações", como votou em cada uma, orientação do Governo e do partido, votos por tema e nas comissões. |
 | 📝 | **Projetos de lei** | Desde 2023: autor principal ou coautor, temas e os que viraram lei. |
