@@ -691,6 +691,25 @@ export function MapaBrasil({
   }
 
   const df = ufs?.DF;
+
+  // Contornos de destaque numa camada por cima: no mesmo grupo os vizinhos cobriam metade do traço.
+  const contornos: Array<{ chave: string; d: string; classe: string }> = [];
+  const dMun = (cod: string) => (detalhe?.id === cod ? detalhe.d : munPronto?.geo[cod]?.d);
+  const poe = (nivel: NivelMapa, id: string, classe: string) => {
+    if (contornos.some((c) => c.chave === `${nivel}-${id}`)) return;
+    if (nivel === "uf") {
+      if (noEstado || !ufs?.[id]) return;
+      contornos.push({ chave: `${nivel}-${id}`, d: ufs[id].d, classe });
+    } else {
+      if (!munPronto || (naCidade && id !== munEf)) return;
+      const d = dMun(id);
+      if (d) contornos.push({ chave: `${nivel}-${id}`, d, classe });
+    }
+  };
+  if (uf) poe("uf", uf, estilos.contornoFixo);
+  if (munEf) poe("mun", munEf, estilos.contornoFixo);
+  if (sel) poe(sel.nivel, sel.id, estilos.contornoFixo);
+  if (sobre) poe(sobre.nivel, sobre.id, estilos.contornoSobre);
   return (
     <div ref={caixaRef} className={`${estilos.caixa} ${className ?? ""}`}>
       <svg
@@ -753,6 +772,11 @@ export function MapaBrasil({
                 tabIndex={naCidade && cod !== munEf ? -1 : 0}
               />
             ))}
+        </g>
+        <g aria-hidden="true" className={estilos.contornos}>
+          {contornos.map((c) => (
+            <path key={c.chave} d={c.d} className={c.classe} />
+          ))}
         </g>
       </svg>
       <svg ref={rotulosRef} className={estilos.rotulos} aria-hidden="true" />

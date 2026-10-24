@@ -51,15 +51,23 @@
   cursor: pointer;
 }
 
-.mapa .sobre,
+/* Foco de teclado fica no desenho original; sobre/seleção/ativa vão na camada .contornos. */
 .mapa .uf:focus-visible,
 .mapa .mun:focus-visible {
   stroke: var(--foreground);
   stroke-width: 2px;
 }
-.mapa .sel,
-.mapa .ativa {
+.contornos path {
+  fill: none;
+  pointer-events: none;
+  vector-effect: non-scaling-stroke;
   stroke: var(--foreground);
+  stroke-linejoin: round;
+}
+.contornoSobre {
+  stroke-width: 2px;
+}
+.contornoFixo {
   stroke-width: 2.5px;
 }
 
