@@ -47,6 +47,7 @@ export function TabelaRolavel({
       <div
         ref={rolagem}
         onScroll={medir}
+        // eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex -- região rolável precisa de foco para rolar com o teclado
         tabIndex={0}
         role="region"
         aria-label={rotulo}

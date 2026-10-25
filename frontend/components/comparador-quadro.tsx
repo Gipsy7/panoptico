@@ -42,6 +42,7 @@ export function ComparadorQuadro({
         onScroll={() => sincronizar("corpo")}
         role="region"
         aria-label="Tabela de comparação, role para os lados para ver todas as pessoas"
+        // eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex -- região rolável precisa de foco para rolar com o teclado
         tabIndex={0}
         className="snap-x snap-mandatory overflow-x-auto scroll-pl-[132px] focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-bronze"
       >

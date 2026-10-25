@@ -122,6 +122,7 @@
 - [2026-10-21: ordem por informação publicada em /projetos](#2026-10-21-ordem-por-informação-publicada-em-projetos)
 - [2026-10-23: carreira desde 1994 (candidaturas antigas do TSE)](#2026-10-23-carreira-desde-1994-candidaturas-antigas-do-tse)
 - [2026-10-23: um perfil por pessoa (reeleitos e 2º turno)](#2026-10-23-um-perfil-por-pessoa-reeleitos-e-2º-turno)
+- [2026-10-25: acessibilidade para deficiência visual](#2026-10-25-acessibilidade-para-deficiência-visual)
 
 ## 2026-10-06: stack inicial
 
@@ -1377,3 +1378,13 @@ O site abria uma página por candidatura: o Jorginho Mello tinha /eleito de 2022
 - **Redirecionamento temporário (307)**, não permanente: o canônico muda com a posse e o navegador guardaria o 308.
 - **Foto:** sem foto própria, usa a da candidatura mais recente da mesma pessoa, com a legenda do ano ("foto de 2022").
 - Comparador do 2º turno, eleitos 2026 e busca apontam direto para o principal (campo `perfil`).
+
+## 2026-10-25: acessibilidade para deficiência visual
+
+Problema: o Panóptico é um site de transparência pública, usado por qualquer pessoa, inclusive por quem usa leitor de tela, navega só pelo teclado ou precisa de zoom e contraste. A auditoria de 25/10 achou três bloqueios graves (mapa com dezenas de paradas de Tab e estados invisíveis lidos, busca de cidade que some ao sair do campo, foco com contraste de cerca de 1,9:1) e lacunas médias (fundo sem `inert` nas gavetas, anúncios que leem blocos inteiros, erros de campo não ligados, fontes de 12 px, links que abrem nova aba sem aviso). Não havia verificação automática nem meta registrada.
+
+- **Meta:** WCAG 2.2 nível AA e eMAG 3.1 (Modelo de Acessibilidade em Governo Eletrônico), decisão do dono em 25/10.
+- **Política:** toda tela nova segue o checklist da seção "Acessibilidade" de `docs/DESIGN.md`. A verificação automática (lint com `jsx-a11y` strict, Playwright com axe e fluxos só por teclado em `npm run e2e`) roda por onda e todo dia pelo workflow `acessibilidade.yml`, contra a produção, só leitura. Violação `serious` ou `critical` falha.
+- **Teste com pessoas reais:** fica para depois, por decisão do dono (25/10). Testes automáticos pegam de 30% a 40% dos problemas de leitor de tela; por isso cada onda também tem fluxos de teclado com os anúncios conferidos por `aria`.
+- **Ritmo:** ondas pequenas, cada uma conferida no celular do dono pela rede local antes do push, sem mudar o site de forma que atrapalhe a estabilidade até 25/12 (concurso OBVC).
+- **Ondas:** 0, a régua (lint, Playwright e axe, workflow, documentação e agentes, sem mudar a tela); 1, alto impacto e baixo risco (foco visível, busca com combobox, mapa e formulários, contraste, links externos); 2, diálogos e anúncios (fundo `inert`, `role="status"` curto, tabelas, textos de instrução, `alt` e nomes); 3, mapa pelo teclado e pelo leitor de tela (uma parada de Tab, setas, lista alternativa, verificação extra); 4, gráficos, tamanho de texto e zoom (equivalente em texto, nada só por cor, 14 px no mínimo, zoom de 200% e 320 px); 5, página `/acessibilidade` com a declaração, atalhos Alt+1 a Alt+3 e canal para relatar problemas.

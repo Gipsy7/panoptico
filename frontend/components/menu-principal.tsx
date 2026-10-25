@@ -81,11 +81,13 @@ export function MenuPrincipal() {
 
       {aberto && (
         // Toque fora da lista (na área abaixo dela) fecha o painel.
+        // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions -- fundo do painel só fecha por toque; Esc e o botão já fecham pelo teclado
         <div
           id="menu-celular"
           onClick={() => setAberto(false)}
           className="absolute inset-x-0 top-full h-[calc(100dvh-3.5rem)] bg-background/95 xl:hidden"
         >
+          {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-noninteractive-element-interactions -- só impede que o toque no menu feche o painel */}
           <nav
             aria-label="Menu"
             onClick={(e) => e.stopPropagation()}

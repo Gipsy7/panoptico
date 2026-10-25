@@ -741,6 +741,7 @@ export function PainelDinheiroFederal({ inicial }: { inicial: EstadoInicial }) {
           aria-label="Números do lugar escolhido"
           aria-live="polite"
         >
+          {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions -- cabeçalho da folha: toque alterna; o teclado usa o botão de dentro */}
           <div
             ref={topoFolhaRef}
             className={estilos.cabecalhoToque}

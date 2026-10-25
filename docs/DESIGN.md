@@ -89,7 +89,7 @@ Open Graph ficam sempre claras. Razões de contraste (WCAG):
 | texto / fundo (`#141414` / `#f4f1ea`; `#ece7dc` / `#1c1a17`) | 16,3 | 14,1 |
 | texto de apoio / fundo (`#6e6a63`; `#a39d92`) | 4,8 | 6,4 |
 | texto de apoio / cartão | 5,0 | 5,9 |
-| texto de apoio / `--muted` | 4,4 (só em pílulas, 13 px) | 5,5 |
+| texto de apoio / `--muted` | 4,4 (só em pílulas, 13 px; a corrigir na onda 1 da acessibilidade, meta 4,5) | 5,5 |
 | bronze-texto / fundo (`#7a5a32`; `#d4a968`) | 5,6 | 8,0 |
 | primary-foreground / primary | 16,3 | 14,1 |
 | destructive / fundo (`#8a2c1c`; `#e39a86`) | 7,6 | 7,6 |
@@ -265,3 +265,35 @@ esquerda) e ".social" em serifa menor na linha de base. O nome e o ".social" sã
 compartilhamento usam `LogoCompleta` em `lib/og.tsx`, com as cores fixas da paleta clara. O nome usa o azul-marinho da
 arte (`--marca-nome`, #12263a; creme no escuro) por decisão do dono (2026-10-19), só na logo: nunca em texto, fundo ou dado. No cabeçalho de 56 px a logo tem 28 px de altura
 (173 px de largura); acima disso o botão de menu estoura 360 px.
+
+## 8. Acessibilidade
+
+Meta: **WCAG 2.2 nível AA** e **eMAG 3.1** (Modelo de Acessibilidade em Governo Eletrônico). O plano e as ondas
+estão em `C:\Users\samir\.claude\plans\tem-duas-coias-que-wild-hoare.md`; a decisão, em `docs/DECISOES.md` (2026-10-25).
+
+### Checklist para toda tela nova
+
+1. **Foco visível:** contorno de 2 px na cor `bronze-texto`, com afastamento, e pelo menos 3:1 contra o fundo nos dois temas.
+   Nunca `focus-visible:outline-none` sem outro contorno no lugar.
+2. **Teclado:** tudo operável com Tab, Enter e Espaço; Esc fecha o que abriu; abas, listas e combobox usam setas.
+3. **Nome acessível:** botões e links com texto que diz o destino ("Ver gastos de Fulano", não "Ver mais"). Ícone sem texto tem `aria-label`.
+4. **Imagens:** `alt` descritivo. `alt=""` quando o nome já está escrito ao lado da foto.
+5. **Gráficos:** o valor aparece em texto ou tabela equivalente; nada transmite informação só por cor, forma ou posição.
+6. **Tabelas:** `<caption>` (ou `rotulo` no `TabelaRolavel`), `th scope="col"` ou `"row"`.
+7. **Formulários:** todo campo com `<label>`. Texto de ajuda ligado por `aria-describedby`. Erro na página, com `aria-invalid="true"` e `aria-describedby` apontando para a mensagem.
+8. **Anúncios:** `role="status"` com frase curta ("Senado: 3 senadores"). Nunca um bloco inteiro dentro de `aria-live`.
+9. **Diálogos (gavetas, folhas, menu):** foco preso dentro, Esc fecha, foco volta ao botão que abriu, e o resto da página fica `inert`.
+10. **Links que abrem nova aba:** avisam no texto (componente `LinkExterno`, "(abre em nova aba)").
+11. **Texto:** 14 px no mínimo para texto corrido; contraste AA: 4,5:1 texto, 3:1 componentes de interface e foco.
+12. **Zoom e tamanho:** zoom de texto a 200% sem perda; reflow em 320 px sem rolagem horizontal da página.
+13. **Movimento:** respeitar `prefers-reduced-motion`. Animação que repete tem botão para pausar (ou para sozinha após poucos ciclos).
+14. **Idioma:** `lang="pt-BR"` na página; trecho em outro idioma com `lang` próprio.
+
+### Como verificar
+
+- `npm run lint` (com `jsx-a11y` no conjunto `strict`): roda no CI.
+- `npm run e2e` (Playwright + axe): aponta para o site com `E2E_BASE_URL` (padrão: o acervo local). Falha com violações `serious` ou `critical`
+  nas rotas principais, em 360 e 1280 px, tema claro e escuro, e roda os fluxos só por teclado de `e2e/teclado.spec.ts`.
+- Workflow `acessibilidade.yml`: roda todo dia e sob demanda contra `https://panoptico.social.br`, só leitura.
+- Teste manual: navegar a tela só com Tab, Enter e Esc, a 200% de zoom e em 360 px. Verificar o `scrollWidth` em 320 px.
+- Testes automáticos pegam de 30% a 40% dos problemas de leitor de tela. Teste com pessoas reais fica para depois.

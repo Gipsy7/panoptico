@@ -219,6 +219,7 @@ export function CepForm({ semCepInicial = false }: { semCepInicial?: boolean } =
         pattern="\d{5}-?\d{3}"
         title="O CEP tem 8 números, por exemplo 01310-100"
         value={cep}
+        // eslint-disable-next-line jsx-a11y/no-autofocus -- foco só vem quando a pessoa acabou de abrir a busca do CEP
         autoFocus={focarCep}
         onChange={(e) => setCep(formatarCep(e.target.value))}
         className="campo numero h-16 text-center text-4xl tracking-[0.12em]"
