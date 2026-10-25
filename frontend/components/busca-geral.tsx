@@ -32,8 +32,8 @@ function Pessoas({
               onKeyDown={teclar}
             >
               <span className="font-medium">{r.nome}</span>
-              {r.nome_completo && <span className="text-xs text-muted-foreground">{r.nome_completo}</span>}
-              <span className="text-xs text-muted-foreground">
+              {r.nome_completo && <span className="text-sm text-muted-foreground">{r.nome_completo}</span>}
+              <span className="text-sm text-muted-foreground">
                 {[r.cargo, r.partido, r.lugar].filter(Boolean).join(" · ")}
               </span>
             </Link>
@@ -112,7 +112,7 @@ export function BuscaGeral({ rotulo = "Procure pelo nome" }: { rotulo?: string }
               onKeyDown={teclar}
                     >
                       <span className="font-medium">{p.sigla}</span>
-                      <span className="text-xs text-muted-foreground">{p.nome} · contas e dinheiro público</span>
+                      <span className="text-sm text-muted-foreground">{p.nome} · contas e dinheiro público</span>
                     </Link>
                   </li>
                 ))}

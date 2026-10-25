@@ -36,7 +36,7 @@ export function CanaisSecao({ canais, cidade }: { canais: Canal[]; cidade: strin
           </li>
         ))}
       </ul>
-      <p className="text-xs text-muted-foreground">
+      <p className="text-sm text-muted-foreground">
         Encontrados automaticamente
         {verificado ? ` e verificados em ${formatarData(verificado)}` : ""}. Achou um link errado
         ou faltando? O catálogo é aberto:{" "}

@@ -25,7 +25,7 @@ export function GastosSecao({
           <h2 id="gastos-titulo" className="text-2xl">
             Gastos do gabinete
           </h2>
-          <p className="text-xs text-muted-foreground">{gastos.fonte_nome}</p>
+          <p className="text-sm text-muted-foreground">{gastos.fonte_nome}</p>
         </div>
         {gastos.anos_disponiveis.length > 1 && (
           <nav aria-label="Escolher ano" className="flex gap-1">
@@ -121,11 +121,11 @@ export function GastosSecao({
                     </td>
                     <td className="py-2 pr-3">
                       <span className="block">{d.fornecedor ?? "Não informado"}</span>
-                      <span className="block text-xs text-muted-foreground">{d.categoria}</span>
+                      <span className="block text-sm text-muted-foreground">{d.categoria}</span>
                       {d.url_documento && (
                         <LinkExterno
                           href={d.url_documento}
-                          className="text-xs underline underline-offset-2"
+                          className="text-sm underline underline-offset-2"
                         >
                           Ver nota fiscal
                         </LinkExterno>

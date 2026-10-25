@@ -386,7 +386,7 @@ export function CepForm({ semCepInicial = false }: { semCepInicial?: boolean } =
           <MaoToque x={0} y={0} oculta={tocouLocalizacao || procurando} reduzido={reduzido || !pulsando} etiquetaEsquerda semEtiqueta />
         </svg>
       </div>
-      <p role="status" aria-live="polite" className="text-xs text-muted-foreground">
+      <p role="status" aria-live="polite" className="text-sm text-muted-foreground">
         Pede a sua localização. Ela fica no seu celular: só usamos para achar a cidade.
       </p>
       {preferirCep(true)}

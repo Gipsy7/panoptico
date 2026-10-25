@@ -334,8 +334,7 @@ function CartaoPlacar({ d }: { d: VotacaoDetalhe }) {
         </span>
         {total > 0 && (
           <div
-            role="img"
-            aria-label={`Sim ${n(p.sim)}, Não ${n(p.nao)}`}
+            aria-hidden
             className="flex h-2 w-full gap-px overflow-hidden rounded-[2px] bg-muted"
           >
             <span className="h-full bg-bronze" style={{ flexGrow: p.sim }} />

@@ -22,7 +22,7 @@ export function ParlamentarCard({
         <p className="text-sm text-muted-foreground">
           {[parlamentar.partido, parlamentar.uf].filter(Boolean).join(" · ")}
         </p>
-        {destaque && <p className="text-xs font-medium text-bronze-texto">{destaque}</p>}
+        {destaque && <p className="text-sm font-medium text-bronze-texto">{destaque}</p>}
       </div>
     </Link>
   );

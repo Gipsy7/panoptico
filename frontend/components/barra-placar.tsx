@@ -8,8 +8,7 @@ export function BarraPlacar({ sim, nao, className = "" }: { sim: number; nao: nu
   if (sim + nao <= 0) return null;
   return (
     <div
-      role="img"
-      aria-label={`Sim ${INTEIRO.format(sim)}, Não ${INTEIRO.format(nao)}`}
+      aria-hidden
       className={`flex h-2 w-full gap-px overflow-hidden rounded-[2px] bg-muted ${className}`}
     >
       <span className="h-full bg-bronze" style={{ flexGrow: sim }} />

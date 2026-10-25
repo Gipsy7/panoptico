@@ -30,7 +30,7 @@ function ItemDiscurso({ d }: { d: DiscursoNaVotacao }) {
         {partidoUf && <span className="text-sm text-muted-foreground">{partidoUf}</span>}
       </p>
       {(d.fase || horario) && (
-        <p className="text-xs text-muted-foreground">{[d.fase, horario && `às ${horario}`].filter(Boolean).join(" · ")}</p>
+        <p className="text-sm text-muted-foreground">{[d.fase, horario && `às ${horario}`].filter(Boolean).join(" · ")}</p>
       )}
       {d.sumario ? (
         <p className="text-sm leading-relaxed">{d.sumario}</p>
@@ -38,7 +38,7 @@ function ItemDiscurso({ d }: { d: DiscursoNaVotacao }) {
         <p className="text-sm text-muted-foreground">A Casa não publicou resumo deste discurso.</p>
       )}
       {!d.url_texto && !d.url_video && (
-        <p className="text-xs text-muted-foreground">A Casa ainda não publicou o texto integral deste discurso.</p>
+        <p className="text-sm text-muted-foreground">A Casa ainda não publicou o texto integral deste discurso.</p>
       )}
       {(d.url_texto || d.url_video) && (
         <p className="flex flex-wrap gap-x-4 text-sm">

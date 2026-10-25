@@ -422,7 +422,7 @@ function SemCobertura({ cobertura: c, filtros }: { cobertura: CoberturaBusca; fi
           </li>
         )}
       </ul>
-      <p className="text-xs text-muted-foreground">
+      <p className="text-sm text-muted-foreground">
         O que cada casa publica, estado por estado:{" "}
         <Link href="/sobre-as-fontes/cobertura" className="underline underline-offset-4">
           cobertura do Panóptico
@@ -482,7 +482,7 @@ function Cartao({ item: i, uf }: { item: ItemProjeto; uf?: string }) {
           {sit.rotulo ? (
             <>
               <span className="font-medium">{sit.rotulo}</span>
-              {sit.oficial && <span className="block text-xs text-muted-foreground">Texto oficial: {sit.oficial}</span>}
+              {sit.oficial && <span className="block text-sm text-muted-foreground">Texto oficial: {sit.oficial}</span>}
             </>
           ) : (
             <span className="text-muted-foreground">{i.tipo === "votacao_local" ? `Resultado: ${sit.oficial}` : sit.oficial}</span>
@@ -493,27 +493,27 @@ function Cartao({ item: i, uf }: { item: ItemProjeto; uf?: string }) {
       {v && v.sim != null && v.nao != null ? (
         <div className="flex flex-col gap-1">
           <PlacarCompacto sim={v.sim} nao={v.nao} />
-          <p className="text-xs text-muted-foreground tabular-nums">
+          <p className="text-sm text-muted-foreground tabular-nums">
             Última votação nominal{v.data ? ` em ${formatarData(v.data)}` : ""}
             {resultado && ` · ${resultado}`}
           </p>
         </div>
       ) : (
         v && (
-          <p className="text-xs text-muted-foreground">
+          <p className="text-sm text-muted-foreground">
             {`Votação nominal${v.data ? ` em ${formatarData(v.data)}` : ""}${resultado ? ` · ${resultado}` : ""}`}
           </p>
         )
       )}
-      {i.tipo === "proposicao" && v?.descricao && <p className="text-xs text-muted-foreground">Votação: {recortar(v.descricao, 140)}</p>}
+      {i.tipo === "proposicao" && v?.descricao && <p className="text-sm text-muted-foreground">Votação: {recortar(v.descricao, 140)}</p>}
       {indicadores.length > 0 && (
-        <p className="text-xs text-muted-foreground tabular-nums">
+        <p className="text-sm text-muted-foreground tabular-nums">
           <span className="sr-only">O que este projeto tem publicado: </span>
           {indicadores.join(" · ")}
         </p>
       )}
       {!v && i.ultima_movimentacao && (
-        <p className="text-xs text-muted-foreground tabular-nums">Sem votação nominal · última movimentação em {formatarData(i.ultima_movimentacao)}</p>
+        <p className="text-sm text-muted-foreground tabular-nums">Sem votação nominal · última movimentação em {formatarData(i.ultima_movimentacao)}</p>
       )}
     </Link>
   );

@@ -83,7 +83,7 @@ export function BuscaParlamentar({
               onKeyDown={teclar}
                 >
                   <span className="font-medium">{p.nome_parlamentar}</span>
-                  <span className="text-xs text-muted-foreground">
+                  <span className="text-sm text-muted-foreground">
                     {NOME_CASA[p.casa]} · {[p.partido, p.uf].filter(Boolean).join(" · ")}
                   </span>
                 </Link>

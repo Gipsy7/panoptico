@@ -24,7 +24,7 @@ function Passo({ p }: { p: PassoDoCaminho }) {
       ) : (
         <>
           <p className="font-semibold">{p.etapa}</p>
-          <p className="text-xs leading-relaxed text-muted-foreground">Texto oficial: {p.descricao}</p>
+          <p className="text-sm leading-relaxed text-muted-foreground">Texto oficial: {p.descricao}</p>
         </>
       )}
     </li>

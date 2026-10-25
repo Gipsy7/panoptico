@@ -62,7 +62,7 @@ export function AgendaSecao({
         <h2 id="agenda-titulo" className="text-2xl">
           Agenda de compromissos
         </h2>
-        <p className="text-xs text-muted-foreground">
+        <p className="text-sm text-muted-foreground">
           Reuniões, eventos, audiências e viagens que o agente público declarou (e-Agendas, da Controladoria-Geral da
           União)
         </p>
@@ -110,7 +110,7 @@ export function AgendaSecao({
               </p>
               {i.assunto && <p className="break-words">{i.assunto}</p>}
               {(i.cargo || i.orgao) && (
-                <p className="text-xs text-muted-foreground">{[i.cargo, i.orgao].filter(Boolean).join(" · ")}</p>
+                <p className="text-sm text-muted-foreground">{[i.cargo, i.orgao].filter(Boolean).join(" · ")}</p>
               )}
               {(i.local || i.destino) && (
                 <p className="text-sm text-muted-foreground">
@@ -133,7 +133,7 @@ export function AgendaSecao({
               )}
               <LinkExterno
                 href={i.url}
-                className="alvo-link self-start text-xs underline underline-offset-2"
+                className="alvo-link self-start text-sm underline underline-offset-2"
               >
                 Ver o registro na fonte
               </LinkExterno>
@@ -164,7 +164,7 @@ export function AgendaSecao({
         </nav>
       )}
 
-      {dados.nota && <p className="text-xs text-muted-foreground">{dados.nota}</p>}
+      {dados.nota && <p className="text-sm text-muted-foreground">{dados.nota}</p>}
       <FonteRodape fonte={dados.fonte_nome} url={dados.fonte_url} atualizadoEm={dados.atualizado_em} />
     </section>
   );

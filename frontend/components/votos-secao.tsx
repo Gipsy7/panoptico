@@ -96,7 +96,7 @@ export function VotosSecao({
           {dados.itens.map((v, i) => (
             <li key={`${v.data}-${i}`} className="flex flex-col gap-2 p-4">
               <div className="flex flex-col gap-0.5">
-                <span className="text-xs text-muted-foreground">{formatarData(v.data)}</span>
+                <span className="text-sm text-muted-foreground">{formatarData(v.data)}</span>
                 {v.proposicao &&
                   (v.id_externo ? (
                     <Link

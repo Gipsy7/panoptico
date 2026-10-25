@@ -125,7 +125,7 @@ async function Escolher({ ids }: { ids: number[] }) {
     <div className="flex flex-col gap-4">
       {ids.length === 1 && (
         <div className="flex items-center gap-3">
-          <FotoVereador vereador={v} tamanho={48} />
+          <FotoVereador vereador={v} tamanho={48} decorativa />
           <div>
             <p className="font-semibold">{v.nome}</p>
             <p className="text-sm text-muted-foreground">{v.partido}</p>
@@ -140,10 +140,10 @@ async function Escolher({ ids }: { ids: number[] }) {
               href={endereco([...ids, c.id])}
               className="flex min-h-11 items-center gap-3 py-2 hover:bg-accent/50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-bronze"
             >
-              <FotoVereador vereador={c} tamanho={36} />
+              <FotoVereador vereador={c} tamanho={36} decorativa />
               <span className="min-w-0">
                 <span className="block truncate font-medium">{c.nome}</span>
-                <span className="text-[13px] text-muted-foreground">
+                <span className="text-sm text-muted-foreground">
                   {[c.partido, c.titular ? null : "suplente"].filter(Boolean).join(" · ")}
                 </span>
               </span>
@@ -204,7 +204,7 @@ function Resultado({ dados, diferencas }: { dados: ComparacaoLocalN; diferencas:
     nome: p.nome,
     sub: p.partido ?? "",
     href: `/${rota}/${p.id}`,
-    foto: <FotoVereador vereador={p} tamanho={40} />,
+    foto: <FotoVereador vereador={p} tamanho={40} decorativa />,
     remover: endereco(ids.filter((i) => i !== p.id)),
   }));
 

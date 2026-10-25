@@ -18,7 +18,7 @@ export default function Home() {
   return (
     <div data-largura="larga" className="flex flex-col gap-[var(--esp-16)]">
       <LocalizacaoProvider>
-      <section className="grid items-start gap-12 pt-2 md:grid-cols-[minmax(0,1fr)_minmax(0,25rem)] md:gap-16 md:pt-10">
+      <section className="grid grid-cols-1 items-start gap-12 pt-2 md:grid-cols-[minmax(0,1fr)_minmax(0,25rem)] md:gap-16 md:pt-10">
         <div className="flex flex-col gap-6">
           <div className="flex items-center gap-3">
             <Marca tamanho={28} animada traco={2.6} className="text-bronze" />
@@ -82,7 +82,7 @@ async function DinheiroFederalHome() {
   const { brasil, ufs, ano, avisos, fontes } = r.dados;
   const dataFonte = fontes.map((f) => f.atualizado_em).filter((d): d is string => Boolean(d)).sort()[0] ?? null;
   return (
-    <section aria-labelledby="impostos-titulo" className="revelar grid items-start gap-8 md:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)] md:gap-16">
+    <section aria-labelledby="impostos-titulo" className="revelar grid grid-cols-1 items-start gap-8 md:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)] md:gap-16">
       <div className="flex flex-col gap-4">
         <p className="sobretitulo">Impostos e repasses</p>
         <h2 id="impostos-titulo" className="text-3xl leading-tight text-balance sm:text-4xl">
@@ -204,7 +204,7 @@ const RECURSOS = [
 
 function OQueVoceEncontra() {
   return (
-    <section aria-labelledby="encontra-titulo" className="revelar grid gap-8 md:grid-cols-[minmax(0,1fr)_minmax(0,1.6fr)] md:gap-16">
+    <section aria-labelledby="encontra-titulo" className="revelar grid grid-cols-1 gap-8 md:grid-cols-[minmax(0,1fr)_minmax(0,1.6fr)] md:gap-16">
       <div className="flex flex-col gap-3">
         <p className="sobretitulo">O que você encontra</p>
         <h2 id="encontra-titulo" className="text-4xl leading-tight text-balance">
@@ -236,7 +236,7 @@ function OQueVoceEncontra() {
 
 function PorQuePanoptico() {
   return (
-    <section aria-labelledby="porque-titulo" className="revelar grid items-center gap-8 md:grid-cols-[minmax(0,1fr)_minmax(0,18rem)] md:gap-16">
+    <section aria-labelledby="porque-titulo" className="revelar grid grid-cols-1 items-center gap-8 md:grid-cols-[minmax(0,1fr)_minmax(0,18rem)] md:gap-16">
       <div className="flex flex-col gap-3">
         <p className="sobretitulo">A ideia</p>
         <h2 id="porque-titulo" className="text-4xl leading-tight text-balance">

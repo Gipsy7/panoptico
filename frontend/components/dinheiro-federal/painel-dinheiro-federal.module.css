@@ -42,7 +42,7 @@
   border: 0;
   background: none;
   cursor: pointer;
-  font-size: 14px;
+  font-size: 0.875rem;
   color: var(--muted-foreground);
 }
 .abas button[aria-pressed="true"] {
@@ -64,7 +64,7 @@
   background: var(--card);
   border-radius: 2px;
   cursor: pointer;
-  font-size: 14px;
+  font-size: 0.875rem;
   white-space: nowrap;
 }
 .chips button[aria-pressed="true"] {
@@ -75,7 +75,7 @@
 .seletor {
   min-height: 40px;
   padding: 0 10px;
-  font-size: 14px;
+  font-size: 0.875rem;
   border: 1px solid var(--input);
   background: var(--card);
   border-radius: 2px;
@@ -84,7 +84,7 @@
   display: none;
   align-items: center;
   gap: 6px;
-  font-size: 12px;
+  font-size: 0.875rem;
   color: var(--muted-foreground);
   min-width: 0;
 }
@@ -93,7 +93,7 @@
   min-width: 0;
   min-height: 32px;
   padding: 0 4px;
-  font-size: 13px;
+  font-size: 0.875rem;
   border: 0;
   background: none;
   text-overflow: ellipsis;
@@ -167,11 +167,11 @@
   background: var(--background);
   cursor: pointer;
   border-radius: 2px;
-  font-size: 14px;
+  font-size: 0.875rem;
   white-space: nowrap;
 }
 .onde {
-  font-size: 14px;
+  font-size: 0.875rem;
   color: var(--muted-foreground);
   white-space: nowrap;
   overflow: hidden;
@@ -196,7 +196,7 @@
 .zoom button {
   width: 40px;
   height: 40px;
-  font-size: 20px;
+  font-size: 1.25rem;
   line-height: 1;
   cursor: pointer;
   border: 0;
@@ -209,7 +209,7 @@
 .legenda {
   border-top: 1px solid var(--border);
   padding: 8px 12px 10px;
-  font-size: 13px;
+  font-size: 0.875rem;
   display: flex;
   flex-direction: column;
   gap: 4px;
@@ -360,7 +360,7 @@
     border: 0;
     background: none;
     cursor: pointer;
-    font-size: 14px;
+    font-size: 0.875rem;
   }
   .chips {
     display: none;
@@ -401,7 +401,7 @@
   }
   .legenda {
     padding: 4px 16px 8px;
-    font-size: 12px;
+    font-size: 0.875rem;
     gap: 3px;
   }
   .legendaTexto {
@@ -461,7 +461,7 @@
     cursor: pointer;
     padding: 8px 0 0;
     color: var(--muted-foreground);
-    font-size: 12px;
+    font-size: 0.875rem;
   }
   .alca i {
     width: 40px;

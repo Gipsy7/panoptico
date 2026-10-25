@@ -21,7 +21,7 @@ export function FornecedoresSecao({ dados, cidade }: { dados: Fornecedores; cida
         <h2 id="fornecedores-titulo" className="text-2xl">
           Para quem {cidade} pagou em {dados.ano}
         </h2>
-        <p className="text-xs text-muted-foreground">
+        <p className="text-sm text-muted-foreground">
           Valores pagos, como a cidade informou ao Tribunal de Contas do estado
         </p>
       </div>
@@ -38,7 +38,7 @@ export function FornecedoresSecao({ dados, cidade }: { dados: Fornecedores; cida
                   <span className="block">
                     {f.nome_omitido ? "MEI (nome omitido por conter CPF)" : f.fornecedor}
                   </span>
-                  <span className="block text-xs text-muted-foreground">
+                  <span className="block text-sm text-muted-foreground">
                     {[formatarCnpj(f.documento) && `CNPJ ${formatarCnpj(f.documento)}`, `${f.pagamentos} pagamentos`]
                       .filter(Boolean)
                       .join(" · ")}
@@ -50,7 +50,7 @@ export function FornecedoresSecao({ dados, cidade }: { dados: Fornecedores; cida
           </ul>
         </details>
       ))}
-      <p className="text-xs text-muted-foreground">
+      <p className="text-sm text-muted-foreground">
         Os maiores fornecedores de cada órgão; o restante aparece somado. Pagamentos a pessoas
         físicas (servidores, autônomos, beneficiários) aparecem somados, sem nomes, e a folha de
         salários aparece separada. Por enquanto, só para cidades de São Paulo (exceto a capital,

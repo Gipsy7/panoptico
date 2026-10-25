@@ -151,7 +151,7 @@ export async function PerfilMandatoLocal({ id, paginaVotos }: { id: string; pagi
   return (
     <article data-largura="larga" className="pagina-secoes">
       <header className="flex items-start gap-4">
-        <FotoVereador vereador={v} tamanho={72} />
+        <FotoVereador vereador={v} tamanho={72} decorativa />
         <div className="flex min-w-0 flex-col gap-1">
           <p className="sobretitulo">{cargo}</p>
           <h1 className="titulo-pagina">{v.nome}</h1>
@@ -376,7 +376,7 @@ function ProjetosLocaisSecao({ v, nomeCasa }: { v: VereadorDetalhe; nomeCasa: st
         <h2 id="atuacao-titulo" className="text-2xl">
           Projetos e proposições
         </h2>
-        <p className="text-xs text-muted-foreground">Ano atual e anterior, como a {nomeCasa} publica</p>
+        <p className="text-sm text-muted-foreground">Ano atual e anterior, como a {nomeCasa} publica</p>
       </div>
       {v.proposicoes_por_tipo.length === 0 ? (
         <p className="text-muted-foreground">Nenhuma proposição como autor neste período.</p>
@@ -390,7 +390,7 @@ function ProjetosLocaisSecao({ v, nomeCasa }: { v: VereadorDetalhe; nomeCasa: st
           ))}
         </dl>
       )}
-      <p className="text-xs text-muted-foreground">
+      <p className="text-sm text-muted-foreground">
         Requerimentos e indicações são pedidos (de informação, de obra, de serviço); projetos podem virar lei. Conta
         como autor ou coautor.
       </p>
@@ -404,7 +404,7 @@ function ProjetosLocaisSecao({ v, nomeCasa }: { v: VereadorDetalhe; nomeCasa: st
                   {p.tipo} {p.numero ? `nº ${p.numero}` : ""}/{p.ano}
                 </LinkExterno>
                 <TextoLongo linhas={3}>{p.ementa}</TextoLongo>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-sm text-muted-foreground">
                   {p.data_apresentacao ? formatarData(p.data_apresentacao) : ""}
                   {p.em_tramitacao === true ? " · em tramitação" : p.em_tramitacao === false ? " · tramitação encerrada" : ""}
                   {p.primeiro_autor ? "" : " · coautor"}

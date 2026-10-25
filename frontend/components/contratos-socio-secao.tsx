@@ -61,12 +61,12 @@ export async function ContratosSocioSecao({ pessoaId }: { pessoaId: number }) {
         </details>
       )}
       {d.total_contratos > d.itens.length && (
-        <p className="text-xs text-muted-foreground">
+        <p className="text-sm text-muted-foreground">
           Mostramos os {d.itens.length} mais recentes de {d.total_contratos}.
         </p>
       )}
 
-      <p className="text-xs text-muted-foreground">
+      <p className="text-sm text-muted-foreground">
         A ligação vem do quadro de sócios da Receita Federal (CPF parcial e nome iguais). Ser sócio
         de uma empresa contratada pelo poder público não é, por si, irregularidade: o dado mostra só
         que o contrato existe. Entram contratos publicados no PNCP{desde ? ` desde ${desde}` : ""},
@@ -89,7 +89,7 @@ function Contrato({ c }: { c: ContratoPncp }) {
   const orgao = [c.orgao, c.municipio && c.uf ? `${c.municipio}/${c.uf}` : null].filter(Boolean).join(" · ");
   return (
     <li className="flex flex-col gap-1.5 py-3">
-      <p className="text-xs text-muted-foreground tabular-nums">Publicado em {formatarData(c.publicado_em)}</p>
+      <p className="text-sm text-muted-foreground tabular-nums">Publicado em {formatarData(c.publicado_em)}</p>
       <p className="text-sm">{c.objeto ? resumir(c.objeto) : "Objeto não informado"}</p>
       <dl className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-0.5 text-sm">
         {orgao && (
@@ -133,7 +133,7 @@ function Contrato({ c }: { c: ContratoPncp }) {
           </>
         )}
       </dl>
-      <p className="text-xs">
+      <p className="text-sm">
         <LinkExterno href={c.url} className="underline underline-offset-2">
           Ver no PNCP
         </LinkExterno>

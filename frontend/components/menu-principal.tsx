@@ -67,13 +67,17 @@ export function MenuPrincipal() {
         <AlternarTema />
       </nav>
 
-      <div className="flex items-center gap-2 xl:hidden">
+      <div className="flex items-center gap-1 min-[22rem]:gap-2 xl:hidden">
         {/* Botão de tema no cabeçalho quando cabe (a partir de 640 px); abaixo disso, no topo do menu. */}
         <div className="hidden sm:block">
           <AlternarTema />
         </div>
-        <Link href="/#cep" onClick={() => setAberto(false)} aria-label="Buscar seus representantes" className="botao-linha px-3 whitespace-nowrap">
-          Buscar
+        <Link href="/#cep" onClick={() => setAberto(false)} aria-label="Buscar seus representantes" className="botao-linha px-3 whitespace-nowrap max-[22rem]:w-11 max-[22rem]:px-0">
+          <span className="max-[22rem]:sr-only">Buscar</span>
+          <svg aria-hidden viewBox="0 0 24 24" className="hidden size-5 max-[22rem]:block" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round">
+            <circle cx="11" cy="11" r="6" />
+            <path d="M16 16l4 4" />
+          </svg>
         </Link>
         <button
           ref={botao}

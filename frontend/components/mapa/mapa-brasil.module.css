@@ -119,14 +119,14 @@
   font-weight: 600;
 }
 .sigla {
-  font-size: 11px;
+  font-size: 0.6875rem;
   letter-spacing: 0.02em;
 }
 .nome {
-  font-size: 12px;
+  font-size: 0.75rem;
 }
 .nomeCidade {
-  font-size: 13px;
+  font-size: 0.8125rem;
 }
 .guia {
   stroke: var(--foreground);

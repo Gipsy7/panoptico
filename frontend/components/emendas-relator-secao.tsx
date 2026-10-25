@@ -11,7 +11,7 @@ export function EmendasRelatorSecao({ dados }: { dados: EmendasRelator }) {
         <h2 id="emendas-relator-titulo" className="text-2xl">
           Indicações de emendas de relator (RP9)
         </h2>
-        <p className="text-xs text-muted-foreground">
+        <p className="text-sm text-muted-foreground">
           Pedidos de recursos registrados em nome deste parlamentar na planilha oficial do
           Congresso, orçamento de {dados.ano}
         </p>

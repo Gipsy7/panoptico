@@ -66,7 +66,7 @@ export function DadosPessoais({
         </div>
       )}
       {pessoais && (
-        <p className="text-xs text-muted-foreground">
+        <p className="text-sm text-muted-foreground">
           Declarado pelo próprio candidato ao TSE em {pessoais.ano}. Gênero e cor ou raça são
           autodeclarados.
         </p>

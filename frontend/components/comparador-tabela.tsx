@@ -63,7 +63,7 @@ export function ComparadorTabela({
             <span className="line-clamp-2 min-h-[2.5em] break-words text-sm font-semibold leading-tight">
               {c.nome}
             </span>
-            <span className="text-[13px] leading-tight text-muted-foreground">{c.sub}</span>
+            <span className="text-sm leading-tight text-muted-foreground">{c.sub}</span>
           </Link>
           <Link href={c.remover} className="botao-linha mt-auto w-full px-2!">
             Remover<span className="sr-only"> {c.nome}</span>
@@ -135,7 +135,7 @@ export function ComparadorTabela({
                   >
                     <span className="block [overflow-wrap:normal] text-sm leading-tight">{l.rotulo}</span>
                     {l.detalhe && (
-                      <span className="mt-1 block text-[13px] leading-tight text-muted-foreground">{l.detalhe}</span>
+                      <span className="mt-1 block text-sm leading-tight text-muted-foreground">{l.detalhe}</span>
                     )}
                   </th>
                   {l.celulas.map((c, i) => (
@@ -174,7 +174,7 @@ function Celula({ c }: { c: CelulaTabela }) {
           )}
         </span>
       )}
-      {c.media && <span className="text-[13px] leading-tight text-muted-foreground">{c.media}</span>}
+      {c.media && <span className="text-sm leading-tight text-muted-foreground">{c.media}</span>}
     </div>
   );
 }

@@ -282,7 +282,7 @@ async function Perfil({
           ]}
         />
         <header className="flex items-start gap-4">
-          <Foto parlamentar={p} largura={96} prioridade />
+          <Foto parlamentar={p} largura={96} prioridade decorativa />
           <div className="flex min-w-0 flex-col gap-1">
             <p className="sobretitulo">{p.casa === "senado" ? "Senador" : "Deputado federal"}</p>
             <h1 className="titulo-pagina">{p.nome_parlamentar}</h1>

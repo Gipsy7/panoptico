@@ -18,7 +18,7 @@ export function ComissoesSecao({ dados, parlamentarId }: { dados: VotosComissoes
         <h2 id="comissoes-titulo" className="text-2xl">
           Votos nas comissões
         </h2>
-        <p className="text-xs text-muted-foreground">
+        <p className="text-sm text-muted-foreground">
           Votações nominais nas comissões, onde os projetos são discutidos antes do Plenário
         </p>
       </div>
@@ -39,7 +39,7 @@ export function ComissoesSecao({ dados, parlamentarId }: { dados: VotosComissoes
         <ul className="mt-3 lista-fios flex flex-col">
           {dados.itens.map((v, i) => (
             <li key={`${v.data}-${i}`} className="flex flex-col gap-1 py-3">
-              <span className="text-xs text-muted-foreground">
+              <span className="text-sm text-muted-foreground">
                 {formatarData(v.data)} · {v.orgao_nome ?? v.orgao_sigla}
               </span>
               {v.proposicao &&
@@ -51,7 +51,7 @@ export function ComissoesSecao({ dados, parlamentarId }: { dados: VotosComissoes
                   <span className="font-medium">{v.proposicao}</span>
                 ))}
               {v.proposicao_ementa && <TextoLongo linhas={3}>{v.proposicao_ementa}</TextoLongo>}
-              <p className="line-clamp-2 text-xs text-muted-foreground">{v.descricao}</p>
+              <p className="line-clamp-2 text-sm text-muted-foreground">{v.descricao}</p>
               <p className="text-sm">
                 Votou: <span className="font-semibold">{v.voto || "Sem voto registrado"}</span>
               </p>
@@ -80,7 +80,7 @@ export function ComissoesSecao({ dados, parlamentarId }: { dados: VotosComissoes
           </nav>
         )}
       </details>
-      <p className="text-xs text-muted-foreground">
+      <p className="text-sm text-muted-foreground">
         Cada parlamentar vota só nas comissões de que faz parte, então aqui não há percentual nem
         comparação com a média: a presença e o alinhamento contam só o Plenário.
       </p>

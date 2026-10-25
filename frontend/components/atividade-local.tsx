@@ -16,7 +16,7 @@ function PorQueFaltaLocal({ v }: { v: VereadorDetalhe }) {
   const casa = casaNaMatriz(v);
   if (!casa) return null;
   return (
-    <p className="text-xs">
+    <p className="text-sm">
       <PorQueFalta uf={v.uf} casa={casa} />
     </p>
   );

@@ -158,7 +158,10 @@ com `scroll-margin-top` igual à altura dos dois cabeçalhos.
    O que for mais largo rola dentro do próprio contêiner (`overflow-x-auto`), nunca no `body`.
 2. **Alvos de 44 px ou mais** (altura e largura), com 8 px de espaço entre alvos. Link só de texto em corpo de frase é exceção;
    links soltos (ex.: "trocar") ganham `min-h-11 inline-flex items-center`.
-3. Conteúdo a 14 px no mínimo; `text-xs` só em metadado repetido (UF, casa) e nunca em número ou texto de explicação.
+3. Conteúdo a 14 px no mínimo (`text-sm`): texto corrido, explicações, fonte e data, notas, legendas e avisos. Não use `text-[13px]` nem `text-xs` nisso.
+   Fontes em CSS modules usam `rem`, nunca `px`, para acompanhar o tamanho de fonte do navegador. Exceções permitidas (12 a 13 px, contraste de 4,5:1 ou mais, comentário curto no código quando não óbvio):
+   rótulo curto em caixa alta com espaçamento (`.sobretitulo`, títulos de grupo da busca), pílula curta (`.chip`, selo de status) e texto dentro de SVG com `viewBox`
+   (mapa, desenhos dos prédios; escala com a figura e tem alternativa em texto). Nunca em número ou explicação.
 4. Margem lateral de 16 px; nada de `fixed` com largura em px.
 5. Títulos com `text-balance` e `break-words`; nomes longos de partido e de projeto quebram, não estouram.
 6. Uma ação primária por tela; botões de formulário em largura total.

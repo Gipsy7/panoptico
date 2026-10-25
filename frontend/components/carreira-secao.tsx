@@ -55,7 +55,7 @@ export async function CarreiraSecao({ pessoaId }: { pessoaId: number }) {
                   Ver na fonte oficial
                 </LinkExterno>
               )}
-              {c.ligacao && <span className="text-xs text-muted-foreground">{c.ligacao}</span>}
+              {c.ligacao && <span className="text-sm text-muted-foreground">{c.ligacao}</span>}
             </li>
           );
         })}

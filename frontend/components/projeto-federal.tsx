@@ -243,7 +243,7 @@ function DoQueSeTrata({ d, sit }: { d: ProjetoFederal; sit: ReturnType<typeof si
         <div className="flex flex-col gap-0.5">
           <p className="text-sm text-muted-foreground">Situação</p>
           {sit.rotulo && <p className="font-semibold">{sit.rotulo}</p>}
-          {sit.oficial && <p className="text-xs text-muted-foreground">Texto oficial: {sit.oficial}</p>}
+          {sit.oficial && <p className="text-sm text-muted-foreground">Texto oficial: {sit.oficial}</p>}
         </div>
       )}
 
@@ -272,7 +272,7 @@ function DoQueSeTrata({ d, sit }: { d: ProjetoFederal; sit: ReturnType<typeof si
                   <Link href={`/parlamentar/${a.parlamentar_id}`} className="font-medium underline underline-offset-2">
                     {a.nome}
                   </Link>
-                  <span className="text-xs text-muted-foreground">{[a.partido, a.uf].filter(Boolean).join(" · ")}</span>
+                  <span className="text-sm text-muted-foreground">{[a.partido, a.uf].filter(Boolean).join(" · ")}</span>
                 </li>
               ))}
             </ul>
@@ -288,7 +288,7 @@ function DoQueSeTrata({ d, sit }: { d: ProjetoFederal; sit: ReturnType<typeof si
                     <Link href={`/parlamentar/${a.parlamentar_id}`} className="underline underline-offset-2">
                       {a.nome}
                     </Link>
-                    <span className="text-xs text-muted-foreground">{[a.partido, a.uf].filter(Boolean).join(" · ")}</span>
+                    <span className="text-sm text-muted-foreground">{[a.partido, a.uf].filter(Boolean).join(" · ")}</span>
                   </li>
                 ))}
               </ul>
@@ -413,7 +413,7 @@ function QuemVotouSecao({ d, ufInicial }: { d: ProjetoFederal; ufInicial: string
           </p>
         </div>
       )}
-      <p className="text-xs text-muted-foreground">{b.regra}</p>
+      <p className="text-sm text-muted-foreground">{b.regra}</p>
       <FonteRodape fonte={b.fonte_nome} url={b.fonte_url} atualizadoEm={b.atualizado_em} />
     </section>
   );

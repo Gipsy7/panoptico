@@ -324,7 +324,7 @@ function VotosLocais({
                     <Link href={linkParlamentar(d.casa, v.mandato_id)} className="truncate underline underline-offset-2">
                       {v.nome}
                     </Link>
-                    {v.partido && <span className="text-xs text-muted-foreground">{v.partido}</span>}
+                    {v.partido && <span className="text-sm text-muted-foreground">{v.partido}</span>}
                   </span>
                   {g.chave === "outros" && <span className="shrink-0 text-right text-sm text-muted-foreground">{v.voto}</span>}
                 </li>

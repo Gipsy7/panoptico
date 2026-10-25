@@ -13,7 +13,7 @@ function AreasLista({ lista, maior }: { lista: ContasMunicipio["por_area"]; maio
             <span className="min-w-0">{a.nome}</span>
             <span className="shrink-0 tabular-nums">
               {formatarReais(a.valor, true)}
-              <span className="ml-1 text-xs text-muted-foreground">
+              <span className="ml-1 text-sm text-muted-foreground">
                 {a.percentual.toLocaleString("pt-BR", { maximumFractionDigits: 1 })}%
               </span>
             </span>
@@ -40,7 +40,7 @@ export function ContasSecao({ dados, cidade }: { dados: ContasMunicipio; cidade:
         <h2 id="contas-titulo" className="text-2xl">
           Contas de {cidade} em {dados.ano}
         </h2>
-        <p className="text-xs text-muted-foreground">
+        <p className="text-sm text-muted-foreground">
           O que a prefeitura declarou ao Tesouro Nacional (Declaração de Contas Anuais)
         </p>
       </div>
@@ -57,7 +57,7 @@ export function ContasSecao({ dados, cidade }: { dados: ContasMunicipio; cidade:
             <>
               <dd className="numero text-xl break-words sm:text-3xl">{formatarReais(dados.despesa_paga!, true)}</dd>
               {dados.despesa_por_habitante != null && (
-                <dd className="text-xs text-muted-foreground">
+                <dd className="text-sm text-muted-foreground">
                   {formatarReais(dados.despesa_por_habitante, true)} por habitante
                 </dd>
               )}
@@ -72,7 +72,7 @@ export function ContasSecao({ dados, cidade }: { dados: ContasMunicipio; cidade:
           Média dos {dados.municipios_na_media?.toLocaleString("pt-BR")} municípios do estado:{" "}
           <span className="tabular-nums">{formatarReais(dados.media_uf_despesa_por_habitante, true)}</span> por
           habitante
-          {dados.media_uf_descricao && <span className="block text-xs">{dados.media_uf_descricao}</span>}
+          {dados.media_uf_descricao && <span className="block text-sm">{dados.media_uf_descricao}</span>}
         </p>
       )}
       {informado && dados.camara != null ? (
@@ -102,7 +102,7 @@ export function ContasSecao({ dados, cidade }: { dados: ContasMunicipio; cidade:
           )}
         </div>
       )}
-      <p className="text-xs text-muted-foreground">
+      <p className="text-sm text-muted-foreground">
         Valores pagos no ano, pela função de governo (a classificação oficial do orçamento).
         &quot;Encargos especiais&quot; inclui dívida e transferências; &quot;Legislativa&quot; é a câmara.
       </p>

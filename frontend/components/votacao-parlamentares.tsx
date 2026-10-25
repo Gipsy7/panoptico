@@ -128,7 +128,7 @@ export function VotacaoParlamentares({
                   <Link href={`/parlamentar/${p.parlamentar_id}`} className="truncate underline underline-offset-2">
                     {p.nome}
                   </Link>
-                  <span className="text-xs text-muted-foreground">
+                  <span className="text-sm text-muted-foreground">
                     {agrupar === "partido" ? p.uf : p.partido}
                   </span>
                 </span>

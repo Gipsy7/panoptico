@@ -16,7 +16,7 @@ export function ProjetosSecao({ projetos, casa }: { projetos: Projetos; casa: Ca
         <h2 id="projetos-titulo" className="text-2xl">
           Projetos de lei
         </h2>
-        <p className="text-xs text-muted-foreground">
+        <p className="text-sm text-muted-foreground">
           Proposições legislativas apresentadas desde fevereiro de {desde} (legislatura atual)
         </p>
       </div>
@@ -49,7 +49,7 @@ export function ProjetosSecao({ projetos, casa }: { projetos: Projetos; casa: Ca
             {projetos.por_tipo.map((t) => (
               <tr key={t.sigla} className="border-t">
                 <th scope="row" className="py-2 pr-3 font-normal">
-                  {t.nome} <span className="text-xs text-muted-foreground">({t.sigla})</span>
+                  {t.nome} <span className="text-sm text-muted-foreground">({t.sigla})</span>
                 </th>
                 <td className="py-2 pr-3 text-right tabular-nums">{t.primeiro_autor}</td>
                 <td className="py-2 text-right tabular-nums">{t.coautor}</td>
@@ -114,7 +114,7 @@ function ListaProjetos({ itens }: { itens: ProjetoItem[] }) {
             {p.sigla_tipo} {p.numero}/{p.ano}
           </LinkExterno>
           <TextoLongo linhas={3}>{p.ementa}</TextoLongo>
-          <p className="text-xs text-muted-foreground">
+          <p className="text-sm text-muted-foreground">
             Apresentado em {formatarData(p.data_apresentacao)} ·{" "}
             {p.situacao ?? "Situação não informada"}
           </p>

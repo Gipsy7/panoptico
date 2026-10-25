@@ -69,7 +69,7 @@ export function QuemVotou({
                       <Link href={`/parlamentar/${p.parlamentar_id}`} className="truncate underline underline-offset-2">
                         {p.nome}
                       </Link>
-                      <span className="text-xs text-muted-foreground">
+                      <span className="text-sm text-muted-foreground">
                         {p.partido} · {p.uf}
                       </span>
                     </span>

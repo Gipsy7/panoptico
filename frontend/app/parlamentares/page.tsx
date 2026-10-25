@@ -270,7 +270,7 @@ function Cartao({ p, ordenar }: { p: ParlamentarNaLista; ordenar: CriterioId }) 
       className="flex h-full flex-col gap-3 py-4 transition-colors duration-300 hover:bg-accent/50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-bronze"
     >
       <div className="flex items-center gap-3">
-        <Foto parlamentar={p} largura={44} />
+        <Foto parlamentar={p} largura={44} decorativa />
         <div className="min-w-0">
           <p className="truncate font-semibold">{p.nome_parlamentar}</p>
           <p className="text-sm text-muted-foreground">
@@ -278,7 +278,7 @@ function Cartao({ p, ordenar }: { p: ParlamentarNaLista; ordenar: CriterioId }) 
           </p>
         </div>
       </div>
-      <dl className="grid grid-cols-3 gap-x-2 gap-y-1 text-xs">
+      <dl className="grid grid-cols-3 gap-x-2 gap-y-1 text-sm">
         {numeros.map((n) => (
           <div key={n.id} className={n.id === ordenar ? "rounded-md bg-accent px-1.5 py-1" : "px-1.5 py-1"}>
             <dt className="text-muted-foreground">{n.rotulo}</dt>

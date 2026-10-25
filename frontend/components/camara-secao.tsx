@@ -45,7 +45,7 @@ export function CamaraSecao({
                 <p className="text-sm text-muted-foreground">
                   {[v.partido, v.titular ? null : "suplente"].filter(Boolean).join(" · ")}
                 </p>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-sm text-muted-foreground">
                   {[
                     `${v.projetos} ${v.projetos === 1 ? "projeto" : "projetos"}`,
                     `${v.proposicoes} proposições`,

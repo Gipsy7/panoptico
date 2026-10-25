@@ -83,7 +83,7 @@ function presenca(n: ParlamentarNaLista) {
 function Pessoa({ p }: { p: ParlamentarResumo }) {
   return (
     <Link href={`/parlamentar/${p.id}`} className="flex min-w-0 items-center gap-3 hover:opacity-80">
-      <Foto parlamentar={p} largura={44} />
+      <Foto parlamentar={p} largura={44} decorativa />
       <span className="flex min-w-0 flex-col gap-1">
         <span className="line-clamp-2 break-words text-sm font-semibold leading-tight">{p.nome_parlamentar}</span>
         <span className="flex flex-wrap gap-1">

@@ -62,7 +62,7 @@ export default function PrivacidadePage() {
         .
       </Secao>
 
-      <p className="text-xs text-muted-foreground">Última atualização: outubro de 2026.</p>
+      <p className="text-sm text-muted-foreground">Última atualização: outubro de 2026.</p>
     </article>
   );
 }

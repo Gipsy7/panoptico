@@ -124,7 +124,7 @@ function Pessoa({ p }: { p: ParlamentarResumo }) {
       href={`/parlamentar/${p.id}`}
       className="flex min-w-0 flex-col items-center gap-2 text-center transition-opacity hover:opacity-80"
     >
-      <Foto parlamentar={p} largura={64} />
+      <Foto parlamentar={p} largura={64} decorativa />
       <span className="font-semibold leading-tight">{p.nome_parlamentar}</span>
       <span className="text-sm text-muted-foreground">
         {CASA_CURTA[p.casa]} · {[p.partido, p.uf].filter(Boolean).join(" · ")}
@@ -202,7 +202,7 @@ function Resultado({
     nome: p.nome_parlamentar,
     sub: `${CASA_CURTA[p.casa]} · ${[p.partido, p.uf].filter(Boolean).join(" · ")}`,
     href: `/parlamentar/${p.id}`,
-    foto: <Foto parlamentar={p} largura={40} />,
+    foto: <Foto parlamentar={p} largura={40} decorativa />,
     remover: endereco(
       idsAtuais.filter((i) => i !== p.id),
       dados.ano,
@@ -351,7 +351,7 @@ function Resultado({
                       {p.sigla_tipo} {p.numero}/{p.ano}
                     </LinkExterno>
                     <p className="text-sm">{p.ementa}</p>
-                    <p className="text-[13px] text-muted-foreground">
+                    <p className="text-sm text-muted-foreground">
                       {formatarData(p.data_apresentacao)} · {p.situacao ?? "Situação não informada"}
                     </p>
                   </li>

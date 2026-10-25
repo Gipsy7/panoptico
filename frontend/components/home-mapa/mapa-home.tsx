@@ -182,7 +182,7 @@ export function MapaHome({ ufs }: { ufs: UfDoMapa[] }) {
         )}
       </div>
       <div
-        className={`${estilos.caixa} flex items-center gap-2 text-xs text-muted-foreground`}
+        className={`${estilos.caixa} flex items-center gap-2 text-sm text-muted-foreground`}
         aria-hidden
       >
         <span>menos</span>

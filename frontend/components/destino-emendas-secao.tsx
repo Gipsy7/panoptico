@@ -19,7 +19,7 @@ export function DestinoEmendasSecao({ dados }: { dados: DestinoEmendas }) {
         <h2 id="destino-emendas-titulo" className="text-2xl">
           O que aconteceu com o dinheiro das emendas
         </h2>
-        <p className="text-xs text-muted-foreground">
+        <p className="text-sm text-muted-foreground">
           Convênios e transferências especiais ligados às emendas individuais deste parlamentar, de{" "}
           {dados.desde} em diante
         </p>

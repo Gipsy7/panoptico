@@ -11,7 +11,7 @@ export function FonteRodape({
   atualizadoEm?: string | null;
 }) {
   return (
-    <p className="text-xs text-muted-foreground">
+    <p className="text-sm text-muted-foreground">
       Fonte:{" "}
       {url ? (
         <LinkExterno href={url} className="underline underline-offset-2">

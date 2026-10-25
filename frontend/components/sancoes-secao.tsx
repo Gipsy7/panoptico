@@ -98,7 +98,7 @@ function Item({ item }: { item: SancaoItem }) {
           </LinkExterno>
         </p>
       )}
-      {item.ligacao && <p className="text-xs text-muted-foreground">{item.ligacao}</p>}
+      {item.ligacao && <p className="text-sm text-muted-foreground">{item.ligacao}</p>}
     </li>
   );
 }

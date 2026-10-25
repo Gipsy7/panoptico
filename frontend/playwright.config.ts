@@ -21,8 +21,11 @@ export default defineConfig({
   projects: [
     {
       name: "celular-360",
+      testIgnore: /reflow\.spec/,
       use: { viewport: { width: 360, height: 740 }, hasTouch: true, deviceScaleFactor: 2 },
     },
-    { name: "desktop-1280", use: { viewport: { width: 1280, height: 800 } } },
+    { name: "desktop-1280", testIgnore: /reflow\.spec/, use: { viewport: { width: 1280, height: 800 } } },
+    // Reflow (WCAG 1.4.10) e texto a 200% (1.4.4): só este spec, viewport definido dentro dele.
+    { name: "reflow", testMatch: /reflow\.spec/, use: { viewport: { width: 320, height: 640 } } },
   ],
 });

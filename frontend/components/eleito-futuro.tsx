@@ -44,7 +44,7 @@ export function SeloEleitoFuturo({ eleito, atualizadoEm }: { eleito: EleitoFutur
         {eleito.situacao && !eleito.segundo_turno && <> · {eleito.situacao}</>}
         {eleito.ja_no_cargo && <> · Segue no mandato de hoje até a posse.</>}
       </p>
-      <p className="mt-1 text-xs text-muted-foreground">
+      <p className="mt-1 text-sm text-muted-foreground">
         Fonte:{" "}
         <LinkExterno
           href={`https://dadosabertos.tse.jus.br/dataset/candidatos-${eleito.ano_eleicao}`}
@@ -72,7 +72,7 @@ function Lista({ itens }: { itens: EleitoFuturo[] }) {
               {[e.partido, e.uf].filter(Boolean).join(" · ")}
               {e.vice && <> · vice: {e.vice}</>}
             </span>
-            <span className="text-xs text-muted-foreground">
+            <span className="text-sm text-muted-foreground">
               {e.segundo_turno
                 ? `Disputa o 2º turno${e.data_segundo_turno ? ` em ${formatarData(e.data_segundo_turno)}` : ""}`
                 : e.situacao}

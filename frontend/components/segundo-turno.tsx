@@ -97,7 +97,7 @@ function Linha({
     <div className="border-b border-border py-3">
       <dt className="text-sm text-muted-foreground">
         {rotulo}
-        {detalhe && <span className="block text-[13px]">{detalhe}</span>}
+        {detalhe && <span className="block text-sm">{detalhe}</span>}
       </dt>
       <div className="mt-1 grid grid-cols-2 gap-3 sm:gap-6">
         {valores.map((v, i) => (
@@ -114,7 +114,7 @@ function Numero({ valor, apoio }: { valor: string; apoio?: string | null }) {
   return (
     <>
       <span className="numero text-xl leading-tight">{valor}</span>
-      {apoio && <span className="text-[13px] leading-snug text-muted-foreground tabular-nums">{apoio}</span>}
+      {apoio && <span className="text-sm leading-snug text-muted-foreground tabular-nums">{apoio}</span>}
     </>
   );
 }
@@ -170,7 +170,7 @@ function valorVice(c: CandidatoSegundoTurno) {
   return (
     <>
       <span className="text-sm font-medium leading-snug">{c.vice.nome_urna}</span>
-      {c.vice.partido && <span className="text-[13px] text-muted-foreground">{c.vice.partido}</span>}
+      {c.vice.partido && <span className="text-sm text-muted-foreground">{c.vice.partido}</span>}
     </>
   );
 }
@@ -351,7 +351,7 @@ export function DetalheCandidato({
                   </li>
                 ))}
               </ul>
-              <p className="text-[13px] text-muted-foreground">
+              <p className="text-sm text-muted-foreground">
                 Origem como o TSE classifica. Nomes de doadores pessoas físicas não são mostrados.
               </p>
             </>
@@ -375,7 +375,7 @@ export function DetalheCandidato({
                   <span>
                     <span className="tabular-nums">{e.ano}</span> · {e.cargo} · {e.unidade}
                   </span>
-                  <span className="text-[13px] text-muted-foreground">
+                  <span className="text-sm text-muted-foreground">
                     {[e.partido, e.situacao].filter(Boolean).join(" · ")}
                   </span>
                 </li>
@@ -397,7 +397,7 @@ export function DetalheCandidato({
               {c.sancoes.map((s, i) => (
                 <li key={i} className="flex flex-col gap-0.5 py-2">
                   <span className="break-words">{s.descricao}</span>
-                  <span className="text-[13px] text-muted-foreground">
+                  <span className="text-sm text-muted-foreground">
                     {[s.orgao, s.data ? formatarData(s.data) : null, s.situacao].filter(Boolean).join(" · ")}
                     {s.fonte_url && (
                       <>

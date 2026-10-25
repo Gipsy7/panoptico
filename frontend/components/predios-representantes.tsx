@@ -332,10 +332,10 @@ export function PrediosRepresentantes({
         </p>
         <p className="sobretitulo">{sel.nivel}</p>
         <h2 className="mt-1 text-[1.6rem] leading-tight">{sel.nome}</h2>
-        <p className="text-xs text-muted-foreground">{sel.oficial}</p>
+        <p className="text-sm text-muted-foreground">{sel.oficial}</p>
         <div className="my-4 border-l-[3px] border-bronze pl-3">
           <p className="text-lg leading-snug">{sel.faz}</p>
-          <p className="text-xs text-muted-foreground">Termo oficial: {sel.fazOficial}</p>
+          <p className="text-sm text-muted-foreground">Termo oficial: {sel.fazOficial}</p>
         </div>
 
         <h3 className="mt-5 text-base font-semibold">{sel.tituloPessoas}</h3>
