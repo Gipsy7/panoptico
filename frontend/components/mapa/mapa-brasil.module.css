@@ -56,6 +56,9 @@
 .mapa .mun:focus-visible {
   stroke: var(--foreground);
   stroke-width: 2px;
+  /* Invisível no tema normal (o contorno é o de .contornoFoco); no modo de alto contraste do
+     sistema (forced-colors) o navegador pinta esta borda. */
+  outline: 3px solid transparent;
 }
 .contornos path {
   fill: none;
@@ -69,6 +72,15 @@
 }
 .contornoFixo {
   stroke-width: 2.5px;
+}
+/* Foco de teclado: o outline do CSS não aparece em <path>, então o contorno é desenhado aqui,
+   3 px na cor do texto sobre um halo da cor do fundo (separa de qualquer faixa da escala). */
+.contornos .contornoHalo {
+  stroke: var(--background);
+  stroke-width: 6px;
+}
+.contornoFoco {
+  stroke-width: 3px;
 }
 
 /* Exclusivos: dentro do estado só ele aparece; dentro da cidade só ela. */

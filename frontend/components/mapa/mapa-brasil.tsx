@@ -11,6 +11,7 @@ import {
   useLayoutEffect,
   useMemo,
   useRef,
+  useId,
   useState,
   type ReactNode,
   type Ref,
@@ -28,7 +29,11 @@ import {
   type MalhaUf,
   type NivelMapa,
 } from "@/lib/mapa";
+import { buscarNoMapa, moverNoMapa, ordenarPorNome, TECLAS_MAPA, type ItemMapa, type TeclaMapa } from "@/lib/navegar-mapa";
+import { UFS } from "@/lib/ufs";
 import estilos from "./mapa-brasil.module.css";
+
+const NOME_UF = new Map(UFS.map((u) => [u.sigla, u.nome]));
 
 type Vb = [number, number, number, number];
 type Alvo = { nivel: NivelMapa; id: string };
@@ -110,9 +115,11 @@ interface CaminhoProps {
   sobre: boolean;
   /** Fora de uso (outro nível do mapa): sai da árvore de acessibilidade e da ordem de Tab. */
   oculto: boolean;
+  /** A única parada de Tab do mapa (roving tabindex); os demais recebem foco pelas setas. */
+  daVez: boolean;
 }
 
-const Caminho = memo(function Caminho({ d, nivel, id, c, rotulo, ativa, sel, sobre, oculto }: CaminhoProps) {
+const Caminho = memo(function Caminho({ d, nivel, id, c, rotulo, ativa, sel, sobre, oculto, daVez }: CaminhoProps) {
   const cls = [estilos[nivel], ativa && estilos.ativa, sel && estilos.sel, sobre && estilos.sobre]
     .filter(Boolean)
     .join(" ");
@@ -123,7 +130,7 @@ const Caminho = memo(function Caminho({ d, nivel, id, c, rotulo, ativa, sel, sob
       data-id={id}
       data-nivel={nivel}
       data-c={c}
-      tabIndex={oculto ? -1 : 0}
+      tabIndex={!oculto && daVez ? 0 : -1}
       role="button"
       aria-label={rotulo}
       aria-hidden={oculto ? "true" : undefined}
@@ -168,6 +175,13 @@ export function MapaBrasil({
   const [sobre, setSobre] = useState<Alvo | null>(null);
   const [dica, setDica] = useState<Alvo | null>(null);
   const [sel, setSel] = useState<Alvo | null>(null);
+  // Roving tabindex: último item que recebeu foco (vale enquanto estiver no nível atual).
+  const [daVez, setDaVez] = useState<Alvo | null>(null);
+  // Item com foco de teclado agora (contorno de foco e anúncio); null quando o foco sai do mapa.
+  const [comFoco, setComFoco] = useState<Alvo | null>(null);
+  // Página ampliada pela pinça (visualViewport.scale > 1): o mapa cede o gesto ao navegador.
+  const [ampliada, setAmpliada] = useState(false);
+  const idInstrucao = useId();
 
   // Em "uf" o mapa nunca aproxima; o lugar vem só para destacar.
   const ufEf = niveis === "municipio" ? uf : undefined;
@@ -181,6 +195,10 @@ export function MapaBrasil({
   const pos = useRef({ x: 0, y: 0 });
   const ponteiros = useRef(new Map<number, [number, number]>());
   const arrastando = useRef(false);
+  const ampliadaRef = useRef(false);
+  // Depois de Enter/Esc pelo teclado, o foco vai para o item da vez do nível novo.
+  const levarFoco = useRef(false);
+  const digitado = useRef({ texto: "", t: 0 });
   // Instante do último pointerup/keydown tratado: o `click` que o navegador dispara logo depois
   // não pode abrir de novo. Click sem ponteiro antes (leitor de tela) abre normalmente.
   const ultimoToque = useRef(0);
@@ -508,13 +526,14 @@ export function MapaBrasil({
       e.preventDefault();
       zoomEm(e.clientX, e.clientY, e.deltaY < 0 ? 1.25 : 0.8);
     };
-    // Reforço ao touch-action: dentro do estado, dois dedos nunca dão zoom na página (Safari
-    // dispara gesturestart; os outros, touchmove com dois toques).
+    // Reforço ao touch-action: dentro do estado, com a página sem ampliação, dois dedos são a
+    // pinça do mapa e não dão zoom na página (Safari dispara gesturestart; os outros, touchmove
+    // com dois toques). Com a página já ampliada, o gesto fica com o navegador (ver touchAction).
     const toque = (e: TouchEvent) => {
-      if (atual.current.ufEf && e.touches.length > 1 && e.cancelable) e.preventDefault();
+      if (atual.current.ufEf && !ampliadaRef.current && e.touches.length > 1 && e.cancelable) e.preventDefault();
     };
     const gesto = (e: Event) => {
-      if (atual.current.ufEf) e.preventDefault();
+      if (atual.current.ufEf && !ampliadaRef.current) e.preventDefault();
     };
     svg.addEventListener("wheel", roda, { passive: false });
     svg.addEventListener("touchmove", toque, { passive: false });
@@ -525,6 +544,21 @@ export function MapaBrasil({
       svg.removeEventListener("gesturestart", gesto);
     };
   }, [zoomEm, ufs]);
+
+  // Quem ampliou a página com a pinça precisa conseguir desfazer (ou mover) a ampliação com os
+  // dedos por cima do mapa, que no celular ocupa quase a tela toda.
+  useEffect(() => {
+    const vv = window.visualViewport;
+    if (!vv) return;
+    const medir = () => {
+      const sim = vv.scale > 1.01;
+      ampliadaRef.current = sim;
+      setAmpliada(sim);
+    };
+    medir();
+    vv.addEventListener("resize", medir);
+    return () => vv.removeEventListener("resize", medir);
+  }, []);
 
   // ---- alvo, seleção e ativação ----
   const alvoDe = (e: { target: EventTarget | null }): Alvo | null => {
@@ -663,26 +697,119 @@ export function MapaBrasil({
     const t = (el as Element).closest?.("[data-id]") as SVGElement | null;
     return t ? { nivel: t.dataset.nivel === "mun" ? "mun" : "uf", id: t.dataset.id! } : null;
   };
+  // Itens do nível atual em ordem alfabética: é a ordem das setas e da busca por letras.
+  const siglas = useMemo(() => (ufs ? Object.keys(ufs) : []), [ufs]);
+  const nivelItens: NivelMapa = ufEf ? "mun" : "uf";
+  const itens = useMemo((): ItemMapa[] => {
+    if (!ufEf) return ordenarPorNome(siglas.map((s) => ({ id: s, nome: NOME_UF.get(s) ?? s })));
+    if (!munPronto) return [];
+    if (munEf) return munPronto.geo[munEf] ? [{ id: munEf, nome: munPronto.geo[munEf].n }] : [];
+    return ordenarPorNome(Object.entries(munPronto.geo).map(([id, m]) => ({ id, nome: m.n })));
+  }, [siglas, ufEf, munEf, munPronto]);
+  const nomesItens = useMemo(() => itens.map((x) => x.nome), [itens]);
+  // A parada de Tab: o último item focado neste nível; senão o selecionado; senão o lugar aberto
+  // (ou destacado); senão o primeiro em ordem alfabética.
+  const idDaVez = useMemo(() => {
+    const tem = (id: string | undefined) => (id && itens.some((x) => x.id === id) ? id : undefined);
+    const doNivel = (a: Alvo | null) => (a?.nivel === nivelItens ? a.id : undefined);
+    return tem(doNivel(daVez)) ?? tem(doNivel(sel)) ?? tem(ufEf ? munEf : uf) ?? itens[0]?.id;
+  }, [itens, nivelItens, daVez, sel, ufEf, munEf, uf]);
+
+  // Depois de abrir ou voltar pelo teclado, o foco segue para o item da vez do nível novo (o
+  // anterior saiu da vista). Só se o foco ainda está no mapa ou perdido no corpo da página.
+  useEffect(() => {
+    if (!levarFoco.current || !idDaVez) return;
+    const ativo = document.activeElement;
+    if (ativo && ativo !== document.body && !svgRef.current?.contains(ativo)) {
+      levarFoco.current = false;
+      return;
+    }
+    const el = svgRef.current?.querySelector<SVGPathElement>(`path[data-nivel="${nivelItens}"][data-id="${idDaVez}"]`);
+    if (!el || el === ativo) return;
+    levarFoco.current = false;
+    el.focus({ preventScroll: true });
+  }, [idDaVez, nivelItens]);
+
+  /** Cidade fora da vista (estado aproximado): desloca o mapa até ela, sem mudar o zoom. */
+  const garantirVisivel = (a: Alvo) => {
+    const m = a.nivel === "mun" ? munPronto?.geo[a.id] : undefined;
+    if (!m) return;
+    const [x, y, w, h] = vb.current;
+    const [x0, y0, x1, y1] = m.b;
+    if (x0 >= x && x1 <= x + w && y0 >= y && y1 <= y + h) return;
+    animarPara([(x0 + x1) / 2 - w / 2, (y0 + y1) / 2 - h / 2, w, h], 260);
+  };
+  /** Leva o foco a um item (setas, Home/End, letras); o onFocus seleciona e anuncia. */
+  const focarItem = (item: ItemMapa) => {
+    const a: Alvo = { nivel: nivelItens, id: item.id };
+    setDaVez(a);
+    garantirVisivel(a);
+    svgRef.current
+      ?.querySelector<SVGPathElement>(`path[data-nivel="${a.nivel}"][data-id="${a.id}"]`)
+      ?.focus({ preventScroll: true });
+  };
   const aoTeclar = (e: React.KeyboardEvent<SVGSVGElement>) => {
-    if (e.key !== "Enter" && e.key !== " ") return;
+    if (e.altKey || e.ctrlKey || e.metaKey) return;
     const a = alvoDoElemento(e.target);
     if (!a) return;
-    e.preventDefault();
-    ultimoToque.current = performance.now();
-    ativar(a);
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      ultimoToque.current = performance.now();
+      levarFoco.current = true;
+      ativar(a);
+      return;
+    }
+    if (e.key === "Escape") {
+      const { ufEf, munEf } = atual.current;
+      if (!ufEf) {
+        // Brasil (ou mapa só de estados): não há nível acima; Esc só tira a seleção.
+        if (sel) {
+          e.preventDefault();
+          selecionar(null);
+        }
+        return;
+      }
+      e.preventDefault();
+      // Volta um nível e devolve o foco a quem estava aberto (a cidade, ou o estado).
+      setDaVez(munEf ? { nivel: "mun", id: munEf } : { nivel: "uf", id: ufEf });
+      levarFoco.current = true;
+      atual.current.onNavegar(munEf ? { uf: ufEf } : {});
+      return;
+    }
+    const i = itens.findIndex((x) => x.id === a.id);
+    if (TECLAS_MAPA.includes(e.key)) {
+      e.preventDefault();
+      const novo = moverNoMapa(i, itens.length, e.key as TeclaMapa);
+      if (novo >= 0 && novo !== i) focarItem(itens[novo]);
+      return;
+    }
+    if (e.key.length === 1 && e.key.trim()) {
+      const agora = performance.now();
+      const d = digitado.current;
+      d.texto = agora - d.t > 500 ? e.key : d.texto + e.key;
+      d.t = agora;
+      const novo = buscarNoMapa(nomesItens, i, d.texto);
+      if (novo >= 0 && novo !== i) focarItem(itens[novo]);
+    }
   };
   const aoFocar = (e: React.FocusEvent<SVGSVGElement>) => {
+    const a = alvoDoElemento(e.target);
+    if (!a) return;
+    setDaVez((s) => (mesmo(s, a) ? s : a));
     // Só o foco de teclado seleciona; o toque também foca o desenho e deixava um contorno solto.
     if (!(e.target as Element).matches?.(":focus-visible")) return;
-    const a = alvoDoElemento(e.target);
-    if (a) selecionar(a);
+    setComFoco(a);
+    if (!mesmo(sel, a)) selecionar(a);
+  };
+  const aoDesfocar = (e: React.FocusEvent<SVGSVGElement>) => {
+    const para = e.relatedTarget as Node | null;
+    if (!para || !svgRef.current?.contains(para)) setComFoco(null);
   };
 
   // ---- desenho ----
   const carregando = !!ufEf && !munPronto && !erro;
   const noEstado = !!ufEf;
   const naCidade = !!munEf;
-  const siglas = useMemo(() => (ufs ? Object.keys(ufs) : []), [ufs]);
   const ehSel = (nivel: NivelMapa, id: string) => sel?.nivel === nivel && sel.id === id;
   const ehSobre = (nivel: NivelMapa, id: string) => sobre?.nivel === nivel && sobre.id === id;
 
@@ -706,19 +833,21 @@ export function MapaBrasil({
   const df = ufs?.DF;
 
   // Contornos de destaque numa camada por cima: no mesmo grupo os vizinhos cobriam metade do traço.
-  const contornos: Array<{ chave: string; d: string; classe: string }> = [];
+  const contornos: Array<{ chave: string; d: string; classe: string; halo: boolean }> = [];
   const dMun = (cod: string) => (detalhe?.id === cod ? detalhe.d : munPronto?.geo[cod]?.d);
-  const poe = (nivel: NivelMapa, id: string, classe: string) => {
+  const poe = (nivel: NivelMapa, id: string, classe: string, halo = false) => {
     if (contornos.some((c) => c.chave === `${nivel}-${id}`)) return;
     if (nivel === "uf") {
       if (noEstado || !ufs?.[id]) return;
-      contornos.push({ chave: `${nivel}-${id}`, d: ufs[id].d, classe });
+      contornos.push({ chave: `${nivel}-${id}`, d: ufs[id].d, classe, halo });
     } else {
       if (!munPronto || (naCidade && id !== munEf)) return;
       const d = dMun(id);
-      if (d) contornos.push({ chave: `${nivel}-${id}`, d, classe });
+      if (d) contornos.push({ chave: `${nivel}-${id}`, d, classe, halo });
     }
   };
+  // Foco de teclado primeiro: o contorno dele (mais grosso, sobre um halo) vence os outros.
+  if (comFoco) poe(comFoco.nivel, comFoco.id, estilos.contornoFoco, true);
   if (uf) poe("uf", uf, estilos.contornoFixo);
   if (munEf) poe("mun", munEf, estilos.contornoFixo);
   if (sel) poe(sel.nivel, sel.id, estilos.contornoFixo);
@@ -732,7 +861,10 @@ export function MapaBrasil({
         preserveAspectRatio="xMidYMid meet"
         role="group"
         aria-label={titulo}
-        style={{ touchAction: noEstado ? "none" : "pan-y" }}
+        aria-describedby={idInstrucao}
+        // No Brasil o mapa não tem gesto próprio: a página rola e amplia por cima dele. Dentro do
+        // estado um dedo arrasta e dois aproximam o mapa, salvo com a página já ampliada.
+        style={{ touchAction: !noEstado ? "manipulation" : ampliada ? "pan-x pan-y pinch-zoom" : "none" }}
         onPointerDown={aoApertar}
         onPointerMove={aoMover}
         onPointerUp={aoSoltar}
@@ -741,6 +873,7 @@ export function MapaBrasil({
         onClick={aoClicar}
         onKeyDown={aoTeclar}
         onFocus={aoFocar}
+        onBlur={aoDesfocar}
       >
         <g>
           {ufs &&
@@ -756,6 +889,7 @@ export function MapaBrasil({
                 sel={ehSel("uf", s)}
                 sobre={ehSobre("uf", s)}
                 oculto={noEstado}
+                daVez={!noEstado && s === idDaVez}
               />
             ))}
           {/* DF é minúsculo: anel de toque invisível em volta */}
@@ -784,19 +918,34 @@ export function MapaBrasil({
                 sel={ehSel("mun", cod)}
                 sobre={ehSobre("mun", cod)}
                 oculto={naCidade && cod !== munEf}
+                daVez={noEstado && cod === idDaVez}
               />
             ))}
         </g>
         <g aria-hidden="true" className={estilos.contornos}>
-          {contornos.map((c) => (
-            <path key={c.chave} d={c.d} className={c.classe} />
-          ))}
+          {contornos.map((c) =>
+            c.halo ? (
+              <g key={c.chave}>
+                <path d={c.d} className={estilos.contornoHalo} />
+                <path d={c.d} className={c.classe} />
+              </g>
+            ) : (
+              <path key={c.chave} d={c.d} className={c.classe} />
+            ),
+          )}
         </g>
       </svg>
       <svg ref={rotulosRef} className={estilos.rotulos} aria-hidden="true" />
       <div ref={dicaRef} className={estilos.dica} role="tooltip" hidden={!dica || !resumo}>
         {dica && resumo ? resumo(dica.nivel, dica.id) : null}
       </div>
+      <p id={idInstrucao} hidden>
+        Use as setas para percorrer, Enter para abrir e Esc para voltar.
+      </p>
+      {/* Sempre montado: o leitor só anuncia mudanças numa região que já existia. */}
+      <p role="status" className="sr-only">
+        {comFoco ? rotulo(comFoco.nivel, comFoco.id) : ""}
+      </p>
     </div>
   );
 }

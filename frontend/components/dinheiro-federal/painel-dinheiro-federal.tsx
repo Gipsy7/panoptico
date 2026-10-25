@@ -92,6 +92,15 @@ export function PainelDinheiroFederal({ inicial }: { inicial: EstadoInicial }) {
   const [estado, setEstado] = useState(inicial.estado);
   const [municipio, setMunicipio] = useState(inicial.municipio);
   const [erro, setErro] = useState<string | null>(null);
+  const [foco, setFoco] = useState<{ nivel: NivelMapa; id: string } | null>(null);
+
+  // ?vista=lista abre já na lista (link "Ver como lista" da home); lido depois de montar para não
+  // divergir do HTML do servidor.
+  useEffect(() => {
+    if (new URLSearchParams(location.search).get("vista") !== "lista") return;
+    const id = requestAnimationFrame(() => setVista("lista"));
+    return () => cancelAnimationFrame(id);
+  }, []);
 
   const raizRef = useRef<HTMLDivElement>(null);
   const topoFolhaRef = useRef<HTMLDivElement>(null);
@@ -210,6 +219,8 @@ export function PainelDinheiroFederal({ inicial }: { inicial: EstadoInicial }) {
   const cidades = useMemo(() => estadoOk?.cidades ?? [], [estadoOk]);
   const porIbge = useMemo(() => new Map(cidades.map((c) => [c.ibge, c])), [cidades]);
   const mediaBrasil = repHab(painel.brasil);
+  // Só vale o item do nível que está no mapa (ao trocar de estado o foco antigo deixa de existir).
+  const focoVisivel = foco && foco.nivel === (uf ? "mun" : "uf") ? foco : null;
 
   // Dentro do estado só existe repasse por habitante (a Receita não publica arrecadação por cidade).
   const cortesUf = useMemo(() => quantis(painel.ufs.map((u) => valorIndicador(u, ind))), [painel, ind]);
@@ -576,10 +587,10 @@ export function PainelDinheiroFederal({ inicial }: { inicial: EstadoInicial }) {
 
       <div className={estilos.barra}>
         <div className={estilos.abas} role="group" aria-label="Forma de ver">
-          <button type="button" aria-pressed={vista === "mapa"} onClick={() => setVista("mapa")}>
+          <button type="button" aria-label="Ver como mapa" aria-pressed={vista === "mapa"} onClick={() => setVista("mapa")}>
             Mapa
           </button>
-          <button type="button" aria-pressed={vista === "lista"} onClick={() => setVista("lista")}>
+          <button type="button" aria-label="Ver como lista" aria-pressed={vista === "lista"} onClick={() => setVista("lista")}>
             Lista
           </button>
         </div>
@@ -641,6 +652,7 @@ export function PainelDinheiroFederal({ inicial }: { inicial: EstadoInicial }) {
                 uf={uf ?? undefined}
                 municipio={ibge ?? undefined}
                 onNavegar={navegar}
+                onSelecionar={(a) => setFoco(a)}
                 classe={classeMapa}
                 rotulo={rotuloMapa}
                 resumo={resumoMapa}
@@ -728,6 +740,17 @@ export function PainelDinheiroFederal({ inicial }: { inicial: EstadoInicial }) {
               </span>
             )}
           </div>
+          {vista === "mapa" && (
+            <div className={`${estilos.soDesk} border-t border-border px-3 py-2`}>
+              {focoVisivel ? (
+                resumoMapa(focoVisivel.nivel, focoVisivel.id)
+              ) : (
+                <p className="text-sm text-muted-foreground">
+                  Passe o mouse, use as setas ou clique num lugar do mapa para ver os números aqui.
+                </p>
+              )}
+            </div>
+          )}
           {vista === "lista" && (
             <ListaLugares
               nivel={nivelMun ? "mun" : "uf"}

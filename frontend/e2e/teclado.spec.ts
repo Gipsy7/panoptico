@@ -139,16 +139,55 @@ test("busca de cidade: combobox por teclado (seta marca, Enter escolhe, Esc fech
   if (info.project.name === "desktop-1280") await expect(campo).toHaveValue("");
 });
 
-test("mapa do Brasil: estado por teclado; fora de uso fica oculto ao leitor e fora do Tab", async ({ page }) => {
+test("mapa do Brasil: Tab entra uma vez, setas e letras mudam o item, Enter abre, Esc volta", async ({ page }) => {
   await page.goto("/impostos-e-repasses");
-  const sc = page.locator('path[data-nivel="uf"][data-id="SC"]');
-  await expect(sc).toBeVisible();
+  const mapa = page.getByRole("group", { name: /mapa/i }).first();
+  const ufsTab = mapa.locator('path[data-nivel="uf"][tabindex="0"]');
+  await expect(ufsTab).toHaveCount(1);
+  // Antes de qualquer foco, a parada de Tab é o primeiro em ordem alfabética (Acre).
+  await expect(ufsTab).toHaveAttribute("data-id", "AC");
+  const status = mapa.locator("xpath=..").getByRole("status");
+  const focado = () => page.evaluate(() => (document.activeElement as SVGElement | null)?.dataset?.id ?? null);
+
   // Repete até a hidratação ligar os manipuladores.
   await expect(async () => {
-    await sc.focus();
-    await page.keyboard.press("Enter");
-    await expect(page).toHaveURL(/\/impostos-e-repasses\/SC/, { timeout: 2000 });
+    await ufsTab.focus();
+    await page.keyboard.press("ArrowRight");
+    expect(await focado()).toBe("AL");
   }).toPass({ timeout: 20_000 });
+  await expect(status).toContainText("Alagoas");
+  await expect(mapa.locator('path[data-nivel="uf"][tabindex="0"]')).toHaveAttribute("data-id", "AL");
+  await page.keyboard.press("ArrowLeft");
+  expect(await focado()).toBe("AC");
+  await page.keyboard.press("End");
+  expect(await focado()).toBe("TO");
+  // Letras: "sa" vai a Santa Catarina.
+  await page.keyboard.type("sa");
+  expect(await focado()).toBe("SC");
+  await expect(status).toContainText("Santa Catarina");
+
+  // Tab sai do mapa de uma vez (não passa pelos outros estados).
+  await page.keyboard.press("Tab");
+  expect(await page.evaluate(() => !!document.activeElement?.closest('svg[role="group"]'))).toBe(false);
+  await page.keyboard.press("Shift+Tab");
+  expect(await focado()).toBe("SC");
+
+  await page.keyboard.press("Enter");
+  await expect(page).toHaveURL(/\/impostos-e-repasses\/SC/);
+  // Dentro do estado o foco vai para uma cidade, e só uma é parada de Tab.
+  await expect.poll(focado).toMatch(/^42\d{5}$/);
+  await expect(mapa.locator('path[data-nivel="mun"][tabindex="0"]')).toHaveCount(1);
+  const antes = await focado();
+  await page.keyboard.press("ArrowDown");
+  await expect.poll(focado).not.toBe(antes);
+
+  await page.keyboard.press("Escape");
+  await expect(page).toHaveURL(/\/impostos-e-repasses\/?(\?.*)?$/);
+  await expect.poll(focado).toBe("SC");
+
+  // Abre de novo para conferir o que fica de fora dentro do estado.
+  await page.keyboard.press("Enter");
+  await expect(page).toHaveURL(/\/impostos-e-repasses\/SC/);
   // Dentro do estado: nenhum path de UF é focável por Tab nem visível ao leitor.
   const ufs = page.locator('path[data-nivel="uf"]');
   await expect(ufs.first()).toHaveAttribute("aria-hidden", "true");
@@ -158,8 +197,8 @@ test("mapa do Brasil: estado por teclado; fora de uso fica oculto ao leitor e fo
       .map((e) => (e as SVGElement).dataset.id),
   );
   expect(problemas, "UFs ainda expostas dentro do estado").toEqual([]);
-  // Os municípios do estado seguem focáveis.
-  await expect(page.locator('path[data-nivel="mun"][tabindex="0"]').first()).toBeAttached();
+  // Uma cidade do estado segue como parada de Tab.
+  await expect(page.locator('path[data-nivel="mun"][tabindex="0"]')).toHaveCount(1);
 });
 
 /** Quantos elementos focáveis fora de `seletor` (e fora dos `ate`) não estão sob um ancestral `inert`. */

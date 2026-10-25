@@ -198,8 +198,7 @@ export function MapaHome({ ufs }: { ufs: UfDoMapa[] }) {
         <span>mais por R$ 100 arrecadados</span>
       </div>
       <div
-        className="min-h-[7rem] border-t border-border pt-3 md:hidden"
-        aria-live="polite"
+        className="min-h-[7rem] border-t border-border pt-3"
       >
         {escolhida ? (
           <div className="flex flex-col gap-2">
@@ -213,9 +212,14 @@ export function MapaHome({ ufs }: { ufs: UfDoMapa[] }) {
           </div>
         ) : (
           <p className="text-sm text-muted-foreground">
-            Toque ou clique num estado para ver os números.
+            Toque, clique ou use as setas do teclado num estado para ver os números.
           </p>
         )}
+        <div className="mt-2 flex">
+          <Link href="/impostos-e-repasses?vista=lista" className="botao-linha">
+            Ver como lista
+          </Link>
+        </div>
       </div>
     </div>
   );
