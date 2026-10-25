@@ -145,7 +145,7 @@ export function VotosSecao({
           <nav aria-label="Páginas de votações" className="flex items-center justify-between pt-2 text-sm">
             {dados.pagina > 1 ? (
               <Link href={link(dados.pagina - 1)} className="alvo-link font-medium underline underline-offset-4">
-                ← Mais recentes
+                <span aria-hidden>←</span> Mais recentes
               </Link>
             ) : (
               <span />
@@ -155,7 +155,7 @@ export function VotosSecao({
             </span>
             {dados.pagina < paginas ? (
               <Link href={link(dados.pagina + 1)} className="alvo-link font-medium underline underline-offset-4">
-                Mais antigas →
+                Mais antigas <span aria-hidden>→</span>
               </Link>
             ) : (
               <span />

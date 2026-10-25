@@ -30,6 +30,8 @@
 import { type KeyboardEvent, type ReactNode, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { flushSync } from "react-dom";
 
+import { tornarFundoInerte } from "@/lib/fundo-inerte";
+
 export type SecaoDetalhe = { id: string; titulo: string; conteudo: ReactNode };
 export type AbaDetalhe = { id: string; rotulo: string; secoes: SecaoDetalhe[] };
 
@@ -52,6 +54,7 @@ export function AbasDetalhe({ titulo, abas }: { titulo: string; abas: AbaDetalhe
   const raiz = useRef<HTMLElement>(null);
   const botaoFechar = useRef<HTMLButtonElement>(null);
   const abridor = useRef<HTMLElement | null>(null);
+  const fundo = useRef<HTMLDivElement>(null);
 
   // Lê o hash atual e põe a página no estado que ele pede.
   const aplicarHash = useCallback(
@@ -163,6 +166,8 @@ export function AbasDetalhe({ titulo, abas }: { titulo: string; abas: AbaDetalhe
       if (!painel?.contains(document.activeElement)) focarFechar();
     });
     painel?.scrollTo({ top: 0 });
+    // Resto da página inerte (o TalkBack ignora aria-modal); o fundo clicável continua ativo.
+    const desfazerInerte = painel ? tornarFundoInerte(painel, [fundo.current]) : () => {};
     const aoTeclar = (e: globalThis.KeyboardEvent) => {
       if (e.key === "Escape") {
         e.preventDefault();
@@ -191,6 +196,7 @@ export function AbasDetalhe({ titulo, abas }: { titulo: string; abas: AbaDetalhe
       cancelAnimationFrame(quadroFoco);
       document.removeEventListener("keydown", aoTeclar);
       html.style.overflow = antes;
+      desfazerInerte();
       const volta =
         abridor.current ?? document.querySelector<HTMLElement>(`a[href="#${PREFIXO}${gaveta}"]`);
       volta?.focus({ preventScroll: true });
@@ -310,6 +316,7 @@ export function AbasDetalhe({ titulo, abas }: { titulo: string; abas: AbaDetalhe
 
       {gaveta && (
         <div
+          ref={fundo}
           aria-hidden
           onClick={fechar}
           className="fixed inset-0 z-[55] bg-background/80 backdrop-blur-sm motion-safe:animate-in motion-safe:fade-in motion-safe:duration-200"

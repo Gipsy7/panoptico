@@ -161,3 +161,47 @@ test("mapa do Brasil: estado por teclado; fora de uso fica oculto ao leitor e fo
   // Os municípios do estado seguem focáveis.
   await expect(page.locator('path[data-nivel="mun"][tabindex="0"]').first()).toBeAttached();
 });
+
+/** Quantos elementos focáveis fora de `seletor` (e fora dos `ate`) não estão sob um ancestral `inert`. */
+async function focaveisAtivosFora(page: import("@playwright/test").Page, seletor: string, permitidos: string[] = []) {
+  return page.evaluate(
+    ([sel, ok]) => {
+      const dentro = document.querySelector(sel);
+      return [...document.querySelectorAll<HTMLElement>("a[href], button, input, select, textarea, [tabindex]")]
+        .filter((e) => e.tabIndex >= 0 && !dentro?.contains(e) && !e.closest("[inert]") && !ok.some((s) => e.closest(s)))
+        .map((e) => e.outerHTML.slice(0, 80));
+    },
+    [seletor, permitidos] as [string, string[]],
+  );
+}
+
+test("diálogos deixam o fundo inerte: gaveta e menu do celular", async ({ page }, info) => {
+  if (info.project.name === "celular-360") {
+    await page.goto("/");
+    const botao = page.getByRole("button", { name: /o menu$/i });
+    await expect(async () => {
+      await botao.click();
+      await expect(botao).toHaveAttribute("aria-expanded", "true", { timeout: 1500 });
+    }).toPass({ timeout: 15_000 });
+    expect(await focaveisAtivosFora(page, "#menu-celular", ['button[aria-controls="menu-celular"]'])).toEqual([]);
+    await page.keyboard.press("Escape");
+    await expect(botao).toHaveAttribute("aria-expanded", "false");
+    expect(await page.locator("[inert]").count()).toBe(0);
+  }
+
+  await page.goto("/representantes?municipio=4205902");
+  const predios = page.locator('svg [role="button"]');
+  await expect(predios.first()).toBeVisible();
+  await predios.nth(1).focus();
+  await page.keyboard.press("Enter");
+  const ver = page.locator("#painel-predio").getByRole("link", { name: "Ver a lista com os números" });
+  test.skip((await ver.count()) === 0, "o prédio escolhido não tem lista");
+  await ver.focus();
+  await page.keyboard.press("Enter");
+  const gaveta = page.getByRole("dialog");
+  await expect(gaveta).toBeVisible();
+  expect(await focaveisAtivosFora(page, '[role="dialog"]')).toEqual([]);
+  await page.keyboard.press("Escape");
+  await expect(gaveta).toBeHidden();
+  expect(await page.locator("[inert]").count()).toBe(0);
+});

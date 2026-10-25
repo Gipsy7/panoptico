@@ -39,7 +39,7 @@ export default function PartidosPage({ searchParams }: PageProps<"/partidos">) {
       <CabecalhoPagina
         sobretitulo="Partidos"
         titulo="Dinheiro dos partidos"
-        subtitulo="Valores que os próprios partidos declararam ao Tribunal Superior Eleitoral (TSE) na prestação de contas anual: de onde veio o dinheiro e para onde foi. Toque no título de uma coluna para ordenar."
+        subtitulo="Valores que os próprios partidos declararam ao Tribunal Superior Eleitoral (TSE) na prestação de contas anual: de onde veio o dinheiro e para onde foi. Toque ou clique no título de uma coluna para ordenar."
       />
       <Revelacao fallback={<EsqueletoSecao rotulo="Carregando as contas dos partidos…" secoes={2} />}>
         {searchParams.then((sp) => (
@@ -129,7 +129,7 @@ async function Tabela({ ano, ordenar, ordem }: { ano?: string; ordenar?: string;
         <h2 id="partidos-titulo" className="text-xl">
           {linhas.length} partidos em {dados.ano}
         </h2>
-        <TabelaRolavel larguraMinima="44rem" primeiraColunaFixa>
+        <TabelaRolavel larguraMinima="44rem" primeiraColunaFixa rotulo={`Contas dos partidos em ${dados.ano}, tabela com rolagem lateral`}>
           <table className="w-full border-collapse text-sm">
             <caption className="sr-only">
               Contas dos partidos em {dados.ano}, em reais, ordenáveis por coluna

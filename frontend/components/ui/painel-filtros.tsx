@@ -19,6 +19,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useId, useRef, useState, useTransition } from "react";
 
+import { tornarFundoInerte } from "@/lib/fundo-inerte";
 import { consultaDosCampos, enderecoComConsulta, textoAtivos, type Padroes } from "@/lib/filtros";
 import { cn } from "@/lib/utils";
 
@@ -57,6 +58,8 @@ export function PainelFiltros({
   const [aplicando, iniciar] = useTransition();
   const botao = useRef<HTMLButtonElement>(null);
   const folha = useRef<HTMLDivElement>(null);
+  const fundo = useRef<HTMLDivElement>(null);
+  const desfazerInerte = useRef<(() => void) | null>(null);
   const idFolha = useId();
   const idTitulo = useId();
   const descricao = textoAtivos(ativos);
@@ -67,6 +70,11 @@ export function PainelFiltros({
     if (!aberto) return;
     const anterior = document.body.style.overflow;
     document.body.style.overflow = "hidden";
+    // O resto da página fica inerte (o TalkBack ignora aria-modal). No computador a folha não é
+    // diálogo (os campos ficam à vista), então só se aplica enquanto a largura é de celular.
+    if (folha.current && !window.matchMedia("(min-width: 48rem)").matches) {
+      desfazerInerte.current = tornarFundoInerte(folha.current, [fundo.current]);
+    }
     const focaveis = () =>
       [...(folha.current?.querySelectorAll<HTMLElement>("a[href], button, input, select, textarea") ?? [])].filter(
         (e) => !e.hasAttribute("disabled") && e.getAttribute("type") !== "hidden" && e.offsetParent !== null,
@@ -75,8 +83,7 @@ export function PainelFiltros({
     const aoTeclar = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
         e.preventDefault();
-        setAberto(false);
-        botao.current?.focus();
+        fechar();
       } else if (e.key === "Tab") {
         const lista = focaveis();
         if (!lista.length) return;
@@ -99,10 +106,14 @@ export function PainelFiltros({
       document.body.style.overflow = anterior;
       document.removeEventListener("keydown", aoTeclar);
       largura.removeEventListener("change", aoMudarLargura);
+      desfazerInerte.current?.();
+      desfazerInerte.current = null;
     };
   }, [aberto]);
 
   function fechar() {
+    // Tira o inert antes de devolver o foco (um botão inerte não recebe foco).
+    desfazerInerte.current?.();
     setAberto(false);
     botao.current?.focus();
   }
@@ -145,7 +156,7 @@ export function PainelFiltros({
 
       {folhaAberta && (
         // Fundo escurecido: tocar fora fecha a folha.
-        <div aria-hidden className="fixed inset-0 z-50 bg-foreground/40 md:hidden" onClick={fechar} />
+        <div ref={fundo} aria-hidden className="fixed inset-0 z-50 bg-foreground/40 md:hidden" onClick={fechar} />
       )}
 
       <div

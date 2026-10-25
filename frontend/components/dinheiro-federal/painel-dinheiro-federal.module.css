@@ -45,7 +45,7 @@
   font-size: 14px;
   color: var(--muted-foreground);
 }
-.abas button[aria-selected="true"] {
+.abas button[aria-pressed="true"] {
   background: var(--foreground);
   color: var(--background);
 }

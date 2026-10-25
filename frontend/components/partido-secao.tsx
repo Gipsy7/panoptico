@@ -144,7 +144,7 @@ export function PartidoSecao({ dados }: { dados: PartidoDetalhe }) {
               ao diretório nacional
             </p>
           </div>
-          <TabelaRolavel larguraMinima="36rem" primeiraColunaFixa>
+          <TabelaRolavel larguraMinima="36rem" primeiraColunaFixa rotulo="Cotas recebidas por mês, tabela com rolagem lateral">
           <table className="w-full border-collapse text-sm">
             <caption className="sr-only">Cotas recebidas por mês em {dados.ano}</caption>
             <thead>

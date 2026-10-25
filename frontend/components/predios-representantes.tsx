@@ -193,17 +193,21 @@ export function PrediosRepresentantes({
   const [escolhido, setEscolhido] = useState<PredioId>(() => predioInicial(ids));
   const [tocou, setTocou] = useState(false);
   const [passo, setPasso] = useState(0);
+  const [anuncio, setAnuncio] = useState("");
   const reduzido = useMovimentoReduzido();
   const painel = useRef<HTMLElement>(null);
   const desenho = useRef<HTMLDivElement>(null);
   const med = medidasDoDesenho(faixaCidade != null);
 
-  // A mão troca de prédio a cada 2,6 s até o primeiro toque; com movimento reduzido, fica parada.
+  // A mão troca de prédio a cada 2,6 s até o primeiro toque, por no máximo 3 voltas pelo roteiro
+  // (WCAG 2.2.2): depois fica parada no último prédio. Com movimento reduzido, fica parada.
+  const ultimoPasso = roteiro.length * 3 - 1;
+  const terminou = passo >= ultimoPasso;
   useEffect(() => {
-    if (tocou || reduzido || roteiro.length < 2) return;
-    const t = setInterval(() => setPasso((i) => (i + 1) % roteiro.length), 2600);
+    if (tocou || reduzido || roteiro.length < 2 || terminou) return;
+    const t = setInterval(() => setPasso((i) => Math.min(i + 1, ultimoPasso)), 2600);
     return () => clearInterval(t);
-  }, [tocou, reduzido, roteiro.length]);
+  }, [tocou, reduzido, roteiro.length, terminou, ultimoPasso]);
 
   const daVez = roteiro[passo % Math.max(roteiro.length, 1)];
   const [mx, my] = CENTROS[daVez] ?? [180, 100];
@@ -211,6 +215,8 @@ export function PrediosRepresentantes({
   function escolher(id: PredioId) {
     setTocou(true);
     setEscolhido(id);
+    const alvo = porId.get(id);
+    if (alvo) setAnuncio(`${alvo.nome}: ${alvo.total === 1 ? "1 pessoa" : `${alvo.total.toLocaleString("pt-BR")} pessoas`}`);
     if (window.matchMedia("(max-width: 899px)").matches) {
       painel.current?.scrollIntoView({ behavior: reduzido ? "auto" : "smooth", block: "start" });
       painel.current?.focus({ preventScroll: true });
@@ -278,7 +284,7 @@ export function PrediosRepresentantes({
                     eSel || convite ? "stroke-bronze" : "stroke-transparent"
                   }`}
                 >
-                  {convite && !reduzido && (
+                  {convite && !reduzido && !terminou && (
                     <animate attributeName="stroke-dashoffset" from="0" to="-22" dur="1s" repeatCount="indefinite" />
                   )}
                 </rect>
@@ -306,10 +312,11 @@ export function PrediosRepresentantes({
             {voce}
           </text>
 
-          <MaoToque x={mx} y={my} oculta={tocou} reduzido={reduzido} etiquetaEsquerda={mx > 240} />
+          {/* Fim do passeio: a mão para de pulsar também (WCAG 2.2.2). */}
+          <MaoToque x={mx} y={my} oculta={tocou} reduzido={reduzido || terminou} etiquetaEsquerda={mx > 240} />
         </svg>
         <p className="mt-2 text-center text-sm text-muted-foreground">
-          {tocou ? "Toque em outro prédio para comparar." : "Toque num prédio para ver quem trabalha lá."}
+          {tocou ? "Toque ou clique em outro prédio para comparar." : "Toque ou clique num prédio para ver quem trabalha lá."}
         </p>
       </div>
 
@@ -317,10 +324,12 @@ export function PrediosRepresentantes({
         ref={painel}
         id="painel-predio"
         tabIndex={-1}
-        aria-live="polite"
         aria-label="Quem trabalha no prédio escolhido"
         className="min-w-0 scroll-mt-[calc(var(--altura-cabecalho)+0.75rem)] rounded-[var(--radius)] border border-border bg-card p-5 focus:outline-none focus-visible:outline-2 focus-visible:outline-bronze"
       >
+        <p role="status" className="sr-only">
+          {anuncio}
+        </p>
         <p className="sobretitulo">{sel.nivel}</p>
         <h2 className="mt-1 text-[1.6rem] leading-tight">{sel.nome}</h2>
         <p className="text-xs text-muted-foreground">{sel.oficial}</p>
@@ -405,7 +414,7 @@ function Retrato({ nome, foto }: { nome: string; foto: string | null }) {
       // eslint-disable-next-line @next/next/no-img-element -- fotos já reduzidas, da API e da Câmara/Senado
       <img
         src={foto}
-        alt={`Foto de ${nome}`}
+        alt=""
         width={larg}
         height={alt}
         loading="lazy"

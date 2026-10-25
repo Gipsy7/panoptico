@@ -105,6 +105,7 @@ export function GastosSecao({
           </summary>
           <div className="mt-3 overflow-x-auto">
             <table className="w-full text-left text-sm">
+              <caption className="sr-only">Maiores gastos de {gastos.ano}: data, fornecedor e valor</caption>
               <thead className="text-muted-foreground">
                 <tr>
                   <th scope="col" className="py-1 pr-3 font-normal">Data</th>

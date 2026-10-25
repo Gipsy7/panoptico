@@ -22,6 +22,12 @@ export function CepForm({ semCepInicial = false }: { semCepInicial?: boolean } =
   const [cep, setCep] = useState("");
   const [tocouLocalizacao, setTocouLocalizacao] = useState(false);
   const reduzido = useMovimentoReduzido();
+  // A mão do botão pulsa por menos de 5 s e depois fica parada (WCAG 2.2.2).
+  const [pulsando, setPulsando] = useState(true);
+  useEffect(() => {
+    const t = setTimeout(() => setPulsando(false), 4800);
+    return () => clearTimeout(t);
+  }, []);
   const [semCep, setSemCep] = useState(semCepInicial);
   const [cidades, setCidades] = useState<Cidades>({ uf: "", estado: "vazio", lista: [] });
   const ufAtual = useRef("");
@@ -377,7 +383,7 @@ export function CepForm({ semCepInicial = false }: { semCepInicial?: boolean } =
         {/* Mão que convida a tocar no botão; some no primeiro toque. */}
         {/* 1 px, não 0: o navegador não desenha um <svg> de tamanho zero, nem com overflow visível. */}
         <svg aria-hidden="true" className="pointer-events-none absolute top-1/2 right-9 size-px overflow-visible">
-          <MaoToque x={0} y={0} oculta={tocouLocalizacao || procurando} reduzido={reduzido} etiquetaEsquerda semEtiqueta />
+          <MaoToque x={0} y={0} oculta={tocouLocalizacao || procurando} reduzido={reduzido || !pulsando} etiquetaEsquerda semEtiqueta />
         </svg>
       </div>
       <p role="status" aria-live="polite" className="text-xs text-muted-foreground">

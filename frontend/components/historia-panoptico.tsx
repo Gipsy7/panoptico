@@ -233,7 +233,7 @@ function Exemplo({
   }
   return (
     <div className="flex flex-col gap-3 text-base">
-      <p>Exemplo, com os senadores de Santa Catarina (os mesmos da página inicial). Toque num nome:</p>
+      <p>Exemplo, com os senadores de Santa Catarina (os mesmos da página inicial). Toque ou clique num nome:</p>
       <div role="group" aria-label="Senadores de exemplo" className="flex flex-wrap gap-2">
         {dados.pessoas.map((p, i) => (
           <button
@@ -243,7 +243,7 @@ function Exemplo({
             onClick={() => onSelecionar(i)}
             className="flex min-h-12 items-center gap-2 rounded-[2px] border border-foreground/35 py-1 pr-3 pl-1 text-left text-sm text-foreground transition-colors duration-300 hover:bg-accent/50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-bronze aria-pressed:border-bronze aria-pressed:ring-1 aria-pressed:ring-bronze motion-reduce:transition-none"
           >
-            <Foto parlamentar={p} largura={30} />
+            <Foto parlamentar={p} largura={30} decorativa />
             <span className="line-clamp-2 font-medium">{p.nome_parlamentar}</span>
           </button>
         ))}

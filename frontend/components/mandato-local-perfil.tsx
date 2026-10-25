@@ -273,7 +273,7 @@ export async function PerfilMandatoLocal({ id, paginaVotos }: { id: string; pagi
           />
         )}
       </GradeCartoes>
-      <p className="text-sm text-muted-foreground">Toque num número para ver o detalhe, com a fonte e a data.</p>
+      <p className="text-sm text-muted-foreground">Toque ou clique num número para ver o detalhe, com a fonte e a data.</p>
 
       <Link href={`/comparar/local?a=${v.id}`} className="botao-linha self-start">
         Comparar com outro {camara ? "vereador desta câmara" : "deputado desta assembleia"}

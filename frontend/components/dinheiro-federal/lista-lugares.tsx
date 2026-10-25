@@ -44,7 +44,7 @@ export function ListaLugares({
     <div className="min-h-0 flex-1 overflow-auto p-3 lg:max-h-[min(72vh,640px)] lg:p-4">
       <table className="w-full min-w-[34rem] border-collapse text-left text-sm">
         <caption className="pb-2 text-left text-sm text-muted-foreground">
-          {legenda} Toque no título da coluna para ordenar.
+          {legenda} Toque ou clique no título da coluna para ordenar.
         </caption>
         <thead>
           <tr>

@@ -39,7 +39,7 @@ export function CamaraSecao({
               href={`/${casa === "camara" ? "vereador" : "deputado-estadual"}/${v.id}`}
               className="group flex items-center gap-4 py-3 transition-colors duration-300 hover:bg-accent/50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-bronze"
             >
-              <FotoVereador vereador={v} />
+              <FotoVereador vereador={v} decorativa />
               <div className="min-w-0">
                 <p className="truncate text-base font-semibold">{v.nome}</p>
                 <p className="text-sm text-muted-foreground">
@@ -65,7 +65,16 @@ export function CamaraSecao({
   );
 }
 
-export function FotoVereador({ vereador, tamanho = 44 }: { vereador: VereadorItem; tamanho?: number }) {
+export function FotoVereador({
+  vereador,
+  tamanho = 44,
+  decorativa = false,
+}: {
+  vereador: VereadorItem;
+  tamanho?: number;
+  /** Com o nome escrito ao lado, dentro do mesmo link: alt vazio. */
+  decorativa?: boolean;
+}) {
   const src =
     vereador.foto_tse && vereador.candidatura_id ? urlFotoTse(vereador.candidatura_id) : vereador.foto_url;
   if (!src) return <Iniciais nome={vereador.nome} tamanho={tamanho} />;
@@ -74,7 +83,7 @@ export function FotoVereador({ vereador, tamanho = 44 }: { vereador: VereadorIte
     // eslint-disable-next-line @next/next/no-img-element -- fotos de servidores das câmaras e do TSE
     <img
       src={src}
-      alt={`Foto de ${vereador.nome}`}
+      alt={decorativa ? "" : `Foto de ${vereador.nome}`}
       width={tamanho}
       height={altura}
       loading="lazy"

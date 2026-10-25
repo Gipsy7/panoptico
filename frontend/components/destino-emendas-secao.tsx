@@ -106,7 +106,7 @@ function TabelaSituacoes({
   linhas: { rotulo: string; quantidade: number; valor?: number }[];
 }) {
   return (
-    <TabelaRolavel larguraMinima="28rem">
+    <TabelaRolavel larguraMinima="28rem" rotulo={`${titulo}, tabela com rolagem lateral`}>
     <table className="w-full text-left text-sm">
       <caption className="pb-1 text-left font-medium">{titulo}</caption>
       <thead className="sr-only">

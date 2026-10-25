@@ -35,7 +35,7 @@ export function ProjetosSecao({ projetos, casa }: { projetos: Projetos; casa: Ca
       </p>
 
       {projetos.por_tipo.length > 0 && (
-        <TabelaRolavel larguraMinima="24rem">
+        <TabelaRolavel larguraMinima="24rem" rotulo="Projetos por tipo, tabela com rolagem lateral">
         <table className="w-full text-left text-sm">
           <caption className="sr-only">Projetos por tipo</caption>
           <thead className="text-muted-foreground">

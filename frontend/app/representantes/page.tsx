@@ -307,8 +307,8 @@ async function Lista({ cep, uf, municipio }: Busca) {
           <h1 className="titulo-pagina">Você está em {lugar}</h1>
           <p className="text-muted-foreground">
             {temCidade
-              ? "Quem decide sobre a sua vida mora em três andares: o país, o estado e a cidade. Toque num prédio para ver quem trabalha lá e o que faz."
-              : "Quem decide sobre a sua vida mora em andares: o país e o estado. Toque num prédio para ver quem trabalha lá e o que faz."}
+              ? "Quem decide sobre a sua vida mora em três andares: o país, o estado e a cidade. Toque ou clique num prédio para ver quem trabalha lá e o que faz."
+              : "Quem decide sobre a sua vida mora em andares: o país e o estado. Toque ou clique num prédio para ver quem trabalha lá e o que faz."}
           </p>
         </div>
 

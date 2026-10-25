@@ -21,6 +21,7 @@ function abreviar(nome: string, max: number) {
  */
 export function SolApoiadores({ apoiadores }: { apoiadores: Apoiador[] }) {
   const [ativo, setAtivo] = useState<number | null>(null);
+  const [anuncio, setAnuncio] = useState("");
   const n = apoiadores.length;
   // O sol é sempre completo: no mínimo os 12 raios da marca; passando disso, um raio por nome.
   const total = Math.max(12, n);
@@ -88,15 +89,19 @@ export function SolApoiadores({ apoiadores }: { apoiadores: Apoiador[] }) {
         </svg>
       </div>
 
-      <p aria-live="polite" className="min-h-6 text-center text-sm text-muted-foreground">
+      <p className="min-h-6 text-center text-sm text-muted-foreground">
         {atual ? (
           <>
             <span className="font-semibold text-foreground">{atual.nome}</span>
             {atual.desde && <> · apoia desde {atual.desde}</>}
           </>
         ) : (
-          "Passe o mouse ou toque num raio ou num nome."
+          "Passe o mouse, toque ou clique num raio ou num nome."
         )}
+      </p>
+
+      <p role="status" className="sr-only">
+        {anuncio}
       </p>
 
       <ul className="grid gap-x-8 sm:grid-cols-2 lg:grid-cols-3">
@@ -104,7 +109,10 @@ export function SolApoiadores({ apoiadores }: { apoiadores: Apoiador[] }) {
           <li key={a.nome} className="border-t border-border">
             <button
               type="button"
-              onClick={() => setAtivo(i)}
+              onClick={() => {
+                setAtivo(i);
+                setAnuncio(a.desde ? `${a.nome}, apoia desde ${a.desde}` : a.nome);
+              }}
               onFocus={() => setAtivo(i)}
               onMouseEnter={() => setAtivo(i)}
               aria-pressed={ativo === i}

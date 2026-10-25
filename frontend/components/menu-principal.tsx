@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 
 import { AlternarTema } from "@/components/alternar-tema";
+import { tornarFundoInerte } from "@/lib/fundo-inerte";
 
 const ITENS = [
   { href: "/parlamentares", rotulo: "Parlamentares" },
@@ -24,6 +25,13 @@ const ITENS = [
 export function MenuPrincipal() {
   const [aberto, setAberto] = useState(false);
   const botao = useRef<HTMLButtonElement>(null);
+  const painel = useRef<HTMLDivElement>(null);
+
+  function aoSairFoco(e: React.FocusEvent<HTMLDivElement>) {
+    const para = e.relatedTarget as Node | null;
+    if (!para || e.currentTarget.contains(para) || botao.current?.contains(para)) return;
+    setAberto(false);
+  }
 
   useEffect(() => {
     if (!aberto) return;
@@ -36,7 +44,10 @@ export function MenuPrincipal() {
       }
     };
     document.addEventListener("keydown", aoTeclar);
+    // Resto da página inerte (o TalkBack ignora aria-modal); o botão do menu continua ativo.
+    const desfazerInerte = painel.current ? tornarFundoInerte(painel.current, [botao.current]) : () => {};
     return () => {
+      desfazerInerte();
       document.body.style.overflow = anterior;
       document.removeEventListener("keydown", aoTeclar);
     };
@@ -80,19 +91,25 @@ export function MenuPrincipal() {
       </div>
 
       {aberto && (
-        // Toque fora da lista (na área abaixo dela) fecha o painel.
-        // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions -- fundo do painel só fecha por toque; Esc e o botão já fecham pelo teclado
+        // O painel fecha quando o foco sai dele (exceto para o botão do menu, que alterna).
+        // eslint-disable-next-line jsx-a11y/no-static-element-interactions -- só observa a saída do foco; não recebe clique nem tecla
         <div
           id="menu-celular"
-          onClick={() => setAberto(false)}
+          ref={painel}
+          onBlur={aoSairFoco}
           className="absolute inset-x-0 top-full h-[calc(100dvh-3.5rem)] bg-background/95 xl:hidden"
         >
-          {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-noninteractive-element-interactions -- só impede que o toque no menu feche o painel */}
-          <nav
-            aria-label="Menu"
-            onClick={(e) => e.stopPropagation()}
-            className="border-b border-border bg-background px-4 pb-5 shadow-[var(--sombra-menu)]"
-          >
+          {/* Fundo: botão transparente que fecha ao toque fora da lista. Fora da ordem de Tab e
+              do leitor de tela de propósito: o botão do menu (sempre visível) já fecha. */}
+          <button
+            type="button"
+            tabIndex={-1}
+            aria-hidden
+            aria-label="Fechar o menu"
+            onClick={() => setAberto(false)}
+            className="absolute inset-0 size-full cursor-default"
+          />
+          <nav aria-label="Menu" className="relative border-b border-border bg-background px-4 pb-5 shadow-[var(--sombra-menu)]">
             <div className="flex justify-end pt-1 sm:hidden">
               <AlternarTema />
             </div>

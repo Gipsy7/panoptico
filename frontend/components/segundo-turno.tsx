@@ -52,9 +52,12 @@ export function tituloDisputa(d: DisputaSegundoTurno): string {
 function Foto({
   c,
   tamanho,
+  decorativa = false,
 }: {
   c: { id: number; nome_urna: string; foto: boolean; foto_de?: number | null; foto_ano?: number | null; foto_url?: string | null };
   tamanho: number;
+  /** Com o nome escrito logo abaixo: alt vazio. */
+  decorativa?: boolean;
 }) {
   const src = c.foto ? urlFotoDe(c) : (c.foto_url ?? null);
   if (!src) return <Iniciais nome={c.nome_urna} tamanho={tamanho} />;
@@ -64,7 +67,7 @@ function Foto({
       {/* eslint-disable-next-line @next/next/no-img-element -- foto do TSE ou da Casa, já pequena */}
       <img
         src={src}
-        alt={`Foto de ${c.nome_urna}`}
+        alt={decorativa ? "" : `Foto de ${c.nome_urna}`}
         width={tamanho}
         height={Math.round((tamanho * 4) / 3)}
         loading="lazy"
@@ -176,7 +179,7 @@ function valorVice(c: CandidatoSegundoTurno) {
 function Cabecalho({ c }: { c: CandidatoSegundoTurno }) {
   return (
     <div className="flex min-w-0 flex-col gap-2">
-      <Foto c={c} tamanho={72} />
+      <Foto c={c} tamanho={72} decorativa />
       <p className="text-base font-semibold leading-tight break-words">{c.nome_urna}</p>
       <p className="flex flex-wrap gap-1">
         {c.numero && <span className="pilula tabular-nums">Número {c.numero}</span>}

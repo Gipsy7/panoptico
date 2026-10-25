@@ -88,7 +88,7 @@ async function DinheiroFederalHome() {
         <h2 id="impostos-titulo" className="text-3xl leading-tight text-balance sm:text-4xl">
           Quanto a União arrecada e repassa em cada estado
         </h2>
-        <p className="text-muted-foreground">Dados de {ano}. Passe o mouse ou toque num estado para ver os números.</p>
+        <p className="text-muted-foreground">Dados de {ano}. Passe o mouse, toque ou clique num estado para ver os números.</p>
         <dl className="grid grid-cols-2 gap-4 border-t border-foreground pt-4">
           <div>
             <dt className="text-sm text-muted-foreground">Arrecadado no país</dt>

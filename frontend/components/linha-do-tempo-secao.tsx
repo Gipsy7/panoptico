@@ -82,15 +82,17 @@ export function LinhaDoTempoSecao({ dados }: { dados: LinhaDoTempo }) {
 
       {grupos.map((g) => (
         <div key={g.titulo} className="flex flex-col gap-2">
-          <h3 className="font-medium">
-            {g.titulo} <span className="text-sm font-normal text-muted-foreground tabular-nums">({g.itens.length})</span>
-            <span className="block text-sm font-normal text-muted-foreground">{g.detalhe}</span>
+          <div>
+            <h3 className="font-medium">
+              {g.titulo} <span className="text-sm font-normal text-muted-foreground tabular-nums">({g.itens.length})</span>
+            </h3>
+            <p className="text-sm text-muted-foreground">{g.detalhe}</p>
             {g.ancora && (
-              <a href={`#${g.ancora}`} className="block text-sm font-normal underline underline-offset-2">
+              <a href={`#${g.ancora}`} className="block text-sm underline underline-offset-2">
                 Ver o detalhe por ano
               </a>
             )}
-          </h3>
+          </div>
           <ul className="lista-fios flex flex-col">
             {g.itens.slice(0, VISIVEIS_POR_GRUPO).map((item, i) => (
               <Item key={i} item={item} />
@@ -182,14 +184,16 @@ function Campo({ rotulo, children }: { rotulo: string; children: ReactNode }) {
 function Descricao({ texto }: { texto: string }) {
   if (texto.length <= LIMITE_TEXTO) return <p className="text-sm">{texto}</p>;
   const corte = texto.lastIndexOf(" ", LIMITE_TEXTO);
+  const fim = corte > 0 ? corte : LIMITE_TEXTO;
+  // O começo fica fora do <details> e o resto dentro: nenhum trecho é lido duas vezes.
   return (
-    <details className="text-sm">
-      <summary className="cursor-pointer list-none">
-        {texto.slice(0, corte > 0 ? corte : LIMITE_TEXTO)}…{" "}
-        <span className="underline underline-offset-2">ler o texto completo</span>
-      </summary>
-      <p className="mt-1">{texto}</p>
-    </details>
+    <div className="text-sm">
+      <p>{texto.slice(0, fim)}…</p>
+      <details>
+        <summary className="cursor-pointer underline underline-offset-2">ler o texto completo</summary>
+        <p className="mt-1">…{texto.slice(fim).trimStart()}</p>
+      </details>
+    </div>
   );
 }
 

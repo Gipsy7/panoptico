@@ -498,6 +498,15 @@ export function PainelDinheiroFederal({ inicial }: { inicial: EstadoInicial }) {
 
   let cabecalho;
   let corpo;
+  const lugarAtual = ibge ? nomeCidade : uf ? ufNome : "Brasil";
+  const [anuncioLugar, setAnuncioLugar] = useState("");
+  const lugarAnterior = useRef(lugarAtual);
+  useEffect(() => {
+    if (lugarAnterior.current === lugarAtual) return;
+    lugarAnterior.current = lugarAtual;
+    setAnuncioLugar(`${lugarAtual} selecionado`);
+  }, [lugarAtual]);
+
   if (ibge) {
     cabecalho = (
       <CabecalhoCidade
@@ -532,6 +541,7 @@ export function PainelDinheiroFederal({ inicial }: { inicial: EstadoInicial }) {
       <button
         type="button"
         className={estilos.voltar}
+        aria-label={`Voltar para ${ibge ? ufNome : "Brasil"}`}
         onClick={() => navegar(ibge ? { uf: uf ?? undefined } : {})}
       >
         <span aria-hidden>‹</span> {ibge ? ufNome : "Brasil"}
@@ -565,11 +575,11 @@ export function PainelDinheiroFederal({ inicial }: { inicial: EstadoInicial }) {
       </header>
 
       <div className={estilos.barra}>
-        <div className={estilos.abas} role="tablist" aria-label="Forma de ver">
-          <button type="button" role="tab" aria-selected={vista === "mapa"} onClick={() => setVista("mapa")}>
+        <div className={estilos.abas} role="group" aria-label="Forma de ver">
+          <button type="button" aria-pressed={vista === "mapa"} onClick={() => setVista("mapa")}>
             Mapa
           </button>
-          <button type="button" role="tab" aria-selected={vista === "lista"} onClick={() => setVista("lista")}>
+          <button type="button" aria-pressed={vista === "lista"} onClick={() => setVista("lista")}>
             Lista
           </button>
         </div>
@@ -739,8 +749,10 @@ export function PainelDinheiroFederal({ inicial }: { inicial: EstadoInicial }) {
           ref={folhaRef}
           className={`${estilos.painel} ${folha !== "recolhida" ? estilos[folha] : ""}`}
           aria-label="Números do lugar escolhido"
-          aria-live="polite"
         >
+          <p role="status" className="sr-only">
+            {anuncioLugar}
+          </p>
           {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions -- cabeçalho da folha: toque alterna; o teclado usa o botão de dentro */}
           <div
             ref={topoFolhaRef}
@@ -764,7 +776,7 @@ export function PainelDinheiroFederal({ inicial }: { inicial: EstadoInicial }) {
               aria-controls="corpo-painel-dinheiro"
             >
               <i />
-              <span>{folha !== "recolhida" ? "Fechar" : "Puxe para ver mais"}</span>
+              <span>{folha !== "recolhida" ? "Fechar" : "Ver mais"}</span>
             </button>
             <div className={estilos.cabFolha}>{cabecalho}</div>
           </div>

@@ -109,7 +109,7 @@ export function ComparadorMatriz({
           <Detalhe par={par} nomeI={nomes[par.i]} nomeJ={nomes[par.j]} periodo={periodo} />
         ) : (
           <p className="text-sm text-muted-foreground">
-            Toque numa célula para ver em quais votações o par votou diferente.
+            Toque ou clique numa célula para ver em quais votações o par votou diferente.
           </p>
         )}
       </div>

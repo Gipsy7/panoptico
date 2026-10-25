@@ -171,7 +171,7 @@ async function Projeto({ casa, id, ufInicial }: { casa: string; id: string; ufIn
           )}
         </GradeCartoes>
         {!temVotacao && <p className="nota text-sm">{AVISO_SEM_VOTACAO}</p>}
-        <p className="text-sm text-muted-foreground">Toque num número para ver o detalhe, com a fonte e a data.</p>
+        <p className="text-sm text-muted-foreground">Toque ou clique num número para ver o detalhe, com a fonte e a data.</p>
         <CompartilharWhatsApp
           caminho={`/projeto/${d.casa}/${d.id_externo}`}
           texto={textoCompartilharProjeto({

@@ -207,7 +207,7 @@ async function Votacao({ casa, id, ufInicial }: { casa: string; id: string; ufIn
             />
           )}
         </GradeCartoes>
-        <p className="text-sm text-muted-foreground">Toque num número para ver o detalhe, com a fonte e a data.</p>
+        <p className="text-sm text-muted-foreground">Toque ou clique num número para ver o detalhe, com a fonte e a data.</p>
         {idProjeto && (
           <Link href={`/projeto/${d.casa}/${idProjeto}`} className="botao-linha self-start">
             Ver tudo sobre o projeto

@@ -108,7 +108,7 @@ export function PilulasAtivas({
   return (
     <div className="flex flex-col gap-[var(--esp-2)]">
       <p className="text-sm text-muted-foreground">
-        {itens.length === 1 ? "Filtro ativo (toque para tirar):" : "Filtros ativos (toque para tirar):"}
+        {itens.length === 1 ? "Filtro ativo (toque ou clique para tirar):" : "Filtros ativos (toque ou clique para tirar):"}
       </p>
       <ul className="flex flex-wrap items-center gap-[var(--esp-2)]">
         {itens.map((f) => {

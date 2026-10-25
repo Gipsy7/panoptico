@@ -107,8 +107,22 @@ export function CamposUfCidade({
     return prontas.filter((c) => semAcento(c.nome).includes(termo) || c.ibge === cidade);
   }, [prontas, procura, cidade]);
 
+  const anuncio =
+    estado && prontas === undefined
+      ? "Carregando as cidades."
+      : estado && prontas === null
+        ? "Não deu para carregar as cidades."
+        : prontas && procura.trim()
+          ? visiveis.length === 1
+            ? "1 cidade na lista"
+            : `${visiveis.length} cidades na lista`
+          : "";
+
   return (
     <>
+      <p role="status" className="sr-only">
+        {anuncio}
+      </p>
       <label className={ROTULO}>
         Estado
         <select
@@ -139,7 +153,7 @@ export function CamposUfCidade({
             <select id={idCidade} disabled aria-describedby={`${idCidade}-aviso`} className={CAMPO}>
               <option>Todas as cidades</option>
             </select>
-            <p id={`${idCidade}-aviso`} className="text-sm text-muted-foreground" aria-live={estado ? "polite" : undefined}>
+            <p id={`${idCidade}-aviso`} className="text-sm text-muted-foreground">
               {!estado
                 ? "Escolha um estado para ver as cidades."
                 : prontas === undefined
@@ -162,7 +176,7 @@ export function CamposUfCidade({
                   // Sem `name`: só encurta a lista abaixo, não vai para a URL.
                 />
                 {procura.trim() && (
-                  <span className="font-normal text-muted-foreground" aria-live="polite">
+                  <span className="font-normal text-muted-foreground">
                     {visiveis.length === 1 ? "1 cidade na lista abaixo" : `${visiveis.length} cidades na lista abaixo`}
                   </span>
                 )}

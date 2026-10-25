@@ -17,12 +17,10 @@ export function EsqueletoSecao({
 }) {
   const barra = "animate-pulse motion-reduce:animate-none rounded-[2px] bg-muted";
   return (
-    <div
-      aria-busy="true"
-      aria-live="polite"
-      className={cn("flex flex-col gap-[var(--esp-10)]", className)}
-    >
-      <span className="sr-only">{rotulo}</span>
+    <div className={cn("flex flex-col gap-[var(--esp-10)]", className)}>
+      <span role="status" className="sr-only">
+        {rotulo}
+      </span>
       {Array.from({ length: secoes }, (_, s) => (
         <div key={s} aria-hidden className="flex flex-col gap-[var(--esp-3)]">
           <div className={cn(barra, "h-3 w-24")} />

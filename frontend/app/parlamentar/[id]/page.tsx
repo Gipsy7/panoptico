@@ -311,7 +311,7 @@ async function Perfil({
           sancoes={sancoes?.ok ? sancoes.dados : undefined}
           subsidio={p.remuneracao.subsidio_mensal}
         />
-        <p className="text-sm text-muted-foreground">Toque num número para ver o detalhe, com a fonte e a data.</p>
+        <p className="text-sm text-muted-foreground">Toque ou clique num número para ver o detalhe, com a fonte e a data.</p>
 
         <div className="flex flex-wrap gap-2">
           <Link href={`/comparar?a=${p.id}`} className="botao-linha">
@@ -552,8 +552,10 @@ function ComposicaoPresenca({ presenca: p }: { presenca: Presenca }) {
 
 function Carregando() {
   return (
-    <div className="flex flex-col gap-[var(--esp-10)]" aria-busy="true" aria-live="polite">
-      <span className="sr-only">Carregando perfil…</span>
+    <div className="flex flex-col gap-[var(--esp-10)]">
+      <span role="status" className="sr-only">
+        Carregando perfil…
+      </span>
       <div aria-hidden className="flex gap-4">
         <div className="h-32 w-24 animate-pulse rounded-[2px] bg-muted motion-reduce:animate-none" />
         <div className="flex flex-1 flex-col gap-2">

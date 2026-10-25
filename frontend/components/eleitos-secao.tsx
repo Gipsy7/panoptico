@@ -70,7 +70,7 @@ function CartaoEleito({ eleito }: { eleito: Eleito }) {
       href={href}
       className="group flex items-center gap-4 py-3 transition-colors duration-300 hover:bg-accent/50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-bronze"
     >
-      <FotoOuIniciais eleito={eleito} />
+      <FotoOuIniciais eleito={eleito} decorativa />
       <div className="min-w-0">
         <p className="truncate text-base font-semibold">{eleito.nome_urna}</p>
         <p className="text-sm text-muted-foreground">
@@ -98,11 +98,14 @@ export function FotoOuIniciais({
   eleito,
   tamanho = 44,
   legenda = false,
+  decorativa = false,
 }: {
   eleito: Pick<Eleito, "id" | "nome_urna" | "foto" | "foto_de" | "foto_ano">;
   tamanho?: number;
   /** Mostra "foto de 2022" abaixo quando a foto vem de outra eleição da mesma pessoa. */
   legenda?: boolean;
+  /** Com o nome escrito ao lado, dentro do mesmo link: alt vazio. */
+  decorativa?: boolean;
 }) {
   if (!eleito.foto) return <Iniciais nome={eleito.nome_urna} tamanho={tamanho} />;
   const ano = legenda ? legendaFoto(eleito) : null;
@@ -111,7 +114,7 @@ export function FotoOuIniciais({
       {/* eslint-disable-next-line @next/next/no-img-element -- WebP pequeno, já reduzido e com cache longo na CDN */}
       <img
         src={urlFotoDe(eleito)}
-        alt={`Foto de ${eleito.nome_urna}`}
+        alt={decorativa ? "" : `Foto de ${eleito.nome_urna}`}
         width={tamanho}
         height={Math.round((tamanho * 4) / 3)}
         loading="lazy"

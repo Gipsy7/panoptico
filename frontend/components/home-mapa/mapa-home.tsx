@@ -109,7 +109,17 @@ export function MapaHome({ ufs }: { ufs: UfDoMapa[] }) {
 
   useEffect(() => {
     if (tocou || reduzido || pontos.length < 2) return;
-    const t = setInterval(() => setPasso((i) => (i + 1) % pontos.length), 2600);
+    // Passeia 3 voltas pelo roteiro e para (WCAG 2.2.2): a mão fica parada no último estado.
+    const limite = 3 * pontos.length - 1;
+    const t = setInterval(() => {
+      setPasso((i) => {
+        if (i >= limite) {
+          clearInterval(t);
+          return i;
+        }
+        return i + 1;
+      });
+    }, 2600);
     return () => clearInterval(t);
   }, [tocou, reduzido, pontos.length]);
 
@@ -164,7 +174,8 @@ export function MapaHome({ ufs }: { ufs: UfDoMapa[] }) {
               x={daVez.x}
               y={daVez.y}
               oculta={tocou}
-              reduzido={reduzido}
+              // Fim das 3 voltas: a mão para de pulsar também (WCAG 2.2.2).
+              reduzido={reduzido || passo >= 3 * pontos.length - 1}
               etiquetaEsquerda={daVez.x > daVez.largura * 0.55}
             />
           </svg>
@@ -202,7 +213,7 @@ export function MapaHome({ ufs }: { ufs: UfDoMapa[] }) {
           </div>
         ) : (
           <p className="text-sm text-muted-foreground">
-            Toque num estado para ver os números.
+            Toque ou clique num estado para ver os números.
           </p>
         )}
       </div>

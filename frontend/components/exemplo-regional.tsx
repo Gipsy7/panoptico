@@ -49,7 +49,7 @@ export function ExemploRegional() {
   }, [ufDaPessoa]);
 
   return (
-    <div aria-live="polite" className={RESERVA}>
+    <div className={RESERVA}>
       {exemplo ? (
         <div key={`${exemplo.uf}-${exemplo.a.id}-${exemplo.b.id}`} className="troca-suave">
           <ExemploCard uf={exemplo.uf} casa={exemplo.casa} a={exemplo.a} b={exemplo.b} comparacao={exemplo.comparacao} />
