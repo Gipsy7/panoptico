@@ -14,6 +14,7 @@ import {
 } from "@/lib/api";
 import { idDaCasa } from "@/lib/cobertura";
 import { UFS } from "@/lib/ufs";
+import { LinkExterno } from "@/components/link-externo";
 
 export const metadata: Metadata = {
   title: "O que existe e o que falta",
@@ -228,14 +229,12 @@ function LinhaSecao({ s }: { s: CoberturaSecao }) {
           {s.pedidos.map((p, i) => (
             <span key={p.arquivo}>
               {i > 0 && "; "}
-              <a
+              <LinkExterno
                 href={p.url}
-                target="_blank"
-                rel="noopener noreferrer"
                 className="underline underline-offset-2"
               >
                 {p.orgao}
-              </a>
+              </LinkExterno>
             </span>
           ))}
         </span>

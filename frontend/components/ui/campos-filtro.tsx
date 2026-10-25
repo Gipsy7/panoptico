@@ -4,6 +4,7 @@
  * Server e em Client Components; as versões com `aoRemover`/`aoLimpar` só em Client Components.
  */
 import Link from "next/link";
+import { useId } from "react";
 
 import { cn } from "@/lib/utils";
 
@@ -26,18 +27,31 @@ export function CampoSelect({
   className?: string;
   id?: string;
 }) {
+  const auto = useId();
+  const idCampo = id ?? auto;
+  const idAjuda = `${idCampo}-ajuda`;
   return (
-    <label className={cn("flex min-w-0 flex-col gap-[var(--esp-1)] text-sm font-medium", className)}>
-      {rotulo}
-      <select id={id} name={name} defaultValue={defaultValue ?? ""} className="campo-filtro font-normal">
+    <div className={cn("flex min-w-0 flex-col gap-[var(--esp-1)] text-sm font-medium", className)}>
+      <label htmlFor={idCampo}>{rotulo}</label>
+      <select
+        id={idCampo}
+        name={name}
+        defaultValue={defaultValue ?? ""}
+        aria-describedby={ajuda ? idAjuda : undefined}
+        className="campo-filtro font-normal"
+      >
         {opcoes.map((o) => (
           <option key={o.valor} value={o.valor}>
             {o.rotulo}
           </option>
         ))}
       </select>
-      {ajuda && <span className="font-normal text-muted-foreground">{ajuda}</span>}
-    </label>
+      {ajuda && (
+        <span id={idAjuda} className="font-normal text-muted-foreground">
+          {ajuda}
+        </span>
+      )}
+    </div>
   );
 }
 

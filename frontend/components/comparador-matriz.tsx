@@ -3,6 +3,7 @@
 import { useState } from "react";
 
 import { formatarData } from "@/lib/formato";
+import { LinkExterno } from "@/components/link-externo";
 
 export type DivergenciaPar = {
   data: string | null;
@@ -223,9 +224,9 @@ function Detalhe({ par, nomeI, nomeJ, periodo }: { par: ParMatriz; nomeI: string
                 </span>
                 {d.titulo &&
                   (d.url ? (
-                    <a href={d.url} target="_blank" rel="noopener noreferrer" className="font-medium underline underline-offset-2">
+                    <LinkExterno href={d.url} className="font-medium underline underline-offset-2">
                       {d.titulo}
-                    </a>
+                    </LinkExterno>
                   ) : (
                     <span className="font-medium">{d.titulo}</span>
                   ))}

@@ -33,6 +33,7 @@ import {
   situacaoSimples,
 } from "@/lib/projetos";
 import { UFS } from "@/lib/ufs";
+import { LinkExterno } from "@/components/link-externo";
 
 export const metadata: Metadata = {
   title: "Projetos e votações",
@@ -281,9 +282,9 @@ async function NaPauta() {
                       {conteudo}
                     </Link>
                   ) : i.url_oficial ? (
-                    <a href={i.url_oficial} target="_blank" rel="noopener noreferrer" className="flex min-h-11 flex-col gap-0.5 py-3 hover:bg-accent/50">
+                    <LinkExterno href={i.url_oficial} className="flex min-h-11 flex-col gap-0.5 py-3 hover:bg-accent/50">
                       {conteudo}
-                    </a>
+                    </LinkExterno>
                   ) : (
                     <div className="flex min-h-11 flex-col gap-0.5 py-3">{conteudo}</div>
                   )}
@@ -394,9 +395,9 @@ function SemCobertura({ cobertura: c, filtros }: { cobertura: CoberturaBusca; fi
             Interlegis), ou o site dela recusa o acesso automático. O que a câmara publica fica no site oficial dela.
           </p>
           {c.camara.canal_url && (
-            <a href={c.camara.canal_url} target="_blank" rel="noopener noreferrer" className="alvo-link font-medium underline underline-offset-4">
+            <LinkExterno href={c.camara.canal_url} className="alvo-link font-medium underline underline-offset-4">
               Site oficial da Câmara de {c.camara.municipio}
-            </a>
+            </LinkExterno>
           )}
         </>
       ) : (

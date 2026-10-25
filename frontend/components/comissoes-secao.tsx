@@ -4,6 +4,7 @@ import { TextoLongo } from "@/components/ui/texto-longo";
 import { FonteRodape } from "@/components/fonte-rodape";
 import type { VotosComissoes } from "@/lib/api";
 import { formatarData } from "@/lib/formato";
+import { LinkExterno } from "@/components/link-externo";
 
 /** Votos nas votações nominais das comissões: só a lista, sem percentual (ver DECISOES). */
 export function ComissoesSecao({ dados, parlamentarId }: { dados: VotosComissoes; parlamentarId: number }) {
@@ -43,9 +44,9 @@ export function ComissoesSecao({ dados, parlamentarId }: { dados: VotosComissoes
               </span>
               {v.proposicao &&
                 (v.url ? (
-                  <a href={v.url} target="_blank" rel="noopener noreferrer" className="font-medium underline underline-offset-2">
+                  <LinkExterno href={v.url} className="font-medium underline underline-offset-2">
                     {v.proposicao}
-                  </a>
+                  </LinkExterno>
                 ) : (
                   <span className="font-medium">{v.proposicao}</span>
                 ))}

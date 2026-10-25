@@ -10,7 +10,7 @@
  * fica parada no primeiro prédio do roteiro.
  */
 import Link from "next/link";
-import { type KeyboardEvent, type ReactNode, useEffect, useRef, useState } from "react";
+import { type KeyboardEvent, type ReactNode, useEffect, useId, useRef, useState } from "react";
 
 import { FonteRodape } from "@/components/fonte-rodape";
 import { MaoToque, useMovimentoReduzido } from "@/components/mao-toque";
@@ -186,6 +186,7 @@ export function PrediosRepresentantes({
   /** "Você, em Gaspar". */
   voce: string;
 }) {
+  const base = useId();
   const ids = predios.map((p) => p.id);
   const porId = new Map(predios.map((p) => [p.id, p]));
   const roteiro = roteiroDaMao(ids);
@@ -260,7 +261,7 @@ export function PrediosRepresentantes({
                 role="button"
                 tabIndex={0}
                 aria-pressed={eSel}
-                aria-label={`${p.nome}: ${p.sub}`}
+                aria-labelledby={`${base}-${p.id}-r ${base}-${p.id}-s`}
                 className="group/p cursor-pointer outline-none"
                 onClick={() => escolher(p.id)}
                 onKeyDown={(e) => aoTeclar(e, p.id)}
@@ -283,14 +284,16 @@ export function PrediosRepresentantes({
                 </rect>
                 {CORPOS[p.id](F1(eSel), F2(eSel))}
                 <text
+                  id={`${base}-${p.id}-r`}
                   className={`fill-foreground text-[15px] font-semibold ${eSel ? "underline decoration-bronze underline-offset-[3px]" : ""}`}
                   x={a.cx}
                   y={hy + hh + 20}
                   textAnchor={a.ancora}
                 >
-                  {p.rotulo}
+                  {/* Espaço no fim: o texto do grupo vira "Senado 3 senadores", igual ao nome acessível (WCAG 2.5.3). */}
+                  {p.rotulo}{" "}
                 </text>
-                <text className="fill-muted-foreground text-[13px]" x={a.cx} y={hy + hh + 38} textAnchor={a.ancora}>
+                <text id={`${base}-${p.id}-s`} className="fill-muted-foreground text-[13px]" x={a.cx} y={hy + hh + 38} textAnchor={a.ancora}>
                   {p.sub}
                 </text>
               </g>

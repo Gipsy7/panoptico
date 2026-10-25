@@ -1,4 +1,5 @@
 import type { Pessoais } from "@/lib/api";
+import { LinkExterno } from "@/components/link-externo";
 
 /** "Quem é": dados declarados ao TSE e votos recebidos, logo depois do cabeçalho, igual em
  * todos os perfis (federal, estadual, vereador, Executivo). */
@@ -56,9 +57,9 @@ export function DadosPessoais({
           <ul className="flex flex-wrap gap-x-4 gap-y-1 text-sm">
             {pessoais.redes.map((url) => (
               <li key={url}>
-                <a href={url} target="_blank" rel="noopener noreferrer nofollow" className="underline underline-offset-2">
+                <LinkExterno href={url} rel="noopener noreferrer nofollow" className="underline underline-offset-2">
                   {rotuloDaRede(url)}
-                </a>
+                </LinkExterno>
               </li>
             ))}
           </ul>

@@ -3,6 +3,7 @@ import Link from "next/link";
 import { FonteRodape } from "@/components/fonte-rodape";
 import type { Casa, Gastos } from "@/lib/api";
 import { CASA_DA, MESES, formatarData, formatarGastos, formatarReais } from "@/lib/formato";
+import { LinkExterno } from "@/components/link-externo";
 
 export function GastosSecao({
   gastos,
@@ -121,14 +122,12 @@ export function GastosSecao({
                       <span className="block">{d.fornecedor ?? "Não informado"}</span>
                       <span className="block text-xs text-muted-foreground">{d.categoria}</span>
                       {d.url_documento && (
-                        <a
+                        <LinkExterno
                           href={d.url_documento}
-                          target="_blank"
-                          rel="noopener noreferrer"
                           className="text-xs underline underline-offset-2"
                         >
                           Ver nota fiscal
-                        </a>
+                        </LinkExterno>
                       )}
                     </td>
                     <td className="py-2 text-right whitespace-nowrap tabular-nums">

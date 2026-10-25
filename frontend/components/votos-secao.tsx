@@ -6,6 +6,7 @@ import { TextoLongo } from "@/components/ui/texto-longo";
 import { FonteRodape } from "@/components/fonte-rodape";
 import type { Casa, Placar, Votos } from "@/lib/api";
 import { CASA_CURTA, formatarData } from "@/lib/formato";
+import { LinkExterno } from "@/components/link-externo";
 
 const PCT = new Intl.NumberFormat("pt-BR", { maximumFractionDigits: 1 });
 
@@ -105,14 +106,12 @@ export function VotosSecao({
                       {v.proposicao}
                     </Link>
                   ) : v.url ? (
-                    <a
+                    <LinkExterno
                       href={v.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
                       className="font-medium underline underline-offset-2"
                     >
                       {v.proposicao}
-                    </a>
+                    </LinkExterno>
                   ) : (
                     <span className="font-medium">{v.proposicao}</span>
                   ))}

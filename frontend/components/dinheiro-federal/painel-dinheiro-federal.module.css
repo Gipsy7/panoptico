@@ -496,3 +496,8 @@
     display: none;
   }
 }
+
+/* Foco dentro da caixa com borda: contorno para dentro, para não ser cortado. */
+.abas button:focus-visible {
+  outline-offset: -2px;
+}

@@ -1,4 +1,5 @@
 import { formatarData } from "@/lib/formato";
+import { LinkExterno } from "@/components/link-externo";
 
 export function FonteRodape({
   fonte,
@@ -13,9 +14,9 @@ export function FonteRodape({
     <p className="text-xs text-muted-foreground">
       Fonte:{" "}
       {url ? (
-        <a href={url} target="_blank" rel="noopener noreferrer" className="underline underline-offset-2">
+        <LinkExterno href={url} className="underline underline-offset-2">
           {fonte}
-        </a>
+        </LinkExterno>
       ) : (
         fonte
       )}

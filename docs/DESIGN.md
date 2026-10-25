@@ -87,9 +87,12 @@ Open Graph ficam sempre claras. Razões de contraste (WCAG):
 | Par | Claro | Escuro |
 |---|---|---|
 | texto / fundo (`#141414` / `#f4f1ea`; `#ece7dc` / `#1c1a17`) | 16,3 | 14,1 |
-| texto de apoio / fundo (`#6e6a63`; `#a39d92`) | 4,8 | 6,4 |
-| texto de apoio / cartão | 5,0 | 5,9 |
-| texto de apoio / `--muted` | 4,4 (só em pílulas, 13 px; a corrigir na onda 1 da acessibilidade, meta 4,5) | 5,5 |
+| texto de apoio / fundo (`#6a665f`; `#a39d92`) | 5,1 | 6,4 |
+| texto de apoio / cartão | 5,3 | 5,9 |
+| texto de apoio / `--muted` | 4,6 | 5,5 |
+| borda de campo e seletor (`--borda-controle` `#857f73`) / fundo | 3,5 (3,2 sobre `--muted`) | 4,4 (3,7 sobre `--muted`) |
+| placeholder do `campo` (`--muted-foreground`, opaco) / fundo | 5,1 | 6,4 |
+| foco (`--bronze-texto`, contorno de 2 px) / fundo | 5,6 | 8,0 |
 | bronze-texto / fundo (`#7a5a32`; `#d4a968`) | 5,6 | 8,0 |
 | primary-foreground / primary | 16,3 | 14,1 |
 | destructive / fundo (`#8a2c1c`; `#e39a86`) | 7,6 | 7,6 |

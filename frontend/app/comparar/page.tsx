@@ -23,6 +23,7 @@ import {
   getParlamentar,
 } from "@/lib/api";
 import { CASA_CURTA, formatarData, formatarGastos, formatarReais } from "@/lib/formato";
+import { LinkExterno } from "@/components/link-externo";
 
 const MAXIMO = 4;
 const texto = (v: string | string[] | undefined) => (typeof v === "string" && v ? v : undefined);
@@ -346,9 +347,9 @@ function Resultado({
               <ul className="lista-fios mt-2 flex flex-col">
                 {c.itens.map((p) => (
                   <li key={`${p.sigla_tipo}-${p.numero}-${p.ano}`} className="flex flex-col gap-1 py-3">
-                    <a href={p.url} target="_blank" rel="noopener noreferrer" className="font-medium underline underline-offset-2">
+                    <LinkExterno href={p.url} className="font-medium underline underline-offset-2">
                       {p.sigla_tipo} {p.numero}/{p.ano}
-                    </a>
+                    </LinkExterno>
                     <p className="text-sm">{p.ementa}</p>
                     <p className="text-[13px] text-muted-foreground">
                       {formatarData(p.data_apresentacao)} · {p.situacao ?? "Situação não informada"}

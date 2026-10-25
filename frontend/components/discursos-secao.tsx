@@ -9,6 +9,7 @@ import Link from "next/link";
 import type { DiscursoNaVotacao, GrupoDiscursos } from "@/lib/api";
 import { formatarData } from "@/lib/formato";
 import { ordenarGruposDiscurso, rotuloGrupoDiscurso } from "@/lib/projetos";
+import { LinkExterno } from "@/components/link-externo";
 
 export const AVISO_RESUMO = "Resumo publicado pela Casa. O argumento completo está no discurso; leia no link.";
 
@@ -42,14 +43,14 @@ function ItemDiscurso({ d }: { d: DiscursoNaVotacao }) {
       {(d.url_texto || d.url_video) && (
         <p className="flex flex-wrap gap-x-4 text-sm">
           {d.url_texto && (
-            <a href={d.url_texto} target="_blank" rel="noopener noreferrer" className="alvo-link font-medium underline underline-offset-4">
+            <LinkExterno href={d.url_texto} className="alvo-link font-medium underline underline-offset-4">
               Ler o discurso
-            </a>
+            </LinkExterno>
           )}
           {d.url_video && (
-            <a href={d.url_video} target="_blank" rel="noopener noreferrer" className="alvo-link font-medium underline underline-offset-4">
+            <LinkExterno href={d.url_video} className="alvo-link font-medium underline underline-offset-4">
               Ver o vídeo
-            </a>
+            </LinkExterno>
           )}
         </p>
       )}

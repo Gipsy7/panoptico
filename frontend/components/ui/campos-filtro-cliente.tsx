@@ -84,6 +84,7 @@ export function CamposUfCidade({
   const [lista, setLista] = useState<{ uf: string; cidades: Cidade[] | null }>({ uf: uf ?? "", cidades });
   const [procura, setProcura] = useState("");
   const idProcura = useId();
+  const idCidade = useId();
 
   // Estado novo: busca as cidades dele (a API é pública e fica em cache na CDN).
   useEffect(() => {
@@ -130,23 +131,20 @@ export function CamposUfCidade({
       </label>
 
       <div className="flex min-w-0 flex-col gap-[var(--esp-2)]">
-        {!estado ? (
+        {prontas === undefined || prontas === null || !estado ? (
           <>
-            <span className="text-sm font-medium">Cidade</span>
-            <p className="text-sm text-muted-foreground">Escolha um estado para ver as cidades.</p>
-          </>
-        ) : prontas === undefined ? (
-          <>
-            <span className="text-sm font-medium">Cidade</span>
-            <p className="text-sm text-muted-foreground" aria-live="polite">
-              Carregando as cidades…
-            </p>
-          </>
-        ) : prontas === null ? (
-          <>
-            <span className="text-sm font-medium">Cidade</span>
-            <p className="text-sm text-muted-foreground" aria-live="polite">
-              Não deu para carregar as cidades. Aplique o estado e escolha a cidade depois.
+            <label htmlFor={idCidade} className="text-sm font-medium">
+              Cidade
+            </label>
+            <select id={idCidade} disabled aria-describedby={`${idCidade}-aviso`} className={CAMPO}>
+              <option>Todas as cidades</option>
+            </select>
+            <p id={`${idCidade}-aviso`} className="text-sm text-muted-foreground" aria-live={estado ? "polite" : undefined}>
+              {!estado
+                ? "Escolha um estado para ver as cidades."
+                : prontas === undefined
+                  ? "Carregando as cidades…"
+                  : "Não deu para carregar as cidades. Aplique o estado e escolha a cidade depois."}
             </p>
           </>
         ) : (
@@ -170,9 +168,9 @@ export function CamposUfCidade({
                 )}
               </label>
             )}
-            <label className={ROTULO}>
+            <label htmlFor={idCidade} className={ROTULO}>
               Cidade
-              <select name="municipio" value={cidade} onChange={(e) => setCidade(e.target.value)} className={CAMPO}>
+              <select id={idCidade} name="municipio" value={cidade} onChange={(e) => setCidade(e.target.value)} className={CAMPO}>
                 <option value="">Todas as cidades</option>
                 {visiveis.map((c) => (
                   <option key={c.ibge} value={c.ibge}>

@@ -18,6 +18,7 @@ import { Revelacao } from "@/components/revelacao";
 import { type CasaProjeto, type ProjetoLocal, type VotacaoLocal, getProjetoLocal, getVotacaoLocal } from "@/lib/api";
 import { CASA_PROJETO_CURTA, formatarData, lugarDoProjeto, textoResultado } from "@/lib/formato";
 import { agruparVotosLocais, caminhoInterno, recortar } from "@/lib/projetos";
+import { LinkExterno } from "@/components/link-externo";
 
 const INTEIRO = new Intl.NumberFormat("pt-BR");
 const n = (v: number) => INTEIRO.format(v);
@@ -146,9 +147,9 @@ function DoQueSeTrataLocal({ d, rodape }: { d: ProjetoLocal; rodape: React.React
           </div>
         )}
       </dl>
-      <a href={d.url_oficial} target="_blank" rel="noopener noreferrer" className="alvo-link self-start font-medium underline underline-offset-4">
+      <LinkExterno href={d.url_oficial} className="alvo-link self-start font-medium underline underline-offset-4">
         Ver o projeto no site da casa
-      </a>
+      </LinkExterno>
       {rodape}
     </section>
   );
@@ -265,9 +266,9 @@ async function VotacaoLocalConteudo({ id }: { id: string }) {
             </Link>
           )}
           {d.url_oficial && (
-            <a href={d.url_oficial} target="_blank" rel="noopener noreferrer" className="botao-linha">
+            <LinkExterno href={d.url_oficial} className="botao-linha">
               Ver no site da casa
-            </a>
+            </LinkExterno>
           )}
         </div>
         <CompartilharWhatsApp

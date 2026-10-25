@@ -1,6 +1,7 @@
 import { FonteRodape } from "@/components/fonte-rodape";
 import { getCarreira, type CandidaturaDaCarreira } from "@/lib/api";
 import { formatarReais } from "@/lib/formato";
+import { LinkExterno } from "@/components/link-externo";
 
 function resultado(c: CandidaturaDaCarreira): string {
   if (c.eleito === true) return "Eleito(a)";
@@ -47,14 +48,12 @@ export async function CarreiraSecao({ pessoaId }: { pessoaId: number }) {
                   : "Bens não carregados para este ano"}
               </span>
               {c.fonte_url && (
-                <a
+                <LinkExterno
                   href={c.fonte_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
                   className="self-start text-muted-foreground underline underline-offset-2"
                 >
                   Ver na fonte oficial
-                </a>
+                </LinkExterno>
               )}
               {c.ligacao && <span className="text-xs text-muted-foreground">{c.ligacao}</span>}
             </li>

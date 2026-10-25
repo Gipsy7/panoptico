@@ -21,6 +21,7 @@ import { Migalhas } from "@/components/ui/migalhas";
 import { type SegundoTurno, getAgendaSegundoTurno, getSegundoTurno } from "@/lib/api";
 import { formatarCep, formatarData } from "@/lib/formato";
 import { UFS } from "@/lib/ufs";
+import { LinkExterno } from "@/components/link-externo";
 
 type Busca = { cep?: string; uf?: string; municipio?: string };
 
@@ -215,9 +216,9 @@ function Resultado({ dados }: { dados: SegundoTurno }) {
       {disputas.length > 0 && (
         <p className="text-sm">
           As propostas de governo de cada candidato estão no{" "}
-          <a href={dados.propostas_url} target="_blank" rel="noopener noreferrer" className="font-medium underline underline-offset-2">
+          <LinkExterno href={dados.propostas_url} className="font-medium underline underline-offset-2">
             DivulgaCandContas, do TSE
-          </a>{" "}
+          </LinkExterno>{" "}
           (procure pelo nome do candidato).
         </p>
       )}

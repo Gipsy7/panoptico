@@ -4,6 +4,7 @@ import { FonteRodape } from "@/components/fonte-rodape";
 import { PorQueFalta } from "@/components/por-que-falta";
 import type { VereadorDetalhe, VotacoesLocais } from "@/lib/api";
 import { MESES, formatarData, formatarReais } from "@/lib/formato";
+import { LinkExterno } from "@/components/link-externo";
 
 /** Nome da assembleia na matriz de cobertura ("ALPR", "CLDF"); câmaras de vereadores não estão nela. */
 export function casaNaMatriz(v: { casa: string; uf: string }): string | undefined {
@@ -116,9 +117,9 @@ export function VotacoesLocaisSecao({
               <li key={i} className="flex items-baseline justify-between gap-3 py-2 text-sm">
                 <span className="min-w-0">
                   {v.url ? (
-                    <a href={v.url} target="_blank" rel="noopener noreferrer" className="underline underline-offset-2">
+                    <LinkExterno href={v.url} className="underline underline-offset-2">
                       {v.materia}
-                    </a>
+                    </LinkExterno>
                   ) : (
                     v.materia
                   )}

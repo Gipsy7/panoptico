@@ -108,10 +108,11 @@ interface CaminhoProps {
   ativa: boolean;
   sel: boolean;
   sobre: boolean;
-  tabIndex: number;
+  /** Fora de uso (outro nível do mapa): sai da árvore de acessibilidade e da ordem de Tab. */
+  oculto: boolean;
 }
 
-const Caminho = memo(function Caminho({ d, nivel, id, c, rotulo, ativa, sel, sobre, tabIndex }: CaminhoProps) {
+const Caminho = memo(function Caminho({ d, nivel, id, c, rotulo, ativa, sel, sobre, oculto }: CaminhoProps) {
   const cls = [estilos[nivel], ativa && estilos.ativa, sel && estilos.sel, sobre && estilos.sobre]
     .filter(Boolean)
     .join(" ");
@@ -122,9 +123,10 @@ const Caminho = memo(function Caminho({ d, nivel, id, c, rotulo, ativa, sel, sob
       data-id={id}
       data-nivel={nivel}
       data-c={c}
-      tabIndex={tabIndex}
+      tabIndex={oculto ? -1 : 0}
       role="button"
       aria-label={rotulo}
+      aria-hidden={oculto ? "true" : undefined}
     />
   );
 });
@@ -179,6 +181,9 @@ export function MapaBrasil({
   const pos = useRef({ x: 0, y: 0 });
   const ponteiros = useRef(new Map<number, [number, number]>());
   const arrastando = useRef(false);
+  // Instante do último pointerup/keydown tratado: o `click` que o navegador dispara logo depois
+  // não pode abrir de novo. Click sem ponteiro antes (leitor de tela) abre normalmente.
+  const ultimoToque = useRef(0);
   const inicio = useRef<{ x: number; y: number; vb: Vb; d: number | null; cx: number; cy: number }>({
     x: 0,
     y: 0,
@@ -639,7 +644,14 @@ export function MapaBrasil({
       return;
     }
     arrastando.current = false;
+    ultimoToque.current = performance.now();
     if (e.type === "pointerup" && !era) tocar(alvoDe(e), e.pointerType);
+  };
+  // Leitores de tela ativam com `click`, sem pointerup antes.
+  const aoClicar = (e: React.MouseEvent<SVGSVGElement>) => {
+    if (performance.now() - ultimoToque.current < 700) return;
+    const a = alvoDe(e);
+    if (a) ativar(a);
   };
   const aoSair = () => {
     setSobre(null);
@@ -656,6 +668,7 @@ export function MapaBrasil({
     const a = alvoDoElemento(e.target);
     if (!a) return;
     e.preventDefault();
+    ultimoToque.current = performance.now();
     ativar(a);
   };
   const aoFocar = (e: React.FocusEvent<SVGSVGElement>) => {
@@ -725,6 +738,7 @@ export function MapaBrasil({
         onPointerUp={aoSoltar}
         onPointerCancel={aoSoltar}
         onPointerLeave={aoSair}
+        onClick={aoClicar}
         onKeyDown={aoTeclar}
         onFocus={aoFocar}
       >
@@ -741,7 +755,7 @@ export function MapaBrasil({
                 ativa={s === uf}
                 sel={ehSel("uf", s)}
                 sobre={ehSobre("uf", s)}
-                tabIndex={noEstado ? -1 : 0}
+                oculto={noEstado}
               />
             ))}
           {/* DF é minúsculo: anel de toque invisível em volta */}
@@ -769,7 +783,7 @@ export function MapaBrasil({
                 ativa={cod === munEf}
                 sel={ehSel("mun", cod)}
                 sobre={ehSobre("mun", cod)}
-                tabIndex={naCidade && cod !== munEf ? -1 : 0}
+                oculto={naCidade && cod !== munEf}
               />
             ))}
         </g>

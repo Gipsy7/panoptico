@@ -1,6 +1,7 @@
 import { FonteRodape } from "@/components/fonte-rodape";
 import type { CandidaturaTse } from "@/lib/api";
 import { formatarReais } from "@/lib/formato";
+import { LinkExterno } from "@/components/link-externo";
 
 const LIMITE_VISIVEL = 8;
 
@@ -84,9 +85,9 @@ export function CandidaturaSecao({
           <p className="text-sm text-muted-foreground">
             Valores como o candidato declarou, sem correção pela inflação. Bens costumam ser
             declarados pelo valor de compra, que pode ser diferente do valor de mercado.{" "}
-            <a href={bens.fonte_url} target="_blank" rel="noopener noreferrer" className="underline underline-offset-2">
+            <LinkExterno href={bens.fonte_url} className="underline underline-offset-2">
               Arquivo oficial
-            </a>
+            </LinkExterno>
           </p>
         </div>
       )}

@@ -5,6 +5,7 @@ import { CampoSelect, type FiltroAtivo, PilulasAtivas, SemResultados } from "@/c
 import { PainelFiltros } from "@/components/ui/painel-filtros";
 import type { Agenda } from "@/lib/api";
 import { formatarData } from "@/lib/formato";
+import { LinkExterno } from "@/components/link-externo";
 
 const TIPOS: [string, string][] = [
   ["reuniao", "Reunião"],
@@ -130,14 +131,12 @@ export function AgendaSecao({
                   {i.entidades_privadas.join(", ")}
                 </p>
               )}
-              <a
+              <LinkExterno
                 href={i.url}
-                target="_blank"
-                rel="noopener noreferrer"
                 className="alvo-link self-start text-xs underline underline-offset-2"
               >
                 Ver o registro na fonte
-              </a>
+              </LinkExterno>
             </li>
           ))}
         </ul>

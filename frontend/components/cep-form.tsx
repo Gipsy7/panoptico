@@ -2,7 +2,7 @@
 
 import Form from "next/form";
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState, useSyncExternalStore } from "react";
+import { useEffect, useId, useRef, useState, useSyncExternalStore } from "react";
 
 import { useCidadeAchada } from "@/components/localizacao-home";
 import { MaoToque, useMovimentoReduzido } from "@/components/mao-toque";
@@ -38,6 +38,16 @@ export function CepForm({ semCepInicial = false }: { semCepInicial?: boolean } =
   // CEP como opção principal (escolhido pelo usuário ou depois de recusa/falha da localização).
   const [modoCep, setModoCep] = useState(false);
   const [aviso, setAviso] = useState("");
+  const [erroCep, setErroCep] = useState("");
+  const campoCep = useRef<HTMLInputElement>(null);
+  // Não pode ser "cep": a página já tem um <div id="cep"> (âncora) e o rótulo ligava nele.
+  const idCep = useId();
+  const idErroCep = `${idCep}-erro`;
+
+  // Foco só quando a pessoa acabou de abrir a busca do CEP (não no carregamento da página).
+  useEffect(() => {
+    if (focarCep) campoCep.current?.focus();
+  }, [focarCep, modoCep]);
 
   // Permissão já negada antes: vai direto ao CEP. Sem a API (Safari antigo), segue normal.
   useEffect(() => {
@@ -204,26 +214,41 @@ export function CepForm({ semCepInicial = false }: { semCepInicial?: boolean } =
     );
   }
 
+  function validarCep(e: React.FormEvent<HTMLFormElement>) {
+    if (cep.replace(/\D/g, "").length !== 8) {
+      e.preventDefault();
+      setErroCep("Digite os 8 números do CEP, por exemplo 01310-100.");
+      campoCep.current?.focus();
+    }
+  }
+
   const formCep = (
-    <Form action="/representantes" className="flex flex-col gap-3">
-      <label htmlFor="cep" className="text-base font-medium">
+    <Form action="/representantes" noValidate onSubmit={validarCep} className="flex flex-col gap-3">
+      <label htmlFor={idCep} className="text-base font-medium">
         Digite seu CEP
       </label>
       <input
-        id="cep"
+        ref={campoCep}
+        id={idCep}
         name="cep"
         inputMode="numeric"
         autoComplete="postal-code"
         placeholder="00000-000"
         required
-        pattern="\d{5}-?\d{3}"
-        title="O CEP tem 8 números, por exemplo 01310-100"
+        aria-invalid={erroCep ? true : undefined}
+        aria-describedby={erroCep ? idErroCep : undefined}
         value={cep}
-        // eslint-disable-next-line jsx-a11y/no-autofocus -- foco só vem quando a pessoa acabou de abrir a busca do CEP
-        autoFocus={focarCep}
-        onChange={(e) => setCep(formatarCep(e.target.value))}
+        onChange={(e) => {
+          setCep(formatarCep(e.target.value));
+          if (erroCep) setErroCep("");
+        }}
         className="campo numero h-16 text-center text-4xl tracking-[0.12em]"
       />
+      {erroCep && (
+        <p id={idErroCep} role="alert" className="text-sm font-medium text-foreground">
+          {erroCep}
+        </p>
+      )}
       <button type="submit" className="botao w-full">
         Ver meus representantes
       </button>

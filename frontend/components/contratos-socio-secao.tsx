@@ -1,6 +1,7 @@
 import { FonteRodape } from "@/components/fonte-rodape";
 import { getContratosDaPessoa, type ContratoPncp } from "@/lib/api";
 import { formatarData, formatarReais } from "@/lib/formato";
+import { LinkExterno } from "@/components/link-externo";
 
 const VISIVEIS = 5;
 const LIMITE_OBJETO = 220;
@@ -133,9 +134,9 @@ function Contrato({ c }: { c: ContratoPncp }) {
         )}
       </dl>
       <p className="text-xs">
-        <a href={c.url} target="_blank" rel="noopener noreferrer" className="underline underline-offset-2">
+        <LinkExterno href={c.url} className="underline underline-offset-2">
           Ver no PNCP
-        </a>
+        </LinkExterno>
       </p>
     </li>
   );

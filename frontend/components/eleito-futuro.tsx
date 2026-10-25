@@ -3,6 +3,7 @@ import Link from "next/link";
 import { FonteRodape } from "@/components/fonte-rodape";
 import type { EleitoFuturo, EleitosFuturos } from "@/lib/api";
 import { formatarData, formatarPosse } from "@/lib/formato";
+import { LinkExterno } from "@/components/link-externo";
 
 const CARGO_COM_GENERO: Record<string, string> = {
   "Deputado federal": "deputado(a) federal",
@@ -45,14 +46,12 @@ export function SeloEleitoFuturo({ eleito, atualizadoEm }: { eleito: EleitoFutur
       </p>
       <p className="mt-1 text-xs text-muted-foreground">
         Fonte:{" "}
-        <a
+        <LinkExterno
           href={`https://dadosabertos.tse.jus.br/dataset/candidatos-${eleito.ano_eleicao}`}
-          target="_blank"
-          rel="noopener noreferrer"
           className="underline underline-offset-2"
         >
           Tribunal Superior Eleitoral
-        </a>
+        </LinkExterno>
         {atualizadoEm && <> · atualizado em {formatarData(atualizadoEm)}</>}
       </p>
     </aside>

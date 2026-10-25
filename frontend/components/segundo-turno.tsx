@@ -11,6 +11,7 @@ import { Iniciais } from "@/components/eleitos-secao";
 import { FonteRodape } from "@/components/fonte-rodape";
 import { type CandidatoSegundoTurno, type DisputaSegundoTurno, type SegundoTurno, legendaFoto, urlFotoDe } from "@/lib/api";
 import { formatarData, formatarReais, formatarReaisCompacto } from "@/lib/formato";
+import { LinkExterno } from "@/components/link-externo";
 
 const NAO_INFORMADO = "não informado pela fonte";
 const NAO_IDENTIFICADO = "não identificado na base";
@@ -398,9 +399,9 @@ export function DetalheCandidato({
                     {s.fonte_url && (
                       <>
                         {" · "}
-                        <a href={s.fonte_url} target="_blank" rel="noopener noreferrer" className="underline underline-offset-2">
+                        <LinkExterno href={s.fonte_url} className="underline underline-offset-2">
                           fonte
-                        </a>
+                        </LinkExterno>
                       </>
                     )}
                   </span>

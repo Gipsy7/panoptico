@@ -2,6 +2,7 @@ import { TabelaRolavel } from "@/components/ui/tabela-rolavel";
 import { FonteRodape } from "@/components/fonte-rodape";
 import type { DestinoEmendaItem, DestinoEmendas } from "@/lib/api";
 import { formatarData, formatarReais } from "@/lib/formato";
+import { LinkExterno } from "@/components/link-externo";
 
 const TIPO: Record<string, string> = {
   convenio: "Convênio",
@@ -169,16 +170,14 @@ function Item({ item }: { item: DestinoEmendaItem }) {
         )}
         {vigencia && <> · vigência {vigencia}</>}
       </p>
-      <a
+      <LinkExterno
         href={item.fonte_url}
-        target="_blank"
-        rel="noopener noreferrer"
         className="w-fit underline underline-offset-2"
       >
         {item.tipo === "especial"
           ? "Ver o registro oficial (TransfereGov)"
           : "Consultar o convênio no Portal da Transparência"}
-      </a>
+      </LinkExterno>
     </li>
   );
 }

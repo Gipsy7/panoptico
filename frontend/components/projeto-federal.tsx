@@ -23,6 +23,7 @@ import { Revelacao } from "@/components/revelacao";
 import { type ProjetoFederal, getProjetoFederal } from "@/lib/api";
 import { CASA_CURTA, CASA_DA, NOME_CASA, formatarData, textoResultado } from "@/lib/formato";
 import { caminhoInterno, lerUf, placarDaVotacao, placarMaiorQueALista, recortar, situacaoSimples, textoCompartilharProjeto } from "@/lib/projetos";
+import { LinkExterno } from "@/components/link-externo";
 
 const INTEIRO = new Intl.NumberFormat("pt-BR");
 const n = (v: number) => INTEIRO.format(v);
@@ -324,9 +325,9 @@ function DoQueSeTrata({ d, sit }: { d: ProjetoFederal; sit: ReturnType<typeof si
       )}
 
       {f.url_oficial && (
-        <a href={f.url_oficial} target="_blank" rel="noopener noreferrer" className="alvo-link self-start font-medium underline underline-offset-4">
+        <LinkExterno href={f.url_oficial} className="alvo-link self-start font-medium underline underline-offset-4">
           Ficha do projeto no site {CASA_DA[d.casa]}
-        </a>
+        </LinkExterno>
       )}
       <FonteRodape fonte={f.fonte_nome} url={f.fonte_url} atualizadoEm={f.atualizado_em} />
     </section>

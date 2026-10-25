@@ -32,7 +32,7 @@ test("CEP: inválido não sai da página; válido leva a /representantes", async
   await page.goto("/");
   // Com localização disponível o CEP fica atrás de "Prefiro digitar o CEP".
   const prefiro = page.getByRole("button", { name: "Prefiro digitar o CEP" });
-  const campo = page.locator("input#cep");
+  const campo = page.getByLabel("Digite seu CEP");
   if (await prefiro.isVisible().catch(() => false)) {
     // Repete até a hidratação ligar o botão.
     await expect(async () => {
@@ -54,9 +54,7 @@ test("CEP: inválido não sai da página; válido leva a /representantes", async
   await expect(page).toHaveURL(/\/representantes/);
 });
 
-// Achado do primeiro retrato: a gaveta abre, mas o foco continua no link (fora do dialog).
-// A onda de foco/gavetas corrige; ao corrigir, trocar test.fixme por test.
-test.fixme("representantes: prédio abre o painel e 'Ver a lista com os números' abre a gaveta com foco dentro", async ({ page }) => {
+test("representantes: prédio abre o painel e 'Ver a lista com os números' abre a gaveta com foco dentro", async ({ page }) => {
   await page.goto("/representantes?municipio=4205902");
   const predios = page.locator('svg [role="button"]');
   await expect(predios.first()).toBeVisible();
@@ -89,9 +87,7 @@ test("abas do perfil: setas mudam aria-selected", async ({ page }) => {
   await expect(abas.first()).toHaveAttribute("aria-selected", "true");
 });
 
-// Achado do primeiro retrato: um link sem texto e um campo da home ficam com outline "none" ao
-// receber foco. A onda 1 (contorno global) corrige; ao corrigir, trocar test.fixme por test.
-test.fixme("foco visível nos 15 primeiros elementos focáveis da home", async ({ page }) => {
+test("foco visível nos 15 primeiros elementos focáveis da home", async ({ page }) => {
   await page.goto("/");
   const falhas: string[] = [];
   for (let i = 0; i < 15; i++) {
@@ -110,14 +106,58 @@ test.fixme("foco visível nos 15 primeiros elementos focáveis da home", async (
   expect(falhas, "elementos sem contorno de foco").toEqual([]);
 });
 
-test.fixme("busca de cidade: combobox por teclado (onda 1: padrão APG, lista não fecha no blur)", async ({ page }) => {
+test("busca de cidade: combobox por teclado (seta marca, Enter escolhe, Esc fecha, status anuncia)", async ({ page }, info) => {
   await page.goto("/impostos-e-repasses");
-  await expect(page.getByRole("combobox").first()).toBeVisible();
+  const campo = page.getByRole("combobox", { name: "Buscar cidade pelo nome" });
+  // No celular o campo fica atrás da lupa.
+  const lupa = page.getByRole("button", { name: "Buscar cidade", exact: true });
+  if (!(await campo.isVisible())) await lupa.click();
+  await expect(campo).toBeVisible();
+  const status = campo.locator("xpath=following-sibling::p[@role='status']");
+  // Repete até a hidratação ligar o campo e a lista de cidades chegar.
+  await expect(async () => {
+    await campo.fill("");
+    await campo.focus();
+    await page.keyboard.type("Gasp", { delay: 30 });
+    await expect(status).toHaveText(/^\d+ resultados?$/, { timeout: 2000 });
+  }).toPass({ timeout: 20_000 });
+  await page.keyboard.press("ArrowDown");
+  const id = await campo.getAttribute("aria-activedescendant");
+  expect(id, "aria-activedescendant depois de ↓").toBeTruthy();
+  await expect(page.locator(`[id="${id}"]`)).toHaveAttribute("aria-selected", "true");
+  // Esc fecha a lista sem apagar a escolha de foco.
+  await page.keyboard.press("Escape");
+  await expect(campo).toHaveAttribute("aria-expanded", "false");
+  await expect(campo).toBeFocused();
+  // ↓ reabre; Enter escolhe e navega/seleciona.
+  await page.keyboard.press("ArrowDown");
+  await expect(campo).toHaveAttribute("aria-expanded", "true");
+  await page.keyboard.press("ArrowDown");
+  await page.keyboard.press("Enter");
+  await expect(page).toHaveURL(new RegExp("/impostos-e-repasses/[A-Z]{2}/[0-9]+"));
+  // No celular a busca inteira fecha ao escolher; no desktop o campo é limpo.
+  if (info.project.name === "desktop-1280") await expect(campo).toHaveValue("");
 });
 
-test.fixme("mapa do Brasil: estado por teclado e leitor de tela (onda 1: aria-hidden nos itens fora de uso e onClick)", async ({
-  page,
-}) => {
+test("mapa do Brasil: estado por teclado; fora de uso fica oculto ao leitor e fora do Tab", async ({ page }) => {
   await page.goto("/impostos-e-repasses");
-  await expect(page.locator('[role="button"][aria-label*="SC"]').first()).toBeVisible();
+  const sc = page.locator('path[data-nivel="uf"][data-id="SC"]');
+  await expect(sc).toBeVisible();
+  // Repete até a hidratação ligar os manipuladores.
+  await expect(async () => {
+    await sc.focus();
+    await page.keyboard.press("Enter");
+    await expect(page).toHaveURL(/\/impostos-e-repasses\/SC/, { timeout: 2000 });
+  }).toPass({ timeout: 20_000 });
+  // Dentro do estado: nenhum path de UF é focável por Tab nem visível ao leitor.
+  const ufs = page.locator('path[data-nivel="uf"]');
+  await expect(ufs.first()).toHaveAttribute("aria-hidden", "true");
+  const problemas = await ufs.evaluateAll((els) =>
+    els
+      .filter((e) => e.getAttribute("aria-hidden") !== "true" || e.getAttribute("tabindex") !== "-1")
+      .map((e) => (e as SVGElement).dataset.id),
+  );
+  expect(problemas, "UFs ainda expostas dentro do estado").toEqual([]);
+  // Os municípios do estado seguem focáveis.
+  await expect(page.locator('path[data-nivel="mun"][tabindex="0"]').first()).toBeAttached();
 });

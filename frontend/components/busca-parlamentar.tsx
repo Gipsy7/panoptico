@@ -1,10 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useId, useRef, useState } from "react";
+import { type KeyboardEvent, useEffect, useId, useRef, useState } from "react";
 
 import { type ParlamentarNaLista, getParlamentares } from "@/lib/api";
 import { NOME_CASA } from "@/lib/formato";
+import { CONTORNO_FOCO, teclarNaBusca } from "@/lib/navegar-links";
+import { textoResultados } from "@/lib/opcao-ativa";
 
 /**
  * Campo de busca por nome com sugestões. Cada sugestão é um link para
@@ -25,6 +27,8 @@ export function BuscaParlamentar({
   // uma busca antiga.
   const [busca, setBusca] = useState<{ texto: string; itens: ParlamentarNaLista[] } | null>(null);
   const ultimaBusca = useRef("");
+  const campo = useRef<HTMLInputElement>(null);
+  const caixa = useRef<HTMLDivElement>(null);
   const texto = termo.trim();
 
   useEffect(() => {
@@ -43,13 +47,19 @@ export function BuscaParlamentar({
 
   const resultados = texto.length >= 3 && busca?.texto === texto ? busca.itens : null;
 
+  const aviso = resultados === null ? "" : textoResultados(Math.min(resultados.length, 8), "Ninguém encontrado com esse nome");
+
+  const teclar = (e: KeyboardEvent<HTMLElement>) => teclarNaBusca(e, caixa.current, campo.current);
+
   return (
-    <div className="flex flex-col gap-2">
+    <div ref={caixa} className="flex flex-col gap-2">
       <label htmlFor={id} className="text-sm font-medium">
         {rotulo}
       </label>
       <input
         id={id}
+        ref={campo}
+        onKeyDown={teclar}
         type="search"
         value={termo}
         onChange={(e) => setTermo(e.target.value)}
@@ -57,8 +67,11 @@ export function BuscaParlamentar({
         autoComplete="off"
         className="campo text-base"
       />
+      <p role="status" className="sr-only">
+        {aviso}
+      </p>
       {resultados !== null && (
-        <ul aria-live="polite" className="lista-fios flex flex-col">
+        <ul className="lista-fios flex flex-col">
           {resultados.length === 0 ? (
             <li className="p-3 text-sm text-muted-foreground">Ninguém encontrado com esse nome.</li>
           ) : (
@@ -66,7 +79,8 @@ export function BuscaParlamentar({
               <li key={p.id}>
                 <Link
                   href={`${hrefBase}${p.id}`}
-                  className="flex flex-col p-3 hover:bg-accent focus-visible:bg-accent focus-visible:outline-none"
+                  className={`flex min-h-11 flex-col p-3 hover:bg-accent ${CONTORNO_FOCO}`}
+              onKeyDown={teclar}
                 >
                   <span className="font-medium">{p.nome_parlamentar}</span>
                   <span className="text-xs text-muted-foreground">

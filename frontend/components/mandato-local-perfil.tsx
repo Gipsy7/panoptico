@@ -23,6 +23,7 @@ import { CartaoNumero, GradeCartoes } from "@/components/painel/cartao-numero";
 import { ListaPerguntas, Pergunta } from "@/components/painel/pergunta";
 import { getEleito, getEmendasDeputadoEstadual, getLinhaDoTempo, getSancoes, getVereador, getVotacoesLocais, type VereadorDetalhe } from "@/lib/api";
 import { formatarData, formatarGastos, formatarReais, formatarReaisCompacto } from "@/lib/formato";
+import { LinkExterno } from "@/components/link-externo";
 
 /** Perfil de quem está no cargo numa câmara ou assembleia, com os dados da própria casa. */
 export async function PerfilMandatoLocal({ id, paginaVotos }: { id: string; paginaVotos?: string }) {
@@ -399,9 +400,9 @@ function ProjetosLocaisSecao({ v, nomeCasa }: { v: VereadorDetalhe; nomeCasa: st
           <ul className="lista-fios flex flex-col">
             {v.lista_projetos.map((p, i) => (
               <li key={i} className="flex flex-col gap-1 py-3">
-                <a href={p.url} target="_blank" rel="noopener noreferrer" className="font-medium underline underline-offset-2">
+                <LinkExterno href={p.url} className="font-medium underline underline-offset-2">
                   {p.tipo} {p.numero ? `nº ${p.numero}` : ""}/{p.ano}
-                </a>
+                </LinkExterno>
                 <TextoLongo linhas={3}>{p.ementa}</TextoLongo>
                 <p className="text-xs text-muted-foreground">
                   {p.data_apresentacao ? formatarData(p.data_apresentacao) : ""}

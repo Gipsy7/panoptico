@@ -154,7 +154,14 @@ export function AbasDetalhe({ titulo, abas }: { titulo: string; abas: AbaDetalhe
     const html = document.documentElement;
     const antes = html.style.overflow;
     html.style.overflow = "hidden";
-    botaoFechar.current?.focus({ preventScroll: true });
+    // O painel da aba pode ainda estar com hidden="until-found" (o efeito das abas roda depois
+    // deste): escondido, o botão não recebe foco e ele ficava no link de fora da gaveta.
+    painel?.closest<HTMLElement>("[data-aba]")?.removeAttribute("hidden");
+    const focarFechar = () => botaoFechar.current?.focus({ preventScroll: true });
+    focarFechar();
+    const quadroFoco = requestAnimationFrame(() => {
+      if (!painel?.contains(document.activeElement)) focarFechar();
+    });
     painel?.scrollTo({ top: 0 });
     const aoTeclar = (e: globalThis.KeyboardEvent) => {
       if (e.key === "Escape") {
@@ -181,6 +188,7 @@ export function AbasDetalhe({ titulo, abas }: { titulo: string; abas: AbaDetalhe
     };
     document.addEventListener("keydown", aoTeclar);
     return () => {
+      cancelAnimationFrame(quadroFoco);
       document.removeEventListener("keydown", aoTeclar);
       html.style.overflow = antes;
       const volta =

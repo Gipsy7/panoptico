@@ -2,6 +2,7 @@ import { TabelaRolavel } from "@/components/ui/tabela-rolavel";
 import { FonteRodape } from "@/components/fonte-rodape";
 import type { EmendasRelator } from "@/lib/api";
 import { formatarData, formatarReais } from "@/lib/formato";
+import { LinkExterno } from "@/components/link-externo";
 
 export function EmendasRelatorSecao({ dados }: { dados: EmendasRelator }) {
   return (
@@ -83,14 +84,12 @@ export function EmendasRelatorSecao({ dados }: { dados: EmendasRelator }) {
       </details>
 
       <p className="text-sm">
-        <a
+        <LinkExterno
           href={dados.arquivo_url}
-          target="_blank"
-          rel="noopener noreferrer"
           className="underline underline-offset-2"
         >
           Baixar a planilha oficial (xlsx)
-        </a>
+        </LinkExterno>
       </p>
 
       <FonteRodape

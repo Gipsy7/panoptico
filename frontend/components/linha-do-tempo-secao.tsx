@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 import { FonteRodape } from "@/components/fonte-rodape";
 import type { EventoItem, LinhaDoTempo, ProcessoSituacao } from "@/lib/api";
 import { formatarData } from "@/lib/formato";
+import { LinkExterno } from "@/components/link-externo";
 
 /** Grupos da linha do tempo, na ordem em que aparecem. Tipos novos caem em "Outros
  * registros" até ganharem um grupo aqui. */
@@ -156,9 +157,9 @@ function Item({ item }: { item: EventoItem }) {
       {eleicao && situacao && <p className="text-sm text-muted-foreground">{situacao}</p>}
       <p className="text-sm text-muted-foreground">
         {item.fonte_url && (
-          <a href={item.fonte_url} target="_blank" rel="noopener noreferrer" className="underline underline-offset-2">
+          <LinkExterno href={item.fonte_url} className="underline underline-offset-2">
             Ver na fonte oficial
-          </a>
+          </LinkExterno>
         )}
         {item.fonte_url && item.conferido_em && " · "}
         {item.conferido_em && `conferido em ${formatarData(item.conferido_em)}`}

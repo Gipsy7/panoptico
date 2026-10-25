@@ -46,6 +46,7 @@ import {
 } from "@/lib/api";
 import { formatarData, formatarReais, formatarReaisCompacto } from "@/lib/formato";
 import { JsonLdPerfil, montarDescricao, nomeComSigla } from "@/components/json-ld";
+import { LinkExterno } from "@/components/link-externo";
 
 export async function generateMetadata({ params }: PageProps<"/eleito/[id]">): Promise<Metadata> {
   const { id } = await params;
@@ -472,14 +473,12 @@ async function Perfil({
                 <ul className="flex flex-wrap gap-x-4 gap-y-1">
                   {canais.dados.itens.map((c) => (
                     <li key={c.tipo}>
-                      <a
+                      <LinkExterno
                         href={c.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
                         className="alvo-link underline underline-offset-2"
                       >
                         {NOME_CANAL[c.tipo] ?? c.tipo}
-                      </a>
+                      </LinkExterno>
                     </li>
                   ))}
                 </ul>

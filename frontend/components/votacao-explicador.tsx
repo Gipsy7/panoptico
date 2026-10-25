@@ -22,6 +22,7 @@ import { VotacaoParlamentares } from "@/components/votacao-parlamentares";
 import { type VotacaoDetalhe, getVotacao } from "@/lib/api";
 import { CASA_CURTA, CASA_DA, formatarData } from "@/lib/formato";
 import { idDaProposicao, lerUf } from "@/lib/projetos";
+import { LinkExterno } from "@/components/link-externo";
 
 const INTEIRO = new Intl.NumberFormat("pt-BR");
 const n = (v: number) => INTEIRO.format(v);
@@ -523,14 +524,12 @@ function Proposicao({ d, rodape }: { d: VotacaoDetalhe; rodape: React.ReactNode 
         <p className="text-sm text-muted-foreground">{d.descricao}</p>
       </div>
       {d.proposicao_url && (
-        <a
+        <LinkExterno
           href={d.proposicao_url}
-          target="_blank"
-          rel="noopener noreferrer"
           className="alvo-link self-start font-medium underline underline-offset-4"
         >
           Ficha da proposição no site {CASA_DA[d.casa]}
-        </a>
+        </LinkExterno>
       )}
       {rodape}
     </section>

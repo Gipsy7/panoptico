@@ -3,6 +3,7 @@ import { TabelaRolavel } from "@/components/ui/tabela-rolavel";
 import { FonteRodape } from "@/components/fonte-rodape";
 import type { Casa, ProjetoItem, Projetos } from "@/lib/api";
 import { CASA_DA, formatarData } from "@/lib/formato";
+import { LinkExterno } from "@/components/link-externo";
 
 const NUMERO = new Intl.NumberFormat("pt-BR", { maximumFractionDigits: 1 });
 
@@ -106,14 +107,12 @@ function ListaProjetos({ itens }: { itens: ProjetoItem[] }) {
     <ul className="flex flex-col divide-y">
       {itens.map((p) => (
         <li key={`${p.sigla_tipo}-${p.numero}-${p.ano}`} className="flex flex-col gap-1 py-3">
-          <a
+          <LinkExterno
             href={p.url}
-            target="_blank"
-            rel="noopener noreferrer"
             className="font-medium underline underline-offset-2"
           >
             {p.sigla_tipo} {p.numero}/{p.ano}
-          </a>
+          </LinkExterno>
           <TextoLongo linhas={3}>{p.ementa}</TextoLongo>
           <p className="text-xs text-muted-foreground">
             Apresentado em {formatarData(p.data_apresentacao)} ·{" "}

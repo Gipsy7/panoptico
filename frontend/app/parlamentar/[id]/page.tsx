@@ -52,6 +52,7 @@ import {
 } from "@/lib/api";
 import { CASA_CURTA, FONTE_CASA, NOME_CASA, formatarReais } from "@/lib/formato";
 import { JsonLdPerfil, montarDescricao, nomeComSigla } from "@/components/json-ld";
+import { LinkExterno } from "@/components/link-externo";
 
 export async function generateMetadata({
   params,
@@ -378,9 +379,9 @@ function Contato({ p }: { p: ParlamentarDetalhe }) {
           <>
             <dt className="text-muted-foreground">Página oficial</dt>
             <dd>
-              <a href={p.pagina_url} target="_blank" rel="noopener noreferrer" className="underline underline-offset-2">
+              <LinkExterno href={p.pagina_url} className="underline underline-offset-2">
                 {NOME_CASA[p.casa]}
-              </a>
+              </LinkExterno>
             </dd>
           </>
         )}
