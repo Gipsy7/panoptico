@@ -10,7 +10,7 @@ import { EmendasDoDeputadoEstadual } from "@/components/emendas-estaduais";
 import { SancoesSecao, TEXTO_REGISTRO } from "@/components/sancoes-secao";
 import { ServicoFederalSecao } from "@/components/servico-federal-secao";
 import { CandidaturaSecao } from "@/components/candidatura-secao";
-import { AcompanharPorFeed, CompartilharWhatsApp } from "@/components/compartilhar";
+import { CompartilharWhatsApp } from "@/components/compartilhar";
 import { QuemESecao } from "@/components/dados-pessoais";
 import { SeloEleitoFuturo } from "@/components/eleito-futuro";
 import { FonteRodape } from "@/components/fonte-rodape";
@@ -286,8 +286,6 @@ export async function PerfilMandatoLocal({ id, paginaVotos }: { id: string; pagi
             : `${v.nome} (${cargo.toLowerCase()}) tem ${v.projetos} projetos no ano atual e no anterior, segundo a ${nomeCasa}. Veja o perfil com dados oficiais:`
         }
       />
-
-      {linha.ok && <AcompanharPorFeed pessoaId={linha.dados.pessoa_id} />}
 
       <ListaPerguntas titulo="Para entender os números">
         <Pergunta

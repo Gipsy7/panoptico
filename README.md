@@ -48,7 +48,7 @@ flowchart LR
 
 | | O quê | Exemplo do que aparece |
 |---|---|---|
-| 👥 | **Seus representantes pela localização, CEP ou cidade** | A localização é usada só no celular para achar a cidade (não é enviada). Presidente, governador e prefeito (com vices), senadores, deputados federais e estaduais, vereadores. Eleitos de 2026 que ainda não tomaram posse aparecem à parte. Ao achar a cidade, a home mostra um número sorteado dela (com a média do estado) e um exemplo de comparação com parlamentares do estado; sem localização, a dupla do exemplo é sorteada. |
+| 👥 | **Seus representantes pela localização, CEP ou cidade** | A localização é usada só no celular para achar a cidade (não é enviada). Presidente, governador e prefeito (com vices), senadores, deputados federais e estaduais, vereadores. Eleitos de 2026 que ainda não tomaram posse aparecem à parte. A página abre com um desenho dos prédios do poder, de Brasília até a cidade ("De Brasília até a sua rua"): tocar num prédio mostra quem trabalha lá, o que faz e leva à lista completa; uma mãozinha animada indica onde tocar (também no mapa e no botão de localização da home). Ao achar a cidade, a home mostra um número sorteado dela (com a média do estado) e um exemplo de comparação com parlamentares do estado; sem localização, a dupla do exemplo é sorteada. |
 | 💸 | **Gastos do gabinete** | Total do ano, por categoria, maiores gastos, sempre com a média da Casa ao lado. |
 | 🗳 | **Votos e presença** | "Votou em 31 de 59 votações", como votou em cada uma, orientação do Governo e do partido, votos por tema e nas comissões. |
 | 📝 | **Projetos de lei** | Desde 2023: autor principal ou coautor, temas e os que viraram lei. |
@@ -62,7 +62,7 @@ flowchart LR
 | 🔍 | **Busca por nome** | Todos os níveis e partidos, sem diferença de acento. |
 | 💡 | **A ideia e as dúvidas** | [O que é o Panóptico](https://panoptico.social.br/o-panoptico) (história ao rolar: de Bentham e Foucault à inversão que dá nome ao projeto), [Perguntas frequentes](https://panoptico.social.br/perguntas) e [Apoiadores](https://panoptico.social.br/apoiadores) (um raio do sol da marca por pessoa; só quem autorizou o nome, lista em `frontend/lib/apoiadores.ts`). Ficam no rodapé; "Fontes" saiu do menu do topo. |
 
-E mais: **feed Atom** em cada perfil (sem pedir e-mail), **modo escuro** (segue o aparelho; um ícone troca), **filtros** com o mesmo padrão em todo o site (painel no celular, filtros ativos removíveis, link compartilhável), **cartões de prévia** com botão de WhatsApp e telas em três camadas (número → pergunta que explica → detalhe completo).
+E mais: **modo escuro** (segue o aparelho; um ícone troca), **filtros** com o mesmo padrão em todo o site (painel no celular, filtros ativos removíveis, link compartilhável), **cartões de prévia** com botão de WhatsApp e telas em três camadas (número → pergunta que explica → detalhe completo).
 
 <details>
 <summary><b>🏛 Cobertura de assembleias estaduais</b> (clique para abrir)</summary>

@@ -55,7 +55,7 @@ const FEIXE = (() => {
   return `M${a.x} ${a.y}L${d.x} ${d.y}L${c.x} ${c.y}L${b.x} ${b.y}z`;
 })();
 
-const T = "transition-opacity duration-700 motion-reduce:transition-none";
+const TRANSICAO = "transition-opacity duration-700 motion-reduce:transition-none";
 const mostra = (v: boolean) => (v ? "opacity-100" : "opacity-0");
 
 export type PessoaNaTorre = ParlamentarResumo;
@@ -67,6 +67,8 @@ export function PanopticoDesenho({
   onSelecionar,
   idBase = "pan",
   className = "",
+  zoom: comZoom = true,
+  animar = true,
 }: {
   estado: EstadoPanoptico;
   pessoas?: PessoaNaTorre[];
@@ -74,9 +76,14 @@ export function PanopticoDesenho({
   onSelecionar?: (indice: number) => void;
   idBase?: string;
   className?: string;
+  /** Aproxima a torre no estado 3, só em telas de 1024 px ou mais (no celular o desenho já é pequeno). */
+  zoom?: boolean;
+  /** false desliga as transições (primeiro quadro da história, para não animar ao carregar). */
+  animar?: boolean;
 }) {
+  const T = animar ? TRANSICAO : "";
   const vidro = estado >= 3;
-  const zoom = estado === 3;
+  const zoom = comZoom && estado === 3;
   const opaca = estado <= 2;
 
   return (
@@ -96,12 +103,7 @@ export function PanopticoDesenho({
       </defs>
 
       <g
-        className="transition-transform duration-1000 ease-out motion-reduce:transition-none"
-        style={{
-          transform: zoom
-            ? `translate(${CENTRO}px, ${CENTRO}px) scale(1.75) translate(${-CENTRO}px, ${-CENTRO}px)`
-            : `translate(${CENTRO}px, ${CENTRO}px) scale(1) translate(${-CENTRO}px, ${-CENTRO}px)`,
-        }}
+        className={`origin-[160px_160px] ${animar ? "transition-transform duration-1000 ease-out motion-reduce:transition-none" : ""} ${zoom ? "lg:scale-[1.75]" : ""}`}
       >
         <circle cx={CENTRO} cy={CENTRO} r="146" className="fill-none stroke-border" strokeWidth="1" />
 

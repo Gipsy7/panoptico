@@ -1,4 +1,3 @@
-import { urlFeedDaPessoa } from "@/lib/api";
 import { SITE_URL } from "@/lib/site";
 
 /** Link para compartilhar no WhatsApp. Funciona sem JavaScript (é só um link). */
@@ -17,18 +16,5 @@ export function CompartilharWhatsApp({ caminho, texto }: { caminho: string; text
       </svg>
       Compartilhar no WhatsApp
     </a>
-  );
-}
-
-/** Link do feed (Atom) da pessoa, para leitor de feeds. Sem cadastro nem e-mail. */
-export function AcompanharPorFeed({ pessoaId }: { pessoaId: number }) {
-  return (
-    <p className="text-sm text-muted-foreground">
-      <a href={urlFeedDaPessoa(pessoaId)} target="_blank" rel="noopener noreferrer" className="font-medium text-foreground underline underline-offset-2">
-        Acompanhar por feed (RSS)
-      </a>
-      <br />
-      Use num leitor de feeds para ver cada fato novo. Não pedimos seu e-mail.
-    </p>
   );
 }

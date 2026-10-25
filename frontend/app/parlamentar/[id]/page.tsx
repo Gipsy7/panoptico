@@ -9,7 +9,7 @@ import { AbasDetalhe, type AbaDetalhe } from "@/components/painel/abas-detalhe";
 import { BarraComparacao } from "@/components/painel/barra-comparacao";
 import { ListaPerguntas, Pergunta } from "@/components/painel/pergunta";
 import { Migalhas } from "@/components/ui/migalhas";
-import { AcompanharPorFeed, CompartilharWhatsApp } from "@/components/compartilhar";
+import { CompartilharWhatsApp } from "@/components/compartilhar";
 import { FonteRodape } from "@/components/fonte-rodape";
 import { SeloEleitoFuturo } from "@/components/eleito-futuro";
 import { CarreiraSecao } from "@/components/carreira-secao";
@@ -329,7 +329,6 @@ async function Perfil({
           caminho={`/parlamentar/${p.id}`}
           texto={`Veja os gastos, a presença e os projetos de ${p.nome_parlamentar} (${NOME_CASA[p.casa]}), com dados oficiais:`}
         />
-        {linha.ok && <AcompanharPorFeed pessoaId={linha.dados.pessoa_id} />}
       </div>
 
       <PerguntasPerfil

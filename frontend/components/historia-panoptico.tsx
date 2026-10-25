@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { type ReactNode, useEffect, useRef, useState } from "react";
+import { type ReactNode, Suspense, use, useEffect, useRef, useState } from "react";
 
 import { FonteRodape } from "@/components/fonte-rodape";
 import { Foto } from "@/components/parlamentar-card";
@@ -22,29 +22,33 @@ export type DadosDaHistoria = {
 };
 
 const LINK = "underline underline-offset-2";
+const NOMES_DOS_PASSOS = ["A cela", "De onde vem", "Foucault", "A inversão", "Os limites", "Sua vez"];
+const VAZIO: DadosDaHistoria = { pessoas: [], indisponivel: false, ano: null, fonte: null };
 
 /**
  * Página /o-panoptico como história ao rolar. O desenho fica fixo (sticky) e cada passo de texto,
- * ao passar da linha de leitura, muda o estado do desenho. Sem JavaScript os passos aparecem em
- * sequência e o desenho fica no estado final. Os textos são HTML normal, lidos em ordem por
+ * ao passar da linha de leitura (60% da altura no celular, 50% no computador), muda o estado do
+ * desenho. A história monta uma vez só: os dados dos senadores chegam por uma promessa lida apenas
+ * no trecho do exemplo (dentro de um Suspense) e entram no desenho por estado, sem remontá-lo.
+ *
+ * O estado inicial é 0, o mesmo do HTML do servidor, e as transições só ligam depois do primeiro
+ * cálculo (dois quadros), para nada animar ao carregar. Sem JavaScript o desenho fica na cela
+ * (passo 1) enquanto os textos aparecem em sequência. Os textos são HTML normal, lidos em ordem por
  * leitores de tela; o desenho tem descrição própria.
  */
-export function HistoriaPanoptico({ dados, cep }: { dados: DadosDaHistoria; cep: ReactNode }) {
-  // Sem JS (ou antes de hidratar), vale o estado final.
-  const [ativo, setAtivo] = useState<EstadoPanoptico>(5);
-  const [selecionado, setSelecionado] = useState<number | null>(dados.pessoas.length > 0 ? 0 : null);
-  const figura = useRef<HTMLDivElement>(null);
+export function HistoriaPanoptico({ dados, cep }: { dados: Promise<DadosDaHistoria>; cep: ReactNode }) {
+  const [ativo, setAtivo] = useState<EstadoPanoptico>(0);
+  const [animar, setAnimar] = useState(false);
+  const [carregados, setCarregados] = useState<DadosDaHistoria>(VAZIO);
+  const [selecionado, setSelecionado] = useState(0);
   const lista = useRef<HTMLOListElement>(null);
 
   useEffect(() => {
     let quadro = 0;
     const calcular = () => {
       quadro = 0;
-      const H = window.innerHeight;
       const grande = window.matchMedia("(min-width: 1024px)").matches;
-      const baseFigura = figura.current?.getBoundingClientRect().bottom ?? 0;
-      // Linha de leitura: no meio da tela no computador; no celular, abaixo do desenho fixo.
-      const linha = grande ? H * 0.5 : baseFigura + (H - baseFigura) * 0.4;
+      const linha = window.innerHeight * (grande ? 0.5 : 0.6);
       let escolhido = 0;
       const passos = lista.current ? Array.from(lista.current.children) : [];
       passos.forEach((el, i) => {
@@ -58,31 +62,43 @@ export function HistoriaPanoptico({ dados, cep }: { dados: DadosDaHistoria; cep:
       if (!quadro) quadro = requestAnimationFrame(calcular);
     };
     calcular();
+    // As transições só ligam depois do primeiro cálculo pintado.
+    const ligar = requestAnimationFrame(() => requestAnimationFrame(() => setAnimar(true)));
     window.addEventListener("scroll", agendar, { passive: true });
     window.addEventListener("resize", agendar);
+    document.fonts?.ready.then(agendar);
     return () => {
       window.removeEventListener("scroll", agendar);
       window.removeEventListener("resize", agendar);
       if (quadro) cancelAnimationFrame(quadro);
+      cancelAnimationFrame(ligar);
     };
   }, []);
 
-  const pessoa = selecionado !== null ? dados.pessoas[selecionado] : undefined;
-
   return (
     <div className="relative lg:grid lg:grid-cols-[minmax(0,1fr)_minmax(0,28rem)] lg:gap-16">
-      <div
-        ref={figura}
-        className="sticky top-14 z-10 -mx-4 flex h-[40svh] justify-center border-b border-border bg-background px-4 py-2 lg:top-20 lg:col-start-2 lg:row-start-1 lg:mx-0 lg:h-[calc(100svh-7rem)] lg:items-center lg:self-start lg:border-0 lg:px-0"
-      >
-        <PanopticoDesenho
-          estado={ativo}
-          pessoas={dados.pessoas}
-          selecionado={selecionado}
-          onSelecionar={setSelecionado}
-          idBase="historia"
-          className="h-full w-auto max-w-full lg:h-auto lg:w-full"
-        />
+      <div className="sticky top-14 z-10 -mx-4 border-b border-border bg-background px-4 pt-2 pb-1 lg:top-20 lg:col-start-2 lg:row-start-1 lg:mx-0 lg:flex lg:h-[calc(100svh-7rem)] lg:flex-col lg:justify-center lg:gap-2 lg:self-start lg:border-0 lg:p-0">
+        <div className="[--q:min(30svh,240px)] lg:overflow-hidden">
+          <PanopticoDesenho
+            estado={ativo}
+            pessoas={carregados.pessoas}
+            selecionado={carregados.pessoas.length > 0 ? selecionado : null}
+            onSelecionar={setSelecionado}
+            idBase="historia"
+            animar={animar}
+            className="mx-auto size-(--q) lg:aspect-square lg:size-auto lg:w-full"
+          />
+        </div>
+        <div className="flex min-h-8 items-center justify-between gap-3 text-[0.8125rem] text-muted-foreground lg:justify-center">
+          <span aria-hidden className="flex gap-1.5">
+            {NOMES_DOS_PASSOS.map((n, i) => (
+              <span key={n} className={`size-2 rounded-full ${i <= ativo ? "bg-bronze" : "bg-border"}`} />
+            ))}
+          </span>
+          <span className="text-right">
+            Passo {ativo + 1} de {NOMES_DOS_PASSOS.length} · {NOMES_DOS_PASSOS[ativo]}
+          </span>
+        </div>
       </div>
 
       <ol ref={lista} className="flex flex-col lg:col-start-1 lg:row-start-1">
@@ -118,7 +134,14 @@ export function HistoriaPanoptico({ dados, cep }: { dados: DadosDaHistoria; cep:
             exerce mandato público, e quem olha é você. Os dados já são públicos, mas estão
             espalhados em sites de órgãos diferentes. Aqui eles ficam juntos, com a fonte e a data.
           </p>
-          <Exemplo dados={dados} selecionado={selecionado} onSelecionar={setSelecionado} pessoa={pessoa} />
+          <Suspense fallback={<p className="min-h-40 text-base">Carregando o exemplo...</p>}>
+            <ExemploCarregado
+              promessa={dados}
+              selecionado={selecionado}
+              onSelecionar={setSelecionado}
+              onDados={setCarregados}
+            />
+          </Suspense>
         </Passo>
 
         <Passo rotulo="Os limites" titulo="O que o site não faz">
@@ -140,7 +163,7 @@ export function HistoriaPanoptico({ dados, cep }: { dados: DadosDaHistoria; cep:
           </p>
         </Passo>
 
-        <Passo rotulo="Sua vez" titulo="Agora veja quem te representa">
+        <Passo ultimo rotulo="Sua vez" titulo="Agora veja quem te representa">
           <p>Digite o seu CEP e veja, do Congresso à câmara da cidade, quem exerce o mandato por você.</p>
           <div id="cep" className="max-w-md scroll-mt-40 border-t border-foreground pt-6">
             {cep}
@@ -154,19 +177,40 @@ export function HistoriaPanoptico({ dados, cep }: { dados: DadosDaHistoria; cep:
 function Passo({
   rotulo,
   titulo,
+  ultimo = false,
   children,
 }: {
   rotulo: string;
   titulo: string;
+  ultimo?: boolean;
   children: ReactNode;
 }) {
   return (
-    <li className="flex min-h-[48svh] flex-col justify-center gap-3 py-8 lg:min-h-[85svh]">
+    <li
+      className={`flex flex-col gap-3 py-6 ${ultimo ? "min-h-[70svh] justify-start" : "min-h-[42svh] justify-center lg:min-h-[85svh]"}`}
+    >
       <p className="sobretitulo">{rotulo}</p>
-      <h2 className="text-[2rem] leading-[1.08] text-balance sm:text-5xl">{titulo}</h2>
-      <div className="flex max-w-prose flex-col gap-3 text-lg leading-relaxed text-pretty text-muted-foreground">{children}</div>
+      <h2 className="text-[1.9rem] leading-[1.1] text-balance lg:text-5xl">{titulo}</h2>
+      <div className="flex max-w-prose flex-col gap-3 text-[1.0625rem] leading-relaxed text-pretty text-muted-foreground lg:text-lg">{children}</div>
     </li>
   );
+}
+
+/** Lê a promessa dos dados (suspende só aqui), entrega as pessoas ao desenho e mostra o exemplo. */
+function ExemploCarregado({
+  promessa,
+  selecionado,
+  onSelecionar,
+  onDados,
+}: {
+  promessa: Promise<DadosDaHistoria>;
+  selecionado: number;
+  onSelecionar: (i: number) => void;
+  onDados: (d: DadosDaHistoria) => void;
+}) {
+  const dados = use(promessa);
+  useEffect(() => onDados(dados), [dados, onDados]);
+  return <Exemplo dados={dados} selecionado={selecionado} onSelecionar={onSelecionar} pessoa={dados.pessoas[selecionado]} />;
 }
 
 function Exemplo({
@@ -177,7 +221,7 @@ function Exemplo({
 }: {
   dados: DadosDaHistoria;
   pessoa?: PessoaDaHistoria;
-  selecionado: number | null;
+  selecionado: number;
   onSelecionar: (i: number) => void;
 }) {
   if (dados.indisponivel || dados.pessoas.length === 0) {

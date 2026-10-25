@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { Suspense } from "react";
 
 import { CepForm } from "@/components/cep-form";
 import { type DadosDaHistoria, HistoriaPanoptico, type PessoaDaHistoria } from "@/components/historia-panoptico";
@@ -27,19 +26,20 @@ export default function OPanopticoPage() {
         <p className="text-muted-foreground">O nome vem de um projeto de prisão do século 18.</p>
       </header>
 
-      <Suspense fallback={<HistoriaPanoptico dados={VAZIO} cep={<CepForm />} />}>
-        <Historia />
-      </Suspense>
+      <HistoriaPanoptico dados={carregar()} cep={<CepForm />} />
     </article>
   );
 }
 
-async function Historia() {
-  const dados = await carregar();
-  return <HistoriaPanoptico dados={dados} cep={<CepForm />} />;
+async function carregar(): Promise<DadosDaHistoria> {
+  try {
+    return await buscar();
+  } catch {
+    return { ...VAZIO, indisponivel: true };
+  }
 }
 
-async function carregar(): Promise<DadosDaHistoria> {
+async function buscar(): Promise<DadosDaHistoria> {
   const representantes = await getRepresentantes({ uf: UF_DO_EXEMPLO });
   if (!representantes.ok) return { ...VAZIO, indisponivel: true };
   const escolhidos = representantes.dados.senadores.slice(0, 3);

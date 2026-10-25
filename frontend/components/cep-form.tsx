@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 
 import { useCidadeAchada } from "@/components/localizacao-home";
+import { MaoToque, useMovimentoReduzido } from "@/components/mao-toque";
 import { type Municipio, getMunicipios } from "@/lib/api";
 import { formatarCep } from "@/lib/formato";
 import { type CidadeAchada, acharCidade } from "@/lib/localizacao";
@@ -19,6 +20,8 @@ type Cidades = { uf: string; estado: "vazio" | "carregando" | "pronto"; lista: M
 /** `semCepInicial` abre direto na escolha de estado e cidade (usado quando o CEP não existe). */
 export function CepForm({ semCepInicial = false }: { semCepInicial?: boolean } = {}) {
   const [cep, setCep] = useState("");
+  const [tocouLocalizacao, setTocouLocalizacao] = useState(false);
+  const reduzido = useMovimentoReduzido();
   const [semCep, setSemCep] = useState(semCepInicial);
   const [cidades, setCidades] = useState<Cidades>({ uf: "", estado: "vazio", lista: [] });
   const ufAtual = useRef("");
@@ -333,14 +336,24 @@ export function CepForm({ semCepInicial = false }: { semCepInicial?: boolean } =
   return (
     <div className="flex flex-col gap-3 text-center">
       {alfinete(false)}
-      <button
-        type="button"
-        onClick={usarLocalizacao}
-        disabled={procurando}
-        className="botao w-full disabled:opacity-60"
-      >
-        {procurando ? "Procurando sua cidade…" : "Ver quem me representa aqui"}
-      </button>
+      <div className="relative">
+        <button
+          type="button"
+          onClick={() => {
+            setTocouLocalizacao(true);
+            usarLocalizacao();
+          }}
+          disabled={procurando}
+          className="botao w-full disabled:opacity-60"
+        >
+          {procurando ? "Procurando sua cidade…" : "Ver quem me representa aqui"}
+        </button>
+        {/* Mão que convida a tocar no botão; some no primeiro toque. */}
+        {/* 1 px, não 0: o navegador não desenha um <svg> de tamanho zero, nem com overflow visível. */}
+        <svg aria-hidden="true" className="pointer-events-none absolute top-1/2 right-9 size-px overflow-visible">
+          <MaoToque x={0} y={0} oculta={tocouLocalizacao || procurando} reduzido={reduzido} etiquetaEsquerda semEtiqueta />
+        </svg>
+      </div>
       <p role="status" aria-live="polite" className="text-xs text-muted-foreground">
         Pede a sua localização. Ela fica no seu celular: só usamos para achar a cidade.
       </p>

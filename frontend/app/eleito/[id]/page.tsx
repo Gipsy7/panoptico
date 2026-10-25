@@ -9,7 +9,7 @@ import { CarreiraSecao } from "@/components/carreira-secao";
 import { SancoesSecao, TEXTO_REGISTRO } from "@/components/sancoes-secao";
 import { ServicoFederalSecao } from "@/components/servico-federal-secao";
 import { CandidaturaSecao } from "@/components/candidatura-secao";
-import { AcompanharPorFeed, CompartilharWhatsApp } from "@/components/compartilhar";
+import { CompartilharWhatsApp } from "@/components/compartilhar";
 import { QuemESecao } from "@/components/dados-pessoais";
 import { FotoOuIniciais } from "@/components/eleitos-secao";
 import { ContratosSocioSecao } from "@/components/contratos-socio-secao";
@@ -448,8 +448,6 @@ async function Perfil({
       <p className="text-sm text-muted-foreground">Toque num número para ver o detalhe, com a fonte e a data.</p>
 
       <CompartilharWhatsApp caminho={`/eleito/${e.id}`} texto={textoWhatsApp(e)} />
-
-      {linha.ok && <AcompanharPorFeed pessoaId={linha.dados.pessoa_id} />}
 
       <ListaPerguntas titulo="Para entender os números">
         {!emCargoFuturo && (

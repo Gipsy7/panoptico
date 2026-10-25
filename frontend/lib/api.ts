@@ -1331,10 +1331,6 @@ export function getCarreira(pessoaId: number) {
   return getJson<Carreira>(`/pessoas/${pessoaId}/carreira`);
 }
 
-/** Feed (Atom) público dos fatos novos da pessoa. */
-export function urlFeedDaPessoa(pessoaId: number) {
-  return `${API_PUBLICA}/pessoas/${pessoaId}/eventos.rss`;
-}
 
 export type VotoTema = {
   tema: string;
