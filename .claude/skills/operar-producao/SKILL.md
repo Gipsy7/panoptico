@@ -18,10 +18,10 @@ Desde 26/10/2026 a produção é uma VPS Locaweb. Vercel e Neon deixaram de ser 
 | Cloudflare | DNS e proxy; cache da API (respeita `s-maxage`) e das páginas (30 min), em camadas; firewall só contra coletores em massa e robôs de SEO (robôs de pesquisa e de treino de IA liberados) | painel Cloudflare |
 | Worker `panoptico-troca` | `infra/cloudflare/troca`: VPS principal; vai para a reserva com 3 falhas seguidas e volta com 10 sucessos; grava no KV só quando o estado muda; `/configurar` e `/trafego` | https://panoptico-troca.mikael-dev.workers.dev |
 | Reserva do site | Netlify (`frontend/netlify.toml`), deploy só pelo `reserva-netlify.yml` | https://panoptico.netlify.app |
-| Reserva da API | VM Oracle micro `panoptico-reserva-micro` (163.176.196.22), docker compose + túnel (`deploy/reserva`), lê o Neon | `api-reserva.panoptico.social.br` |
-| Neon | Só reserva: segue recebendo a ingestão do GitHub Actions por uma semana de teste (desde 26/10) e depois será cancelado | — |
-| Vercel | Pausada; reserva antiga | panoptico.vercel.app |
-| Oracle ARM grátis | 2 OCPU, 12 GB, para virar a reserva completa com réplica lógica (pendente); orçamento `panoptico-gasto-zero` com alerta, trava de cotas `panoptico-so-gratis` | — |
+| Reserva da API (provisória até 1º/11) | VM Oracle micro `panoptico-reserva-micro` (IP no painel Oracle), docker compose + túnel (`deploy/reserva`), lê o Neon | `api-reserva.panoptico.social.br` |
+| Neon | Banco da **reserva congelada**: sem ingestão automática; atualizado só pelo procedimento manual (`deploy/vps/LEIAME.md`, "Reserva congelada") | — |
+| Vercel | Site e API da **reserva congelada** (pausada até 1º/11/2026; depois, deploys automáticos desligados) | panoptico.vercel.app |
+| Oracle | Backup diário (bucket `panoptico-backups`); ARM grátis parada (meta futura: reserva com réplica lógica); orçamento `panoptico-gasto-zero` com alerta, trava de cotas `panoptico-so-gratis` | — |
 | CI e Publicar | `.github/workflows/ci.yml`, `publicar.yml` | Actions do repo `Gipsy7/panoptico` |
 
 As travas de custo do Neon/Vercel caíram. Recarga completa e dados do acervo são possíveis na VPS, respeitando disco (70 GB) e RAM (4 GB): cargas pesadas de madrugada e em sequência. Fontes só-Brasil podem rodar lá. Bloqueio deliberado nunca é contornado.

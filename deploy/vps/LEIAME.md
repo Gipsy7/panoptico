@@ -95,3 +95,17 @@ systemctl list-timers 'panoptico-*'                # próxima execução de cada
 docker compose logs -f --tail=100 api web cloudflared
 ```
 O disco guarda os brutos das cargas no volume `raw`; confira com `docker system df` e `df -h` de vez em quando.
+
+## 7. Reserva congelada (Vercel + Neon)
+
+A reserva é uma versão fixa do site, da API e do banco na Vercel e no Neon. Ela não recebe cargas nem deploys automáticos: se a VPS cair, o Worker `panoptico-troca` põe essa versão no ar como está. Código e dados ficam congelados **juntos**, para a API da reserva nunca esperar uma coluna que o banco dela não tem.
+
+**Atualizar a reserva** (manual, quando o dono quiser):
+1. Escolha o commit do `main` que vai para a reserva (em geral o atual) e confira que a VPS está nele (`git -C /opt/panoptico log -1`).
+2. Na VPS, faça o dump do banco: `docker compose exec -T db pg_dump -U panoptico -d panoptico --format=custom > /opt/backups/para_reserva.dump`.
+3. Restaure no Neon, com a string **direta** (sem `-pooler`) gravada pelo dono em `/root/.neon_url` (nunca impressa): `docker compose exec -T db pg_restore --clean --if-exists --no-owner --no-acl -d "$(cat /root/.neon_url)" < /opt/backups/para_reserva.dump`. Confira a contagem de linhas das tabelas nos dois lados.
+4. Na Vercel, publique os projetos `panoptico` e `panoptico-api` a partir desse commit (deploy manual pela API, ver skill `operar-producao`). Os deploys automáticos continuam desligados.
+5. Teste `https://panoptico.vercel.app/` e `https://panoptico-api.vercel.app/saude` antes de considerar concluído.
+
+**Custo:** com o Neon parado, só armazenamento (~US$ 0,75 por mês) e o processamento nas horas em que a reserva estiver no ar.
+

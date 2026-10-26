@@ -127,6 +127,7 @@
 - [2026-10-26: busca no Google e nas IAs (canônicas, noindex, robôs)](#2026-10-26-busca-no-google-e-nas-ias-canônicas-noindex-robôs)
 - [2026-10-26: resultado do 2º turno pela divulgação do TSE](#2026-10-26-resultado-do-2º-turno-pela-divulgação-do-tse)
 - [2026-10-26: produção numa VPS (Locaweb) com banco próprio](#2026-10-26-produção-numa-vps-locaweb-com-banco-próprio)
+- [2026-10-26: reserva congelada (Vercel + Neon)](#2026-10-26-reserva-congelada-vercel--neon)
 
 ## 2026-10-06: stack inicial
 
@@ -1436,3 +1437,12 @@ A produção saiu da Vercel (site e API) e do Neon (banco) para uma VPS Locaweb 
 - **Cloudflare:** DNS e proxy; cache da API (respeita `s-maxage`) e das páginas (30 min), em camadas; firewall bloqueia só coletores em massa e robôs de SEO, e libera os robôs de pesquisa e de treino das grandes IAs. Gasto na Oracle limitado por orçamento `panoptico-gasto-zero` e pela trava de cotas `panoptico-so-gratis`.
 - **Operação:** push no `dev` → Publicar → `main` → a VPS atualiza em até 10 min; backup diário no bucket Oracle `panoptico-backups`, com nomes que se repetem (dia da semana e mês) para não encher.
 - **O que caiu:** as travas de custo do Neon/Vercel (CDN de 1 h como proteção, 0,25 CU, "nada de recarga completa na produção", limite de 100 deploys/dia, recorte enxuto por custo). Recarga completa e dados do acervo passam a ser possíveis, respeitando disco e RAM: cargas pesadas de madrugada e em sequência (trava `federal` no flock). Fontes só-Brasil podem rodar na produção, que fica no Brasil. A regra de não contornar bloqueio continua igual.
+
+## 2026-10-26: reserva congelada (Vercel + Neon)
+
+A reserva da VPS é uma **versão congelada** do site, da API e do banco, na Vercel e no Neon, sem atualização automática. Tudo o que é novo (dados, funções, código) entra só na VPS; se ela cair, o Worker de troca põe no ar a versão congelada. O dono atualiza a reserva quando quiser, por um procedimento manual (`deploy/vps/LEIAME.md`, "Reserva congelada").
+- **Por que congelar código e dados juntos:** com a Vercel publicando cada push no `main` e o Neon parado, cedo ou tarde o código novo esperaria uma coluna que o banco congelado não tem, e a reserva quebraria justo quando fosse necessária.
+- **Consequências:** a ingestão do GitHub Actions é desligada (o Neon para de receber cargas); o Publicar deixa de migrar o Neon e só testa e avança o `main`; os deploys automáticos da Vercel são desligados quando ela voltar (1º/11/2026); Netlify e a VM Oracle micro saem da cadeia (a Netlify teria código mais novo que a API congelada).
+- **Custo:** Neon Launch parado, só armazenamento (~2 GB a US$ 0,35/GB-mês) e processamento nas horas em que a reserva estiver no ar: cerca de US$ 1 por mês.
+- **Oracle:** fica só como backup (bucket `panoptico-backups`); a ARM grátis, com réplica lógica, fica como meta futura.
+

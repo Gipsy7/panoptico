@@ -372,10 +372,10 @@ Nunca saem CPF, título, data de nascimento, pessoa sem vínculo publicável, su
 <br>
 
 - **Hoje (desde 26/10/2026):** uma VPS Locaweb em São Paulo (2 vCPU, 4 GB, 70 GB) com banco, API, site e ingestão, atrás do Cloudflare por túnel, sem portas abertas além do SSH. Push no `dev` → Publicar → `main` → a VPS se atualiza em até 10 min. Backup diário em bucket Oracle. Detalhes em [deploy/vps/LEIAME.md](deploy/vps/LEIAME.md).
-- **Ingestões:** agenda systemd na VPS (diária, PNCP, justiça, câmaras, mensal). O GitHub Actions ainda alimenta o Neon por uma semana de teste.
-- **Reservas:** site na Netlify; API numa VM Oracle (túnel Cloudflare, lendo o Neon, que será cancelado); a Vercel está pausada. O Worker `panoptico-troca` testa as origens e troca o DNS sozinho (3 falhas seguidas para a reserva, 10 sucessos para voltar). Histórico em [docs/DEPLOY_GRATUITO.md](docs/DEPLOY_GRATUITO.md).
+- **Ingestões:** agenda systemd na VPS (diária, PNCP, justiça, câmaras, mensal).
+- **Reserva congelada:** uma versão fixa do site, da API e do banco na Vercel e no Neon, que entra no ar sozinha se a VPS cair (o Worker `panoptico-troca` troca o DNS com 3 falhas seguidas e volta com 10 sucessos). Ela só é atualizada de propósito ([deploy/vps/LEIAME.md](deploy/vps/LEIAME.md), "Reserva congelada"). Backup diário do banco no Oracle Cloud (grátis). Histórico em [docs/DEPLOY_GRATUITO.md](docs/DEPLOY_GRATUITO.md).
 - **Cloudflare:** DNS, proxy e cache (API por `s-maxage`, páginas 30 min); o firewall bloqueia só coletores em massa e robôs de SEO e libera os robôs de pesquisa e de treino das grandes IAs.
-- **Custo:** a VPS tem preço fixo, sem as travas de custo do Neon/Vercel; a Oracle fica no grátis (orçamento com alerta e trava de cotas). Veja a página [Apoie](https://panoptico.social.br/apoie).
+- **Custo:** VPS R$ 79,90/mês; reserva Vercel + Neon parada, cerca de R$ 5/mês; Cloudflare e Oracle no grátis (orçamento com alerta e trava de cotas); domínio cerca de R$ 40/ano. Veja a página [Apoie](https://panoptico.social.br/apoie).
 - **Alternativa:** VPS genérica com docker compose e HTTPS automático ([docs/DEPLOY.md](docs/DEPLOY.md)).
 
 </details>
