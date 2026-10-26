@@ -26,10 +26,16 @@ if [ -z "$par" ]; then
   echo "BACKUP_PAR_URL vazia: sem envio externo"
   exit 0
 fi
-# O endereço de upload termina em "/o/" (ou similar): o nome do arquivo é acrescentado.
-if curl -fsS --retry 3 --retry-delay 30 -T "$DESTINO/$nome" "$par$nome" >/dev/null; then
-  echo "enviado ao armazenamento externo"
-else
-  echo "ERRO: o envio externo falhou (o backup local ficou em $DESTINO/$nome)"
-  exit 1
-fi
+# Nomes que se repetem, para o bucket grátis (20 GB) nunca encher sem precisar de regra de
+# limpeza: um por dia da semana (sobrescrito na semana seguinte) e um por mês (um ano de
+# histórico). São no máximo 19 arquivos. O endereço termina em "/o/": o nome é acrescentado.
+falhou=0
+for remoto in "panoptico_dia-$(date -u +%u).dump" "panoptico_mes-$(date -u +%m).dump"; do
+  if curl -fsS --retry 3 --retry-delay 30 -T "$DESTINO/$nome" "$par$remoto" >/dev/null; then
+    echo "enviado ao armazenamento externo: $remoto"
+  else
+    echo "ERRO: o envio de $remoto falhou (o backup local ficou em $DESTINO/$nome)"
+    falhou=1
+  fi
+done
+exit "$falhou"
