@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { decidir, estadoInicial, respostaSaudavel, type EstadoServico } from "./decisao";
+import { FALHAS_PARA_RESERVA, decidir, estadoInicial, respostaSaudavel, type EstadoServico } from "./decisao";
 
 const base = (p: Partial<EstadoServico> = {}): EstadoServico => ({ ...estadoInicial(), ...p });
 
@@ -28,11 +28,14 @@ describe("decidir", () => {
     expect(d.trocarPara).toBeNull();
     expect(d.estado.falhas).toBe(1);
   });
-  it("2 falhas seguidas vao para a reserva", () => {
-    const a = decidir(base(), false, true);
-    const b = decidir(a.estado, false, true);
-    expect(b.trocarPara).toBe("reserva");
-    expect(b.estado.ativo).toBe("reserva");
+  it("so vai para a reserva depois de FALHAS_PARA_RESERVA falhas seguidas", () => {
+    let d = decidir(base(), false, true);
+    for (let i = 1; i < FALHAS_PARA_RESERVA; i++) {
+      expect(d.trocarPara).toBeNull();
+      d = decidir(d.estado, false, true);
+    }
+    expect(d.trocarPara).toBe("reserva");
+    expect(d.estado.ativo).toBe("reserva");
   });
   it("nao vai se a reserva estiver doente", () => {
     const b = decidir(base({ falhas: 1 }), false, false);
@@ -53,7 +56,7 @@ describe("decidir", () => {
     expect(decidir(base({ ativo: "reserva", sucessos: 9 }), false, true).estado.sucessos).toBe(0);
   });
   it("observar nao troca, so informa", () => {
-    const d = decidir(base({ modo: "observar", falhas: 1 }), false, true);
+    const d = decidir(base({ modo: "observar", falhas: FALHAS_PARA_RESERVA - 1 }), false, true);
     expect(d.trocarPara).toBeNull();
     expect(d.observou).toBe("reserva");
     expect(d.estado.ativo).toBe("principal");

@@ -8,7 +8,8 @@ export interface EstadoServico {
   modo: Modo;
 }
 
-export const FALHAS_PARA_RESERVA = 2;
+// 3 minutos seguidos fora do ar: uma troca de contêiner (segundos) não dispara a reserva.
+export const FALHAS_PARA_RESERVA = 3;
 export const SUCESSOS_PARA_VOLTAR = 10;
 export const TIMEOUT_MS = 8000;
 

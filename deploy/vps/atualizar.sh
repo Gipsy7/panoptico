@@ -23,8 +23,12 @@ main() {
 
   # Imagem da API e do site; a API aplica as migrações ao subir. A imagem da ingestão sai do
   # mesmo contexto (camadas em cache), assim as cargas agendadas nao compilam na hora.
-  docker compose up -d --build api web
+  # Primeiro só constrói, com o site antigo no ar (o build do Next ocupa os 2 núcleos por minutos);
+  # depois troca os contêineres, o que leva segundos. Construir e trocar juntos derrubava os testes
+  # do Worker de troca e mandava o tráfego para a reserva.
+  nice -n 10 docker compose build api web
   docker compose --profile ingestao build ingestao
+  docker compose up -d --no-build api web
   docker image prune -f >/dev/null
 
   # Se os units ou os scripts da agenda mudaram, reinstala (copia os units e recarrega o systemd).
