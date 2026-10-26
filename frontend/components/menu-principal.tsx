@@ -55,7 +55,7 @@ export function MenuPrincipal() {
 
   return (
     <>
-      <nav aria-label="Principal" className="hidden items-center gap-3 text-sm whitespace-nowrap xl:flex xl:gap-6">
+      <nav aria-label="Principal" className="hidden items-center gap-3 text-sm whitespace-nowrap xl:flex xl:gap-4">
         {ITENS.map((i) => (
           <Link key={i.href} href={i.href} className="alvo-link underline-offset-4 hover:underline">
             {i.rotulo}

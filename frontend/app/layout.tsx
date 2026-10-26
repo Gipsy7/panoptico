@@ -80,7 +80,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           style={{ viewTransitionName: "site-header" }}
           className="sticky top-0 z-40 border-b border-border/70 bg-background/85 backdrop-blur-md"
         >
-          <div id="menu-principal" tabIndex={-1} className="outline-none mx-auto flex w-full max-w-5xl items-center min-h-14 flex-wrap justify-between gap-x-4 gap-y-1 px-4">
+          <div id="menu-principal" tabIndex={-1} className="outline-none mx-auto flex w-full max-w-5xl items-center min-h-14 flex-wrap justify-between gap-x-4 gap-y-1 px-4 xl:flex-nowrap">
             <Link
               href="/"
               aria-label="Panóptico.social, página inicial"
