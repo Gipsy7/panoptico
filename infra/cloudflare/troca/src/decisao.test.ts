@@ -1,0 +1,68 @@
+import { describe, expect, it } from "vitest";
+import { decidir, estadoInicial, respostaSaudavel, type EstadoServico } from "./decisao";
+
+const base = (p: Partial<EstadoServico> = {}): EstadoServico => ({ ...estadoInicial(), ...p });
+
+describe("respostaSaudavel", () => {
+  it("200 e ok", () => expect(respostaSaudavel({ status: 200, corpo: "x" })).toBe(true));
+  it("timeout falha", () => expect(respostaSaudavel({ timeout: true })).toBe(false));
+  it("5xx e 402 falham", () => {
+    expect(respostaSaudavel({ status: 503 })).toBe(false);
+    expect(respostaSaudavel({ status: 402 })).toBe(false);
+  });
+  it("403 com DEPLOYMENT_DISABLED falha; 403 comum nao", () => {
+    expect(respostaSaudavel({ status: 403, corpo: "DEPLOYMENT_DISABLED" })).toBe(false);
+    expect(respostaSaudavel({ status: 403, corpo: "Payment required" })).toBe(false);
+    expect(respostaSaudavel({ status: 403, corpo: "proibido" })).toBe(true);
+  });
+  it("api exige banco ok", () => {
+    expect(respostaSaudavel({ status: 200, corpo: '{"status":"ok","banco":"ok"}' }, true)).toBe(true);
+    expect(respostaSaudavel({ status: 200, corpo: '{"status":"ok","banco":"indisponivel"}' }, true)).toBe(false);
+    expect(respostaSaudavel({ status: 200, corpo: "html" }, true)).toBe(false);
+  });
+});
+
+describe("decidir", () => {
+  it("uma falha nao troca", () => {
+    const d = decidir(base(), false, true);
+    expect(d.trocarPara).toBeNull();
+    expect(d.estado.falhas).toBe(1);
+  });
+  it("2 falhas seguidas vao para a reserva", () => {
+    const a = decidir(base(), false, true);
+    const b = decidir(a.estado, false, true);
+    expect(b.trocarPara).toBe("reserva");
+    expect(b.estado.ativo).toBe("reserva");
+  });
+  it("nao vai se a reserva estiver doente", () => {
+    const b = decidir(base({ falhas: 1 }), false, false);
+    expect(b.trocarPara).toBeNull();
+    expect(b.estado.ativo).toBe("principal");
+  });
+  it("sucesso zera as falhas", () => {
+    expect(decidir(base({ falhas: 1 }), true, true).estado.falhas).toBe(0);
+  });
+  it("volta com 10 sucessos, nao com 9", () => {
+    const r = base({ ativo: "reserva", sucessos: 8 });
+    const nove = decidir(r, true, true);
+    expect(nove.trocarPara).toBeNull();
+    const dez = decidir(nove.estado, true, true);
+    expect(dez.trocarPara).toBe("principal");
+  });
+  it("falha na volta zera os sucessos", () => {
+    expect(decidir(base({ ativo: "reserva", sucessos: 9 }), false, true).estado.sucessos).toBe(0);
+  });
+  it("observar nao troca, so informa", () => {
+    const d = decidir(base({ modo: "observar", falhas: 1 }), false, true);
+    expect(d.trocarPara).toBeNull();
+    expect(d.observou).toBe("reserva");
+    expect(d.estado.ativo).toBe("principal");
+  });
+  it("modo reserva fixa o destino", () => {
+    expect(decidir(base({ modo: "reserva" }), true, true).trocarPara).toBe("reserva");
+  });
+  it("modo principal fixa o destino mesmo com falhas", () => {
+    expect(decidir(base({ modo: "principal", ativo: "reserva" }), false, true).trocarPara).toBe("principal");
+    expect(decidir(base({ modo: "principal" }), false, true).trocarPara).toBeNull();
+  });
+});

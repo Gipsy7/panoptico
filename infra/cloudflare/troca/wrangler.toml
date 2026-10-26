@@ -1,0 +1,28 @@
+name = "panoptico-troca"
+main = "src/index.ts"
+compatibility_date = "2025-01-01"
+
+[triggers]
+crons = ["* * * * *"]
+
+[[kv_namespaces]]
+binding = "ESTADO"
+id = "PREENCHER_ID_DO_KV"
+
+[vars]
+ZONE_ID = ""
+# Registros DNS (CNAME com proxy) que o Worker troca.
+REGISTRO_SITE = "panoptico.social.br"
+REGISTRO_API = "api.panoptico.social.br"
+# Destinos de cada origem.
+SITE_PRINCIPAL = "cname.vercel-dns.com"
+SITE_RESERVA = "panoptico.netlify.app"
+API_PRINCIPAL = "cname.vercel-dns.com"
+API_RESERVA = "UUID.cfargotunnel.com"
+# URLs de teste.
+TESTE_SITE_PRINCIPAL = "https://panoptico.vercel.app/"
+TESTE_SITE_RESERVA = "https://panoptico.netlify.app/"
+TESTE_API_PRINCIPAL = "https://panoptico-api.vercel.app/saude"
+# Hostname proprio da reserva da API (publicado no Tunnel), com /saude.
+TESTE_API_RESERVA = "https://api-reserva.panoptico.social.br/saude"
+# Segredos (wrangler secret put): CF_TOKEN, CHAVE_PAINEL
