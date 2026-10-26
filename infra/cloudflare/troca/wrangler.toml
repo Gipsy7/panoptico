@@ -15,15 +15,16 @@ ZONE_ID = "a77c392698f1c27648625496e5e0cbb3"
 # Registros DNS (CNAME com proxy) que o Worker troca.
 REGISTRO_SITE = "panoptico.social.br"
 REGISTRO_API = "api.panoptico.social.br"
-# Destinos de cada origem.
-SITE_PRINCIPAL = "cname.vercel-dns.com"
+# Destinos de cada origem. Principal: VPS Locaweb (túnel panoptico-vps); reservas: Netlify (site)
+# e Oracle (API, túnel panoptico-api).
+SITE_PRINCIPAL = "781d882f-d05b-49f6-b059-638092923fc5.cfargotunnel.com"
 SITE_RESERVA = "panoptico.netlify.app"
-API_PRINCIPAL = "cname.vercel-dns.com"
+API_PRINCIPAL = "781d882f-d05b-49f6-b059-638092923fc5.cfargotunnel.com"
 API_RESERVA = "1af7f079-c4e0-4439-a4c3-bc4a54f75279.cfargotunnel.com"
 # URLs de teste.
-TESTE_SITE_PRINCIPAL = "https://panoptico.vercel.app/"
+TESTE_SITE_PRINCIPAL = "https://vps.panoptico.social.br/"
 TESTE_SITE_RESERVA = "https://panoptico.netlify.app/"
-TESTE_API_PRINCIPAL = "https://panoptico-api.vercel.app/saude"
+TESTE_API_PRINCIPAL = "https://api-vps.panoptico.social.br/saude"
 # Hostname proprio da reserva da API (publicado no Tunnel), com /saude.
 TESTE_API_RESERVA = "https://api-reserva.panoptico.social.br/saude"
 # Segredos (wrangler secret put): CF_TOKEN, CHAVE_PAINEL
