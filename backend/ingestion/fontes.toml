@@ -316,6 +316,15 @@ anos = [2018, 2022, 2024, 2026, 2014, 2010, 2006, 2002, 1998, 1994]
 depende = ["tse_candidaturas"]
 bruto = "recorte"
 
+[[fonte]]
+nome = "tse_resultado_2_turno"
+modulo = "ingestion.tse.resultado_2_turno"
+uso = "Resultado do 2º turno (eleito, votos) na noite da votação, antes dos dados abertos"
+recorte = "titulares e vices de presidente e governador do 2º turno, só candidaturas guardadas"
+guarda = "somas"
+frequencia = "manual"
+depende = ["tse_candidaturas"]
+
 # Municípios
 [[fonte]]
 nome = "siconfi_contas"

@@ -95,6 +95,7 @@ CATALOGO = [
             "tse_campanha",
             "tse_redes",
             "tse_votos",
+            "tse_resultado_2_turno",
             "tse_fotos",
         ],
         "url": "https://dadosabertos.tse.jus.br/",

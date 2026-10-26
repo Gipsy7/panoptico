@@ -14,7 +14,7 @@ from datetime import date, timedelta
 from sqlalchemy import and_, extract, func, or_, select
 from sqlalchemy.orm import Session
 
-from app.models import Candidatura, Parlamentar, PessoaVinculo
+from app.models import Candidatura, FonteIngestao, Parlamentar, PessoaVinculo
 from app.services import cruzamentos, perfil_unico, tse
 from app.services.pessoas import publicavel
 from app.services.representantes import UFS
@@ -29,6 +29,8 @@ URL_DIVULGACAND = "https://divulgacandcontas.tse.jus.br/divulga/#/home"
 # Cargas que alimentam os registros de punições (CGU) e de condenações (TCU).
 FONTES_SANCOES = ("cgu_sancoes", "tcu_condenacoes")
 CARGO_LEGIVEL = {"PRESIDENTE": "Presidente", "GOVERNADOR": "Governador"}
+FONTE_RESULTADO = "tse_resultado_2_turno"
+URL_RESULTADO = "https://resultados.tse.jus.br/"
 
 
 def data_segundo_turno(ano: int) -> date:
@@ -248,6 +250,15 @@ def _governador_eleito(session: Session, ano: int, uf: str) -> dict | None:
     }
 
 
+def _resultado_totalizado_em(session: Session):
+    """Momento da totalização do TSE da última carga do resultado (a data da carga é a do JSON)."""
+    return session.scalar(
+        select(func.max(FonteIngestao.concluido_em)).where(
+            FonteIngestao.fonte == FONTE_RESULTADO, FonteIngestao.status == "ok"
+        )
+    )
+
+
 def comparar(session: Session, uf: str) -> dict:
     """As disputas de 2º turno que um eleitor da UF encontra na urna."""
     uf = uf.upper()
@@ -264,6 +275,9 @@ def comparar(session: Session, uf: str) -> dict:
         else:
             governador_1turno = _governador_eleito(session, ano, uf)
     sancoes_atualizado = cruzamentos._atualizado(session, FONTES_SANCOES)
+    resultado_em = (
+        _resultado_totalizado_em(session) if any(d["decidida"] for d in disputas) else None
+    )
     return {
         "ano_eleicao": ano,
         "data_segundo_turno": data_segundo_turno(ano) if ano else None,
@@ -275,6 +289,8 @@ def comparar(session: Session, uf: str) -> dict:
         "fonte_url": tse.URL_CANDIDATOS.format(ano=ano or date.today().year),
         "contas_url": tse.URL_CONTAS.format(ano=ano or date.today().year),
         "atualizado_em": tse._atualizado_em(session),
+        "resultado_fonte_url": URL_RESULTADO if resultado_em else None,
+        "resultado_atualizado_em": resultado_em,
         "sancoes_fonte_nome": "Portal da Transparência (CGU) e Tribunal de Contas da União",
         "sancoes_fonte_url": cruzamentos.URL_SANCOES,
         "sancoes_atualizado_em": sancoes_atualizado,

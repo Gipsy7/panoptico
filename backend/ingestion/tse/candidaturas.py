@@ -17,7 +17,7 @@ from pathlib import Path
 from typing import Any
 
 import httpx
-from sqlalchemy import delete, func, select, update
+from sqlalchemy import case, delete, func, select, update
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.orm import Session, aliased
 
@@ -252,6 +252,21 @@ def carregar_registros(
             colunas["situacao_turno"] = func.coalesce(
                 stmt.excluded.situacao_turno, Candidatura.situacao_turno
             )
+        # Arquivo de antes da apuração ("2º TURNO") não desfaz o resultado do 2º turno que já
+        # temos (tse.resultado_2_turno, publicado antes dos dados abertos): mantém situação e data.
+        if "situacao_turno" in colunas:
+            retrocede = (
+                (stmt.excluded.situacao_turno == "2º TURNO")
+                & Candidatura.situacao_turno.in_(("ELEITO", "NÃO ELEITO"))
+                & (Candidatura.cargo.in_(CARGOS_2_TURNO))
+            )
+            colunas["situacao_turno"] = case(
+                (retrocede, Candidatura.situacao_turno), else_=colunas["situacao_turno"]
+            )
+            if "data_eleicao" in colunas:
+                colunas["data_eleicao"] = case(
+                    (retrocede, Candidatura.data_eleicao), else_=colunas["data_eleicao"]
+                )
         session.execute(
             stmt.on_conflict_do_update(index_elements=["ano_eleicao", "sq_candidato"], set_=colunas)
         )

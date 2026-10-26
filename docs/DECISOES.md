@@ -125,6 +125,7 @@
 - [2026-10-25: acessibilidade para deficiência visual](#2026-10-25-acessibilidade-para-deficiência-visual)
 - [2026-10-26: reserva da Vercel com troca automática](#2026-10-26-reserva-da-vercel-com-troca-automática)
 - [2026-10-26: busca no Google e nas IAs (canônicas, noindex, robôs)](#2026-10-26-busca-no-google-e-nas-ias-canônicas-noindex-robôs)
+- [2026-10-26: resultado do 2º turno pela divulgação do TSE](#2026-10-26-resultado-do-2º-turno-pela-divulgação-do-tse)
 
 ## 2026-10-06: stack inicial
 
@@ -1415,3 +1416,13 @@ Search Console: 218 "cópia sem canônica escolhida" e 6.943 "detectada, não in
 - **robots.txt:** IAs de pesquisa e treino liberadas (GPTBot, OAI-SearchBot, ChatGPT-User, ClaudeBot, Claude-SearchBot, Claude-User, anthropic-ai, PerplexityBot, Google-Extended, Applebot-Extended); bloqueados só os coletores (meta-externalagent, Bytespider, CCBot, Amazonbot, cohere-ai, Diffbot, PetalBot, AhrefsBot, SemrushBot, MJ12bot, DataForSeoBot). O Worker `panoptico-troca` (`/configurar`) aplica a mesma política no firewall.
 - **Sitemap:** inclui `/representantes` de cada estado e cidade (~13 mil URLs, ~1 MB; aviso em log acima de 40 mil, quando passa a `generateSitemaps`) e `lastmod` = data da carga mais recente (`/fontes`).
 - **Descoberta:** a página do estado lista as cidades como links; o perfil do parlamentar liga ao estado e ao partido; a página do partido liga aos parlamentares dele. JSON-LD Organization, WebSite e Dataset (CC BY 4.0) na home.
+
+## 2026-10-26: resultado do 2º turno pela divulgação do TSE
+
+Os dados abertos (`consulta_cand_2026`, `votacao_candidato_munzona_2026`) ficaram de 25/10 12h37, antes da apuração, e o site seguia com "Disputa o 2º turno". Decidido: um módulo à parte (`ingestion/tse/resultado_2_turno.py`) lê o JSON público de resultados do TSE (resultados.tse.jus.br, `/oficial/ele2026/{eleição}/dados/{uf}/...-u.json`), sem chave e sem contornar nada.
+
+- **Só totalizado:** `and = "f"`, 100% das seções e todos com `e` = s/n; senão não grava e avisa (nunca resultado parcial).
+- **Só atualiza o que já existe** (por `sqcand`; sem ele, número + cargo + UF único): situação, votos do 2º turno e data. Nada de candidatura nova.
+- **Dados abertos não brigam:** as cargas normais de 2026 não trocam ELEITO/NÃO ELEITO por "2º TURNO" nem os votos do 2º turno pelos do 1º (arquivo pré-apuração); quando o arquivo trouxer o resultado, regrava os mesmos valores.
+- **Data da carga = totalização do JSON** (`fonte_ingestao.concluido_em`; `executar_ingestao` passou a respeitar um `concluido_em` já fixado pela carga). `/segundo-turno` devolve `resultado_fonte_url` e `resultado_atualizado_em`.
+

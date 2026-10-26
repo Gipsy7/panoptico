@@ -12,7 +12,7 @@ from pathlib import Path
 from typing import Any
 
 import httpx
-from sqlalchemy import bindparam, select, update
+from sqlalchemy import bindparam, extract, select, update
 from sqlalchemy.orm import Session, aliased
 
 from app.models import Candidatura, FonteIngestao
@@ -105,6 +105,25 @@ def herdar_situacao_dos_vices(session: Session, ano: int) -> None:
     )
 
 
+def resultado_ja_gravado(
+    session: Session, ano: int, candidaturas: dict[str, int], disputas: dict[str, list[Any]]
+) -> set[str]:
+    """SQ cujos votos do 2º turno já vieram da divulgação do TSE (tse_resultado_2_turno) e que o
+    arquivo ainda não traz votos de 2º turno (versão de antes da apuração: sem linha do 2º
+    turno ou com zero voto). Nesse caso a carga não troca os votos do 2º turno pelos do 1º."""
+    gravados = session.scalars(
+        select(Candidatura.sq_candidato).where(
+            Candidatura.ano_eleicao == ano,
+            Candidatura.cargo.in_(CARGOS_2_TURNO),
+            Candidatura.situacao_turno.in_(("ELEITO", "NÃO ELEITO")),
+            Candidatura.votos.is_not(None),
+            extract("month", Candidatura.data_eleicao) == 10,
+            extract("day", Candidatura.data_eleicao) >= 25,
+        )
+    )
+    return {sq for sq in gravados if sq in candidaturas and not disputas.get(sq, [0, 0, 0])[2]}
+
+
 def executar(ano: int, de_raw: Path | None = None) -> int:
     def baixar(client: httpx.Client) -> Path:
         return comum.baixar_para_arquivo(client, URL.format(ano=ano))
@@ -130,6 +149,8 @@ def executar(ano: int, de_raw: Path | None = None) -> int:
             situacoes.update(vencedores_2_turno(disputas))
         if not votos:
             raise ValueError(f"Nenhum voto encontrado em {ano}; abortando.")
+        for sq in resultado_ja_gravado(session, ano, candidaturas, disputas):
+            votos.pop(sq, None)
         parametros = [{"id_": candidaturas[sq], "valor": v} for sq, v in votos.items()]
         stmt = (
             update(Candidatura)

@@ -597,7 +597,8 @@ def executar_ingestao(
             total = carregar(session, payload, ingestao)
             ingestao.registros = total
             ingestao.status = "ok"
-            ingestao.concluido_em = datetime.now(UTC)
+            # A carga pode ter fixado a data da própria fonte (ex.: totalização do TSE).
+            ingestao.concluido_em = ingestao.concluido_em or datetime.now(UTC)
             if sha is not None:  # só vale como "último download" se a carga deu certo
                 _guardar_cache(session, chave, url, sha, tamanho, info, contexto)
             session.commit()
