@@ -108,22 +108,24 @@ const CORPOS: Record<PredioId, Corpo> = {
   ),
   assembleia: (f1, f2) => (
     <>
-      <path className={f1} strokeWidth={1.5} d="M240 300 A28 28 0 0 1 296 300 Z" />
-      <path className={TR} strokeWidth={1.5} strokeLinecap="round" d="M268 272 V262" />
-      <rect className={f2} strokeWidth={1.5} x={236} y={300} width={64} height={10} />
-      <Colunas x0={196} n={7} passo={20} y={312} alt={34} larg={8} cls={f1} />
-      <rect className={f2} strokeWidth={1.5} x={190} y={346} width={154} height={12} />
+      <path className={f1} strokeWidth={1.5} d="M239 300 A28 28 0 0 1 295 300 Z" />
+      <path className={TR} strokeWidth={1.5} strokeLinecap="round" d="M267 272 V262" />
+      <rect className={f2} strokeWidth={1.5} x={235} y={300} width={64} height={10} />
+      <Colunas x0={206} n={7} passo={19} y={312} alt={34} larg={8} cls={f1} />
+      <rect className={f2} strokeWidth={1.5} x={203} y={346} width={128} height={12} />
     </>
   ),
   prefeitura: (f1, f2) => (
     <>
-      <rect className={f1} strokeWidth={1.5} x={14} y={528} width={158} height={52} />
-      <path className={f2} strokeWidth={1.5} d="M14 528 L93 508 L172 528 Z" />
+      <rect className={f1} strokeWidth={1.5} x={29} y={528} width={128} height={52} />
+      <path className={f2} strokeWidth={1.5} d="M29 528 L93 510 L157 528 Z" />
       <rect className={f2} strokeWidth={1.5} x={76} y={478} width={34} height={34} />
       <circle className={f1} strokeWidth={1.5} cx={93} cy={495} r={9} />
       <path className={TR} strokeWidth={1.5} strokeLinecap="round" d="M93 489 V495 L98 497" />
       <path className={f2} strokeWidth={1.5} d="M72 478 L93 464 L114 478 Z" />
-      <Colunas x0={28} n={5} passo={30} y={540} alt={22} larg={14} cls={f2} />
+      {/* Duas janelas de cada lado da porta, simétricas em torno do centro (x = 93). */}
+      <Colunas x0={39} n={2} passo={20} y={540} alt={22} larg={12} cls={f2} />
+      <Colunas x0={115} n={2} passo={20} y={540} alt={22} larg={12} cls={f2} />
       <rect className={f2} strokeWidth={1.5} x={78} y={558} width={30} height={22} />
     </>
   ),
@@ -137,16 +139,51 @@ const CORPOS: Record<PredioId, Corpo> = {
   ),
 };
 
-/** Área que recebe o toque (x, y, largura, altura) e onde ficam as legendas. */
-const AREAS: Record<PredioId, { hit: [number, number, number, number]; cx: number; ancora: "start" | "middle" }> = {
-  planalto: { hit: [10, 52, 166, 104], cx: 14, ancora: "start" },
-  senado: { hit: [186, 80, 72, 70], cx: 221, ancora: "middle" },
-  camara: { hit: [270, 80, 74, 70], cx: 307, ancora: "middle" },
-  governo: { hit: [10, 258, 166, 104], cx: 14, ancora: "start" },
-  assembleia: { hit: [186, 252, 162, 112], cx: 190, ancora: "start" },
-  prefeitura: { hit: [10, 458, 166, 128], cx: 14, ancora: "start" },
-  camaramun: { hit: [186, 484, 162, 100], cx: 190, ancora: "start" },
+/**
+ * Área que recebe o toque (x, y, largura, altura, antes do encaixe) e a legenda (centro x e linha
+ * de base y, já no desenho final). Legendas da mesma fileira ficam na mesma altura; Senado e Câmara
+ * se afastam um pouco do centro dos prédios para "3 senadores" e "70 deputados" não se encostarem.
+ */
+const AREAS: Record<PredioId, { hit: [number, number, number, number]; rotulo: [number, number] }> = {
+  planalto: { hit: [10, 52, 166, 104], rotulo: [93, 172] },
+  senado: { hit: [186, 80, 72, 70], rotulo: [222, 172] },
+  camara: { hit: [270, 80, 74, 70], rotulo: [310, 172] },
+  governo: { hit: [10, 258, 166, 104], rotulo: [93, 382] },
+  assembleia: { hit: [199, 252, 136, 112], rotulo: [267, 382] },
+  prefeitura: { hit: [25, 458, 136, 128], rotulo: [93, 602] },
+  camaramun: { hit: [186, 484, 162, 100], rotulo: [267, 602] },
 };
+
+/**
+ * Encaixe de cada prédio na coluna: escala a partir do chão (ox, oy) e desloca dx, para que todos
+ * fiquem com ~130 de largura, centrados em x = 93 (esquerda) ou 267 (direita) e à mesma distância
+ * da linha pontilhada (x = 180).
+ */
+type Encaixe = { ox: number; oy: number; s: number; dx: number };
+const SEM_ENCAIXE: Encaixe = { ox: 0, oy: 0, s: 1, dx: 0 };
+const TOPO_DIREITA: Encaixe = { ox: 264, oy: 146, s: 0.875, dx: 3 };
+const ENCAIXE: Record<PredioId, Encaixe> = {
+  planalto: { ox: 93, oy: 150, s: 0.82, dx: 0 },
+  senado: TOPO_DIREITA,
+  camara: TOPO_DIREITA,
+  governo: { ox: 93, oy: 358, s: 0.82, dx: 0 },
+  assembleia: SEM_ENCAIXE,
+  // A torre do relógio deixa a Prefeitura mais alta que os vizinhos; um pouco menor, ela se equilibra.
+  prefeitura: { ox: 93, oy: 580, s: 0.88, dx: 0 },
+  camaramun: { ox: 267, oy: 576, s: 0.845, dx: 0 },
+};
+
+function transformar(e: Encaixe): string | undefined {
+  if (e.s === 1 && e.dx === 0) return undefined;
+  return `translate(${e.ox + e.dx} ${e.oy}) scale(${e.s}) translate(${-e.ox} ${-e.oy})`;
+}
+
+function ponto(e: Encaixe, x: number, y: number): [number, number] {
+  return [e.ox + e.dx + (x - e.ox) * e.s, e.oy + (y - e.oy) * e.s];
+}
+
+/** O traço não engrossa nem afina com a escala do encaixe. */
+const TRACO_FIXO = "[&_*]:[vector-effect:non-scaling-stroke]";
 
 /** Centro de cada prédio, onde a mão pousa. */
 const CENTROS: Record<PredioId, [number, number]> = {
@@ -210,7 +247,7 @@ export function PrediosRepresentantes({
   }, [tocou, reduzido, roteiro.length, terminou, ultimoPasso]);
 
   const daVez = roteiro[passo % Math.max(roteiro.length, 1)];
-  const [mx, my] = CENTROS[daVez] ?? [180, 100];
+  const [mx, my] = CENTROS[daVez] ? ponto(ENCAIXE[daVez], ...CENTROS[daVez]) : [180, 100];
 
   function escolher(id: PredioId) {
     setTocou(true);
@@ -249,10 +286,12 @@ export function PrediosRepresentantes({
         >
           <path d={med.caminho} className="fill-none stroke-bronze" strokeWidth={3} strokeDasharray="2 9" strokeLinecap="round" />
           <Faixa y={10} texto={faixaBrasil} />
-          <rect className={BASE} strokeWidth={1.5} x={184} y={134} width={160} height={12} />
-          <rect className={BASE} strokeWidth={1.5} x={252} y={60} width={9} height={74} />
-          <rect className={BASE} strokeWidth={1.5} x={266} y={60} width={9} height={74} />
-          <path className={TR} strokeWidth={1.5} strokeLinecap="round" d="M256 52 V60 M270 52 V60" />
+          <g transform={transformar(TOPO_DIREITA)} className={TRACO_FIXO}>
+            <rect className={BASE} strokeWidth={1.5} x={184} y={134} width={160} height={12} />
+            <rect className={BASE} strokeWidth={1.5} x={252} y={60} width={9} height={74} />
+            <rect className={BASE} strokeWidth={1.5} x={266} y={60} width={9} height={74} />
+            <path className={TR} strokeWidth={1.5} strokeLinecap="round" d="M256 52 V60 M270 52 V60" />
+          </g>
           <Faixa y={222} texto={faixaEstado} />
           {faixaCidade && <Faixa y={430} texto={faixaCidade} />}
 
@@ -260,7 +299,9 @@ export function PrediosRepresentantes({
             const eSel = p.id === escolhido;
             const convite = !tocou && p.id === daVez;
             const a = AREAS[p.id];
+            const e = ENCAIXE[p.id];
             const [hx, hy, hw, hh] = a.hit;
+            const [lx, ly] = a.rotulo;
             return (
               <g
                 key={p.id}
@@ -272,6 +313,7 @@ export function PrediosRepresentantes({
                 onClick={() => escolher(p.id)}
                 onKeyDown={(e) => aoTeclar(e, p.id)}
               >
+                <g transform={transformar(e)} className={TRACO_FIXO}>
                 <rect
                   x={hx}
                   y={hy}
@@ -289,17 +331,18 @@ export function PrediosRepresentantes({
                   )}
                 </rect>
                 {CORPOS[p.id](F1(eSel), F2(eSel))}
+                </g>
                 <text
                   id={`${base}-${p.id}-r`}
                   className={`fill-foreground text-[15px] font-semibold ${eSel ? "underline decoration-bronze underline-offset-[3px]" : ""}`}
-                  x={a.cx}
-                  y={hy + hh + 20}
-                  textAnchor={a.ancora}
+                  x={lx}
+                  y={ly}
+                  textAnchor="middle"
                 >
                   {/* Espaço no fim: o texto do grupo vira "Senado 3 senadores", igual ao nome acessível (WCAG 2.5.3). */}
                   {p.rotulo}{" "}
                 </text>
-                <text id={`${base}-${p.id}-s`} className="fill-muted-foreground text-[13px]" x={a.cx} y={hy + hh + 38} textAnchor={a.ancora}>
+                <text id={`${base}-${p.id}-s`} className="fill-muted-foreground text-[13px]" x={lx} y={ly + 18} textAnchor="middle">
                   {p.sub}
                 </text>
               </g>
