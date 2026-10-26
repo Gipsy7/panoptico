@@ -300,6 +300,11 @@ async function configurar(env: Env): Promise<Record<string, string>> {
       "SSL Full",
       () => cf(env, `${zona}/settings/ssl`, { method: "PATCH", body: JSON.stringify({ value: "full" }) }),
     ],
+    [
+      // As cidades do Cloudflare consultam um cache central antes de ir à origem (mais acertos).
+      "cache em camadas (Smart Tiered Cache)",
+      () => cf(env, `${zona}/cache/tiered_cache_smart_topology_enable`, { method: "PATCH", body: JSON.stringify({ value: "on" }) }),
+    ],
   ];
   const resultado: Record<string, string> = {};
   for (const [nome, passo] of passos) {
