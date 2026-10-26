@@ -222,11 +222,14 @@ async function trafego(env: Env, horas: number): Promise<unknown> {
   return z ? { desde, ...z } : j;
 }
 
-// Robôs que coletam páginas para treinar IA (mesma lista do robots.txt e da regra da Vercel).
-const ROBOS_DE_IA = [
-  "meta-externalagent", "gptbot", "claudebot", "anthropic-ai", "bytespider", "ccbot", "amazonbot",
-  "perplexitybot", "cohere-ai", "diffbot", "imagesiftbot", "omgilibot", "petalbot", "ahrefsbot",
-  "semrushbot", "mj12bot", "dataforseobot", "timpibot",
+// Robôs que varrem o site inteiro sem critério (o da Meta derrubou a CPU da Vercel em out/2026) e
+// robôs de ferramentas de SEO, que não trazem público. Ficam LIBERADOS os buscadores e os robôs de
+// pesquisa e resposta das IAs (OAI-SearchBot, ChatGPT-User, PerplexityBot, Perplexity-User,
+// Claude-SearchBot, Claude-User) e os de treino das grandes IAs que o público usa (GPTBot,
+// ClaudeBot, Applebot, Google-Extended): aparecer nas respostas delas é parte do objetivo do site.
+const ROBOS_BLOQUEADOS = [
+  "meta-externalagent", "bytespider", "ccbot", "amazonbot", "cohere-ai", "diffbot", "imagesiftbot",
+  "omgilibot", "petalbot", "timpibot", "ahrefsbot", "semrushbot", "mj12bot", "dataforseobot",
 ];
 
 /** Regras da zona: cada fase é gravada inteira (PUT do entrypoint), então rodar de novo não duplica.
@@ -264,12 +267,12 @@ async function configurar(env: Env): Promise<Record<string, string>> {
         ]),
     ],
     [
-      "bloqueio de robôs de IA (firewall)",
+      "bloqueio de robôs de coleta em massa (firewall)",
       () =>
         fase("http_request_firewall_custom", [
           {
-            description: "Bloquear robôs de coleta para IA",
-            expression: ROBOS_DE_IA.map((r) => `(lower(http.user_agent) contains "${r}")`).join(" or "),
+            description: "Bloquear robôs de coleta em massa",
+            expression: ROBOS_BLOQUEADOS.map((r) => `(lower(http.user_agent) contains "${r}")`).join(" or "),
             action: "block",
           },
         ]),
@@ -293,8 +296,9 @@ async function configurar(env: Env): Promise<Record<string, string>> {
         ]),
     ],
     [
-      "Block AI bots (gerenciado pelo Cloudflare)",
-      () => cf(env, `${zona}/bot_management`, { method: "PUT", body: JSON.stringify({ ai_bots_protection: "block" }) }),
+      // Desligado: o bloqueio gerenciado pega também os robôs de pesquisa das IAs.
+      "Block AI bots gerenciado: desligado (a lista própria acima decide)",
+      () => cf(env, `${zona}/bot_management`, { method: "PUT", body: JSON.stringify({ ai_bots_protection: "disabled" }) }),
     ],
     [
       "SSL Full",
