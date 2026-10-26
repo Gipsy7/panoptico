@@ -115,6 +115,7 @@ async function lerEstado(env: Env): Promise<Estados> {
 export default {
   async scheduled(_evento: ScheduledController, env: Env): Promise<void> {
     const estados = await lerEstado(env);
+    const antes = JSON.stringify(estados);
     const [sP, sR, aP, aR] = await Promise.all([
       testar(env.TESTE_SITE_PRINCIPAL, false),
       testar(env.TESTE_SITE_RESERVA, false),
@@ -145,7 +146,9 @@ export default {
       const x = estados[s];
       console.log(`${s}: ativo=${x.ativo} modo=${x.modo} falhas=${x.falhas} sucessos=${x.sucessos} principal=${principalOk} reserva=${reservaOk}`);
     }
-    await env.ESTADO.put(CHAVE_KV, JSON.stringify(estados));
+    // Só grava quando algo mudou (limite diário de gravações do KV no plano grátis).
+    const depois = JSON.stringify(estados);
+    if (depois !== antes) await env.ESTADO.put(CHAVE_KV, depois);
   },
 
   async fetch(req: Request, env: Env): Promise<Response> {

@@ -69,3 +69,12 @@ describe("decidir", () => {
     expect(decidir(base({ modo: "principal" }), false, true).trocarPara).toBeNull();
   });
 });
+
+describe("teto dos contadores", () => {
+  it("com a origem estavel o estado para de mudar", () => {
+    let e = base();
+    for (let i = 0; i < 30; i++) e = decidir(e, true, true).estado;
+    const congelado = JSON.stringify(e);
+    expect(JSON.stringify(decidir(e, true, true).estado)).toBe(congelado);
+  });
+});

@@ -60,10 +60,12 @@ export function decidir(
 ): Decisao {
   const e: EstadoServico = { ...anterior };
   if (principalOk) {
-    e.sucessos += 1;
+    // Teto nos contadores: com a origem estável o estado não muda e o KV não é regravado
+    // (o plano grátis permite 1.000 gravações por dia; o cron roda 1.440 vezes).
+    e.sucessos = Math.min(e.sucessos + 1, SUCESSOS_PARA_VOLTAR);
     e.falhas = 0;
   } else {
-    e.falhas += 1;
+    e.falhas = Math.min(e.falhas + 1, FALHAS_PARA_RESERVA);
     e.sucessos = 0;
   }
 
