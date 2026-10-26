@@ -30,7 +30,8 @@ class Settings(BaseSettings):
     # No acervo, o bruto nunca é apagado (limpar_raw não faz nada).
     preservar_raw: bool = False
     # Em funções serverless (Vercel) cada instância vive pouco: sem pool de conexões.
-    serverless: bool = os.environ.get("VERCEL") == "1"
+    # SERVERLESS=1 faz o mesmo na reserva (Docker + PgBouncer em modo transação).
+    serverless: bool = os.environ.get("VERCEL") == "1" or os.environ.get("SERVERLESS") == "1"
 
     @field_validator("database_url", "test_database_url")
     @classmethod
