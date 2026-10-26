@@ -1,0 +1,11 @@
+[Unit]
+Description=Panoptico: backup do banco
+After=docker.service network-online.target
+Wants=network-online.target
+Requires=docker.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/bash /opt/panoptico/deploy/vps/agenda/../backup.sh
+TimeoutStartSec=infinity
+Nice=10

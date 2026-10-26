@@ -2,7 +2,9 @@
 # Banco, API e site na mesma máquina (consulta ao banco em < 1 ms). Uso (de dentro desta pasta):
 #   cp .env.exemplo .env   # e preencha (POSTGRES_PASSWORD)
 #   docker compose up -d --build
-# A ingestão roda pelo cron (ingestao_diaria.sh), no perfil "ingestao".
+# A ingestão roda pelos timers do systemd (agenda/), no perfil "ingestao":
+#   docker compose --profile ingestao run --rm ingestao python -m ingestion.<módulo>
+# Agenda, backup e atualização automática: ver LEIAME.md.
 
 services:
   db:
@@ -76,7 +78,11 @@ services:
   ingestao:
     build: ../../backend
     profiles: ["ingestao"]
-    environment: *backend_env
+    environment:
+      <<: *backend_env
+      # Opcionais (vêm do .env; vazio = a fonte usa o padrão dela).
+      DATAJUD_CHAVE: ${DATAJUD_CHAVE:-}
+      PANOPTICO_FORCAR: ${PANOPTICO_FORCAR:-}
     command: ["python", "-m", "ingestion.run_all"]
     volumes:
       - raw:/app/data

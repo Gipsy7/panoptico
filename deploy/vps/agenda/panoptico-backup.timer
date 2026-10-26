@@ -1,0 +1,10 @@
+[Unit]
+Description=Agenda: backup do banco (9h de Brasilia, depois da diaria)
+
+[Timer]
+# Horário em UTC (a VPS usa UTC; o backup é novo, não vem de workflow).
+OnCalendar=*-*-* 12:00:00 UTC
+Persistent=true
+
+[Install]
+WantedBy=timers.target
