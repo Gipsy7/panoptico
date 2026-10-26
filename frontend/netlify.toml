@@ -1,8 +1,8 @@
 # Cópia de reserva do site na Netlify (atrás do Cloudflare). Plano grátis: cada
 # deploy de produção custa 15 créditos dos 300 mensais; por isso nada de
 # deploy previews nem branch deploys. O adaptador do Next é o automático da Netlify.
+# Sem `base`: o arquivo já está em frontend/ (na Netlify, "Base directory" = frontend).
 [build]
-  base = "frontend"
   command = "npm run build"
   publish = ".next"
 
