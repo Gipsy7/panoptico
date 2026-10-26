@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { metadadosComFiltro } from "@/lib/seo";
 import Link from "next/link";
 
 import { CabecalhoPagina } from "@/components/ui/cabecalho-pagina";
@@ -21,11 +22,14 @@ import {
 import { CASA_CURTA, formatarGastos, formatarReais, formatarReaisCompacto } from "@/lib/formato";
 import { UFS } from "@/lib/ufs";
 
-export const metadata: Metadata = {
-  title: "Todos os parlamentares",
-  description:
-    "Deputados federais e senadores em exercício, com gastos, presença, projetos e emendas, ordenáveis por um critério de cada vez.",
-};
+export async function generateMetadata({ searchParams }: PageProps<"/parlamentares">): Promise<Metadata> {
+  return {
+    title: "Todos os parlamentares",
+    description:
+      "Deputados federais e senadores em exercício, com gastos, presença, projetos e emendas, ordenáveis por um critério de cada vez.",
+    ...metadadosComFiltro("/parlamentares", await searchParams),
+  };
+}
 
 const CAMPOS: (keyof FiltrosLista)[] = ["busca", "casa", "uf", "partido", "ordenar", "ordem", "ano", "pagina"];
 

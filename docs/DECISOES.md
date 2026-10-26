@@ -124,6 +124,7 @@
 - [2026-10-23: um perfil por pessoa (reeleitos e 2º turno)](#2026-10-23-um-perfil-por-pessoa-reeleitos-e-2º-turno)
 - [2026-10-25: acessibilidade para deficiência visual](#2026-10-25-acessibilidade-para-deficiência-visual)
 - [2026-10-26: reserva da Vercel com troca automática](#2026-10-26-reserva-da-vercel-com-troca-automática)
+- [2026-10-26: busca no Google e nas IAs (canônicas, noindex, robôs)](#2026-10-26-busca-no-google-e-nas-ias-canônicas-noindex-robôs)
 
 ## 2026-10-06: stack inicial
 
@@ -1403,3 +1404,14 @@ Problema: o robô de IA da Meta (`meta-externalagent`, cerca de 2 acessos/s em t
 - **Depois de 1º/11:** com a ARM, subir o site nela, medir e inverter (Oracle principal, Vercel 1ª reserva, Netlify última, só do site); Worker com lista em ordem; deploy da Netlify a cada 15 dias; trocar a senha do Neon; conferir a Vercel atrás do proxy.
 
 Operação em `docs/DEPLOY_GRATUITO.md` ("Reserva e troca automática").
+
+## 2026-10-26: busca no Google e nas IAs (canônicas, noindex, robôs)
+
+Search Console: 218 "cópia sem canônica escolhida" e 6.943 "detectada, não indexada". Causa: `canonical: "./"` no layout descarta a query, e `/representantes?uf=&municipio=` declarava a página genérica como original.
+
+- **Canônica por conteúdo, sem URL nova.** `/representantes` ganhou `generateMetadata`: canônica `/representantes?uf=SC&municipio=4205902` (ordem fixa; CEP vira a cidade dele; só estado vira `?uf=SC`) e título "Quem te representa em Gaspar-SC". Descartada a URL limpa `/representantes/sc/4205902`: exigiria 301, trocar ~15 links, e2e, compartilhamentos já feitos e o cache da borda, para o mesmo ganho.
+- **Listas e comparações** (`/parlamentares`, `/partidos`, `/projetos`, `/comparar`, `/comparar/local`, `/segundo-turno`): canônica na página base e `noindex, follow` quando há parâmetro (`metadadosComFiltro`, em `lib/seo.ts`).
+- **Hosts de cópia** (`vps.`, `panoptico.netlify.app`, `panoptico.vercel.app`, `api-*`): `X-Robots-Tag: noindex` por `headers()` do `next.config.ts` com `has: host` e regex negativa, para tudo que não for `panoptico.social.br` (sem `proxy.ts`, que a Netlify pode não executar).
+- **robots.txt:** IAs de pesquisa e treino liberadas (GPTBot, OAI-SearchBot, ChatGPT-User, ClaudeBot, Claude-SearchBot, Claude-User, anthropic-ai, PerplexityBot, Google-Extended, Applebot-Extended); bloqueados só os coletores (meta-externalagent, Bytespider, CCBot, Amazonbot, cohere-ai, Diffbot, PetalBot, AhrefsBot, SemrushBot, MJ12bot, DataForSeoBot). O Worker `panoptico-troca` (`/configurar`) aplica a mesma política no firewall.
+- **Sitemap:** inclui `/representantes` de cada estado e cidade (~13 mil URLs, ~1 MB; aviso em log acima de 40 mil, quando passa a `generateSitemaps`) e `lastmod` = data da carga mais recente (`/fontes`).
+- **Descoberta:** a página do estado lista as cidades como links; o perfil do parlamentar liga ao estado e ao partido; a página do partido liga aos parlamentares dele. JSON-LD Organization, WebSite e Dataset (CC BY 4.0) na home.

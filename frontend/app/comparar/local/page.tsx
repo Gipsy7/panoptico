@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { metadadosComFiltro } from "@/lib/seo";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
@@ -46,14 +47,16 @@ function endereco(ids: number[], extras: Record<string, string> = {}) {
 }
 
 export async function generateMetadata({ searchParams }: PageProps<"/comparar/local">): Promise<Metadata> {
-  const p = lerParametros(await searchParams);
-  const padrao = { title: "Comparar vereadores e deputados estaduais" };
+  const sp = await searchParams;
+  const p = lerParametros(sp);
+  const padrao = { ...metadadosComFiltro("/comparar/local", sp), title: "Comparar vereadores e deputados estaduais" };
   if (p.ids.length < 2) return padrao;
   const resultado = await getComparacaoLocalN(p.ids);
   if (!resultado.ok) return padrao;
   const nomes = resultado.dados.pessoas.map((x) => x.nome);
   const lista = nomes.length > 2 ? `${nomes.slice(0, -1).join(", ")} e ${nomes[nomes.length - 1]}` : nomes.join(" e ");
   return {
+    ...padrao,
     title: nomes.join(" × "),
     description: `Projetos, presença e votos de ${lista}, lado a lado, com dados da própria casa.`,
   };

@@ -12,6 +12,12 @@ const nextConfig: NextConfig = {
   },
   async headers() {
     return [
+      // O mesmo site responde em outros endereços (teste, reserva, api-*): só o principal vai ao Google.
+      {
+        source: "/:path*",
+        has: [{ type: "host", value: "(?!panoptico\\.social\\.br$).*" }],
+        headers: [{ key: "X-Robots-Tag", value: "noindex" }],
+      },
       {
         source: "/:path*",
         headers: [

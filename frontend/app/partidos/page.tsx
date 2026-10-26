@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { metadadosComFiltro } from "@/lib/seo";
 import Link from "next/link";
 
 import { CabecalhoPagina } from "@/components/ui/cabecalho-pagina";
@@ -14,11 +15,14 @@ import { Resumo2x2 } from "@/components/ui/resumo-2x2";
 import { type PartidoNaLista, getPartidos } from "@/lib/api";
 import { formatarReais, formatarReaisCompacto } from "@/lib/formato";
 
-export const metadata: Metadata = {
-  title: "Dinheiro dos partidos",
-  description:
-    "Quanto cada partido recebeu do Fundo Partidário e do fundo eleitoral, quanto arrecadou, gastou e repassou a candidaturas, segundo a prestação de contas entregue ao TSE.",
-};
+export async function generateMetadata({ searchParams }: PageProps<"/partidos">): Promise<Metadata> {
+  return {
+    title: "Dinheiro dos partidos",
+    description:
+      "Quanto cada partido recebeu do Fundo Partidário e do fundo eleitoral, quanto arrecadou, gastou e repassou a candidaturas, segundo a prestação de contas entregue ao TSE.",
+    ...metadadosComFiltro("/partidos", await searchParams),
+  };
+}
 
 type Coluna = "sigla" | keyof Omit<PartidoNaLista, "sigla">;
 

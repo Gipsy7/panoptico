@@ -12,11 +12,50 @@ import { MENSAGEM_CARREGANDO, reais, textoSemDado } from "@/components/dinheiro-
 import { MapaHome } from "@/components/home-mapa/mapa-home";
 import { Marca } from "@/components/logo";
 import { PanopticoDesenho } from "@/components/panoptico-desenho";
+import { JsonLd } from "@/components/json-ld";
 import { getDinheiroFederal } from "@/lib/api";
+import { SITE_URL } from "@/lib/site";
+
+const REPOSITORIO = "https://github.com/Gipsy7/panoptico";
+
+// Dados estruturados do site: quem publica, o que é e sob que licença os dados abertos são reutilizáveis.
+const JSON_LD_SITE = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "@id": `${SITE_URL}/#organizacao`,
+      name: "Panóptico",
+      url: SITE_URL,
+      sameAs: [REPOSITORIO],
+    },
+    {
+      "@type": "WebSite",
+      "@id": `${SITE_URL}/#site`,
+      url: SITE_URL,
+      name: "Panóptico: quem te representa, às claras",
+      inLanguage: "pt-BR",
+      publisher: { "@id": `${SITE_URL}/#organizacao` },
+    },
+    {
+      "@type": "Dataset",
+      name: "Representantes políticos do Brasil: mandato, gastos, votos e patrimônio",
+      description:
+        "Dados oficiais (Câmara, Senado, TSE, Tesouro e outros) sobre quem representa cada cidadão, do presidente ao vereador, com fonte e data.",
+      url: SITE_URL,
+      inLanguage: "pt-BR",
+      license: "https://creativecommons.org/licenses/by/4.0/",
+      isAccessibleForFree: true,
+      creator: { "@id": `${SITE_URL}/#organizacao` },
+      isBasedOn: REPOSITORIO,
+    },
+  ],
+};
 
 export default function Home() {
   return (
     <div data-largura="larga" className="flex flex-col gap-[var(--esp-16)]">
+      <JsonLd dados={JSON_LD_SITE} />
       <LocalizacaoProvider>
       <section className="grid grid-cols-1 items-start gap-12 pt-2 md:grid-cols-[minmax(0,1fr)_minmax(0,25rem)] md:gap-16 md:pt-10">
         <div className="flex flex-col gap-6">

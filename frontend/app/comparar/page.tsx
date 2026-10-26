@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { metadadosComFiltro } from "@/lib/seo";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
@@ -58,15 +59,17 @@ function endereco(ids: number[], ano?: string | number, extras: Record<string, s
 export async function generateMetadata({ searchParams }: PageProps<"/comparar">): Promise<Metadata> {
   const sp = await searchParams;
   const p = lerParametros(sp);
-  if (p.ids.length < 2) return { title: "Comparar parlamentares" };
+  const base = { ...metadadosComFiltro("/comparar", sp), title: "Comparar parlamentares" };
+  if (p.ids.length < 2) return base;
   const resultado = await getComparacaoN(p.ids, p.ano);
-  if (!resultado.ok) return { title: "Comparar parlamentares" };
+  if (!resultado.ok) return base;
   const nomes = resultado.dados.pessoas.map((x) => x.nome_parlamentar);
   const lista = nomes.length > 2 ? `${nomes.slice(0, -1).join(", ")} e ${nomes[nomes.length - 1]}` : nomes.join(" e ");
   const titulo = nomes.join(" × ");
   // Links antigos (a e b) mantêm a imagem de sempre; os novos usam ids.
   const imagem = p.antigo ? `/comparar/imagem?a=${p.ids[0]}&b=${p.ids[1]}` : `/comparar/imagem?ids=${p.ids.join(",")}`;
   return {
+    ...base,
     title: titulo,
     description: `Gastos, presença, projetos e votos de ${lista}, lado a lado, com dados oficiais.`,
     openGraph: { title: titulo, images: [{ url: imagem, width: 1200, height: 630 }] },

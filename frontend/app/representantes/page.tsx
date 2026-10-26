@@ -42,13 +42,34 @@ import {
   getExecutivo,
   getEmendasMunicipio,
   getVereadores,
+  getMunicipios,
   getRepresentantes,
 } from "@/lib/api";
 import { formatarCep, formatarReais, formatarReaisCompacto } from "@/lib/formato";
 import { type PredioId, contagem, faixaEstado } from "@/lib/predios";
+import { caminhoRepresentantes } from "@/lib/seo";
 import { doEstado } from "@/lib/ufs";
 
-export const metadata: Metadata = { title: "Seus representantes" };
+export async function generateMetadata({ searchParams }: PageProps<"/representantes">): Promise<Metadata> {
+  const sp = await searchParams;
+  const cep = primeiro(sp.cep);
+  const uf = primeiro(sp.uf);
+  const municipio = primeiro(sp.municipio);
+  if (!cep && !uf && !municipio) return { title: "Seus representantes" };
+  const r = await getRepresentantes({ cep, uf, municipio });
+  if (!r.ok) return { title: "Seus representantes", robots: { index: false, follow: true } };
+  const { municipio: cidade, uf: ufDaBusca, estado } = r.dados.localizacao;
+  // A canônica leva só o que define o conteúdo (estado e cidade). O CEP vira a cidade dele.
+  const canonica = caminhoRepresentantes({ uf, municipio: municipio ?? r.dados.localizacao.codigo_ibge ?? undefined }, ufDaBusca);
+  const lugar = cidade ? `${cidade}-${ufDaBusca}` : (estado ?? ufDaBusca);
+  return {
+    title: cidade ? `Quem te representa em ${lugar}` : `Quem representa ${lugar}`,
+    description: cidade
+      ? `Presidente, governador, senadores, deputados, prefeito e vereadores de ${lugar}, com o que cada um faz, gasta e vota. Dados oficiais, com fonte e data.`
+      : `Senadores, deputados federais e estaduais e governo de ${lugar}, com o que cada um faz, gasta e vota. Dados oficiais, com fonte e data.`,
+    alternates: { canonical: canonica },
+  };
+}
 
 type Busca = { cep?: string; uf?: string; municipio?: string };
 
@@ -133,6 +154,7 @@ async function Lista({ cep, uf, municipio }: Busca) {
   const fornecedoresPncp = fornecedoresPncpResultado?.ok ? fornecedoresPncpResultado.dados : null;
   const camara = camaraResultado?.ok ? camaraResultado.dados : null;
   const contas = contasResultado?.ok ? contasResultado.dados : null;
+  const municipiosDoEstado = !localizacao.municipio ? await getMunicipios(localizacao.uf) : null;
   const canais = canaisResultado?.ok ? canaisResultado.dados.itens : [];
   const executivo = executivoResultado.ok ? executivoResultado.dados : null;
   const vereadores = vereadoresResultado?.ok ? vereadoresResultado.dados : null;
@@ -432,6 +454,26 @@ async function Lista({ cep, uf, municipio }: Busca) {
           Projetos e votações da assembleia e das câmaras de {nomeEstado}
         </Link>
       </div>
+
+      {municipiosDoEstado?.ok && municipiosDoEstado.dados.length > 0 && (
+        <details className="painel">
+          <summary className="flex min-h-11 cursor-pointer items-center text-sm font-medium underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-bronze">
+            Ver quem representa cada cidade de {nomeEstado} ({municipiosDoEstado.dados.length.toLocaleString("pt-BR")})
+          </summary>
+          <ul className="mt-2 grid grid-cols-1 gap-x-4 sm:grid-cols-2">
+            {municipiosDoEstado.dados.map((m) => (
+              <li key={m.ibge}>
+                <Link
+                  href={caminhoRepresentantes({ uf: m.uf, municipio: m.ibge })}
+                  className="alvo-link text-sm underline underline-offset-2"
+                >
+                  {m.nome}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </details>
+      )}
 
       <FonteRodape fonte="Dados Abertos da Câmara e do Senado" atualizadoEm={atualizado_em} />
     </article>

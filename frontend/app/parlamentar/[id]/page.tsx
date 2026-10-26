@@ -318,6 +318,21 @@ async function Perfil({
             Comparar com outro parlamentar
           </Link>
         </div>
+        <div className="flex flex-col gap-1">
+          {p.uf && (
+            <Link href={`/representantes?uf=${p.uf}`} className="alvo-link self-start text-sm text-muted-foreground underline underline-offset-4">
+              Ver quem mais representa o estado ({p.uf})
+            </Link>
+          )}
+          {p.partido && (
+            <Link
+              href={`/parlamentares?partido=${encodeURIComponent(p.partido)}`}
+              className="alvo-link self-start text-sm text-muted-foreground underline underline-offset-4"
+            >
+              Ver os outros parlamentares do {p.partido}
+            </Link>
+          )}
+        </div>
         {p.uf && (
           <Link
             href={`/impostos-e-repasses/${p.uf}`}

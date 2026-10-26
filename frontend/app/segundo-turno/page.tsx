@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { metadadosComFiltro } from "@/lib/seo";
 import Link from "next/link";
 
 import { AvisoErro } from "@/components/aviso-erro";
@@ -34,8 +35,10 @@ function lerBusca(sp: Record<string, string | string[] | undefined>): Busca {
 }
 
 export async function generateMetadata({ searchParams }: PageProps<"/segundo-turno">): Promise<Metadata> {
-  const busca = lerBusca(await searchParams);
+  const sp = await searchParams;
+  const busca = lerBusca(sp);
   const base = {
+    ...metadadosComFiltro("/segundo-turno", sp),
     title: "Compare os candidatos do 2º turno",
     description: "Digite o CEP e veja, lado a lado, os candidatos do 2º turno, com dados oficiais do TSE.",
   };
@@ -46,6 +49,7 @@ export async function generateMetadata({ searchParams }: PageProps<"/segundo-tur
   const titulo = `2º turno em ${estado}`;
   const nomes = r.dados.disputas.flatMap((d) => d.candidatos.map((c) => c.nome_urna));
   return {
+    ...base,
     title: titulo,
     description: nomes.length
       ? `${nomes.join(", ")}: bens, campanha, eleições anteriores e registros na CGU e no TCU, lado a lado, com dados oficiais.`

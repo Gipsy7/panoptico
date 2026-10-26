@@ -12,7 +12,9 @@ const TEXTO = `# Panóptico
 - [Início (busca por CEP)](${SITE_URL}/): digite o CEP e veja quem o representa.
 - Perfil de deputado federal ou senador: ${SITE_URL}/parlamentar/{id}
 - Cidade (vereadores, prefeitura, repasses): ${SITE_URL}/cidade/{codigo-ibge}
-- [Representantes](${SITE_URL}/representantes): quem representa o cidadão em cada nível.
+- [Representantes](${SITE_URL}/representantes): quem representa o cidadão em cada nível. Por cidade: ${SITE_URL}/representantes?uf={UF}&municipio={codigo-ibge}; por estado: ${SITE_URL}/representantes?uf={UF}.
+- Deputado estadual: ${SITE_URL}/deputado-estadual/{id}; vereador: ${SITE_URL}/vereador/{id}; eleitos de 2026: ${SITE_URL}/eleito/{id}.
+- [Todos os parlamentares](${SITE_URL}/parlamentares): lista de deputados federais e senadores, filtrável por estado e partido.
 - [Partidos](${SITE_URL}/partidos): dinheiro público e contas dos partidos.
 - [Projetos e votações](${SITE_URL}/projetos): busca por número ou assunto; cada projeto mostra o que diz, as votações nominais, quem votou, o que disseram em Plenário e o caminho. Páginas: ${SITE_URL}/projeto/{camara|senado}/{id}, ${SITE_URL}/projeto/local/{id}, ${SITE_URL}/votacao/{camara|senado}/{id}, ${SITE_URL}/votacao/local/{id}.
 
@@ -26,6 +28,7 @@ const TEXTO = `# Panóptico
 
 ## Dados abertos e licenças
 
+- [Mapa do site](${SITE_URL}/sitemap.xml): todas as páginas de cidades, parlamentares e projetos.
 - [Código-fonte](${REPOSITORIO}): licença AGPL-3.0.
 - [Licença dos dados](${LICENCA_DADOS}): os arquivos de dados abertos (Parquet e CSV.gz, gerados por backend/exportar) estão sob CC BY 4.0; é preciso dar crédito ao Panóptico e à fonte oficial.
 - Nada de CPF, título de eleitor ou data de nascimento é publicado; doadores pessoas físicas não têm nome exibido.

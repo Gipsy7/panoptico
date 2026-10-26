@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { metadadosComFiltro } from "@/lib/seo";
 import Form from "next/form";
 import Link from "next/link";
 
@@ -35,11 +36,14 @@ import {
 import { UFS } from "@/lib/ufs";
 import { LinkExterno } from "@/components/link-externo";
 
-export const metadata: Metadata = {
-  title: "Projetos e votações",
-  description:
-    "Procure um projeto de lei pelo número ou por uma palavra: o que ele diz, em que pé está, quem votou e o que disseram. Congresso, assembleias e câmaras municipais, com dado oficial.",
-};
+export async function generateMetadata({ searchParams }: PageProps<"/projetos">): Promise<Metadata> {
+  return {
+    title: "Projetos e votações",
+    description:
+      "Procure um projeto de lei pelo número ou por uma palavra: o que ele diz, em que pé está, quem votou e o que disseram. Congresso, assembleias e câmaras municipais, com dado oficial.",
+    ...metadadosComFiltro("/projetos", await searchParams),
+  };
+}
 
 const DIAS_PAUTA = 14;
 

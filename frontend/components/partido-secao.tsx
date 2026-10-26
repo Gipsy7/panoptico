@@ -102,6 +102,12 @@ export function PartidoSecao({ dados }: { dados: PartidoDetalhe }) {
             ))}
           </nav>
         )}
+        <Link
+          href={`/parlamentares?partido=${encodeURIComponent(dados.sigla)}`}
+          className="alvo-link self-start text-sm font-medium text-primary underline underline-offset-4"
+        >
+          Ver os deputados e senadores do {dados.sigla}
+        </Link>
       </header>
 
       <section aria-labelledby="partido-resumo" className="revelar flex flex-col gap-3">
