@@ -14,6 +14,10 @@ description: Como operar o Panóptico em produção — Vercel (site e API), Neo
 | Banco | Neon (plano Launch, pago por uso; ver travas de custo no README) | — |
 | Ingestão diária | `.github/workflows/ingestao.yml`, 6h de Brasília | Actions do repo `Gipsy7/panoptico` |
 | CI | `.github/workflows/ci.yml` (pytest com Postgres, ruff, lint e build) | a cada push |
+| Cloudflare | DNS da zona (plano Free, CNAME com proxy), cache e firewall da API; nameservers `olga`/`steven.ns.cloudflare.com` no Registro.br | painel Cloudflare |
+| Netlify | Reserva do site (site `panoptico`, `frontend/netlify.toml`), deploy só pelo `reserva-netlify.yml` | https://panoptico.netlify.app |
+| Oracle | VM `panoptico-reserva-micro` (IP 163.176.196.22), reserva da API em docker compose + túnel (`deploy/reserva`) | `api-reserva.panoptico.social.br` |
+| Worker `panoptico-troca` | `infra/cloudflare/troca`: troca o CNAME do site e da api entre principal e reserva | https://panoptico-troca.mikael-dev.workers.dev |
 
 Conta Vercel: `gipsy7` (time `gipsy7s-projects`, plano Hobby). Repositório público. Guia humano completo: `docs/DEPLOY_GRATUITO.md`.
 
@@ -89,6 +93,24 @@ curl -s "https://dns.google/resolve?name=api.panoptico.social.br&type=CNAME"
 ## DNS (Registro.br, modo avançado)
 
 Zona atual: `A` da raiz → `216.198.79.1` e `64.29.17.1`; `CNAME www` e `CNAME api` → valores `*.vercel-dns-017.com` mostrados pela Vercel; três `TXT _vercel` de verificação. O DNS fica no próprio Registro.br — não mude os servidores DNS nem ative DNSSEC sem combinar com o usuário. Valores atuais sempre em `/v6/domains/<dominio>/config`.
+
+## Reserva e troca
+
+Detalhes e o porquê em `docs/DEPLOY_GRATUITO.md` ("Reserva e troca automática") e `infra/cloudflare/troca/LEIAME.md`. Nunca leia nem imprima `CF_TOKEN`, `CHAVE_PAINEL` (`~/.panoptico/chave_painel`), `TUNNEL_TOKEN` nem o `.env` da VM.
+
+```bash
+# Estado do Worker (a chave vai na URL; leia do arquivo sem imprimir)
+curl -s "https://panoptico-troca.mikael-dev.workers.dev/estado?chave=$(cat ~/.panoptico/chave_painel)"   # também /dns e /diagnostico; POST /preparar e /configurar
+# Forçar o modo (auto|principal|reserva|observar): wrangler kv key put (formato em infra/cloudflare/troca/LEIAME.md)
+cd infra/cloudflare/troca && npx wrangler deploy
+# VM de reserva
+ssh -i ~/.ssh/panoptico_oracle ubuntu@163.176.196.22
+journalctl -u panoptico-atualizar        # na VM: atualização a cada 10 min a partir do main
+docker compose ps                        # na VM, em /opt/panoptico/deploy/reserva
+# OCI CLI (sem instalar): python -m uv tool run --from oci-cli oci ...   ou   ~/.local/bin/oci ...
+```
+
+O Worker troca sozinho (2 falhas seguidas, reserva; 10 sucessos, volta). Para manutenção, ponha em `observar` ou `principal` antes. A reserva nunca roda migração.
 
 ## Alternativa
 

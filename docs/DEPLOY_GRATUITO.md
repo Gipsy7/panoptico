@@ -91,6 +91,40 @@ Na zona DNS do domínio, crie os registros que a Vercel mostrar em **Settings �
 
 Use os valores exatos da tela da Vercel. A propagação leva de minutos a algumas horas, e o HTTPS é emitido sozinho.
 
+## Reserva e troca automática (Cloudflare, Netlify, Oracle)
+
+**Por quê.** Em 25/10/2026 o robô de IA da Meta (`meta-externalagent`, cerca de 2 acessos por segundo em todos os perfis) esgotou as 4 h de "Fluid Active CPU" do plano Hobby da Vercel. A conta foi pausada em 26/10 (402 `DEPLOYMENT_DISABLED`) até 1º/11. A casca de cada perfil estava em cache (PPR), mas o conteúdo dinâmico rodava a função e chamava a API de 5 a 10 vezes. O robô foi bloqueado no firewall da Vercel (regra "Bloquear robos de coleta para IA") e em `robots.ts`.
+
+**Arquitetura.**
+
+- O **Cloudflare (plano Free)** é o DNS do domínio (nameservers `olga` e `steven.ns.cloudflare.com`, trocados no Registro.br). `@`, `www` e `api` são CNAME com proxy; `www` aponta para `@`, e uma regra de redirecionamento 301 leva `www` ao domínio sem `www`.
+- **Site:** principal na Vercel (`cname.vercel-dns.com`); reserva na Netlify (site `panoptico`, `panoptico.netlify.app`, `frontend/netlify.toml`). O deploy da Netlify sai só pelo workflow `reserva-netlify.yml` (segunda-feira ou manual), porque cada deploy gasta 15 dos 300 créditos mensais.
+- **API:** principal na Vercel; reserva numa VM Oracle Always Free, `panoptico-reserva-micro` (AMD, IP 163.176.196.22, 1 GB de RAM), enquanto a ARM A1 não tem vaga em São Paulo. Ela roda `deploy/reserva` (docker compose: `api` com `SERVERLESS=1` e 2 processos via `API_WORKERS`, mais `cloudflared`), por um túnel nomeado `panoptico-api` (id `1af7f079-c4e0-4439-a4c3-bc4a54f75279`), com os hostnames `api-reserva.panoptico.social.br` e `api` (quando a reserva está ativa).
+- **Banco:** o Neon continua um só, para principal e reserva (pooler). A VM nunca roda migração.
+- **Worker `panoptico-troca`** (`infra/cloudflare/troca`, detalhes em `LEIAME.md`): cron a cada minuto, testa as origens e troca o CNAME do site e da `api` pela API do Cloudflare. Duas falhas seguidas da principal levam à reserva (se ela estiver saudável); dez sucessos seguidos trazem de volta. O estado fica no KV `ESTADO`, chave `estado`; modos `auto`, `principal`, `reserva` e `observar`.
+
+**Ver qual origem está ativa.** Os endpoints ficam em `https://panoptico-troca.mikael-dev.workers.dev` e exigem `?chave=` (segredo `CHAVE_PAINEL`, guardado em `~/.panoptico/chave_painel` na máquina do dono; não imprima):
+
+- `GET /estado`: modo, origem ativa e contadores; `GET /dns`: registros atuais da zona.
+- `GET /diagnostico`: formato do token (sem o valor).
+- `POST /preparar`: deixa a zona no formato da troca.
+- `POST /configurar`: cache da API respeitando o `s-maxage` (exceto `/saude`), firewall contra robôs de IA, redirect do `www`, Block AI bots e SSL Full.
+
+**Forçar o modo.** Grave o estado no KV com `wrangler kv key put` (comando e formato do JSON em `infra/cloudflare/troca/LEIAME.md`); `principal` ou `reserva` fixam a origem, `observar` só testa sem trocar, `auto` devolve o controle ao Worker. O segredo `CF_TOKEN` é um token de conta com DNS, Cache Settings, Zone Settings, Zone WAF, Bot Management e Dynamic Redirects, restrito à zona.
+
+**Limite por IP na API.** Não existe no Cloudflare: no plano Free o rate limiting não pode usar `http.user_agent` para excluir o servidor do site. Na Vercel a regra "Limite por IP na API" continua, mas atrás do proxy ela enxerga os IPs do Cloudflare; confira em 1º/11 (ver abaixo).
+
+**Em 1º/11 (quando a conta Vercel voltar).**
+
+1. Conferir o site e a API pela Vercel atrás do proxy (certificado, SSL Full) e se o Worker voltou a origem para a principal.
+2. Conferir se a regra "Limite por IP na API" da Vercel não limita todo mundo por ver só IPs do Cloudflare.
+3. Trocar a senha do Neon (apareceu num print) e atualizar `DATABASE_URL` no GitHub, na Vercel e no `.env` da VM (o dono cola; ninguém lê).
+4. Passar o deploy da Netlify para a cada 15 dias.
+
+**Próximas etapas.** Quando a ARM sair, subir também o site nela (`frontend/Dockerfile`), medir e inverter: Oracle principal, Vercel primeira reserva, Netlify última reserva só do site. O Worker passa a usar uma lista de origens em ordem.
+
+**Manutenção da VM.** Acesso: `ssh -i ~/.ssh/panoptico_oracle ubuntu@163.176.196.22`. O timer `panoptico-atualizar` busca o `main` a cada 10 minutos e reconstrói o compose (logs: `journalctl -u panoptico-atualizar`). O `.env` (`DATABASE_URL` do Neon com pooler, `CORS_ORIGINS`, `TUNNEL_TOKEN`) é preenchido pelo dono e nunca é lido. Teste: `curl localhost:8000/saude` na VM. Guia de instalação: `deploy/reserva/LEIAME.md`.
+
 ## Como publicar uma mudança
 
 Trabalhe no branch **`dev`** e envie (`git push origin dev`). O workflow **Publicar** (`.github/workflows/publicar.yml`) faz o resto:

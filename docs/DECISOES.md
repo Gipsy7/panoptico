@@ -123,6 +123,7 @@
 - [2026-10-23: carreira desde 1994 (candidaturas antigas do TSE)](#2026-10-23-carreira-desde-1994-candidaturas-antigas-do-tse)
 - [2026-10-23: um perfil por pessoa (reeleitos e 2º turno)](#2026-10-23-um-perfil-por-pessoa-reeleitos-e-2º-turno)
 - [2026-10-25: acessibilidade para deficiência visual](#2026-10-25-acessibilidade-para-deficiência-visual)
+- [2026-10-26: reserva da Vercel com troca automática](#2026-10-26-reserva-da-vercel-com-troca-automática)
 
 ## 2026-10-06: stack inicial
 
@@ -1388,3 +1389,17 @@ Problema: o Panóptico é um site de transparência pública, usado por qualquer
 - **Teste com pessoas reais:** fica para depois, por decisão do dono (25/10). Testes automáticos pegam de 30% a 40% dos problemas de leitor de tela; por isso cada onda também tem fluxos de teclado com os anúncios conferidos por `aria`.
 - **Ritmo:** ondas pequenas, cada uma conferida no celular do dono pela rede local antes do push, sem mudar o site de forma que atrapalhe a estabilidade até 25/12 (concurso OBVC).
 - **Ondas:** 0, a régua (lint, Playwright e axe, workflow, documentação e agentes, sem mudar a tela); 1, alto impacto e baixo risco (foco visível, busca com combobox, mapa e formulários, contraste, links externos); 2, diálogos e anúncios (fundo `inert`, `role="status"` curto, tabelas, textos de instrução, `alt` e nomes); 3, mapa pelo teclado e pelo leitor de tela (uma parada de Tab, setas, lista alternativa, verificação extra); 4, gráficos, tamanho de texto e zoom (equivalente em texto, nada só por cor, 14 px no mínimo, zoom de 200% e 320 px); 5, página `/acessibilidade` com a declaração, atalhos Alt+1 a Alt+3 e canal para relatar problemas.
+
+## 2026-10-26: reserva da Vercel com troca automática
+
+Problema: o robô de IA da Meta (`meta-externalagent`, cerca de 2 acessos/s em todos os perfis) esgotou as 4 h de "Fluid Active CPU" do plano Hobby da Vercel, e a conta foi pausada em 26/10 (402 `DEPLOYMENT_DISABLED`) até 1º/11. Ele estava na casca em cache do PPR, mas o conteúdo dinâmico de cada perfil rodava a função e chamava a API de 5 a 10 vezes. O robô foi bloqueado no firewall da Vercel e em `robots.ts`; o site, porém, não podia depender de um único provedor.
+
+- **DNS no Cloudflare (Free):** `@`, `www` e `api` como CNAME com proxy; 301 de `www` para o domínio sem `www`; nameservers trocados no Registro.br.
+- **Site:** principal Vercel, reserva Netlify (deploy só pelo `reserva-netlify.yml`, segunda-feira ou manual, por causa dos 300 créditos/mês).
+- **API:** principal Vercel, reserva numa VM Oracle Always Free (hoje a micro AMD de 1 GB, porque a ARM A1 não tem vaga em São Paulo), com túnel Cloudflare e o mesmo Neon pelo pooler. A VM se atualiza do `main` a cada 10 min e nunca migra.
+- **Worker `panoptico-troca`:** testa as origens a cada minuto e troca o CNAME pela API do Cloudflare; 2 falhas seguidas levam à reserva, 10 sucessos trazem de volta; modos `auto`/`principal`/`reserva`/`observar` no KV.
+- **Sem limite por IP no Cloudflare:** no plano Free o rate limiting não exclui o servidor do site por `http.user_agent`. Fica a regra da Vercel, a conferir em 1º/11 por ver os IPs do Cloudflare.
+- **Banco:** o Neon continua um só para as duas origens (sem segundo banco).
+- **Depois de 1º/11:** com a ARM, subir o site nela, medir e inverter (Oracle principal, Vercel 1ª reserva, Netlify última, só do site); Worker com lista em ordem; deploy da Netlify a cada 15 dias; trocar a senha do Neon; conferir a Vercel atrás do proxy.
+
+Operação em `docs/DEPLOY_GRATUITO.md` ("Reserva e troca automática").

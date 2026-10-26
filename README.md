@@ -373,6 +373,7 @@ Nunca saem CPF, título, data de nascimento, pessoa sem vínculo publicável, su
 
 - **Hoje:** Vercel (site e API), Neon Launch (banco, pago por uso) e GitHub Actions (ingestões). Detalhes em [docs/DEPLOY_GRATUITO.md](docs/DEPLOY_GRATUITO.md).
 - **Ingestões:** diária (federal e PNCP enxuto), semanal (câmaras e assembleias; Justiça e identidade às terças, incremental), mensal (TSE partidos, SICONFI, TCEs).
+- **Reserva:** DNS no Cloudflare; site com reserva na Netlify e API com reserva numa VM Oracle Always Free (túnel Cloudflare, mesmo Neon). O Worker `panoptico-troca` testa as origens a cada minuto e troca o DNS sozinho ([docs/DEPLOY_GRATUITO.md](docs/DEPLOY_GRATUITO.md), "Reserva e troca automática").
 - **Travas de custo:** cache de 1 h na CDN, firewall de 120 req/min por IP, banco travado em 0,25 CU e spending limit com alerta. Custo esperado: R$ 5 a 20 por mês ([Apoie](https://panoptico.social.br/apoie)).
 - **Alternativa:** VPS única com docker compose e HTTPS automático ([docs/DEPLOY.md](docs/DEPLOY.md)).
 
