@@ -236,11 +236,11 @@ Documentação interativa: [api.panoptico.social.br/docs](https://api.panoptico.
 | Camada | Tecnologia |
 |---|---|
 | Ingestão | Python 3.12, httpx, SQLAlchemy 2, Alembic |
-| Banco | PostgreSQL (Neon em produção) |
+| Banco | PostgreSQL 18 (na VPS, em produção) |
 | API | FastAPI, Pydantic |
 | Site | Next.js 16 (App Router, Cache Components), React 19, Tailwind CSS 4, shadcn/ui |
 | Qualidade | pytest, respx, Vitest, ruff, ESLint, TypeScript |
-| Infra | Vercel, Neon, GitHub Actions |
+| Infra | VPS Locaweb, Docker Compose, Cloudflare, GitHub Actions |
 
 ```
 panoptico/
@@ -371,11 +371,12 @@ Nunca saem CPF, título, data de nascimento, pessoa sem vínculo publicável, su
 
 <br>
 
-- **Hoje:** Vercel (site e API), Neon Launch (banco, pago por uso) e GitHub Actions (ingestões). Detalhes em [docs/DEPLOY_GRATUITO.md](docs/DEPLOY_GRATUITO.md).
-- **Ingestões:** diária (federal e PNCP enxuto), semanal (câmaras e assembleias; Justiça e identidade às terças, incremental), mensal (TSE partidos, SICONFI, TCEs).
-- **Reserva:** DNS no Cloudflare; site com reserva na Netlify e API com reserva numa VM Oracle Always Free (túnel Cloudflare, mesmo Neon). O Worker `panoptico-troca` testa as origens a cada minuto e troca o DNS sozinho ([docs/DEPLOY_GRATUITO.md](docs/DEPLOY_GRATUITO.md), "Reserva e troca automática").
-- **Travas de custo:** cache de 1 h na CDN, firewall de 120 req/min por IP, banco travado em 0,25 CU e spending limit com alerta. Custo esperado: R$ 5 a 20 por mês ([Apoie](https://panoptico.social.br/apoie)).
-- **Alternativa:** VPS única com docker compose e HTTPS automático ([docs/DEPLOY.md](docs/DEPLOY.md)).
+- **Hoje (desde 26/10/2026):** uma VPS Locaweb em São Paulo (2 vCPU, 4 GB, 70 GB) com banco, API, site e ingestão, atrás do Cloudflare por túnel, sem portas abertas além do SSH. Push no `dev` → Publicar → `main` → a VPS se atualiza em até 10 min. Backup diário em bucket Oracle. Detalhes em [deploy/vps/LEIAME.md](deploy/vps/LEIAME.md).
+- **Ingestões:** agenda systemd na VPS (diária, PNCP, justiça, câmaras, mensal). O GitHub Actions ainda alimenta o Neon por uma semana de teste.
+- **Reservas:** site na Netlify; API numa VM Oracle (túnel Cloudflare, lendo o Neon, que será cancelado); a Vercel está pausada. O Worker `panoptico-troca` testa as origens e troca o DNS sozinho (3 falhas seguidas para a reserva, 10 sucessos para voltar). Histórico em [docs/DEPLOY_GRATUITO.md](docs/DEPLOY_GRATUITO.md).
+- **Cloudflare:** DNS, proxy e cache (API por `s-maxage`, páginas 30 min); o firewall bloqueia só coletores em massa e robôs de SEO e libera os robôs de pesquisa e de treino das grandes IAs.
+- **Custo:** a VPS tem preço fixo, sem as travas de custo do Neon/Vercel; a Oracle fica no grátis (orçamento com alerta e trava de cotas). Veja a página [Apoie](https://panoptico.social.br/apoie).
+- **Alternativa:** VPS genérica com docker compose e HTTPS automático ([docs/DEPLOY.md](docs/DEPLOY.md)).
 
 </details>
 

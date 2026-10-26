@@ -126,6 +126,7 @@
 - [2026-10-26: reserva da Vercel com troca automática](#2026-10-26-reserva-da-vercel-com-troca-automática)
 - [2026-10-26: busca no Google e nas IAs (canônicas, noindex, robôs)](#2026-10-26-busca-no-google-e-nas-ias-canônicas-noindex-robôs)
 - [2026-10-26: resultado do 2º turno pela divulgação do TSE](#2026-10-26-resultado-do-2º-turno-pela-divulgação-do-tse)
+- [2026-10-26: produção numa VPS (Locaweb) com banco próprio](#2026-10-26-produção-numa-vps-locaweb-com-banco-próprio)
 
 ## 2026-10-06: stack inicial
 
@@ -1426,3 +1427,12 @@ Os dados abertos (`consulta_cand_2026`, `votacao_candidato_munzona_2026`) ficara
 - **Dados abertos não brigam:** as cargas normais de 2026 não trocam ELEITO/NÃO ELEITO por "2º TURNO" nem os votos do 2º turno pelos do 1º (arquivo pré-apuração); quando o arquivo trouxer o resultado, regrava os mesmos valores.
 - **Data da carga = totalização do JSON** (`fonte_ingestao.concluido_em`; `executar_ingestao` passou a respeitar um `concluido_em` já fixado pela carga). `/segundo-turno` devolve `resultado_fonte_url` e `resultado_atualizado_em`.
 
+## 2026-10-26: produção numa VPS (Locaweb) com banco próprio
+
+A produção saiu da Vercel (site e API) e do Neon (banco) para uma VPS Locaweb em São Paulo (Ubuntu 24.04; 2 vCPU, 4 GB, 70 GB), atrás do Cloudflare por túnel (`panoptico-vps`), sem portas abertas além do SSH. Postgres 18, API, site e ingestão rodam nela (`deploy/vps/`).
+
+- **Por quê:** a CPU da Vercel se esgotou com o robô da Meta (o plano foi pausado); a API em São Paulo falava com o Neon nos EUA, com 114 ms de latência por consulta; o Neon custava por uso e o plano grátis tem 0,5 GB para um banco de 2,1 GB.
+- **Reservas:** Netlify (site); Oracle micro (`deploy/reserva`, API); Neon segue recebendo a ingestão do GitHub Actions por uma semana de teste e depois será cancelado; uma ARM grátis da Oracle (2 OCPU, 12 GB) vai virar a reserva completa com réplica lógica (pendente). O Worker `panoptico-troca` troca com 3 falhas seguidas e volta com 10 sucessos, e só grava no KV quando o estado muda.
+- **Cloudflare:** DNS e proxy; cache da API (respeita `s-maxage`) e das páginas (30 min), em camadas; firewall bloqueia só coletores em massa e robôs de SEO, e libera os robôs de pesquisa e de treino das grandes IAs. Gasto na Oracle limitado por orçamento `panoptico-gasto-zero` e pela trava de cotas `panoptico-so-gratis`.
+- **Operação:** push no `dev` → Publicar → `main` → a VPS atualiza em até 10 min; backup diário no bucket Oracle `panoptico-backups`, com nomes que se repetem (dia da semana e mês) para não encher.
+- **O que caiu:** as travas de custo do Neon/Vercel (CDN de 1 h como proteção, 0,25 CU, "nada de recarga completa na produção", limite de 100 deploys/dia, recorte enxuto por custo). Recarga completa e dados do acervo passam a ser possíveis, respeitando disco e RAM: cargas pesadas de madrugada e em sequência (trava `federal` no flock). Fontes só-Brasil podem rodar na produção, que fica no Brasil. A regra de não contornar bloqueio continua igual.

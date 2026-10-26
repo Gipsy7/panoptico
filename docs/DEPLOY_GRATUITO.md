@@ -1,5 +1,7 @@
 # Publicação gratuita (Vercel + Neon + GitHub Actions)
 
+> **Aviso (26/10/2026):** a produção saiu da Vercel e do Neon e hoje é uma VPS Locaweb com banco próprio, atrás do Cloudflare. Veja [../deploy/vps/LEIAME.md](../deploy/vps/LEIAME.md) e, abaixo, "Reserva e troca automática". Vercel, Neon e Netlify são reservas; o restante deste arquivo é o histórico da hospedagem anterior e as travas de custo dele não valem mais.
+
 | Parte | Onde | Endereço |
 |---|---|---|
 | Site (Next.js) | Vercel, projeto `panoptico` | https://panoptico.social.br |
