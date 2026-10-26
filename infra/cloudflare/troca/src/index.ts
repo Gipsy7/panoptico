@@ -187,9 +187,40 @@ export default {
     if (req.method === "POST" && url.pathname === "/configurar") {
       return Response.json(await configurar(env), semCache);
     }
+    if (req.method === "GET" && url.pathname === "/trafego") {
+      const horas = Math.min(Number(url.searchParams.get("horas") ?? "1") || 1, 24);
+      return Response.json(await trafego(env, horas), semCache);
+    }
     return new Response("nao encontrado", { status: 404 });
   },
 };
+
+/** De onde vêm os acessos à zona (Analytics do Cloudflare; o token precisa de Analytics Read). */
+async function trafego(env: Env, horas: number): Promise<unknown> {
+  const desde = new Date(Date.now() - horas * 3600_000).toISOString();
+  const grupo = (nome: string, dims: string) =>
+    `${nome}: httpRequestsAdaptiveGroups(limit: 15, filter: {datetime_geq: "${desde}"}, orderBy: [count_DESC]) { count dimensions { ${dims} } }`;
+  const query = `{ viewer { zones(filter: {zoneTag: "${env.ZONE_ID}"}) {
+    ${grupo("porRobo", "userAgent")}
+    ${grupo("porDesfecho", "securityAction cacheStatus edgeResponseStatus")}
+    ${grupo("porHost", "clientRequestHTTPHost")}
+    ${grupo("porCaminho", "clientRequestPath")}
+    ${grupo("porPais", "clientCountryName")}
+    ${grupo("porIp", "clientIP")}
+  } } }`;
+  // O GraphQL não traz `success`: lê direto, sem passar por cf().
+  const r = await fetch("https://api.cloudflare.com/client/v4/graphql", {
+    method: "POST",
+    headers: { authorization: `Bearer ${env.CF_TOKEN.trim()}`, "content-type": "application/json" },
+    body: JSON.stringify({ query }),
+  });
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const j: any = await r.json().catch(() => ({ erro: `HTTP ${r.status}` }));
+  if (j?.errors?.length) return { erro: j.errors.map((e: { message: string }) => e.message) };
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const z = (j as any)?.data?.viewer?.zones?.[0];
+  return z ? { desde, ...z } : j;
+}
 
 // Robôs que coletam páginas para treinar IA (mesma lista do robots.txt e da regra da Vercel).
 const ROBOS_DE_IA = [
