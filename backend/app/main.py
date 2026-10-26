@@ -51,6 +51,12 @@ async def cache_na_cdn(request: Request, call_next):
         and "cache-control" not in resposta.headers
     ):
         resposta.headers["Cache-Control"] = CACHE_CDN
+        # A CDN guarda uma cópia só por endereço, sem olhar a origem do pedido: se o servidor do
+        # site (sem Origin) chegasse primeiro, a cópia ficaria sem CORS e o navegador seria
+        # barrado. A API é pública e só de leitura, então a cópia serve a qualquer origem.
+        resposta.headers["Access-Control-Allow-Origin"] = "*"
+        if "vary" in resposta.headers:
+            del resposta.headers["vary"]
     return resposta
 
 
