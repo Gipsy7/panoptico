@@ -247,6 +247,20 @@ async function configurar(env: Env): Promise<Record<string, string>> {
             action: "set_cache_settings",
             action_parameters: { cache: true, edge_ttl: { mode: "respect_origin" } },
           },
+          {
+            // O Next manda `no-store` em toda página (PPR), então cada visita rodava a função da
+            // origem (foi o que esgotou a CPU da Vercel e os créditos da Netlify). O site não tem
+            // login nem conteúdo por pessoa: a mesma página serve a todos por 30 min. A navegação
+            // do Next usa `?_rsc=`, que entra na chave do cache e não se mistura com o HTML.
+            description: "Site: páginas na borda por 30 min",
+            expression: `(http.host eq "${env.REGISTRO_SITE}" and http.request.method eq "GET" and not starts_with(http.request.uri.path, "/cdn-cgi"))`,
+            action: "set_cache_settings",
+            action_parameters: {
+              cache: true,
+              edge_ttl: { mode: "override_origin", default: 1800 },
+              browser_ttl: { mode: "respect_origin" },
+            },
+          },
         ]),
     ],
     [
