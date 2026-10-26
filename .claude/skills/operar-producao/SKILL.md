@@ -42,7 +42,7 @@ Não leia nem imprima o `.env` da VPS (`POSTGRES_PASSWORD`, `BACKUP_PAR_URL`, `D
 ## VPS: comandos de diagnóstico
 
 ```bash
-ssh -i ~/.ssh/panoptico_vps <usuario>@<ip-da-vps>
+ssh -i ~/.ssh/panoptico_vps root@<IP da VPS: painel da Locaweb ou ACOMPANHAMENTO.md local>
 cd /opt/panoptico/deploy/vps
 docker compose ps                         # banco, api, web, túnel
 docker compose logs --tail 100 api        # ou web, db, cloudflared
