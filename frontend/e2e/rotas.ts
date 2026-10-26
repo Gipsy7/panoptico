@@ -12,4 +12,5 @@ export const ROTAS = [
   "/impostos-e-repasses",
   "/o-panoptico",
   "/perguntas",
+  "/acessibilidade",
 ];

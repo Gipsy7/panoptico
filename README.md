@@ -103,6 +103,8 @@ Emendas estaduais: SC (SC Transferências), por enquanto só na API. O que falta
 
 </details>
 
+> ♿ **Acessível:** meta WCAG 2.2 nível AA e eMAG 3.1; uso só pelo teclado (com atalhos Alt+1, 2 e 3), leitor de tela, letra até 200% e telas a partir de 320 px; testes automáticos todos os dias. Detalhes e limitações em [/acessibilidade](https://panoptico.social.br/acessibilidade).
+
 ## 📏 Princípios
 
 | | |
@@ -290,6 +292,8 @@ npm install && npm run dev
 ```bash
 cd backend && uv run pytest && uv run ruff check && uv run ruff format --check
 cd frontend && npm test && npm run lint && npm run build
+# acessibilidade (axe, teclado, 320 px, 200%) contra um site no ar ou local:
+cd frontend && E2E_BASE_URL=http://localhost:3000 npm run e2e
 ```
 
 O backend usa o banco `panoptico_test` e simula as APIs externas com `respx`, a partir de amostras reais em `backend/tests/fixtures/`. O CI roda tudo a cada push; teste falhando impede a publicação.

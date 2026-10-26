@@ -40,6 +40,16 @@ export const viewport: Viewport = {
   ],
 };
 
+const SALTO =
+  "sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:rounded-lg focus:bg-card focus:px-3 focus:py-2 focus:ring-3 focus:ring-ring/50";
+
+// Atalhos do eMAG (accesskey): Alt+1 conteúdo, Alt+2 menu, Alt+3 busca.
+const SALTOS = [
+  { tecla: "1", href: "#conteudo", rotulo: "Pular para o conteúdo" },
+  { tecla: "2", href: "#menu-principal", rotulo: "Ir para o menu" },
+  { tecla: "3", href: "/#cep", rotulo: "Ir para a busca por CEP" },
+];
+
 const LINK = "alvo-link underline underline-offset-2 hover:text-foreground";
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
@@ -58,17 +68,19 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         />
       </head>
       <body className="flex min-h-full flex-col">
-        <a
-          href="#conteudo"
-          className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:rounded-lg focus:bg-card focus:px-3 focus:py-2 focus:ring-3 focus:ring-ring/50"
-        >
-          Pular para o conteúdo
-        </a>
+        <div className="contents">
+          {SALTOS.map((l) => (
+            // eslint-disable-next-line jsx-a11y/no-access-key -- atalhos 1, 2 e 3 pedidos pelo eMAG
+            <a key={l.tecla} href={l.href} accessKey={l.tecla} className={SALTO}>
+              {l.rotulo}
+            </a>
+          ))}
+        </div>
         <header
           style={{ viewTransitionName: "site-header" }}
           className="sticky top-0 z-40 border-b border-border/70 bg-background/85 backdrop-blur-md"
         >
-          <div className="mx-auto flex w-full max-w-5xl items-center min-h-14 flex-wrap justify-between gap-x-4 gap-y-1 px-4">
+          <div id="menu-principal" tabIndex={-1} className="outline-none mx-auto flex w-full max-w-5xl items-center min-h-14 flex-wrap justify-between gap-x-4 gap-y-1 px-4">
             <Link
               href="/"
               aria-label="Panóptico.social, página inicial"
@@ -79,7 +91,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
             <MenuPrincipal />
           </div>
         </header>
-        <main id="conteudo" className="mx-auto w-full max-w-3xl flex-1 px-4 py-8 has-[[data-largura=larga]]:max-w-5xl">
+        <main id="conteudo" tabIndex={-1} className="outline-none mx-auto w-full max-w-3xl flex-1 px-4 py-8 has-[[data-largura=larga]]:max-w-5xl">
           {children}
         </main>
         <footer className="mt-8 border-t border-border/70">
@@ -110,6 +122,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
               </Link>
               <Link href="/privacidade" className={LINK}>
                 Privacidade
+              </Link>
+              <Link href="/acessibilidade" className={LINK}>
+                Acessibilidade
               </Link>
               <a href="https://github.com/Gipsy7/panoptico" className={LINK}>
                 Código aberto

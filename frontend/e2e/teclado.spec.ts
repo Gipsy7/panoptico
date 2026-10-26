@@ -244,3 +244,24 @@ test("diálogos deixam o fundo inerte: gaveta e menu do celular", async ({ page 
   await expect(gaveta).toBeHidden();
   expect(await page.locator("[inert]").count()).toBe(0);
 });
+
+test("atalhos do eMAG: links com accesskey 1, 2 e 3 existem e ativá-los move o foco", async ({ page }) => {
+  await page.goto("/acessibilidade");
+  const esperados = [
+    { tecla: "1", href: "#conteudo", id: "conteudo" },
+    { tecla: "2", href: "#menu-principal", id: "menu-principal" },
+  ];
+  for (const { tecla, href, id } of esperados) {
+    const salto = page.locator(`a[accesskey="${tecla}"]`);
+    await expect(salto).toHaveAttribute("href", href);
+    await salto.focus();
+    await expect(salto).toBeVisible(); // aparece ao receber foco
+    await page.keyboard.press("Enter");
+    await expect.poll(() => page.evaluate(() => document.activeElement?.id)).toBe(id);
+  }
+  const busca = page.locator('a[accesskey="3"]');
+  await expect(busca).toHaveAttribute("href", "/#cep");
+  await busca.focus();
+  await page.keyboard.press("Enter");
+  await expect(page).toHaveURL(/\/#cep$/);
+});

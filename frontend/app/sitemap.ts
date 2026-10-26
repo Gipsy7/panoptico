@@ -19,6 +19,7 @@ const FIXAS = [
   "/sobre-as-fontes/cobertura",
   "/status",
   "/privacidade",
+  "/acessibilidade",
   "/apoie",
   "/apoiadores",
   "/o-panoptico",
