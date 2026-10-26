@@ -184,9 +184,89 @@ export default {
         return Response.json({ erro: (e as Error).message }, { status: 500 });
       }
     }
+    if (req.method === "POST" && url.pathname === "/configurar") {
+      return Response.json(await configurar(env), semCache);
+    }
     return new Response("nao encontrado", { status: 404 });
   },
 };
+
+// Robôs que coletam páginas para treinar IA (mesma lista do robots.txt e da regra da Vercel).
+const ROBOS_DE_IA = [
+  "meta-externalagent", "gptbot", "claudebot", "anthropic-ai", "bytespider", "ccbot", "amazonbot",
+  "perplexitybot", "cohere-ai", "diffbot", "imagesiftbot", "omgilibot", "petalbot", "ahrefsbot",
+  "semrushbot", "mj12bot", "dataforseobot", "timpibot",
+];
+
+/** Regras da zona: cada fase é gravada inteira (PUT do entrypoint), então rodar de novo não duplica.
+ * Sem limite por IP: no plano Free a regra não pode excluir o User-Agent do servidor do site. */
+async function configurar(env: Env): Promise<Record<string, string>> {
+  const zona = `/zones/${env.ZONE_ID}`;
+  const api = env.REGISTRO_API;
+  const fase = (nome: string, rules: unknown[]) =>
+    cf(env, `${zona}/rulesets/phases/${nome}/entrypoint`, { method: "PUT", body: JSON.stringify({ rules }) });
+  const passos: [string, () => Promise<unknown>][] = [
+    [
+      "cache da API (respeita o s-maxage da origem; /saude fica de fora)",
+      () =>
+        fase("http_request_cache_settings", [
+          {
+            description: "API: cache na borda",
+            expression: `(http.host eq "${api}" and not starts_with(http.request.uri.path, "/saude"))`,
+            action: "set_cache_settings",
+            action_parameters: { cache: true, edge_ttl: { mode: "respect_origin" } },
+          },
+        ]),
+    ],
+    [
+      "bloqueio de robôs de IA (firewall)",
+      () =>
+        fase("http_request_firewall_custom", [
+          {
+            description: "Bloquear robôs de coleta para IA",
+            expression: ROBOS_DE_IA.map((r) => `(lower(http.user_agent) contains "${r}")`).join(" or "),
+            action: "block",
+          },
+        ]),
+    ],
+    [
+      "www leva ao endereço sem www",
+      () =>
+        fase("http_request_dynamic_redirect", [
+          {
+            description: "www para o domínio",
+            expression: `(http.host eq "www.${env.REGISTRO_SITE}")`,
+            action: "redirect",
+            action_parameters: {
+              from_value: {
+                status_code: 301,
+                preserve_query_string: true,
+                target_url: { expression: `concat("https://${env.REGISTRO_SITE}", http.request.uri.path)` },
+              },
+            },
+          },
+        ]),
+    ],
+    [
+      "Block AI bots (gerenciado pelo Cloudflare)",
+      () => cf(env, `${zona}/bot_management`, { method: "PUT", body: JSON.stringify({ ai_bots_protection: "block" }) }),
+    ],
+    [
+      "SSL Full",
+      () => cf(env, `${zona}/settings/ssl`, { method: "PATCH", body: JSON.stringify({ value: "full" }) }),
+    ],
+  ];
+  const resultado: Record<string, string> = {};
+  for (const [nome, passo] of passos) {
+    try {
+      await passo();
+      resultado[nome] = "ok";
+    } catch (e) {
+      resultado[nome] = (e as Error).message.slice(0, 300);
+    }
+  }
+  return resultado;
+}
 
 /** Deixa a zona no formato que a troca espera: raiz, www e api como CNAME com proxy, apontando
  * para o destino ativo segundo o estado (a reserva, enquanto a Vercel estiver pausada). */
