@@ -47,12 +47,18 @@ async function cf(env: Env, caminho: string, init?: RequestInit): Promise<any> {
   const r = await fetch(`https://api.cloudflare.com/client/v4${caminho}`, {
     ...init,
     headers: {
-      authorization: `Bearer ${env.CF_TOKEN}`,
+      authorization: `Bearer ${env.CF_TOKEN.trim()}`,
       "content-type": "application/json",
     },
   });
+  const texto = await r.text();
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const j: any = await r.json();
+  let j: any;
+  try {
+    j = JSON.parse(texto);
+  } catch {
+    throw new Error(`Cloudflare ${r.status}: resposta nao JSON (${texto.slice(0, 120)})`);
+  }
   if (!j.success) throw new Error(`Cloudflare ${r.status}: ${JSON.stringify(j.errors)}`);
   return j;
 }
@@ -66,6 +72,36 @@ async function trocarDns(env: Env, nome: string, destino: string): Promise<void>
     method: "PATCH",
     body: JSON.stringify({ content: destino, proxied: true }),
   });
+}
+
+/** Cria ou corrige um CNAME com proxy. */
+async function garantirCname(env: Env, nome: string, destino: string): Promise<string> {
+  const l = await cf(env, `/zones/${env.ZONE_ID}/dns_records?name=${encodeURIComponent(nome)}&type=CNAME`);
+  const r = l.result?.[0];
+  if (!r) {
+    await cf(env, `/zones/${env.ZONE_ID}/dns_records`, {
+      method: "POST",
+      body: JSON.stringify({ type: "CNAME", name: nome, content: destino, proxied: true, ttl: 1 }),
+    });
+    return `criado CNAME ${nome} -> ${destino}`;
+  }
+  if (r.content === destino && r.proxied) return `ok CNAME ${nome} -> ${destino}`;
+  await cf(env, `/zones/${env.ZONE_ID}/dns_records/${r.id}`, {
+    method: "PATCH",
+    body: JSON.stringify({ content: destino, proxied: true }),
+  });
+  return `corrigido CNAME ${nome} -> ${destino}`;
+}
+
+async function listarDns(env: Env): Promise<{ nome: string; tipo: string; destino: string; proxy: boolean }[]> {
+  const l = await cf(env, `/zones/${env.ZONE_ID}/dns_records?per_page=100`);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return (l.result ?? []).map((r: any) => ({
+    nome: r.name,
+    tipo: r.type,
+    destino: r.type === "TXT" ? "(texto)" : r.content,
+    proxy: r.proxied,
+  }));
 }
 
 async function lerEstado(env: Env): Promise<Estados> {
@@ -114,10 +150,61 @@ export default {
 
   async fetch(req: Request, env: Env): Promise<Response> {
     const url = new URL(req.url);
-    if (req.method !== "GET" || url.pathname !== "/estado") return new Response("nao encontrado", { status: 404 });
     if (!env.CHAVE_PAINEL || url.searchParams.get("chave") !== env.CHAVE_PAINEL) {
       return new Response("nao autorizado", { status: 401 });
     }
-    return Response.json(await lerEstado(env), { headers: { "cache-control": "no-store" } });
+    const semCache = { headers: { "cache-control": "no-store" } };
+    if (req.method === "GET" && url.pathname === "/estado") return Response.json(await lerEstado(env), semCache);
+    if (req.method === "GET" && url.pathname === "/diagnostico") {
+      const t = env.CF_TOKEN ?? "";
+      const verificar = async (caminho: string) => {
+        const r = await fetch(`https://api.cloudflare.com/client/v4${caminho}`, {
+          headers: { authorization: `Bearer ${t.trim()}` },
+        });
+        return { status: r.status, corpo: (await r.text()).slice(0, 300) };
+      };
+      return Response.json(
+        {
+          tamanho: t.length,
+          tamanho_sem_espacos: t.trim().length,
+          so_caracteres_validos: /^[A-Za-z0-9_-]+$/.test(t.trim()),
+          usuario: await verificar("/user/tokens/verify"),
+          conta: await verificar("/accounts/c0968ba678687384cefd9fb3d8d0253b/tokens/verify"),
+        },
+        semCache,
+      );
+    }
+    if (req.method === "GET" && url.pathname === "/dns") return Response.json(await listarDns(env), semCache);
+    // Deixa a zona no formato que a troca espera: raiz, www e api como CNAME com proxy,
+    // apontando para o destino ativo segundo o estado (a reserva, enquanto a Vercel estiver pausada).
+    if (req.method === "POST" && url.pathname === "/preparar") {
+      try {
+        return Response.json(await preparar(env), semCache);
+      } catch (e) {
+        return Response.json({ erro: (e as Error).message }, { status: 500 });
+      }
+    }
+    return new Response("nao encontrado", { status: 404 });
   },
 };
+
+/** Deixa a zona no formato que a troca espera: raiz, www e api como CNAME com proxy, apontando
+ * para o destino ativo segundo o estado (a reserva, enquanto a Vercel estiver pausada). */
+async function preparar(env: Env): Promise<{ feito: string[]; dns: Awaited<ReturnType<typeof listarDns>> }> {
+  const estados = await lerEstado(env);
+  const site = estados.site.ativo === "reserva" ? env.SITE_RESERVA : env.SITE_PRINCIPAL;
+  const api = estados.api.ativo === "reserva" ? env.API_RESERVA : env.API_PRINCIPAL;
+  const feito: string[] = [];
+  for (const tipo of ["A", "AAAA"]) {
+    const l = await cf(env, `/zones/${env.ZONE_ID}/dns_records?name=${env.REGISTRO_SITE}&type=${tipo}`);
+    for (const r of l.result ?? []) {
+      await cf(env, `/zones/${env.ZONE_ID}/dns_records/${r.id}`, { method: "DELETE" });
+      feito.push(`apagado ${tipo} ${r.name} ${r.content}`);
+    }
+  }
+  feito.push(await garantirCname(env, env.REGISTRO_SITE, site));
+  feito.push(await garantirCname(env, `www.${env.REGISTRO_SITE}`, env.REGISTRO_SITE));
+  feito.push(await garantirCname(env, env.REGISTRO_API, api));
+  feito.push(await garantirCname(env, new URL(env.TESTE_API_RESERVA).hostname, env.API_RESERVA));
+  return { feito, dns: await listarDns(env) };
+}
