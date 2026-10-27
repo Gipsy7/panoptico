@@ -321,7 +321,7 @@ export function CepForm({ semCepInicial = false }: { semCepInicial?: boolean } =
 
   // Na confirmação da cidade, "Não, escolher a cidade" já faz o papel de "Não sei meu CEP".
   const preferirCep = (comSemCep: boolean) => (
-    <div className="flex flex-col gap-3 border-t border-border pt-3">
+    <div className="revelar-item flex flex-col gap-3 border-t border-border pt-3">
       <button
         type="button"
         onClick={irParaCep}

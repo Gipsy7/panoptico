@@ -4,6 +4,7 @@ import Link from "next/link";
 
 import { Logo, Marca } from "@/components/logo";
 import { MenuPrincipal } from "@/components/menu-principal";
+import { Revelar } from "@/components/revelar";
 import { CONTATO_EMAIL, SITE_URL } from "@/lib/site";
 
 import "./globals.css";
@@ -94,6 +95,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <main id="conteudo" tabIndex={-1} className="outline-none mx-auto w-full max-w-3xl flex-1 px-4 py-8 has-[[data-largura=larga]]:max-w-5xl">
           {children}
         </main>
+        <Revelar />
         <footer className="mt-8 border-t border-border/70">
           <div className="mx-auto flex w-full max-w-5xl flex-col gap-4 px-4 py-8 text-sm text-muted-foreground">
             <div className="flex items-start gap-3">

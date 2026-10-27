@@ -13,6 +13,7 @@ import { MapaHome } from "@/components/home-mapa/mapa-home";
 import { Marca } from "@/components/logo";
 import { PanopticoDesenho } from "@/components/panoptico-desenho";
 import { JsonLd } from "@/components/json-ld";
+import { IndicadorRolagem } from "@/components/revelar";
 import { getDinheiroFederal } from "@/lib/api";
 import { SITE_URL } from "@/lib/site";
 
@@ -57,7 +58,8 @@ export default function Home() {
     <div data-largura="larga" className="flex flex-col gap-[var(--esp-16)]">
       <JsonLd dados={JSON_LD_SITE} />
       <LocalizacaoProvider>
-      <section className="grid grid-cols-1 items-start gap-12 pt-2 md:grid-cols-[minmax(0,1fr)_minmax(0,25rem)] md:gap-16 md:pt-10">
+      {/* No computador, o primeiro bloco ocupa a tela (100svh menos cabeçalho e margem); o resto vem ao rolar. */}
+      <section className="relative grid grid-cols-1 items-start gap-12 pt-2 md:min-h-[calc(100svh-5.5rem)] md:grid-cols-[minmax(0,1fr)_minmax(0,25rem)] md:items-center md:gap-16 md:pt-0 md:pb-14">
         <div className="flex flex-col gap-6">
           <div className="flex items-center gap-3">
             <Marca tamanho={28} animada traco={2.6} className="text-bronze" />
@@ -73,20 +75,32 @@ export default function Home() {
           <div id="cep" className="max-w-md scroll-mt-24 border-t border-foreground pt-6">
             <CepForm />
           </div>
-          <CuriosidadesCidade />
-          <div className="flex max-w-md flex-col gap-2">
-            <BuscaGeral rotulo="Ou procure pelo nome: parlamentar, governador, prefeito ou vereador" />
+          <div className="revelar-item empty:hidden">
+            <CuriosidadesCidade />
           </div>
           <Suspense fallback={null}>
-            <div className="max-w-md empty:hidden">
+            <div className="revelar-item max-w-md empty:hidden">
               <AvisoSegundoTurno href="/segundo-turno" />
             </div>
           </Suspense>
         </div>
 
         <ExemploRegional />
+        <IndicadorRolagem />
       </section>
       </LocalizacaoProvider>
+
+      <section aria-labelledby="busca-titulo" className="grid grid-cols-1 items-start gap-6 md:grid-cols-[minmax(0,1fr)_minmax(0,1.6fr)] md:gap-16">
+        <div className="revelar-item flex flex-col gap-3">
+          <p className="sobretitulo">Busca</p>
+          <h2 id="busca-titulo" className="text-3xl leading-tight text-balance sm:text-4xl">
+            Procure pelo nome
+          </h2>
+        </div>
+        <div className="revelar-item">
+          <BuscaGeral rotulo="Parlamentar, governador, prefeito ou vereador" />
+        </div>
+      </section>
 
       <Suspense fallback={<div className="min-h-96" aria-hidden />}>
         <DinheiroFederalHome />
@@ -123,12 +137,14 @@ async function DinheiroFederalHome() {
   return (
     <section aria-labelledby="impostos-titulo" className="revelar grid grid-cols-1 items-start gap-8 md:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)] md:gap-16">
       <div className="flex flex-col gap-4">
-        <p className="sobretitulo">Impostos e repasses</p>
-        <h2 id="impostos-titulo" className="text-3xl leading-tight text-balance sm:text-4xl">
-          Quanto a União arrecada e repassa em cada estado
-        </h2>
-        <p className="text-muted-foreground">Dados de {ano}. Passe o mouse, toque ou clique num estado para ver os números.</p>
-        <dl className="grid grid-cols-2 gap-4 border-t border-foreground pt-4">
+        <div className="revelar-item flex flex-col gap-3">
+          <p className="sobretitulo">Impostos e repasses</p>
+          <h2 id="impostos-titulo" className="text-3xl leading-tight text-balance sm:text-4xl">
+            Quanto a União arrecada e repassa em cada estado
+          </h2>
+        </div>
+        <p className="revelar-item text-muted-foreground">Dados de {ano}. Passe o mouse, toque ou clique num estado para ver os números.</p>
+        <dl className="revelar-item grid grid-cols-2 gap-4 border-t border-foreground pt-4">
           <div>
             <dt className="text-sm text-muted-foreground">Arrecadado no país</dt>
             <dd className="numero text-2xl">{reais(brasil.arrecadacao)}</dd>
@@ -138,6 +154,7 @@ async function DinheiroFederalHome() {
             <dd className="numero text-2xl">{reais(brasil.repasse)}</dd>
           </div>
         </dl>
+        <div className="revelar-item flex flex-col gap-4 empty:hidden">
         {textoSemDado(brasil, ano) && <p className="text-sm text-muted-foreground">{textoSemDado(brasil, ano)}</p>}
         {avisos.map((a) => (
           <p key={a} className="text-sm text-muted-foreground">
@@ -150,10 +167,13 @@ async function DinheiroFederalHome() {
           </Link>
         </div>
         <FonteRodape fonte={fontes[0]?.nome ?? "Tesouro Nacional e Receita Federal"} url={fontes[0]?.url} atualizadoEm={dataFonte} />
+        </div>
       </div>
+      <div className="revelar-item">
       <MapaHome
         ufs={ufs.map((u) => ({ uf: u.uf, nome: u.nome, arrecadacao: u.arrecadacao, repasse: u.repasse }))}
       />
+      </div>
     </section>
   );
 }
@@ -245,17 +265,19 @@ function OQueVoceEncontra() {
   return (
     <section aria-labelledby="encontra-titulo" className="revelar grid grid-cols-1 gap-8 md:grid-cols-[minmax(0,1fr)_minmax(0,1.6fr)] md:gap-16">
       <div className="flex flex-col gap-3">
-        <p className="sobretitulo">O que você encontra</p>
-        <h2 id="encontra-titulo" className="text-4xl leading-tight text-balance">
-          O mandato de quem te representa, em números oficiais
-        </h2>
-        <p className="text-muted-foreground">
-          Sem notas e sem adjetivos: o número, a média da Casa ao lado e o link para a fonte.
-        </p>
+        <div className="revelar-item flex flex-col gap-3">
+          <p className="sobretitulo">O que você encontra</p>
+          <h2 id="encontra-titulo" className="text-4xl leading-tight text-balance">
+            O mandato de quem te representa, em números oficiais
+          </h2>
+          <p className="text-muted-foreground">
+            Sem notas e sem adjetivos: o número, a média da Casa ao lado e o link para a fonte.
+          </p>
+        </div>
       </div>
       <ul className="lista-fios flex flex-col">
-        {RECURSOS.map((r) => (
-          <li key={r.titulo}>
+        {RECURSOS.map((r, i) => (
+          <li key={r.titulo} className="revelar-item">
             <Link
               href={r.href}
               className="group flex gap-4 py-5 transition-colors duration-300 hover:bg-accent/50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-bronze"
@@ -276,7 +298,7 @@ function OQueVoceEncontra() {
 function PorQuePanoptico() {
   return (
     <section aria-labelledby="porque-titulo" className="revelar grid grid-cols-1 items-center gap-8 md:grid-cols-[minmax(0,1fr)_minmax(0,18rem)] md:gap-16">
-      <div className="flex flex-col gap-3">
+      <div className="revelar-item flex flex-col gap-3">
         <p className="sobretitulo">A ideia</p>
         <h2 id="porque-titulo" className="text-4xl leading-tight text-balance">
           Por que &ldquo;Panóptico&rdquo;?
@@ -291,7 +313,7 @@ function PorQuePanoptico() {
           </Link>
         </div>
       </div>
-      <PanopticoDesenho estado={4} idBase="home" className="mx-auto h-auto w-full max-w-64 md:order-last" />
+      <PanopticoDesenho estado={4} idBase="home" className="revelar-item mx-auto h-auto w-full max-w-64 md:order-last" />
     </section>
   );
 }

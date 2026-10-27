@@ -503,13 +503,17 @@
     animation: acender-torre 600ms var(--curva-suave) 650ms forwards;
   }
 
-  /* Seções aparecem ao entrar na tela (navegadores com scroll-driven animations). */
-  @supports (animation-timeline: view()) {
-    .revelar {
-      animation: revelar linear both;
-      animation-timeline: view();
-      animation-range: entry 0% entry 35%;
-    }
+  /* Revelar proporcional à rolagem: components/revelar.tsx escreve --p (0 a 1) em cada alvo.
+     Só esconde se o JS marcou o <html>. `.rv-ok` (p = 1) zera o transform, para não prender
+     elementos fixos dentro do item. `.revelar` que contém `.revelar-item` não anima por si. */
+  .js-revelar .revelar-item,
+  .js-revelar .revelar:not(:has(.revelar-item)) {
+    opacity: var(--p, 1);
+    transform: translateY(calc((1 - var(--p, 1)) * 48px));
+  }
+  .js-revelar .rv-ok {
+    opacity: 1;
+    transform: none;
   }
 }
 
@@ -544,16 +548,6 @@
   to {
     opacity: 1;
     transform: scale(1);
-  }
-}
-@keyframes revelar {
-  from {
-    opacity: 0;
-    transform: translateY(14px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
   }
 }
 
