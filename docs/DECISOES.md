@@ -2,6 +2,7 @@
 
 ## Índice
 
+- [2026-10-27: média da Casa quando a fonte é parcial](#2026-10-27-média-da-casa-quando-a-fonte-é-parcial)
 - [2026-10-06: stack inicial](#2026-10-06-stack-inicial)
 - [2026-10-06: ingestão em duas etapas](#2026-10-06-ingestão-em-duas-etapas)
 - [2026-10-06: escopo do modelo](#2026-10-06-escopo-do-modelo)
@@ -1451,6 +1452,12 @@ A reserva da VPS é uma **versão congelada** do site, da API e do banco, na Ver
 - **Consequências:** a ingestão do GitHub Actions é desligada (o Neon para de receber cargas); o Publicar deixa de migrar o Neon e só testa e avança o `main`; os deploys automáticos da Vercel são desligados quando ela voltar (1º/11/2026); Netlify e a VM Oracle micro saem da cadeia (a Netlify teria código mais novo que a API congelada).
 - **Custo:** Neon Launch parado, só armazenamento (~2 GB a US$ 0,35/GB-mês) e processamento nas horas em que a reserva estiver no ar: cerca de US$ 1 por mês.
 - **Oracle:** fica só como backup (bucket `panoptico-backups`); a ARM grátis, com réplica lógica, fica como meta futura.
+
+## 2026-10-27: média da Casa quando a fonte é parcial
+
+- **Regra:** a fonte é *parcial* quando está declarada parcial e há parlamentares em exercício sem nenhuma linha dela no período. Nesse caso a média sai só entre quem consta na fonte, e o texto diz: "Média entre os 18 dos 24 deputados distritais que aparecem na planilha da CLDF; os outros 6 não constam da fonte." Fonte completa não muda: quem não tem nada entra com zero (regra fixa). "Gastou zero" não é "não consta": só a falta de linha tira alguém da média.
+- **Onde:** `backend/app/services/media_casa.py` (`calcular`, `descricao_parcial`, `GASTOS_PARCIAIS`), usado por `camaras.gastos` e `emendas_estaduais.deputado` (adaptador com `FONTE_PARCIAL = True`). A API devolve `media_parcial` e `media_descricao`; o site só mostra o texto.
+- **Hoje parcial:** gastos do gabinete da CLDF (planilha de verbas). Nenhum adaptador de emendas estaduais está marcado; marcar um novo é uma linha. Fonte parcial nova entra pela mesma tabela, para toda Casa.
 
 ## 2026-10-27: emendas estaduais em nove UFs, uma base comum
 

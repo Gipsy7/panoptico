@@ -90,6 +90,7 @@ class EmendasDeputadoEstadual(BaseModel):
     emendas: int
     media_casa_pago: float | None
     deputados_na_media: int
+    media_parcial: bool = False  # a média saiu só de quem consta na fonte
     media_descricao: str
     por_ano: list[EmendaEstadualAno]
     por_municipio: list[EmendaEstadualMunicipioDestino]

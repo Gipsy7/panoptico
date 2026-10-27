@@ -114,6 +114,8 @@ rótulo, ação opcional. No celular, largura total; no desktop, grade de 2 a 4 
 **Número com média da Casa.** Linha 1: rótulo (14 px, cinza). Linha 2: número em serifa 32 px. Linha 3: "Média da Casa:
 X" em 14 px cinza. Tudo dentro de `figura` (fio de tinta em cima). Dois números lado a lado só se couberem em 360 px
 (grade 2 colunas, 164 px cada); senão, empilhar.
+Quando a fonte da Casa é parcial, a média vem só de quem consta nela e o texto abaixo do número diz "X dos Y"
+(API: `media_descricao`); ver `docs/DECISOES.md`, 27/10/2026.
 
 **Barra neutra.** Trilho `--muted` com 8 px de altura, preenchimento `--bronze`, marca vertical de tinta (2 px) na média
 da Casa, valor escrito à direita (não dentro da barra). `role="img"` com `aria-label` descrevendo valor e média.
