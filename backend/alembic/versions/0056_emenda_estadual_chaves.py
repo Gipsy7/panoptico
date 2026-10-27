@@ -6,9 +6,9 @@ Só alarga colunas de texto de `emenda_estadual` (`codigo`, `proposta` e `transf
 Nada é removido nem reescrito (no Postgres, aumentar o limite de um varchar não reescreve a
 tabela); o código antigo continua funcionando. Sem RECARREGAR_DADOS: cada UF tem carga própria.
 
-Revision ID: 0053_emenda_estadual_chaves
-Revises: 0052_gasto_local_fora
-Create Date: 2026-10-21
+Revision ID: 0056_emenda_estadual_chaves
+Revises: 0055_proposicao_ampliada
+Create Date: 2026-10-27
 """
 
 from collections.abc import Sequence
@@ -17,8 +17,8 @@ import sqlalchemy as sa
 
 from alembic import op
 
-revision: str = "0053_emenda_estadual_chaves"
-down_revision: str | None = "0052_gasto_local_fora"
+revision: str = "0056_emenda_estadual_chaves"
+down_revision: str | None = "0055_proposicao_ampliada"
 branch_labels: str | Sequence[str] | None = None
 depends_on: str | Sequence[str] | None = None
 

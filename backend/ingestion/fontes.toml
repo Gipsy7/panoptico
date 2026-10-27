@@ -530,9 +530,9 @@ depende = ["alesc", "pessoas"]
 
 # Emendas estaduais das outras UFs: um adaptador por fonte (ingestion/emendas_estaduais/, base.py e
 # registro.py; `python -m ingestion.emendas_estaduais.registro` roda todas). Levantamento das 27 UFs em
-# docs/emendas_estaduais_levantamento.md; decisão em docs/DECISOES.md (21/10/2026). Todas responderam a
-# acesso de fora do Brasil no teste de 21/10/2026: rodam no ubuntu-latest (ingestao-camaras.yml, job
-# emendas_estaduais).
+# docs/emendas_estaduais_levantamento.md; decisão em docs/DECISOES.md (27/10/2026). Produção: passo
+# "Emendas estaduais" de deploy/vps/agenda/camaras.sh, depois das assembleias. Todas responderam também
+# a acesso de fora do Brasil no teste de 21/10/2026 (não dependem de rodar no Brasil).
 [[fonte]]
 nome = "segov_mg_emendas"
 modulo = "ingestion.emendas_estaduais.mg"

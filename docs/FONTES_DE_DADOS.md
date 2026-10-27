@@ -557,6 +557,22 @@ Reconhecimento de 11/10/2026. As duas fontes são arquivos em lote, sem chave (a
 - **Frequência:** o sistema muda todo dia, mas pouco; carga semanal, incremental (sha256).
 - **Outras fontes de SC avaliadas:** Painel de Emendas do TCE/SC (Farol, Qlik Sense, 403 ao User-Agent do projeto, sem exportação; pedido em `docs/pedidos/tcesc_painel_emendas.md`); `dados.sc.gov.br` (sem conjunto de emendas); portarias da SEF em PDF com repasses às prefeituras (não lidas). Ver `docs/DECISOES.md`, 19/10/2026.
 
+
+## Emendas estaduais das outras UFs (MG, BA, PE, MA, ES, AL, SE, AC)
+
+Um módulo por fonte em `backend/ingestion/emendas_estaduais/` (a docstring de cada um traz URL, campos e armadilhas medidas na amostra de 21/10/2026); levantamento das 27 UFs em `docs/emendas_estaduais_levantamento.md`. Frequência semanal (`deploy/vps/agenda/camaras.sh`). Resumo:
+
+| UF | Fonte (`fontes.toml`) | Endereço | Formato | Armadilhas principais |
+|---|---|---|---|---|
+| MG | `segov_mg_emendas` | dados.mg.gov.br/dataset/portal_emendas_estaduais, "Indicações" | CSV ~30 MB, `;`, UTF-8 BOM | IBGE e CNPJ como decimal ("3147006,0"); CNPJ sem zero à esquerda; caixas escolares sem IBGE; blocos e bancadas; `valor_pago` acumulado (não `valor_pago_ano`) |
+| BA | `sefaz_ba_emendas` | dados.ba.gov.br/dataset/emendas-parlamentares | zip de CSV (usa `VW_PAINEL_EMENDAS_PARLAMENTARES_DESPESAS`) | sem município e sem favorecido; nome com espaços à esquerda; cadeia TLS incompleta; "Transferências Especiais" do mesmo portal são federais |
+| PE | `seplag_pe_emendas` | dados.pe.gov.br/dataset/emendasparlamentaresestaduais (Tabela Completa GTV, DIRETA, PIX) | CSV `;`, registros em CRLF | LF solto dentro do objeto; `;` entre aspas; empenho repetido por chamamento; 2012-2025 sem autor |
+| MA | `transparencia_ma_emendas` | transparencia.ma.gov.br/app/v2/emendasestaduais/export?formato=csv | CSV `,` | só 2026; ponto decimal |
+| ES | `sefaz_es_emendas` | dados.es.gov.br (CSV por ano, lidos pelo `package_show`) | CSV `;` | link assinado no S3 que expira; linha repetida com outro nome de ação (2023, 2025); IBGE de 6 dígitos; previsto repetido por instrumento |
+| AL | `transparencia_al_emendas` | transparencia.al.gov.br/despesa/json-emendas-parlamentares/ | JSON paginado | só 2026; CNPJ só no texto do objeto |
+| SE | `transparencia_se_emendas` | api.transparencia.se.gov.br/api/emendas-estaduais?ano=&page=&limit=100 | JSON paginado | sem número da emenda nem empenhado (chave: ano + sha1 da linha); " -   " no pago |
+| AC | `seplan_ac_emendas` | planilha publicada em CSV que a página da SEPLAN/AC usa | CSV `,` | números em dois formatos; linhas em branco no fim; conta bancária na planilha (não lida) |
+
 ## ALEP: Assembleia Legislativa do Paraná
 
 - **A API de dados abertos não serve (testado em 19/10/2026).** `webservices.assembleia.pr.leg.br/api/public` (documentada em `transparencia.assembleia.pr.leg.br/servicos/dados-abertos`, com base `http://`) só tem **proposições** (`GET /proposicao/campos`, `POST /proposicao/filtrar`, `GET /proposicao/{código}`) e **normas legais** (`/norma-legal/...`); não há deputados, votos, presença nem gastos. O endereço HTTPS apresenta um certificado autoassinado de assunto `CN=BLACKHOLE` (RSA 2048, válido de 03/08/2026 a 03/08/2027, **SHA-256 `ae0f3aedfaa3bf2c17c9a37386a4faf21ca86354d27b885b68cd1a47c8ff903c`**), respondeu **403** a toda rota (inclusive `/robots.txt`) e logo depois passou a recusar conexões (HTTPS e HTTP). Um certificado genérico de firewall não prova que o servidor é da Assembleia, então **não fixamos esse certificado** e não desligamos a verificação; o 403 é bloqueio e não se contorna. Fica em `docs/pedidos/alep_certificado.md`.

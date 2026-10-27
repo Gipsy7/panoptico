@@ -21,32 +21,34 @@ Atenciosamente,
 
 ## Controle dos envios (preencher ao enviar)
 
-| UF | Casa/órgão | Canal (URL) | Data | Protocolo | Resposta |
-|---|---|---|---|---|---|
-| AC | | | | | |
-| AL | | | | | |
-| AM | | | | | |
-| AP | | | | | |
-| BA | | | | | |
-| CE | | | | | |
-| DF | | | | | |
-| ES | | | | | |
-| GO | | | | | |
-| MA | | | | | |
-| MG | | | | | |
-| MS | | | | | |
-| MT | | | | | |
-| PA | | | | | |
-| PB | | | | | |
-| PE | | | | | |
-| PI | | | | | |
-| PR | | | | | |
-| RJ | | | | | |
-| RN | | | | | |
-| RO | | | | | |
-| RR | | | | | |
-| RS | | | | | |
-| SC | | | | | |
-| SE | | | | | |
-| SP | | | | | |
-| TO | | | | | |
+Preenchido em 27/10/2026 a partir de `docs/emendas_estaduais_levantamento.md` (nada enviado ainda). "O que pedir" é o trecho específico a acrescentar ao modelo acima; o canal é o e-SIC da UF, a confirmar no envio.
+
+| UF | Casa/órgão | O que pedir | Canal (URL) | Data | Protocolo | Resposta |
+|---|---|---|---|---|---|---|
+| AC | — | Não precisa: dado aberto carregado (SEPLAN/AC). | | | | |
+| AL | Governo de AL (SEFAZ/SEPLAG) e ALE | Os anos anteriores a 2026 (a consulta só tem 2026) e o CNPJ do beneficiário em campo próprio. | | | | |
+| AM | Governo do AM (SEFAZ) e ALEAM | Arquivo aberto (CSV/API) das emendas; a consulta da SEFAZ não entrega dados sem navegador e o portal usa reCAPTCHA. | | | | |
+| AP | Governo do AP e ALAP | Indicar onde estão as emendas estaduais e publicar em arquivo aberto. | | | | |
+| BA | Governo da BA (SEFAZ) e ALBA | Município de destino e beneficiário (CNPJ) de cada emenda no conjunto de dados abertos já publicado. | | | | |
+| CE | Governo do CE (CGE/SEPLAG) e ALECE | Arquivo ou API das emendas (hoje só página HTML; a API de dados abertos não tem emendas). | | | | |
+| DF | — | Ainda não: há API aberta no Portal da Transparência do DF (carga a fazer). | | | | |
+| ES | — | Não precisa: dado aberto carregado (SEFAZ/ES). | | | | |
+| GO | Governo de GO (SEFAZ/SERINT) e ALEGO | Arquivo atualizado depois de julho/2025, sem CNPJ e empenho em notação científica, com delimitador fixo; consulta EmendasGO sem captcha. | | | | |
+| MA | Governo do MA (SEPLAN/SEFAZ) e ALEMA | Anos anteriores a 2026 na exportação (o filtro só oferece 2026). | | | | |
+| MG | — | Não precisa: dado aberto carregado (SEGOV/MG). | | | | |
+| MS | Governo do MS e ALEMS | Indicar onde estão as emendas estaduais e publicar em arquivo aberto. | | | | |
+| MT | Governo do MT (SEPLAG) e ALMT | Arquivo aberto das emendas; a página de emendas não abre e o portal usa captcha. | | | | |
+| PA | Governo do PA (SEPLAD) e ALEPA | Arquivo aberto do módulo de emendas do SIGPLAN; o portal da transparência não respondeu. | | | | |
+| PB | Governo da PB e ALPB | Arquivo ou API documentada da consulta "Execução de emendas parlamentares impositivas". | | | | |
+| PE | Governo de PE (SEPLAG) e ALEPE | Autor e município nos arquivos de 2012 a 2025 (hoje só empenhos); uma linha por empenho sem repetição por chamamento. | | | | |
+| PI | Governo do PI e ALEPI | Arquivo ou API documentada das emendas (hoje só dentro das despesas da aplicação). | | | | |
+| PR | Governo do PR (SEFA) e ALEP | Arquivo aberto (hoje só painel Power BI). | | | | |
+| RJ | Governo do RJ (SEPLAG) e ALERJ | Arquivo aberto (hoje só painel Qlik; o portal de dados abertos aponta para o painel). | | | | |
+| RN | Governo do RN e ALRN | Arquivo aberto (hoje só painel Power BI). | | | | |
+| RO | — | Ainda não: há consulta com JSON no Portal da Transparência de RO (carga a fazer). | | | | |
+| RR | Governo de RR e ALE-RR | Indicar onde estão as emendas estaduais e publicar em arquivo aberto. | | | | |
+| RS | Governo do RS (CAGE/SEFAZ) e ALRS | Arquivo aberto (os "dados abertos" do painel são o próprio Power BI). | | | | |
+| SC | ALESC e TCE/SC | Ver alesc_emendas_impositivas.md e tcesc_painel_emendas.md (repasses fundo a fundo e às prefeituras). | | | | |
+| SE | Governo de SE e ALESE | Número da emenda e valor empenhado na API já publicada. | | | | |
+| SP | Governo de SP (SGRI/Fazenda) e ALESP | Correção do arquivo aberto: uma linha por emenda (ou por evento com chave), com valor previsto; hoje as linhas de execução se repetem e as somas não fecham. | | | | |
+| TO | Governo do TO e ALETO | Indicar onde estão as emendas estaduais e publicar em arquivo aberto. | | | | |

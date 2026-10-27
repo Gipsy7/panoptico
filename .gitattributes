@@ -2,3 +2,6 @@
 *.sh text eol=lf
 Caddyfile text eol=lf
 Dockerfile text eol=lf
+
+# Fixtures de teste: bytes exatamente como a fonte publica (CRLF e LF misturados de propósito)
+backend/tests/fixtures/emendas_estaduais_ufs/** -text

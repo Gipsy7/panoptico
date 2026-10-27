@@ -23,5 +23,9 @@ passo "Emendas estaduais de SC" py ingestion.emendas_estaduais.sc
 for m in alerj alep alrs alba ales alece alepa almt alema alems alrn alese alap alego; do
   passo "Assembleia: $m" py ingestion.assembleias."$m"
 done
+# Emendas estaduais das outras UFs com dado aberto, depois de todas as assembleias (liga os
+# autores aos deputados). Uma transação por UF; a falha de uma não apaga nem para as outras.
+passo "Emendas estaduais (MG, BA, PE, MA, ES, AL, SE, AC)" \
+  py ingestion.emendas_estaduais.registro --uf MG BA PE MA ES AL SE AC
 indexnow --padrao '/deputado-estadual/'
 fim

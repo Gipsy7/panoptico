@@ -87,7 +87,7 @@ E mais: **modo escuro** (segue o aparelho; um ícone troca), **filtros** com o m
 
 ¹ onde a Casa registra votação nominal. ² API com certificado autoassinado e 403, verba atrás de reCAPTCHA; pedido em [docs/pedidos/](docs/pedidos/). ³ sistema bloqueia automação; não contornamos.
 
-Emendas estaduais: SC (SC Transferências), por enquanto só na API. O que falta em cada Casa está em [data/pendencias_cobertura.csv](data/pendencias_cobertura.csv).
+Emendas estaduais: nove UFs (MG, BA, PE, SC, MA, ES, AL, SE, AC), por enquanto só na API; levantamento das 27 em [docs/emendas_estaduais_levantamento.md](docs/emendas_estaduais_levantamento.md). O que falta em cada Casa está em [data/pendencias_cobertura.csv](data/pendencias_cobertura.csv).
 
 </details>
 
