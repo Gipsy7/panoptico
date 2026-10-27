@@ -324,7 +324,35 @@ def _prefeitos() -> dict[str, tuple[int, int]]:
     return {uf: (len(com_canal[uf]), len(todos[uf])) for uf in UFS}
 
 
-def _prefeito(uf, n, total) -> list[dict]:
+def _diarios_por_uf() -> dict[str, dict[str, set[str]]]:
+    """Municípios (IBGE) com diário oficial lido, por UF e origem: `qd` (raspadores do Querido
+    Diário, data/diarios_querido_diario_territorios.csv) e uma chave por plataforma compartilhada
+    (SIGPub, DOM/SC...), de data/diarios_plataformas_municipios.csv (evidência da última carga)."""
+    por_uf: dict[str, dict[str, set[str]]] = defaultdict(lambda: defaultdict(set))
+    for r in _ler_csv("diarios_querido_diario_territorios.csv"):
+        por_uf[r["uf"]]["querido_diario_atos"].add(r["municipio_ibge"])
+    if (DADOS / "diarios_plataformas_municipios.csv").exists():
+        for r in _ler_csv("diarios_plataformas_municipios.csv"):
+            por_uf[r["uf"]][r["plataforma"]].add(r["municipio_ibge"])
+    return por_uf
+
+
+def _atos_prefeitos(uf: str, total: int, origens: dict[str, set[str]]) -> tuple:
+    """Linha da seção "atos" das prefeituras: em quantas cidades o diário oficial é lido
+    (Querido Diário, SIGPub das associações de municípios, DOM/SC)."""
+    lidos = set().union(*origens.values()) if origens else set()
+    if not lidos:
+        return ("sem_fonte", "Nenhum diário oficial de cidades deste estado é lido ainda.", "", "")
+    return (
+        "parcial",
+        f"Lemos o diário oficial de {len(lidos)} de {total} cidades; nomeações e exonerações "
+        "só aparecem depois de conferidas por uma pessoa.",
+        "; ".join(sorted(f for f, m in origens.items() if m)),
+        "",
+    )
+
+
+def _prefeito(uf, n, total, diarios=None) -> list[dict]:
     pref = f"{n} de {total} municípios com canal oficial achado. "
     gastos = (
         "parcial",
@@ -365,13 +393,7 @@ def _prefeito(uf, n, total) -> list[dict]:
         ),
         "salario": ("sem_fonte", pref + "Subsídio do prefeito não coletado.", "", ""),
         "agenda": ("sem_fonte", pref + "Nenhuma fonte de agenda coletada.", "", ""),
-        "atos": (
-            "parcial",
-            pref + "Nomeações em diários municipais, só nas cidades cobertas pelo Querido "
-            "Diário e depois de revisão humana.",
-            "querido_diario_atos",
-            "",
-        ),
+        "atos": _atos_prefeitos(uf, total, diarios or {}),
         "bens_campanha": (
             "sim",
             pref + "Bens e campanha declarados ao TSE.",
@@ -386,6 +408,7 @@ def _prefeito(uf, n, total) -> list[dict]:
 def montar() -> list[dict]:
     acessos = _acessos()
     prefeitos = _prefeitos()
+    diarios = _diarios_por_uf()
     linhas: list[dict] = []
     for uf in UFS:
         linhas += _assembleia(uf, acessos)
@@ -406,7 +429,7 @@ def montar() -> list[dict]:
                 ),
             },
         )
-        linhas += _prefeito(uf, *prefeitos[uf])
+        linhas += _prefeito(uf, *prefeitos[uf], diarios.get(uf))
     agenda = (
         "parcial",
         "Agenda de ministros e do vice-presidente (e-Agendas, CGU, arquivo aberto desde "
