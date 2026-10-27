@@ -31,6 +31,9 @@ from collections import defaultdict
 from datetime import date
 from decimal import Decimal, InvalidOperation
 from pathlib import Path
+from typing import Any
+
+import httpx
 
 from app.db import SessionLocal
 from ingestion import comum
@@ -265,12 +268,53 @@ def gastos_dos_deputados(
     return {i: somar_notas(n, desde, ate) for i, n in por_deputado.items()}, avisos
 
 
+def gastos_anteriores(session: Any) -> dict[str, tuple[list[dict], list[dict]]]:
+    """Gastos já gravados, por id do deputado na Casa: (gastos, fora). Servem para não zerar
+    os gastos quando a fonte das verbas está fora do ar ou exige credencial."""
+    from sqlalchemy import select
+
+    from app.models import GastoLocal, GastoLocalFora, MandatoLocal
+
+    mandatos = {
+        m.id: m.id_externo
+        for m in session.scalars(
+            select(MandatoLocal).where(MandatoLocal.casa == "assembleia", MandatoLocal.uf == "RN")
+        )
+    }
+    resultado: dict[str, tuple[list[dict], list[dict]]] = {i: ([], []) for i in mandatos.values()}
+    for g in session.scalars(select(GastoLocal).where(GastoLocal.mandato_id.in_(mandatos))):
+        resultado[mandatos[g.mandato_id]][0].append(
+            {"ano": g.ano, "mes": g.mes, "categoria": g.categoria, "valor": g.valor}
+        )
+    for f in session.scalars(select(GastoLocalFora).where(GastoLocalFora.mandato_id.in_(mandatos))):
+        resultado[mandatos[f.mandato_id]][1].append(
+            {"ano": f.ano, "linhas": f.linhas, "valor": f.valor, "motivo": f.motivo,
+             "linhas_valor_ilegivel": f.linhas_valor_ilegivel}
+        )  # fmt: skip
+    return resultado
+
+
+def gastos_ou_anteriores(client, lista, tse, hoje: date, de_raw: Path | None):
+    """Os gastos da fonte; se ela não responder (404, 401, rede), devolve os já gravados e um
+    aviso para `fonte_ingestao`. Não trata a falha como "sem gastos"."""
+    try:
+        return gastos_dos_deputados(client, lista, tse, hoje.year - 1, de_raw, hoje)
+    except (httpx.HTTPStatusError, httpx.TransportError) as erro:
+        with SessionLocal() as session:
+            gastos = gastos_anteriores(session)
+        aviso = (
+            f"Gastos ALRN: a fonte das verbas não respondeu ({erro.__class__.__name__}: "
+            f"{str(erro)[:120]}); mantidos os gastos da carga anterior, sem atualização"
+        )
+        return gastos, [aviso]
+
+
 def coletar(hoje: date, de_raw: Path | None = None) -> tuple[dict, list[str]]:
     with comum.criar_cliente() as client:
         lista = deputados(comum._get(client, LISTA, None, 4).content.decode("utf-8", "replace"))
         with SessionLocal() as session:
             tse = base.nomes_do_tse(session, "RN")
-        gastos, avisos = gastos_dos_deputados(client, lista, tse, hoje.year - 1, de_raw, hoje)
+        gastos, avisos = gastos_ou_anteriores(client, lista, tse, hoje, de_raw)
         ids = iniciativas(comum.get_json(client, API + "parlamentar/").get("dados", []))
         registros = []
         for d in lista:
