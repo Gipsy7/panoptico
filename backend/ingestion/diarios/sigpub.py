@@ -78,10 +78,29 @@ _ESTADO = re.compile(r"^\s*ESTADO\s+D[EOA]\s+[A-ZÀ-Ú ]+$|^\s*MUNIC[ÍI]PIO\s+D
 # ---- rede -------------------------------------------------------------------------------
 
 
+def _cliente() -> httpx.Client:
+    """Cliente do projeto, com tempo curto para conectar (as quedas se repetem com espera)."""
+    cliente = comum.criar_cliente()
+    cliente.timeout = httpx.Timeout(30.0, connect=12.0, read=120.0)
+    return cliente
+
+
+def _com_tentativas(chamada, tentativas: int = 5):
+    """Repete a chamada HTTP quando a conexão cai (o servidor perde ~1 conexão em 6 por
+    tempo esgotado), com espera crescente; o que não é falha de rede sobe direto."""
+    for tentativa in range(tentativas):
+        try:
+            return chamada()
+        except httpx.TransportError:
+            if tentativa == tentativas - 1:
+                raise
+            time.sleep(3 * (tentativa + 1))
+
+
 def _token(client: httpx.Client, slug: str) -> str:
     """Abre a página da instância (cria o cookie de sessão) e devolve o token CSRF do
     formulário do calendário."""
-    r = client.get(f"{BASE}/{slug}/", headers={"Accept": "text/html"})
+    r = _com_tentativas(lambda: client.get(f"{BASE}/{slug}/", headers={"Accept": "text/html"}))
     r.raise_for_status()
     m = re.search(r'id="calendar__token"[^>]*value="([^"]+)"', r.text)
     if not m:
@@ -94,15 +113,17 @@ def edicoes_do_dia(client: httpx.Client, slug: str, token: str, dia: date) -> li
     achadas = []
     for tipo, caminho in (("regular", "materia/calendario"), ("extra", "materia/calendario/extra")):
         time.sleep(PAUSA)
-        r = client.post(
-            f"{BASE}/{slug}/{caminho}",
-            data={
-                "calendar[day]": str(dia.day),
-                "calendar[month]": str(dia.month),
-                "calendar[year]": str(dia.year),
-                "calendar[_token]": token,
-            },
-            headers={"Accept": "application/json"},
+        r = _com_tentativas(
+            lambda caminho=caminho: client.post(
+                f"{BASE}/{slug}/{caminho}",
+                data={
+                    "calendar[day]": str(dia.day),
+                    "calendar[month]": str(dia.month),
+                    "calendar[year]": str(dia.year),
+                    "calendar[_token]": token,
+                },
+                headers={"Accept": "application/json"},
+            )
         )
         if r.status_code == 429 or r.status_code >= 500:
             r.raise_for_status()  # limite de uso ou servidor com problema: não é "dia sem edição"
@@ -257,7 +278,7 @@ def executar(
                 tratar(pl.ler_raw_edicao(arquivo))
         else:
             alvo_slugs = instancias or list(INSTANCIAS)
-            with comum.criar_cliente() as client:
+            with _cliente() as client:
                 for slug in alvo_slugs:
                     try:
                         token = _token(client, slug)
