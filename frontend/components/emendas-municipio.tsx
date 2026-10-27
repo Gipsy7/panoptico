@@ -17,6 +17,8 @@ export function EmendasMunicipioSecao({ dados }: { dados: EmendasMunicipio }) {
   const fim = dados.periodo?.fim ?? dados.por_ano.at(-1)?.ano ?? dados.desde;
   const periodo = inicio === fim ? `${inicio}` : `de ${inicio} a ${fim}`;
   const tipos = (dados.tipos ?? []).filter((t) => t.total > 0);
+  // Os tipos vêm em ordem fixa (individual, Pix, bancada...), não do maior para o menor.
+  const maiorTipo = Math.max(0, ...tipos.map((t) => t.total));
   const colegiados = dados.colegiados ?? [];
   const nAutores = novo
     ? (dados.autores_com_mandato ?? 0) + (dados.autores_sem_mandato ?? 0)
@@ -110,7 +112,7 @@ export function EmendasMunicipioSecao({ dados }: { dados: EmendasMunicipio }) {
                     rotulo={t.rotulo}
                     detalhe={t.rotulo_oficial}
                     valor={t.total}
-                    maior={tipos[0].total}
+                    maior={maiorTipo}
                     nota={
                       (t.sem_codigo_total ?? 0) > 0
                         ? `inclui ${formatarReais(t.sem_codigo_total ?? 0, true)} sem autor informado pela fonte`
@@ -445,7 +447,7 @@ function Barra({
   href?: string;
   nota?: string;
 }) {
-  const largura = maior > 0 ? Math.max(1, (valor / maior) * 100) : 0;
+  const largura = maior > 0 ? Math.min(100, Math.max(1, (valor / maior) * 100)) : 0;
   return (
     <li className="group flex flex-col gap-1" title={`${rotulo}: ${formatarReais(valor)}`}>
       <div className="flex items-baseline justify-between gap-3 text-sm">

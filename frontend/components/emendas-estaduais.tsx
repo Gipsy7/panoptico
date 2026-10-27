@@ -19,7 +19,7 @@ const AVISO_SEM_EMPENHADO = "A fonte deste estado não publica o valor empenhado
 /** Emendas de deputados estaduais numa cidade: outra esfera, separada das federais e nunca somada. */
 export function EmendasEstaduaisCidade({ dados, cidade }: { dados: EmendasEstaduaisMunicipio; cidade: string }) {
   const autores = dados.por_autor.filter((a) => a.pago > 0 || a.previsto > 0).slice(0, 5);
-  const maior = autores[0]?.pago ?? 0;
+  const maior = Math.max(0, ...autores.map((a) => a.pago));
   const empenhadoInformado = dados.empenhado_informado !== false;
   return (
     <section aria-labelledby="emendas-estaduais-titulo" className="revelar painel flex flex-col gap-3">
@@ -66,7 +66,7 @@ export function EmendasEstaduaisCidade({ dados, cidade }: { dados: EmendasEstadu
               <h4 className="font-medium">Quem indicou</h4>
               <ul className="flex flex-col gap-3">
                 {autores.map((a) => {
-                  const largura = maior > 0 ? Math.max(1, (a.pago / maior) * 100) : 0;
+                  const largura = maior > 0 ? Math.min(100, Math.max(1, (a.pago / maior) * 100)) : 0;
                   const nome = nomeProprio(a.autor_nome);
                   return (
                     <li key={`${a.autor_nome}-${a.tipo}`} className="flex flex-col gap-1">
