@@ -1,0 +1,10 @@
+[Unit]
+Description=Agenda: camaras e assembleias (domingo, 8h de Brasilia)
+
+[Timer]
+# Horário em UTC, igual ao cron do workflow que esta carga substitui.
+OnCalendar=Sun *-*-* 11:00:00 UTC
+Persistent=true
+
+[Install]
+WantedBy=timers.target

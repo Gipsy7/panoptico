@@ -51,16 +51,36 @@
   cursor: pointer;
 }
 
-.mapa .sobre,
+/* Foco de teclado fica no desenho original; sobre/seleção/ativa vão na camada .contornos. */
 .mapa .uf:focus-visible,
 .mapa .mun:focus-visible {
   stroke: var(--foreground);
   stroke-width: 2px;
+  /* Invisível no tema normal (o contorno é o de .contornoFoco); no modo de alto contraste do
+     sistema (forced-colors) o navegador pinta esta borda. */
+  outline: 3px solid transparent;
 }
-.mapa .sel,
-.mapa .ativa {
+.contornos path {
+  fill: none;
+  pointer-events: none;
+  vector-effect: non-scaling-stroke;
   stroke: var(--foreground);
+  stroke-linejoin: round;
+}
+.contornoSobre {
+  stroke-width: 2px;
+}
+.contornoFixo {
   stroke-width: 2.5px;
+}
+/* Foco de teclado: o outline do CSS não aparece em <path>, então o contorno é desenhado aqui,
+   3 px na cor do texto sobre um halo da cor do fundo (separa de qualquer faixa da escala). */
+.contornos .contornoHalo {
+  stroke: var(--background);
+  stroke-width: 6px;
+}
+.contornoFoco {
+  stroke-width: 3px;
 }
 
 /* Exclusivos: dentro do estado só ele aparece; dentro da cidade só ela. */
@@ -99,14 +119,14 @@
   font-weight: 600;
 }
 .sigla {
-  font-size: 11px;
+  font-size: 0.6875rem;
   letter-spacing: 0.02em;
 }
 .nome {
-  font-size: 12px;
+  font-size: 0.75rem;
 }
 .nomeCidade {
-  font-size: 13px;
+  font-size: 0.8125rem;
 }
 .guia {
   stroke: var(--foreground);

@@ -2,7 +2,7 @@ import Link from "next/link";
 
 import { FonteRodape } from "@/components/fonte-rodape";
 import { ListaResumida } from "@/components/painel/lista-resumida";
-import { type Eleito, type ListaEleitos, urlFotoTse } from "@/lib/api";
+import { type Eleito, type ListaEleitos, legendaFoto, urlFotoDe } from "@/lib/api";
 
 /** Vereadores de uma cidade ou deputados estaduais de um estado, como eleitos no TSE. */
 export function EleitosSecao({
@@ -70,20 +70,20 @@ function CartaoEleito({ eleito }: { eleito: Eleito }) {
       href={href}
       className="group flex items-center gap-4 py-3 transition-colors duration-300 hover:bg-accent/50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-bronze"
     >
-      <FotoOuIniciais eleito={eleito} />
+      <FotoOuIniciais eleito={eleito} decorativa />
       <div className="min-w-0">
         <p className="truncate text-base font-semibold">{eleito.nome_urna}</p>
         <p className="text-sm text-muted-foreground">
           {[eleito.partido, eleito.uf].filter(Boolean).join(" · ")}
         </p>
         {eleito.votos != null && (
-          <p className="text-xs text-muted-foreground">{eleito.votos.toLocaleString("pt-BR")} votos</p>
+          <p className="text-sm text-muted-foreground">{eleito.votos.toLocaleString("pt-BR")} votos</p>
         )}
         {eleito.parlamentar_id ? (
-          <p className="text-xs font-medium text-bronze-texto">Hoje é deputado federal</p>
+          <p className="text-sm font-medium text-bronze-texto">Hoje é deputado federal</p>
         ) : (
           eleito.depois && (
-            <p className="text-xs font-medium text-bronze-texto">
+            <p className="text-sm font-medium text-bronze-texto">
               Eleito {eleito.depois.cargo.toLowerCase()} de {eleito.depois.unidade} em {eleito.depois.ano}
             </p>
           )
@@ -94,19 +94,35 @@ function CartaoEleito({ eleito }: { eleito: Eleito }) {
 }
 
 /** Foto do TSE quando houver; senão, as iniciais. */
-export function FotoOuIniciais({ eleito, tamanho = 44 }: { eleito: Eleito; tamanho?: number }) {
+export function FotoOuIniciais({
+  eleito,
+  tamanho = 44,
+  legenda = false,
+  decorativa = false,
+}: {
+  eleito: Pick<Eleito, "id" | "nome_urna" | "foto" | "foto_de" | "foto_ano">;
+  tamanho?: number;
+  /** Mostra "foto de 2022" abaixo quando a foto vem de outra eleição da mesma pessoa. */
+  legenda?: boolean;
+  /** Com o nome escrito ao lado, dentro do mesmo link: alt vazio. */
+  decorativa?: boolean;
+}) {
   if (!eleito.foto) return <Iniciais nome={eleito.nome_urna} tamanho={tamanho} />;
+  const ano = legenda ? legendaFoto(eleito) : null;
   return (
-    // eslint-disable-next-line @next/next/no-img-element -- WebP pequeno, já reduzido e com cache longo na CDN
-    <img
-      src={urlFotoTse(eleito.id)}
-      alt={`Foto de ${eleito.nome_urna}`}
-      width={tamanho}
-      height={Math.round((tamanho * 4) / 3)}
-      loading="lazy"
-      className="shrink-0 rounded-[2px] bg-muted object-cover"
-      style={{ width: tamanho, height: Math.round((tamanho * 4) / 3) }}
-    />
+    <span className="flex shrink-0 flex-col items-center gap-0.5">
+      {/* eslint-disable-next-line @next/next/no-img-element -- WebP pequeno, já reduzido e com cache longo na CDN */}
+      <img
+        src={urlFotoDe(eleito)}
+        alt={decorativa ? "" : `Foto de ${eleito.nome_urna}`}
+        width={tamanho}
+        height={Math.round((tamanho * 4) / 3)}
+        loading="lazy"
+        className="shrink-0 rounded-[2px] bg-muted object-cover"
+        style={{ width: tamanho, height: Math.round((tamanho * 4) / 3) }}
+      />
+      {ano && <span className="text-[0.7rem] leading-none text-muted-foreground">{ano}</span>}
+    </span>
   );
 }
 
@@ -118,7 +134,7 @@ export function Iniciais({ nome, tamanho = 44 }: { nome: string; tamanho?: numbe
     <span
       aria-hidden
       style={{ width: tamanho, height: Math.round((tamanho * 4) / 3) }}
-      className="flex shrink-0 items-center justify-center rounded-[2px] bg-muted font-heading text-lg text-muted-foreground"
+      className="flex shrink-0 items-center justify-center rounded-[2px] bg-muted font-heading text-lg text-foreground"
     >
       {iniciais}
     </span>

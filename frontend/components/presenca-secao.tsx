@@ -14,7 +14,7 @@ export function PresencaSecao({ presenca, casa }: { presenca: Presenca; casa: Ca
         <h2 id="presenca-titulo" className="text-2xl">
           Presença em votações
         </h2>
-        <p className="text-xs text-muted-foreground">
+        <p className="text-sm text-muted-foreground">
           Votações nominais no Plenário em {p.ano}
           {!inicioDoAno && `, desde ${formatarData(p.periodo_inicio)} (início do exercício atual)`}
         </p>
@@ -45,12 +45,7 @@ export function PresencaSecao({ presenca, casa }: { presenca: Presenca; casa: Ca
           </dl>
 
           <div
-            role="meter"
-            aria-label="Participação nas votações"
-            aria-valuemin={0}
-            aria-valuemax={100}
-            aria-valuenow={p.percentual ?? 0}
-            aria-valuetext={`${PCT.format(p.percentual ?? 0)}%`}
+            aria-hidden
             className="h-2 w-full rounded-full bg-muted"
           >
             <div

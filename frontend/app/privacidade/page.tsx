@@ -26,6 +26,13 @@ export default function PrivacidadePage() {
         depois é descartado.
       </Secao>
 
+      <Secao titulo="Se você usar a localização">
+        O botão &ldquo;Usar minha localização&rdquo; é opcional. A localização é processada no seu
+        aparelho, só para achar a sua cidade nos mapas do IBGE. Ela não é enviada a nenhum
+        servidor, nem ao Panóptico nem a terceiros, e não é guardada nem aparece no endereço da
+        página. Depois de achar a cidade, só o estado e a cidade (o código dela no IBGE) seguem para a busca, que também alimenta, na página inicial, o exemplo de comparação do seu estado e alguns números da sua cidade. Nada disso é guardado no seu navegador.
+      </Secao>
+
       <Secao titulo="Cadastro e cookies">
         Não há cadastro, login nem cookies de rastreamento ou publicidade. O endereço da página
         (por exemplo, com o CEP buscado) fica no histórico do seu próprio navegador, como em
@@ -55,7 +62,7 @@ export default function PrivacidadePage() {
         .
       </Secao>
 
-      <p className="text-xs text-muted-foreground">Última atualização: outubro de 2026.</p>
+      <p className="text-sm text-muted-foreground">Última atualização: outubro de 2026.</p>
     </article>
   );
 }

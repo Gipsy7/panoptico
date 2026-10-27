@@ -48,7 +48,7 @@ export function BlocoIndisponivel({
         Ainda não há dado aberto carregado para esta seção. {bloco.motivo ?? "A fonte não informou o motivo."}
       </p>
       {painel && uf && casa && (
-        <p className="text-xs">
+        <p className="text-sm">
           <PorQueFalta uf={uf} casa={casa} />
         </p>
       )}
@@ -124,7 +124,7 @@ export function ContasDoGoverno({ painel, estado }: { painel: PainelExecutivo; e
           Contas de {nomeEnte}
           {ano ? ` em ${ano}` : ""}
         </h2>
-        <p className="text-xs text-muted-foreground">
+        <p className="text-sm text-muted-foreground">
           O que {nomeDoGoverno(painel)} declarou ao Tesouro Nacional (Declaração de Contas Anuais, SICONFI)
         </p>
       </div>
@@ -144,13 +144,13 @@ export function ContasDoGoverno({ painel, estado }: { painel: PainelExecutivo; e
           <p className="text-sm text-muted-foreground">Gasto por habitante, na mesma escala</p>
           <BarraComparacao pessoa={comparacao.pessoa} media={comparacao.media} formato="reais" />
           {semDado != null && semDado > 0 && (
-            <p className="text-xs text-muted-foreground">
+            <p className="text-sm text-muted-foreground">
               {semDado} {semDado === 1 ? "estado ficou" : "estados ficaram"} fora da média por não terem entregado a
               despesa paga ao Tesouro.
             </p>
           )}
           {estado?.media_estados_descricao && (
-            <p className="text-xs text-muted-foreground">{estado.media_estados_descricao}</p>
+            <p className="text-sm text-muted-foreground">{estado.media_estados_descricao}</p>
           )}
         </div>
       )}
@@ -170,7 +170,7 @@ export function ContasDoGoverno({ painel, estado }: { painel: PainelExecutivo; e
                   <span className="min-w-0">{a.nome}</span>
                   <span className="shrink-0 tabular-nums">
                     {formatarReais(a.valor, true)}
-                    <span className="ml-1 text-xs text-muted-foreground">
+                    <span className="ml-1 text-sm text-muted-foreground">
                       {a.percentual.toLocaleString("pt-BR", { maximumFractionDigits: 1 })}%
                     </span>
                   </span>
@@ -184,7 +184,7 @@ export function ContasDoGoverno({ painel, estado }: { painel: PainelExecutivo; e
               </li>
             ))}
           </ul>
-          <p className="text-xs text-muted-foreground">
+          <p className="text-sm text-muted-foreground">
             Valores pagos no ano, pela função de governo (a classificação oficial do orçamento).
           </p>
         </div>
@@ -220,7 +220,7 @@ export function EmendasDaCidade({ painel }: { painel: PainelExecutivo }) {
         <h2 id="gov-emendas-titulo" className="text-2xl">
           Dinheiro enviado para {painel.ente.nome} por emendas
         </h2>
-        <p className="text-xs text-muted-foreground">
+        <p className="text-sm text-muted-foreground">
           Emendas parlamentares pagas ao município {periodo(d)} (a verba que deputados e senadores indicam)
         </p>
       </div>
@@ -265,7 +265,7 @@ export function ContratosDaCidade({ painel }: { painel: PainelExecutivo }) {
         <h2 id="gov-contratos-titulo" className="text-2xl">
           Contratos da prefeitura{ano ? ` em ${ano}` : ""}
         </h2>
-        <p className="text-xs text-muted-foreground">
+        <p className="text-sm text-muted-foreground">
           Contratos publicados no Portal Nacional de Contratações Públicas (PNCP)
         </p>
       </div>

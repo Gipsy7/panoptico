@@ -259,7 +259,7 @@ async function Cidade({ ibge }: { ibge: string }) {
                 />
               )}
             </GradeCartoes>
-            <p className="text-sm text-muted-foreground">Toque num número para ver o detalhe, com a fonte e a data.</p>
+            <p className="text-sm text-muted-foreground">Toque ou clique num número para ver o detalhe, com a fonte e a data.</p>
           </>
         )}
 

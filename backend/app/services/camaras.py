@@ -20,7 +20,7 @@ from app.models import (
     VotacaoLocal,
     VotoLocal,
 )
-from app.services import tse
+from app.services import eleitos_futuros, tse
 
 FONTES = {
     "camara": ("sapl_camaras", "Sistema legislativo da câmara (SAPL)"),
@@ -339,6 +339,17 @@ def vereador(session: Session, mandato: MandatoLocal) -> dict:
         if mandato.candidatura_id
         else set()
     )
+    origem = session.get(Candidatura, mandato.candidatura_id) if mandato.candidatura_id else None
+    futuro = (
+        eleitos_futuros.da_pessoa(
+            session,
+            parlamentar_id=origem.parlamentar_id,
+            titulo=origem.titulo,
+            cpf=origem.cpf,
+        )
+        if origem
+        else None
+    )
     return {
         **_item(
             mandato,
@@ -346,6 +357,10 @@ def vereador(session: Session, mandato: MandatoLocal) -> dict:
             com_foto,
             _contar_votos(session, [mandato.id]).get(mandato.id, 0),
         ),
+        # Eleito para outro cargo (ou no 2º turno) numa eleição cuja posse não aconteceu: o
+        # perfil de quem está no cargo hoje é este, e a eleição nova aparece nele.
+        "eleito_2026": futuro,
+        "eleicao_recente": tse.eleicao_recente(session, futuro, origem),
         "presenca": presenca(session, mandato),
         "gastos": gastos(session, mandato),
         "casa": mandato.casa,

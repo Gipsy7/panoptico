@@ -1,0 +1,187 @@
+{
+ "inicio": "2025-02-01",
+ "fim": "2025-02-28",
+ "respostas": [
+  {
+   "DiscursosSessao": {
+    "noNamespaceSchemaLocation": "https://legis.senado.leg.br/dadosabertos/dados/DiscursosSessaov4.xsd",
+    "Metadados": {
+     "Versao": "21/10/2026 00:45:14",
+     "VersaoServico": "4",
+     "DataVersaoServico": "2021-06-29",
+     "DescricaoDataSet": "Obtém a lista de Discursos das Sessões que ocorreram dentro do período informado."
+    },
+    "Sessoes": {
+     "Sessao": [
+      {
+       "CodigoSessao": "450520",
+       "CodigoSessaoLegislativa": "873",
+       "SiglaCasa": "SF",
+       "TipoSessao": "DOR",
+       "DescricaoSessao": "Sessão Deliberativa Ordinária",
+       "NumeroSessao": "1",
+       "DataSessao": "2025-02-19",
+       "HoraInicio": "14:00:00",
+       "Pronunciamentos": {
+        "Pronunciamento": [
+         {
+          "id": "512042",
+          "CodigoPronunciamento": "512042",
+          "TipoUsoPalavra": {
+           "Codigo": "4838",
+           "Sigla": "NID",
+           "Descricao": "Não classificado",
+           "IndicadorAtivo": "Sim"
+          },
+          "Casa": "Senado Federal",
+          "Data": "2025-02-19",
+          "Resumo": "Considerações sobre a importância do Projeto de Lei Complementar (PLP) n° 22, de 2025, que \"Dispõe sobre prazo para liquidação de restos a pagar não processados e dá outras providências\".",
+          "Indexacao": "COMENTARIO, IMPORTANCIA, PROJETO DE LEI COMPLEMENTAR (PLP), CRIAÇÃO, LEI COMPLEMENTAR, FIXAÇÃO, PRAZO, LIQUIDAÇÃO, RESTOS A PAGAR, EXERCICIO FINANCEIRO ANTERIOR, CORRELAÇÃO, TRANSFERENCIA, ORGÃOS, ENTIDADE, ADMINISTRAÇÃO PUBLICA, ADMINISTRAÇÃO FEDERAL, DESTINAÇÃO, ESTADOS, DISTRITO FEDERAL (DF), MUNICIPIOS, DESCENTRALIZAÇÃO, CREDITOS, ORÇAMENTO FISCAL, ORÇAMENTO DA SEGURIDADE SOCIAL.",
+          "TextoIntegral": "https://www25.senado.leg.br/web/atividade/pronunciamentos/-/p/texto/512042",
+          "TextoIntegralTxt": "https://legis.senado.leg.br/dadosabertos/discurso/texto-integral/512042",
+          "UrlTextoBinario": "https://legis.senado.leg.br/dadosabertos/discurso/texto-binario/512042",
+          "TipoAutor": "Senador(a)",
+          "FuncaoAutor": "SENADOR",
+          "NomeAutor": "Davi Alcolumbre",
+          "CodigoParlamentar": "3830",
+          "Partido": "UNIÃO",
+          "UF": "AP"
+         },
+         {
+          "id": "512041",
+          "CodigoPronunciamento": "512041",
+          "TipoUsoPalavra": {
+           "Codigo": "11338",
+           "Sigla": "POB",
+           "Descricao": "Orientação à bancada",
+           "IndicadorAtivo": "Sim"
+          },
+          "Casa": "Senado Federal",
+          "Data": "2025-02-19",
+          "Resumo": "Orientação à bancada sobre o Projeto de Lei Complementar (PLP) n° 22, de 2025, que \"Dispõe sobre prazo para liquidação de restos a pagar não processados e dá outras providências\".",
+          "Indexacao": "ORIENTAÇÃO, BANCADA, PROJETO DE LEI COMPLEMENTAR (PLP), CRIAÇÃO, LEI COMPLEMENTAR, FIXAÇÃO, PRAZO, LIQUIDAÇÃO, RESTOS A PAGAR, EXERCICIO FINANCEIRO ANTERIOR, CORRELAÇÃO, TRANSFERENCIA, ORGÃOS, ENTIDADE, ADMINISTRAÇÃO PUBLICA, ADMINISTRAÇÃO FEDERAL, DESTINAÇÃO, ESTADOS, DISTRITO FEDERAL (DF), MUNICIPIOS, DESCENTRALIZAÇÃO, CREDITOS, ORÇAMENTO FISCAL, ORÇAMENTO DA SEGURIDADE SOCIAL.",
+          "TextoIntegral": "https://www25.senado.leg.br/web/atividade/pronunciamentos/-/p/texto/512041",
+          "TextoIntegralTxt": "https://legis.senado.leg.br/dadosabertos/discurso/texto-integral/512041",
+          "UrlTextoBinario": "https://legis.senado.leg.br/dadosabertos/discurso/texto-binario/512041",
+          "TipoAutor": "Senador(a)",
+          "FuncaoAutor": "SENADOR",
+          "NomeAutor": "Omar Aziz",
+          "CodigoParlamentar": "5525",
+          "Partido": "PSD",
+          "UF": "AM"
+         },
+         {
+          "id": "512037",
+          "CodigoPronunciamento": "512037",
+          "TipoUsoPalavra": {
+           "Codigo": "11336",
+           "Sigla": "PDI",
+           "Descricao": "Discussão",
+           "IndicadorAtivo": "Sim"
+          },
+          "Casa": "Senado Federal",
+          "Data": "2025-02-19",
+          "Resumo": "Discussão sobre o Projeto de Lei Complementar (PLP) n° 22, de 2025, que \"Dispõe sobre prazo para liquidação de restos a pagar não processados e dá outras providências\".",
+          "Indexacao": "DISCUSSÃO, PROJETO DE LEI COMPLEMENTAR (PLP), CRIAÇÃO, LEI COMPLEMENTAR, FIXAÇÃO, PRAZO, LIQUIDAÇÃO, RESTOS A PAGAR, EXERCICIO FINANCEIRO ANTERIOR, CORRELAÇÃO, TRANSFERENCIA, ORGÃOS, ENTIDADE, ADMINISTRAÇÃO PUBLICA, ADMINISTRAÇÃO FEDERAL, DESTINAÇÃO, ESTADOS, DISTRITO FEDERAL (DF), MUNICIPIOS, DESCENTRALIZAÇÃO, CREDITOS, ORÇAMENTO FISCAL, ORÇAMENTO DA SEGURIDADE SOCIAL.",
+          "TextoIntegral": "https://www25.senado.leg.br/web/atividade/pronunciamentos/-/p/texto/512037",
+          "TextoIntegralTxt": "https://legis.senado.leg.br/dadosabertos/discurso/texto-integral/512037",
+          "UrlTextoBinario": "https://legis.senado.leg.br/dadosabertos/discurso/texto-binario/512037",
+          "TipoAutor": "Senador(a)",
+          "FuncaoAutor": "SENADOR",
+          "NomeAutor": "Weverton",
+          "CodigoParlamentar": "5411",
+          "Partido": "PDT",
+          "UF": "MA"
+         },
+         {
+          "id": "512052",
+          "CodigoPronunciamento": "512052",
+          "TipoUsoPalavra": {
+           "Codigo": "4823",
+           "Sigla": "POR",
+           "Descricao": "Pela ordem",
+           "IndicadorAtivo": "Sim"
+          },
+          "Casa": "Senado Federal",
+          "Data": "2025-02-19",
+          "Resumo": "Agradecimento a todos os Senadores que assinaram o Requerimento (RQS) n° 5, de 2025, que \"Requer voto de aplauso à Sra. Fernanda Pinheiro Torres pela conquista do Globo de Ouro e pelo conjunto de sua obra\".",
+          "Indexacao": "AGRADECIMENTO, SENADOR, ASSINATURA, REQUERIMENTO, VOTO DE APLAUSO, ATOR, MULHER, FERNANDA TORRES, RECEBIMENTO, PREMIO, AMBITO INTERNACIONAL, INDUSTRIA CINEMATOGRAFICA, FILME NACIONAL, INTERPRETAÇÃO, ESPOSA, DEPUTADO FEDERAL, RUBENS PAIVA.",
+          "TextoIntegral": "https://www25.senado.leg.br/web/atividade/pronunciamentos/-/p/texto/512052",
+          "TextoIntegralTxt": "https://legis.senado.leg.br/dadosabertos/discurso/texto-integral/512052",
+          "UrlTextoBinario": "https://legis.senado.leg.br/dadosabertos/discurso/texto-binario/512052",
+          "TipoAutor": "Senador(a)",
+          "FuncaoAutor": "SENADOR",
+          "NomeAutor": "Leila Barros",
+          "CodigoParlamentar": "5979",
+          "Partido": "PDT",
+          "UF": "DF"
+         }
+        ]
+       }
+      },
+      {
+       "CodigoSessao": "449938",
+       "CodigoSessaoLegislativa": "873",
+       "SiglaCasa": "CN",
+       "TipoSessao": "SOL",
+       "DescricaoSessao": "Sessão Solene",
+       "NumeroSessao": "1",
+       "DataSessao": "2025-02-03",
+       "HoraInicio": "16:00:00",
+       "Pronunciamentos": {
+        "Pronunciamento": [
+         {
+          "id": "511972",
+          "CodigoPronunciamento": "511972",
+          "TipoUsoPalavra": {
+           "Codigo": "5002",
+           "Sigla": "DISPRES",
+           "Descricao": "Discurso proferido da Presidência",
+           "IndicadorAtivo": "Sim"
+          },
+          "Casa": "Congresso Nacional",
+          "Data": "2025-02-03",
+          "Resumo": "Encerramento da abertura dos trabalhos da 3ª Sessão Legislativa Ordinária da 57ª Legislatura.",
+          "Indexacao": "ENCERRAMENTO, LEGISLATIVO, SESSÃO LEGISLATIVA, CONGRESSO NACIONAL, LEGISLATURA.",
+          "TextoIntegral": "https://www25.senado.leg.br/web/atividade/pronunciamentos/-/p/texto/511972",
+          "TextoIntegralTxt": "https://legis.senado.leg.br/dadosabertos/discurso/texto-integral/511972",
+          "UrlTextoBinario": "https://legis.senado.leg.br/dadosabertos/discurso/texto-binario/511972",
+          "TipoAutor": "Senador(a)",
+          "FuncaoAutor": "SENADOR",
+          "NomeAutor": "Davi Alcolumbre",
+          "CodigoParlamentar": "3830",
+          "Partido": "UNIÃO",
+          "UF": "AP"
+         },
+         {
+          "id": "511971",
+          "CodigoPronunciamento": "511971",
+          "TipoUsoPalavra": {
+           "Codigo": "4819",
+           "Sigla": "DIS",
+           "Descricao": "Discurso",
+           "IndicadorAtivo": "Sim"
+          },
+          "Casa": "Congresso Nacional",
+          "Data": "2025-02-03",
+          "Resumo": "Sessão de abertura dos trabalhos da 3ª Sessão Legislativa Ordinária da 57ª Legislatura.",
+          "Indexacao": "ABERTURA, LEGISLATIVO, CONGRESSO NACIONAL, SESSÃO LEGISLATIVA, LEGISLATURA.",
+          "TextoIntegral": "https://www25.senado.leg.br/web/atividade/pronunciamentos/-/p/texto/511971",
+          "TextoIntegralTxt": "https://legis.senado.leg.br/dadosabertos/discurso/texto-integral/511971",
+          "UrlTextoBinario": "https://legis.senado.leg.br/dadosabertos/discurso/texto-binario/511971",
+          "TipoAutor": "Deputado(a)",
+          "FuncaoAutor": "DEPUTADO",
+          "NomeAutor": "Hugo Motta",
+          "CodigoParlamentar": "5283",
+          "Partido": "REPUBLICANOS",
+          "UF": "PB"
+         }
+        ]
+       }
+      }
+     ]
+    }
+   }
+  }
+ ]
+}

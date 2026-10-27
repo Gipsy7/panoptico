@@ -44,7 +44,7 @@ Adotar do 12axes:
 - Sobretítulo + título + subtítulo em toda página interna (já é o padrão; padronizar).
 - Cartão-resumo 2x2 no alto de listas (ex.: /partidos: partidos, deputados, senadores, gasto médio).
 - Migalhas de pão em páginas internas (partido, perfil, comparar).
-- Barra de filtros com contador e pílulas roláveis em /parlamentares e /partidos.
+- Filtros com contador e pílulas dos filtros ativos (ver "Filtros" na seção 4; as pílulas quebram linha, não rolam).
 - Ação primária única no cabeçalho do celular ("Buscar pelo CEP" sempre visível) além do menu.
 - Texto longo cortado com "ver mais" em vez de blocos de 10 linhas.
 - Índice de seções no perfil (o 12axes tem âncoras `#como-funciona`, `#guia-eixos`).
@@ -76,16 +76,23 @@ Tipografia (mínimo de 14 px em qualquer conteúdo; 12 px só em metadado não e
 | legenda e fonte | 13 px | 13 px | Geist 400 |
 
 Cores e modo escuro. A paleta escura deriva da "papel" (grafite quente, texto creme, bronze clareado) e vale quando o
-sistema pede escuro (`prefers-color-scheme`) ou com `data-theme="dark"` na raiz; `data-theme="light"` força o claro. O
-alternador (Automático, Claro, Escuro) fica no menu e guarda a escolha em `localStorage` (chave `tema`). As imagens
+sistema pede escuro (`prefers-color-scheme`) ou com `data-theme="dark"` na raiz; `data-theme="light"` força o claro. Por
+padrão o site segue o sistema; não há opção "Automático" escrita. O botão de tema (`components/alternar-tema.tsx`) é um
+ícone só, que alterna entre claro e escuro e mostra para onde vai (lua no claro, sol no escuro), com `aria-label` e `title`
+"Usar tema escuro"/"Usar tema claro". A escolha fica em `localStorage` (chave `tema`) e o script do `<head>` a aplica antes
+da pintura. Fica no cabeçalho a partir de 640 px; abaixo disso (o cabeçalho não tem espaço ao lado do logo, do "Buscar CEP"
+e do menu), no topo do painel do menu. As imagens
 Open Graph ficam sempre claras. Razões de contraste (WCAG):
 
 | Par | Claro | Escuro |
 |---|---|---|
 | texto / fundo (`#141414` / `#f4f1ea`; `#ece7dc` / `#1c1a17`) | 16,3 | 14,1 |
-| texto de apoio / fundo (`#6e6a63`; `#a39d92`) | 4,8 | 6,4 |
-| texto de apoio / cartão | 5,0 | 5,9 |
-| texto de apoio / `--muted` | 4,4 (só em pílulas, 13 px) | 5,5 |
+| texto de apoio / fundo (`#6a665f`; `#a39d92`) | 5,1 | 6,4 |
+| texto de apoio / cartão | 5,3 | 5,9 |
+| texto de apoio / `--muted` | 4,6 | 5,5 |
+| borda de campo e seletor (`--borda-controle` `#857f73`) / fundo | 3,5 (3,2 sobre `--muted`) | 4,4 (3,7 sobre `--muted`) |
+| placeholder do `campo` (`--muted-foreground`, opaco) / fundo | 5,1 | 6,4 |
+| foco (`--bronze-texto`, contorno de 2 px) / fundo | 5,6 | 8,0 |
 | bronze-texto / fundo (`#7a5a32`; `#d4a968`) | 5,6 | 8,0 |
 | primary-foreground / primary | 16,3 | 14,1 |
 | destructive / fundo (`#8a2c1c`; `#e39a86`) | 7,6 | 7,6 |
@@ -124,6 +131,22 @@ sombra de borda (gradiente de 8 px) à direita indicando que há mais; linhas co
 sob o cabeçalho, links de 48 px, fecha ao tocar num link, ao tocar fora, e com Esc; trava a rolagem do fundo.
 Migrar de `<details>` para botão com `aria-expanded` + `useState`.
 
+**Filtros (padrão único).** `components/ui/painel-filtros.tsx` + `ui/campos-filtro.tsx` (+ `ui/campos-filtro-cliente.tsx`
+para campos que dependem um do outro). Regras:
+- Celular (< 768 px): botão "Filtrar" de largura total com "N filtros ativos"; abre uma folha que sobe de baixo, com título,
+  "×", campos de 48 px (texto de 16 px) e rodapé fixo com "Limpar" e "Aplicar". Fecha com Esc, "×" ou toque fora; trava o
+  fundo e prende o Tab na folha. Computador: os mesmos campos à vista, em grade de 3 colunas. Filtros de 1 ou 2 campos dentro
+  de uma seção (agenda, tema dos votos) usam `sempreVisivel`.
+- Estado sempre na URL: aplicar navega para o endereço sem os campos vazios nem os de valor padrão (`padroes`), sem rolar a
+  página. A página passa `key` com a consulta atual para os campos voltarem ao que está na URL (voltar do navegador).
+- Sem JavaScript: é um formulário GET aberto (a folha só se esconde com `data-js` na raiz).
+- Filtros ativos como pílulas removíveis (×) logo abaixo (`PilulasAtivas`), que quebram linha; com 2 ou mais, "Limpar tudo".
+- Contagem de resultados no título da lista; lista vazia com `SemResultados` ("Nenhum ... com esses filtros." + "Limpar os filtros").
+- Estado: select grande com os 27 nomes. Cidade: select que só aparece com estado escolhido, recarregado ao trocar o estado,
+  com caixa "Procurar cidade" quando a lista passa de 40. Ordenação: trocar o critério põe a ordem natural (texto A-Z,
+  números do maior para o menor).
+- Filtros que rodam no navegador (quem votou, como votou cada parlamentar) usam as mesmas pílulas e o mesmo estado vazio.
+
 **Índice de seções (perfil).** No celular: fileira horizontal fixa sob o cabeçalho, com pílulas de 44 px de altura
 (Gastos, Presença, Votos, Projetos, Emendas...), `scroll-snap-type: x proximity`, destaca a seção visível (peso 600 e fio
 de bronze embaixo). No desktop: lista vertical `sticky top-20` numa coluna lateral de 200 px. Links são âncoras `#id`
@@ -135,7 +158,10 @@ com `scroll-margin-top` igual à altura dos dois cabeçalhos.
    O que for mais largo rola dentro do próprio contêiner (`overflow-x-auto`), nunca no `body`.
 2. **Alvos de 44 px ou mais** (altura e largura), com 8 px de espaço entre alvos. Link só de texto em corpo de frase é exceção;
    links soltos (ex.: "trocar") ganham `min-h-11 inline-flex items-center`.
-3. Conteúdo a 14 px no mínimo; `text-xs` só em metadado repetido (UF, casa) e nunca em número ou texto de explicação.
+3. Conteúdo a 14 px no mínimo (`text-sm`): texto corrido, explicações, fonte e data, notas, legendas e avisos. Não use `text-[13px]` nem `text-xs` nisso.
+   Fontes em CSS modules usam `rem`, nunca `px`, para acompanhar o tamanho de fonte do navegador. Exceções permitidas (12 a 13 px, contraste de 4,5:1 ou mais, comentário curto no código quando não óbvio):
+   rótulo curto em caixa alta com espaçamento (`.sobretitulo`, títulos de grupo da busca), pílula curta (`.chip`, selo de status) e texto dentro de SVG com `viewBox`
+   (mapa, desenhos dos prédios; escala com a figura e tem alternativa em texto). Nunca em número ou explicação.
 4. Margem lateral de 16 px; nada de `fixed` com largura em px.
 5. Títulos com `text-balance` e `break-words`; nomes longos de partido e de projeto quebram, não estouram.
 6. Uma ação primária por tela; botões de formulário em largura total.
@@ -245,3 +271,35 @@ esquerda) e ".social" em serifa menor na linha de base. O nome e o ".social" sã
 compartilhamento usam `LogoCompleta` em `lib/og.tsx`, com as cores fixas da paleta clara. O nome usa o azul-marinho da
 arte (`--marca-nome`, #12263a; creme no escuro) por decisão do dono (2026-10-19), só na logo: nunca em texto, fundo ou dado. No cabeçalho de 56 px a logo tem 28 px de altura
 (173 px de largura); acima disso o botão de menu estoura 360 px.
+
+## 8. Acessibilidade
+
+Meta: **WCAG 2.2 nível AA** e **eMAG 3.1** (Modelo de Acessibilidade em Governo Eletrônico). O plano e as ondas
+estão em `C:\Users\samir\.claude\plans\tem-duas-coias-que-wild-hoare.md`; a decisão, em `docs/DECISOES.md` (2026-10-25).
+
+### Checklist para toda tela nova
+
+1. **Foco visível:** contorno de 2 px na cor `bronze-texto`, com afastamento, e pelo menos 3:1 contra o fundo nos dois temas.
+   Nunca `focus-visible:outline-none` sem outro contorno no lugar.
+2. **Teclado:** tudo operável com Tab, Enter e Espaço; Esc fecha o que abriu; abas, listas e combobox usam setas.
+3. **Nome acessível:** botões e links com texto que diz o destino ("Ver gastos de Fulano", não "Ver mais"). Ícone sem texto tem `aria-label`.
+4. **Imagens:** `alt` descritivo. `alt=""` quando o nome já está escrito ao lado da foto.
+5. **Gráficos:** o valor aparece em texto ou tabela equivalente; nada transmite informação só por cor, forma ou posição.
+6. **Tabelas:** `<caption>` (ou `rotulo` no `TabelaRolavel`), `th scope="col"` ou `"row"`.
+7. **Formulários:** todo campo com `<label>`. Texto de ajuda ligado por `aria-describedby`. Erro na página, com `aria-invalid="true"` e `aria-describedby` apontando para a mensagem.
+8. **Anúncios:** `role="status"` com frase curta ("Senado: 3 senadores"). Nunca um bloco inteiro dentro de `aria-live`.
+9. **Diálogos (gavetas, folhas, menu):** foco preso dentro, Esc fecha, foco volta ao botão que abriu, e o resto da página fica `inert`.
+10. **Links que abrem nova aba:** avisam no texto (componente `LinkExterno`, "(abre em nova aba)").
+11. **Texto:** 14 px no mínimo para texto corrido; contraste AA: 4,5:1 texto, 3:1 componentes de interface e foco.
+12. **Zoom e tamanho:** zoom de texto a 200% sem perda; reflow em 320 px sem rolagem horizontal da página.
+13. **Movimento:** respeitar `prefers-reduced-motion`. Animação que repete tem botão para pausar (ou para sozinha após poucos ciclos).
+14. **Idioma:** `lang="pt-BR"` na página; trecho em outro idioma com `lang` próprio.
+
+### Como verificar
+
+- `npm run lint` (com `jsx-a11y` no conjunto `strict`): roda no CI.
+- `npm run e2e` (Playwright + axe): aponta para o site com `E2E_BASE_URL` (padrão: o acervo local). Falha com violações `serious` ou `critical`
+  nas rotas principais, em 360 e 1280 px, tema claro e escuro, e roda os fluxos só por teclado de `e2e/teclado.spec.ts`.
+- Workflow `acessibilidade.yml`: roda todo dia e sob demanda contra `https://panoptico.social.br`, só leitura.
+- Teste manual: navegar a tela só com Tab, Enter e Esc, a 200% de zoom e em 360 px. Verificar o `scrollWidth` em 320 px.
+- Testes automáticos pegam de 30% a 40% dos problemas de leitor de tela. Teste com pessoas reais fica para depois.

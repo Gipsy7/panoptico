@@ -71,6 +71,10 @@ cd backend && python -m uv run pytest -q && python -m uv run ruff check . && pyt
 cd frontend && npx tsc --noEmit && npm run lint
 ```
 
+## Acessibilidade (axe e teclado)
+
+Com o site no ar, rode no `frontend/`: `E2E_BASE_URL=http://localhost:3000 npm run e2e`. Cobre axe (violações `serious` e `critical` falham) e os fluxos só por teclado. O checklist de acessibilidade está na seção "Acessibilidade" do `docs/DESIGN.md`.
+
 ## Armadilhas do Git Bash
 
 - Caminhos que começam com `/` em argumentos viram caminhos do Windows (`/v11/projects` → `C:/Program Files/Git/v11/projects`). Prefixe o comando com `MSYS_NO_PATHCONV=1`.

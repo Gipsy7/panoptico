@@ -65,6 +65,49 @@ class ParlamentarNaVotacao(BaseModel):
     efetivo: bool
 
 
+class DiscursoNaVotacao(BaseModel):
+    """Discurso em Plenário: o resumo é o que a própria Casa publica; o texto inteiro fica no
+    link. Nunca inferimos posição pelo texto."""
+
+    parlamentar_id: int
+    nome: str
+    partido: str | None
+    uf: str | None
+    data: date
+    data_hora: datetime | None
+    fase: str | None
+    tipo: str | None
+    sumario: str | None
+    url_texto: str | None
+    url_video: str | None
+
+
+class GrupoDiscursos(BaseModel):
+    chave: str  # sim | nao | outro | sem_voto
+    rotulo: str  # "votou Sim", "votou Não", "outro registro", "falou e não registrou voto"
+    quantidade: int
+    discursos: list[DiscursoNaVotacao]
+
+
+class PorUf(BaseModel):
+    uf: str
+    sim: int
+    nao: int
+    outros: int
+    total: int
+
+
+class DiscursosDaVotacao(BaseModel):
+    """Discursos do dia sobre o projeto, agrupados pelo voto que cada orador registrou nesta
+    votação (só quando ela é a última votação nominal do projeto no dia)."""
+
+    total: int
+    grupos: list[GrupoDiscursos]
+    fonte_nome: str
+    fonte_url: str
+    atualizado_em: datetime | None
+
+
 class VotacaoDetalhe(BaseModel):
     casa: str
     id_externo: str
@@ -73,6 +116,8 @@ class VotacaoDetalhe(BaseModel):
     proposicao: str | None
     proposicao_ementa: str | None
     proposicao_url: str | None
+    # Id da proposição na fonte, para o link à página do projeto (/projeto/{casa}/{id}).
+    proposicao_id_externo: str | None = None
     temas: list[str]
     secreta: bool
     resultado: str | None
@@ -90,3 +135,6 @@ class VotacaoDetalhe(BaseModel):
     fonte_nome: str
     fonte_url: str
     atualizado_em: datetime | None
+    # Campos opcionais acrescentados em 2026-10-21; o formato antigo não muda.
+    por_uf: list[PorUf] | None = None
+    discursos: DiscursosDaVotacao | None = None

@@ -9,7 +9,7 @@ export function RemuneracaoSecao({ remuneracao }: { remuneracao: ParlamentarDeta
         <h2 id="remuneracao-titulo" className="text-2xl">
           Salário
         </h2>
-        <p className="text-xs text-muted-foreground">Subsídio mensal dos membros do Congresso</p>
+        <p className="text-sm text-muted-foreground">Subsídio mensal dos membros do Congresso</p>
       </div>
       <div className="figura">
         <p className="text-sm text-muted-foreground">Valor bruto por mês</p>

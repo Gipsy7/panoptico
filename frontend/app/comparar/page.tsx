@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { metadadosComFiltro } from "@/lib/seo";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
@@ -23,6 +24,7 @@ import {
   getParlamentar,
 } from "@/lib/api";
 import { CASA_CURTA, formatarData, formatarGastos, formatarReais } from "@/lib/formato";
+import { LinkExterno } from "@/components/link-externo";
 
 const MAXIMO = 4;
 const texto = (v: string | string[] | undefined) => (typeof v === "string" && v ? v : undefined);
@@ -57,15 +59,17 @@ function endereco(ids: number[], ano?: string | number, extras: Record<string, s
 export async function generateMetadata({ searchParams }: PageProps<"/comparar">): Promise<Metadata> {
   const sp = await searchParams;
   const p = lerParametros(sp);
-  if (p.ids.length < 2) return { title: "Comparar parlamentares" };
+  const base = { ...metadadosComFiltro("/comparar", sp), title: "Comparar parlamentares" };
+  if (p.ids.length < 2) return base;
   const resultado = await getComparacaoN(p.ids, p.ano);
-  if (!resultado.ok) return { title: "Comparar parlamentares" };
+  if (!resultado.ok) return base;
   const nomes = resultado.dados.pessoas.map((x) => x.nome_parlamentar);
   const lista = nomes.length > 2 ? `${nomes.slice(0, -1).join(", ")} e ${nomes[nomes.length - 1]}` : nomes.join(" e ");
   const titulo = nomes.join(" × ");
   // Links antigos (a e b) mantêm a imagem de sempre; os novos usam ids.
   const imagem = p.antigo ? `/comparar/imagem?a=${p.ids[0]}&b=${p.ids[1]}` : `/comparar/imagem?ids=${p.ids.join(",")}`;
   return {
+    ...base,
     title: titulo,
     description: `Gastos, presença, projetos e votos de ${lista}, lado a lado, com dados oficiais.`,
     openGraph: { title: titulo, images: [{ url: imagem, width: 1200, height: 630 }] },
@@ -123,7 +127,7 @@ function Pessoa({ p }: { p: ParlamentarResumo }) {
       href={`/parlamentar/${p.id}`}
       className="flex min-w-0 flex-col items-center gap-2 text-center transition-opacity hover:opacity-80"
     >
-      <Foto parlamentar={p} largura={64} />
+      <Foto parlamentar={p} largura={64} decorativa />
       <span className="font-semibold leading-tight">{p.nome_parlamentar}</span>
       <span className="text-sm text-muted-foreground">
         {CASA_CURTA[p.casa]} · {[p.partido, p.uf].filter(Boolean).join(" · ")}
@@ -201,7 +205,7 @@ function Resultado({
     nome: p.nome_parlamentar,
     sub: `${CASA_CURTA[p.casa]} · ${[p.partido, p.uf].filter(Boolean).join(" · ")}`,
     href: `/parlamentar/${p.id}`,
-    foto: <Foto parlamentar={p} largura={40} />,
+    foto: <Foto parlamentar={p} largura={40} decorativa />,
     remover: endereco(
       idsAtuais.filter((i) => i !== p.id),
       dados.ano,
@@ -346,11 +350,11 @@ function Resultado({
               <ul className="lista-fios mt-2 flex flex-col">
                 {c.itens.map((p) => (
                   <li key={`${p.sigla_tipo}-${p.numero}-${p.ano}`} className="flex flex-col gap-1 py-3">
-                    <a href={p.url} target="_blank" rel="noopener noreferrer" className="font-medium underline underline-offset-2">
+                    <LinkExterno href={p.url} className="font-medium underline underline-offset-2">
                       {p.sigla_tipo} {p.numero}/{p.ano}
-                    </a>
+                    </LinkExterno>
                     <p className="text-sm">{p.ementa}</p>
-                    <p className="text-[13px] text-muted-foreground">
+                    <p className="text-sm text-muted-foreground">
                       {formatarData(p.data_apresentacao)} · {p.situacao ?? "Situação não informada"}
                     </p>
                   </li>

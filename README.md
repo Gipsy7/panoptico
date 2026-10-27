@@ -42,24 +42,27 @@ flowchart LR
     R --> P["👤 Perfil<br/>gastos · votos · projetos · eleição"]
     R --> C["🏙 Sua cidade<br/>emendas · contas · fornecedores"]
     P --> V["🗳 Cada votação<br/>placar e voto de cada um"]
+    PJ["📜 Projetos e votações<br/>busca · quem votou · o que disseram"] --> V
     P --> CMP["⚖️ Comparar<br/>2 a 4 lado a lado"]
 ```
 
 | | O quê | Exemplo do que aparece |
 |---|---|---|
-| 👥 | **Seus representantes pelo CEP** | Presidente, governador e prefeito (com vices), senadores, deputados federais e estaduais, vereadores. Eleitos de 2026 que ainda não tomaram posse aparecem à parte. |
+| 👥 | **Seus representantes pela localização, CEP ou cidade** | A localização é usada só no celular para achar a cidade (não é enviada). Presidente, governador e prefeito (com vices), senadores, deputados federais e estaduais, vereadores. Eleitos de 2026 que ainda não tomaram posse aparecem à parte. A página abre com um desenho dos prédios do poder, de Brasília até a cidade ("De Brasília até a sua rua"): tocar num prédio mostra quem trabalha lá, o que faz e leva à lista completa; uma mãozinha animada indica onde tocar (também no mapa e no botão de localização da home). Ao achar a cidade, a home mostra um número sorteado dela (com a média do estado) e um exemplo de comparação com parlamentares do estado; sem localização, a dupla do exemplo é sorteada. |
 | 💸 | **Gastos do gabinete** | Total do ano, por categoria, maiores gastos, sempre com a média da Casa ao lado. |
 | 🗳 | **Votos e presença** | "Votou em 31 de 59 votações", como votou em cada uma, orientação do Governo e do partido, votos por tema e nas comissões. |
 | 📝 | **Projetos de lei** | Desde 2023: autor principal ou coautor, temas e os que viraram lei. |
-| 🧾 | **Eleição (TSE)** | Votos, bens declarados (comparados com a eleição anterior), de onde veio e para onde foi o dinheiro da campanha, todas as eleições que disputou. |
+| 📜 | **Projetos e votações** | Busca pelo número ("PL 2338/2023") ou por palavra, com ou sem acento, no Congresso, nas assembleias e nas câmaras. Em cada projeto: do que se trata, todas as votações nominais, quem votou Sim e quem votou Não (com filtro do seu estado e placar por estado), o que disseram os parlamentares no dia da votação (resumo oficial e link, agrupado pelo voto de quem falou), o caminho do projeto e a pauta da semana. A lista começa pelos projetos com mais informação publicada (votação nominal, discursos, caminho), e a cidade sem dados diz por quê. |
+| 🧾 | **Eleição (TSE)** | Votos, bens declarados (comparados com a eleição anterior), de onde veio e para onde foi o dinheiro da campanha, todas as eleições que disputou desde 1994 (o TSE não publica o cadastro de candidaturas mais antigo). |
 | 🕰 | **Linha do tempo** | Cassações, sanções da CGU, contas reprovadas no TCU, Conselho de Ética, cargos no governo federal, viagens, cartão corporativo, CPIs. Só com vínculo seguro e link oficial. |
 | 🏙 | **Sua cidade** | Emendas recebidas e quem mandou, contas da prefeitura e da câmara, maiores fornecedores, contratos no PNCP, canais oficiais. |
 | 🗺 | **Impostos e repasses** | Quanto a União arrecadou e repassou a cada estado e cidade (2019 a 2026), por habitante, em mapa. |
 | ⚖️ | **Comparadores** | Até 4 parlamentares lado a lado, vereadores da mesma câmara, e os candidatos do 2º turno com os mesmos campos. |
 | 🏛 | **Partidos** | Fundo Partidário, fundo eleitoral, receitas, gastos e repasses (TSE). |
 | 🔍 | **Busca por nome** | Todos os níveis e partidos, sem diferença de acento. |
+| 💡 | **A ideia e as dúvidas** | [O que é o Panóptico](https://panoptico.social.br/o-panoptico) (história ao rolar: de Bentham e Foucault à inversão que dá nome ao projeto), [Perguntas frequentes](https://panoptico.social.br/perguntas) e [Apoiadores](https://panoptico.social.br/apoiadores) (um raio do sol da marca por pessoa; só quem autorizou o nome, lista em `frontend/lib/apoiadores.ts`). Ficam no rodapé; "Fontes" saiu do menu do topo. |
 
-E mais: **feed Atom** em cada perfil (sem pedir e-mail), **modo escuro**, **cartões de prévia** com botão de WhatsApp e telas em três camadas (número → pergunta que explica → detalhe completo).
+E mais: **modo escuro** (segue o aparelho; um ícone troca), **filtros** com o mesmo padrão em todo o site (painel no celular, filtros ativos removíveis, link compartilhável), **cartões de prévia** com botão de WhatsApp e telas em três camadas (número → pergunta que explica → detalhe completo).
 
 <details>
 <summary><b>🏛 Cobertura de assembleias estaduais</b> (clique para abrir)</summary>
@@ -99,6 +102,8 @@ Emendas estaduais: SC (SC Transferências), por enquanto só na API. O que falta
 - Pagamentos a fornecedores: SP (TCE-SP) no site; RS (TCE-RS) só no acervo local, porque o tribunal não responde fora do Brasil; MG aguarda pedido (reCAPTCHA).
 
 </details>
+
+> ♿ **Acessível:** meta WCAG 2.2 nível AA e eMAG 3.1; uso só pelo teclado (com atalhos Alt+1, 2 e 3), leitor de tela, letra até 200% e telas a partir de 320 px; testes automáticos todos os dias. Detalhes e limitações em [/acessibilidade](https://panoptico.social.br/acessibilidade).
 
 ## 📏 Princípios
 
@@ -207,7 +212,10 @@ Documentação interativa: [api.panoptico.social.br/docs](https://api.panoptico.
 | `GET /parlamentares/{id}/projetos` | Projetos de lei desde 2023 |
 | `GET /parlamentares/{id}/votos-por-tema?ano=` | Votações por tema, com a média da Casa |
 | `GET /parlamentares/{id}/emendas-destino` | Situação dos convênios e transferências das emendas |
-| `GET /votacoes/{casa}/{id}` | Placar, orientações e voto de cada parlamentar |
+| `GET /votacoes/{casa}/{id}` | Placar, orientações, voto de cada parlamentar, placar por estado e discursos do dia |
+| `GET /projetos?q=&esfera=&uf=&municipio=&tema=&ano=&votacao=&ordem=` | Busca de projetos e votações (Congresso, assembleias e câmaras); por padrão, primeiro os com mais informação publicada; `cobertura` diz quando a câmara ou a assembleia não tem dados aqui |
+| `GET /projetos/{casa}/{id}` · `GET /projetos/local/{id}` | Projeto: ficha, votações, quem votou, discursos e caminho |
+| `GET /votacoes/local/{id}` · `GET /pauta?casa=&dias=` · `GET /projetos/temas` | Votação local, pauta do Plenário e temas |
 | `GET /municipios?uf=` · `GET /municipios/{ibge}/emendas` | Municípios e emendas recebidas |
 | `GET /pessoas/de?tipo=&id=` · `GET /pessoas/{id}` | A pessoa por trás de um perfil |
 | `GET /pessoas/{id}/eventos` · `/eventos.rss` | Linha do tempo (JSON ou feed Atom) |
@@ -228,11 +236,11 @@ Documentação interativa: [api.panoptico.social.br/docs](https://api.panoptico.
 | Camada | Tecnologia |
 |---|---|
 | Ingestão | Python 3.12, httpx, SQLAlchemy 2, Alembic |
-| Banco | PostgreSQL (Neon em produção) |
+| Banco | PostgreSQL 18 (na VPS, em produção) |
 | API | FastAPI, Pydantic |
 | Site | Next.js 16 (App Router, Cache Components), React 19, Tailwind CSS 4, shadcn/ui |
 | Qualidade | pytest, respx, Vitest, ruff, ESLint, TypeScript |
-| Infra | Vercel, Neon, GitHub Actions |
+| Infra | VPS Locaweb, Docker Compose, Cloudflare, GitHub Actions |
 
 ```
 panoptico/
@@ -284,6 +292,8 @@ npm install && npm run dev
 ```bash
 cd backend && uv run pytest && uv run ruff check && uv run ruff format --check
 cd frontend && npm test && npm run lint && npm run build
+# acessibilidade (axe, teclado, 320 px, 200%) contra um site no ar ou local:
+cd frontend && E2E_BASE_URL=http://localhost:3000 npm run e2e
 ```
 
 O backend usa o banco `panoptico_test` e simula as APIs externas com `respx`, a partir de amostras reais em `backend/tests/fixtures/`. O CI roda tudo a cada push; teste falhando impede a publicação.
@@ -361,10 +371,12 @@ Nunca saem CPF, título, data de nascimento, pessoa sem vínculo publicável, su
 
 <br>
 
-- **Hoje:** Vercel (site e API), Neon Launch (banco, pago por uso) e GitHub Actions (ingestões). Detalhes em [docs/DEPLOY_GRATUITO.md](docs/DEPLOY_GRATUITO.md).
-- **Ingestões:** diária (federal e PNCP enxuto), semanal (câmaras e assembleias; Justiça e identidade às terças, incremental), mensal (TSE partidos, SICONFI, TCEs).
-- **Travas de custo:** cache de 1 h na CDN, firewall de 120 req/min por IP, banco travado em 0,25 CU e spending limit com alerta. Custo esperado: R$ 5 a 20 por mês ([Apoie](https://panoptico.social.br/apoie)).
-- **Alternativa:** VPS única com docker compose e HTTPS automático ([docs/DEPLOY.md](docs/DEPLOY.md)).
+- **Hoje (desde 26/10/2026):** uma VPS Locaweb em São Paulo (2 vCPU, 4 GB, 70 GB) com banco, API, site e ingestão, atrás do Cloudflare por túnel, sem portas abertas além do SSH. Push no `dev` → Publicar → `main` → a VPS se atualiza em até 10 min. Backup diário em bucket Oracle. Detalhes em [deploy/vps/LEIAME.md](deploy/vps/LEIAME.md).
+- **Ingestões:** agenda systemd na VPS (diária, PNCP, justiça, câmaras, mensal).
+- **Reserva congelada:** uma versão fixa do site, da API e do banco na Vercel e no Neon, que entra no ar sozinha se a VPS cair (o Worker `panoptico-troca` troca o DNS com 3 falhas seguidas e volta com 10 sucessos). Ela só é atualizada de propósito ([deploy/vps/LEIAME.md](deploy/vps/LEIAME.md), "Reserva congelada"). Backup diário do banco no Oracle Cloud (grátis). Histórico em [docs/DEPLOY_GRATUITO.md](docs/DEPLOY_GRATUITO.md).
+- **Cloudflare:** DNS, proxy e cache (API por `s-maxage`, páginas 30 min); o firewall bloqueia só coletores em massa e robôs de SEO e libera os robôs de pesquisa e de treino das grandes IAs.
+- **Custo:** VPS R$ 79,90/mês; reserva Vercel + Neon parada, cerca de R$ 5/mês; Cloudflare e Oracle no grátis (orçamento com alerta e trava de cotas); domínio cerca de R$ 40/ano. Veja a página [Apoie](https://panoptico.social.br/apoie).
+- **Alternativa:** VPS genérica com docker compose e HTTPS automático ([docs/DEPLOY.md](docs/DEPLOY.md)).
 
 </details>
 

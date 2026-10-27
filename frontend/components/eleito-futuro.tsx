@@ -3,6 +3,7 @@ import Link from "next/link";
 import { FonteRodape } from "@/components/fonte-rodape";
 import type { EleitoFuturo, EleitosFuturos } from "@/lib/api";
 import { formatarData, formatarPosse } from "@/lib/formato";
+import { LinkExterno } from "@/components/link-externo";
 
 const CARGO_COM_GENERO: Record<string, string> = {
   "Deputado federal": "deputado(a) federal",
@@ -33,19 +34,24 @@ export function SeloEleitoFuturo({ eleito, atualizadoEm }: { eleito: EleitoFutur
       <p className="font-medium">{fraseEleitoFuturo(eleito)}</p>
       <p className="mt-1 text-sm text-muted-foreground">
         {[eleito.partido, eleito.unidade].filter(Boolean).join(" · ")}
+        {eleito.vice && <> · vice: {eleito.vice}</>}
+        {eleito.votos != null && (
+          <>
+            {" "}
+            · {eleito.votos.toLocaleString("pt-BR")} {eleito.segundo_turno ? "votos no 1º turno" : "votos"}
+          </>
+        )}
         {eleito.situacao && !eleito.segundo_turno && <> · {eleito.situacao}</>}
         {eleito.ja_no_cargo && <> · Segue no mandato de hoje até a posse.</>}
       </p>
-      <p className="mt-1 text-xs text-muted-foreground">
+      <p className="mt-1 text-sm text-muted-foreground">
         Fonte:{" "}
-        <a
+        <LinkExterno
           href={`https://dadosabertos.tse.jus.br/dataset/candidatos-${eleito.ano_eleicao}`}
-          target="_blank"
-          rel="noopener noreferrer"
           className="underline underline-offset-2"
         >
           Tribunal Superior Eleitoral
-        </a>
+        </LinkExterno>
         {atualizadoEm && <> · atualizado em {formatarData(atualizadoEm)}</>}
       </p>
     </aside>
@@ -58,7 +64,7 @@ function Lista({ itens }: { itens: EleitoFuturo[] }) {
       {itens.map((e) => (
         <li key={e.id} className="border-b border-border">
           <Link
-            href={e.parlamentar_id ? `/parlamentar/${e.parlamentar_id}` : `/eleito/${e.id}`}
+            href={e.perfil}
             className="flex flex-col py-3 transition-colors duration-300 hover:bg-accent/50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-bronze"
           >
             <span className="truncate text-base font-semibold">{e.nome_urna}</span>
@@ -66,7 +72,7 @@ function Lista({ itens }: { itens: EleitoFuturo[] }) {
               {[e.partido, e.uf].filter(Boolean).join(" · ")}
               {e.vice && <> · vice: {e.vice}</>}
             </span>
-            <span className="text-xs text-muted-foreground">
+            <span className="text-sm text-muted-foreground">
               {e.segundo_turno
                 ? `Disputa o 2º turno${e.data_segundo_turno ? ` em ${formatarData(e.data_segundo_turno)}` : ""}`
                 : e.situacao}

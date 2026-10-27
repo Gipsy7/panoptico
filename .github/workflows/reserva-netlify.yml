@@ -1,0 +1,27 @@
+name: Reserva Netlify
+
+# Reconstrói a cópia de reserva do site na Netlify (build hook). Cada deploy de
+# produção gasta 15 dos 300 créditos mensais do plano grátis: por isso só
+# manualmente e uma vez por semana.
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 9 * * 1"
+
+permissions: {}
+
+jobs:
+  disparar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Disparar o build na Netlify
+        env:
+          NETLIFY_BUILD_HOOK: ${{ secrets.NETLIFY_BUILD_HOOK }}
+        run: |
+          if [ -z "$NETLIFY_BUILD_HOOK" ]; then
+            echo "::warning::Secret NETLIFY_BUILD_HOOK não configurado; nada foi disparado. Crie o build hook em Netlify > Site configuration > Build hooks e salve a URL como secret."
+            exit 0
+          fi
+          curl -fsS -X POST "$NETLIFY_BUILD_HOOK"
+          echo "Build disparado."

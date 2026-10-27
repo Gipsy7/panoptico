@@ -1,68 +1,95 @@
 ---
 name: operar-producao
-description: Como operar o Panóptico em produção — Vercel (site e API), Neon (Postgres) e GitHub Actions (ingestão diária e CI) — pela linha de comando, sem manipular segredos. Use sempre que a tarefa envolver deploy, redeploy, variáveis de ambiente da Vercel, domínios e DNS (Registro.br), disparar ou acompanhar a ingestão no GitHub Actions, investigar o site ou a API fora do ar ou com dados desatualizados, ou checar o CI, mesmo que o pedido seja só "o site não está funcionando" ou "atualiza os dados".
+description: Como operar o Panóptico em produção — VPS Locaweb (banco, API, site e ingestão), Cloudflare, Worker de troca, reservas (Vercel, Neon, Netlify, Oracle) e GitHub Actions (Publicar, CI) — pela linha de comando, sem manipular segredos. Use sempre que a tarefa envolver deploy, logs, backup, disco, domínios e DNS, disparar ou acompanhar cargas, investigar o site ou a API fora do ar ou com dados desatualizados, ou checar o CI, mesmo que o pedido seja só "o site não está funcionando" ou "atualiza os dados".
 ---
 
 # Operar produção
+
+Desde 26/10/2026 a produção é uma VPS Locaweb. Vercel e Neon deixaram de ser produção (CPU da Vercel esgotada pelo robô da Meta; latência de 114 ms até o Neon nos EUA; custo). Guia completo: `deploy/vps/LEIAME.md`; o porquê em `docs/DECISOES.md` (2026-10-26).
 
 ## Mapa
 
 | Parte | Onde | Endereço |
 |---|---|---|
-| Site | Vercel, projeto `panoptico` (root `frontend`) | https://panoptico.social.br · https://panoptico.vercel.app |
-| API | Vercel, projeto `panoptico-api` (root `backend`, FastAPI em `app/main.py`) | https://api.panoptico.social.br · https://panoptico-api.vercel.app |
-| Banco | Neon (plano Launch, pago por uso; ver travas de custo no README) | — |
-| Ingestão diária | `.github/workflows/ingestao.yml`, 6h de Brasília | Actions do repo `Gipsy7/panoptico` |
-| CI | `.github/workflows/ci.yml` (pytest com Postgres, ruff, lint e build) | a cada push |
+| Produção (Postgres 18, API, site, túnel, ingestão) | VPS Locaweb, São Paulo, Ubuntu 24.04, 2 vCPU, 4 GB, 70 GB; `deploy/vps/` em `/opt/panoptico/deploy/vps`; túnel Cloudflare `panoptico-vps`, sem portas abertas além do SSH | https://panoptico.social.br · https://api.panoptico.social.br (teste direto: `vps.` e `api-vps.`) |
+| Agenda das cargas | timers systemd em `deploy/vps/agenda/` (diária, PNCP, justiça, câmaras, mensal); trava `federal` no flock | `systemctl list-timers 'panoptico-*'` |
+| Atualização | `atualizar.sh` a cada 10 min, a partir do `main` | — |
+| Backup | `backup.sh` diário para o bucket Oracle `panoptico-backups`, nomes que se repetem (dia da semana e mês) | — |
+| Cloudflare | DNS e proxy; cache da API (respeita `s-maxage`) e das páginas (30 min), em camadas; firewall só contra coletores em massa e robôs de SEO (robôs de pesquisa e de treino de IA liberados) | painel Cloudflare |
+| Worker `panoptico-troca` | `infra/cloudflare/troca`: VPS principal; vai para a reserva com 3 falhas seguidas e volta com 10 sucessos; grava no KV só quando o estado muda; `/configurar` e `/trafego` | https://panoptico-troca.mikael-dev.workers.dev |
+| Reserva do site | Netlify (`frontend/netlify.toml`), deploy só pelo `reserva-netlify.yml` | https://panoptico.netlify.app |
+| Reserva da API (provisória até 1º/11) | VM Oracle micro `panoptico-reserva-micro` (IP no painel Oracle), docker compose + túnel (`deploy/reserva`), lê o Neon | `api-reserva.panoptico.social.br` |
+| Neon | Banco da **reserva congelada**: sem ingestão automática; atualizado só pelo procedimento manual (`deploy/vps/LEIAME.md`, "Reserva congelada") | — |
+| Vercel | Site e API da **reserva congelada** (pausada até 1º/11/2026; depois, deploys automáticos desligados) | panoptico.vercel.app |
+| Oracle | Backup diário (bucket `panoptico-backups`); ARM grátis parada (meta futura: reserva com réplica lógica); orçamento `panoptico-gasto-zero` com alerta, trava de cotas `panoptico-so-gratis` | — |
+| CI e Publicar | `.github/workflows/ci.yml`, `publicar.yml` | Actions do repo `Gipsy7/panoptico` |
 
-Conta Vercel: `gipsy7` (time `gipsy7s-projects`, plano Hobby). Repositório público. Guia humano completo: `docs/DEPLOY_GRATUITO.md`.
+As travas de custo do Neon/Vercel caíram. Recarga completa e dados do acervo são possíveis na VPS, respeitando disco (70 GB) e RAM (4 GB): cargas pesadas de madrugada e em sequência. Fontes só-Brasil podem rodar lá. Bloqueio deliberado nunca é contornado.
 
 ## Publicar código: sempre pelo branch `dev`
 
-Nunca faça push direto no `main`. Envie para o `dev` (`git push origin dev`; se estiver no `main` local, `git push origin main:dev` ou mude de branch antes de commitar). O workflow **Publicar** roda os testes, aplica as migrações e recarrega os dados federais (~20 min) só se uma migração declarar `RECARREGAR_DADOS = True` (tabelas que a ingestão diária preenche); senão, publica em poucos minutos. Cada carga tem a sua fila de execução (ver "Filas no banco" em `docs/DEPLOY_GRATUITO.md`); disparar outra execução na mesma fila cancela a pendente. Só então avança o `main`, e a Vercel publica. Isso evita o site no ar com código que espera tabelas ou dados que ainda não existem.
+Nunca push direto no `main`, nunca `--force`. `git push origin dev` dispara o **Publicar**: testa, migra e avança o `main`; a VPS puxa o `main` sozinha em até 10 min (`atualizar.sh`). O limite de 100 deploys/dia vale só para a Vercel, hoje reserva.
 
-- Acompanhe com `gh run list --workflow publicar.yml --limit 1` e `gh run watch <id> --exit-status` em background.
-- Forçar recarga sem migração: `gh workflow run publicar.yml --ref dev -f recarregar=true`.
-- Migrações só podem acrescentar (tabela nova, coluna opcional); remoções em duas publicações.
-- Se o passo "Avançar o main" falhar, o `main` tem commits que o `dev` não tem: traga-os para o `dev` (merge/rebase) e envie de novo. Nunca use `--force`.
+- Acompanhe: `gh run list --workflow publicar.yml --limit 1` e `gh run watch <id> --exit-status` em background.
+- Migrações só acrescentam (tabela nova, coluna opcional); remoção em duas publicações. A API aplica as migrações ao subir na VPS.
+- Se "Avançar o main" falhar, o `main` tem commits que o `dev` não tem: traga-os para o `dev` e envie de novo.
+- Enquanto a semana de teste durar, o Publicar ainda migra o Neon; confira o workflow antes de contar com ele para o banco da VPS.
 
 ## Segredos: nunca passe por eles
 
-A URL do banco existe em dois lugares: secret `DATABASE_URL` do GitHub (string **direta** do Neon) e variável `DATABASE_URL` do projeto `panoptico-api` na Vercel (string **com pooling**, host com `-pooler`). Quem coloca é o usuário. Não leia, não imprima, não copie esses valores (ao listar variáveis, mostre só os nomes). Se uma tarefa exigir o valor, peça para o usuário configurar no painel. O mesmo vale para a chave do Portal da Transparência no `backend/.env`.
+Não leia nem imprima o `.env` da VPS (`POSTGRES_PASSWORD`, `BACKUP_PAR_URL`, `DATAJUD_CHAVE`), `DATABASE_URL`, `CF_TOKEN`, `CHAVE_PAINEL` (`~/.panoptico/chave_painel`), `TUNNEL_TOKEN` nem a chave do Portal da Transparência. Ao listar variáveis, mostre só os nomes. Se a tarefa exigir o valor, peça ao usuário.
 
-## Vercel pela CLI
-
-Login é interativo: rode `npx vercel@latest login` em background, leia a saída e passe ao usuário o link `https://vercel.com/oauth/device?user_code=...`. Confira com `npx vercel@latest whoami`.
-
-Use `vercel api` (chamadas autenticadas sem tocar no token) e **sempre com `MSYS_NO_PATHCONV=1`** no Git Bash:
+## VPS: comandos de diagnóstico
 
 ```bash
-export MSYS_NO_PATHCONV=1
-npx vercel@latest api /v9/projects/panoptico                          # detalhes (link.repoId = 1408082606)
-npx vercel@latest api /v10/projects/panoptico-api/env                 # variáveis (mostre só key/target)
-npx vercel@latest api /v9/projects/<proj>/env/<id> -X PATCH --input arq.json   # {"value": "..."}
-npx vercel@latest api /v10/projects/<proj>/env -X POST --input arq.json        # nova variável
-npx vercel@latest api /v10/projects/<proj>/domains -X POST -f name=<dominio>
-npx vercel@latest api /v6/domains/<dominio>/config                    # registros DNS recomendados
-npx vercel@latest api /v13/deployments -X POST --input dep.json       # deploy de produção
-npx vercel@latest api /v13/deployments/<id>                           # readyState: QUEUED/BUILDING/READY/ERROR
+ssh -i ~/.ssh/panoptico_vps root@<IP da VPS: painel da Locaweb ou ACOMPANHAMENTO.md local>
+cd /opt/panoptico/deploy/vps
+docker compose ps                         # banco, api, web, túnel
+docker compose logs --tail 100 api        # ou web, db, cloudflared
+journalctl -u 'panoptico-*' --since today # cargas, atualização, backup
+journalctl -u panoptico-atualizar -n 50   # última atualização a partir do main
+systemctl list-timers 'panoptico-*'       # próximas execuções
+df -h / /opt/backups; docker system df    # espaço em disco (70 GB)
+free -h                                   # RAM (4 GB)
+ls -lh /opt/backups | tail                # backups recentes
+sudo systemctl start panoptico-<carga>.service   # disparo manual de uma carga
 ```
 
-Corpo do deploy de produção a partir do `main`:
+De fora:
 
-```json
-{"name": "panoptico-api", "project": "panoptico-api", "target": "production",
- "gitSource": {"type": "github", "repoId": 1408082606, "ref": "main"}}
+```bash
+curl -s https://api.panoptico.social.br/saude      # banco ok?
+curl -s https://api-vps.panoptico.social.br/saude  # direto na VPS, sem passar pelo Worker
+curl -s https://api.panoptico.social.br/fontes     # data da última carga de cada fonte
 ```
 
-Pontos que pegam:
-- O `main` (avançado pelo Publicar) dispara deploy dos dois projetos; o `dev` gera só deploys de preview. Deploy manual só é necessário depois de **mudar variáveis**, porque elas só valem a partir do próximo build.
-- `NEXT_PUBLIC_*` entram no build do site: mudou, redeploy do `panoptico`.
-- A API na Vercel roda sem pool (`settings.serverless`, ativado por `VERCEL=1`) e sem prepared statements, por causa do pooler do Neon.
-- `CORS_ORIGINS` é uma lista JSON (`["https://panoptico.social.br","https://www.panoptico.social.br"]`).
-- A raiz da API (`/`) responde 404 de propósito (não há página inicial); a documentação interativa está em `/docs`. Para testar se a API está no ar, use `/saude`.
+- `"banco":"indisponivel"`: contêiner `db` parado ou disco cheio; veja `docker compose ps` e `df -h`.
+- Site abre sem dados: API fora, ou o Worker mandou para a reserva (veja o estado abaixo).
+- Dados velhos: `journalctl -u 'panoptico-*'` e `/fontes`. As cargas pesadas rodam em sequência pela trava `federal`; uma presa segura as seguintes.
+- Backups: confira a data dos arquivos em `/opt/backups` e no bucket `panoptico-backups`; restauração em `deploy/vps/LEIAME.md` (seção 4).
 
-## Ingestão no GitHub Actions
+## Cloudflare e Worker de troca
+
+Detalhes em `deploy/vps/LEIAME.md`, `infra/cloudflare/troca/LEIAME.md` e `docs/DEPLOY_GRATUITO.md` ("Reserva e troca automática").
+
+```bash
+# Estado do Worker (a chave vai na URL; leia do arquivo sem imprimir)
+curl -s "https://panoptico-troca.mikael-dev.workers.dev/estado?chave=$(cat ~/.panoptico/chave_painel)"   # também /dns, /diagnostico e /trafego; POST /preparar e /configurar
+# Forçar o modo (auto|principal|reserva|observar): wrangler kv key put (formato em infra/cloudflare/troca/LEIAME.md)
+cd infra/cloudflare/troca && npx wrangler deploy
+```
+
+Para manutenção da VPS, ponha o Worker em `observar` ou `principal` antes, para ele não trocar à toa. A reserva nunca roda migração.
+
+```bash
+# VM Oracle de reserva da API
+ssh -i ~/.ssh/panoptico_oracle ubuntu@163.176.196.22
+journalctl -u panoptico-atualizar        # na VM: atualização a cada 10 min a partir do main
+docker compose ps                        # na VM, em /opt/panoptico/deploy/reserva
+# OCI CLI (sem instalar): python -m uv tool run --from oci-cli oci ...   ou   ~/.local/bin/oci ...
+```
+
+## Ingestão no GitHub Actions (alimenta o Neon durante o teste)
 
 ```bash
 gh workflow run ingestao.yml                          # atualização normal
@@ -72,24 +99,26 @@ gh run watch <id> --exit-status --interval 30         # rode em background e esp
 gh run view <id> --log | grep -E "\[ok\]|\[erro\]|Traceback"
 ```
 
-Uma rodada completa leva ~23 min (as emendas são a parte lenta). Os brutos ficam 7 dias como artefato da execução. Em repositório público, o GitHub **desativa agendamentos após 60 dias sem commits**; se a data em `/fontes` parar, verifique isso primeiro.
+Na produção as cargas rodam pela agenda systemd da VPS (ver diagnóstico acima). Em repositório público, o GitHub desativa agendamentos após 60 dias sem commits.
 
-## Diagnóstico rápido
+## Vercel pela CLI (reserva; pausada)
+
+Só se a reserva da Vercel for retomada. Login é interativo: `npx vercel@latest login` em background e passe ao usuário o link `https://vercel.com/oauth/device?user_code=...`. Use `vercel api` (sem tocar no token), **sempre com `MSYS_NO_PATHCONV=1`** no Git Bash:
 
 ```bash
-curl -s https://panoptico-api.vercel.app/saude        # banco ok?
-curl -s https://panoptico-api.vercel.app/fontes       # datas da última carga de cada fonte
-curl -s "https://dns.google/resolve?name=api.panoptico.social.br&type=CNAME"
+export MSYS_NO_PATHCONV=1
+npx vercel@latest api /v9/projects/panoptico                          # link.repoId = 1408082606
+npx vercel@latest api /v10/projects/panoptico-api/env                 # mostre só key/target
+npx vercel@latest api /v13/deployments -X POST --input dep.json       # deploy de produção
+npx vercel@latest api /v13/deployments/<id>                           # readyState
 ```
 
-- `"banco":"indisponivel"`: `DATABASE_URL` ausente ou errado na Vercel, ou deploy anterior à variável (redeploy).
-- Site abre sem dados: o domínio da API não resolve (DNS) ou o `NEXT_PUBLIC_API_URL` está errado.
-- Dados velhos: veja a última execução do `ingestao.yml` e o `fonte_ingestao` via `/fontes`.
+Corpo do deploy a partir do `main`: `{"name": "panoptico-api", "project": "panoptico-api", "target": "production", "gitSource": {"type": "github", "repoId": 1408082606, "ref": "main"}}`. Conta `gipsy7` (Hobby). Variáveis só valem no próximo build; `NEXT_PUBLIC_*` entram no build do site. A API lá roda sem pool (`VERCEL=1`). A raiz da API responde 404 de propósito; teste com `/saude`.
 
-## DNS (Registro.br, modo avançado)
+## DNS
 
-Zona atual: `A` da raiz → `216.198.79.1` e `64.29.17.1`; `CNAME www` e `CNAME api` → valores `*.vercel-dns-017.com` mostrados pela Vercel; três `TXT _vercel` de verificação. O DNS fica no próprio Registro.br — não mude os servidores DNS nem ative DNSSEC sem combinar com o usuário. Valores atuais sempre em `/v6/domains/<dominio>/config`.
+A zona está no Cloudflare (nameservers no Registro.br) e os registros de produção apontam para o túnel `panoptico-vps`. Não mude os servidores DNS nem ative DNSSEC sem combinar com o usuário. Os valores da Vercel (A da raiz, CNAME `*.vercel-dns-017.com`) só voltam se a reserva dela for retomada.
 
 ## Alternativa
 
-Alternativa ao Neon e à Vercel: `deploy/` tem uma VPS completa (docker compose com Postgres, API, site, Caddy e ingestão por cron) e o guia `docs/DEPLOY.md`. Nada disso está em uso hoje.
+`docs/DEPLOY.md` descreve uma VPS genérica com Caddy; a produção atual usa `deploy/vps/` com túnel Cloudflare.

@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 
 import { CopiarPix } from "@/components/copiar-pix";
+import { CONTATO_EMAIL } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: "Apoie",
@@ -15,14 +17,25 @@ const PIX_COPIA_E_COLA =
   "00020126580014br.gov.bcb.pix01364c02a34c-095e-4990-9bdb-0fe161608f8c" +
   "5204000053039865802BR5916MIKAEL FRANCISCO6008BLUMENAU62070503***63044E2F";
 
+// Atualizado em out/2026, com a mudança para o servidor próprio (ver docs/DECISOES.md).
 const CUSTOS = [
   {
-    item: "Banco de dados (Neon)",
-    valor: "R$ 5 a 20 por mês",
-    nota: "Cobrado pelo uso. Há um teto de cerca de R$ 110 por mês mesmo com muito acesso.",
+    item: "Servidor principal (VPS Locaweb, em São Paulo)",
+    valor: "R$ 79,90 por mês",
+    nota: "Banco de dados, API, site e atualização diária dos dados, numa máquina só.",
   },
   {
-    item: "Hospedagem do site e da API (Vercel)",
+    item: "Cópia de reserva (Vercel e banco Neon)",
+    valor: "cerca de R$ 5 por mês",
+    nota: "Uma versão do site guardada para entrar no ar sozinha se o servidor principal cair. Cobrada pelo uso.",
+  },
+  {
+    item: "Proteção, cache e endereço (Cloudflare)",
+    valor: "R$ 0",
+    nota: "Plano gratuito.",
+  },
+  {
+    item: "Backup diário do banco (Oracle Cloud)",
     valor: "R$ 0",
     nota: "Plano gratuito.",
   },
@@ -94,6 +107,17 @@ export default function ApoiePage() {
             </p>
           </div>
         </div>
+        <p className="text-sm text-muted-foreground">
+          Quer ter o seu nome na{" "}
+          <Link href="/apoiadores" className="underline underline-offset-2">
+            lista de apoiadores
+          </Link>
+          ? Escreva para{" "}
+          <a href={`mailto:${CONTATO_EMAIL}`} className="underline underline-offset-2">
+            {CONTATO_EMAIL}
+          </a>{" "}
+          autorizando. Sem essa autorização, nenhum nome é publicado.
+        </p>
       </section>
 
       <section className="nota flex flex-col gap-2 text-sm text-muted-foreground">

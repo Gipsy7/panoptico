@@ -1,0 +1,57 @@
+name: "Discursos da Câmara: histórico"
+
+# Carga longa dos discursos da Câmara (uma consulta por deputado e por mês: ~11 mil pedidos
+# desde o início do ano anterior, algumas horas). Fica fora da ingestão diária, que sem carga
+# anterior cobre só os últimos 45 dias (docs/DECISOES.md, 2026-10-21). Rodar uma vez depois
+# da publicação e quando for preciso refazer o histórico.
+on:
+  workflow_dispatch:
+    inputs:
+      desde:
+        description: "Início da janela (AAAA-MM-DD); antes do ano anterior = do início do ano anterior"
+        type: string
+        default: "2025-01-01"
+
+# Mesmo grupo da ingestão diária: as duas nunca gravam ao mesmo tempo.
+concurrency:
+  group: ingestao-federal
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  discursos:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    defaults:
+      run:
+        working-directory: backend
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: astral-sh/setup-uv@v10.2.0
+        with:
+          version: "0.12.23"
+
+      - name: Instalar dependências
+        run: uv sync --locked --no-dev
+
+      - name: Migrações do banco
+        run: uv run alembic upgrade head
+
+      - name: Discursos da Câmara (histórico)
+        env:
+          DESDE: ${{ inputs.desde }}
+        run: uv run python -m ingestion.camara.discursos --desde "$DESDE"
+
+      - name: Guardar dados brutos
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: brutos-discursos-${{ github.run_id }}
+          path: backend/data/raw/
+          retention-days: 7
+          if-no-files-found: ignore

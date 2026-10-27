@@ -3,6 +3,7 @@ import { TabelaRolavel } from "@/components/ui/tabela-rolavel";
 import { FonteRodape } from "@/components/fonte-rodape";
 import type { Casa, ProjetoItem, Projetos } from "@/lib/api";
 import { CASA_DA, formatarData } from "@/lib/formato";
+import { LinkExterno } from "@/components/link-externo";
 
 const NUMERO = new Intl.NumberFormat("pt-BR", { maximumFractionDigits: 1 });
 
@@ -15,7 +16,7 @@ export function ProjetosSecao({ projetos, casa }: { projetos: Projetos; casa: Ca
         <h2 id="projetos-titulo" className="text-2xl">
           Projetos de lei
         </h2>
-        <p className="text-xs text-muted-foreground">
+        <p className="text-sm text-muted-foreground">
           Proposições legislativas apresentadas desde fevereiro de {desde} (legislatura atual)
         </p>
       </div>
@@ -34,7 +35,7 @@ export function ProjetosSecao({ projetos, casa }: { projetos: Projetos; casa: Ca
       </p>
 
       {projetos.por_tipo.length > 0 && (
-        <TabelaRolavel larguraMinima="24rem">
+        <TabelaRolavel larguraMinima="24rem" rotulo="Projetos por tipo, tabela com rolagem lateral">
         <table className="w-full text-left text-sm">
           <caption className="sr-only">Projetos por tipo</caption>
           <thead className="text-muted-foreground">
@@ -48,7 +49,7 @@ export function ProjetosSecao({ projetos, casa }: { projetos: Projetos; casa: Ca
             {projetos.por_tipo.map((t) => (
               <tr key={t.sigla} className="border-t">
                 <th scope="row" className="py-2 pr-3 font-normal">
-                  {t.nome} <span className="text-xs text-muted-foreground">({t.sigla})</span>
+                  {t.nome} <span className="text-sm text-muted-foreground">({t.sigla})</span>
                 </th>
                 <td className="py-2 pr-3 text-right tabular-nums">{t.primeiro_autor}</td>
                 <td className="py-2 text-right tabular-nums">{t.coautor}</td>
@@ -106,16 +107,14 @@ function ListaProjetos({ itens }: { itens: ProjetoItem[] }) {
     <ul className="flex flex-col divide-y">
       {itens.map((p) => (
         <li key={`${p.sigla_tipo}-${p.numero}-${p.ano}`} className="flex flex-col gap-1 py-3">
-          <a
+          <LinkExterno
             href={p.url}
-            target="_blank"
-            rel="noopener noreferrer"
             className="font-medium underline underline-offset-2"
           >
             {p.sigla_tipo} {p.numero}/{p.ano}
-          </a>
+          </LinkExterno>
           <TextoLongo linhas={3}>{p.ementa}</TextoLongo>
-          <p className="text-xs text-muted-foreground">
+          <p className="text-sm text-muted-foreground">
             Apresentado em {formatarData(p.data_apresentacao)} ·{" "}
             {p.situacao ?? "Situação não informada"}
           </p>

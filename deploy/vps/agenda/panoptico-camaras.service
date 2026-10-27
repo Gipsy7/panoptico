@@ -1,0 +1,11 @@
+[Unit]
+Description=Panoptico: camaras e assembleias
+After=docker.service network-online.target
+Wants=network-online.target
+Requires=docker.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/bash /opt/panoptico/deploy/vps/agenda/camaras.sh
+TimeoutStartSec=infinity
+Nice=10

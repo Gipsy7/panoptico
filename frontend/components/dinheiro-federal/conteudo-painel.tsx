@@ -74,7 +74,7 @@ export function Fontes({ fontes }: { fontes: DinheiroFederalFonte[] }) {
       {fontes.map((f) => (
         <FonteRodape key={f.nome} fonte={f.nome} url={f.url} atualizadoEm={f.atualizado_em} />
       ))}
-      <p className="text-[13px] text-muted-foreground">
+      <p className="text-sm text-muted-foreground">
         Valores em reais da época, sem correção pela inflação. <b>O que ficou de fora:</b> {FALTA}.
       </p>
     </div>
@@ -83,7 +83,7 @@ export function Fontes({ fontes }: { fontes: DinheiroFederalFonte[] }) {
 
 function SemDado({ t, ano }: { t: DinheiroFederalTotais; ano: number }) {
   const texto = textoSemDado(t, ano);
-  return texto ? <p className="text-[13px] text-muted-foreground">{texto}</p> : null;
+  return texto ? <p className="text-sm text-muted-foreground">{texto}</p> : null;
 }
 
 function Blocos({ t }: { t: DinheiroFederalTotais }) {
@@ -116,12 +116,12 @@ export function CabecalhoPainel({
 }) {
   return (
     <div className="flex flex-col gap-1">
-      <span className="text-[13px] text-muted-foreground">{sobre}</span>
+      <span className="text-sm text-muted-foreground">{sobre}</span>
       <h2 className="text-[1.4rem] leading-tight lg:text-[1.75rem]">{titulo}</h2>
       <span className="text-sm text-muted-foreground tabular-nums lg:hidden [&_b]:font-semibold [&_b]:text-foreground">
         {chave}
       </span>
-      {apoio && <span className="text-[13px] text-muted-foreground">{apoio}</span>}
+      {apoio && <span className="text-sm text-muted-foreground">{apoio}</span>}
     </div>
   );
 }
@@ -156,9 +156,9 @@ export function CorpoBrasil({ painel }: { painel: DinheiroFederalPainel }) {
         <Figura rotulo="Arrecadação por habitante" valor={porHab(arrHab(b))} />
         <Figura rotulo="Repasse por habitante" valor={porHab(repHab(b))} />
       </div>
-      {nota && <p className="text-[13px] text-muted-foreground">Por habitante: {nota}.</p>}
+      {nota && <p className="text-sm text-muted-foreground">Por habitante: {nota}.</p>}
       {b.sem_estado != null && b.sem_estado > 0 && (
-        <p className="text-[13px] text-muted-foreground">
+        <p className="text-sm text-muted-foreground">
           Inclui {reais(b.sem_estado)} sem estado definido na fonte (Portal da Transparência).
         </p>
       )}
@@ -237,7 +237,7 @@ function SerieEstado({ uf, anos, ano }: { uf: string; anos: number[]; ano: numbe
           }))}
         />
       </div>
-      <p className="text-[13px] text-muted-foreground">
+      <p className="text-sm text-muted-foreground">
         Valores da época, sem correção pela inflação. O ano em curso soma só os meses já publicados.
       </p>
     </>
@@ -279,7 +279,7 @@ export function CorpoEstado({
             media={{ rotulo: "Média do Brasil", valor: mediaBr }}
             formato="reais"
           />
-          <p className="text-[13px] text-muted-foreground">Repasse por habitante{nota ? `; ${nota}` : ""}.</p>
+          <p className="text-sm text-muted-foreground">Repasse por habitante{nota ? `; ${nota}` : ""}.</p>
         </div>
       )}
       {uf.uf === "DF" && (
@@ -379,7 +379,7 @@ function ContasPrefeitura({ mun }: { mun: DinheiroFederalMunicipio }) {
           },
         ]}
       />
-      <p className="text-[13px] text-muted-foreground">
+      <p className="text-sm text-muted-foreground">
         O resto vem do estado (ICMS, IPVA) e de outras receitas. Balanço de {c.ano}, o mais recente disponível.
       </p>
     </>
@@ -420,7 +420,7 @@ export function CorpoCidade({
                 media={{ rotulo: `Média das cidades de ${uf}`, valor: s.media_estado_por_habitante }}
                 formato="reais"
               />
-              <p className="text-[13px] text-muted-foreground">
+              <p className="text-sm text-muted-foreground">
                 Repasse por morador{populacaoNota ? `; ${populacaoNota}` : ""}.
               </p>
             </div>
@@ -465,9 +465,9 @@ export function CorpoCidade({
                 : undefined,
           }))}
         />
-        <p className="text-[13px] text-muted-foreground">Valores da época, sem correção pela inflação.</p>
+        <p className="text-sm text-muted-foreground">Valores da época, sem correção pela inflação.</p>
       </Secao>
-      <p className="text-[13px] text-muted-foreground">
+      <p className="text-sm text-muted-foreground">
         A Receita Federal não publica arrecadação por cidade; por isso aqui só aparece o que a União mandou.
       </p>
       <div className="flex flex-col gap-2">

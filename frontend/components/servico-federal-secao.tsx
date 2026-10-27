@@ -133,7 +133,7 @@ export async function ServicoFederalSecao({ pessoaId }: { pessoaId: number }) {
           {casa.descricao} ({casa.parlamentares_em_exercicio} parlamentares em exercício).
         </p>
       )}
-      {d.ligacao && <p className="text-xs text-muted-foreground">{d.ligacao}</p>}
+      {d.ligacao && <p className="text-sm text-muted-foreground">{d.ligacao}</p>}
       <FonteRodape fonte={d.fonte_nome} url={d.fonte_url} atualizadoEm={d.atualizado_em} />
     </section>
   );

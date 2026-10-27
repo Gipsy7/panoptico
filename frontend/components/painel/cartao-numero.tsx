@@ -27,9 +27,9 @@ export type Comparacao = {
 
 export function GradeCartoes({ rotulo, children }: { rotulo: string; children: ReactNode }) {
   return (
-    <nav aria-label={rotulo}>
-      <ul className="grid grid-cols-2 gap-2 sm:gap-3 lg:grid-cols-4">{children}</ul>
-    </nav>
+    <ul aria-label={rotulo} className="grid grid-cols-2 gap-2 sm:gap-3 lg:grid-cols-4">
+      {children}
+    </ul>
   );
 }
 

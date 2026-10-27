@@ -1,6 +1,7 @@
 import { FonteRodape } from "@/components/fonte-rodape";
 import type { FornecedoresPncp } from "@/lib/api";
 import { formatarData, formatarReais } from "@/lib/formato";
+import { LinkExterno } from "@/components/link-externo";
 
 function formatarCnpj(c: string) {
   return c.replace(/^(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})$/, "$1.$2.$3/$4-$5");
@@ -34,9 +35,9 @@ function Fornecedor({
       </span>
       <span className="block text-sm text-muted-foreground tabular-nums">
         CNPJ{" "}
-        <a href={linkCnpj(cnpj)} target="_blank" rel="noopener noreferrer" className="underline underline-offset-2">
+        <LinkExterno href={linkCnpj(cnpj)} className="underline underline-offset-2">
           {formatarCnpj(cnpj)}
-        </a>
+        </LinkExterno>
       </span>
     </>
   );
@@ -117,9 +118,9 @@ export function FornecedoresPncpSecao({ dados, cidade }: { dados: FornecedoresPn
                 <Fornecedor cnpj={s.fornecedor_cnpj} nome={s.fornecedor} omitido={s.nome_omitido} />
                 <span className="tabular-nums">
                   Valor informado ao PNCP parece incorreto ({formatarReais(s.valor)}); conferir na fonte.{" "}
-                  <a href={s.url} target="_blank" rel="noopener noreferrer" className="underline underline-offset-2">
+                  <LinkExterno href={s.url} className="underline underline-offset-2">
                     Ver no PNCP
-                  </a>
+                  </LinkExterno>
                 </span>
               </li>
             ))}

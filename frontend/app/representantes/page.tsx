@@ -4,6 +4,7 @@ import Link from "next/link";
 import { EsqueletoSecao } from "@/components/esqueleto-secao";
 import { AvisoErro } from "@/components/aviso-erro";
 import { AvisoSegundoTurno } from "@/components/aviso-segundo-turno";
+import { CepForm } from "@/components/cep-form";
 import { Revelacao } from "@/components/revelacao";
 import { CompartilharWhatsApp } from "@/components/compartilhar";
 import { FonteRodape } from "@/components/fonte-rodape";
@@ -13,15 +14,22 @@ import { EleitosSecao } from "@/components/eleitos-secao";
 import { EleitosFuturosSecao } from "@/components/eleito-futuro";
 import { ExecutivoSecao } from "@/components/executivo-secao";
 import { ParlamentarCard } from "@/components/parlamentar-card";
+import { PrediosRepresentantes, type PredioDados, type PessoaPredio } from "@/components/predios-representantes";
 import { AbasDetalhe, type AbaDetalhe } from "@/components/painel/abas-detalhe";
 import { CartaoNumero, GradeCartoes } from "@/components/painel/cartao-numero";
 import { ListaResumida } from "@/components/painel/lista-resumida";
 import {
+  type Camara,
+  type Chapa,
+  type Executivo,
   type ContasMunicipio,
   type EmendasMunicipio,
   type Fornecedores,
   type FornecedoresPncp,
+  type ListaEleitos,
   type ParlamentarResumo,
+  urlFotoDe,
+  urlFotoTse,
   getDeputadosEstaduais,
   getEleitos2026,
   getAssembleia,
@@ -34,11 +42,34 @@ import {
   getExecutivo,
   getEmendasMunicipio,
   getVereadores,
+  getMunicipios,
   getRepresentantes,
 } from "@/lib/api";
 import { formatarCep, formatarReais, formatarReaisCompacto } from "@/lib/formato";
+import { type PredioId, contagem, faixaEstado } from "@/lib/predios";
+import { caminhoRepresentantes } from "@/lib/seo";
+import { doEstado } from "@/lib/ufs";
 
-export const metadata: Metadata = { title: "Seus representantes" };
+export async function generateMetadata({ searchParams }: PageProps<"/representantes">): Promise<Metadata> {
+  const sp = await searchParams;
+  const cep = primeiro(sp.cep);
+  const uf = primeiro(sp.uf);
+  const municipio = primeiro(sp.municipio);
+  if (!cep && !uf && !municipio) return { title: "Seus representantes" };
+  const r = await getRepresentantes({ cep, uf, municipio });
+  if (!r.ok) return { title: "Seus representantes", robots: { index: false, follow: true } };
+  const { municipio: cidade, uf: ufDaBusca, estado } = r.dados.localizacao;
+  // A canônica leva só o que define o conteúdo (estado e cidade). O CEP vira a cidade dele.
+  const canonica = caminhoRepresentantes({ uf, municipio: municipio ?? r.dados.localizacao.codigo_ibge ?? undefined }, ufDaBusca);
+  const lugar = cidade ? `${cidade}-${ufDaBusca}` : (estado ?? ufDaBusca);
+  return {
+    title: cidade ? `Quem te representa em ${lugar}` : `Quem representa ${lugar}`,
+    description: cidade
+      ? `Presidente, governador, senadores, deputados, prefeito e vereadores de ${lugar}, com o que cada um faz, gasta e vota. Dados oficiais, com fonte e data.`
+      : `Senadores, deputados federais e estaduais e governo de ${lugar}, com o que cada um faz, gasta e vota. Dados oficiais, com fonte e data.`,
+    alternates: { canonical: canonica },
+  };
+}
 
 type Busca = { cep?: string; uf?: string; municipio?: string };
 
@@ -69,6 +100,25 @@ async function Lista({ cep, uf, municipio }: Busca) {
   }
 
   const resultado = await getRepresentantes({ cep, uf, municipio });
+  if (!resultado.ok && resultado.status === 404 && cep && !municipio) {
+    // CEP que os Correios não têm: em geral o "CEP geral" (final 000) de cidade que usa CEP por rua.
+    const geral = cep.replace(/\D/g, "").endsWith("000");
+    return (
+      <div className="flex flex-col gap-6">
+        <AvisoErro
+          titulo="Não encontramos esse CEP"
+          mensagem={
+            geral
+              ? "Os Correios não têm esse CEP. Cidades com CEP por rua não usam o CEP terminado em 000: digite o CEP da sua rua ou escolha o estado e a cidade abaixo."
+              : "Os Correios não têm esse CEP. Confira os números ou escolha o estado e a cidade abaixo."
+          }
+        />
+        <div className="painel max-w-md">
+          <CepForm semCepInicial />
+        </div>
+      </div>
+    );
+  }
   if (!resultado.ok) {
     const titulo =
       resultado.status === 404
@@ -104,6 +154,7 @@ async function Lista({ cep, uf, municipio }: Busca) {
   const fornecedoresPncp = fornecedoresPncpResultado?.ok ? fornecedoresPncpResultado.dados : null;
   const camara = camaraResultado?.ok ? camaraResultado.dados : null;
   const contas = contasResultado?.ok ? contasResultado.dados : null;
+  const municipiosDoEstado = !localizacao.municipio ? await getMunicipios(localizacao.uf) : null;
   const canais = canaisResultado?.ok ? canaisResultado.dados.itens : [];
   const executivo = executivoResultado.ok ? executivoResultado.dados : null;
   const vereadores = vereadoresResultado?.ok ? vereadoresResultado.dados : null;
@@ -113,9 +164,6 @@ async function Lista({ cep, uf, municipio }: Busca) {
   const nomeEstado = localizacao.estado;
   const lugar = cidade ? `${cidade}/${localizacao.uf}` : nomeEstado;
 
-  const nExecutivo = executivo
-    ? [executivo.presidente, executivo.governador, cidade ? executivo.prefeito : null].filter(Boolean).length
-    : 0;
   const nEleitos2026 = eleitos2026?.ano_eleicao
     ? eleitos2026.presidente.length +
       eleitos2026.governador.length +
@@ -123,13 +171,23 @@ async function Lista({ cep, uf, municipio }: Busca) {
       eleitos2026.deputados_federais.length +
       eleitos2026.deputados_estaduais.length
     : 0;
-  const nAssembleia = assembleia?.itens.length ?? estaduais?.itens.length ?? 0;
-  const nVereadores = camara?.itens.length ?? vereadores?.itens.length ?? 0;
   const nomeAssembleia = localizacao.uf === "DF" ? "Câmara Legislativa" : "Assembleia";
   const tituloEstaduais = localizacao.uf === "DF" ? "Deputados distritais" : `Deputados estaduais de ${nomeEstado}`;
-  const contagem = (n: number, um: string, varios: string) => ({
-    valor: n.toLocaleString("pt-BR"),
-    complemento: n === 1 ? um : varios,
+  const eDF = localizacao.uf === "DF";
+  const temCidade = Boolean(cidade) && !eDF;
+  const predios = montarPredios({
+    uf: localizacao.uf,
+    nomeEstado,
+    cidade: temCidade ? cidade : null,
+    nomeAssembleia,
+    executivo,
+    senadores,
+    deputados,
+    atualizadoCongresso: atualizado_em,
+    assembleia,
+    estaduais,
+    camara,
+    vereadores,
   });
 
   // Cada lista aparece UMA vez, dentro de uma aba; o cartão do topo abre a mesma lista em gaveta.
@@ -188,12 +246,12 @@ async function Lista({ cep, uf, municipio }: Busca) {
       secoes: [
         {
           id: "assembleia",
-          titulo: `${nomeAssembleia} de ${nomeEstado}`,
+          titulo: `${nomeAssembleia} ${doEstado(localizacao.uf)}`,
           conteudo: assembleia && (
             <CamaraSecao
               dados={assembleia}
               casa="assembleia"
-              nome={`${nomeAssembleia} de ${nomeEstado}`}
+              nome={`${nomeAssembleia} ${doEstado(localizacao.uf)}`}
               limite={LIMITE_LISTA}
             />
           ),
@@ -270,53 +328,33 @@ async function Lista({ cep, uf, municipio }: Busca) {
           </p>
           <h1 className="titulo-pagina">Você está em {lugar}</h1>
           <p className="text-muted-foreground">
-            Quem governa e quem representa {lugar}, do Executivo à câmara municipal:
+            {temCidade
+              ? "Quem decide sobre a sua vida mora em três andares: o país, o estado e a cidade. Toque ou clique num prédio para ver quem trabalha lá e o que faz."
+              : "Quem decide sobre a sua vida mora em andares: o país e o estado. Toque ou clique num prédio para ver quem trabalha lá e o que faz."}
           </p>
         </div>
 
-        <GradeCartoes rotulo={`Quem representa ${lugar}`}>
-          {nExecutivo > 0 && (
-            <CartaoNumero
-              destino="executivo"
-              rotulo="Quem governa"
-              {...contagem(nExecutivo, "cargo", "cargos")}
-              apoio={cidade ? "Presidente, governador e prefeito" : "Presidente e governador"}
-            />
-          )}
-          <CartaoNumero
-            destino="senado"
-            rotulo={`Senadores de ${nomeEstado}`}
-            {...contagem(senadores.length, "senador", "senadores")}
-          />
-          <CartaoNumero
-            destino="deputados"
-            rotulo="Câmara dos Deputados"
-            {...contagem(deputados.length, "deputado", "deputados")}
-          />
-          {nAssembleia > 0 && (
-            <CartaoNumero
-              destino={assembleia ? "assembleia" : "estaduais"}
-              rotulo={`${nomeAssembleia} de ${nomeEstado}`}
-              {...contagem(nAssembleia, "deputado", "deputados")}
-            />
-          )}
-          {cidade && nVereadores > 0 && (
-            <CartaoNumero
-              destino={camara ? "camara" : "vereadores"}
-              rotulo={`Câmara de ${cidade}`}
-              {...contagem(nVereadores, "vereador", "vereadores")}
-            />
-          )}
-          {nEleitos2026 > 0 && eleitos2026 && (
-            <CartaoNumero
-              destino="eleitos-2026"
-              rotulo={`Eleitos em ${eleitos2026.ano_eleicao}`}
-              {...contagem(nEleitos2026, "eleito", "eleitos")}
-              apoio={`Posse em ${(eleitos2026.ano_eleicao ?? 0) + 1}`}
-            />
-          )}
-        </GradeCartoes>
-        <p className="text-sm text-muted-foreground">Toque num cartão para ver quem são, com a fonte e a data.</p>
+        <PrediosRepresentantes
+          predios={predios}
+          faixaEstado={faixaEstado(localizacao.uf, nomeEstado)}
+          faixaCidade={temCidade && cidade ? cidade.toUpperCase() : null}
+          voce={`Você, em ${temCidade && cidade ? cidade : nomeEstado}`}
+        />
+        {nEleitos2026 > 0 && eleitos2026 && (
+          <a
+            href="#ver-eleitos-2026"
+            className="flex min-h-11 flex-col gap-1 rounded-[var(--radius)] border border-border bg-card p-3 hover:border-foreground/40 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-bronze sm:p-4"
+          >
+            <span className="text-sm text-muted-foreground">
+              Eleitos em {eleitos2026.ano_eleicao} · posse em {(eleitos2026.ano_eleicao ?? 0) + 1}
+            </span>
+            <span className="numero text-[1.375rem] leading-none">
+              {nEleitos2026.toLocaleString("pt-BR")}{" "}
+              <span className="text-base text-muted-foreground">{nEleitos2026 === 1 ? "eleito" : "eleitos"}</span>
+            </span>
+            <span className="text-sm text-bronze-texto">Ver a lista ›</span>
+          </a>
+        )}
 
         <CompartilharWhatsApp
           caminho={
@@ -402,6 +440,40 @@ async function Lista({ cep, uf, municipio }: Busca) {
       >
         Comparar os números de todos de {nomeEstado}
       </Link>
+      <div className="flex flex-col gap-1">
+        <Link
+          href={`/projetos?esfera=federal&votacao=com&uf=${localizacao.uf}`}
+          className="alvo-link self-start text-sm font-medium text-primary underline underline-offset-4"
+        >
+          Veja como votaram em projetos do Congresso (com quem representa {nomeEstado})
+        </Link>
+        <Link
+          href={`/projetos?uf=${localizacao.uf}`}
+          className="alvo-link self-start text-sm font-medium text-primary underline underline-offset-4"
+        >
+          Projetos e votações da assembleia e das câmaras de {nomeEstado}
+        </Link>
+      </div>
+
+      {municipiosDoEstado?.ok && municipiosDoEstado.dados.length > 0 && (
+        <details className="painel">
+          <summary className="flex min-h-11 cursor-pointer items-center text-sm font-medium underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-bronze">
+            Ver quem representa cada cidade de {nomeEstado} ({municipiosDoEstado.dados.length.toLocaleString("pt-BR")})
+          </summary>
+          <ul className="mt-2 grid grid-cols-1 gap-x-4 sm:grid-cols-2">
+            {municipiosDoEstado.dados.map((m) => (
+              <li key={m.ibge}>
+                <Link
+                  href={caminhoRepresentantes({ uf: m.uf, municipio: m.ibge })}
+                  className="alvo-link text-sm underline underline-offset-2"
+                >
+                  {m.nome}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </details>
+      )}
 
       <FonteRodape fonte="Dados Abertos da Câmara e do Senado" atualizadoEm={atualizado_em} />
     </article>
@@ -544,4 +616,235 @@ function DinheiroDaCidade({
       />
     </section>
   );
+}
+
+/** Quantos rostos aparecem no painel de cada prédio; a lista inteira fica na gaveta. */
+const ROSTOS = 6;
+
+const AVISO_EXECUTIVO = "Mudanças depois da eleição (renúncia, cassação, posse do vice) ainda não aparecem aqui.";
+
+function pessoaChapa(c: Chapa): PessoaPredio {
+  const vice = c.vice ? `Vice: ${c.vice.nome_urna}${c.vice.partido ? ` (${c.vice.partido})` : ""}` : null;
+  return {
+    chave: `chapa-${c.titular.id}`,
+    nome: c.titular.nome_urna,
+    partido: c.titular.partido,
+    detalhe: [`${c.cargo} · eleição de ${c.ano_eleicao}`, vice].filter(Boolean).join(" · "),
+    foto: c.titular.foto ? urlFotoDe(c.titular) : null,
+    href: `/eleito/${c.titular.id}`,
+  };
+}
+
+function pessoasParlamentares(lista: ParlamentarResumo[]): PessoaPredio[] {
+  return lista.slice(0, ROSTOS).map((p) => ({
+    chave: `p-${p.id}`,
+    nome: p.nome_parlamentar,
+    partido: p.partido,
+    detalhe: null,
+    foto: p.foto_url,
+    href: `/parlamentar/${p.id}`,
+  }));
+}
+
+/** Câmara municipal ou assembleia, segundo a própria casa (SAPL). */
+function pessoasDaCasa(dados: Camara, rota: "vereador" | "deputado-estadual"): PessoaPredio[] {
+  return dados.itens.slice(0, ROSTOS).map((v) => ({
+    chave: `v-${v.id}`,
+    nome: v.nome,
+    partido: v.partido,
+    detalhe: v.titular ? null : "suplente",
+    foto: v.foto_tse && v.candidatura_id ? urlFotoTse(v.candidatura_id) : v.foto_url,
+    href: `/${rota}/${v.id}`,
+  }));
+}
+
+/** Eleitos do TSE, quando a casa ainda não tem os dados dela carregados. */
+function pessoasDoTse(dados: ListaEleitos): PessoaPredio[] {
+  return dados.itens.slice(0, ROSTOS).map((e) => ({
+    chave: `e-${e.id}`,
+    nome: e.nome_urna,
+    partido: e.partido,
+    detalhe: null,
+    foto: e.foto ? urlFotoDe(e) : null,
+    href: `/eleito/${e.id}`,
+  }));
+}
+
+function montarPredios({
+  uf,
+  nomeEstado,
+  cidade,
+  nomeAssembleia,
+  executivo,
+  senadores,
+  deputados,
+  atualizadoCongresso,
+  assembleia,
+  estaduais,
+  camara,
+  vereadores,
+}: {
+  uf: string;
+  nomeEstado: string;
+  /** Nulo na busca só por estado e no DF (que não tem prefeitura nem câmara municipal). */
+  cidade: string | null;
+  nomeAssembleia: string;
+  executivo: Executivo | null;
+  senadores: ParlamentarResumo[];
+  deputados: ParlamentarResumo[];
+  atualizadoCongresso: string | null;
+  assembleia: Camara | null;
+  estaduais: ListaEleitos | null;
+  camara: Camara | null;
+  vereadores: ListaEleitos | null;
+}): PredioDados[] {
+  const eDF = uf === "DF";
+  const fonteExecutivo = executivo
+    ? { nome: executivo.fonte_nome, url: executivo.fonte_url, atualizadoEm: executivo.atualizado_em }
+    : null;
+  const fonteCongresso = { nome: "Dados Abertos da Câmara e do Senado", atualizadoEm: atualizadoCongresso };
+  const base = { aviso: null, extra: null };
+
+  const exec = (
+    id: PredioId,
+    chapa: Chapa | null | undefined,
+    p: Pick<PredioDados, "nivel" | "nome" | "oficial" | "faz" | "fazOficial" | "rotulo" | "sub" | "tituloPessoas">,
+  ): PredioDados => ({
+    ...base,
+    ...p,
+    id,
+    total: chapa ? 1 : 0,
+    pessoas: chapa ? [pessoaChapa(chapa)] : [],
+    destino: "executivo",
+    aviso: AVISO_EXECUTIVO,
+    fonte: fonteExecutivo,
+  });
+
+  const lista: PredioDados[] = [
+    exec("planalto", executivo?.presidente, {
+      nivel: "País · Brasília",
+      nome: "Palácio do Planalto",
+      oficial: "Poder Executivo federal",
+      faz: "O presidente comanda o governo do país: dirige os ministérios e cuida do dinheiro e dos serviços nacionais, como o INSS.",
+      fazOficial: "Chefia do Poder Executivo da União",
+      rotulo: "Palácio do Planalto",
+      sub: "1 presidente",
+      tituloPessoas: "Quem ocupa o cargo",
+    }),
+    {
+      ...base,
+      id: "senado",
+      nivel: "País · Brasília",
+      nome: "Senado Federal",
+      oficial: "Casa legislativa da União",
+      faz: "Os senadores votam as leis do país e analisam o que o governo faz. Cada estado tem 3.",
+      fazOficial: "Senadores",
+      rotulo: "Senado",
+      sub: contagem(senadores.length, "senador", "senadores"),
+      total: senadores.length,
+      tituloPessoas: `Senadores de ${nomeEstado} (${senadores.length})`,
+      pessoas: pessoasParlamentares(senadores),
+      destino: "senado",
+      fonte: fonteCongresso,
+    },
+    {
+      ...base,
+      id: "camara",
+      nivel: "País · Brasília",
+      nome: "Câmara dos Deputados",
+      oficial: "Casa legislativa da União",
+      faz: `Os deputados federais também votam as leis do país. ${nomeEstado} tem ${deputados.length} deles.`,
+      fazOficial: "Deputados federais",
+      rotulo: "Câmara",
+      sub: contagem(deputados.length, "deputado", "deputados"),
+      total: deputados.length,
+      tituloPessoas: `Deputados federais de ${nomeEstado} (${deputados.length})`,
+      pessoas: pessoasParlamentares(deputados),
+      destino: "deputados",
+      fonte: fonteCongresso,
+    },
+    exec("governo", executivo?.governador, {
+      nivel: `Estado · ${nomeEstado}`,
+      nome: `Governo ${doEstado(uf)}`,
+      oficial: eDF ? "Poder Executivo do Distrito Federal" : "Poder Executivo estadual",
+      faz: eDF
+        ? "O governador comanda o Distrito Federal, que reúne tarefas de estado e de cidade: segurança, hospitais e escolas."
+        : "O governador comanda o estado: dirige a segurança, os hospitais e as escolas estaduais.",
+      fazOficial: eDF ? "Chefia do Poder Executivo distrital" : "Chefia do Poder Executivo estadual",
+      rotulo: eDF ? "Governo do DF" : "Governo do estado",
+      sub: "1 governador",
+      tituloPessoas: "Quem ocupa o cargo",
+    }),
+  ];
+
+  const nAssembleia = assembleia?.itens.length ?? estaduais?.itens.length ?? 0;
+  lista.push({
+    ...base,
+    id: "assembleia",
+    nivel: `Estado · ${nomeEstado}`,
+    nome: eDF ? "Câmara Legislativa" : "Assembleia Legislativa",
+    oficial: eDF ? "Câmara Legislativa do Distrito Federal" : `Assembleia Legislativa ${doEstado(uf)}`,
+    faz: `Os deputados ${eDF ? "distritais" : "estaduais"} votam as leis ${eDF ? "do Distrito Federal" : "do estado"} e acompanham o que o governador faz.`,
+    fazOficial: eDF ? "Deputados distritais" : "Deputados estaduais",
+    rotulo: nomeAssembleia,
+    sub: nAssembleia > 0 ? contagem(nAssembleia, "deputado", "deputados") : "sem dados ainda",
+    total: nAssembleia,
+    tituloPessoas: `${eDF ? "Deputados distritais" : "Deputados estaduais"} (${nAssembleia})`,
+    pessoas: assembleia
+      ? pessoasDaCasa(assembleia, "deputado-estadual")
+      : estaduais
+        ? pessoasDoTse(estaduais)
+        : [],
+    destino: nAssembleia > 0 ? (assembleia ? "assembleia" : "estaduais") : null,
+    aviso:
+      !assembleia && estaduais && nAssembleia > 0
+        ? `Esta casa ainda não tem presença e projetos carregados. Aqui aparecem só os eleitos de ${estaduais.ano_eleicao}, pelo TSE.`
+        : null,
+    fonte: assembleia
+      ? { nome: assembleia.fonte_nome, url: assembleia.fonte_url, atualizadoEm: assembleia.atualizado_em }
+      : estaduais
+        ? { nome: estaduais.fonte_nome, url: estaduais.fonte_url, atualizadoEm: estaduais.atualizado_em }
+        : null,
+  });
+
+  if (cidade) {
+    const nVereadores = camara?.itens.length ?? vereadores?.itens.length ?? 0;
+    lista.push(
+      exec("prefeitura", executivo?.prefeito, {
+        nivel: `Cidade · ${cidade}`,
+        nome: `Prefeitura de ${cidade}`,
+        oficial: "Poder Executivo municipal",
+        faz: "O prefeito cuida do dia a dia da cidade: ruas, postos de saúde, escolas municipais e coleta de lixo.",
+        fazOficial: "Chefia do Poder Executivo municipal",
+        rotulo: "Prefeitura",
+        sub: "1 prefeito",
+        tituloPessoas: "Quem ocupa o cargo",
+      }),
+      {
+        ...base,
+        id: "camaramun",
+        nivel: `Cidade · ${cidade}`,
+        nome: `Câmara de Vereadores de ${cidade}`,
+        oficial: "Câmara Municipal",
+        faz: "Os vereadores votam as leis da cidade e fiscalizam o prefeito.",
+        fazOficial: "Vereadores",
+        rotulo: "Câmara de Vereadores",
+        sub: nVereadores > 0 ? contagem(nVereadores, "vereador", "vereadores") : "sem dados ainda",
+        total: nVereadores,
+        tituloPessoas: `Vereadores (${nVereadores})`,
+        pessoas: camara ? pessoasDaCasa(camara, "vereador") : vereadores ? pessoasDoTse(vereadores) : [],
+        destino: nVereadores > 0 ? (camara ? "camara" : "vereadores") : null,
+        aviso:
+          !camara && vereadores && nVereadores > 0
+            ? `${cidade} ainda não tem os dados da câmara municipal (presença e votações) carregados. Aqui aparecem só os eleitos de ${vereadores.ano_eleicao}, pelo TSE.`
+            : null,
+        fonte: camara
+          ? { nome: camara.fonte_nome, url: camara.fonte_url, atualizadoEm: camara.atualizado_em }
+          : vereadores
+            ? { nome: vereadores.fonte_nome, url: vereadores.fonte_url, atualizadoEm: vereadores.atualizado_em }
+            : null,
+      },
+    );
+  }
+  return lista;
 }

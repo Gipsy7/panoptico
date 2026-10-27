@@ -3,6 +3,7 @@ import Link from "next/link";
 import { FonteRodape } from "@/components/fonte-rodape";
 import type { Casa, Gastos } from "@/lib/api";
 import { CASA_DA, MESES, formatarData, formatarGastos, formatarReais } from "@/lib/formato";
+import { LinkExterno } from "@/components/link-externo";
 
 export function GastosSecao({
   gastos,
@@ -24,7 +25,7 @@ export function GastosSecao({
           <h2 id="gastos-titulo" className="text-2xl">
             Gastos do gabinete
           </h2>
-          <p className="text-xs text-muted-foreground">{gastos.fonte_nome}</p>
+          <p className="text-sm text-muted-foreground">{gastos.fonte_nome}</p>
         </div>
         {gastos.anos_disponiveis.length > 1 && (
           <nav aria-label="Escolher ano" className="flex gap-1">
@@ -104,6 +105,7 @@ export function GastosSecao({
           </summary>
           <div className="mt-3 overflow-x-auto">
             <table className="w-full text-left text-sm">
+              <caption className="sr-only">Maiores gastos de {gastos.ano}: data, fornecedor e valor</caption>
               <thead className="text-muted-foreground">
                 <tr>
                   <th scope="col" className="py-1 pr-3 font-normal">Data</th>
@@ -119,16 +121,14 @@ export function GastosSecao({
                     </td>
                     <td className="py-2 pr-3">
                       <span className="block">{d.fornecedor ?? "Não informado"}</span>
-                      <span className="block text-xs text-muted-foreground">{d.categoria}</span>
+                      <span className="block text-sm text-muted-foreground">{d.categoria}</span>
                       {d.url_documento && (
-                        <a
+                        <LinkExterno
                           href={d.url_documento}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-xs underline underline-offset-2"
+                          className="text-sm underline underline-offset-2"
                         >
                           Ver nota fiscal
-                        </a>
+                        </LinkExterno>
                       )}
                     </td>
                     <td className="py-2 text-right whitespace-nowrap tabular-nums">

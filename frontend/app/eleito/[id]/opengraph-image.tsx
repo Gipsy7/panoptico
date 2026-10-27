@@ -1,4 +1,4 @@
-import { getEleito, urlFotoTse } from "@/lib/api";
+import { getEleito, urlFotoDe } from "@/lib/api";
 import { formatarReais } from "@/lib/formato";
 import { type NumeroOg, cartaoPessoa, imagemPadrao, rodapeFonte } from "@/lib/og";
 
@@ -24,7 +24,7 @@ export default async function Image({ params }: { params: Promise<{ id: string }
   }
 
   return cartaoPessoa({
-    foto: e.foto ? urlFotoTse(e.id) : null,
+    foto: e.foto ? urlFotoDe(e) : null,
     nome: e.nome_urna,
     contexto: [e.cargo, e.unidade, e.partido].filter(Boolean).join(" · "),
     numeros,

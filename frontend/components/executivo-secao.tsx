@@ -23,13 +23,13 @@ export function ExecutivoSecao({ dados, estado, cidade }: { dados: Executivo; es
           Quem foi eleito para governar o país, o estado e a cidade, segundo o TSE.
         </p>
       </div>
-      <ul className="grid border-t border-border sm:grid-cols-3 sm:gap-x-8">
+      <ul className="grid grid-cols-1 border-t border-border sm:grid-cols-3 sm:gap-x-8">
         {chapas.map(({ rotulo, chapa }) =>
           chapa ? (
             <li key={rotulo} className="flex flex-col gap-2 border-b border-border py-3">
               <span className="sobretitulo">{rotulo}</span>
               <Link href={`/eleito/${chapa.titular.id}`} className="group flex items-center gap-3 hover:opacity-80">
-                <FotoOuIniciais eleito={chapa.titular} />
+                <FotoOuIniciais eleito={chapa.titular} decorativa />
                 <span className="min-w-0">
                   <span className="block truncate font-semibold group-hover:underline">{chapa.titular.nome_urna}</span>
                   <span className="block text-sm text-muted-foreground">
@@ -50,7 +50,7 @@ export function ExecutivoSecao({ dados, estado, cidade }: { dados: Executivo; es
           ) : null,
         )}
       </ul>
-      <p className="text-xs text-muted-foreground">
+      <p className="text-sm text-muted-foreground">
         Mudanças depois da eleição (renúncia, cassação, posse do vice) ainda não aparecem aqui.
       </p>
       <FonteRodape fonte={dados.fonte_nome} url={dados.fonte_url} atualizadoEm={dados.atualizado_em} />

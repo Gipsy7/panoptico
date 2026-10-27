@@ -3,6 +3,7 @@
 import { useState } from "react";
 
 import { formatarData } from "@/lib/formato";
+import { LinkExterno } from "@/components/link-externo";
 
 export type DivergenciaPar = {
   data: string | null;
@@ -62,7 +63,7 @@ export function ComparadorMatriz({
               <td className="sticky left-0 z-10 w-24 bg-background md:w-40" />
               {nomes.map((n, j) => (
                 <th key={j} scope="col" className="px-1 pb-2 text-left align-bottom font-semibold leading-tight">
-                  <span className="line-clamp-2 break-words text-[13px]" title={n}>
+                  <span className="line-clamp-2 break-words text-sm" title={n}>
                     {n}
                   </span>
                 </th>
@@ -76,7 +77,7 @@ export function ComparadorMatriz({
                   scope="row"
                   className="sticky left-0 z-10 border-t border-border bg-background py-1 pr-2 text-left font-semibold leading-tight"
                 >
-                  <span className="line-clamp-2 break-words text-[13px]" title={n}>
+                  <span className="line-clamp-2 break-words text-sm" title={n}>
                     {n}
                   </span>
                 </th>
@@ -108,7 +109,7 @@ export function ComparadorMatriz({
           <Detalhe par={par} nomeI={nomes[par.i]} nomeJ={nomes[par.j]} periodo={periodo} />
         ) : (
           <p className="text-sm text-muted-foreground">
-            Toque numa célula para ver em quais votações o par votou diferente.
+            Toque ou clique numa célula para ver em quais votações o par votou diferente.
           </p>
         )}
       </div>
@@ -131,14 +132,14 @@ function Celula({
 }) {
   if (!par || !par.mesmaCasa) {
     return (
-      <span className="flex h-14 items-center justify-center px-1 text-center text-[13px] leading-tight text-muted-foreground">
+      <span className="flex h-14 items-center justify-center px-1 text-center text-sm leading-tight text-muted-foreground">
         Casas diferentes
       </span>
     );
   }
   if (par.total === 0) {
     return (
-      <span className="flex h-14 items-center justify-center px-1 text-center text-[13px] leading-tight text-muted-foreground">
+      <span className="flex h-14 items-center justify-center px-1 text-center text-sm leading-tight text-muted-foreground">
         Sem votos em comum
       </span>
     );
@@ -158,7 +159,7 @@ function Celula({
       }`}
     >
       <span className="text-sm font-semibold">{PCT(pct)}</span>
-      <span className="text-[13px]">
+      <span className="text-sm">
         {par.iguais} de {par.total}
       </span>
     </button>
@@ -218,26 +219,26 @@ function Detalhe({ par, nomeI, nomeJ, periodo }: { par: ParMatriz; nomeI: string
           <ul className="lista-fios mt-2 flex flex-col">
             {par.divergencias.map((d, k) => (
               <li key={k} className="flex flex-col gap-1 py-3">
-                <span className="text-[13px] text-muted-foreground">
+                <span className="text-sm text-muted-foreground">
                   {[d.data && formatarData(d.data), d.resultado].filter(Boolean).join(" · ")}
                 </span>
                 {d.titulo &&
                   (d.url ? (
-                    <a href={d.url} target="_blank" rel="noopener noreferrer" className="font-medium underline underline-offset-2">
+                    <LinkExterno href={d.url} className="font-medium underline underline-offset-2">
                       {d.titulo}
-                    </a>
+                    </LinkExterno>
                   ) : (
                     <span className="font-medium">{d.titulo}</span>
                   ))}
                 {d.ementa && <p className="line-clamp-3 text-sm">{d.ementa}</p>}
-                {d.descricao && <p className="line-clamp-2 text-[13px] text-muted-foreground">{d.descricao}</p>}
+                {d.descricao && <p className="line-clamp-2 text-sm text-muted-foreground">{d.descricao}</p>}
                 <dl className="grid grid-cols-2 gap-2 text-sm">
                   <div>
-                    <dt className="text-[13px] text-muted-foreground">{nomeI}</dt>
+                    <dt className="text-sm text-muted-foreground">{nomeI}</dt>
                     <dd className="font-semibold">{d.voto_i}</dd>
                   </div>
                   <div>
-                    <dt className="text-[13px] text-muted-foreground">{nomeJ}</dt>
+                    <dt className="text-sm text-muted-foreground">{nomeJ}</dt>
                     <dd className="font-semibold">{d.voto_j}</dd>
                   </div>
                 </dl>
