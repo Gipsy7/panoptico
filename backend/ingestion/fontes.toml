@@ -473,6 +473,14 @@ recorte = "vereadores em exercício (nome, partido, foto quando estável), com p
 frequencia = "semanal"
 
 [[fonte]]
+nome = "fornecedores_cobertura_camaras"
+modulo = "ingestion.camaras.fornecedores_cobertura"
+uso = "Câmaras de fornecedores com muitas cidades pequenas (webservicesistemas/MA, sts/PI, Cespro/RS, iCamaras/RS, Portal Fácil/MG, Ingá Digital/PR), achadas pela descoberta de sistemas das cidades sem canal"
+recorte = "vereadores em exercício da legislatura 2025–2028 (nome, partido quando o site publica); sem e-mail, telefone nem data de nascimento; robots.txt e pausa de 2 s"
+frequencia = "semanal"
+depende = ["canais_oficiais"]
+
+[[fonte]]
 nome = "sapl_assembleias"
 modulo = "ingestion.assembleias.sapl"
 uso = "Assembleia legislativa hoje"

@@ -98,6 +98,7 @@ Emendas estaduais: SC (SC Transferências), por enquanto só na API. O que falta
 
 - **Câmaras com SAPL** (Interlegis): vereadores no cargo, suplentes, projetos, requerimentos, presença e votos nominais.
 - **Câmaras que saíram do SAPL** (39 de 66 já com conector): portais Cittatec, CR2, Nucleogov/7Focus, Portal Modelo, AOS Software, modelo PHP e sites próprios. Mostram os vereadores no cargo; a Cittatec também conta proposições.
+- **Cidades que não tinham nem o site da câmara** (897 em 21/10): a descoberta por sistema (`ingestion.canais.descobrir_sistemas`, resultado em `data/cidades_sem_canal_sistemas.csv`) achou o site de 574 e 94 já têm vereadores e partido (SAPL, Digitaliza, Câmara Sem Papel e seis leitores novos de MA, PI, RS, MG e PR). 277 vedam robôs (`robots.txt` ou 403) e viraram pedidos em `docs/pedidos/`.
 - Qual sistema cada câmara usa hoje: [data/sistemas_camaras.csv](data/sistemas_camaras.csv). Por que as outras 27 ainda não têm: [data/pendencias_cobertura.csv](data/pendencias_cobertura.csv).
 - Pagamentos a fornecedores: SP (TCE-SP) no site; RS (TCE-RS) só no acervo local, porque o tribunal não responde fora do Brasil; MG aguarda pedido (reCAPTCHA).
 

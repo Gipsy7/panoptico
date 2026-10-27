@@ -42,12 +42,12 @@ ibge,uf,cidade,url,sistema,situacao,evidencia
 2304269,CE,Deputado Irapuan Pinheiro,,,desconhecido,nenhum dos 0 domínios candidatos com site da câmara
 5300108,DF,Brasília,http://camarabrasilia.df.gov.br/,,desconhecido,nenhuma assinatura de fornecedor
 3200102,ES,Afonso Cláudio,,,desconhecido,nenhum dos 0 domínios candidatos com site da câmara
-3200409,ES,Anchieta,https://camaraanchieta.es.gov.br/,camarasempapel,desconhecido,"""camarasempapel"" no HTML; reCAPTCHA na página"
+3200409,ES,Anchieta,https://camaraanchieta.es.gov.br/,camarasempapel,aberto,"""camarasempapel"" no HTML; reCAPTCHA na página; leitor existente conferido em 27/10/2026"
 3200706,ES,Atílio Vivácqua,,,desconhecido,nenhum dos 0 domínios candidatos com site da câmara
 3200904,ES,Barra de São Francisco,https://barradesaofrancisco.es.leg.br/,,bloqueado,HTTP 403 ao robô (Server: cloudflare)
-3201001,ES,Boa Esperança,https://www.boaesperanca.es.leg.br/,camarasempapel,desconhecido,"""camarasempapel"" no HTML; reCAPTCHA na página"
+3201001,ES,Boa Esperança,https://www.boaesperanca.es.leg.br/,camarasempapel,aberto,"""camarasempapel"" no HTML; reCAPTCHA na página; leitor existente conferido em 27/10/2026"
 3201159,ES,Brejetuba,https://camarabrejetuba.es.gov.br/,betha,desconhecido,"""betha.cloud"" no HTML"
-3201308,ES,Cariacica,https://camaracariacica.es.gov.br/,camarasempapel,desconhecido,"""camarasempapel"" no HTML; reCAPTCHA na página"
+3201308,ES,Cariacica,https://camaracariacica.es.gov.br/,camarasempapel,aberto,"""camarasempapel"" no HTML; reCAPTCHA na página; leitor existente conferido em 27/10/2026"
 3201704,ES,Conceição do Castelo,,,desconhecido,nenhum dos 0 domínios candidatos com site da câmara
 3201803,ES,Divino de São Lourenço,,,desconhecido,nenhum dos 0 domínios candidatos com site da câmara
 3202009,ES,Dores do Rio Preto,,,desconhecido,nenhum dos 0 domínios candidatos com site da câmara
@@ -56,8 +56,8 @@ ibge,uf,cidade,url,sistema,situacao,evidencia
 3202702,ES,Itaguaçu,,,desconhecido,nenhum dos 1 domínios candidatos com site da câmara
 3202801,ES,Itapemirim,https://camaraitapemirim.es.gov.br/,,desconhecido,reCAPTCHA na página
 3203163,ES,Laranja da Terra,,,desconhecido,nenhum dos 1 domínios candidatos com site da câmara
-3203205,ES,Linhares,https://camaralinhares.es.gov.br/,camarasempapel,desconhecido,"""camarasempapel"" no HTML; reCAPTCHA na página"
-3203320,ES,Marataízes,https://cmmarataizes.es.gov.br/,camarasempapel,desconhecido,"""camarasempapel"" no HTML; reCAPTCHA na página"
+3203205,ES,Linhares,https://camaralinhares.es.gov.br/,camarasempapel,aberto,"""camarasempapel"" no HTML; reCAPTCHA na página; leitor existente conferido em 27/10/2026"
+3203320,ES,Marataízes,https://cmmarataizes.es.gov.br/,camarasempapel,aberto,"""camarasempapel"" no HTML; reCAPTCHA na página; leitor existente conferido em 27/10/2026"
 3203502,ES,Montanha,https://cmmontanha.es.gov.br/,gerador:WordPress 7.1.3,desconhecido,meta generator; reCAPTCHA na página
 3203700,ES,Muniz Freire,https://camaramunizfreire.es.gov.br/,"rodape:Alphatec"">",desconhecido,rodapé do site
 3204005,ES,Pancas,,,desconhecido,nenhum dos 1 domínios candidatos com site da câmara
@@ -84,39 +84,39 @@ ibge,uf,cidade,url,sistema,situacao,evidencia
 2100832,MA,Apicum-Açu,https://cmapicumacu.ma.gov.br/,aos,desconhecido,"""adtrcloud"" no HTML"
 2101707,MA,Barreirinhas,https://cmbarreirinhas.ma.gov.br/,,desconhecido,nenhuma assinatura de fornecedor
 2101772,MA,Bela Vista do Maranhão,,,desconhecido,nenhum dos 0 domínios candidatos com site da câmara
-2101939,MA,Bernardo do Mearim,https://cmbernardodomearim.ma.gov.br/,webservicesistemas,desconhecido,"""webservicesistemas.com.br"" no HTML"
-2103125,MA,Central do Maranhão,https://cmcentraldomaranhao.ma.gov.br/,webservicesistemas,desconhecido,"""webservicesistemas.com.br"" no HTML"
+2101939,MA,Bernardo do Mearim,https://cmbernardodomearim.ma.gov.br/,webservicesistemas,aberto,"""webservicesistemas.com.br"" no HTML; leitor conferido em 27/10/2026: 9 vereadores"
+2103125,MA,Central do Maranhão,https://cmcentraldomaranhao.ma.gov.br/,webservicesistemas,aberto,"""webservicesistemas.com.br"" no HTML; leitor conferido em 27/10/2026: 9 vereadores"
 2103174,MA,Centro Novo do Maranhão,,,desconhecido,nenhum dos 1 domínios candidatos com site da câmara
-2105203,MA,Igarapé Grande,https://cmigarapegrande.ma.gov.br/,webservicesistemas,desconhecido,"""webservicesistemas.com.br"" no HTML"
+2105203,MA,Igarapé Grande,https://cmigarapegrande.ma.gov.br/,webservicesistemas,aberto,"""webservicesistemas.com.br"" no HTML; leitor conferido em 27/10/2026: 9 vereadores"
 2105351,MA,Itaipava do Grajaú,,,desconhecido,nenhum dos 0 domínios candidatos com site da câmara
 2105427,MA,Itinga do Maranhão,,,desconhecido,nenhum dos 0 domínios candidatos com site da câmara
-2105476,MA,Jenipapo dos Vieiras,https://cmjenipapodosvieiras.ma.gov.br/,webservicesistemas,desconhecido,"""webservicesistemas.com.br"" no HTML"
+2105476,MA,Jenipapo dos Vieiras,https://cmjenipapodosvieiras.ma.gov.br/,webservicesistemas,aberto,"""webservicesistemas.com.br"" no HTML; leitor conferido em 27/10/2026: 11 vereadores"
 2105658,MA,Junco do Maranhão,https://cmjuncodomaranhao.ma.gov.br/,aos,desconhecido,"""adtrcloud"" no HTML"
-2105807,MA,Lago do Junco,https://cmlagodojunco.ma.gov.br/,webservicesistemas,desconhecido,"""webservicesistemas.com.br"" no HTML"
-2105948,MA,Lago dos Rodrigues,https://cmlagodosrodrigues.ma.gov.br/,webservicesistemas,desconhecido,"""webservicesistemas.com.br"" no HTML"
-2105963,MA,Lagoa Grande do Maranhão,https://cmlagoagrandedomaranhao.ma.gov.br/,webservicesistemas,desconhecido,"""webservicesistemas.com.br"" no HTML"
+2105807,MA,Lago do Junco,https://cmlagodojunco.ma.gov.br/,webservicesistemas,aberto,"""webservicesistemas.com.br"" no HTML; leitor conferido em 27/10/2026: 8 vereadores"
+2105948,MA,Lago dos Rodrigues,https://cmlagodosrodrigues.ma.gov.br/,webservicesistemas,aberto,"""webservicesistemas.com.br"" no HTML; leitor conferido em 27/10/2026: 9 vereadores"
+2105963,MA,Lagoa Grande do Maranhão,https://cmlagoagrandedomaranhao.ma.gov.br/,webservicesistemas,aberto,"""webservicesistemas.com.br"" no HTML; leitor conferido em 27/10/2026: 9 vereadores"
 2106300,MA,Magalhães de Almeida,,,desconhecido,nenhum dos 0 domínios candidatos com site da câmara
-2106359,MA,Marajá do Sena,https://cmmarajadosena.ma.gov.br/,webservicesistemas,desconhecido,"""webservicesistemas.com.br"" no HTML"
-2107100,MA,Morros,https://cmmorros.ma.gov.br/,webservicesistemas,desconhecido,"""webservicesistemas.com.br"" no HTML"
-2107209,MA,Nina Rodrigues,https://cmninarodrigues.ma.gov.br/,webservicesistemas,desconhecido,"""webservicesistemas.com.br"" no HTML"
+2106359,MA,Marajá do Sena,https://cmmarajadosena.ma.gov.br/,webservicesistemas,aberto,"""webservicesistemas.com.br"" no HTML; leitor conferido em 27/10/2026: 9 vereadores"
+2107100,MA,Morros,https://cmmorros.ma.gov.br/,webservicesistemas,aberto,"""webservicesistemas.com.br"" no HTML; leitor conferido em 27/10/2026: 11 vereadores"
+2107209,MA,Nina Rodrigues,https://cmninarodrigues.ma.gov.br/,webservicesistemas,aberto,"""webservicesistemas.com.br"" no HTML; leitor conferido em 27/10/2026: 9 vereadores"
 2107357,MA,Nova Olinda do Maranhão,,,desconhecido,nenhum dos 0 domínios candidatos com site da câmara
-2108108,MA,Paulo Ramos,https://cmpauloramos.ma.gov.br/,webservicesistemas,desconhecido,"""webservicesistemas.com.br"" no HTML"
-2108256,MA,Pedro do Rosário,https://cmpedrodorosario.ma.gov.br/,webservicesistemas,desconhecido,"""webservicesistemas.com.br"" no HTML"
+2108108,MA,Paulo Ramos,https://cmpauloramos.ma.gov.br/,webservicesistemas,aberto,"""webservicesistemas.com.br"" no HTML; leitor conferido em 27/10/2026: 11 vereadores"
+2108256,MA,Pedro do Rosário,https://cmpedrodorosario.ma.gov.br/,webservicesistemas,aberto,"""webservicesistemas.com.br"" no HTML; leitor conferido em 27/10/2026: 11 vereadores"
 2108603,MA,Pinheiro,https://pinheiro.ma.leg.br/,,bloqueado,robots.txt veda robôs (User-agent: * Disallow: /)
 2109056,MA,Porto Rico do Maranhão,,,desconhecido,nenhum dos 0 domínios candidatos com site da câmara
 2109759,MA,Santa Filomena do Maranhão,,,desconhecido,nenhum dos 0 domínios candidatos com site da câmara
 2110104,MA,Santa Quitéria do Maranhão,,,desconhecido,nenhum dos 0 domínios candidatos com site da câmara
 2110278,MA,Santo Amaro do Maranhão,https://cmsantoamarodomaranhao.ma.gov.br/,,desconhecido,nenhuma assinatura de fornecedor
-2111722,MA,Satubinha,https://cmsatubinha.ma.gov.br/,webservicesistemas,desconhecido,"""webservicesistemas.com.br"" no HTML"
+2111722,MA,Satubinha,https://cmsatubinha.ma.gov.br/,webservicesistemas,aberto,"""webservicesistemas.com.br"" no HTML; leitor conferido em 27/10/2026: 9 vereadores"
 2111748,MA,Senador Alexandre Costa,https://cmsenadoralexandrecosta.ma.gov.br/,,desconhecido,nenhuma assinatura de fornecedor
 2110609,MA,São Bernardo,https://cmsaobernardo.ma.gov.br/,aos,desconhecido,"""adtrcloud"" no HTML"
 2111409,MA,São Luís Gonzaga do Maranhão,,,desconhecido,nenhum dos 0 domínios candidatos com site da câmara
 2111508,MA,São Mateus do Maranhão,,,desconhecido,nenhum dos 0 domínios candidatos com site da câmara
 2111706,MA,São Vicente Ferrer,https://cmsaovicenteferrer.ma.gov.br/,,desconhecido,nenhuma assinatura de fornecedor
-2112274,MA,Tufilândia,https://cmtufilandia.ma.gov.br/,webservicesistemas,desconhecido,"""webservicesistemas.com.br"" no HTML"
+2112274,MA,Tufilândia,https://cmtufilandia.ma.gov.br/,webservicesistemas,aberto,"""webservicesistemas.com.br"" no HTML; leitor conferido em 27/10/2026: 9 vereadores"
 2112407,MA,Turiaçu,https://www.cmturiacu.ma.gov.br/,,desconhecido,nenhuma assinatura de fornecedor
 2112803,MA,Viana,https://www.cmviana.ma.gov.br/,,desconhecido,nenhuma assinatura de fornecedor
-2113009,MA,Vitorino Freire,https://cmvitorinofreire.ma.gov.br/,webservicesistemas,desconhecido,"""webservicesistemas.com.br"" no HTML"
+2113009,MA,Vitorino Freire,https://cmvitorinofreire.ma.gov.br/,webservicesistemas,aberto,"""webservicesistemas.com.br"" no HTML; leitor conferido em 27/10/2026: 13 vereadores"
 3100401,MG,Acaiaca,https://www.camaraacaiaca.mg.gov.br/,,desconhecido,nenhuma assinatura de fornecedor
 3101102,MG,Aimorés,https://camaraaimores.mg.gov.br/,,bloqueado,robots.txt veda robôs (User-agent: * Disallow: /)
 3101201,MG,Aiuruoca,https://camaraaiuruoca.mg.gov.br/,softcam,bloqueado,robots.txt veda robôs (User-agent: * Disallow: /); pastas citadas: /softcam/ /ciga/ /legisbr/ /legisla/ /rfassessoria/ /legislarr/
@@ -127,18 +127,18 @@ ibge,uf,cidade,url,sistema,situacao,evidencia
 3102902,MG,Antônio Carlos,https://antoniocarlos.mg.leg.br/,,bloqueado,HTTP 403 ao robô (Server: cloudflare)
 3103009,MG,Antônio Dias,https://camaraantoniodias.mg.gov.br/,betha,desconhecido,"""betha.cloud"" no HTML"
 3104403,MG,Argirita,https://argirita.mg.leg.br/,portalfacil,desconhecido,"""actcon.net"" no HTML"
-3104700,MG,Ataléia,https://camaraataleia.mg.gov.br/,digitaliza,desconhecido,"""servicosaocidadao.net.br"" no HTML"
-3100500,MG,Açucena,https://camaraacucena.mg.gov.br/,digitaliza,desconhecido,"""servicosaocidadao.net.br"" no HTML"
+3104700,MG,Ataléia,https://camaraataleia.mg.gov.br/,digitaliza,aberto,"""servicosaocidadao.net.br"" no HTML; leitor existente conferido em 27/10/2026"
+3100500,MG,Açucena,https://camaraacucena.mg.gov.br/,digitaliza,aberto,"""servicosaocidadao.net.br"" no HTML; leitor existente conferido em 27/10/2026"
 3105301,MG,Bandeira do Sul,,,desconhecido,nenhum dos 0 domínios candidatos com site da câmara
 3105707,MG,Barra Longa,,,desconhecido,nenhum dos 0 domínios candidatos com site da câmara
 3105905,MG,Barroso,https://camarabarroso.mg.gov.br/,,bloqueado,HTTP 403 ao robô (Server: cloudflare)
-3105400,MG,Barão de Cocais,https://cmbaraodecocais.mg.gov.br/,portalfacil,desconhecido,"""actcon.net"" no HTML"
+3105400,MG,Barão de Cocais,https://cmbaraodecocais.mg.gov.br/,portalfacil,aberto,"""actcon.net"" no HTML; leitor conferido em 27/10/2026: 11 vereadores"
 3106002,MG,Bela Vista de Minas,https://camarabelavistademinas.mg.gov.br/,governoweb,desconhecido,"""gwlegis.com.br"" no HTML"
 3106309,MG,Belo Oriente,,,desconhecido,nenhum dos 0 domínios candidatos com site da câmara
 3106408,MG,Belo Vale,https://camarabelovale.mg.gov.br/,,bloqueado,HTTP 403 ao robô (Server: cloudflare)
 3106507,MG,Berilo,,,desconhecido,nenhum dos 0 domínios candidatos com site da câmara
-3106606,MG,Bertópolis,https://camarabertopolis.mg.gov.br/,digitaliza,desconhecido,"""servicosaocidadao.net.br"" no HTML"
-3107000,MG,Biquinhas,https://camarabiquinhas.mg.gov.br/,digitaliza,desconhecido,"""servicosaocidadao.net.br"" no HTML"
+3106606,MG,Bertópolis,https://camarabertopolis.mg.gov.br/,digitaliza,aberto,"""servicosaocidadao.net.br"" no HTML; leitor existente conferido em 27/10/2026"
+3107000,MG,Biquinhas,https://camarabiquinhas.mg.gov.br/,digitaliza,aberto,"""servicosaocidadao.net.br"" no HTML; leitor existente conferido em 27/10/2026"
 3108255,MG,Bonito de Minas,,,desconhecido,nenhum dos 1 domínios candidatos com site da câmara
 3109006,MG,Brumadinho,https://www.cmbrumadinho.mg.gov.br/,nuvemlegislativa,desconhecido,"""nuvemlegislativa.com.br"" no HTML"
 3108701,MG,Brás Pires,https://www.camarabraspires.mg.gov.br/portal/,siplan,desconhecido,"""siplanweb.com.br"" no HTML"
@@ -150,7 +150,7 @@ ibge,uf,cidade,url,sistema,situacao,evidencia
 3110806,MG,Campanário,https://camaracampanario.mg.gov.br/,,bloqueado,robots.txt veda robôs (User-agent: * Disallow: /)
 3112059,MG,Cantagalo,https://cmcantagalo.mg.gov.br/,,bloqueado,robots.txt veda robôs (User-agent: * Disallow: /)
 3112307,MG,Capelinha,https://camaracapelinha.mg.gov.br/,,bloqueado,robots.txt veda robôs (User-agent: * Disallow: /)
-3112505,MG,Capim Branco,https://capimbranco.mg.leg.br/,portalfacil,desconhecido,"""actcon.net"" no HTML"
+3112505,MG,Capim Branco,https://capimbranco.mg.leg.br/,portalfacil,aberto,"""actcon.net"" no HTML; leitor conferido em 27/10/2026: 9 vereadores"
 3113008,MG,Caraí,,,desconhecido,nenhum dos 0 domínios candidatos com site da câmara
 3113503,MG,Carbonita,https://camaracarbonita.mg.gov.br/,cr2,desconhecido,"""portalcr2.com.br"" no HTML"
 3113701,MG,Carlos Chagas,,,desconhecido,nenhum dos 0 domínios candidatos com site da câmara
@@ -159,9 +159,9 @@ ibge,uf,cidade,url,sistema,situacao,evidencia
 3114907,MG,Casa Grande,https://camaracasagrande.mg.gov.br/,,bloqueado,HTTP 403 ao robô (Server: cloudflare)
 3115409,MG,Catas Altas da Noruega,https://camaracatasaltasdanoruega.mg.gov.br/,,bloqueado,HTTP 403 ao robô (Server: cloudflare)
 3115706,MG,Central de Minas,,,desconhecido,nenhum dos 0 domínios candidatos com site da câmara
-3116001,MG,Chalé,https://cmchale.mg.gov.br/,portalfacil,desconhecido,"""actcon.net"" no HTML"
+3116001,MG,Chalé,https://cmchale.mg.gov.br/,portalfacil,aberto,"""actcon.net"" no HTML; leitor conferido em 27/10/2026: 9 vereadores"
 3116209,MG,Chiador,,,desconhecido,nenhum dos 0 domínios candidatos com site da câmara
-3116803,MG,Coluna,https://camaracoluna.mg.gov.br/,digitaliza,desconhecido,"""servicosaocidadao.net.br"" no HTML"
+3116803,MG,Coluna,https://camaracoluna.mg.gov.br/,digitaliza,aberto,"""servicosaocidadao.net.br"" no HTML; leitor existente conferido em 27/10/2026"
 3117009,MG,Comercinho,,,desconhecido,nenhum dos 0 domínios candidatos com site da câmara
 3115201,MG,Conceição da Barra de Minas,,,desconhecido,nenhum dos 0 domínios candidatos com site da câmara
 3117207,MG,Conceição das Pedras,,,desconhecido,nenhum dos 0 domínios candidatos com site da câmara
@@ -188,16 +188,16 @@ ibge,uf,cidade,url,sistema,situacao,evidencia
 3126802,MG,Frei Gaspar,https://camarafreigaspar.mg.gov.br/,gerador:VS Code & PhpStorm,desconhecido,meta generator
 3126901,MG,Frei Inocêncio,https://camarafreiinocencio.mg.gov.br/,,bloqueado,robots.txt veda robôs (User-agent: * Disallow: /)
 3127339,MG,Gameleiras,https://www.gameleiras.mg.leg.br/,,desconhecido,nenhuma assinatura de fornecedor
-3127503,MG,Gonzaga,https://camaragonzaga.mg.gov.br/,digitaliza,desconhecido,"""servicosaocidadao.net.br"" no HTML"
+3127503,MG,Gonzaga,https://camaragonzaga.mg.gov.br/,digitaliza,aberto,"""servicosaocidadao.net.br"" no HTML; leitor existente conferido em 27/10/2026"
 3129806,MG,Ibirité,https://www.camaraibirite.mg.gov.br/,betha,desconhecido,"""betha.cloud"" no HTML"
-3130101,MG,Igarapé,https://cmigarape.mg.gov.br/,portalfacil,desconhecido,"""actcon.net"" no HTML"
+3130101,MG,Igarapé,https://cmigarape.mg.gov.br/,portalfacil,aberto,"""actcon.net"" no HTML; leitor conferido em 27/10/2026: 13 vereadores"
 3130804,MG,Ingaí,https://camaraingai.mg.gov.br/,,desconhecido,nenhuma assinatura de fornecedor
 3131158,MG,Ipaba,https://camaraipaba.mg.gov.br/,,bloqueado,HTTP 403 ao robô (Server: cloudflare)
 3132008,MG,Itacambira,,,desconhecido,nenhum dos 0 domínios candidatos com site da câmara
 3132305,MG,Itaipé,,,desconhecido,nenhum dos 0 domínios candidatos com site da câmara
 3132602,MG,Itamarati de Minas,,,desconhecido,nenhum dos 0 domínios candidatos com site da câmara
 3133006,MG,Itamonte,,,desconhecido,nenhum dos 0 domínios candidatos com site da câmara
-3133303,MG,Itaobim,https://camaraitaobim.mg.gov.br/,digitaliza,desconhecido,"""servicosaocidadao.net.br"" no HTML"
+3133303,MG,Itaobim,https://camaraitaobim.mg.gov.br/,digitaliza,aberto,"""servicosaocidadao.net.br"" no HTML; leitor existente conferido em 27/10/2026"
 3133501,MG,Itapecerica,https://itapecerica.cam.mg.gov.br/,gerador:OnlineFlex 4.0 &amp; Visual St,desconhecido,meta generator
 3133907,MG,Itaverava,https://camaraitaverava.mg.gov.br/,,desconhecido,nenhuma assinatura de fornecedor
 3134301,MG,Itumirim,https://camaraitumirim.mg.gov.br/,,bloqueado,HTTP 403 ao robô (Server: cloudflare)
@@ -205,21 +205,21 @@ ibge,uf,cidade,url,sistema,situacao,evidencia
 3135001,MG,Jaguaraçu,https://camarajaguaracu.mg.gov.br/,,bloqueado,robots.txt veda robôs (User-agent: * Disallow: /); pastas citadas: /agendas/ /Downloads /and/ /convenios /abrir_arquivo /sitemap
 3135076,MG,Jampruca,https://camarajampruca.mg.gov.br/,gerador:VS Code & PhpStorm,desconhecido,meta generator
 3135407,MG,Jeceaba,https://camarajeceaba.mg.gov.br/,,bloqueado,HTTP 403 ao robô (Server: cloudflare)
-3135456,MG,Jenipapo de Minas,https://camarajenipapodeminas.mg.gov.br/,digitaliza,desconhecido,"""servicosaocidadao.net.br"" no HTML"
-3135506,MG,Jequeri,https://camarajequeri.mg.gov.br/,portalfacil,desconhecido,"""actcon.net"" no HTML"
+3135456,MG,Jenipapo de Minas,https://camarajenipapodeminas.mg.gov.br/,digitaliza,aberto,"""servicosaocidadao.net.br"" no HTML; leitor existente conferido em 27/10/2026"
+3135506,MG,Jequeri,https://camarajequeri.mg.gov.br/,portalfacil,aberto,"""actcon.net"" no HTML; leitor conferido em 27/10/2026: 9 vereadores"
 3136108,MG,Joanésia,https://camarajoanesia.mg.gov.br/,,bloqueado,robots.txt veda robôs (User-agent: * Disallow: /)
 3136504,MG,Jordânia,,,desconhecido,nenhum dos 1 domínios candidatos com site da câmara
 3136579,MG,Josenópolis,,,desconhecido,nenhum dos 0 domínios candidatos com site da câmara
 3136702,MG,Juiz de Fora,,,desconhecido,nenhum dos 0 domínios candidatos com site da câmara
 3136900,MG,Juruaia,,,desconhecido,nenhum dos 0 domínios candidatos com site da câmara
-3137007,MG,Ladainha,https://camaraladainha.mg.gov.br/,digitaliza,desconhecido,"""servicosaocidadao.net.br"" no HTML"
+3137007,MG,Ladainha,https://camaraladainha.mg.gov.br/,digitaliza,aberto,"""servicosaocidadao.net.br"" no HTML; leitor existente conferido em 27/10/2026"
 3137403,MG,Lagoa Dourada,https://lagoadourada.mg.leg.br/,,desconhecido,nenhuma assinatura de fornecedor
 3137601,MG,Lagoa Santa,https://cmlagoasanta.mg.gov.br/,,bloqueado,HTTP 403 ao robô (Server: cloudflare)
 3138302,MG,Leandro Ferreira,,,desconhecido,nenhum dos 1 domínios candidatos com site da câmara
 3138401,MG,Leopoldina,https://leopoldina.mg.leg.br/,softcam,bloqueado,robots.txt veda robôs (User-agent: * Disallow: /); pastas citadas: /softcam/ /ciga/ /legisbr/ /legisla/ /rfassessoria/ /legislarr/
 3138906,MG,Machacalis,https://camaramachacalis.mg.gov.br/,,bloqueado,robots.txt veda robôs (User-agent: * Disallow: /)
 3139102,MG,Madre de Deus de Minas,,,desconhecido,nenhum dos 0 domínios candidatos com site da câmara
-3139201,MG,Malacacheta,https://camaramalacacheta.mg.gov.br/,digitaliza,desconhecido,"""servicosaocidadao.net.br"" no HTML"
+3139201,MG,Malacacheta,https://camaramalacacheta.mg.gov.br/,digitaliza,aberto,"""servicosaocidadao.net.br"" no HTML; leitor existente conferido em 27/10/2026"
 3140704,MG,Mateus Leme,,,desconhecido,nenhum dos 1 domínios candidatos com site da câmara
 3171501,MG,Mathias Lobato,https://camaramathiaslobato.mg.gov.br/,gerador:VS Code & PhpStorm,desconhecido,meta generator
 3141504,MG,Mendes Pimentel,,,desconhecido,nenhum dos 1 domínios candidatos com site da câmara
@@ -230,24 +230,24 @@ ibge,uf,cidade,url,sistema,situacao,evidencia
 3144201,MG,Nacip Raydan,https://camaranacipraydan.mg.gov.br/,gerador:VS Code & PhpStorm,desconhecido,meta generator
 3144706,MG,Nova Era,,,desconhecido,nenhum dos 0 domínios candidatos com site da câmara
 3136603,MG,Nova União,,,desconhecido,nenhum dos 0 domínios candidatos com site da câmara
-3145356,MG,Novo Oriente de Minas,https://camaranovoorientedeminas.mg.gov.br/,digitaliza,desconhecido,"""servicosaocidadao.net.br"" no HTML"
+3145356,MG,Novo Oriente de Minas,https://camaranovoorientedeminas.mg.gov.br/,digitaliza,aberto,"""servicosaocidadao.net.br"" no HTML; leitor existente conferido em 27/10/2026"
 3145802,MG,Onça de Pitangui,https://camaraoncadepitangui.mg.gov.br/,,bloqueado,robots.txt veda robôs (User-agent: * Disallow: /); pastas citadas: /documentos /documento /ckeditor /ckfinder /files /fonts
 3145901,MG,Ouro Branco,,,desconhecido,nenhum dos 0 domínios candidatos com site da câmara
-3146305,MG,Padre Paraíso,https://camarapadreparaiso.mg.gov.br/,digitaliza,desconhecido,"""servicosaocidadao.net.br"" no HTML"
+3146305,MG,Padre Paraíso,https://camarapadreparaiso.mg.gov.br/,digitaliza,aberto,"""servicosaocidadao.net.br"" no HTML; leitor existente conferido em 27/10/2026"
 3146909,MG,Papagaios,https://papagaios.mg.leg.br/,,bloqueado,robots.txt veda robôs (User-agent: * Disallow: /); pastas citadas: /documentos /documento /ckeditor /ckfinder /files /fonts
 3147006,MG,Paracatu,https://paracatu.mg.leg.br/,,bloqueado,HTTP 403 ao robô (Server: cloudflare)
 3148400,MG,Paulistas,,,desconhecido,nenhum dos 0 domínios candidatos com site da câmara
-3148707,MG,Pedra Azul,https://camarapedraazul.mg.gov.br/,digitaliza,desconhecido,"""servicosaocidadao.net.br"" no HTML"
+3148707,MG,Pedra Azul,https://camarapedraazul.mg.gov.br/,digitaliza,aberto,"""servicosaocidadao.net.br"" no HTML; leitor existente conferido em 27/10/2026"
 3148806,MG,Pedra do Anta,,,desconhecido,nenhum dos 0 domínios candidatos com site da câmara
 3149606,MG,Pequi,,,desconhecido,nenhum dos 2 domínios candidatos com site da câmara
 3149705,MG,Perdigão,,,desconhecido,nenhum dos 1 domínios candidatos com site da câmara
 3150000,MG,Pescador,https://camarapescador.mg.gov.br/,gerador:VS Code & PhpStorm,desconhecido,meta generator
-3148608,MG,Peçanha,https://camarapecanha.mg.gov.br/,digitaliza,desconhecido,"""servicosaocidadao.net.br"" no HTML"
+3148608,MG,Peçanha,https://camarapecanha.mg.gov.br/,digitaliza,aberto,"""servicosaocidadao.net.br"" no HTML; leitor existente conferido em 27/10/2026"
 3150307,MG,Piedade do Rio Grande,,,desconhecido,nenhum dos 0 domínios candidatos com site da câmara
 3150406,MG,Piedade dos Gerais,,,desconhecido,nenhum dos 0 domínios candidatos com site da câmara
 3151107,MG,Pirapetinga,,,desconhecido,erro: SSLError
 3152170,MG,Ponto dos Volantes,https://camarapontodosvolantes.mg.gov.br/,softcam,bloqueado,robots.txt veda robôs (User-agent: * Disallow: /); pastas citadas: /softcam/ /ciga/ /legisbr/ /legisla/ /rfassessoria/ /legislarr/
-3152402,MG,Poté,https://camarapote.mg.gov.br/,digitaliza,desconhecido,"""servicosaocidadao.net.br"" no HTML"
+3152402,MG,Poté,https://camarapote.mg.gov.br/,digitaliza,aberto,"""servicosaocidadao.net.br"" no HTML; leitor existente conferido em 27/10/2026"
 3152709,MG,Prados,,,desconhecido,nenhum dos 0 domínios candidatos com site da câmara
 3153103,MG,Presidente Bernardes,,,desconhecido,nenhum dos 0 domínios candidatos com site da câmara
 3153905,MG,Raposos,https://www.camararaposos.mg.gov.br/,betha,desconhecido,"""betha.cloud"" no HTML"
@@ -262,7 +262,7 @@ ibge,uf,cidade,url,sistema,situacao,evidencia
 3157203,MG,Santa Bárbara,https://sapl.santabarbara.mg.leg.br/,sapl,aberto,API /api/ do SAPL responde
 3157302,MG,Santa Bárbara do Tugúrio,https://cmsantabarbaradotugurio.mg.gov.br/,,bloqueado,HTTP 403 ao robô (Server: cloudflare)
 3157336,MG,Santa Cruz de Minas,https://camarasantacruzdeminas.mg.gov.br/,,desconhecido,nenhuma assinatura de fornecedor
-3157500,MG,Santa Efigênia de Minas,https://camarasantaefigeniademinas.mg.gov.br/,digitaliza,desconhecido,"""servicosaocidadao.net.br"" no HTML"
+3157500,MG,Santa Efigênia de Minas,https://camarasantaefigeniademinas.mg.gov.br/,digitaliza,aberto,"""servicosaocidadao.net.br"" no HTML; leitor existente conferido em 27/10/2026"
 3157906,MG,Santa Margarida,https://sapl.santamargarida.mg.leg.br/,sapl,aberto,API /api/ do SAPL responde
 3158003,MG,Santa Maria de Itabira,,,desconhecido,nenhum dos 1 domínios candidatos com site da câmara
 3158102,MG,Santa Maria do Salto,https://camarasantamariadosalto.mg.gov.br/,gerador:VS Code & PhpStorm,desconhecido,meta generator
@@ -273,7 +273,7 @@ ibge,uf,cidade,url,sistema,situacao,evidencia
 3159001,MG,Santana do Riacho,https://santanadoriacho.mg.leg.br/,,bloqueado,HTTP 403 ao robô (Server: cloudflare)
 3159100,MG,Santana dos Montes,https://camarasantanadosmontes.mg.gov.br/,,bloqueado,HTTP 403 ao robô (Server: cloudflare)
 3160207,MG,Santo Antônio do Itambé,,,desconhecido,nenhum dos 0 domínios candidatos com site da câmara
-3165602,MG,Senador Cortes,https://senadorcortes.mg.leg.br/,portalfacil,desconhecido,"""actcon.net"" no HTML"
+3165602,MG,Senador Cortes,https://senadorcortes.mg.leg.br/,portalfacil,aberto,"""actcon.net"" no HTML; leitor conferido em 27/10/2026: 9 vereadores"
 3165909,MG,Senador Modestino Gonçalves,,,desconhecido,nenhum dos 0 domínios candidatos com site da câmara
 3166501,MG,Serra Azul de Minas,,,desconhecido,nenhum dos 0 domínios candidatos com site da câmara
 3166709,MG,Serra dos Aimorés,,,desconhecido,nenhum dos 0 domínios candidatos com site da câmara
@@ -294,11 +294,11 @@ ibge,uf,cidade,url,sistema,situacao,evidencia
 3168200,MG,Tapiraí,https://camaratapirai.mg.gov.br/,gerador:WordPress 7.1.3,desconhecido,meta generator; reCAPTCHA na página
 3168804,MG,Tiradentes,https://camaratiradentes.mg.gov.br/,,bloqueado,HTTP 403 ao robô (Server: cloudflare)
 3169307,MG,Três Corações,https://camaratc.mg.gov.br/,legislador,desconhecido,"""legislador.com.br"" no HTML"
-3169505,MG,Tumiritinga,https://camaratumiritinga.mg.gov.br/,digitaliza,desconhecido,"""servicosaocidadao.net.br"" no HTML"
-3170305,MG,Umburatiba,https://camaraumburatiba.mg.gov.br/,digitaliza,desconhecido,"""servicosaocidadao.net.br"" no HTML"
+3169505,MG,Tumiritinga,https://camaratumiritinga.mg.gov.br/,digitaliza,aberto,"""servicosaocidadao.net.br"" no HTML; leitor existente conferido em 27/10/2026"
+3170305,MG,Umburatiba,https://camaraumburatiba.mg.gov.br/,digitaliza,aberto,"""servicosaocidadao.net.br"" no HTML; leitor existente conferido em 27/10/2026"
 3170578,MG,Vargem Alegre,,,desconhecido,nenhum dos 0 domínios candidatos com site da câmara
 3171907,MG,Virgolândia,https://virgolandia.mg.leg.br/,gerador:VS Code & PhpStorm,desconhecido,meta generator
-3100906,MG,Águas Formosas,https://camaraaguasformosas.mg.gov.br/,digitaliza,desconhecido,"""servicosaocidadao.net.br"" no HTML"
+3100906,MG,Águas Formosas,https://camaraaguasformosas.mg.gov.br/,digitaliza,aberto,"""servicosaocidadao.net.br"" no HTML; leitor existente conferido em 27/10/2026"
 3101003,MG,Águas Vermelhas,https://camaraaguasvermelhas.mg.gov.br/,gerador:VS Code & PhpStorm,desconhecido,meta generator
 5007406,MS,Rio Verde de Mato Grosso,,,desconhecido,nenhum dos 0 domínios candidatos com site da câmara
 5007695,MS,São Gabriel do Oeste,,,desconhecido,nenhum dos 0 domínios candidatos com site da câmara
@@ -331,27 +331,27 @@ ibge,uf,cidade,url,sistema,situacao,evidencia
 2605459,PE,Fernando de Noronha,,,desconhecido,nenhum dos 0 domínios candidatos com site da câmara
 2613107,PE,São Caitano,https://sapl.saocaitano.pe.leg.br/,sapl,aberto,API /api/ do SAPL responde
 2200251,PI,Alagoinha do Piauí,https://alagoinhadopiaui.pi.leg.br/,,desconhecido,nenhuma assinatura de fornecedor
-2200277,PI,Alegrete do Piauí,https://alegretedopiaui.pi.leg.br/alegretedopiaui,sts,desconhecido,"""stsinformatica.com.br"" no HTML"
+2200277,PI,Alegrete do Piauí,https://alegretedopiaui.pi.leg.br/alegretedopiaui,sts,aberto,"""stsinformatica.com.br"" no HTML; leitor conferido em 27/10/2026: 9 vereadores"
 2200905,PI,Aroazes,https://aroazes.pi.leg.br/aroazes,aos,desconhecido,"""aossoftware"" no HTML"
 2201176,PI,Barra D'Alcântara,https://barradalcantara.pi.leg.br/,gerador:WordPress 7.1.3,desconhecido,meta generator
 2202000,PI,Buriti dos Lopes,https://buritidoslopes.pi.leg.br/,aos,desconhecido,"""aossoftware"" no HTML"
-2202091,PI,Caldeirão Grande do Piauí,https://caldeiraograndedopiaui.pi.leg.br/caldeiraograndedopiaui,sts,desconhecido,"""sts-gestao"" no HTML"
-2203008,PI,Cristalândia do Piauí,https://cristalandiadopiaui.pi.leg.br/cristalandiadopiaui,sts,desconhecido,"""stsinformatica.com.br"" no HTML"
+2202091,PI,Caldeirão Grande do Piauí,https://caldeiraograndedopiaui.pi.leg.br/caldeiraograndedopiaui,sts,aberto,"""sts-gestao"" no HTML; leitor conferido em 27/10/2026: 9 vereadores"
+2203008,PI,Cristalândia do Piauí,https://cristalandiadopiaui.pi.leg.br/cristalandiadopiaui,sts,aberto,"""stsinformatica.com.br"" no HTML; leitor conferido em 27/10/2026: 10 vereadores"
 2205458,PI,Joca Marques,https://jocamarques.pi.leg.br/,gerador:WordPress 7.1.3,desconhecido,meta generator
 2205516,PI,Juazeiro do Piauí,https://camarajuazeirodopiaui.pi.gov.br/,aos,desconhecido,"""aossoftware"" no HTML"
 2205540,PI,Lagoinha do Piauí,https://camaralagoinhadopiaui.pi.gov.br/,,desconhecido,nenhuma assinatura de fornecedor
-2206050,PI,Massapê do Piauí,https://massapedopiaui.pi.leg.br/massapedopiaui,sts,desconhecido,"""sts-gestao"" no HTML"
+2206050,PI,Massapê do Piauí,https://massapedopiaui.pi.leg.br/massapedopiaui,sts,aberto,"""sts-gestao"" no HTML; leitor conferido em 27/10/2026: 8 vereadores"
 2206670,PI,Morro do Chapéu do Piauí,https://morrodochapeudopiaui.pi.leg.br/morrodochapeudopiaui,sts,desconhecido,"""stsinformatica.com.br"" no HTML"
-2207355,PI,Pajeú do Piauí,https://pajeudopiaui.pi.leg.br/camarapajeudopiaui,sts,desconhecido,"""sts-gestao"" no HTML"
+2207355,PI,Pajeú do Piauí,https://pajeudopiaui.pi.leg.br/camarapajeudopiaui,sts,aberto,"""sts-gestao"" no HTML; leitor conferido em 27/10/2026: 9 vereadores"
 2207751,PI,Passagem Franca do Piauí,https://camarapassagemfrancadopiaui.pi.gov.br/,fiorilli,desconhecido,"""fiorilli"" no HTML"
 2208551,PI,Porto Alegre do Piauí,,,desconhecido,nenhum dos 0 domínios candidatos com site da câmara
 2208874,PI,Ribeira do Piauí,https://ribeiradopiaui.pi.leg.br/,,desconhecido,nenhuma assinatura de fornecedor
 2209104,PI,Santa Cruz do Piauí,https://santacruzdopiaui.pi.leg.br/,,desconhecido,nenhuma assinatura de fornecedor
-2210805,PI,Simplício Mendes,https://simpliciomendes.pi.leg.br/simpliciomendes,sts,desconhecido,"""sts-gestao"" no HTML"
-2210359,PI,São Lourenço do Piauí,https://saolourencodopiaui.pi.leg.br/camarasaolourencodopiaui,sts,desconhecido,"""sts-gestao"" no HTML"
+2210805,PI,Simplício Mendes,https://simpliciomendes.pi.leg.br/simpliciomendes,sts,aberto,"""sts-gestao"" no HTML; leitor conferido em 27/10/2026: 9 vereadores"
+2210359,PI,São Lourenço do Piauí,https://saolourencodopiaui.pi.leg.br/camarasaolourencodopiaui,sts,aberto,"""sts-gestao"" no HTML; leitor conferido em 27/10/2026: 10 vereadores"
 2210391,PI,São Miguel do Fidalgo,https://saomigueldofidalgo.pi.leg.br/,,desconhecido,nenhuma assinatura de fornecedor
-2210607,PI,São Raimundo Nonato,https://saoraimundononato.pi.leg.br/saoraimundononato,sts,desconhecido,"""sts-gestao"" no HTML"
-2211704,PI,Wall Ferraz,https://wallferraz.pi.leg.br/wallferraz,sts,desconhecido,"""stsinformatica.com.br"" no HTML"
+2210607,PI,São Raimundo Nonato,https://saoraimundononato.pi.leg.br/saoraimundononato,sts,aberto,"""sts-gestao"" no HTML; leitor conferido em 27/10/2026: 10 vereadores"
+2211704,PI,Wall Ferraz,https://wallferraz.pi.leg.br/wallferraz,sts,aberto,"""stsinformatica.com.br"" no HTML; leitor conferido em 27/10/2026: 10 vereadores"
 4100103,PR,Abatiá,https://abatia.pr.leg.br/,softcam,bloqueado,robots.txt veda robôs (User-agent: * Disallow: /); pastas citadas: /softcam/ /ciga/ /legisbr/ /legisla/ /rfassessoria/ /legislarr/
 4100608,PR,Alto Paraná,https://cmaltoparana.pr.gov.br/,ingadigital,desconhecido,"""ingadigital"" no HTML"
 4100707,PR,Alto Piquiri,https://cmaltopiquiri.pr.gov.br/,ingadigital,desconhecido,"""ingadigital"" no HTML"
@@ -361,13 +361,13 @@ ibge,uf,cidade,url,sistema,situacao,evidencia
 4103024,PR,Boa Esperança do Iguaçu,,,desconhecido,nenhum dos 0 domínios candidatos com site da câmara
 4103040,PR,Boa Ventura de São Roque,,,desconhecido,nenhum dos 0 domínios candidatos com site da câmara
 4103354,PR,Braganey,https://camarabraganey.pr.gov.br/,softcam,bloqueado,robots.txt veda robôs (User-agent: * Disallow: /); pastas citadas: /softcam/ /ciga/ /legisbr/ /legisla/ /rfassessoria/ /legislarr/
-4103453,PR,Cafelândia,http://cmcafelandia.pr.gov.br/,ingadigital,desconhecido,"""ingadigital"" no HTML"
+4103453,PR,Cafelândia,http://cmcafelandia.pr.gov.br/,ingadigital,aberto,"""ingadigital"" no HTML; leitor conferido em 27/10/2026: 9 vereadores"
 4104428,PR,Candói,https://camaracandoi.pr.gov.br/,softcam,bloqueado,robots.txt veda robôs (User-agent: * Disallow: /); pastas citadas: /softcam/ /ciga/ /legisbr/ /legisla/ /rfassessoria/ /legislarr/
 4104709,PR,Carlópolis,,,desconhecido,nenhum dos 0 domínios candidatos com site da câmara
 4106506,PR,Coronel Vivida,https://camaracoronelvivida.pr.gov.br/,,desconhecido,nenhuma assinatura de fornecedor
 4106555,PR,Corumbataí do Sul,,,desconhecido,nenhum dos 0 domínios candidatos com site da câmara
 4107009,PR,Curiúva,https://cmcuriuva.pr.gov.br/,softcam,bloqueado,robots.txt veda robôs (User-agent: * Disallow: /); pastas citadas: /softcam/ /ciga/ /legisbr/ /legisla/ /rfassessoria/ /legislarr/
-4104402,PR,Cândido de Abreu,https://cmcandidodeabreu.pr.gov.br/,ingadigital,desconhecido,"""ingadigital"" no HTML"
+4104402,PR,Cândido de Abreu,https://cmcandidodeabreu.pr.gov.br/,ingadigital,aberto,"""ingadigital"" no HTML; leitor conferido em 27/10/2026: 9 vereadores"
 4107256,PR,Douradina,https://douradina.pr.leg.br/,softcam,bloqueado,robots.txt veda robôs (User-agent: * Disallow: /); pastas citadas: /softcam/ /ciga/ /legisbr/ /legisla/ /rfassessoria/ /legislarr/
 4107850,PR,Flor da Serra do Sul,https://flordaserradosul.pr.leg.br/,,desconhecido,nenhuma assinatura de fornecedor
 4107801,PR,Floraí,,,desconhecido,nenhum dos 0 domínios candidatos com site da câmara
@@ -381,16 +381,16 @@ ibge,uf,cidade,url,sistema,situacao,evidencia
 4110052,PR,Iguatu,https://camaraiguatu.pr.gov.br/,softcam,bloqueado,robots.txt veda robôs (User-agent: * Disallow: /); pastas citadas: /softcam/ /ciga/ /legisbr/ /legisla/ /rfassessoria/ /legislarr/
 4110607,PR,Iporã,,,desconhecido,nenhum dos 1 domínios candidatos com site da câmara
 4110656,PR,Iracema do Oeste,https://cmiracemadooeste.pr.gov.br/,softcam,bloqueado,robots.txt veda robôs (User-agent: * Disallow: /); pastas citadas: /softcam/ /ciga/ /legisbr/ /legisla/ /rfassessoria/ /legislarr/
-4110805,PR,Iretama,https://camarairetama.pr.gov.br/,ingadigital,desconhecido,"""ingadigital"" no HTML"
+4110805,PR,Iretama,https://camarairetama.pr.gov.br/,ingadigital,aberto,"""ingadigital"" no HTML; leitor conferido em 27/10/2026: 9 vereadores"
 4110953,PR,Itaipulândia,https://itaipulandia.pr.leg.br/,,desconhecido,nenhuma assinatura de fornecedor
-4111100,PR,Itambé,https://cmitambe.pr.gov.br/,ingadigital,desconhecido,"""ingadigital"" no HTML"
+4111100,PR,Itambé,https://cmitambe.pr.gov.br/,ingadigital,aberto,"""ingadigital"" no HTML; leitor conferido em 27/10/2026: 9 vereadores"
 4112108,PR,Jandaia do Sul,https://jandaiadosul.pr.leg.br/,elotech,desconhecido,"""elotech"" no HTML; reCAPTCHA na página"
 4112751,PR,Jesuítas,https://cmjesuitas.pr.gov.br/,softcam,bloqueado,robots.txt veda robôs (User-agent: * Disallow: /); pastas citadas: /softcam/ /ciga/ /legisbr/ /legisla/ /rfassessoria/ /legislarr/
-4113759,PR,Lunardelli,https://cmlunardelli.pr.gov.br/,ingadigital,desconhecido,"""ingadigital"" no HTML"
+4113759,PR,Lunardelli,https://cmlunardelli.pr.gov.br/,ingadigital,aberto,"""ingadigital"" no HTML; leitor conferido em 27/10/2026: 9 vereadores"
 4114807,PR,Marialva,https://camaramarialva.pr.gov.br/,ingadigital,desconhecido,"""ingadigital"" no HTML; reCAPTCHA na página"
 4115200,PR,Maringá,,,desconhecido,nenhum dos 0 domínios candidatos com site da câmara
 4115705,PR,Matinhos,https://camaramatinhos.pr.gov.br/,softcam,bloqueado,robots.txt veda robôs (User-agent: * Disallow: /); pastas citadas: /softcam/ /ciga/ /legisbr/ /legisla/ /rfassessoria/ /legislarr/
-4115903,PR,Mirador,https://camaramirador.pr.gov.br/,ingadigital,desconhecido,"""ingadigital"" no HTML"
+4115903,PR,Mirador,https://camaramirador.pr.gov.br/,ingadigital,aberto,"""ingadigital"" no HTML; leitor conferido em 27/10/2026: 9 vereadores"
 4116307,PR,Munhoz de Melo,,,desconhecido,nenhum dos 0 domínios candidatos com site da câmara
 4116604,PR,Nova América da Colina,,,desconhecido,nenhum dos 0 domínios candidatos com site da câmara
 4116703,PR,Nova Aurora,https://camaranovaaurora.pr.gov.br/,softcam,bloqueado,robots.txt veda robôs (User-agent: * Disallow: /); pastas citadas: /softcam/ /ciga/ /legisbr/ /legisla/ /rfassessoria/ /legislarr/
@@ -420,12 +420,12 @@ ibge,uf,cidade,url,sistema,situacao,evidencia
 4125209,PR,São Jorge d'Oeste,,,desconhecido,nenhum dos 0 domínios candidatos com site da câmara
 4125308,PR,São Jorge do Ivaí,https://cmsaojorgedoivai.pr.gov.br/,betha,desconhecido,"""betha.cloud"" no HTML"
 4125506,PR,São José dos Pinhais,,,desconhecido,nenhum dos 0 domínios candidatos com site da câmara
-4124905,PR,São João do Caiuá,https://cmsaojoaodocaiua.pr.gov.br/,ingadigital,desconhecido,"""ingadigital"" no HTML"
+4124905,PR,São João do Caiuá,https://cmsaojoaodocaiua.pr.gov.br/,ingadigital,aberto,"""ingadigital"" no HTML; leitor conferido em 27/10/2026: 9 vereadores"
 4125753,PR,São Pedro do Iguaçu,https://camarasaopedrodoiguacu.pr.gov.br/,softcam,bloqueado,robots.txt veda robôs (User-agent: * Disallow: /); pastas citadas: /softcam/ /ciga/ /legisbr/ /legisla/ /rfassessoria/ /legislarr/
-4125803,PR,São Pedro do Ivaí,https://cmsaopedrodoivai.pr.gov.br/,ingadigital,desconhecido,"""ingadigital"" no HTML"
+4125803,PR,São Pedro do Ivaí,https://cmsaopedrodoivai.pr.gov.br/,ingadigital,aberto,"""ingadigital"" no HTML; leitor conferido em 27/10/2026: 9 vereadores"
 4125902,PR,São Pedro do Paraná,https://cmsaopedrodoparana.pr.gov.br/,ingadigital,desconhecido,"""ingadigital"" no HTML"
 4126009,PR,São Sebastião da Amoreira,,,desconhecido,nenhum dos 0 domínios candidatos com site da câmara
-4126801,PR,Tapejara,https://cmtapejara.pr.gov.br/,ingadigital,desconhecido,"""ingadigital"" no HTML"
+4126801,PR,Tapejara,https://cmtapejara.pr.gov.br/,ingadigital,aberto,"""ingadigital"" no HTML; leitor conferido em 27/10/2026: 9 vereadores"
 4128005,PR,Ubiratã,https://camaraubirata.pr.gov.br/,cr2,desconhecido,"""cr2.site"" no HTML; reCAPTCHA na página"
 4128302,PR,Uniflor,https://www.cmuniflor.pr.gov.br,ingadigital,desconhecido,"""ingadigital"" no HTML"
 4128559,PR,Vera Cruz do Oeste,,,desconhecido,nenhum dos 0 domínios candidatos com site da câmara
@@ -462,7 +462,7 @@ ibge,uf,cidade,url,sistema,situacao,evidencia
 1400233,RR,Caroebe,,,desconhecido,nenhum dos 2 domínios candidatos com site da câmara
 1400605,RR,São Luiz do Anauá,,,desconhecido,nenhum dos 0 domínios candidatos com site da câmara
 4300307,RS,Alecrim,https://camaraalecrim.rs.gov.br/site,abase,desconhecido,"""abase.com.br"" no HTML"
-4300455,RS,Alegria,https://camaraalegria.rs.gov.br/site,cespro,desconhecido,"""cespro.com.br"" no HTML"
+4300455,RS,Alegria,https://camaraalegria.rs.gov.br/site,cespro,aberto,"""cespro.com.br"" no HTML; leitor conferido em 27/10/2026: 9 vereadores"
 4300604,RS,Alvorada,,,desconhecido,nenhum dos 0 domínios candidatos com site da câmara
 4300901,RS,Aratiba,,,desconhecido,nenhum dos 1 domínios candidatos com site da câmara
 4301305,RS,Arroio Grande,https://camaraarroiogrande.rs.gov.br/,softcam,bloqueado,robots.txt veda robôs (User-agent: * Disallow: /); pastas citadas: /softcam/ /ciga/ /legisbr/ /legisla/ /rfassessoria/ /legislarr/
@@ -473,13 +473,13 @@ ibge,uf,cidade,url,sistema,situacao,evidencia
 4301958,RS,Barra Funda,https://camarabarrafunda.rs.gov.br/,cespro,desconhecido,"""cespro.com.br"" no HTML; reCAPTCHA na página"
 4302006,RS,Barros Cassal,,,desconhecido,nenhum dos 0 domínios candidatos com site da câmara
 4302154,RS,Boa Vista das Missões,https://camaraboavistadasmissoes.rs.gov.br/,betha,desconhecido,"""betha.cloud"" no HTML; reCAPTCHA na página"
-4302204,RS,Boa Vista do Buricá,https://camaraboavistadoburica.rs.gov.br/site,abase,desconhecido,"""adentro.com.br"" no HTML"
+4302204,RS,Boa Vista do Buricá,https://camaraboavistadoburica.rs.gov.br/site,abase,aberto,"""adentro.com.br"" no HTML; leitor conferido em 27/10/2026: 9 vereadores"
 4302238,RS,Boa Vista do Incra,https://www.cmboavistadoincra.rs.gov.br/,,desconhecido,reCAPTCHA na página
 4302253,RS,Boa Vista do Sul,,,desconhecido,nenhum dos 0 domínios candidatos com site da câmara
 4302303,RS,Bom Jesus,https://camarabomjesus.rs.gov.br/,softcam,bloqueado,robots.txt veda robôs (User-agent: * Disallow: /); pastas citadas: /softcam/ /ciga/ /legisbr/ /legisla/ /rfassessoria/ /legislarr/
 4302352,RS,Bom Princípio,https://www.bomprincipio.rs.leg.br/,,desconhecido,nenhuma assinatura de fornecedor
 4302378,RS,Bom Progresso,https://bomprogresso.rs.leg.br/,ipm,desconhecido,"""atende.net"" no HTML"
-4302501,RS,Bossoroca,https://camarabossoroca.rs.gov.br/site,abase,desconhecido,"""adentro.com.br"" no HTML"
+4302501,RS,Bossoroca,https://camarabossoroca.rs.gov.br/site,abase,aberto,"""adentro.com.br"" no HTML; leitor conferido em 27/10/2026: 9 vereadores"
 4302659,RS,Brochier,https://camarabrochier.rs.gov.br/,softcam,bloqueado,robots.txt veda robôs (User-agent: * Disallow: /); pastas citadas: /softcam/ /ciga/ /legisbr/ /legisla/ /rfassessoria/ /legislarr/
 4303103,RS,Cachoeirinha,https://cmcachoeirinha.rs.gov.br/,,bloqueado,robots.txt veda robôs (User-agent: * Disallow: /); pastas citadas: /documentos /documento /ckeditor /ckfinder /files /fonts
 4303400,RS,Caiçara,,,desconhecido,nenhum dos 0 domínios candidatos com site da câmara
@@ -491,19 +491,19 @@ ibge,uf,cidade,url,sistema,situacao,evidencia
 4304705,RS,Carazinho,,,desconhecido,nenhum dos 0 domínios candidatos com site da câmara
 4305108,RS,Caxias do Sul,,,desconhecido,nenhum dos 0 domínios candidatos com site da câmara
 4305207,RS,Cerro Largo,https://camaracerrolargo.rs.gov.br/,softcam,bloqueado,robots.txt veda robôs (User-agent: * Disallow: /); pastas citadas: /softcam/ /ciga/ /legisbr/ /legisla/ /rfassessoria/ /legislarr/
-4305447,RS,Chuvisca,https://camarachuvisca.rs.gov.br/site,cespro,desconhecido,"""cespro.com.br"" no HTML"
+4305447,RS,Chuvisca,https://camarachuvisca.rs.gov.br/site,cespro,aberto,"""cespro.com.br"" no HTML; leitor conferido em 27/10/2026: 9 vereadores"
 4305900,RS,Coronel Bicaco,,,desconhecido,nenhum dos 1 domínios candidatos com site da câmara
 4305959,RS,Cotiporã,https://camaracotipora.rs.gov.br/,,desconhecido,reCAPTCHA na página
 4306106,RS,Cruz Alta,https://www.camaracruzalta.rs.gov.br/,sistemalegislativo,desconhecido,"""sistemalegislativo.com.br"" no HTML"
 4306205,RS,Cruzeiro do Sul,https://cruzeirodosul.rs.leg.br/,cittatec,desconhecido,"""cittatec.com.br"" no HTML"
 4304309,RS,Cândido Godói,https://camaracandidogodoi.rs.gov.br/,softcam,bloqueado,robots.txt veda robôs (User-agent: * Disallow: /); pastas citadas: /softcam/ /ciga/ /legisbr/ /legisla/ /rfassessoria/ /legislarr/
 4306320,RS,Derrubadas,,,desconhecido,nenhum dos 0 domínios candidatos com site da câmara
-4306353,RS,Dezesseis de Novembro,https://camaradezesseisdenovembro.rs.gov.br/site,cespro,desconhecido,"""cespro.com.br"" no HTML"
+4306353,RS,Dezesseis de Novembro,https://camaradezesseisdenovembro.rs.gov.br/site,cespro,aberto,"""cespro.com.br"" no HTML; leitor conferido em 27/10/2026: 9 vereadores"
 4306403,RS,Dois Irmãos,,,desconhecido,nenhum dos 0 domínios candidatos com site da câmara
 4306601,RS,Dom Pedrito,https://camaradompedrito.rs.gov.br/,softcam,bloqueado,robots.txt veda robôs (User-agent: * Disallow: /); pastas citadas: /softcam/ /ciga/ /legisbr/ /legisla/ /rfassessoria/ /legislarr/
-4306551,RS,Dom Pedro de Alcântara,https://dompedrodealcantara.rs.leg.br/,icamaras,desconhecido,"""icamaras.com.br"" no HTML"
+4306551,RS,Dom Pedro de Alcântara,https://dompedrodealcantara.rs.leg.br/,icamaras,aberto,"""icamaras.com.br"" no HTML; leitor conferido em 27/10/2026: 10 vereadores"
 4306734,RS,Doutor Maurício Cardoso,https://camaradoutormauriciocardoso.rs.gov.br/site,abase,desconhecido,"""adentro.com.br"" no HTML"
-4306759,RS,Doutor Ricardo,https://doutorricardo.rs.leg.br/,icamaras,desconhecido,"""icamaras.com.br"" no HTML"
+4306759,RS,Doutor Ricardo,https://doutorricardo.rs.leg.br/,icamaras,aberto,"""icamaras.com.br"" no HTML; leitor conferido em 27/10/2026: 15 vereadores"
 4306767,RS,Eldorado do Sul,,,desconhecido,nenhum dos 0 domínios candidatos com site da câmara
 4306809,RS,Encantado,https://www.camaraencantado.rs.gov.br/,,desconhecido,nenhuma assinatura de fornecedor
 4307450,RS,Esperança do Sul,https://esperancadosul.rs.leg.br/,,desconhecido,nenhuma assinatura de fornecedor
@@ -516,12 +516,12 @@ ibge,uf,cidade,url,sistema,situacao,evidencia
 4309209,RS,Gravataí,https://cmgravatai.rs.gov.br/,,bloqueado,robots.txt veda robôs (User-agent: * Disallow: /); pastas citadas: /documentos /documento /ckeditor /ckfinder /files /fonts
 4309258,RS,Guabiju,,,desconhecido,nenhum dos 0 domínios candidatos com site da câmara
 4309308,RS,Guaíba,,,desconhecido,nenhum dos 2 domínios candidatos com site da câmara
-4307104,RS,Herval,https://herval.rs.leg.br/,icamaras,desconhecido,"""icamaras.com.br"" no HTML"
+4307104,RS,Herval,https://herval.rs.leg.br/,icamaras,aberto,"""icamaras.com.br"" no HTML; leitor conferido em 27/10/2026: 9 vereadores"
 4309605,RS,Horizontina,https://camarahorizontina.rs.gov.br/,softcam,bloqueado,robots.txt veda robôs (User-agent: * Disallow: /); pastas citadas: /softcam/ /ciga/ /legisbr/ /legisla/ /rfassessoria/ /legislarr/
-4309654,RS,Hulha Negra,https://hulhanegra.rs.leg.br/,icamaras,desconhecido,"""icamaras.com.br"" no HTML"
+4309654,RS,Hulha Negra,https://hulhanegra.rs.leg.br/,icamaras,aberto,"""icamaras.com.br"" no HTML; leitor conferido em 27/10/2026: 10 vereadores"
 4310405,RS,Independência,,,desconhecido,nenhum dos 1 domínios candidatos com site da câmara
 4310439,RS,Ipê,https://camaraipe.rs.gov.br/,softcam,bloqueado,robots.txt veda robôs (User-agent: * Disallow: /); pastas citadas: /softcam/ /ciga/ /legisbr/ /legisla/ /rfassessoria/ /legislarr/
-4310553,RS,Itacurubi,https://camaraitacurubi.rs.gov.br/site,abase,desconhecido,"""adentro.com.br"" no HTML"
+4310553,RS,Itacurubi,https://camaraitacurubi.rs.gov.br/site,abase,aberto,"""adentro.com.br"" no HTML; leitor conferido em 27/10/2026: 9 vereadores"
 4310850,RS,Jaboticaba,https://camarajaboticaba.rs.gov.br/,cespro,desconhecido,"""cespro.com.br"" no HTML; reCAPTCHA na página"
 4310876,RS,Jacuizinho,https://www.camarajacuizinho.rs.gov.br/,betha,desconhecido,"""betha.cloud"" no HTML"
 4311122,RS,Jaquirana,https://camarajaquirana.rs.gov.br/,,bloqueado,HTTP 429 ao robô (Server: Vercel)
@@ -531,7 +531,7 @@ ibge,uf,cidade,url,sistema,situacao,evidencia
 4311718,RS,Maçambará,https://macambara.rs.leg.br/,,desconhecido,nenhuma assinatura de fornecedor
 4312476,RS,Morro Reuter,https://camaramorroreuter.rs.gov.br/,,bloqueado,HTTP 429 ao robô (Server: Vercel)
 4312674,RS,Nicolau Vergueiro,,,desconhecido,nenhum dos 0 domínios candidatos com site da câmara
-4313011,RS,Nova Candelária,https://camaranovacandelaria.rs.gov.br/site,abase,desconhecido,"""adentro.com.br"" no HTML"
+4313011,RS,Nova Candelária,https://camaranovacandelaria.rs.gov.br/site,abase,aberto,"""adentro.com.br"" no HTML; leitor conferido em 27/10/2026: 9 vereadores"
 4313359,RS,Nova Roma do Sul,https://novaromadosul.rs.leg.br/,cespro,desconhecido,"""cespro.com.br"" no HTML"
 4313490,RS,Novo Barreiro,https://camaranovobarreiro.rs.gov.br/,cespro,desconhecido,"""cespro.com.br"" no HTML; reCAPTCHA na página"
 4313409,RS,Novo Hamburgo,,,desconhecido,nenhum dos 0 domínios candidatos com site da câmara
@@ -546,37 +546,37 @@ ibge,uf,cidade,url,sistema,situacao,evidencia
 4314506,RS,Pinheiro Machado,,,desconhecido,nenhum dos 0 domínios candidatos com site da câmara
 4314555,RS,Pirapó,,,desconhecido,nenhum dos 1 domínios candidatos com site da câmara
 4315008,RS,Porto Lucena,https://camaraportolucena.rs.gov.br/,softcam,bloqueado,robots.txt veda robôs (User-agent: * Disallow: /); pastas citadas: /softcam/ /ciga/ /legisbr/ /legisla/ /rfassessoria/ /legislarr/
-4315073,RS,Porto Vera Cruz,https://camaraportoveracruz.rs.gov.br/site,cespro,desconhecido,"""cespro.com.br"" no HTML"
-4315107,RS,Porto Xavier,https://camaraportoxavier.rs.gov.br/site,cespro,desconhecido,"""cespro.com.br"" no HTML"
+4315073,RS,Porto Vera Cruz,https://camaraportoveracruz.rs.gov.br/site,cespro,aberto,"""cespro.com.br"" no HTML; leitor conferido em 27/10/2026: 9 vereadores"
+4315107,RS,Porto Xavier,https://camaraportoxavier.rs.gov.br/site,cespro,aberto,"""cespro.com.br"" no HTML; leitor conferido em 27/10/2026: 10 vereadores"
 4315354,RS,Quinze de Novembro,,,desconhecido,nenhum dos 0 domínios candidatos com site da câmara
 4315404,RS,Redentora,,,desconhecido,nenhum dos 0 domínios candidatos com site da câmara
-4315453,RS,Relvado,https://relvado.rs.leg.br/,icamaras,desconhecido,"""icamaras.com.br"" no HTML"
-4315958,RS,Rolador,https://camararolador.rs.gov.br/site,abase,desconhecido,"""adentro.com.br"" no HTML"
-4316303,RS,Roque Gonzales,https://camararoquegonzales.rs.gov.br/site,abase,desconhecido,"""abase.com.br"" no HTML"
+4315453,RS,Relvado,https://relvado.rs.leg.br/,icamaras,aberto,"""icamaras.com.br"" no HTML; leitor conferido em 27/10/2026: 11 vereadores"
+4315958,RS,Rolador,https://camararolador.rs.gov.br/site,abase,aberto,"""adentro.com.br"" no HTML; leitor conferido em 27/10/2026: 9 vereadores"
+4316303,RS,Roque Gonzales,https://camararoquegonzales.rs.gov.br/site,abase,aberto,"""abase.com.br"" no HTML; leitor conferido em 27/10/2026: 9 vereadores"
 4316402,RS,Rosário do Sul,https://camararosariodosul.rs.gov.br/,softcam,bloqueado,robots.txt veda robôs (User-agent: * Disallow: /); pastas citadas: /softcam/ /ciga/ /legisbr/ /legisla/ /rfassessoria/ /legislarr/
 4316436,RS,Saldanha Marinho,,,desconhecido,nenhum dos 0 domínios candidatos com site da câmara
 4316451,RS,Salto do Jacuí,https://www.camarasaltodojacui.rs.gov.br/,cespro,desconhecido,"""cespro.com.br"" no HTML"
-4316709,RS,Santa Bárbara do Sul,https://cmsantabarbaradosul.rs.gov.br/site,cespro,desconhecido,"""cespro.com.br"" no HTML"
+4316709,RS,Santa Bárbara do Sul,https://cmsantabarbaradosul.rs.gov.br/site,cespro,aberto,"""cespro.com.br"" no HTML; leitor conferido em 27/10/2026: 9 vereadores"
 4316808,RS,Santa Cruz do Sul,,,desconhecido,nenhum dos 0 domínios candidatos com site da câmara
 4317004,RS,Santana da Boa Vista,https://cmsantanadaboavista.rs.gov.br/,softcam,bloqueado,robots.txt veda robôs (User-agent: * Disallow: /); pastas citadas: /softcam/ /ciga/ /legisbr/ /legisla/ /rfassessoria/ /legislarr/
 4317608,RS,Santo Antônio da Patrulha,,,desconhecido,nenhum dos 0 domínios candidatos com site da câmara
 4317707,RS,Santo Antônio das Missões,https://camarasantoantoniodasmissoes.rs.gov.br/site,abase,desconhecido,"""abase.com.br"" no HTML"
-4317905,RS,Santo Cristo,https://camarasantocristo.rs.gov.br/site,abase,desconhecido,"""abase.com.br"" no HTML"
+4317905,RS,Santo Cristo,https://camarasantocristo.rs.gov.br/site,abase,aberto,"""abase.com.br"" no HTML; leitor conferido em 27/10/2026: 9 vereadores"
 4320206,RS,Seberi,,,desconhecido,nenhum dos 2 domínios candidatos com site da câmara
 4320230,RS,Sede Nova,,,desconhecido,nenhum dos 0 domínios candidatos com site da câmara
 4320263,RS,Segredo,https://camarasegredo.rs.gov.br/,,bloqueado,HTTP 429 ao robô (Server: Vercel)
 4320321,RS,Senador Salgado Filho,,,desconhecido,nenhum dos 1 domínios candidatos com site da câmara
-4320578,RS,Sete de Setembro,https://camarasetedesetembro.rs.gov.br/site,abase,desconhecido,"""adentro.com.br"" no HTML"
+4320578,RS,Sete de Setembro,https://camarasetedesetembro.rs.gov.br/site,abase,aberto,"""adentro.com.br"" no HTML; leitor conferido em 27/10/2026: 9 vereadores"
 4318465,RS,São José do Herval,https://camarasaojosedoherval.rs.gov.br/,gerador:WordPress 7.1.3,desconhecido,meta generator
-4318499,RS,São José do Inhacorá,https://camarasaojosedoinhacora.rs.gov.br/site,cespro,desconhecido,"""cespro.com.br"" no HTML"
+4318499,RS,São José do Inhacorá,https://camarasaojosedoinhacora.rs.gov.br/site,cespro,aberto,"""cespro.com.br"" no HTML; leitor conferido em 27/10/2026: 9 vereadores"
 4318705,RS,São Leopoldo,https://www.camarasaoleopoldo.rs.gov.br/,,desconhecido,nenhuma assinatura de fornecedor
 4318903,RS,São Luiz Gonzaga,,,desconhecido,nenhum dos 1 domínios candidatos com site da câmara
 4319109,RS,São Martinho,https://camarasaomartinho.rs.gov.br/site,cespro,desconhecido,"""cespro.com.br"" no HTML"
 4319158,RS,São Miguel das Missões,,,desconhecido,nenhum dos 0 domínios candidatos com site da câmara
-4319208,RS,São Nicolau,https://camarasaonicolau.rs.gov.br/site,abase,desconhecido,"""adentro.com.br"" no HTML"
+4319208,RS,São Nicolau,https://camarasaonicolau.rs.gov.br/site,abase,aberto,"""adentro.com.br"" no HTML; leitor conferido em 27/10/2026: 9 vereadores"
 4319372,RS,São Pedro do Butiá,https://camarasaopedrodobutia.rs.gov.br/,,desconhecido,nenhuma assinatura de fornecedor
 4319406,RS,São Pedro do Sul,,,desconhecido,nenhum dos 1 domínios candidatos com site da câmara
-4319737,RS,São Valério do Sul,https://camarasaovaleriodosul.rs.gov.br/site,abase,desconhecido,"""adentro.com.br"" no HTML"
+4319737,RS,São Valério do Sul,https://camarasaovaleriodosul.rs.gov.br/site,abase,aberto,"""adentro.com.br"" no HTML; leitor conferido em 27/10/2026: 15 vereadores"
 4320453,RS,Sério,,,desconhecido,nenhum dos 0 domínios candidatos com site da câmara
 4321006,RS,Tapera,https://www.camaratapera.rs.gov.br,,desconhecido,reCAPTCHA na página
 4321204,RS,Taquara,https://camarataquara.rs.gov.br/,softcam,bloqueado,robots.txt veda robôs (User-agent: * Disallow: /); pastas citadas: /softcam/ /ciga/ /legisbr/ /legisla/ /rfassessoria/ /legislarr/
@@ -584,13 +584,13 @@ ibge,uf,cidade,url,sistema,situacao,evidencia
 4321626,RS,Travesseiro,https://travesseiro.rs.leg.br/,cespro,desconhecido,"""cespro.com.br"" no HTML"
 4321634,RS,Três Arroios,,,desconhecido,nenhum dos 2 domínios candidatos com site da câmara
 4321709,RS,Três Coroas,https://www.camaratrescoroas.rs.gov.br/,cittatec,desconhecido,"""cittatec.com.br"" no HTML; reCAPTCHA na página"
-4321808,RS,Três de Maio,https://camaratresdemaio.rs.gov.br/site,cespro,desconhecido,"""cespro.com.br"" no HTML"
+4321808,RS,Três de Maio,https://camaratresdemaio.rs.gov.br/site,cespro,aberto,"""cespro.com.br"" no HTML; leitor conferido em 27/10/2026: 11 vereadores"
 4322103,RS,Tucunduva,https://camaratucunduva.rs.gov.br/,softcam,bloqueado,robots.txt veda robôs (User-agent: * Disallow: /); pastas citadas: /softcam/ /ciga/ /legisbr/ /legisla/ /rfassessoria/ /legislarr/
 4322152,RS,Tunas,https://www.camaratunas.rs.gov.br/,wordpress,desconhecido,wp-content no HTML
-4322301,RS,Tuparendi,https://camaratuparendi.rs.gov.br/site,abase,desconhecido,"""adentro.com.br"" no HTML"
+4322301,RS,Tuparendi,https://camaratuparendi.rs.gov.br/site,abase,aberto,"""adentro.com.br"" no HTML; leitor conferido em 27/10/2026: 9 vereadores"
 4322343,RS,Ubiretama,https://camaraubiretama.rs.gov.br/,softcam,bloqueado,robots.txt veda robôs (User-agent: * Disallow: /); pastas citadas: /softcam/ /ciga/ /legisbr/ /legisla/ /rfassessoria/ /legislarr/
 4322376,RS,Unistalda,,,desconhecido,nenhum dos 0 domínios candidatos com site da câmara
-4322525,RS,Vale Verde,https://valeverde.rs.leg.br/,icamaras,desconhecido,"""icamaras.com.br"" no HTML"
+4322525,RS,Vale Verde,https://valeverde.rs.leg.br/,icamaras,aberto,"""icamaras.com.br"" no HTML; leitor conferido em 27/10/2026: 11 vereadores"
 4322608,RS,Venâncio Aires,https://venancioaires.rs.leg.br/,softcam,bloqueado,robots.txt veda robôs (User-agent: * Disallow: /); pastas citadas: /softcam/ /ciga/ /legisbr/ /legisla/ /rfassessoria/ /legislarr/
 4323507,RS,Vista Alegre,,,desconhecido,nenhum dos 0 domínios candidatos com site da câmara
 4323606,RS,Vista Alegre do Prata,,,desconhecido,nenhum dos 0 domínios candidatos com site da câmara

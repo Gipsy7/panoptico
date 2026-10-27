@@ -898,3 +898,19 @@ Detalhes do que o reconhecimento achou estão nas seções "pauta do Plenário" 
 - **Senado, informes:** `autuacoes[].informesLegislativos[]` tem `data` com hora ("2025-05-08 17:40:03"), `colegiado.sigla` e `descricao`; `documentosAssociados` é o grosso do peso (50 KB por processo) e não é usado. A situação de cada linha é a de `autuacoes[].situacoes[]` vigente na data (início e fim).
 - **Senado, agenda:** `Materias` é objeto (não lista) quando a sessão tem uma matéria só; `SequenciaOrdem` repete em sessões com extrapauta; `DescricaoIdentificacaoMateria` para requerimento de comissão vem como "REQ 341/2026 - CDIR".
 - **Textos reais de tramitação** (para o mapa de etapas): ver o relatório da onda 2; os mais frequentes na Câmara são "Apresentação de Requerimento", "Recebimento - Relator(a)", "Encerramentos", "Parecer do(a) Relator(a)", "Designação de Relator(a)", "Encaminhamento da Votação", "Aprovação de Proposição (Plenário)", "Votação (Plenário)", "Distribuição", "Apensação"; no Senado não há tipo, só o texto do informe ("Recebido, nesta data, na Comissão.", "A matéria vai à Comissão de ...", "Concluída a instrução ...", "Incluída em Ordem do Dia da Sessão ...").
+
+## Câmaras de fornecedores com muitas cidades pequenas (`fornecedores_cobertura_camaras`, 27/10/2026)
+
+Módulo `ingestion.camaras.fornecedores_cobertura`; as cidades vêm do catálogo (`tipo = sistema_legislativo`, coluna `sistema`). Frequência semanal (`camaras.sh`). Só vereadores em exercício e partido; projetos, votos e presença não têm formato aberto nesses portais. Pausa de 2 s, `robots.txt` conferido, resposta tem de ficar no mesmo site.
+
+| Sistema | Cidades | Onde está o dado | Armadilhas |
+|---|---|---|---|
+| `webservicesistemas` | MA, 15 | `GET /api/vereadores` (JSON do próprio site Nuxt): `nome`, `nome_eleicao`, `partido.sigla`, `status` | só `status = published`; `descricao`/`biografia` são HTML longo e e-mail/telefone ficam de fora |
+| `sts` (STS Informática) | PI, 9 | `/<câmara>/acessoinformacao/parlamentares`: tabela nome civil, nome parlamentar, partido | o link da ficha é `parlamentar?id=` ou `parlamentar/?id=`; o nome parlamentar às vezes vem em caixa alta com "VEREADOR " na frente |
+| `cespro` (modelo `/site`) | RS, 19 | `/site/vereadores`: links `/site/vereadores/<id>-<slug>` com o nome (muitas vezes com a sigla entre parênteses); a ficha tem `Partido:` | o slug pode vir vazio (`<id>-`); a lista traz comissões, bancadas e "Mesa Diretora" como se fossem vereadores (filtrados); sigla colada ("Joel Welter-pt"); "LICENCIADO" no nome; a ficha traz data de nascimento (não lida) |
+| `icamaras` | RS, 6 | `/vereadores`: cartões `<!-- VEREADOR -->` com partido no `title` da imagem | titulares e suplentes sem rótulo, cada grupo em ordem alfabética |
+| `portalfacil` (Actcon) | MG, 6 | capa leva a `/parlamentares/legislatura/<id>-2025-2028/3` (ou `/parlamentares`): `divparlamentar` com a legenda da bandeira = partido | cada vereador aparece em várias abas; o partido só está na aba "Partido político"; páginas em cp1252 |
+| `ingadigital` | PR, 9 | capa tem o link "VEREADORES" com `?sessao=<código>` (muda); a página lista nomes por legislatura | sem partido na maioria; algumas escrevem "Nome - MDB - PRESIDENTE"; um domínio passou a redirecionar para outro site (recusado) |
+
+Descoberta dos sistemas: `ingestion.canais.descobrir_sistemas` (assinaturas no HTML, DNS antes de abrir o site) e `data/cidades_sem_canal_sistemas.csv`.
+

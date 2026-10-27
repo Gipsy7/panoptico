@@ -87,6 +87,12 @@ PARTIDOS = {
 }
 
 
+SIGLAS = set(PARTIDOS.values()) | {
+    "PSTU", "PCB", "PCO", "UP", "PRTB", "PMN", "DEM", "PTB", "PROS", "PSC", "PATRI", "PHS",
+    "PPS", "PRB", "PPL", "PEN", "SD", "PMDB", "PR", "PRP", "PTC", "PT DO B", "PC DO B",
+}  # fmt: skip
+
+
 def _sem_acento(texto: str) -> str:
     return unicodedata.normalize("NFKD", texto).encode("ascii", "ignore").decode().upper()
 
@@ -109,9 +115,8 @@ def partido(texto: str | None) -> str | None:
         chave = chave.removeprefix("PARTIDO ")
     if chave in PARTIDOS:
         return PARTIDOS[chave]
-    if re.fullmatch(r"[A-Z]{2,14}(?: ?[A-Z]{1,3})?", chave) and len(chave) <= 14:
-        return {"PODEMOS": "PODE", "UNIAO": "UNIÃO"}.get(chave, chave)
-    return None
+    chave = {"PODEMOS": "PODE", "UNIAO": "UNIÃO", "PCDOB": "PCdoB"}.get(chave, chave)
+    return chave if chave in SIGLAS else None
 
 
 def _nome(texto: str) -> str:
@@ -122,6 +127,32 @@ def _nome(texto: str) -> str:
     texto = re.sub(r"\s*-\s*(?:LICENCIAD[OA]|AFASTAD[OA]|SUPLENTE).*$", "", texto, flags=re.I)
     texto = re.sub(r"\s*\([^)]{1,30}\)\s*$", "", texto)
     return comum.nome_proprio(texto.strip()) or texto.strip()
+
+
+FORA_DA_LISTA = re.compile(r"comiss|bancada|mesa diretora|legislatura|presidente da|secret", re.I)
+
+
+def nome_e_partido(texto: str) -> tuple[str, str | None]:
+    """'Nome - PSB - PRESIDENTE', 'Nome-pt', 'Nome (PT)' -> (nome, sigla ou None)."""
+    texto = _texto(texto)
+    texto = re.sub(r"^(?:Ver\.|Vereador(?:a)?)\s+", "", texto, flags=re.I)
+    texto = re.sub(r"\s*-\s*(?:LICENCIAD[OA]|AFASTAD[OA]|SUPLENTE).*$", "", texto, flags=re.I)
+    entre = re.search(r"\(([A-Za-zÀ-ú/ ]{2,20})\)\s*$", texto)
+    if entre and partido(entre[1]):
+        return _proprio(texto[: entre.start()]), partido(entre[1])
+    partes = [x.strip() for x in re.split(r"\s+-\s+|(?<=\w)-(?=[A-Za-z]{2,12}$)", texto)]
+    if len(partes) > 1 and partido(partes[1]):
+        return _proprio(partes[0]), partido(partes[1])
+    if len(partes) > 1 and "/" in partes[1]:  # federação: "PSDB/CIDADANIA"
+        siglas = [partido(x) for x in partes[1].split("/")]
+        if all(siglas):
+            return _proprio(partes[0]), siglas[0]
+    return _proprio(texto), None
+
+
+def _proprio(nome: str) -> str:
+    nome = nome.strip()
+    return comum.nome_proprio(nome) or nome
 
 
 def _vereador(id_externo: str, nome: str, completo: str | None, sigla: str | None,
@@ -214,12 +245,11 @@ def links_cespro(pagina: str) -> list[tuple[str, str, str]]:
             continue
         if id_ not in por_id or len(texto) > len(por_id[id_][1]):
             por_id[id_] = (caminho if caminho.startswith("/") else "/" + caminho, texto)
-    return [(i, c, t) for i, (c, t) in por_id.items() if t]
+    return [(i, c, t) for i, (c, t) in por_id.items() if t and not FORA_DA_LISTA.search(t)]
 
 
 def sigla_do_menu(texto: str) -> str | None:
-    achado = re.search(r"\(([A-Za-zÀ-ú]{2,14})\)\s*$", _texto(texto))
-    return partido(achado[1]) if achado else None
+    return nome_e_partido(texto)[1]
 
 
 def ficha_cespro(pagina: str) -> tuple[str | None, str | None]:
@@ -281,7 +311,7 @@ CARTAO_PF_FOTO = re.compile(r"proc_leg_par_vis\.aspx\?cd=(\d+)><img[^>]*src='([^
 
 
 def links_portalfacil(capa: str, base: str) -> list[str]:
-    """A lista da legislatura (se a capa leva direto a ela) e, como alternativa, `/parlamentares`."""
+    """A lista da legislatura (se a capa leva a ela) ou, como alternativa, `/parlamentares`."""
     achados = [LINK_LEGISLATURA.search(capa), LINK_PARLAMENTARES.search(capa)]
     return list(dict.fromkeys(urljoin(base, html.unescape(a[1])) for a in achados if a))
 
@@ -326,11 +356,8 @@ def vereadores_inga(pagina: str, base: str) -> list[dict]:
         if linha.upper().startswith(("(SUPLENTE", "PROJETOS", "TRANSPAR", "CONTATO")):
             continue
         achados.append(linha)
-    return [
-        _vereador(f"inga-{i}", comum.nome_proprio(nome) or nome, None, None)
-        for i, nome in enumerate(achados, start=1)
-        if "(" not in nome and 3 <= len(nome) <= 80
-    ]
+    pares = [nome_e_partido(x) for x in achados if "(" not in x and 3 <= len(x) <= 120]
+    return [_vereador(f"inga-{i}", n, None, sg) for i, (n, sg) in enumerate(pares, start=1)]
 
 
 # --- Coleta -------------------------------------------------------------------------------
@@ -341,6 +368,14 @@ def _decodificar(conteudo: bytes) -> str:
         return conteudo.decode("utf-8")
     except UnicodeDecodeError:
         return conteudo.decode("cp1252", "replace")
+
+
+def _dominio(url: str) -> str:
+    """O site da câmara sem o www (e sem o subdomínio, quando for .gov.br/.leg.br/.com.br)."""
+    partes = (urlparse(url).hostname or "").split(".")
+    return ".".join(
+        partes[-3:] if partes[-2:-1] in (["gov"], ["leg"], ["com"], ["org"]) else partes[-2:]
+    )
 
 
 def _robots(client: httpx.Client, url: str) -> RobotFileParser:
@@ -370,7 +405,10 @@ def coletar(url: str, sistema: str) -> dict:
             if not regras.can_fetch(comum.USER_AGENT, endereco):
                 raise PermissionError(f"robots.txt veda {endereco}")
             time.sleep(PAUSA)
-            return _decodificar(comum.get_bytes(client, endereco))
+            resposta = comum._get(client, endereco, None, comum.TENTATIVAS_PADRAO)
+            if _dominio(str(resposta.url)) != _dominio(url):
+                raise ValueError(f"{endereco} levou para outro site: {resposta.url}")
+            return _decodificar(resposta.content)
 
         if sistema == "webservicesistemas":
             base = raiz + "/api/vereadores"
@@ -387,7 +425,9 @@ def coletar(url: str, sistema: str) -> dict:
                 civil = None
                 if not sigla:
                     civil, sigla = ficha_cespro(pagina(urljoin(base, caminho)))
-                achados.append(_vereador(id_, _nome(texto), civil, sigla))
+                v = _vereador(id_, nome_e_partido(texto)[0], civil, sigla)
+                v["em_exercicio"] = not re.search(r"licenciad|afastad", texto, re.I)
+                achados.append(v)
         elif sistema == "icamaras":
             base = raiz + "/vereadores"
             achados = vereadores_icamaras(pagina(base), base)
@@ -402,8 +442,13 @@ def coletar(url: str, sistema: str) -> dict:
             achados = vereadores_inga(pagina(base), base) if base else []
         else:
             raise ValueError(f"sistema desconhecido: {sistema}")
-    if not TOLERADO[0] <= len(achados) <= TOLERADO[1]:
-        raise ValueError(f"{len(achados)} vereadores: página inesperada")
+    exercicio = sum(1 for v in achados if v["em_exercicio"])
+    if not TOLERADO[0] <= exercicio <= TOLERADO[1]:
+        raise ValueError(f"{exercicio} vereadores: página inesperada")
+    if sistema not in ("webservicesistemas", "sts") and (exercicio % 2 == 0 or exercicio < 9):
+        # Página lida do HTML: as cadeiras são sempre ímpares (9, 11, 13...); número par ou menor
+        # que 9 sugere ex-vereador, suplente ou item de menu na lista. Melhor não gravar.
+        raise ValueError(f"{exercicio} vereadores em exercício: contagem suspeita para HTML")
     return {"base": base, "legislatura": None, "vereadores": achados}
 
 

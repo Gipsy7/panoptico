@@ -20,6 +20,8 @@ Fontes que bloqueiam o acesso automático ou não publicam o dado em formato abe
 | ALESC (SC) | Emendas impositivas estaduais por autor, município, favorecido, valor e situação, desde 2019 (LAI, ADPF 854) | a enviar (redigido em 18/10/2026) | [alesc_emendas_impositivas.md](alesc_emendas_impositivas.md) |
 | 27 UFs (assembleias e governos) | Emendas parlamentares estaduais em formato aberto, modelo único (LAI, ADPF 854) | a enviar (redigido em 18/10/2026) | [emendas_estaduais_27_ufs.md](emendas_estaduais_27_ufs.md) |
 | ALAP (AP) | Autorização de leitura automatizada (o `robots.txt` responde 403) ou arquivo aberto da CEAP por gabinete e mês (LAI) | a enviar (redigido em 20/10/2026) | [alap_gastos_ceap.md](alap_gastos_ceap.md) |
+| Câmaras com sistema Softcam (191, SC/RS/PR/SP/MG) | Liberar no `robots.txt` a leitura identificada das páginas públicas de vereadores, ou dados abertos (LAI) | a enviar (redigido em 27/10/2026) | [softcam_robots.md](softcam_robots.md) |
+| 86 câmaras com robots.txt ou 403/429 ao robô | Liberar a leitura automatizada identificada, ou dados abertos (LAI) | a enviar (redigido em 27/10/2026) | [camaras_bloqueio_robos.md](camaras_bloqueio_robos.md) |
 | CGU | Chave grátis da API do Portal da Transparência e, se preciso, limite maior (não é LAI: cadastro) | a fazer (redigido em 18/10/2026) | [cgu_chave_api.md](cgu_chave_api.md) |
 
 **Como enviar:**

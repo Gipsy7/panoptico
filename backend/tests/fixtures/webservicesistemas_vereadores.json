@@ -1,0 +1,77 @@
+[
+ {
+  "id": 105,
+  "status": "published",
+  "nome": "ANDRÉ BRANDÃO MOREIRA",
+  "slug": "andre-brandao-moreira",
+  "nome_eleicao": "ANDRÉ BRANDÃO",
+  "foto": "4bfa75f2-d3d0-451f-bb88-258d27ab873e",
+  "entidade": 138,
+  "partido": {
+   "id": 11893,
+   "nome": "UNIÃO BRASIL",
+   "sigla": "UNIÃO",
+   "logo_partido": "4c8bc5df-927d-49f1-9622-1ed16dd621a6"
+  }
+ },
+ {
+  "id": 106,
+  "status": "published",
+  "nome": "CRISTIANO ACÁCIO DE SOUZA MELO FILHO",
+  "slug": "cristiano-acacio-de-souza-melo-filho",
+  "nome_eleicao": "CRISTIANO ACÁCIO",
+  "foto": "1a7f98fd-0f7e-43b9-a19c-335e1d753ce2",
+  "entidade": 138,
+  "partido": {
+   "id": 11881,
+   "nome": "Partido Socialista Brasileiro",
+   "sigla": "PSB",
+   "logo_partido": "a1eb92de-8dec-488d-a381-2bc37cad8d41"
+  }
+ },
+ {
+  "id": 107,
+  "status": "published",
+  "nome": "FRANCISCO DAS CHAGAS MARTINS DOS SANTOS",
+  "slug": "francisco-das-chagas-martins-dos-santos",
+  "nome_eleicao": "CHICO BRANCO",
+  "foto": "a03c2562-3f06-483c-8e5f-773943cbd7c6",
+  "entidade": 138,
+  "partido": {
+   "id": 11893,
+   "nome": "UNIÃO BRASIL",
+   "sigla": "UNIÃO",
+   "logo_partido": "4c8bc5df-927d-49f1-9622-1ed16dd621a6"
+  }
+ },
+ {
+  "id": 108,
+  "status": "published",
+  "nome": "FRANCISCO DE SOUZA DE OLIVEIRA",
+  "slug": "francisco-de-souza-de-oliveira",
+  "nome_eleicao": "DOUTOR",
+  "foto": "bdd239e3-3b34-4cad-8aa9-abb8a8bf2b9e",
+  "entidade": 138,
+  "partido": {
+   "id": 11892,
+   "nome": "PARTIDO DEMOCRÁTICO TRABALHISTA",
+   "sigla": "PDT",
+   "logo_partido": null
+  }
+ },
+ {
+  "id": 109,
+  "status": "draft",
+  "nome": "FRANCISCO MARINHO OLIVEIRA MOURA",
+  "slug": "francisco-marinho-oliveira-moura",
+  "nome_eleicao": "MARINHO",
+  "foto": "88007320-b008-4719-9340-a3039ee8ec77",
+  "entidade": 138,
+  "partido": {
+   "id": 11892,
+   "nome": "PARTIDO DEMOCRÁTICO TRABALHISTA",
+   "sigla": "PDT",
+   "logo_partido": null
+  }
+ }
+]

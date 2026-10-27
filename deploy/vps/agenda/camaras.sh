@@ -11,7 +11,7 @@ passo "Catálogo de canais oficiais" py ingestion.canais.catalogo
 passo "Câmaras com SAPL (todos os estados)" py ingestion.camaras.sapl
 passo "Câmaras no portal da Cittatec" py ingestion.camaras.cittatec
 for m in portal_php cr2 portal_modelo aos sistemas fornecedores_alfred fornecedores_batgirl \
-  nucleogov fornecedores_robin; do
+  nucleogov fornecedores_robin fornecedores_cobertura; do
   passo "Câmaras: $m" py ingestion.camaras."$m"
 done
 passo "Assembleias com SAPL" py ingestion.assembleias.sapl --uf AC AL AM PB PI RO TO RR
