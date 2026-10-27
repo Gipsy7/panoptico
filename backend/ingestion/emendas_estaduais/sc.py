@@ -28,11 +28,10 @@ Recorte: só as emendas executadas por transferência voluntária no SC Transfer
 transferências especiais a prefeituras não passam por esse sistema e ficam de fora.
 """
 
-import argparse
 import csv
-import difflib
 import io
 import re
+import sys
 import time
 import zipfile
 from datetime import date
@@ -41,20 +40,11 @@ from pathlib import Path
 from typing import Any
 
 import httpx
-from sqlalchemy import delete, func, insert, select
 from sqlalchemy.orm import Session
 
-from app.models import (
-    Candidatura,
-    EmendaEstadual,
-    FonteIngestao,
-    MandatoLocal,
-    Municipio,
-    PessoaVinculo,
-)
-from app.models.pessoa import REGRAS_FORTES
+from app.models import FonteIngestao
 from ingestion import comum
-from ingestion.ibge import nomes_anteriores
+from ingestion.emendas_estaduais import base
 
 FONTE = "sctransferencias_emendas"
 UF = "SC"
@@ -67,12 +57,24 @@ PAGINA = "https://consultas.sctransferencias.cge.sc.gov.br/pesquisa-detalhada/em
 PRIMEIRO_ANO = 2022  # primeiro ano com emendas no sistema
 PAUSA = 1.0
 MINIMO = 500  # menos linhas que isso é falha da fonte (eram 2.490 em 19/10/2026)
-LOTE = 2000
 ARQUIVO_EMENDAS = "emendas.csv"
+FONTE_NOME = "Emendas impositivas no SC Transferências (Controladoria-Geral do Estado de SC)"
+CASA = "Assembleia Legislativa de Santa Catarina (ALESC)"
+# Propostas que não vão adiante: o previsto delas não entra.
+SITUACOES_FORA = ("Cancelada", "Desfavorável", "Não Homologado")
+RECORTE = (
+    "Só as emendas executadas por convênio ou termo de fomento no SC Transferências, quase "
+    "todas para entidades sem fins lucrativos (hospitais, APAEs, clubes, associações). "
+    "Repasses da saúde fundo a fundo e transferências diretas às prefeituras não passam por "
+    "esse sistema e ficam de fora. O município é o do beneficiário."
+)
+TERMOS = (
+    "Previsto: valor da emenda na Lei Orçamentária (emenda impositiva), contado uma vez. "
+    "Empenhado: reservado no orçamento para o convênio. Pago: repassado pelo Estado."
+)
 
 CNPJ = re.compile(r"^(?P<nome>.*?)\s*\((?P<doc>\d{2}\.?\d{3}\.?\d{3}/?\d{4}-?\d{2})\)\s*$")
 CPF = re.compile(r"\d{3}\.?\d{3}\.?\d{3}-?\d{2}")
-APELIDO = re.compile(r"\(\s*([^)]*?)\s*\)")
 
 
 def _valor(texto: str | None) -> Decimal | None:
@@ -98,15 +100,7 @@ def favorecido(texto: str) -> tuple[str | None, str | None]:
     return _texto(texto), None
 
 
-def nomes_do_autor(autor: str) -> list[str]:
-    """Chaves de nome do autor, na ordem de tentativa: o nome sem o apelido entre
-    parênteses e, se houver, o apelido ('MARCOS JOSÉ ABREU ( MARQUITO)')."""
-    apelido = APELIDO.search(autor or "")
-    base = APELIDO.sub(" ", autor or "")
-    chaves = [comum.chave_nome(base)]
-    if apelido:
-        chaves.append(comum.chave_nome(apelido.group(1)))
-    return [c for c in chaves if c]
+nomes_do_autor = base.nomes_do_autor
 
 
 def ler_emendas(conteudo: bytes) -> list[dict[str, Any]]:
@@ -168,15 +162,9 @@ def empenhado_por_transferencia(financeiros: list[bytes]) -> dict[str, Decimal]:
 
 
 def empacotar(emendas: bytes, financeiros: dict[int, bytes]) -> bytes:
-    """O CSV de emendas e os razões financeiros num zip só (bruto da carga). Datas fixas nas
-    entradas, para o mesmo conteúdo dar o mesmo sha256 (carga incremental)."""
-    saida = io.BytesIO()
-    with zipfile.ZipFile(saida, "w", zipfile.ZIP_DEFLATED) as z:
-        z.writestr(zipfile.ZipInfo(ARQUIVO_EMENDAS, (2000, 1, 1, 0, 0, 0)), emendas)
-        for ano, conteudo in sorted(financeiros.items()):
-            info = zipfile.ZipInfo(f"dados_financeiros_{ano}.zip", (2000, 1, 1, 0, 0, 0))
-            z.writestr(info, conteudo)
-    return saida.getvalue()
+    """O CSV de emendas e os razões financeiros num zip só (bruto da carga)."""
+    arquivos = {f"dados_financeiros_{ano}.zip": c for ano, c in financeiros.items()}
+    return base.empacotar({ARQUIVO_EMENDAS: emendas, **arquivos})
 
 
 def normalizar(pacote: bytes) -> list[dict[str, Any]]:
@@ -191,116 +179,8 @@ def normalizar(pacote: bytes) -> list[dict[str, Any]]:
     return linhas
 
 
-def resolver_municipios(
-    linhas: list[dict[str, Any]], municipios: list[tuple[str, str]]
-) -> dict[str, str | None]:
-    """Nome do município (como veio) -> código IBGE, dentro de SC: nome igual sem acento, nome
-    anterior do IBGE e, se não houver, a grafia mais próxima (corte 0,88, como nas federais)."""
-    por_chave = dict((chave, ibge) for ibge, chave in municipios)
-    saida: dict[str, str | None] = {}
-    for nome in {linha["municipio_nome"] for linha in linhas}:
-        chave = comum.chave_nome(nome)
-        ibge = por_chave.get(chave)
-        if ibge is None:  # nome anterior registrado pelo IBGE (tabela versionada em data/)
-            ibge = nomes_anteriores.carregar_apelidos().get(("SC", chave))
-        if ibge is None:
-            proximo = difflib.get_close_matches(chave, list(por_chave), n=1, cutoff=0.88)
-            ibge = por_chave[proximo[0]] if proximo else None
-        saida[nome] = ibge
-    return saida
-
-
-def mapa_pessoas(session: Session) -> dict[str, set[int]]:
-    """Chave de nome -> pessoas publicáveis com esse nome entre os deputados estaduais de SC:
-    eleitos pelo TSE (nome civil e de urna) e os que a ALESC lista no cargo hoje."""
-    publicavel = PessoaVinculo.regra.in_(REGRAS_FORTES) | PessoaVinculo.revisado.is_(True)
-    por_nome: dict[str, set[int]] = {}
-    eleitos = session.execute(
-        select(Candidatura.nome, Candidatura.nome_urna, PessoaVinculo.pessoa_id)
-        .join(
-            PessoaVinculo,
-            (PessoaVinculo.fonte == "candidatura")
-            & (
-                PessoaVinculo.id_externo
-                == func.concat(Candidatura.ano_eleicao, ":", Candidatura.sq_candidato)
-            ),
-        )
-        .where(
-            Candidatura.cargo == "DEPUTADO ESTADUAL",
-            Candidatura.uf == UF,
-            Candidatura.situacao_turno.like("ELEITO%"),
-            publicavel,
-        )
-    ).all()
-    no_cargo = session.execute(
-        select(MandatoLocal.nome, MandatoLocal.nome_completo, PessoaVinculo.pessoa_id)
-        .join(
-            PessoaVinculo,
-            (PessoaVinculo.fonte == "mandato_local")
-            & (
-                PessoaVinculo.id_externo
-                == func.concat(
-                    MandatoLocal.casa, ":", MandatoLocal.uf, "::", MandatoLocal.id_externo
-                )
-            ),
-        )
-        .where(MandatoLocal.casa == "assembleia", MandatoLocal.uf == UF, publicavel)
-    ).all()
-    for nome, outro, pessoa_id in [*eleitos, *no_cargo]:
-        for chave in {comum.chave_nome(nome), comum.chave_nome(outro)} - {""}:
-            por_nome.setdefault(chave, set()).add(pessoa_id)
-    return por_nome
-
-
-def vincular_pessoa(autor: str, por_nome: dict[str, set[int]]) -> int | None:
-    """Pessoa do autor por nome idêntico e único na Casa; bancadas e nomes ambíguos: None."""
-    if comum.chave_nome(autor).startswith("BANCADA"):
-        return None
-    for chave in nomes_do_autor(autor):
-        candidatos = por_nome.get(chave, set())
-        if len(candidatos) == 1:
-            return next(iter(candidatos))
-    return None
-
-
 def carregar(session: Session, pacote: bytes, ingestao: FonteIngestao) -> int:
-    linhas = normalizar(pacote)
-    if len(linhas) < MINIMO:
-        raise ValueError(f"Só {len(linhas)} emendas no SC Transferências; abortando.")
-    municipios = session.execute(
-        select(Municipio.ibge, Municipio.nome_chave).where(Municipio.uf == UF)
-    ).all()
-    ibge = resolver_municipios(linhas, [tuple(m) for m in municipios])
-    por_nome = mapa_pessoas(session)
-    pessoas = {a: vincular_pessoa(a, por_nome) for a in {linha["autor_nome"] for linha in linhas}}
-    for linha in linhas:
-        linha["municipio_ibge"] = ibge.get(linha["municipio_nome"])
-        linha["pessoa_id"] = pessoas[linha["autor_nome"]]
-        linha["fonte"] = FONTE
-        linha["ingestao_id"] = ingestao.id
-    session.execute(delete(EmendaEstadual).where(EmendaEstadual.uf == UF))
-    for i in range(0, len(linhas), LOTE):
-        session.execute(insert(EmendaEstadual), linhas[i : i + LOTE])
-    sem_municipio = sorted({x["municipio_nome"] for x in linhas if not x["municipio_ibge"]})
-    individuais = {x["autor_nome"] for x in linhas if x["tipo"] == "individual"}
-    ligados = {a for a in individuais if pessoas[a]}
-    print(
-        f"{FONTE}: {len(linhas)} propostas, {len({x['codigo'] for x in linhas})} emendas; "
-        f"autores individuais ligados a pessoa: {len(ligados)} de {len(individuais)}; "
-        f"municípios sem código IBGE: {sem_municipio or 'nenhum'}",
-        flush=True,
-    )
-    return len(linhas)
-
-
-def contexto(session: Session) -> str:
-    """Religa os autores quando entram pessoas ou mudam os deputados no cargo."""
-    total = session.scalar(
-        select(func.count(MandatoLocal.id)).where(
-            MandatoLocal.casa == "assembleia", MandatoLocal.uf == UF
-        )
-    )
-    return f"{comum.contexto_pessoas(session)};alesc:{total}"
+    return base.gravar(session, sys.modules[__name__], normalizar(pacote), ingestao)
 
 
 def baixar(client: httpx.Client, hoje: date | None = None) -> bytes:
@@ -314,20 +194,8 @@ def baixar(client: httpx.Client, hoje: date | None = None) -> bytes:
 
 
 def executar(de_raw: Path | None = None) -> int:
-    return comum.executar_ingestao(
-        FONTE,
-        URL,
-        baixar,
-        carregar,
-        de_raw=de_raw,
-        # O sistema muda pouco de um dia para o outro: com o mesmo conteúdo (e as mesmas
-        # pessoas), não regrava nem acumula bruto.
-        incremental=comum.Incremental(chave=FONTE, contexto=contexto),
-    )
+    return base.executar(sys.modules[__name__], de_raw=de_raw)
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description=f"Ingestão: {FONTE}")
-    parser.add_argument("--de-raw", type=Path, help="Reprocessa um arquivo bruto sem baixar")
-    args = parser.parse_args()
-    print(f"{FONTE}: {executar(de_raw=args.de_raw)} propostas de emendas estaduais")
+    base.main(sys.modules[__name__])

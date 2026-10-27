@@ -3,7 +3,7 @@ AC,ALAC,deputado estadual,gastos,sem_fonte,O site ainda não lê gastos do gabin
 AC,ALAC,deputado estadual,votos,bloqueado,"O site já lê votos nominais, mas o site da Casa só responde a acessos feitos do Brasil; por isso só dá para atualizar a partir de um computador no Brasil, e o site no ar não se atualiza sozinho.",sapl_assembleias,
 AC,ALAC,deputado estadual,presenca,bloqueado,"O site já lê presença em plenário, mas o site da Casa só responde a acessos feitos do Brasil; por isso só dá para atualizar a partir de um computador no Brasil, e o site no ar não se atualiza sozinho.",sapl_assembleias,
 AC,ALAC,deputado estadual,projetos,bloqueado,"O site já lê projetos de lei, mas o site da Casa só responde a acessos feitos do Brasil; por isso só dá para atualizar a partir de um computador no Brasil, e o site no ar não se atualiza sozinho.",sapl_assembleias,
-AC,ALAC,deputado estadual,emendas,pedido,Sem fonte aberta de emendas estaduais; pedido de acesso redigido (ADPF 854).,,emendas_estaduais_27_ufs.md
+AC,ALAC,deputado estadual,emendas,sim,"Emendas desde 2023 da Secretaria de Planejamento: autor, cidade, quem recebeu, previsto, empenhado e pago.",seplan_ac_emendas,
 AC,ALAC,deputado estadual,salario,sem_fonte,Subsídio e folha dos deputados estaduais não coletados.,,
 AC,ALAC,deputado estadual,agenda,sem_fonte,Nenhuma fonte de agenda de deputados estaduais.,,
 AC,ALAC,deputado estadual,atos,sem_fonte,Diários oficiais estaduais não são lidos.,,
@@ -28,7 +28,7 @@ AC,Senado Federal,senador,atos,parcial,"Nomeações no Diário Oficial da União
 AC,Senado Federal,senador,bens_campanha,sim,Bens e campanha declarados ao TSE.,tse_bens; tse_campanha,
 AC,Governo de AC,governador,gastos,parcial,"Contas do estado (Tesouro Nacional, SICONFI): receita e despesa por área, com a média dos estados; sem pagamento por fornecedor.",siconfi_contas_estados,
 AC,Governo de AC,governador,projetos,sem_fonte,Projetos enviados ao Legislativo não coletados.,,
-AC,Governo de AC,governador,emendas,pedido,Sem fonte aberta de emendas estaduais; pedido de acesso redigido (ADPF 854).,,emendas_estaduais_27_ufs.md
+AC,Governo de AC,governador,emendas,sim,"Emendas desde 2023 da Secretaria de Planejamento: autor, cidade, quem recebeu, previsto, empenhado e pago.",seplan_ac_emendas,
 AC,Governo de AC,governador,salario,sem_fonte,Subsídio do cargo não coletado.,,
 AC,Governo de AC,governador,agenda,sem_fonte,Nenhuma fonte de agenda coletada.,,
 AC,Governo de AC,governador,atos,sem_fonte,Diários oficiais deste nível não são lidos.,,
@@ -44,7 +44,7 @@ AL,ALAL,deputado estadual,gastos,sem_fonte,O site ainda não lê gastos do gabin
 AL,ALAL,deputado estadual,votos,bloqueado,"O site já lê votos nominais, mas o site da Casa só responde a acessos feitos do Brasil; por isso só dá para atualizar a partir de um computador no Brasil, e o site no ar não se atualiza sozinho.",sapl_assembleias,
 AL,ALAL,deputado estadual,presenca,bloqueado,"O site já lê presença em plenário, mas o site da Casa só responde a acessos feitos do Brasil; por isso só dá para atualizar a partir de um computador no Brasil, e o site no ar não se atualiza sozinho.",sapl_assembleias,
 AL,ALAL,deputado estadual,projetos,bloqueado,"O site já lê projetos de lei, mas o site da Casa só responde a acessos feitos do Brasil; por isso só dá para atualizar a partir de um computador no Brasil, e o site no ar não se atualiza sozinho.",sapl_assembleias,
-AL,ALAL,deputado estadual,emendas,pedido,Sem fonte aberta de emendas estaduais; pedido de acesso redigido (ADPF 854).,,emendas_estaduais_27_ufs.md
+AL,ALAL,deputado estadual,emendas,parcial,"Só o orçamento de 2026 está no Portal da Transparência (autor, cidade, quem recebeu e valores); pedimos os anos anteriores.",transparencia_al_emendas,emendas_estaduais_27_ufs.md
 AL,ALAL,deputado estadual,salario,sem_fonte,Subsídio e folha dos deputados estaduais não coletados.,,
 AL,ALAL,deputado estadual,agenda,sem_fonte,Nenhuma fonte de agenda de deputados estaduais.,,
 AL,ALAL,deputado estadual,atos,sem_fonte,Diários oficiais estaduais não são lidos.,,
@@ -69,7 +69,7 @@ AL,Senado Federal,senador,atos,parcial,"Nomeações no Diário Oficial da União
 AL,Senado Federal,senador,bens_campanha,sim,Bens e campanha declarados ao TSE.,tse_bens; tse_campanha,
 AL,Governo de AL,governador,gastos,parcial,"Contas do estado (Tesouro Nacional, SICONFI): receita e despesa por área, com a média dos estados; sem pagamento por fornecedor.",siconfi_contas_estados,
 AL,Governo de AL,governador,projetos,sem_fonte,Projetos enviados ao Legislativo não coletados.,,
-AL,Governo de AL,governador,emendas,pedido,Sem fonte aberta de emendas estaduais; pedido de acesso redigido (ADPF 854).,,emendas_estaduais_27_ufs.md
+AL,Governo de AL,governador,emendas,parcial,"Só o orçamento de 2026 está no Portal da Transparência (autor, cidade, quem recebeu e valores); pedimos os anos anteriores.",transparencia_al_emendas,emendas_estaduais_27_ufs.md
 AL,Governo de AL,governador,salario,sem_fonte,Subsídio do cargo não coletado.,,
 AL,Governo de AL,governador,agenda,sem_fonte,Nenhuma fonte de agenda coletada.,,
 AL,Governo de AL,governador,atos,sem_fonte,Diários oficiais deste nível não são lidos.,,
@@ -85,7 +85,7 @@ AM,ALAM,deputado estadual,gastos,sem_fonte,O site ainda não lê gastos do gabin
 AM,ALAM,deputado estadual,votos,bloqueado,"O site já lê votos nominais, mas o site da Casa só responde a acessos feitos do Brasil; por isso só dá para atualizar a partir de um computador no Brasil, e o site no ar não se atualiza sozinho.",sapl_assembleias,
 AM,ALAM,deputado estadual,presenca,bloqueado,"O site já lê presença em plenário, mas o site da Casa só responde a acessos feitos do Brasil; por isso só dá para atualizar a partir de um computador no Brasil, e o site no ar não se atualiza sozinho.",sapl_assembleias,
 AM,ALAM,deputado estadual,projetos,bloqueado,"O site já lê projetos de lei, mas o site da Casa só responde a acessos feitos do Brasil; por isso só dá para atualizar a partir de um computador no Brasil, e o site no ar não se atualiza sozinho.",sapl_assembleias,
-AM,ALAM,deputado estadual,emendas,pedido,Sem fonte aberta de emendas estaduais; pedido de acesso redigido (ADPF 854).,,emendas_estaduais_27_ufs.md
+AM,ALAM,deputado estadual,emendas,pedido,Não achamos emendas estaduais em formato aberto no portal do Estado; pedido de acesso redigido (ADPF 854).,,emendas_estaduais_27_ufs.md
 AM,ALAM,deputado estadual,salario,sem_fonte,Subsídio e folha dos deputados estaduais não coletados.,,
 AM,ALAM,deputado estadual,agenda,sem_fonte,Nenhuma fonte de agenda de deputados estaduais.,,
 AM,ALAM,deputado estadual,atos,sem_fonte,Diários oficiais estaduais não são lidos.,,
@@ -110,7 +110,7 @@ AM,Senado Federal,senador,atos,parcial,"Nomeações no Diário Oficial da União
 AM,Senado Federal,senador,bens_campanha,sim,Bens e campanha declarados ao TSE.,tse_bens; tse_campanha,
 AM,Governo de AM,governador,gastos,parcial,"Contas do estado (Tesouro Nacional, SICONFI): receita e despesa por área, com a média dos estados; sem pagamento por fornecedor.",siconfi_contas_estados,
 AM,Governo de AM,governador,projetos,sem_fonte,Projetos enviados ao Legislativo não coletados.,,
-AM,Governo de AM,governador,emendas,pedido,Sem fonte aberta de emendas estaduais; pedido de acesso redigido (ADPF 854).,,emendas_estaduais_27_ufs.md
+AM,Governo de AM,governador,emendas,pedido,Não achamos emendas estaduais em formato aberto no portal do Estado; pedido de acesso redigido (ADPF 854).,,emendas_estaduais_27_ufs.md
 AM,Governo de AM,governador,salario,sem_fonte,Subsídio do cargo não coletado.,,
 AM,Governo de AM,governador,agenda,sem_fonte,Nenhuma fonte de agenda coletada.,,
 AM,Governo de AM,governador,atos,sem_fonte,Diários oficiais deste nível não são lidos.,,
@@ -126,7 +126,7 @@ AP,ALAP,deputado estadual,gastos,pedido,"O arquivo de regras do site (robots.txt
 AP,ALAP,deputado estadual,votos,sem_fonte,O site ainda não lê votos nominais desta Casa.,alap,
 AP,ALAP,deputado estadual,presenca,sem_fonte,O site ainda não lê presença em plenário desta Casa.,alap,
 AP,ALAP,deputado estadual,projetos,bloqueado,"O site já lê projetos de lei, mas o site da Casa só responde a acessos feitos do Brasil; por isso só dá para atualizar a partir de um computador no Brasil, e o site no ar não se atualiza sozinho.",alap,
-AP,ALAP,deputado estadual,emendas,pedido,Sem fonte aberta de emendas estaduais; pedido de acesso redigido (ADPF 854).,,emendas_estaduais_27_ufs.md
+AP,ALAP,deputado estadual,emendas,pedido,Não achamos emendas estaduais em formato aberto no portal do Estado; pedido de acesso redigido (ADPF 854).,,emendas_estaduais_27_ufs.md
 AP,ALAP,deputado estadual,salario,sem_fonte,Subsídio e folha dos deputados estaduais não coletados.,,
 AP,ALAP,deputado estadual,agenda,sem_fonte,Nenhuma fonte de agenda de deputados estaduais.,,
 AP,ALAP,deputado estadual,atos,sem_fonte,Diários oficiais estaduais não são lidos.,,
@@ -151,7 +151,7 @@ AP,Senado Federal,senador,atos,parcial,"Nomeações no Diário Oficial da União
 AP,Senado Federal,senador,bens_campanha,sim,Bens e campanha declarados ao TSE.,tse_bens; tse_campanha,
 AP,Governo de AP,governador,gastos,parcial,"Contas do estado (Tesouro Nacional, SICONFI): receita e despesa por área, com a média dos estados; sem pagamento por fornecedor.",siconfi_contas_estados,
 AP,Governo de AP,governador,projetos,sem_fonte,Projetos enviados ao Legislativo não coletados.,,
-AP,Governo de AP,governador,emendas,pedido,Sem fonte aberta de emendas estaduais; pedido de acesso redigido (ADPF 854).,,emendas_estaduais_27_ufs.md
+AP,Governo de AP,governador,emendas,pedido,Não achamos emendas estaduais em formato aberto no portal do Estado; pedido de acesso redigido (ADPF 854).,,emendas_estaduais_27_ufs.md
 AP,Governo de AP,governador,salario,sem_fonte,Subsídio do cargo não coletado.,,
 AP,Governo de AP,governador,agenda,sem_fonte,Nenhuma fonte de agenda coletada.,,
 AP,Governo de AP,governador,atos,sem_fonte,Diários oficiais deste nível não são lidos.,,
@@ -167,7 +167,7 @@ BA,ALBA,deputado estadual,gastos,sem_fonte,O site ainda não lê gastos do gabin
 BA,ALBA,deputado estadual,votos,sem_fonte,O site ainda não lê votos nominais desta Casa.,alba,
 BA,ALBA,deputado estadual,presenca,bloqueado,"O site já lê presença em plenário, mas o site da Casa só responde a acessos feitos do Brasil; por isso só dá para atualizar a partir de um computador no Brasil, e o site no ar não se atualiza sozinho.",alba,
 BA,ALBA,deputado estadual,projetos,bloqueado,"O site já lê projetos de lei, mas o site da Casa só responde a acessos feitos do Brasil; por isso só dá para atualizar a partir de um computador no Brasil, e o site no ar não se atualiza sozinho.",alba,
-BA,ALBA,deputado estadual,emendas,pedido,Sem fonte aberta de emendas estaduais; pedido de acesso redigido (ADPF 854).,,emendas_estaduais_27_ufs.md
+BA,ALBA,deputado estadual,emendas,parcial,"A Fazenda publica autor e valores desde 2017, mas não a cidade nem quem recebeu: aparece só na página do deputado; pedimos o destino.",sefaz_ba_emendas,emendas_estaduais_27_ufs.md
 BA,ALBA,deputado estadual,salario,sem_fonte,Subsídio e folha dos deputados estaduais não coletados.,,
 BA,ALBA,deputado estadual,agenda,sem_fonte,Nenhuma fonte de agenda de deputados estaduais.,,
 BA,ALBA,deputado estadual,atos,sem_fonte,Diários oficiais estaduais não são lidos.,,
@@ -192,7 +192,7 @@ BA,Senado Federal,senador,atos,parcial,"Nomeações no Diário Oficial da União
 BA,Senado Federal,senador,bens_campanha,sim,Bens e campanha declarados ao TSE.,tse_bens; tse_campanha,
 BA,Governo de BA,governador,gastos,parcial,"Contas do estado (Tesouro Nacional, SICONFI): receita e despesa por área, com a média dos estados; sem pagamento por fornecedor.",siconfi_contas_estados,
 BA,Governo de BA,governador,projetos,sem_fonte,Projetos enviados ao Legislativo não coletados.,,
-BA,Governo de BA,governador,emendas,pedido,Sem fonte aberta de emendas estaduais; pedido de acesso redigido (ADPF 854).,,emendas_estaduais_27_ufs.md
+BA,Governo de BA,governador,emendas,parcial,"A Fazenda publica autor e valores desde 2017, mas não a cidade nem quem recebeu: aparece só na página do deputado; pedimos o destino.",sefaz_ba_emendas,emendas_estaduais_27_ufs.md
 BA,Governo de BA,governador,salario,sem_fonte,Subsídio do cargo não coletado.,,
 BA,Governo de BA,governador,agenda,sem_fonte,Nenhuma fonte de agenda coletada.,,
 BA,Governo de BA,governador,atos,sem_fonte,Diários oficiais deste nível não são lidos.,,
@@ -208,7 +208,7 @@ CE,ALCE,deputado estadual,gastos,parcial,"Carregamos os gastos do gabinete (verb
 CE,ALCE,deputado estadual,votos,sem_fonte,O site ainda não lê votos nominais desta Casa.,alece,
 CE,ALCE,deputado estadual,presenca,sem_fonte,O site ainda não lê presença em plenário desta Casa.,alece,
 CE,ALCE,deputado estadual,projetos,sim,Carregamos projetos de lei do site oficial da Casa.,alece,
-CE,ALCE,deputado estadual,emendas,pedido,Sem fonte aberta de emendas estaduais; pedido de acesso redigido (ADPF 854).,,emendas_estaduais_27_ufs.md
+CE,ALCE,deputado estadual,emendas,pedido,"Só há consulta em página, sem arquivo nem API de emendas; pedido de acesso redigido.",,emendas_estaduais_27_ufs.md
 CE,ALCE,deputado estadual,salario,sem_fonte,Subsídio e folha dos deputados estaduais não coletados.,,
 CE,ALCE,deputado estadual,agenda,sem_fonte,Nenhuma fonte de agenda de deputados estaduais.,,
 CE,ALCE,deputado estadual,atos,sem_fonte,Diários oficiais estaduais não são lidos.,,
@@ -233,7 +233,7 @@ CE,Senado Federal,senador,atos,parcial,"Nomeações no Diário Oficial da União
 CE,Senado Federal,senador,bens_campanha,sim,Bens e campanha declarados ao TSE.,tse_bens; tse_campanha,
 CE,Governo de CE,governador,gastos,parcial,"Contas do estado (Tesouro Nacional, SICONFI): receita e despesa por área, com a média dos estados; sem pagamento por fornecedor.",siconfi_contas_estados,
 CE,Governo de CE,governador,projetos,sem_fonte,Projetos enviados ao Legislativo não coletados.,,
-CE,Governo de CE,governador,emendas,pedido,Sem fonte aberta de emendas estaduais; pedido de acesso redigido (ADPF 854).,,emendas_estaduais_27_ufs.md
+CE,Governo de CE,governador,emendas,pedido,"Só há consulta em página, sem arquivo nem API de emendas; pedido de acesso redigido.",,emendas_estaduais_27_ufs.md
 CE,Governo de CE,governador,salario,sem_fonte,Subsídio do cargo não coletado.,,
 CE,Governo de CE,governador,agenda,sem_fonte,Nenhuma fonte de agenda coletada.,,
 CE,Governo de CE,governador,atos,sem_fonte,Diários oficiais deste nível não são lidos.,,
@@ -249,7 +249,7 @@ DF,CLDF,deputado distrital,gastos,sem_fonte,O site ainda não lê gastos do gabi
 DF,CLDF,deputado distrital,votos,sem_fonte,O site ainda não lê votos nominais desta Casa.,cldf,
 DF,CLDF,deputado distrital,presenca,sem_fonte,O site ainda não lê presença em plenário desta Casa.,cldf,
 DF,CLDF,deputado distrital,projetos,bloqueado,"O site já lê projetos de lei, mas o site da Casa só responde a acessos feitos do Brasil; por isso só dá para atualizar a partir de um computador no Brasil, e o site no ar não se atualiza sozinho.",cldf,
-DF,CLDF,deputado distrital,emendas,pedido,Sem fonte aberta de emendas estaduais; pedido de acesso redigido (ADPF 854).,,emendas_estaduais_27_ufs.md
+DF,CLDF,deputado distrital,emendas,sem_fonte,O Portal da Transparência do DF tem uma consulta de emendas por autor e empenho; ainda não lemos.,,emendas_estaduais_27_ufs.md
 DF,CLDF,deputado distrital,salario,sem_fonte,Subsídio e folha dos deputados estaduais não coletados.,,
 DF,CLDF,deputado distrital,agenda,sem_fonte,Nenhuma fonte de agenda de deputados estaduais.,,
 DF,CLDF,deputado distrital,atos,sem_fonte,Diários oficiais estaduais não são lidos.,,
@@ -274,7 +274,7 @@ DF,Senado Federal,senador,atos,parcial,"Nomeações no Diário Oficial da União
 DF,Senado Federal,senador,bens_campanha,sim,Bens e campanha declarados ao TSE.,tse_bens; tse_campanha,
 DF,Governo de DF,governador,gastos,parcial,"Contas do estado (Tesouro Nacional, SICONFI): receita e despesa por área, com a média dos estados; sem pagamento por fornecedor.",siconfi_contas_estados,
 DF,Governo de DF,governador,projetos,sem_fonte,Projetos enviados ao Legislativo não coletados.,,
-DF,Governo de DF,governador,emendas,pedido,Sem fonte aberta de emendas estaduais; pedido de acesso redigido (ADPF 854).,,emendas_estaduais_27_ufs.md
+DF,Governo de DF,governador,emendas,sem_fonte,O Portal da Transparência do DF tem uma consulta de emendas por autor e empenho; ainda não lemos.,,emendas_estaduais_27_ufs.md
 DF,Governo de DF,governador,salario,sem_fonte,Subsídio do cargo não coletado.,,
 DF,Governo de DF,governador,agenda,sem_fonte,Nenhuma fonte de agenda coletada.,,
 DF,Governo de DF,governador,atos,sem_fonte,Diários oficiais deste nível não são lidos.,,
@@ -290,7 +290,7 @@ ES,ALES,deputado estadual,gastos,sem_fonte,O site ainda não lê gastos do gabin
 ES,ALES,deputado estadual,votos,sem_fonte,O site ainda não lê votos nominais desta Casa.,ales,
 ES,ALES,deputado estadual,presenca,bloqueado,"O site já lê presença em plenário, mas o site da Casa só responde a acessos feitos do Brasil; por isso só dá para atualizar a partir de um computador no Brasil, e o site no ar não se atualiza sozinho.",ales,
 ES,ALES,deputado estadual,projetos,bloqueado,"O site já lê projetos de lei, mas o site da Casa só responde a acessos feitos do Brasil; por isso só dá para atualizar a partir de um computador no Brasil, e o site no ar não se atualiza sozinho.",ales,
-ES,ALES,deputado estadual,emendas,pedido,Sem fonte aberta de emendas estaduais; pedido de acesso redigido (ADPF 854).,,emendas_estaduais_27_ufs.md
+ES,ALES,deputado estadual,emendas,sim,"Emendas desde 2021 da Secretaria da Fazenda: autor, cidade, quem recebeu, previsto, empenhado e pago.",sefaz_es_emendas,
 ES,ALES,deputado estadual,salario,sem_fonte,Subsídio e folha dos deputados estaduais não coletados.,,
 ES,ALES,deputado estadual,agenda,sem_fonte,Nenhuma fonte de agenda de deputados estaduais.,,
 ES,ALES,deputado estadual,atos,sem_fonte,Diários oficiais estaduais não são lidos.,,
@@ -315,7 +315,7 @@ ES,Senado Federal,senador,atos,parcial,"Nomeações no Diário Oficial da União
 ES,Senado Federal,senador,bens_campanha,sim,Bens e campanha declarados ao TSE.,tse_bens; tse_campanha,
 ES,Governo de ES,governador,gastos,parcial,"Contas do estado (Tesouro Nacional, SICONFI): receita e despesa por área, com a média dos estados; sem pagamento por fornecedor.",siconfi_contas_estados,
 ES,Governo de ES,governador,projetos,sem_fonte,Projetos enviados ao Legislativo não coletados.,,
-ES,Governo de ES,governador,emendas,pedido,Sem fonte aberta de emendas estaduais; pedido de acesso redigido (ADPF 854).,,emendas_estaduais_27_ufs.md
+ES,Governo de ES,governador,emendas,sim,"Emendas desde 2021 da Secretaria da Fazenda: autor, cidade, quem recebeu, previsto, empenhado e pago.",sefaz_es_emendas,
 ES,Governo de ES,governador,salario,sem_fonte,Subsídio do cargo não coletado.,,
 ES,Governo de ES,governador,agenda,sem_fonte,Nenhuma fonte de agenda coletada.,,
 ES,Governo de ES,governador,atos,sem_fonte,Diários oficiais deste nível não são lidos.,,
@@ -331,7 +331,7 @@ GO,ALGO,deputado estadual,gastos,sim,Carregamos gastos do gabinete e da cota do 
 GO,ALGO,deputado estadual,votos,sem_fonte,O site ainda não lê votos nominais desta Casa.,alego,
 GO,ALGO,deputado estadual,presenca,sem_fonte,O site ainda não lê presença em plenário desta Casa.,alego,
 GO,ALGO,deputado estadual,projetos,sem_fonte,O site ainda não lê projetos de lei desta Casa.,alego,
-GO,ALGO,deputado estadual,emendas,pedido,Sem fonte aberta de emendas estaduais; pedido de acesso redigido (ADPF 854).,,emendas_estaduais_27_ufs.md
+GO,ALGO,deputado estadual,emendas,pedido,O arquivo aberto vai só até julho de 2025 e traz CNPJ e empenho corrompidos pela planilha; a consulta completa exige captcha. Pedimos o arquivo corrigido.,,emendas_estaduais_27_ufs.md
 GO,ALGO,deputado estadual,salario,sem_fonte,Subsídio e folha dos deputados estaduais não coletados.,,
 GO,ALGO,deputado estadual,agenda,sem_fonte,Nenhuma fonte de agenda de deputados estaduais.,,
 GO,ALGO,deputado estadual,atos,sem_fonte,Diários oficiais estaduais não são lidos.,,
@@ -356,7 +356,7 @@ GO,Senado Federal,senador,atos,parcial,"Nomeações no Diário Oficial da União
 GO,Senado Federal,senador,bens_campanha,sim,Bens e campanha declarados ao TSE.,tse_bens; tse_campanha,
 GO,Governo de GO,governador,gastos,parcial,"Contas do estado (Tesouro Nacional, SICONFI): receita e despesa por área, com a média dos estados; sem pagamento por fornecedor.",siconfi_contas_estados,
 GO,Governo de GO,governador,projetos,sem_fonte,Projetos enviados ao Legislativo não coletados.,,
-GO,Governo de GO,governador,emendas,pedido,Sem fonte aberta de emendas estaduais; pedido de acesso redigido (ADPF 854).,,emendas_estaduais_27_ufs.md
+GO,Governo de GO,governador,emendas,pedido,O arquivo aberto vai só até julho de 2025 e traz CNPJ e empenho corrompidos pela planilha; a consulta completa exige captcha. Pedimos o arquivo corrigido.,,emendas_estaduais_27_ufs.md
 GO,Governo de GO,governador,salario,sem_fonte,Subsídio do cargo não coletado.,,
 GO,Governo de GO,governador,agenda,sem_fonte,Nenhuma fonte de agenda coletada.,,
 GO,Governo de GO,governador,atos,sem_fonte,Diários oficiais deste nível não são lidos.,,
@@ -372,7 +372,7 @@ MA,ALMA,deputado estadual,gastos,sem_fonte,O site ainda não lê gastos do gabin
 MA,ALMA,deputado estadual,votos,sem_fonte,O site ainda não lê votos nominais desta Casa.,alema,
 MA,ALMA,deputado estadual,presenca,sem_fonte,O site ainda não lê presença em plenário desta Casa.,alema,
 MA,ALMA,deputado estadual,projetos,bloqueado,"O site já lê projetos de lei, mas o site da Casa só responde a acessos feitos do Brasil; por isso só dá para atualizar a partir de um computador no Brasil, e o site no ar não se atualiza sozinho.",alema,
-MA,ALMA,deputado estadual,emendas,pedido,Sem fonte aberta de emendas estaduais; pedido de acesso redigido (ADPF 854).,,emendas_estaduais_27_ufs.md
+MA,ALMA,deputado estadual,emendas,parcial,Só o orçamento de 2026 está no Portal da Transparência; pedimos os anos anteriores.,transparencia_ma_emendas,emendas_estaduais_27_ufs.md
 MA,ALMA,deputado estadual,salario,sem_fonte,Subsídio e folha dos deputados estaduais não coletados.,,
 MA,ALMA,deputado estadual,agenda,sem_fonte,Nenhuma fonte de agenda de deputados estaduais.,,
 MA,ALMA,deputado estadual,atos,sem_fonte,Diários oficiais estaduais não são lidos.,,
@@ -397,7 +397,7 @@ MA,Senado Federal,senador,atos,parcial,"Nomeações no Diário Oficial da União
 MA,Senado Federal,senador,bens_campanha,sim,Bens e campanha declarados ao TSE.,tse_bens; tse_campanha,
 MA,Governo de MA,governador,gastos,parcial,"Contas do estado (Tesouro Nacional, SICONFI): receita e despesa por área, com a média dos estados; sem pagamento por fornecedor.",siconfi_contas_estados,
 MA,Governo de MA,governador,projetos,sem_fonte,Projetos enviados ao Legislativo não coletados.,,
-MA,Governo de MA,governador,emendas,pedido,Sem fonte aberta de emendas estaduais; pedido de acesso redigido (ADPF 854).,,emendas_estaduais_27_ufs.md
+MA,Governo de MA,governador,emendas,parcial,Só o orçamento de 2026 está no Portal da Transparência; pedimos os anos anteriores.,transparencia_ma_emendas,emendas_estaduais_27_ufs.md
 MA,Governo de MA,governador,salario,sem_fonte,Subsídio do cargo não coletado.,,
 MA,Governo de MA,governador,agenda,sem_fonte,Nenhuma fonte de agenda coletada.,,
 MA,Governo de MA,governador,atos,sem_fonte,Diários oficiais deste nível não são lidos.,,
@@ -413,7 +413,7 @@ MG,ALMG,deputado estadual,gastos,bloqueado,"O site já lê gastos do gabinete e 
 MG,ALMG,deputado estadual,votos,pedido,A Casa não publica em dados abertos; pedido de acesso redigido.,almg,almg_alesp_votos_presenca.md
 MG,ALMG,deputado estadual,presenca,pedido,A Casa não publica em dados abertos; pedido de acesso redigido.,almg,almg_alesp_votos_presenca.md
 MG,ALMG,deputado estadual,projetos,bloqueado,"O site já lê projetos de lei, mas o site da Casa só responde a acessos feitos do Brasil; por isso só dá para atualizar a partir de um computador no Brasil, e o site no ar não se atualiza sozinho.",almg,
-MG,ALMG,deputado estadual,emendas,pedido,Sem fonte aberta de emendas estaduais; pedido de acesso redigido (ADPF 854).,,emendas_estaduais_27_ufs.md
+MG,ALMG,deputado estadual,emendas,sim,"Indicações de emendas desde 2023 da Secretaria de Governo: autor, cidade, quem recebeu, previsto, empenhado e pago.",segov_mg_emendas,
 MG,ALMG,deputado estadual,salario,sem_fonte,Subsídio e folha dos deputados estaduais não coletados.,,
 MG,ALMG,deputado estadual,agenda,sem_fonte,Nenhuma fonte de agenda de deputados estaduais.,,
 MG,ALMG,deputado estadual,atos,sem_fonte,Diários oficiais estaduais não são lidos.,,
@@ -438,7 +438,7 @@ MG,Senado Federal,senador,atos,parcial,"Nomeações no Diário Oficial da União
 MG,Senado Federal,senador,bens_campanha,sim,Bens e campanha declarados ao TSE.,tse_bens; tse_campanha,
 MG,Governo de MG,governador,gastos,parcial,"Contas do estado (Tesouro Nacional, SICONFI): receita e despesa por área, com a média dos estados; sem pagamento por fornecedor.",siconfi_contas_estados,
 MG,Governo de MG,governador,projetos,sem_fonte,Projetos enviados ao Legislativo não coletados.,,
-MG,Governo de MG,governador,emendas,pedido,Sem fonte aberta de emendas estaduais; pedido de acesso redigido (ADPF 854).,,emendas_estaduais_27_ufs.md
+MG,Governo de MG,governador,emendas,sim,"Indicações de emendas desde 2023 da Secretaria de Governo: autor, cidade, quem recebeu, previsto, empenhado e pago.",segov_mg_emendas,
 MG,Governo de MG,governador,salario,sem_fonte,Subsídio do cargo não coletado.,,
 MG,Governo de MG,governador,agenda,sem_fonte,Nenhuma fonte de agenda coletada.,,
 MG,Governo de MG,governador,atos,sem_fonte,Diários oficiais deste nível não são lidos.,,
@@ -454,7 +454,7 @@ MS,ALMS,deputado estadual,gastos,sim,Carregamos gastos do gabinete e da cota do 
 MS,ALMS,deputado estadual,votos,sem_fonte,O site ainda não lê votos nominais desta Casa.,alems,
 MS,ALMS,deputado estadual,presenca,sem_fonte,O site ainda não lê presença em plenário desta Casa.,alems,
 MS,ALMS,deputado estadual,projetos,bloqueado,O sistema de proposições exige uma verificação que barra acesso por programa; não contornamos.,alems,
-MS,ALMS,deputado estadual,emendas,pedido,Sem fonte aberta de emendas estaduais; pedido de acesso redigido (ADPF 854).,,emendas_estaduais_27_ufs.md
+MS,ALMS,deputado estadual,emendas,pedido,Não achamos emendas estaduais em formato aberto no portal do Estado; pedido de acesso redigido (ADPF 854).,,emendas_estaduais_27_ufs.md
 MS,ALMS,deputado estadual,salario,sem_fonte,Subsídio e folha dos deputados estaduais não coletados.,,
 MS,ALMS,deputado estadual,agenda,sem_fonte,Nenhuma fonte de agenda de deputados estaduais.,,
 MS,ALMS,deputado estadual,atos,sem_fonte,Diários oficiais estaduais não são lidos.,,
@@ -479,7 +479,7 @@ MS,Senado Federal,senador,atos,parcial,"Nomeações no Diário Oficial da União
 MS,Senado Federal,senador,bens_campanha,sim,Bens e campanha declarados ao TSE.,tse_bens; tse_campanha,
 MS,Governo de MS,governador,gastos,parcial,"Contas do estado (Tesouro Nacional, SICONFI): receita e despesa por área, com a média dos estados; sem pagamento por fornecedor.",siconfi_contas_estados,
 MS,Governo de MS,governador,projetos,sem_fonte,Projetos enviados ao Legislativo não coletados.,,
-MS,Governo de MS,governador,emendas,pedido,Sem fonte aberta de emendas estaduais; pedido de acesso redigido (ADPF 854).,,emendas_estaduais_27_ufs.md
+MS,Governo de MS,governador,emendas,pedido,Não achamos emendas estaduais em formato aberto no portal do Estado; pedido de acesso redigido (ADPF 854).,,emendas_estaduais_27_ufs.md
 MS,Governo de MS,governador,salario,sem_fonte,Subsídio do cargo não coletado.,,
 MS,Governo de MS,governador,agenda,sem_fonte,Nenhuma fonte de agenda coletada.,,
 MS,Governo de MS,governador,atos,sem_fonte,Diários oficiais deste nível não são lidos.,,
@@ -495,7 +495,7 @@ MT,ALMT,deputado estadual,gastos,sem_fonte,O site ainda não lê gastos do gabin
 MT,ALMT,deputado estadual,votos,pedido,O sistema da Casa exige senha de fornecedor e o arquivo de regras do site (robots.txt) veda a pesquisa; pedimos acesso público.,almt,almt_proposicoes.md
 MT,ALMT,deputado estadual,presenca,pedido,O sistema da Casa exige senha de fornecedor e o arquivo de regras do site (robots.txt) veda a pesquisa; pedimos acesso público.,almt,almt_proposicoes.md
 MT,ALMT,deputado estadual,projetos,pedido,O sistema da Casa exige senha de fornecedor e o arquivo de regras do site (robots.txt) veda a pesquisa; pedimos acesso público.,almt,almt_proposicoes.md
-MT,ALMT,deputado estadual,emendas,pedido,Sem fonte aberta de emendas estaduais; pedido de acesso redigido (ADPF 854).,,emendas_estaduais_27_ufs.md
+MT,ALMT,deputado estadual,emendas,pedido,Não achamos emendas estaduais em formato aberto no portal do Estado; pedido de acesso redigido (ADPF 854).,,emendas_estaduais_27_ufs.md
 MT,ALMT,deputado estadual,salario,sem_fonte,Subsídio e folha dos deputados estaduais não coletados.,,
 MT,ALMT,deputado estadual,agenda,sem_fonte,Nenhuma fonte de agenda de deputados estaduais.,,
 MT,ALMT,deputado estadual,atos,sem_fonte,Diários oficiais estaduais não são lidos.,,
@@ -520,7 +520,7 @@ MT,Senado Federal,senador,atos,parcial,"Nomeações no Diário Oficial da União
 MT,Senado Federal,senador,bens_campanha,sim,Bens e campanha declarados ao TSE.,tse_bens; tse_campanha,
 MT,Governo de MT,governador,gastos,parcial,"Contas do estado (Tesouro Nacional, SICONFI): receita e despesa por área, com a média dos estados; sem pagamento por fornecedor.",siconfi_contas_estados,
 MT,Governo de MT,governador,projetos,sem_fonte,Projetos enviados ao Legislativo não coletados.,,
-MT,Governo de MT,governador,emendas,pedido,Sem fonte aberta de emendas estaduais; pedido de acesso redigido (ADPF 854).,,emendas_estaduais_27_ufs.md
+MT,Governo de MT,governador,emendas,pedido,Não achamos emendas estaduais em formato aberto no portal do Estado; pedido de acesso redigido (ADPF 854).,,emendas_estaduais_27_ufs.md
 MT,Governo de MT,governador,salario,sem_fonte,Subsídio do cargo não coletado.,,
 MT,Governo de MT,governador,agenda,sem_fonte,Nenhuma fonte de agenda coletada.,,
 MT,Governo de MT,governador,atos,sem_fonte,Diários oficiais deste nível não são lidos.,,
@@ -536,7 +536,7 @@ PA,ALPA,deputado estadual,gastos,sem_fonte,O site ainda não lê gastos do gabin
 PA,ALPA,deputado estadual,votos,pedido,A pesquisa do portal só funciona digitando no navegador; pedimos os dados em formato aberto.,alepa,alepa_proposicoes.md
 PA,ALPA,deputado estadual,presenca,sem_fonte,O site ainda não lê presença em plenário desta Casa.,alepa,
 PA,ALPA,deputado estadual,projetos,pedido,A pesquisa do portal só funciona digitando no navegador; pedimos os dados em formato aberto.,alepa,alepa_proposicoes.md
-PA,ALPA,deputado estadual,emendas,pedido,Sem fonte aberta de emendas estaduais; pedido de acesso redigido (ADPF 854).,,emendas_estaduais_27_ufs.md
+PA,ALPA,deputado estadual,emendas,pedido,Não achamos emendas estaduais em formato aberto no portal do Estado; pedido de acesso redigido (ADPF 854).,,emendas_estaduais_27_ufs.md
 PA,ALPA,deputado estadual,salario,sem_fonte,Subsídio e folha dos deputados estaduais não coletados.,,
 PA,ALPA,deputado estadual,agenda,sem_fonte,Nenhuma fonte de agenda de deputados estaduais.,,
 PA,ALPA,deputado estadual,atos,sem_fonte,Diários oficiais estaduais não são lidos.,,
@@ -561,7 +561,7 @@ PA,Senado Federal,senador,atos,parcial,"Nomeações no Diário Oficial da União
 PA,Senado Federal,senador,bens_campanha,sim,Bens e campanha declarados ao TSE.,tse_bens; tse_campanha,
 PA,Governo de PA,governador,gastos,parcial,"Contas do estado (Tesouro Nacional, SICONFI): receita e despesa por área, com a média dos estados; sem pagamento por fornecedor.",siconfi_contas_estados,
 PA,Governo de PA,governador,projetos,sem_fonte,Projetos enviados ao Legislativo não coletados.,,
-PA,Governo de PA,governador,emendas,pedido,Sem fonte aberta de emendas estaduais; pedido de acesso redigido (ADPF 854).,,emendas_estaduais_27_ufs.md
+PA,Governo de PA,governador,emendas,pedido,Não achamos emendas estaduais em formato aberto no portal do Estado; pedido de acesso redigido (ADPF 854).,,emendas_estaduais_27_ufs.md
 PA,Governo de PA,governador,salario,sem_fonte,Subsídio do cargo não coletado.,,
 PA,Governo de PA,governador,agenda,sem_fonte,Nenhuma fonte de agenda coletada.,,
 PA,Governo de PA,governador,atos,sem_fonte,Diários oficiais deste nível não são lidos.,,
@@ -577,7 +577,7 @@ PB,ALPB,deputado estadual,gastos,sem_fonte,O site ainda não lê gastos do gabin
 PB,ALPB,deputado estadual,votos,bloqueado,"O site já lê votos nominais, mas o site da Casa só responde a acessos feitos do Brasil; por isso só dá para atualizar a partir de um computador no Brasil, e o site no ar não se atualiza sozinho.",sapl_assembleias,
 PB,ALPB,deputado estadual,presenca,bloqueado,"O site já lê presença em plenário, mas o site da Casa só responde a acessos feitos do Brasil; por isso só dá para atualizar a partir de um computador no Brasil, e o site no ar não se atualiza sozinho.",sapl_assembleias,
 PB,ALPB,deputado estadual,projetos,bloqueado,"O site já lê projetos de lei, mas o site da Casa só responde a acessos feitos do Brasil; por isso só dá para atualizar a partir de um computador no Brasil, e o site no ar não se atualiza sozinho.",sapl_assembleias,
-PB,ALPB,deputado estadual,emendas,pedido,Sem fonte aberta de emendas estaduais; pedido de acesso redigido (ADPF 854).,,emendas_estaduais_27_ufs.md
+PB,ALPB,deputado estadual,emendas,pedido,Não achamos emendas estaduais em formato aberto no portal do Estado; pedido de acesso redigido (ADPF 854).,,emendas_estaduais_27_ufs.md
 PB,ALPB,deputado estadual,salario,sem_fonte,Subsídio e folha dos deputados estaduais não coletados.,,
 PB,ALPB,deputado estadual,agenda,sem_fonte,Nenhuma fonte de agenda de deputados estaduais.,,
 PB,ALPB,deputado estadual,atos,sem_fonte,Diários oficiais estaduais não são lidos.,,
@@ -602,7 +602,7 @@ PB,Senado Federal,senador,atos,parcial,"Nomeações no Diário Oficial da União
 PB,Senado Federal,senador,bens_campanha,sim,Bens e campanha declarados ao TSE.,tse_bens; tse_campanha,
 PB,Governo de PB,governador,gastos,parcial,"Contas do estado (Tesouro Nacional, SICONFI): receita e despesa por área, com a média dos estados; sem pagamento por fornecedor.",siconfi_contas_estados,
 PB,Governo de PB,governador,projetos,sem_fonte,Projetos enviados ao Legislativo não coletados.,,
-PB,Governo de PB,governador,emendas,pedido,Sem fonte aberta de emendas estaduais; pedido de acesso redigido (ADPF 854).,,emendas_estaduais_27_ufs.md
+PB,Governo de PB,governador,emendas,pedido,Não achamos emendas estaduais em formato aberto no portal do Estado; pedido de acesso redigido (ADPF 854).,,emendas_estaduais_27_ufs.md
 PB,Governo de PB,governador,salario,sem_fonte,Subsídio do cargo não coletado.,,
 PB,Governo de PB,governador,agenda,sem_fonte,Nenhuma fonte de agenda coletada.,,
 PB,Governo de PB,governador,atos,sem_fonte,Diários oficiais deste nível não são lidos.,,
@@ -618,7 +618,7 @@ PE,ALPE,deputado estadual,gastos,sem_fonte,O site ainda não lê gastos do gabin
 PE,ALPE,deputado estadual,votos,sem_fonte,O site ainda não lê votos nominais desta Casa.,alepe,
 PE,ALPE,deputado estadual,presenca,sem_fonte,O site ainda não lê presença em plenário desta Casa.,alepe,
 PE,ALPE,deputado estadual,projetos,bloqueado,"O site já lê projetos de lei, mas o site da Casa só responde a acessos feitos do Brasil; por isso só dá para atualizar a partir de um computador no Brasil, e o site no ar não se atualiza sozinho.",alepe,
-PE,ALPE,deputado estadual,emendas,pedido,Sem fonte aberta de emendas estaduais; pedido de acesso redigido (ADPF 854).,,emendas_estaduais_27_ufs.md
+PE,ALPE,deputado estadual,emendas,parcial,"Só o orçamento do ano corrente traz autor e cidade; os arquivos dos anos anteriores não trazem, e pedimos.",seplag_pe_emendas,emendas_estaduais_27_ufs.md
 PE,ALPE,deputado estadual,salario,sem_fonte,Subsídio e folha dos deputados estaduais não coletados.,,
 PE,ALPE,deputado estadual,agenda,sem_fonte,Nenhuma fonte de agenda de deputados estaduais.,,
 PE,ALPE,deputado estadual,atos,sem_fonte,Diários oficiais estaduais não são lidos.,,
@@ -643,7 +643,7 @@ PE,Senado Federal,senador,atos,parcial,"Nomeações no Diário Oficial da União
 PE,Senado Federal,senador,bens_campanha,sim,Bens e campanha declarados ao TSE.,tse_bens; tse_campanha,
 PE,Governo de PE,governador,gastos,parcial,"Contas do estado (Tesouro Nacional, SICONFI): receita e despesa por área, com a média dos estados; sem pagamento por fornecedor.",siconfi_contas_estados,
 PE,Governo de PE,governador,projetos,sem_fonte,Projetos enviados ao Legislativo não coletados.,,
-PE,Governo de PE,governador,emendas,pedido,Sem fonte aberta de emendas estaduais; pedido de acesso redigido (ADPF 854).,,emendas_estaduais_27_ufs.md
+PE,Governo de PE,governador,emendas,parcial,"Só o orçamento do ano corrente traz autor e cidade; os arquivos dos anos anteriores não trazem, e pedimos.",seplag_pe_emendas,emendas_estaduais_27_ufs.md
 PE,Governo de PE,governador,salario,sem_fonte,Subsídio do cargo não coletado.,,
 PE,Governo de PE,governador,agenda,sem_fonte,Nenhuma fonte de agenda coletada.,,
 PE,Governo de PE,governador,atos,sem_fonte,Diários oficiais deste nível não são lidos.,,
@@ -659,7 +659,7 @@ PI,ALPI,deputado estadual,gastos,sem_fonte,O site ainda não lê gastos do gabin
 PI,ALPI,deputado estadual,votos,bloqueado,"O site já lê votos nominais, mas o site da Casa só responde a acessos feitos do Brasil; por isso só dá para atualizar a partir de um computador no Brasil, e o site no ar não se atualiza sozinho.",sapl_assembleias,
 PI,ALPI,deputado estadual,presenca,bloqueado,"O site já lê presença em plenário, mas o site da Casa só responde a acessos feitos do Brasil; por isso só dá para atualizar a partir de um computador no Brasil, e o site no ar não se atualiza sozinho.",sapl_assembleias,
 PI,ALPI,deputado estadual,projetos,bloqueado,"O site já lê projetos de lei, mas o site da Casa só responde a acessos feitos do Brasil; por isso só dá para atualizar a partir de um computador no Brasil, e o site no ar não se atualiza sozinho.",sapl_assembleias,
-PI,ALPI,deputado estadual,emendas,pedido,Sem fonte aberta de emendas estaduais; pedido de acesso redigido (ADPF 854).,,emendas_estaduais_27_ufs.md
+PI,ALPI,deputado estadual,emendas,pedido,Não achamos emendas estaduais em formato aberto no portal do Estado; pedido de acesso redigido (ADPF 854).,,emendas_estaduais_27_ufs.md
 PI,ALPI,deputado estadual,salario,sem_fonte,Subsídio e folha dos deputados estaduais não coletados.,,
 PI,ALPI,deputado estadual,agenda,sem_fonte,Nenhuma fonte de agenda de deputados estaduais.,,
 PI,ALPI,deputado estadual,atos,sem_fonte,Diários oficiais estaduais não são lidos.,,
@@ -684,7 +684,7 @@ PI,Senado Federal,senador,atos,parcial,"Nomeações no Diário Oficial da União
 PI,Senado Federal,senador,bens_campanha,sim,Bens e campanha declarados ao TSE.,tse_bens; tse_campanha,
 PI,Governo de PI,governador,gastos,parcial,"Contas do estado (Tesouro Nacional, SICONFI): receita e despesa por área, com a média dos estados; sem pagamento por fornecedor.",siconfi_contas_estados,
 PI,Governo de PI,governador,projetos,sem_fonte,Projetos enviados ao Legislativo não coletados.,,
-PI,Governo de PI,governador,emendas,pedido,Sem fonte aberta de emendas estaduais; pedido de acesso redigido (ADPF 854).,,emendas_estaduais_27_ufs.md
+PI,Governo de PI,governador,emendas,pedido,Não achamos emendas estaduais em formato aberto no portal do Estado; pedido de acesso redigido (ADPF 854).,,emendas_estaduais_27_ufs.md
 PI,Governo de PI,governador,salario,sem_fonte,Subsídio do cargo não coletado.,,
 PI,Governo de PI,governador,agenda,sem_fonte,Nenhuma fonte de agenda coletada.,,
 PI,Governo de PI,governador,atos,sem_fonte,Diários oficiais deste nível não são lidos.,,
@@ -700,7 +700,7 @@ PR,ALPR,deputado estadual,gastos,pedido,A consulta da verba de ressarcimento exi
 PR,ALPR,deputado estadual,votos,sim,Carregamos votos nominais do site oficial da Casa.,alep,
 PR,ALPR,deputado estadual,presenca,sim,Carregamos presença em plenário do site oficial da Casa.,alep,
 PR,ALPR,deputado estadual,projetos,pedido,"Os projetos só estão no sistema de consulta da ALEP, que tem um certificado de segurança sem validade reconhecida e recusa o acesso; não desligamos a verificação nem contornamos. Pedido redigido.",https://webservices.assembleia.pr.leg.br/api/public/,alep_certificado.md
-PR,ALPR,deputado estadual,emendas,pedido,Sem fonte aberta de emendas estaduais; pedido de acesso redigido (ADPF 854).,,emendas_estaduais_27_ufs.md
+PR,ALPR,deputado estadual,emendas,pedido,Só há painel (sem arquivo para baixar); pedido de acesso redigido.,,emendas_estaduais_27_ufs.md
 PR,ALPR,deputado estadual,salario,sem_fonte,Subsídio e folha dos deputados estaduais não coletados.,,
 PR,ALPR,deputado estadual,agenda,sem_fonte,Nenhuma fonte de agenda de deputados estaduais.,,
 PR,ALPR,deputado estadual,atos,sem_fonte,Diários oficiais estaduais não são lidos.,,
@@ -725,7 +725,7 @@ PR,Senado Federal,senador,atos,parcial,"Nomeações no Diário Oficial da União
 PR,Senado Federal,senador,bens_campanha,sim,Bens e campanha declarados ao TSE.,tse_bens; tse_campanha,
 PR,Governo de PR,governador,gastos,parcial,"Contas do estado (Tesouro Nacional, SICONFI): receita e despesa por área, com a média dos estados; sem pagamento por fornecedor.",siconfi_contas_estados,
 PR,Governo de PR,governador,projetos,sem_fonte,Projetos enviados ao Legislativo não coletados.,,
-PR,Governo de PR,governador,emendas,pedido,Sem fonte aberta de emendas estaduais; pedido de acesso redigido (ADPF 854).,,emendas_estaduais_27_ufs.md
+PR,Governo de PR,governador,emendas,pedido,Só há painel (sem arquivo para baixar); pedido de acesso redigido.,,emendas_estaduais_27_ufs.md
 PR,Governo de PR,governador,salario,sem_fonte,Subsídio do cargo não coletado.,,
 PR,Governo de PR,governador,agenda,sem_fonte,Nenhuma fonte de agenda coletada.,,
 PR,Governo de PR,governador,atos,sem_fonte,Diários oficiais deste nível não são lidos.,,
@@ -741,7 +741,7 @@ RJ,ALRJ,deputado estadual,gastos,sem_fonte,O processo legislativo roda num siste
 RJ,ALRJ,deputado estadual,votos,sem_fonte,O processo legislativo roda num sistema antigo que não entrega dados por consulta.,alerj,
 RJ,ALRJ,deputado estadual,presenca,sem_fonte,O processo legislativo roda num sistema antigo que não entrega dados por consulta.,alerj,
 RJ,ALRJ,deputado estadual,projetos,sem_fonte,O processo legislativo roda num sistema antigo que não entrega dados por consulta.,alerj,
-RJ,ALRJ,deputado estadual,emendas,pedido,Sem fonte aberta de emendas estaduais; pedido de acesso redigido (ADPF 854).,,emendas_estaduais_27_ufs.md
+RJ,ALRJ,deputado estadual,emendas,pedido,Só há painel (sem arquivo para baixar); pedido de acesso redigido.,,emendas_estaduais_27_ufs.md
 RJ,ALRJ,deputado estadual,salario,sem_fonte,Subsídio e folha dos deputados estaduais não coletados.,,
 RJ,ALRJ,deputado estadual,agenda,sem_fonte,Nenhuma fonte de agenda de deputados estaduais.,,
 RJ,ALRJ,deputado estadual,atos,sem_fonte,Diários oficiais estaduais não são lidos.,,
@@ -766,7 +766,7 @@ RJ,Senado Federal,senador,atos,parcial,"Nomeações no Diário Oficial da União
 RJ,Senado Federal,senador,bens_campanha,sim,Bens e campanha declarados ao TSE.,tse_bens; tse_campanha,
 RJ,Governo de RJ,governador,gastos,parcial,"Contas do estado (Tesouro Nacional, SICONFI): receita e despesa por área, com a média dos estados; sem pagamento por fornecedor.",siconfi_contas_estados,
 RJ,Governo de RJ,governador,projetos,sem_fonte,Projetos enviados ao Legislativo não coletados.,,
-RJ,Governo de RJ,governador,emendas,pedido,Sem fonte aberta de emendas estaduais; pedido de acesso redigido (ADPF 854).,,emendas_estaduais_27_ufs.md
+RJ,Governo de RJ,governador,emendas,pedido,Só há painel (sem arquivo para baixar); pedido de acesso redigido.,,emendas_estaduais_27_ufs.md
 RJ,Governo de RJ,governador,salario,sem_fonte,Subsídio do cargo não coletado.,,
 RJ,Governo de RJ,governador,agenda,sem_fonte,Nenhuma fonte de agenda coletada.,,
 RJ,Governo de RJ,governador,atos,sem_fonte,Diários oficiais deste nível não são lidos.,,
@@ -782,7 +782,7 @@ RN,ALRN,deputado estadual,gastos,parcial,"Carregamos as notas da verba de ressar
 RN,ALRN,deputado estadual,votos,sem_fonte,O site ainda não lê votos nominais desta Casa.,alrn,
 RN,ALRN,deputado estadual,presenca,sem_fonte,O site ainda não lê presença em plenário desta Casa.,alrn,
 RN,ALRN,deputado estadual,projetos,sim,Carregamos projetos de lei do site oficial da Casa.,alrn,
-RN,ALRN,deputado estadual,emendas,pedido,Sem fonte aberta de emendas estaduais; pedido de acesso redigido (ADPF 854).,,emendas_estaduais_27_ufs.md
+RN,ALRN,deputado estadual,emendas,pedido,Só há painel (sem arquivo para baixar); pedido de acesso redigido.,,emendas_estaduais_27_ufs.md
 RN,ALRN,deputado estadual,salario,sem_fonte,Subsídio e folha dos deputados estaduais não coletados.,,
 RN,ALRN,deputado estadual,agenda,sem_fonte,Nenhuma fonte de agenda de deputados estaduais.,,
 RN,ALRN,deputado estadual,atos,sem_fonte,Diários oficiais estaduais não são lidos.,,
@@ -807,7 +807,7 @@ RN,Senado Federal,senador,atos,parcial,"Nomeações no Diário Oficial da União
 RN,Senado Federal,senador,bens_campanha,sim,Bens e campanha declarados ao TSE.,tse_bens; tse_campanha,
 RN,Governo de RN,governador,gastos,parcial,"Contas do estado (Tesouro Nacional, SICONFI): receita e despesa por área, com a média dos estados; sem pagamento por fornecedor.",siconfi_contas_estados,
 RN,Governo de RN,governador,projetos,sem_fonte,Projetos enviados ao Legislativo não coletados.,,
-RN,Governo de RN,governador,emendas,pedido,Sem fonte aberta de emendas estaduais; pedido de acesso redigido (ADPF 854).,,emendas_estaduais_27_ufs.md
+RN,Governo de RN,governador,emendas,pedido,Só há painel (sem arquivo para baixar); pedido de acesso redigido.,,emendas_estaduais_27_ufs.md
 RN,Governo de RN,governador,salario,sem_fonte,Subsídio do cargo não coletado.,,
 RN,Governo de RN,governador,agenda,sem_fonte,Nenhuma fonte de agenda coletada.,,
 RN,Governo de RN,governador,atos,sem_fonte,Diários oficiais deste nível não são lidos.,,
@@ -823,7 +823,7 @@ RO,ALRO,deputado estadual,gastos,sem_fonte,O site ainda não lê gastos do gabin
 RO,ALRO,deputado estadual,votos,bloqueado,"O site já lê votos nominais, mas o site da Casa só responde a acessos feitos do Brasil; por isso só dá para atualizar a partir de um computador no Brasil, e o site no ar não se atualiza sozinho.",sapl_assembleias,
 RO,ALRO,deputado estadual,presenca,bloqueado,"O site já lê presença em plenário, mas o site da Casa só responde a acessos feitos do Brasil; por isso só dá para atualizar a partir de um computador no Brasil, e o site no ar não se atualiza sozinho.",sapl_assembleias,
 RO,ALRO,deputado estadual,projetos,bloqueado,"O site já lê projetos de lei, mas o site da Casa só responde a acessos feitos do Brasil; por isso só dá para atualizar a partir de um computador no Brasil, e o site no ar não se atualiza sozinho.",sapl_assembleias,
-RO,ALRO,deputado estadual,emendas,pedido,Sem fonte aberta de emendas estaduais; pedido de acesso redigido (ADPF 854).,,emendas_estaduais_27_ufs.md
+RO,ALRO,deputado estadual,emendas,sem_fonte,O Portal da Transparência de RO tem uma consulta de emendas por empenho; ainda não lemos.,,emendas_estaduais_27_ufs.md
 RO,ALRO,deputado estadual,salario,sem_fonte,Subsídio e folha dos deputados estaduais não coletados.,,
 RO,ALRO,deputado estadual,agenda,sem_fonte,Nenhuma fonte de agenda de deputados estaduais.,,
 RO,ALRO,deputado estadual,atos,sem_fonte,Diários oficiais estaduais não são lidos.,,
@@ -848,7 +848,7 @@ RO,Senado Federal,senador,atos,parcial,"Nomeações no Diário Oficial da União
 RO,Senado Federal,senador,bens_campanha,sim,Bens e campanha declarados ao TSE.,tse_bens; tse_campanha,
 RO,Governo de RO,governador,gastos,parcial,"Contas do estado (Tesouro Nacional, SICONFI): receita e despesa por área, com a média dos estados; sem pagamento por fornecedor.",siconfi_contas_estados,
 RO,Governo de RO,governador,projetos,sem_fonte,Projetos enviados ao Legislativo não coletados.,,
-RO,Governo de RO,governador,emendas,pedido,Sem fonte aberta de emendas estaduais; pedido de acesso redigido (ADPF 854).,,emendas_estaduais_27_ufs.md
+RO,Governo de RO,governador,emendas,sem_fonte,O Portal da Transparência de RO tem uma consulta de emendas por empenho; ainda não lemos.,,emendas_estaduais_27_ufs.md
 RO,Governo de RO,governador,salario,sem_fonte,Subsídio do cargo não coletado.,,
 RO,Governo de RO,governador,agenda,sem_fonte,Nenhuma fonte de agenda coletada.,,
 RO,Governo de RO,governador,atos,sem_fonte,Diários oficiais deste nível não são lidos.,,
@@ -864,7 +864,7 @@ RR,ALRR,deputado estadual,gastos,sem_fonte,O site ainda não lê gastos do gabin
 RR,ALRR,deputado estadual,votos,bloqueado,"O site já lê votos nominais, mas o site da Casa só responde a acessos feitos do Brasil; por isso só dá para atualizar a partir de um computador no Brasil, e o site no ar não se atualiza sozinho.",sapl_assembleias,
 RR,ALRR,deputado estadual,presenca,bloqueado,"O site já lê presença em plenário, mas o site da Casa só responde a acessos feitos do Brasil; por isso só dá para atualizar a partir de um computador no Brasil, e o site no ar não se atualiza sozinho.",sapl_assembleias,
 RR,ALRR,deputado estadual,projetos,bloqueado,"O site já lê projetos de lei, mas o site da Casa só responde a acessos feitos do Brasil; por isso só dá para atualizar a partir de um computador no Brasil, e o site no ar não se atualiza sozinho.",sapl_assembleias,
-RR,ALRR,deputado estadual,emendas,pedido,Sem fonte aberta de emendas estaduais; pedido de acesso redigido (ADPF 854).,,emendas_estaduais_27_ufs.md
+RR,ALRR,deputado estadual,emendas,pedido,Não achamos emendas estaduais em formato aberto no portal do Estado; pedido de acesso redigido (ADPF 854).,,emendas_estaduais_27_ufs.md
 RR,ALRR,deputado estadual,salario,sem_fonte,Subsídio e folha dos deputados estaduais não coletados.,,
 RR,ALRR,deputado estadual,agenda,sem_fonte,Nenhuma fonte de agenda de deputados estaduais.,,
 RR,ALRR,deputado estadual,atos,sem_fonte,Diários oficiais estaduais não são lidos.,,
@@ -889,7 +889,7 @@ RR,Senado Federal,senador,atos,parcial,"Nomeações no Diário Oficial da União
 RR,Senado Federal,senador,bens_campanha,sim,Bens e campanha declarados ao TSE.,tse_bens; tse_campanha,
 RR,Governo de RR,governador,gastos,parcial,"Contas do estado (Tesouro Nacional, SICONFI): receita e despesa por área, com a média dos estados; sem pagamento por fornecedor.",siconfi_contas_estados,
 RR,Governo de RR,governador,projetos,sem_fonte,Projetos enviados ao Legislativo não coletados.,,
-RR,Governo de RR,governador,emendas,pedido,Sem fonte aberta de emendas estaduais; pedido de acesso redigido (ADPF 854).,,emendas_estaduais_27_ufs.md
+RR,Governo de RR,governador,emendas,pedido,Não achamos emendas estaduais em formato aberto no portal do Estado; pedido de acesso redigido (ADPF 854).,,emendas_estaduais_27_ufs.md
 RR,Governo de RR,governador,salario,sem_fonte,Subsídio do cargo não coletado.,,
 RR,Governo de RR,governador,agenda,sem_fonte,Nenhuma fonte de agenda coletada.,,
 RR,Governo de RR,governador,atos,sem_fonte,Diários oficiais deste nível não são lidos.,,
@@ -905,7 +905,7 @@ RS,ALRS,deputado estadual,gastos,bloqueado,"O site já lê gastos do gabinete e 
 RS,ALRS,deputado estadual,votos,bloqueado,"O site já lê votos nominais, mas o site da Casa só responde a acessos feitos do Brasil; por isso só dá para atualizar a partir de um computador no Brasil, e o site no ar não se atualiza sozinho.",alrs,
 RS,ALRS,deputado estadual,presenca,bloqueado,"O site já lê presença em plenário, mas o site da Casa só responde a acessos feitos do Brasil; por isso só dá para atualizar a partir de um computador no Brasil, e o site no ar não se atualiza sozinho.",alrs,
 RS,ALRS,deputado estadual,projetos,bloqueado,"O site já lê projetos de lei, mas o site da Casa só responde a acessos feitos do Brasil; por isso só dá para atualizar a partir de um computador no Brasil, e o site no ar não se atualiza sozinho.",alrs,
-RS,ALRS,deputado estadual,emendas,pedido,Sem fonte aberta de emendas estaduais; pedido de acesso redigido (ADPF 854).,,emendas_estaduais_27_ufs.md
+RS,ALRS,deputado estadual,emendas,pedido,Só há painel (sem arquivo para baixar); pedido de acesso redigido.,,emendas_estaduais_27_ufs.md
 RS,ALRS,deputado estadual,salario,sem_fonte,Subsídio e folha dos deputados estaduais não coletados.,,
 RS,ALRS,deputado estadual,agenda,sem_fonte,Nenhuma fonte de agenda de deputados estaduais.,,
 RS,ALRS,deputado estadual,atos,sem_fonte,Diários oficiais estaduais não são lidos.,,
@@ -930,7 +930,7 @@ RS,Senado Federal,senador,atos,parcial,"Nomeações no Diário Oficial da União
 RS,Senado Federal,senador,bens_campanha,sim,Bens e campanha declarados ao TSE.,tse_bens; tse_campanha,
 RS,Governo de RS,governador,gastos,parcial,"Contas do estado (Tesouro Nacional, SICONFI): receita e despesa por área, com a média dos estados; sem pagamento por fornecedor.",siconfi_contas_estados,
 RS,Governo de RS,governador,projetos,sem_fonte,Projetos enviados ao Legislativo não coletados.,,
-RS,Governo de RS,governador,emendas,pedido,Sem fonte aberta de emendas estaduais; pedido de acesso redigido (ADPF 854).,,emendas_estaduais_27_ufs.md
+RS,Governo de RS,governador,emendas,pedido,Só há painel (sem arquivo para baixar); pedido de acesso redigido.,,emendas_estaduais_27_ufs.md
 RS,Governo de RS,governador,salario,sem_fonte,Subsídio do cargo não coletado.,,
 RS,Governo de RS,governador,agenda,sem_fonte,Nenhuma fonte de agenda coletada.,,
 RS,Governo de RS,governador,atos,sem_fonte,Diários oficiais deste nível não são lidos.,,
@@ -946,7 +946,7 @@ SC,ALSC,deputado estadual,gastos,sim,Carregamos gastos do gabinete e da cota do 
 SC,ALSC,deputado estadual,votos,sim,Carregamos votos nominais do site oficial da Casa.,alesc,
 SC,ALSC,deputado estadual,presenca,sim,Carregamos presença em plenário do site oficial da Casa.,alesc,
 SC,ALSC,deputado estadual,projetos,sim,Carregamos projetos de lei do site oficial da Casa.,alesc,
-SC,ALSC,deputado estadual,emendas,parcial,"Emendas impositivas da ALESC executadas por convênio ou termo de fomento (SC Transferências, CGE/SC, desde 2022): autor, cidade, quem recebeu, previsto, empenhado e pago. Repasses fundo a fundo e às prefeituras ficam de fora; pedidos à ALESC e ao TCE/SC seguem para a base completa.",sctransferencias_emendas,alesc_emendas_impositivas.md; tcesc_painel_emendas.md; emendas_estaduais_27_ufs.md
+SC,ALSC,deputado estadual,emendas,parcial,"Emendas da ALESC executadas por convênio ou termo de fomento (SC Transferências, desde 2022). Repasses fundo a fundo e às prefeituras ficam de fora; pedidos à ALESC e ao TCE/SC seguem para a base completa.",sctransferencias_emendas,alesc_emendas_impositivas.md; tcesc_painel_emendas.md; emendas_estaduais_27_ufs.md
 SC,ALSC,deputado estadual,salario,sem_fonte,Subsídio e folha dos deputados estaduais não coletados.,,
 SC,ALSC,deputado estadual,agenda,sem_fonte,Nenhuma fonte de agenda de deputados estaduais.,,
 SC,ALSC,deputado estadual,atos,sem_fonte,Diários oficiais estaduais não são lidos.,,
@@ -971,7 +971,7 @@ SC,Senado Federal,senador,atos,parcial,"Nomeações no Diário Oficial da União
 SC,Senado Federal,senador,bens_campanha,sim,Bens e campanha declarados ao TSE.,tse_bens; tse_campanha,
 SC,Governo de SC,governador,gastos,parcial,"Contas do estado (Tesouro Nacional, SICONFI): receita e despesa por área, com a média dos estados; sem pagamento por fornecedor.",siconfi_contas_estados,
 SC,Governo de SC,governador,projetos,sem_fonte,Projetos enviados ao Legislativo não coletados.,,
-SC,Governo de SC,governador,emendas,pedido,Sem fonte aberta de emendas estaduais; pedido de acesso redigido (ADPF 854).,,emendas_estaduais_27_ufs.md
+SC,Governo de SC,governador,emendas,parcial,"Emendas da ALESC executadas por convênio ou termo de fomento (SC Transferências, desde 2022). Repasses fundo a fundo e às prefeituras ficam de fora; pedidos à ALESC e ao TCE/SC seguem para a base completa.",sctransferencias_emendas,alesc_emendas_impositivas.md; tcesc_painel_emendas.md; emendas_estaduais_27_ufs.md
 SC,Governo de SC,governador,salario,sem_fonte,Subsídio do cargo não coletado.,,
 SC,Governo de SC,governador,agenda,sem_fonte,Nenhuma fonte de agenda coletada.,,
 SC,Governo de SC,governador,atos,sem_fonte,Diários oficiais deste nível não são lidos.,,
@@ -987,7 +987,7 @@ SE,ALSE,deputado estadual,gastos,sem_fonte,O site ainda não lê gastos do gabin
 SE,ALSE,deputado estadual,votos,sem_fonte,O site ainda não lê votos nominais desta Casa.,alese,
 SE,ALSE,deputado estadual,presenca,bloqueado,"O site já lê presença em plenário, mas o site da Casa só responde a acessos feitos do Brasil; por isso só dá para atualizar a partir de um computador no Brasil, e o site no ar não se atualiza sozinho.",alese,
 SE,ALSE,deputado estadual,projetos,sem_fonte,O site ainda não lê projetos de lei desta Casa.,alese,
-SE,ALSE,deputado estadual,emendas,pedido,Sem fonte aberta de emendas estaduais; pedido de acesso redigido (ADPF 854).,,emendas_estaduais_27_ufs.md
+SE,ALSE,deputado estadual,emendas,parcial,"Emendas desde 2022 no Portal da Transparência (autor, cidade, indicado e pago); a fonte não publica o empenhado.",transparencia_se_emendas,emendas_estaduais_27_ufs.md
 SE,ALSE,deputado estadual,salario,sem_fonte,Subsídio e folha dos deputados estaduais não coletados.,,
 SE,ALSE,deputado estadual,agenda,sem_fonte,Nenhuma fonte de agenda de deputados estaduais.,,
 SE,ALSE,deputado estadual,atos,sem_fonte,Diários oficiais estaduais não são lidos.,,
@@ -1012,7 +1012,7 @@ SE,Senado Federal,senador,atos,parcial,"Nomeações no Diário Oficial da União
 SE,Senado Federal,senador,bens_campanha,sim,Bens e campanha declarados ao TSE.,tse_bens; tse_campanha,
 SE,Governo de SE,governador,gastos,parcial,"Contas do estado (Tesouro Nacional, SICONFI): receita e despesa por área, com a média dos estados; sem pagamento por fornecedor.",siconfi_contas_estados,
 SE,Governo de SE,governador,projetos,sem_fonte,Projetos enviados ao Legislativo não coletados.,,
-SE,Governo de SE,governador,emendas,pedido,Sem fonte aberta de emendas estaduais; pedido de acesso redigido (ADPF 854).,,emendas_estaduais_27_ufs.md
+SE,Governo de SE,governador,emendas,parcial,"Emendas desde 2022 no Portal da Transparência (autor, cidade, indicado e pago); a fonte não publica o empenhado.",transparencia_se_emendas,emendas_estaduais_27_ufs.md
 SE,Governo de SE,governador,salario,sem_fonte,Subsídio do cargo não coletado.,,
 SE,Governo de SE,governador,agenda,sem_fonte,Nenhuma fonte de agenda coletada.,,
 SE,Governo de SE,governador,atos,sem_fonte,Diários oficiais deste nível não são lidos.,,
@@ -1028,7 +1028,7 @@ SP,ALSP,deputado estadual,gastos,sim,Carregamos gastos do gabinete e da cota do 
 SP,ALSP,deputado estadual,votos,parcial,Só o voto nas comissões permanentes; o voto no Plenário não está nos dados abertos (pedido de acesso redigido).,alesp,almg_alesp_votos_presenca.md
 SP,ALSP,deputado estadual,presenca,pedido,A Casa não publica em dados abertos; pedido de acesso redigido.,alesp,almg_alesp_votos_presenca.md
 SP,ALSP,deputado estadual,projetos,sim,Carregamos projetos de lei do site oficial da Casa. Votos nominais de Plenário e presença não saem dos dados abertos.,alesp,
-SP,ALSP,deputado estadual,emendas,pedido,Sem fonte aberta de emendas estaduais; pedido de acesso redigido (ADPF 854).,,emendas_estaduais_27_ufs.md
+SP,ALSP,deputado estadual,emendas,pedido,O arquivo aberto repete as linhas de execução sem chave e as somas não fecham (empenhado de 2024 passaria de R$ 12 bilhões); não carregamos e pedimos a correção.,,emendas_estaduais_27_ufs.md
 SP,ALSP,deputado estadual,salario,sem_fonte,Subsídio e folha dos deputados estaduais não coletados.,,
 SP,ALSP,deputado estadual,agenda,sem_fonte,Nenhuma fonte de agenda de deputados estaduais.,,
 SP,ALSP,deputado estadual,atos,sem_fonte,Diários oficiais estaduais não são lidos.,,
@@ -1053,7 +1053,7 @@ SP,Senado Federal,senador,atos,parcial,"Nomeações no Diário Oficial da União
 SP,Senado Federal,senador,bens_campanha,sim,Bens e campanha declarados ao TSE.,tse_bens; tse_campanha,
 SP,Governo de SP,governador,gastos,parcial,"Contas do estado (Tesouro Nacional, SICONFI): receita e despesa por área, com a média dos estados; sem pagamento por fornecedor.",siconfi_contas_estados,
 SP,Governo de SP,governador,projetos,sem_fonte,Projetos enviados ao Legislativo não coletados.,,
-SP,Governo de SP,governador,emendas,pedido,Sem fonte aberta de emendas estaduais; pedido de acesso redigido (ADPF 854).,,emendas_estaduais_27_ufs.md
+SP,Governo de SP,governador,emendas,pedido,O arquivo aberto repete as linhas de execução sem chave e as somas não fecham (empenhado de 2024 passaria de R$ 12 bilhões); não carregamos e pedimos a correção.,,emendas_estaduais_27_ufs.md
 SP,Governo de SP,governador,salario,sem_fonte,Subsídio do cargo não coletado.,,
 SP,Governo de SP,governador,agenda,sem_fonte,Nenhuma fonte de agenda coletada.,,
 SP,Governo de SP,governador,atos,sem_fonte,Diários oficiais deste nível não são lidos.,,
@@ -1069,7 +1069,7 @@ TO,ALTO,deputado estadual,gastos,sem_fonte,O site ainda não lê gastos do gabin
 TO,ALTO,deputado estadual,votos,bloqueado,"O site já lê votos nominais, mas o site da Casa só responde a acessos feitos do Brasil; por isso só dá para atualizar a partir de um computador no Brasil, e o site no ar não se atualiza sozinho.",sapl_assembleias,
 TO,ALTO,deputado estadual,presenca,bloqueado,"O site já lê presença em plenário, mas o site da Casa só responde a acessos feitos do Brasil; por isso só dá para atualizar a partir de um computador no Brasil, e o site no ar não se atualiza sozinho.",sapl_assembleias,
 TO,ALTO,deputado estadual,projetos,bloqueado,"O site já lê projetos de lei, mas o site da Casa só responde a acessos feitos do Brasil; por isso só dá para atualizar a partir de um computador no Brasil, e o site no ar não se atualiza sozinho.",sapl_assembleias,
-TO,ALTO,deputado estadual,emendas,pedido,Sem fonte aberta de emendas estaduais; pedido de acesso redigido (ADPF 854).,,emendas_estaduais_27_ufs.md
+TO,ALTO,deputado estadual,emendas,pedido,Não achamos emendas estaduais em formato aberto no portal do Estado; pedido de acesso redigido (ADPF 854).,,emendas_estaduais_27_ufs.md
 TO,ALTO,deputado estadual,salario,sem_fonte,Subsídio e folha dos deputados estaduais não coletados.,,
 TO,ALTO,deputado estadual,agenda,sem_fonte,Nenhuma fonte de agenda de deputados estaduais.,,
 TO,ALTO,deputado estadual,atos,sem_fonte,Diários oficiais estaduais não são lidos.,,
@@ -1094,7 +1094,7 @@ TO,Senado Federal,senador,atos,parcial,"Nomeações no Diário Oficial da União
 TO,Senado Federal,senador,bens_campanha,sim,Bens e campanha declarados ao TSE.,tse_bens; tse_campanha,
 TO,Governo de TO,governador,gastos,parcial,"Contas do estado (Tesouro Nacional, SICONFI): receita e despesa por área, com a média dos estados; sem pagamento por fornecedor.",siconfi_contas_estados,
 TO,Governo de TO,governador,projetos,sem_fonte,Projetos enviados ao Legislativo não coletados.,,
-TO,Governo de TO,governador,emendas,pedido,Sem fonte aberta de emendas estaduais; pedido de acesso redigido (ADPF 854).,,emendas_estaduais_27_ufs.md
+TO,Governo de TO,governador,emendas,pedido,Não achamos emendas estaduais em formato aberto no portal do Estado; pedido de acesso redigido (ADPF 854).,,emendas_estaduais_27_ufs.md
 TO,Governo de TO,governador,salario,sem_fonte,Subsídio do cargo não coletado.,,
 TO,Governo de TO,governador,agenda,sem_fonte,Nenhuma fonte de agenda coletada.,,
 TO,Governo de TO,governador,atos,sem_fonte,Diários oficiais deste nível não são lidos.,,

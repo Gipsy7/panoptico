@@ -8,13 +8,14 @@ from app.models.base import Base
 
 class EmendaEstadual(Base):
     """Emenda parlamentar ao orçamento de um **estado** (esfera estadual, à parte das federais
-    de `emenda_pagamento`). Hoje só Santa Catarina, pelo SC Transferências (CGE/SC): uma linha
-    por proposta de transferência (convênio ou termo de fomento) aberta a partir da emenda.
+    de `emenda_pagamento`). Uma fonte por UF (ingestion/emendas_estaduais/registro.py); a
+    linha é o que a fonte publica: proposta de transferência (SC), indicação (MG), emenda ×
+    instrumento (ES), emenda × empenho (PE) ou emenda (BA, AC, AL, SE). `proposta` é a chave
+    da linha na fonte, única na UF.
 
-    A mesma emenda pode ter mais de uma proposta (refeita, cancelada ou dividida): o valor
-    previsto (`valor_previsto`, o da Lei Orçamentária) se repete nessas linhas e só pode ser
-    somado uma vez por emenda; o pago (`valor_pago`, repassado pelo Estado) e o empenhado são
-    da transferência de cada linha e se somam."""
+    A mesma emenda pode ter mais de uma linha: o valor previsto (`valor_previsto`) se repete
+    nessas linhas e só pode ser somado uma vez por emenda (`codigo`); o pago e o empenhado são
+    de cada linha e se somam."""
 
     __tablename__ = "emenda_estadual"
     __table_args__ = (
@@ -26,9 +27,9 @@ class EmendaEstadual(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     uf: Mapped[str] = mapped_column(String(2))
     ano: Mapped[int] = mapped_column(SmallInteger)  # ano da emenda (Lei Orçamentária)
-    codigo: Mapped[str] = mapped_column(String(20))  # "2024EP002132"
-    proposta: Mapped[str] = mapped_column(String(20))  # nº da proposta de transferência
-    transferencia: Mapped[str | None] = mapped_column(String(20))  # "2024TR002516"
+    codigo: Mapped[str] = mapped_column(String(60))  # "2024EP002132"
+    proposta: Mapped[str] = mapped_column(String(60))  # chave da linha na fonte (única na UF)
+    transferencia: Mapped[str | None] = mapped_column(String(60))  # "2024TR002516"
     tipo: Mapped[str] = mapped_column(String(12))  # individual | bancada
     autor_nome: Mapped[str] = mapped_column(String(200))
     autor_chave: Mapped[str] = mapped_column(String(200))  # comum.chave_nome do autor

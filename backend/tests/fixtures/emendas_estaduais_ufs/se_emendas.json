@@ -1,0 +1,50 @@
+[
+ {
+  "exercicio": "2024",
+  "orgaoProcessador": "DER ",
+  "parlamentar": "CHICO DO CORREIO",
+  "descricaoObjeto": "APOIO FINANCEIRO PARA INVESTIMENTO ",
+  "executor": "DEPARTAMENTO DE INFRA-ESTRUTURA RODOVIÁRIA DE SERGIPE (DER/SE)",
+  "localidade": "ARACAJU",
+  "acao": "838",
+  "gnd": "449052",
+  "valorIndicado": " 30.000 ",
+  "valorPago": " -   "
+ },
+ {
+  "exercicio": "2024",
+  "orgaoProcessador": "FUNCAP",
+  "parlamentar": "CARMINHA PAIVA",
+  "descricaoObjeto": "APOIO FINANCEIRO PARA DESPESAS DE CUSTEIO",
+  "executor": "APOIO FINANCEIRO PARA DESPESAS DE CUSTEIO",
+  "localidade": "ARACAJU",
+  "acao": "884",
+  "gnd": "335041",
+  "valorIndicado": " 15.000 ",
+  "valorPago": " 15.000 "
+ },
+ {
+  "exercicio": "2025",
+  "orgaoProcessador": "CBM",
+  "parlamentar": "MARCOS OLIVEIRA",
+  "descricaoObjeto": "AQUISIÇÃO DE VEÍCULO TIPO AMBULÂNCIA PARA O 3º GBM - ITABAIANA/SE ",
+  "executor": "CORPO DE BOMBEIROS MILITAR DO ESTADO DE SERGIPE CNPJ: 34.850.068/0001-81",
+  "localidade": "ARACAJU",
+  "acao": "931",
+  "gnd": "449052",
+  "valorIndicado": " 200.000 ",
+  "valorPago": ""
+ },
+ {
+  "exercicio": "2025",
+  "orgaoProcessador": "FUNCAP",
+  "parlamentar": "GARIBALDE MENDONÇA",
+  "descricaoObjeto": "APOIO FINANCEIRO PARA DESPESAS DE INVESTIMENTO",
+  "executor": "ASSOCIACAO COMUNITARIA IMPRENSA FM CNPJ: 21.873.733/0001-00",
+  "localidade": "ARACAJU",
+  "acao": "1098",
+  "gnd": "445041",
+  "valorIndicado": " 40.000 ",
+  "valorPago": ""
+ }
+]

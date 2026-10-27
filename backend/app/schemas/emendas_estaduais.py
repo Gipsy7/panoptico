@@ -35,6 +35,9 @@ class EmendasEstaduaisMunicipio(BaseModel):
     casa: str
     total_previsto: float
     total_empenhado: float
+    # Falso quando a fonte da UF não publica o empenhado (SE): total_empenhado vem zero e não
+    # deve ser mostrado como valor medido.
+    empenhado_informado: bool = True
     total_pago: float
     emendas: int
     por_autor: list[EmendaEstadualAutor]
@@ -82,6 +85,7 @@ class EmendasDeputadoEstadual(BaseModel):
     periodo: EmendaEstadualPeriodo
     total_previsto: float
     total_empenhado: float
+    empenhado_informado: bool = True  # ver EmendasEstaduaisMunicipio
     total_pago: float
     emendas: int
     media_casa_pago: float | None

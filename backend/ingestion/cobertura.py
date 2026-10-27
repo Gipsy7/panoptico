@@ -109,6 +109,61 @@ MOTIVO_PEDIDO = {
     "a leitura automática é permitida; não lemos e pedimos autorização ou os dados em arquivo.",
 }
 EMENDAS_27 = "emendas_estaduais_27_ufs.md"
+# Emendas estaduais por UF (docs/emendas_estaduais_levantamento.md, 21/10/2026): situação,
+# motivo simples, fonte (nome em fontes.toml) e pedido. UF ausente: pedido, sem fonte aberta.
+_PED = f"{EMENDAS_27}"
+EMENDAS_ESTADUAIS: dict[str, tuple[str, str, str, str]] = {
+    "AC": ("sim", "Emendas desde 2023 da Secretaria de Planejamento: autor, cidade, quem "
+           "recebeu, previsto, empenhado e pago.", "seplan_ac_emendas", ""),
+    "AL": ("parcial", "Só o orçamento de 2026 está no Portal da Transparência (autor, cidade, "
+           "quem recebeu e valores); pedimos os anos anteriores.", "transparencia_al_emendas",
+           _PED),
+    "BA": ("parcial", "A Fazenda publica autor e valores desde 2017, mas não a cidade nem quem "
+           "recebeu: aparece só na página do deputado; pedimos o destino.", "sefaz_ba_emendas",
+           _PED),
+    "ES": ("sim", "Emendas desde 2021 da Secretaria da Fazenda: autor, cidade, quem recebeu, "
+           "previsto, empenhado e pago.", "sefaz_es_emendas", ""),
+    "MA": ("parcial", "Só o orçamento de 2026 está no Portal da Transparência; pedimos os anos "
+           "anteriores.", "transparencia_ma_emendas", _PED),
+    "MG": ("sim", "Indicações de emendas desde 2023 da Secretaria de Governo: autor, cidade, "
+           "quem recebeu, previsto, empenhado e pago.", "segov_mg_emendas", ""),
+    "PE": ("parcial", "Só o orçamento do ano corrente traz autor e cidade; os arquivos dos anos "
+           "anteriores não trazem, e pedimos.", "seplag_pe_emendas", _PED),
+    "SC": ("parcial", "Emendas da ALESC executadas por convênio ou termo de fomento (SC "
+           "Transferências, desde 2022). Repasses fundo a fundo e às prefeituras ficam de fora; "
+           "pedidos à ALESC e ao TCE/SC seguem para a base completa.", "sctransferencias_emendas",
+           f"alesc_emendas_impositivas.md; tcesc_painel_emendas.md; {EMENDAS_27}"),
+    "SE": ("parcial", "Emendas desde 2022 no Portal da Transparência (autor, cidade, indicado e "
+           "pago); a fonte não publica o empenhado.", "transparencia_se_emendas", _PED),
+    "SP": ("pedido", "O arquivo aberto repete as linhas de execução sem chave e as somas não "
+           "fecham (empenhado de 2024 passaria de R$ 12 bilhões); não carregamos e pedimos a "
+           "correção.", "", _PED),
+    "DF": ("sem_fonte", "O Portal da Transparência do DF tem uma consulta de emendas por autor "
+           "e empenho; ainda não lemos.", "", _PED),
+    "RO": ("sem_fonte", "O Portal da Transparência de RO tem uma consulta de emendas por "
+           "empenho; ainda não lemos.", "", _PED),
+    "GO": ("pedido", "O arquivo aberto vai só até julho de 2025 e traz CNPJ e empenho "
+           "corrompidos pela planilha; a consulta completa exige captcha. Pedimos o arquivo "
+           "corrigido.", "", _PED),
+    "RJ": ("pedido", "Só há painel (sem arquivo para baixar); pedido de acesso redigido.", "",
+           _PED),
+    "RS": ("pedido", "Só há painel (sem arquivo para baixar); pedido de acesso redigido.", "",
+           _PED),
+    "PR": ("pedido", "Só há painel (sem arquivo para baixar); pedido de acesso redigido.", "",
+           _PED),
+    "RN": ("pedido", "Só há painel (sem arquivo para baixar); pedido de acesso redigido.", "",
+           _PED),
+    "CE": ("pedido", "Só há consulta em página, sem arquivo nem API de emendas; pedido de "
+           "acesso redigido.", "", _PED),
+}  # fmt: skip
+MOTIVO_EMENDAS_PADRAO = (
+    "Não achamos emendas estaduais em formato aberto no portal do Estado; pedido de acesso "
+    "redigido (ADPF 854)."
+)
+
+
+def _emendas_estaduais(uf: str) -> tuple[str, str, str, str]:
+    return EMENDAS_ESTADUAIS.get(uf, ("pedido", MOTIVO_EMENDAS_PADRAO, "", EMENDAS_27))
 
 
 def _ler_csv(nome: str) -> list[dict[str, str]]:
@@ -188,18 +243,7 @@ def _assembleia(uf, acessos) -> list[dict]:
         if secao in ROTULO:
             dados = _secao_legislativa(uf, secao, fonte, carrega, brasil)
         elif secao == "emendas":
-            m = "Sem fonte aberta de emendas estaduais; pedido de acesso redigido (ADPF 854)."
-            pedido = EMENDAS_27
-            dados = ("pedido", m, "", pedido)
-            if uf == "SC":
-                m = (
-                    "Emendas impositivas da ALESC executadas por convênio ou termo de fomento "
-                    "(SC Transferências, CGE/SC, desde 2022): autor, cidade, quem recebeu, "
-                    "previsto, empenhado e pago. Repasses fundo a fundo e às prefeituras ficam "
-                    "de fora; pedidos à ALESC e ao TCE/SC seguem para a base completa."
-                )
-                pedido = f"alesc_emendas_impositivas.md; tcesc_painel_emendas.md; {EMENDAS_27}"
-                dados = ("parcial", m, "sctransferencias_emendas", pedido)
+            dados = _emendas_estaduais(uf)
         elif secao == "salario":
             dados = ("sem_fonte", "Subsídio e folha dos deputados estaduais não coletados.", "", "")
         elif secao == "agenda":
@@ -347,13 +391,12 @@ def montar() -> list[dict]:
         linhas += _assembleia(uf, acessos)
         linhas += _federal(uf, "Câmara dos Deputados", "deputado federal", True)
         linhas += _federal(uf, "Senado Federal", "senador", False)
-        msg = "Sem fonte aberta de emendas estaduais; pedido de acesso redigido (ADPF 854)."
         linhas += _executivo(
             uf,
             f"Governo de {uf}",
             "governador",
             {
-                "emendas": ("pedido", msg, "", EMENDAS_27),
+                "emendas": _emendas_estaduais(uf),
                 "gastos": (
                     "parcial",
                     "Contas do estado (Tesouro Nacional, SICONFI): receita e despesa por área, com "

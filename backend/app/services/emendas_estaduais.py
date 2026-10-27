@@ -1,11 +1,13 @@
-"""Emendas parlamentares estaduais (hoje, só Santa Catarina; `emenda_estadual`).
+"""Emendas parlamentares estaduais (`emenda_estadual`, uma fonte por UF; ver
+ingestion/emendas_estaduais/registro.py).
 
 São outra esfera: o dinheiro é do orçamento do Estado, indicado por deputados estaduais, e
 **nunca se soma** às emendas federais (`emendas.py`). Três números que não se somam entre si:
 - **previsto**: valor da emenda na Lei Orçamentária, uma vez por emenda (a mesma emenda pode
   ter várias propostas), sem as propostas canceladas ou recusadas;
-- **empenhado**: reservado no orçamento para a transferência (razão financeiro da CGE/SC);
-- **pago**: repassado pelo Estado ao beneficiário, como o SC Transferências mostra.
+- **empenhado**: reservado no orçamento (nem toda fonte informa);
+- **pago**: pago ou repassado pelo Estado, como a fonte de cada UF mostra.
+O que cada número significa em cada UF está em `TERMOS` e o recorte em `RECORTE`.
 """
 
 from datetime import datetime
@@ -17,29 +19,24 @@ from sqlalchemy.orm import Session
 from app.models import EmendaEstadual, FonteIngestao, MandatoLocal, Municipio, PessoaVinculo
 from app.models.pessoa import REGRAS_FORTES
 from ingestion import comum
-from ingestion.emendas_estaduais import sc
+from ingestion.emendas_estaduais import base as emendas_base
+from ingestion.emendas_estaduais.registro import ADAPTADORES
 
-FONTES = {"SC": sc.FONTE}
-FONTE_NOME = {
-    "SC": "Emendas impositivas no SC Transferências (Controladoria-Geral do Estado de SC)"
-}
-FONTE_URL = {"SC": sc.PAGINA}
-CASA = {"SC": "Assembleia Legislativa de Santa Catarina (ALESC)"}
-# Propostas que não vão adiante: o previsto delas não entra.
-SITUACOES_FORA = ("Cancelada", "Desfavorável", "Não Homologado")
+FONTES = {uf: a.FONTE for uf, a in ADAPTADORES.items()}
+FONTE_NOME = {uf: a.FONTE_NOME for uf, a in ADAPTADORES.items()}
+FONTE_URL = {uf: a.PAGINA for uf, a in ADAPTADORES.items()}
+CASA = {uf: a.CASA for uf, a in ADAPTADORES.items()}
+RECORTE = {uf: a.RECORTE for uf, a in ADAPTADORES.items()}
+TERMOS = {uf: a.TERMOS for uf, a in ADAPTADORES.items()}
+# Linhas que não vão adiante (canceladas, reprovadas): o previsto delas não entra.
+SITUACOES_FORA = {uf: tuple(a.SITUACOES_FORA) for uf, a in ADAPTADORES.items()}
+# UFs cuja fonte não informa o município (BA): só aparecem na página do deputado.
+SEM_MUNICIPIO = {uf for uf, a in ADAPTADORES.items() if not getattr(a, "TEM_MUNICIPIO", True)}
+# UFs cuja fonte não publica o valor empenhado (SE).
+SEM_EMPENHADO = {uf for uf, a in ADAPTADORES.items() if not getattr(a, "TEM_EMPENHADO", True)}
 DESCRICAO = (
     "Emendas de deputados estaduais ao orçamento do Estado. São outra esfera: o dinheiro é do "
     "Estado, não da União, e por isso não é somado às emendas federais."
-)
-RECORTE = (
-    "Só as emendas executadas por convênio ou termo de fomento no SC Transferências, quase "
-    "todas para entidades sem fins lucrativos (hospitais, APAEs, clubes, associações). "
-    "Repasses da saúde fundo a fundo e transferências diretas às prefeituras não passam por "
-    "esse sistema e ficam de fora. O município é o do beneficiário."
-)
-TERMOS = (
-    "Previsto: valor da emenda na Lei Orçamentária (emenda impositiva), contado uma vez. "
-    "Empenhado: reservado no orçamento para o convênio. Pago: repassado pelo Estado."
 )
 MEDIA_DESCRICAO = (
     "Média dos {n} deputados estaduais em exercício na {casa}, pelo mesmo critério e no mesmo "
@@ -59,7 +56,8 @@ def _atualizado(session: Session, uf: str) -> datetime | None:
 
 
 def _conta_previsto(linha: EmendaEstadual) -> bool:
-    return not (linha.situacao_proposta or "").startswith(SITUACOES_FORA)
+    fora = SITUACOES_FORA.get(linha.uf, ())
+    return not (fora and (linha.situacao_proposta or "").startswith(fora))
 
 
 def _previsto(linhas: list[EmendaEstadual]) -> Decimal:
@@ -113,27 +111,69 @@ def _mandatos(session: Session, uf: str) -> list[tuple[MandatoLocal, int | None]
     )
 
 
+def _chaves_mandato(mandato: MandatoLocal) -> set[str]:
+    return {comum.chave_nome(mandato.nome), comum.chave_nome(mandato.nome_completo)} - {""}
+
+
 def _do_mandato(
     linhas: list[EmendaEstadual], mandato: MandatoLocal, pessoa_id: int | None
 ) -> list[EmendaEstadual]:
     """Emendas do deputado: pela pessoa ligada ou, sem pessoa na emenda, pelo nome idêntico ao
     que a própria Casa publica (nome parlamentar ou completo)."""
-    chaves = {comum.chave_nome(mandato.nome), comum.chave_nome(mandato.nome_completo)} - {""}
+    chaves = _chaves_mandato(mandato)
     return [
         x
         for x in linhas
         if x.tipo == "individual"
         and (
             (pessoa_id is not None and x.pessoa_id == pessoa_id)
-            or (x.pessoa_id is None and bool(chaves & set(sc.nomes_do_autor(x.autor_nome))))
+            or (
+                x.pessoa_id is None
+                and bool(chaves & set(emendas_base.nomes_do_autor(x.autor_nome)))
+            )
         )
     ]
+
+
+def _pagos_por_autor(session: Session, uf: str) -> list[tuple[int | None, str, Decimal]]:
+    """(pessoa, autor como veio, pago) das emendas individuais da UF, somado no banco: a média
+    da Casa não precisa carregar as linhas (MG tem dezenas de milhares)."""
+    return [
+        (p, a, v or Decimal(0))
+        for p, a, v in session.execute(
+            select(
+                EmendaEstadual.pessoa_id,
+                EmendaEstadual.autor_nome,
+                func.sum(EmendaEstadual.valor_pago),
+            )
+            .where(EmendaEstadual.uf == uf, EmendaEstadual.tipo == "individual")
+            .group_by(EmendaEstadual.pessoa_id, EmendaEstadual.autor_nome)
+        ).all()
+    ]
+
+
+def _pago_do_mandato(
+    pagos: list[tuple[int | None, str, Decimal]],
+    nomes: dict[str, set[str]],
+    mandato: MandatoLocal,
+    pessoa_id: int | None,
+) -> Decimal:
+    """O mesmo critério de `_do_mandato`, sobre as somas por autor."""
+    chaves = _chaves_mandato(mandato)
+    return sum(
+        (
+            v
+            for p, a, v in pagos
+            if (pessoa_id is not None and p == pessoa_id) or (p is None and chaves & nomes[a])
+        ),
+        start=Decimal(0),
+    )
 
 
 def bloco_municipio(session: Session, municipio: Municipio) -> dict | None:
     """Bloco `estaduais` de `/municipios/{ibge}/emendas`. Nulo onde o estado não tem fonte."""
     uf = municipio.uf
-    if uf not in FONTES or _atualizado(session, uf) is None:
+    if uf not in FONTES or uf in SEM_MUNICIPIO or _atualizado(session, uf) is None:
         return None
     linhas = list(
         session.scalars(
@@ -181,6 +221,7 @@ def bloco_municipio(session: Session, municipio: Municipio) -> dict | None:
         "casa": CASA[uf],
         "total_previsto": somas["previsto"],
         "total_empenhado": somas["empenhado"],
+        "empenhado_informado": uf not in SEM_EMPENHADO,
         "total_pago": somas["pago"],
         "emendas": somas["emendas"],
         "por_autor": por_autor,
@@ -189,8 +230,8 @@ def bloco_municipio(session: Session, municipio: Municipio) -> dict | None:
         "numero_favorecidos": len(lista_favorecidos),
         "somado_ao_federal": False,
         "descricao": DESCRICAO,
-        "recorte": RECORTE,
-        "termos": TERMOS,
+        "recorte": RECORTE[uf],
+        "termos": TERMOS[uf],
         "fonte_nome": FONTE_NOME[uf],
         "fonte_url": FONTE_URL[uf],
         "atualizado_em": _atualizado(session, uf),
@@ -202,16 +243,24 @@ def deputado(session: Session, mandato: MandatoLocal) -> dict | None:
     uf = mandato.uf
     if mandato.casa != "assembleia" or uf not in FONTES or _atualizado(session, uf) is None:
         return None
-    todas = list(session.scalars(select(EmendaEstadual).where(EmendaEstadual.uf == uf)).all())
     mandatos = _mandatos(session, uf)
     pessoa_id = next((p for m, p in mandatos if m.id == mandato.id), None)
-    linhas = _do_mandato(todas, mandato, pessoa_id)
+    pagos = _pagos_por_autor(session, uf)
+    nomes_autor = {a: set(emendas_base.nomes_do_autor(a)) for _, a, _ in pagos}
+    chaves = _chaves_mandato(mandato)
+    sem_pessoa = [a for p, a, _ in pagos if p is None and chaves & nomes_autor[a]]
+    filtro = EmendaEstadual.autor_nome.in_(sem_pessoa) & EmendaEstadual.pessoa_id.is_(None)
+    if pessoa_id is not None:
+        filtro = filtro | (EmendaEstadual.pessoa_id == pessoa_id)
+    candidatas = session.scalars(
+        select(EmendaEstadual).where(
+            EmendaEstadual.uf == uf, EmendaEstadual.tipo == "individual", filtro
+        )
+    ).all()
+    linhas = _do_mandato(list(candidatas), mandato, pessoa_id)
     em_exercicio = [(m, p) for m, p in mandatos if m.em_exercicio]
-    pagos = [
-        sum((x.valor_pago for x in _do_mandato(todas, m, p)), start=Decimal(0))
-        for m, p in em_exercicio
-    ]
-    media = sum(pagos, start=Decimal(0)) / len(pagos) if pagos else None
+    pagos_casa = [_pago_do_mandato(pagos, nomes_autor, m, p) for m, p in em_exercicio]
+    media = sum(pagos_casa, start=Decimal(0)) / len(pagos_casa) if pagos_casa else None
     municipios: dict[tuple[str | None, str], list[EmendaEstadual]] = {}
     for x in linhas:
         municipios.setdefault((x.municipio_ibge, x.municipio_nome), []).append(x)
@@ -232,20 +281,25 @@ def deputado(session: Session, mandato: MandatoLocal) -> dict | None:
     )
     itens = sorted(linhas, key=lambda x: (x.ano, x.valor_pago), reverse=True)
     somas = _somas(linhas)
-    anos = [x.ano for x in todas]
+    inicio, fim = session.execute(
+        select(func.min(EmendaEstadual.ano), func.max(EmendaEstadual.ano)).where(
+            EmendaEstadual.uf == uf
+        )
+    ).one()
     return {
         "mandato_id": mandato.id,
         "nome": mandato.nome,
         "uf": uf,
         "casa": CASA[uf],
-        "periodo": {"inicio": min(anos, default=None), "fim": max(anos, default=None)},
+        "periodo": {"inicio": inicio, "fim": fim},
         "total_previsto": somas["previsto"],
         "total_empenhado": somas["empenhado"],
+        "empenhado_informado": uf not in SEM_EMPENHADO,
         "total_pago": somas["pago"],
         "emendas": somas["emendas"],
         "media_casa_pago": round(media, 2) if media is not None else None,
-        "deputados_na_media": len(pagos),
-        "media_descricao": MEDIA_DESCRICAO.format(n=len(pagos), casa=CASA[uf]),
+        "deputados_na_media": len(pagos_casa),
+        "media_descricao": MEDIA_DESCRICAO.format(n=len(pagos_casa), casa=CASA[uf]),
         "por_ano": _por_ano(linhas),
         "por_municipio": por_municipio[:LIMITE_MUNICIPIOS],
         "numero_municipios": len(por_municipio),
@@ -267,8 +321,8 @@ def deputado(session: Session, mandato: MandatoLocal) -> dict | None:
         ],
         "numero_itens": len(itens),
         "descricao": DESCRICAO,
-        "recorte": RECORTE,
-        "termos": TERMOS,
+        "recorte": RECORTE[uf],
+        "termos": TERMOS[uf],
         "fonte_nome": FONTE_NOME[uf],
         "fonte_url": FONTE_URL[uf],
         "atualizado_em": _atualizado(session, uf),

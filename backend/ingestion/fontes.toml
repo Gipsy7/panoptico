@@ -461,6 +461,92 @@ depende = ["alesc", "pessoas"]
 # arquivos.transparencia.sc.gov.br/sctransferencias/dados-abertos/dados_financeiros_AAAA.zip (~1 MB/ano).
 # Sem login nem captcha. Painel do TCE/SC (Farol) e Portal de Emendas: ver docs/DECISOES.md, 19/10/2026.
 
+# Emendas estaduais das outras UFs: um adaptador por fonte (ingestion/emendas_estaduais/, base.py e
+# registro.py; `python -m ingestion.emendas_estaduais.registro` roda todas). Levantamento das 27 UFs em
+# docs/emendas_estaduais_levantamento.md; decisão em docs/DECISOES.md (21/10/2026). Todas responderam a
+# acesso de fora do Brasil no teste de 21/10/2026: rodam no ubuntu-latest (ingestao-camaras.yml, job
+# emendas_estaduais).
+[[fonte]]
+nome = "segov_mg_emendas"
+modulo = "ingestion.emendas_estaduais.mg"
+uso = "Emendas de deputados estaduais de MG na página da cidade e do deputado: autor, quem recebeu, previsto, empenhado e pago (esfera estadual, à parte das federais)"
+recorte = "indicações de emendas impositivas desde 2023 (uma linha por indicação), inclusive de blocos e bancadas; favorecido pessoa física sem nome (a fonte só traz CNPJ)"
+frequencia = "semanal"
+acesso = "aberto"
+depende = ["almg", "pessoas"]
+# SEGOV/MG: dados.mg.gov.br/dataset/portal_emendas_estaduais, "Emendas Estaduais - Indicações" (~30 MB, CSV).
+
+[[fonte]]
+nome = "sefaz_ba_emendas"
+modulo = "ingestion.emendas_estaduais.ba"
+uso = "Emendas de deputados estaduais da BA na página do deputado (a fonte não informa cidade nem favorecido)"
+recorte = "emendas impositivas no orçamento desde 2017, uma linha por dotação: autor, órgão, ação, previsto, empenhado e pago"
+frequencia = "semanal"
+acesso = "aberto"
+depende = ["alba", "pessoas"]
+# SEFAZ/BA (FIPLAN): dados.ba.gov.br/dataset/emendas-parlamentares (zip com as visões do painel). O servidor
+# manda a cadeia TLS incompleta: o intermediário vem do endereço do próprio certificado (ver ba.py).
+
+[[fonte]]
+nome = "seplag_pe_emendas"
+modulo = "ingestion.emendas_estaduais.pe"
+uso = "Emendas de deputados estaduais de PE na página da cidade e do deputado"
+recorte = "emendas impositivas da Lei Orçamentária do ano corrente (GTV, execução direta e PIX), uma linha por emenda e empenho; anos anteriores sem autor nem município na fonte"
+frequencia = "semanal"
+acesso = "aberto"
+depende = ["alepe", "pessoas"]
+# SEPLAG/PE: dados.pe.gov.br/dataset/emendasparlamentaresestaduais (três "Tabela Completa", CSV).
+
+[[fonte]]
+nome = "transparencia_ma_emendas"
+modulo = "ingestion.emendas_estaduais.ma"
+uso = "Emendas de deputados estaduais do MA na página da cidade e do deputado"
+recorte = "emendas do orçamento de 2026 (o único ano na consulta), uma linha por solicitação"
+frequencia = "semanal"
+acesso = "aberto"
+depende = ["alema", "pessoas"]
+# Portal da Transparência do MA: /app/v2/emendasestaduais/export?formato=csv.
+
+[[fonte]]
+nome = "sefaz_es_emendas"
+modulo = "ingestion.emendas_estaduais.es"
+uso = "Emendas de deputados estaduais do ES na página da cidade e do deputado"
+recorte = "emendas aprovadas na Lei Orçamentária desde 2021, uma linha por emenda e instrumento de execução"
+frequencia = "semanal"
+acesso = "aberto"
+depende = ["ales", "pessoas"]
+# SEFAZ/ES: dados.es.gov.br, "[Portal da Transparência] Emendas Parlamentares do Estado" (CSV por ano).
+
+[[fonte]]
+nome = "transparencia_al_emendas"
+modulo = "ingestion.emendas_estaduais.al"
+uso = "Emendas de deputados estaduais de AL na página da cidade e do deputado"
+recorte = "emendas do orçamento de 2026 (o único ano na consulta), uma linha por emenda"
+frequencia = "semanal"
+acesso = "aberto"
+depende = ["sapl_assembleias", "pessoas"]
+# Portal da Transparência de AL: /despesa/json-emendas-parlamentares/ (JSON paginado).
+
+[[fonte]]
+nome = "transparencia_se_emendas"
+modulo = "ingestion.emendas_estaduais.se"
+uso = "Emendas de deputados estaduais de SE na página da cidade e do deputado"
+recorte = "emendas desde 2022, uma linha por emenda: autor, localidade, executor, valor indicado e pago (a fonte não publica o empenhado)"
+frequencia = "semanal"
+acesso = "aberto"
+depende = ["alese", "pessoas"]
+# Portal da Transparência de SE: api.transparencia.se.gov.br/api/emendas-estaduais (JSON paginado).
+
+[[fonte]]
+nome = "seplan_ac_emendas"
+modulo = "ingestion.emendas_estaduais.ac"
+uso = "Emendas de deputados estaduais do AC na página da cidade e do deputado"
+recorte = "emendas desde 2023, uma linha por emenda; agência e conta bancária do beneficiário não são guardadas"
+frequencia = "semanal"
+acesso = "aberto"
+depende = ["sapl_assembleias", "pessoas"]
+# SEPLAN/AC: a planilha (Google Sheets publicada em CSV) que a página de emendas estaduais usa.
+
 [[fonte]]
 nome = "alep"
 modulo = "ingestion.assembleias.alep"

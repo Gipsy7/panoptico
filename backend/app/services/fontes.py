@@ -219,6 +219,63 @@ CATALOGO = [
         "url": "https://consultas.sctransferencias.cge.sc.gov.br/pesquisa-detalhada/emendas",
     },
     {
+        "dado": "Emendas de deputados estaduais de MG: autor, cidade, quem recebeu e valores "
+        "previsto, empenhado e pago",
+        "orgao": "Secretaria de Estado de Governo de MG (Portal de Emendas Estaduais, dados "
+        "abertos)",
+        "fontes": ["segov_mg_emendas"],
+        "url": "https://dados.mg.gov.br/dataset/portal_emendas_estaduais",
+    },
+    {
+        "dado": "Emendas de deputados estaduais de BA: autor e valores previsto, empenhado e "
+        "pago (sem cidade)",
+        "orgao": "Secretaria da Fazenda da Bahia (FIPLAN, dados abertos)",
+        "fontes": ["sefaz_ba_emendas"],
+        "url": "https://dados.ba.gov.br/dataset/emendas-parlamentares",
+    },
+    {
+        "dado": "Emendas de deputados estaduais de PE: autor, cidade, quem recebeu e valores "
+        "previsto, empenhado e pago",
+        "orgao": "Secretaria de Planejamento de Pernambuco (dados abertos)",
+        "fontes": ["seplag_pe_emendas"],
+        "url": "https://dados.pe.gov.br/dataset/emendasparlamentaresestaduais",
+    },
+    {
+        "dado": "Emendas de deputados estaduais de MA: autor, cidade, quem recebeu e valores "
+        "previsto, empenhado e pago",
+        "orgao": "Portal da Transparência do Maranhão",
+        "fontes": ["transparencia_ma_emendas"],
+        "url": "https://www.transparencia.ma.gov.br/app/v2/emendasestaduais",
+    },
+    {
+        "dado": "Emendas de deputados estaduais de ES: autor, cidade, quem recebeu e valores "
+        "previsto, empenhado e pago",
+        "orgao": "Secretaria da Fazenda do Espírito Santo (dados abertos)",
+        "fontes": ["sefaz_es_emendas"],
+        "url": "https://dados.es.gov.br/dataset/portal-da-transparencia-emendas-parlamentares-do-estado",
+    },
+    {
+        "dado": "Emendas de deputados estaduais de AL: autor, cidade, quem recebeu e valores "
+        "previsto, empenhado e pago",
+        "orgao": "Portal da Transparência de Alagoas",
+        "fontes": ["transparencia_al_emendas"],
+        "url": "https://transparencia.al.gov.br/despesa/emendas-parlamentares-estaduais",
+    },
+    {
+        "dado": "Emendas de deputados estaduais de SE: autor, cidade, quem executa e valores "
+        "indicado e pago",
+        "orgao": "Portal da Transparência de Sergipe",
+        "fontes": ["transparencia_se_emendas"],
+        "url": "https://www.transparencia.se.gov.br/EmendasParlamentares/EmendasEstaduais",
+    },
+    {
+        "dado": "Emendas de deputados estaduais de AC: autor, cidade, quem recebeu e valores "
+        "previsto, empenhado e pago",
+        "orgao": "Secretaria de Planejamento do Acre (Portal de Emendas Estaduais)",
+        "fontes": ["seplan_ac_emendas"],
+        "url": "https://seplan.ac.gov.br/gestao-de-recursos/convenios/emendas-parlamentares-estaduais/",
+    },
+    {
         "dado": "Deputados estaduais do PR: no cargo, presença em plenário e votos nominais",
         "orgao": "Assembleia Legislativa do Paraná (site e Portal da Transparência)",
         "fontes": ["alep"],
