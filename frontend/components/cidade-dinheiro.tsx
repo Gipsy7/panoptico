@@ -327,7 +327,7 @@ async function Cidade({ ibge }: { ibge: string }) {
                 </li>
                 <li>
                   {emendas.estaduais
-                    ? "Emendas de deputados estaduais aparecem à parte, só convênios e termos de fomento; repasses às prefeituras ainda ficam de fora."
+                    ? "Emendas de deputados estaduais aparecem à parte, com o recorte da fonte do estado indicado na própria seção."
                     : "Emendas estaduais (das assembleias legislativas) ainda não foram carregadas."}
                 </li>
                 <li>

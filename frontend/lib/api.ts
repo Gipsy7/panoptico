@@ -655,6 +655,8 @@ export type EmendasEstaduaisMunicipio = {
   casa: string;
   total_previsto: number;
   total_empenhado: number;
+  /** Falso quando a fonte da UF não publica o empenhado (SE); a API antiga não manda o campo. */
+  empenhado_informado?: boolean;
   total_pago: number;
   emendas: number;
   por_autor: (EmendaEstadualSomas & {
@@ -684,6 +686,8 @@ export type EmendasDeputadoEstadual = {
   periodo: { inicio: number | null; fim: number | null };
   total_previsto: number;
   total_empenhado: number;
+  /** Falso quando a fonte da UF não publica o empenhado (SE); a API antiga não manda o campo. */
+  empenhado_informado?: boolean;
   total_pago: number;
   emendas: number;
   media_casa_pago: number | null;

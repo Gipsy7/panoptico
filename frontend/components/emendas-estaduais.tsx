@@ -14,13 +14,13 @@ function nomeProprio(nome: string) {
     .replace(/\b(De|Da|Do|Das|Dos|E)\b/g, (p) => p.toLowerCase());
 }
 
-const RECORTE_SIMPLES =
-  "Aparecem só as emendas pagas por convênio ou termo de fomento, quase todas a entidades sem fins lucrativos (hospitais, APAEs, clubes, associações). Os repasses diretos às prefeituras e os da saúde de fundo a fundo ainda não entram.";
+const AVISO_SEM_EMPENHADO = "A fonte deste estado não publica o valor empenhado.";
 
 /** Emendas de deputados estaduais numa cidade: outra esfera, separada das federais e nunca somada. */
 export function EmendasEstaduaisCidade({ dados, cidade }: { dados: EmendasEstaduaisMunicipio; cidade: string }) {
   const autores = dados.por_autor.filter((a) => a.pago > 0 || a.previsto > 0).slice(0, 5);
   const maior = autores[0]?.pago ?? 0;
+  const empenhadoInformado = dados.empenhado_informado !== false;
   return (
     <section aria-labelledby="emendas-estaduais-titulo" className="revelar painel flex flex-col gap-3">
       <div>
@@ -48,10 +48,19 @@ export function EmendasEstaduaisCidade({ dados, cidade }: { dados: EmendasEstadu
             </div>
           </dl>
           <p className="text-sm text-muted-foreground">
-            {dados.emendas} {dados.emendas === 1 ? "emenda" : "emendas"}. Empenhado (reservado no orçamento):{" "}
-            <span className="tabular-nums">{formatarReais(dados.total_empenhado, true)}</span>. Previsto, empenhado e
-            pago são etapas diferentes e não se somam.
+            {dados.emendas} {dados.emendas === 1 ? "emenda" : "emendas"}.
+            {empenhadoInformado ? (
+              <>
+                {" "}
+                Empenhado (reservado no orçamento):{" "}
+                <span className="tabular-nums">{formatarReais(dados.total_empenhado, true)}</span>. Previsto,
+                empenhado e pago são etapas diferentes e não se somam.
+              </>
+            ) : (
+              " Previsto e pago são etapas diferentes e não se somam."
+            )}
           </p>
+          {!empenhadoInformado && <p className="text-sm text-muted-foreground">{AVISO_SEM_EMPENHADO}</p>}
           {autores.length > 0 && (
             <div className="flex flex-col gap-2">
               <h4 className="font-medium">Quem indicou</h4>
@@ -110,8 +119,8 @@ export function EmendasEstaduaisCidade({ dados, cidade }: { dados: EmendasEstadu
           )}
         </>
       )}
-      <p className="text-sm text-muted-foreground">{RECORTE_SIMPLES}</p>
-      <p className="text-sm text-muted-foreground">{dados.recorte}</p>
+      {dados.recorte && <p className="text-sm text-muted-foreground">{dados.recorte}</p>}
+      {dados.termos && <p className="text-sm text-muted-foreground">{dados.termos}</p>}
       <FonteRodape fonte={dados.fonte_nome} url={dados.fonte_url} atualizadoEm={dados.atualizado_em} />
     </section>
   );
@@ -125,6 +134,8 @@ export function EmendasDoDeputadoEstadual({ dados }: { dados: EmendasDeputadoEst
         ? `em ${dados.periodo.inicio}`
         : `de ${dados.periodo.inicio} a ${dados.periodo.fim}`
       : "no período coberto";
+  const empenhadoInformado = dados.empenhado_informado !== false;
+  const municipios = dados.por_municipio.filter((m) => m.nome.trim() !== "");
   return (
     <section aria-labelledby="emendas-estaduais-titulo" className="revelar flex flex-col gap-3">
       <div>
@@ -146,24 +157,28 @@ export function EmendasDoDeputadoEstadual({ dados }: { dados: EmendasDeputadoEst
         <div className="figura min-w-0">
           <dt className="text-sm text-muted-foreground">Previsto no orçamento</dt>
           <dd className="numero text-2xl break-words sm:text-3xl">{formatarReais(dados.total_previsto, true)}</dd>
-          <dd className="text-sm text-muted-foreground">Empenhado: {formatarReais(dados.total_empenhado, true)}</dd>
+          {empenhadoInformado ? (
+            <dd className="text-sm text-muted-foreground">Empenhado: {formatarReais(dados.total_empenhado, true)}</dd>
+          ) : (
+            <dd className="text-sm text-muted-foreground">{AVISO_SEM_EMPENHADO}</dd>
+          )}
         </div>
       </dl>
       {dados.media_casa_pago != null && (
         <div className="flex flex-col gap-1">
           <BarraComparacao
             pessoa={{ rotulo: dados.nome, valor: dados.total_pago }}
-            media={{ rotulo: "Média da Assembleia", valor: dados.media_casa_pago }}
+            media={{ rotulo: `Média ${dados.casa ? "da " + dados.casa : "da Assembleia"}`, valor: dados.media_casa_pago }}
             formato="reais"
           />
           <p className="text-sm text-muted-foreground">{dados.media_descricao}</p>
         </div>
       )}
-      {dados.por_municipio.length > 0 && (
+      {municipios.length > 0 && (
         <div className="flex flex-col gap-2">
           <h3 className="font-medium">Para onde foi</h3>
           <ul className="lista-fios flex flex-col">
-            {dados.por_municipio.map((m) => (
+            {municipios.map((m) => (
               <li key={`${m.ibge}-${m.nome}`} className="flex items-baseline justify-between gap-3 py-2 text-sm">
                 <span className="min-w-0">
                   {m.ibge ? (
@@ -181,9 +196,9 @@ export function EmendasDoDeputadoEstadual({ dados }: { dados: EmendasDeputadoEst
               </li>
             ))}
           </ul>
-          {dados.numero_municipios > dados.por_municipio.length && (
+          {dados.numero_municipios > municipios.length && (
             <p className="text-sm text-muted-foreground">
-              E mais {dados.numero_municipios - dados.por_municipio.length} municípios com valores menores.
+              E mais {dados.numero_municipios - municipios.length} municípios com valores menores.
             </p>
           )}
         </div>
@@ -212,9 +227,11 @@ export function EmendasDoDeputadoEstadual({ dados }: { dados: EmendasDeputadoEst
           )}
         </details>
       )}
+      {dados.recorte && <p className="text-sm text-muted-foreground">{dados.recorte}</p>}
+      {dados.termos && <p className="text-sm text-muted-foreground">{dados.termos}</p>}
       <p className="text-sm text-muted-foreground">
-        {RECORTE_SIMPLES} Previsto, empenhado e pago são etapas diferentes e não se somam. Não está somado às emendas
-        federais.
+        {empenhadoInformado ? "Previsto, empenhado e pago" : "Previsto e pago"} são etapas diferentes e não se somam.
+        Não está somado às emendas federais.
       </p>
       <FonteRodape fonte={dados.fonte_nome} url={dados.fonte_url} atualizadoEm={dados.atualizado_em} />
     </section>
