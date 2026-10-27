@@ -7,7 +7,7 @@ import argparse
 import sys
 from types import ModuleType
 
-from ingestion.emendas_estaduais import ac, al, ba, es, ma, mg, pe, sc, se
+from ingestion.emendas_estaduais import ac, al, ba, df, es, go, ma, mg, pb, pe, sc, se
 
 # Ordem: as que cobrem mais gente primeiro.
 ADAPTADORES: dict[str, ModuleType] = {
@@ -20,6 +20,9 @@ ADAPTADORES: dict[str, ModuleType] = {
     "AL": al,
     "SE": se,
     "AC": ac,
+    "GO": go,
+    "PB": pb,
+    "DF": df,
 }
 
 

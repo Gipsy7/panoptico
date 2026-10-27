@@ -11,8 +11,19 @@ Fixtures em tests/fixtures/emendas_estaduais_ufs/, recortes reais de 21/10/2026:
 - ba_emendasparlamentares.zip: 5 linhas da visão de despesas da SEFAZ/BA;
 - ac_emendas.csv (planilha da SEPLAN/AC, contas bancárias apagadas no recorte), al_emendas.json,
   se_emendas.json e ma_emendas.csv.
+
+Recortes reais de 27/10/2026:
+- df_emendas.json: 3 linhas de 2025 da API do Portal da Transparência do DF (uma de sete
+  autores juntos, com pago acima do empenhado);
+- pb_execucao.json: 3 linhas de 2025 da API de dados abertos da PB (duas da mesma emenda);
+- go_emendas_2023.csv: 5 linhas do arquivo de 2023 de GO (latin-1; duas da mesma emenda, CNPJ
+  com 10 e 13 dígitos, valor com vírgula) e o rodapé; a linha "Total" foi refeita com a soma
+  dessas 5 linhas, como a planilha faz.
 """
 
+import io
+import json
+import zipfile
 from datetime import UTC, datetime
 from decimal import Decimal
 from pathlib import Path
@@ -30,7 +41,7 @@ from app.models import (
     PessoaVinculo,
 )
 from ingestion import comum
-from ingestion.emendas_estaduais import ac, al, ba, base, es, ma, mg, pe, se
+from ingestion.emendas_estaduais import ac, al, ba, base, df, es, go, ma, mg, pb, pe, se
 
 F = Path(__file__).parent / "fixtures" / "emendas_estaduais_ufs"
 BH = "3106200"
@@ -285,4 +296,94 @@ def test_registro_tem_todas_as_ufs_com_atributos():
         for nome in ("FONTE", "URL", "PAGINA", "FONTE_NOME", "CASA", "RECORTE", "TERMOS"):
             assert getattr(a, nome), (uf, nome)
         assert isinstance(a.MINIMO, int) and isinstance(a.SITUACOES_FORA, tuple)
-    assert len(ADAPTADORES) == 9
+    assert len(ADAPTADORES) == 12
+
+
+# --------------------------------------------------------------------------- DF, GO e PB
+
+
+def _zip_go(conteudo: bytes) -> bytes:
+    saida = io.BytesIO()
+    with zipfile.ZipFile(saida, "w") as z:
+        z.writestr("Emendas Parlamentares 2023.csv", conteudo)
+    return saida.getvalue()
+
+
+def test_normalizar_df():
+    linhas = df.normalizar(base.empacotar({df.ARQUIVO: _ler("df_emendas.json")}))
+    assert len(linhas) == 3 and len({x["proposta"] for x in linhas}) == 3
+    dayse = linhas[0]
+    assert dayse["autor_nome"] == "DAYSE AMARILIO" and dayse["tipo"] is None
+    assert dayse["valor_previsto"] == Decimal("11700000.00")  # autorizado, não o aprovado
+    assert dayse["valor_pago"] == Decimal("11254378.44")  # sem passar por float
+    assert dayse["municipio_ibge"] == df.BRASILIA and dayse["favorecido_nome"] is None
+    assert dayse["orgao"] == "SECRETARIA DE EST. DE JUSTIÇA E CIDADANIA DO DF"
+    coletiva = linhas[2]
+    assert coletiva["tipo"] == "bancada" and coletiva["autor_nome"].startswith("CHICO VIGILANTE -")
+    # A chave não depende da ordem nem de campos de valor.
+    assert df.chave(json.loads(_ler("df_emendas.json"))[0]) == dayse["proposta"]
+
+
+def test_normalizar_go_confere_total_e_cnpj():
+    linhas = go.normalizar(_zip_go(_ler("go_emendas_2023.csv")))
+    assert len(linhas) == 5  # sem "Total", linha em branco e "Filtros aplicados"
+    assert {x["ano"] for x in linhas} == {2023}
+    assert len({x["codigo"] for x in linhas}) == 5  # a emenda 10 tem duas linhas
+    assert sum(x["valor_pago"] for x in linhas) == Decimal("2191097.56")
+    cnpjs = [x["favorecido_cnpj"] for x in linhas]
+    assert "00001883000154" in cnpjs and "01112580000171" in cnpjs  # zeros devolvidos
+    assert linhas[0]["municipio_nome"] == "BURITI ALEGRE"
+    assert linhas[0]["autor_nome"] == "Helio De Sousa"
+    # Soma que não bate com o "Total" do arquivo: aborta.
+    adulterado = _ler("go_emendas_2023.csv").replace(b"2191097,56", b"2191097,00", 1)
+    with pytest.raises(ValueError, match="soma"):
+        go.normalizar(_zip_go(adulterado))
+
+
+def test_documento_go_nao_guarda_cpf():
+    assert go.documento("1112580000171") == ("01112580000171", False)
+    assert go.documento("52998224725") == (None, True)  # CPF válido (exemplo público)
+    assert go.documento("12345") == (None, False)  # verificador não confere
+
+
+def test_normalizar_pb():
+    linhas = pb.normalizar(base.empacotar({pb.ARQUIVO: _ler("pb_execucao.json")}))
+    assert len(linhas) == 3 and len({x["proposta"] for x in linhas}) == 3
+    codigos = sorted(x["codigo"] for x in linhas)
+    assert codigos == ["0005/2025", "0019/2025", "0019/2025 (2)"]
+    galego = [x for x in linhas if x["codigo"].startswith("0019")]
+    assert sum(x["valor_previsto"] for x in galego) == Decimal("604500.0")
+    assert base.nomes_do_autor(galego[0]["autor_nome"])[-1] == "GALEGO SOUZA"
+    assert all(x["municipio_ibge"] is None and x["favorecido_nome"] is None for x in linhas)
+
+
+def test_carga_df_pb_go(session, client, monkeypatch):
+    if session.get(Municipio, df.BRASILIA) is None:
+        session.add(Municipio(ibge=df.BRASILIA, nome="Brasília", uf="DF", nome_chave="BRASILIA"))
+    buriti = "5204102"
+    if session.get(Municipio, buriti) is None:
+        session.add(Municipio(ibge=buriti, nome="Buriti Alegre", uf="GO",
+                              nome_chave="BURITI ALEGRE"))  # fmt: skip
+    for adaptador in (df, go, pb):
+        monkeypatch.setattr(adaptador, "MINIMO", 1)
+    pacote_df = base.empacotar({df.ARQUIVO: _ler("df_emendas.json")})
+    for _ in range(2):  # idempotente
+        assert base.gravar(session, df, df.normalizar(pacote_df),
+                           _ingestao(session, df.FONTE, "ok")) == 3  # fmt: skip
+    base.gravar(session, go, go.normalizar(_zip_go(_ler("go_emendas_2023.csv"))),
+                _ingestao(session, go.FONTE, "ok"))  # fmt: skip
+    base.gravar(session, pb, pb.normalizar(base.empacotar({pb.ARQUIVO: _ler("pb_execucao.json")})),
+                _ingestao(session, pb.FONTE, "ok"))  # fmt: skip
+    contagem = dict(
+        session.execute(
+            select(EmendaEstadual.uf, func.count())
+            .where(EmendaEstadual.uf.in_(("DF", "GO", "PB")))
+            .group_by(EmendaEstadual.uf)
+        ).all()
+    )
+    assert contagem == {"DF": 3, "GO": 5, "PB": 3}
+    est = client.get(f"/municipios/{df.BRASILIA}/emendas").json()["estaduais"]
+    assert est["uf"] == "DF" and est["recorte"] == df.RECORTE
+    assert est["total_pago"] == pytest.approx(11254378.44 + 10879000 + 5750571.32)
+    est = client.get(f"/municipios/{buriti}/emendas").json()["estaduais"]
+    assert est["total_previsto"] == pytest.approx(1_380_000)  # as duas linhas da emenda 10
