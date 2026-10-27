@@ -34,17 +34,20 @@ import json
 import re
 import time
 import unicodedata
-from datetime import UTC, datetime
+from datetime import UTC, date, datetime
 from urllib.parse import urljoin, urlparse
 from urllib.robotparser import RobotFileParser
 
 import httpx
+from sqlalchemy import func, select
+from sqlalchemy.orm import Session
 
 from app.db import SessionLocal
-from app.models import FonteIngestao
+from app.models import Candidatura, FonteIngestao
 from ingestion import comum
 from ingestion.camaras import sapl
 from ingestion.canais import catalogo
+from ingestion.identidade import casar_nome
 
 FONTE = "fornecedores_cobertura_camaras"
 SISTEMAS = ("webservicesistemas", "sts", "cespro", "icamaras", "portalfacil", "ingadigital")
@@ -273,9 +276,9 @@ PARTIDO_ICAMARAS = re.compile(r'<div class="partido[^>]*>.*?<img [^>]*title="([^
 
 def vereadores_icamaras(pagina: str, base: str) -> list[dict]:
     """Um cartão por vereador (nome, foto, partido no título da imagem). A página mistura
-    titulares e suplentes sem rótulo, cada grupo em ordem alfabética: o primeiro grupo é o
-    dos titulares; quem vem depois (a ordem alfabética recomeça) fica como suplente."""
-    achados, anterior, suplente = [], "", False
+    titulares e suplentes sem nenhum rótulo, então nenhum é marcado em exercício aqui:
+    `confirmar_pelo_tse` marca só quem foi eleito vereador na própria cidade (TSE 2024)."""
+    achados = []
     for bloco in BLOCO_ICAMARAS.findall(pagina):
         titulo, foto, sigla = (
             TITULO_ICAMARAS.search(bloco),
@@ -284,16 +287,44 @@ def vereadores_icamaras(pagina: str, base: str) -> list[dict]:
         )
         if not titulo:
             continue
-        nome = comum.nome_proprio(_texto(titulo[1]))
-        chave = _sem_acento(nome)
-        suplente = suplente or chave < anterior
-        anterior = chave
-        v = _vereador(titulo[2], nome, None, partido(sigla[1]) if sigla else None)
+        v = _vereador(
+            titulo[2],
+            comum.nome_proprio(_texto(titulo[1])),
+            None,
+            partido(sigla[1]) if sigla else None,
+        )
         v["foto_url"] = foto[1] if foto else None
-        if suplente:
-            v["titular"] = v["em_exercicio"] = False
+        v["titular"] = v["em_exercicio"] = False
         achados.append(v)
     return achados
+
+
+def confirmar_pelo_tse(session: Session, ibge: str, vereadores: list[dict]) -> int:
+    """Marca titular e em exercício só quem tem vínculo forte (nome único) com um eleito
+    (ELEITO, ELEITO POR QP ou POR MÉDIA) para vereador da cidade na última eleição municipal
+    já encerrada: a mesma regra de ligação da gravação do SAPL. Devolve quantos confirmou."""
+    ultima = session.scalar(
+        select(func.max(Candidatura.ano_eleicao)).where(
+            Candidatura.municipio_ibge == ibge,
+            Candidatura.cargo == "VEREADOR",
+            Candidatura.ano_eleicao < date.today().year,
+        )
+    )
+    eleitos = session.execute(
+        select(Candidatura.id, Candidatura.nome_urna, Candidatura.nome).where(
+            Candidatura.municipio_ibge == ibge,
+            Candidatura.cargo == "VEREADOR",
+            Candidatura.ano_eleicao == ultima,
+            Candidatura.situacao_turno.like("ELEITO%"),
+        )
+    ).all()
+    nomes = [(id_, nome) for id_, urna, civil in eleitos for nome in (urna, civil)]
+    confirmados = 0
+    for v in vereadores:
+        if casar_nome([v["nome"], v["nome_completo"]], nomes) is not None:
+            v["titular"] = v["em_exercicio"] = True
+            confirmados += 1
+    return confirmados
 
 
 # --- portalfacil (MG) -----------------------------------------------------------------------
@@ -442,6 +473,8 @@ def coletar(url: str, sistema: str) -> dict:
             achados = vereadores_inga(pagina(base), base) if base else []
         else:
             raise ValueError(f"sistema desconhecido: {sistema}")
+    if sistema == "icamaras":
+        return {"base": base, "legislatura": None, "vereadores": achados}  # ver executar()
     exercicio = sum(1 for v in achados if v["em_exercicio"])
     if not TOLERADO[0] <= exercicio <= TOLERADO[1]:
         raise ValueError(f"{exercicio} vereadores: página inesperada")
@@ -464,6 +497,10 @@ def executar(limite: int | None = None) -> int:
         try:
             camara = coletar(url, sistema)
             with SessionLocal() as session:
+                if sistema == "icamaras":
+                    confirmados = confirmar_pelo_tse(session, ibge, camara["vereadores"])
+                    if not TOLERADO[0] <= confirmados <= TOLERADO[1]:
+                        raise ValueError(f"{confirmados} vereadores confirmados pelo TSE")
                 total += sapl.gravar(session, ibge, camara)
                 session.commit()
         except Exception as erro:  # uma câmara fora do ar não derruba as outras

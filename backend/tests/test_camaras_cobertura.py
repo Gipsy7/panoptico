@@ -64,15 +64,40 @@ def test_sts_le_a_tabela_com_nome_civil_nome_parlamentar_e_partido():
     assert achados[0]["nome_completo"] == "Caitana Inácia de Oliveira"
 
 
-def test_icamaras_primeiro_grupo_e_titular_e_o_resto_suplente():
+def test_icamaras_nao_marca_ninguem_em_exercicio_antes_da_confirmacao_do_tse():
     achados = fc.vereadores_icamaras(_ler("icamaras_vereadores.html"), "")
     por_nome = {v["nome"]: v for v in achados}
     assert por_nome["Alberto de Mozzi"]["partido"] == "MDB"
     assert por_nome["Volmir Luis Gomes"]["partido"] == "PSDB"
-    assert por_nome["Volmir Luis Gomes"]["em_exercicio"] is True
-    # a ordem alfabética recomeça em "Edecasio": quem vem depois é suplente
-    assert por_nome["Edecasio Boiani"]["em_exercicio"] is False
-    assert por_nome["Henrique Echer"]["titular"] is False  # caixa alta no site virou nome próprio
+    assert not any(v["em_exercicio"] or v["titular"] for v in achados)
+    assert "Henrique Echer" in por_nome  # caixa alta no site virou nome próprio
+
+
+def test_icamaras_confirma_so_quem_foi_eleito_vereador_na_cidade(session):
+    from app.models import Candidatura, Municipio
+
+    session.add(
+        Municipio(ibge="4306304", nome="Doutor Ricardo", uf="RS", nome_chave="DOUTOR RICARDO")
+    )
+    session.flush()
+    for i, (nome, situacao) in enumerate(
+        [
+            ("Alberto de Mozzi", "ELEITO POR QP"),
+            ("Volmir Luis Gomes", "ELEITO POR MEDIA"),
+            ("Edecasio Boiani", "SUPLENTE"),
+        ]
+    ):
+        session.add(
+            Candidatura(
+                sq_candidato=f"sq{i}", ano_eleicao=2024, uf="RS", unidade="Doutor Ricardo", municipio_ibge="4306304",
+                cargo="VEREADOR", nome=nome, nome_urna=nome, situacao_turno=situacao,
+            )
+        )  # fmt: skip
+    session.flush()
+    achados = fc.vereadores_icamaras(_ler("icamaras_vereadores.html"), "")
+    assert fc.confirmar_pelo_tse(session, "4306304", achados) == 2
+    exercicio = {v["nome"] for v in achados if v["em_exercicio"]}
+    assert exercicio == {"Alberto de Mozzi", "Volmir Luis Gomes"}  # o suplente do TSE não entra
 
 
 def test_portalfacil_junta_o_partido_da_aba_de_partidos():
