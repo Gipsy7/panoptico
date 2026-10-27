@@ -149,3 +149,35 @@ def test_fonte_de_verbas_fora_do_ar_mantem_os_gastos_anteriores(session, monkeyp
         {"ano": 2026, "mes": 3, "categoria": "Verba", "valor": Decimal("100.50")}
     ]
     assert len(avisos) == 1 and "mantidos os gastos da carga anterior" in avisos[0]
+
+
+def test_data_dos_gastos_ignora_carga_que_so_manteve_os_gastos(session):
+    from datetime import UTC, datetime
+    from decimal import Decimal
+
+    from app.models import FonteIngestao, GastoLocal, MandatoLocal
+    from app.services import camaras
+
+    mandato = MandatoLocal(
+        casa="assembleia", uf="RN", id_externo="7", nome="Fulano", sapl_url="https://x"
+    )
+    session.add(mandato)
+    session.flush()
+    session.add(
+        GastoLocal(mandato_id=mandato.id, ano=2026, mes=3, categoria="Verba", valor=Decimal("10"))
+    )
+    antiga = datetime(2026, 10, 20, tzinfo=UTC)
+    nova = datetime(2026, 10, 27, tzinfo=UTC)
+    for quando, alertas in (
+        (antiga, None),
+        (nova, [f"{alrn.MARCA_GASTOS_MANTIDOS} Gastos ALRN: a fonte das verbas não respondeu"]),
+    ):
+        session.add(
+            FonteIngestao(
+                fonte="alrn", url="https://x", arquivo_raw="(não guardado)", registros=1,
+                status="ok", concluido_em=quando, alertas=alertas,
+            )
+        )  # fmt: skip
+    session.flush()
+    assert camaras._atualizado_em(session, "assembleia", "RN") == nova  # o resto do perfil
+    assert camaras.gastos(session, mandato)["atualizado_em"] == antiga  # os gastos

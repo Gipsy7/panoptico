@@ -354,6 +354,8 @@ export type VereadorDetalhe = VereadorItem & {
     total: number;
     media_casa: number | null;
     por_categoria: { categoria: string; valor: number }[];
+    /** Data da última carga que atualizou os gastos (pode ser anterior à do resto do perfil). */
+    atualizado_em?: string | null;
     /** O que a planilha traz mas não entra na soma por mês (ex.: comprovantes sem data). */
     fora_da_soma?: { linhas: number; valor: number; linhas_valor_ilegivel: number; motivo: string } | null;
   } | null;

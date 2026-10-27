@@ -40,6 +40,7 @@ from ingestion import comum
 from ingestion.assembleias import base
 
 FONTE = "alrn"
+MARCA_GASTOS_MANTIDOS = "[gastos_mantidos]"  # lido por app.services.camaras
 SITE = "https://al.rn.leg.br/"
 LISTA = SITE + "deputados"
 VERBAS = "https://www.al.rn.leg.br/portal/verbas"
@@ -303,7 +304,8 @@ def gastos_ou_anteriores(client, lista, tse, hoje: date, de_raw: Path | None):
         with SessionLocal() as session:
             gastos = gastos_anteriores(session)
         aviso = (
-            f"Gastos ALRN: a fonte das verbas não respondeu ({erro.__class__.__name__}: "
+            f"{MARCA_GASTOS_MANTIDOS} Gastos ALRN: a fonte das verbas não respondeu "
+            f"({erro.__class__.__name__}: "
             f"{str(erro)[:120]}); mantidos os gastos da carga anterior, sem atualização"
         )
         return gastos, [aviso]
