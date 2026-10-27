@@ -203,3 +203,12 @@ def test_sigpub_varredura_incremental_pela_marca(tmp_path, monkeypatch):
     assert sigpub._inicio("aam", hoje, 90) == date(2026, 10, 11)  # marca - 3 dias de folga
     sigpub._marcar_varredura("aam", date(2026, 1, 1))
     assert sigpub._inicio("aam", hoje, 90) == date(2026, 7, 23)  # nunca antes da janela
+
+
+def test_trecho_nunca_leva_cpf():
+    texto = (
+        "Art. 1o Nomear VERA RODRIGUES DOS SANTOS, CPF 027.059.629-13 e 57308568913, para o cargo."
+    )
+    achados = pl.achados_na_materia(texto, [(1, "Vera Rodrigues dos Santos")])
+    assert achados and "027.059" not in achados[0][2] and "57308568913" not in achados[0][2]
+    assert "[CPF omitido]" in achados[0][2]

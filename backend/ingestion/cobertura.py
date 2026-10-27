@@ -294,25 +294,15 @@ def _diarios_por_uf() -> dict[str, dict[str, set[str]]]:
 
 
 def _atos_prefeitos(uf: str, total: int, origens: dict[str, set[str]]) -> tuple:
-    """Linha da seção "atos" das prefeituras: quantos municípios têm diário oficial lido."""
-    nomes = {
-        "querido_diario_atos": "Querido Diário",
-        "sigpub_atos": "SIGPub (associações de municípios)",
-        "domsc_ciga_atos": "DOM/SC",
-    }
+    """Linha da seção "atos" das prefeituras: em quantas cidades o diário oficial é lido
+    (Querido Diário, SIGPub das associações de municípios, DOM/SC)."""
     lidos = set().union(*origens.values()) if origens else set()
     if not lidos:
-        return (
-            "sem_fonte",
-            "Nenhum diário oficial municipal lido neste estado ainda.",
-            "",
-            "",
-        )
-    partes = "; ".join(f"{len(m)} por {nomes.get(f, f)}" for f, m in sorted(origens.items()) if m)
+        return ("sem_fonte", "Nenhum diário oficial de cidades deste estado é lido ainda.", "", "")
     return (
         "parcial",
-        f"Nomeações em diários oficiais de {len(lidos)} de {total} municípios ({partes}), "
-        "só depois de revisão humana.",
+        f"Lemos o diário oficial de {len(lidos)} de {total} cidades; nomeações e exonerações "
+        "só aparecem depois de conferidas por uma pessoa.",
         "; ".join(sorted(f for f, m in origens.items() if m)),
         "",
     )

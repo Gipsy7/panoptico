@@ -902,8 +902,8 @@ depende = ["pessoas"]
 # calendário público (POST com token CSRF da página) e PDF; a busca avançada tem reCAPTCHA e
 # não é usada. Lógica do calendário do raspador do Querido Diário (MIT). Bruto: texto de cada
 # edição em data/raw/sigpub_atos/<instância>/ (--de-raw reprocessa sem rede). Roda só no acervo
-# (volume); não tem workflow no GitHub Actions. Acesso a partir do runner dos EUA não foi
-# testado; se bloquear, só no runner brasil.
+# (PyMuPDF, do grupo acervo, e volume); sem agenda na VPS (deploy/vps/agenda/). Para agendar:
+# pymupdf na imagem e um passo em camaras.sh.
 
 [[fonte]]
 nome = "domsc_ciga_atos"
@@ -920,7 +920,7 @@ depende = ["pessoas"]
 # conjuntos mensais domsc-publicacoes-de-MM-AAAA com ZIPs de JSON por dia e faixa de horário)
 # são o canal de reúso: só as páginas de conjunto e de download (/api/ é vedado e não é usado),
 # 1 requisição a cada 10 s (Crawl-Delay). Bruto: o recorte por lote em data/raw/domsc_ciga_atos/.
-# Roda só no acervo; sem workflow no GitHub Actions (acesso do runner dos EUA não testado).
+# Roda só no acervo; sem agenda na VPS (deploy/vps/agenda/).
 
 [[fonte]]
 nome = "dou_atos"

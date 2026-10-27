@@ -343,6 +343,7 @@ Atualização diária no Windows: [scripts/acervo_diario.ps1](scripts/acervo_dia
 | `uv run python -m ingestion.revisar` | Vínculos por nome aproximado |
 | `uv run python -m ingestion.revisar_web` | O mesmo, numa página local com botões (http://127.0.0.1:8765) |
 | `uv run python -m ingestion.revisar --tipo diario` | Nomeações e exonerações dos diários municipais |
+| `uv run python -m ingestion.diarios.sigpub` e `uv run python -m ingestion.diarios.domsc` | Diários municipais por plataforma (SIGPub das associações de municípios e DOM/SC pelos dados abertos do CIGA): 2.752 municípios lidos, contra 441 do Querido Diário; só no acervo, geram a fila acima. Levantamento: [docs/diarios_plataformas_levantamento.md](docs/diarios_plataformas_levantamento.md) |
 | `uv run python -m ingestion.revisar --tipo dou` | Atos de pessoal do Diário Oficial da União |
 | `uv run python -m ingestion.revisar --tipo cpi` | Pedidos de indiciamento das CPIs |
 

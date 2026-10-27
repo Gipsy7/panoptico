@@ -64,6 +64,15 @@ ATO = re.compile(rf"(?<![A-Z])({_VERBOS})(?![A-Za-z])|\b((?i:{_VERBOS}))(?![A-Za
 TIPOS = {"NOME": "nomeacao", "EXON": "exoneracao", "DESI": "designacao"}
 
 
+# Coleta mínima (LGPD): atos de pessoal trazem o CPF de servidores e de terceiros ("CPF
+# 027.059.629-13"); o trecho guardado nunca leva o número (nem um pedaço cortado no limite).
+_CPF = re.compile(r"(?<!\d)(?:\d{3}\.?\d{3}\.?\d{3}-?\d{2}(?!\d)|\d{3}\.\d{1,3}(?:\.\d{0,3})?$)")
+
+
+def sem_cpf(trecho: str) -> str:
+    return _CPF.sub("[CPF omitido]", trecho)
+
+
 def _sem_acento(texto: str) -> str:
     """Sem acento, caractere a caractere (mantém os índices e a caixa do original)."""
     return "".join(
@@ -115,7 +124,7 @@ def achar_ato(nome: str, trecho: str) -> tuple[str, str] | None:
         ini, fim = max(0, m.start() - JANELA), min(len(trecho), m.end() + JANELA)
         ato = ATO.search(dobrado[ini:fim])
         if ato:
-            curto = " ".join(trecho[ini:fim].split())[:TAMANHO_TRECHO]
+            curto = sem_cpf(" ".join(trecho[ini:fim].split()))[:TAMANHO_TRECHO]
             palavra = (ato.group(1) or ato.group(2)).upper()
             return TIPOS[palavra[:4]], curto
     return None
