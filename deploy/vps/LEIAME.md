@@ -56,6 +56,11 @@ Os horários são os mesmos dos workflows do Actions, escritos em UTC no `OnCale
 
 `atualizar.sh` (timer de 10 em 10 min): `git fetch`; se `origin/main` mudou, `git reset --hard origin/main` e `docker compose up -d --build api web` (a API roda `alembic upgrade head` ao subir). Se algo em `agenda/` mudou, reinstala os timers. Só o `main` publica, como antes (`git push origin dev` roda o Publicar, que avança o `main`). Logs: `journalctl -u panoptico-atualizar`.
 
+Na troca do site, duas proteções contra página velha (27/10/2026: a home guardada no Cloudflare apontava para um CSS que o build novo tinha apagado, e o site abriu sem estilo):
+
+- **Estáticos antigos:** antes de trocar, o script guarda o CSS e o JS do contêiner atual em `/opt/panoptico-estaticos` e devolve ao contêiner novo os dos últimos 2 dias. Uma página velha (cache ou aba aberta) continua achando os arquivos dela.
+- **Limpeza do cache:** com o site novo respondendo, o script limpa o cache do Cloudflare (`purge_everything`), se `CF_PURGE_TOKEN` e `CF_ZONE_ID` estiverem no `.env`. O token deve ter só a permissão "Zone > Cache Purge > Purge" na zona. Sem eles, o cache expira sozinho em até 30 min.
+
 ## 4. Backup e restauração
 
 `backup.sh` (diário, 12:00 UTC): `pg_dump --format=custom` do serviço `db` para `/opt/backups/panoptico_AAAA-MM-DD_HHMM.dump`, guarda 7 dias no disco e, se `BACKUP_PAR_URL` estiver no `.env`, envia o arquivo com `curl -T arquivo "$BACKUP_PAR_URL$nome"` (URL pré-autenticada do armazenamento externo; vazia = só local). A URL nunca é impressa. Falha no envio faz o serviço terminar com erro; o arquivo local fica.
