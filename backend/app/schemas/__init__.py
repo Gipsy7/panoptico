@@ -544,6 +544,9 @@ class GastosLocais(BaseModel):
     ate_mes: int | None
     total: float
     media_casa: float | None
+    # Fonte parcial: a média sai só de quem consta nela, e o texto diz quantos (X dos Y).
+    media_parcial: bool = False
+    media_descricao: str | None = None
     por_categoria: list[CategoriaGasto]
     fora_da_soma: GastoForaDaSoma | None = None
 

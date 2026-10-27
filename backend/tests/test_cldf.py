@@ -158,3 +158,53 @@ def test_baixar_verbas_ano_ruim_vira_aviso_e_nenhum_ano_falha(monkeypatch, tmp_p
     corpos["u26"] = b"<html></html>"
     with pytest.raises(ValueError, match="nenhum ano"):
         cldf.baixar_verbas(None, {2025, 2026})
+
+
+def _deputados_df(session, n):
+    from app.models import MandatoLocal
+
+    ms = [
+        MandatoLocal(casa="assembleia", uf="DF", id_externo=str(i), nome=f"Dep {i}",
+                     titular=True, em_exercicio=True, sapl_url="https://ple.cl.df.gov.br",
+                     proposicoes_por_tipo={})
+        for i in range(n)
+    ]  # fmt: skip
+    session.add_all(ms)
+    session.flush()
+    return ms
+
+
+def test_media_da_cldf_so_entre_quem_consta_na_planilha(session):
+    from app.models import GastoLocal, GastoLocalFora
+    from app.services import camaras
+
+    ms = _deputados_df(session, 4)
+    D = cldf.Decimal
+    for m, valor in zip(ms[:2], (D("100"), D("300")), strict=True):
+        session.add(GastoLocal(mandato_id=m.id, ano=2026, mes=1, categoria="X", valor=valor))
+    session.add(GastoLocalFora(mandato_id=ms[2].id, ano=2026, linhas=1, valor=D("5"),
+                               linhas_valor_ilegivel=0, motivo="sem data"))  # fmt: skip
+    session.flush()  # ms[3] não consta: fica fora da média, não entra com zero
+    g = camaras.gastos(session, ms[0])
+    assert g["media_parcial"] is True
+    assert g["media_casa"] == D("133.3333333333333333333333333")  # 400 / 3 que constam
+    assert "3 dos 4 deputados distritais" in g["media_descricao"]
+    assert "o outro não consta" in g["media_descricao"]
+
+
+def test_media_de_fonte_completa_mantem_zeros():
+    from app.services import media_casa
+
+    D = cldf.Decimal
+    m = media_casa.calcular([D("100"), D("0"), D("0"), D("200")], [True, False, False, True], False)
+    assert (m.media, m.na_media, m.em_exercicio, m.parcial) == (D("75"), 4, 4, False)
+    assert media_casa.descricao_parcial(m, quem="x", fonte="y") is None
+    # Fonte parcial em que todos constam: nada muda, inclusive quem gastou zero.
+    m = media_casa.calcular([D("100"), D("0")], [True, True], True)
+    assert (m.media, m.parcial) == (D("50"), False)
+    # Fonte parcial: só entra quem consta.
+    m = media_casa.calcular([D("100"), D("0")], [True, False], True)
+    assert (m.media, m.na_media, m.parcial) == (D("100"), 1, True)
+    assert "1 dos 2 x que aparecem y; o outro não consta" in media_casa.descricao_parcial(
+        m, quem="x", fonte="y"
+    )

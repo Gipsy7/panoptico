@@ -18,6 +18,7 @@ from sqlalchemy.orm import Session
 
 from app.models import EmendaEstadual, FonteIngestao, MandatoLocal, Municipio, PessoaVinculo
 from app.models.pessoa import REGRAS_FORTES
+from app.services import media_casa
 from ingestion import comum
 from ingestion.emendas_estaduais import base as emendas_base
 from ingestion.emendas_estaduais.registro import ADAPTADORES
@@ -32,6 +33,9 @@ TERMOS = {uf: a.TERMOS for uf, a in ADAPTADORES.items()}
 SITUACOES_FORA = {uf: tuple(a.SITUACOES_FORA) for uf, a in ADAPTADORES.items()}
 # UFs cuja fonte não informa o município (BA): só aparecem na página do deputado.
 SEM_MUNICIPIO = {uf for uf, a in ADAPTADORES.items() if not getattr(a, "TEM_MUNICIPIO", True)}
+# UFs cuja fonte não traz todos os deputados (adaptador com FONTE_PARCIAL = True): a média da
+# Casa sai só de quem consta nela (ver services/media_casa.py).
+FONTE_PARCIAL = {uf for uf, a in ADAPTADORES.items() if getattr(a, "FONTE_PARCIAL", False)}
 # UFs cuja fonte não publica o valor empenhado (SE).
 SEM_EMPENHADO = {uf for uf, a in ADAPTADORES.items() if not getattr(a, "TEM_EMPENHADO", True)}
 DESCRICAO = (
@@ -157,17 +161,17 @@ def _pago_do_mandato(
     nomes: dict[str, set[str]],
     mandato: MandatoLocal,
     pessoa_id: int | None,
-) -> Decimal:
-    """O mesmo critério de `_do_mandato`, sobre as somas por autor."""
+) -> tuple[Decimal, bool]:
+    """O mesmo critério de `_do_mandato`, sobre as somas por autor: (pago, consta), com
+    `consta` verdadeiro se o deputado tem ao menos uma emenda individual na fonte (pago zero
+    é diferente de não constar)."""
     chaves = _chaves_mandato(mandato)
-    return sum(
-        (
-            v
-            for p, a, v in pagos
-            if (pessoa_id is not None and p == pessoa_id) or (p is None and chaves & nomes[a])
-        ),
-        start=Decimal(0),
-    )
+    casam = [
+        v
+        for p, a, v in pagos
+        if (pessoa_id is not None and p == pessoa_id) or (p is None and chaves & nomes[a])
+    ]
+    return sum(casam, start=Decimal(0)), bool(casam)
 
 
 def bloco_municipio(session: Session, municipio: Municipio) -> dict | None:
@@ -259,8 +263,11 @@ def deputado(session: Session, mandato: MandatoLocal) -> dict | None:
     ).all()
     linhas = _do_mandato(list(candidatas), mandato, pessoa_id)
     em_exercicio = [(m, p) for m, p in mandatos if m.em_exercicio]
-    pagos_casa = [_pago_do_mandato(pagos, nomes_autor, m, p) for m, p in em_exercicio]
-    media = sum(pagos_casa, start=Decimal(0)) / len(pagos_casa) if pagos_casa else None
+    da_casa = [_pago_do_mandato(pagos, nomes_autor, m, p) for m, p in em_exercicio]
+    calculo = media_casa.calcular(
+        [v for v, _ in da_casa], [c for _, c in da_casa], uf in FONTE_PARCIAL
+    )
+    media = calculo.media
     municipios: dict[tuple[str | None, str], list[EmendaEstadual]] = {}
     for x in linhas:
         municipios.setdefault((x.municipio_ibge, x.municipio_nome), []).append(x)
@@ -298,8 +305,12 @@ def deputado(session: Session, mandato: MandatoLocal) -> dict | None:
         "total_pago": somas["pago"],
         "emendas": somas["emendas"],
         "media_casa_pago": round(media, 2) if media is not None else None,
-        "deputados_na_media": len(pagos_casa),
-        "media_descricao": MEDIA_DESCRICAO.format(n=len(pagos_casa), casa=CASA[uf]),
+        "deputados_na_media": calculo.na_media,
+        "media_parcial": calculo.parcial,
+        "media_descricao": media_casa.descricao_parcial(
+            calculo, quem="deputados estaduais", fonte=f"na fonte das emendas da {CASA[uf]}"
+        )
+        or MEDIA_DESCRICAO.format(n=calculo.na_media, casa=CASA[uf]),
         "por_ano": _por_ano(linhas),
         "por_municipio": por_municipio[:LIMITE_MUNICIPIOS],
         "numero_municipios": len(por_municipio),

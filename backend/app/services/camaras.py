@@ -20,7 +20,7 @@ from app.models import (
     VotacaoLocal,
     VotoLocal,
 )
-from app.services import eleitos_futuros, tse
+from app.services import eleitos_futuros, media_casa, tse
 
 FONTES = {
     "camara": ("sapl_camaras", "Sistema legislativo da câmara (SAPL)"),
@@ -216,16 +216,34 @@ def gastos(session: Session, m: MandatoLocal) -> dict | None:
     colegas = session.scalars(
         select(MandatoLocal.id).where(_da_mesma_casa(m), MandatoLocal.em_exercicio)
     ).all()
-    soma_casa = session.scalar(
-        select(func.coalesce(func.sum(GastoLocal.valor), 0)).where(
-            GastoLocal.mandato_id.in_(colegas), GastoLocal.ano == ano
+    somas = dict(
+        session.execute(
+            select(GastoLocal.mandato_id, func.sum(GastoLocal.valor))
+            .where(GastoLocal.mandato_id.in_(colegas), GastoLocal.ano == ano)
+            .group_by(GastoLocal.mandato_id)
+        ).all()
+    )
+    # "Consta" = tem linha na planilha do ano (inclusive só as que ficaram fora da soma).
+    constam_ids = set(somas) | set(
+        session.scalars(
+            select(GastoLocalFora.mandato_id).where(
+                GastoLocalFora.mandato_id.in_(colegas), GastoLocalFora.ano == ano
+            )
         )
     )
+    media = media_casa.calcular(
+        [somas.get(i, Decimal(0)) for i in colegas],
+        [i in constam_ids for i in colegas],
+        (m.casa, m.uf) in media_casa.GASTOS_PARCIAIS,
+    )
+    quem, onde = media_casa.GASTOS_PARCIAIS.get((m.casa, m.uf), ("parlamentares", "na fonte"))
     return {
         "ano": ano,
         "ate_mes": meses,
         "total": sum((v for _, v in categorias), Decimal(0)),
-        "media_casa": soma_casa / len(colegas) if colegas else None,
+        "media_casa": media.media,
+        "media_parcial": media.parcial,
+        "media_descricao": media_casa.descricao_parcial(media, quem=quem, fonte=onde),
         "por_categoria": [{"categoria": c, "valor": v} for c, v in categorias],
         "fora_da_soma": _fora(*do_ano[1:]) if do_ano else None,
     }
