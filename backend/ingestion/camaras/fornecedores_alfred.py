@@ -52,6 +52,12 @@ CAMARAS = (
     ("5106000", "Nortelândia", "nortelandia", "https://nortelandia.mt.leg.br/camara/vereadores"),
     ("2612703", "Santa Maria do Cambucá", "cambuca", "https://transparencia.santamariadocambuca.pe.leg.br/vereadores.php"),
     ("1700707", "Alvorada", "alvorada", "https://alvorada.to.leg.br/transparencia/vereador"),
+    # Câmara Sem Papel: cinco câmaras do ES achadas pela descoberta de sistemas (27/10/2026).
+    ("3200409", "Anchieta", "camarasempapel", "https://anchieta.camarasempapel.com.br/parlamentares.aspx"),
+    ("3201001", "Boa Esperança", "camarasempapel", "https://boaesperanca.camarasempapel.com.br/parlamentares.aspx"),
+    ("3201308", "Cariacica", "camarasempapel", "https://cariacica.camarasempapel.com.br/parlamentares.aspx"),
+    ("3203205", "Linhares", "camarasempapel", "https://linhares.camarasempapel.com.br/parlamentares.aspx"),
+    ("3203320", "Marataízes", "camarasempapel", "https://marataizes.camarasempapel.com.br/parlamentares.aspx"),
 )  # fmt: skip
 
 # Partidos que os sites escrevem por extenso ou com o nome da federação.
@@ -293,7 +299,8 @@ def executar(limite: int | None = None) -> int:
             FonteIngestao(
                 fonte=FONTE,
                 url="sites das câmaras de Aracruz, Cachoeiro de Itapemirim, Varjão de Minas, "
-                "Nortelândia, Santa Maria do Cambucá e Alvorada",
+                "Nortelândia, Santa Maria do Cambucá, Alvorada, Anchieta, Boa Esperança, "
+                "Cariacica, Linhares e Marataízes",
                 arquivo_raw="(não guardado)",
                 registros=total,
                 status="ok",

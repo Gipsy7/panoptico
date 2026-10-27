@@ -59,6 +59,23 @@ FONTES_PROPRIAS = {
 
 # Câmaras que saíram do SAPL e têm conector próprio: o endereço de origem diz qual.
 FONTES_DE_CAMARA = {
+    # Leitores de ingestion.camaras.fornecedores_cobertura (pelo endereço-base de cada sistema).
+    "/api/vereadores": ("fornecedores_cobertura_camaras", "Site da câmara (API pública do portal)"),
+    "acessoinformacao/parlamentares": (
+        "fornecedores_cobertura_camaras",
+        "Portal da câmara (STS Informática)",
+    ),
+    "/site/vereadores": ("fornecedores_cobertura_camaras", "Site da câmara (modelo Cespro)"),
+    "rs.leg.br/vereadores": ("fornecedores_cobertura_camaras", "Site da câmara (iCamaras)"),
+    "mg.leg.br/parlamentares": (
+        "fornecedores_cobertura_camaras",
+        "Portal da câmara (Portal Fácil)",
+    ),
+    "mg.gov.br/parlamentares": (
+        "fornecedores_cobertura_camaras",
+        "Portal da câmara (Portal Fácil)",
+    ),
+    "index.php?sessao=": ("fornecedores_cobertura_camaras", "Site da câmara (Ingá Digital)"),
     # Leitores de ingestion.camaras.fornecedores_alfred (antes dos demais: "leg.br/vereadores"
     # também casaria com o endereço de Santa Maria do Cambucá).
     "camarasempapel.com.br": ("fornecedores_alfred_camaras", "Site da câmara (Câmara Sem Papel)"),

@@ -36,6 +36,12 @@ PAUSA = 5.0
 # Partidos que os sites escrevem por extenso ou cortados (o resto já vem como sigla).
 PARTIDOS = {
     "PARTIDO LIBERAL": "PL",
+    "PARTIDO DEMOCRÁTICO TRABALHISTA": "PDT",
+    "MOVIMENTO DEMOCRÁTICO BRASILEIRO": "MDB",
+    "PARTIDO DA MOBILIZAÇÃO NACIONAL": "MOBILIZA",
+    "PROGRESSISTAS": "PP",
+    "PARTIDO NOVO": "NOVO",
+    "UNIÃO BRASIL": "UNIÃO",
     "PARTIDO DOS TRABALHADORES": "PT",
     "PARTIDO SOCIAL DEMOCRÁTICO": "PSD",
     "PARTIDO SOCIALISTA BRASILEIRO": "PSB",

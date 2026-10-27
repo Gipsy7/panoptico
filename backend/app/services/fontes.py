@@ -194,6 +194,15 @@ CATALOGO = [
         "url": "https://www.pimentabueno.ro.leg.br/",
     },
     {
+        "dado": "Vereadores no cargo hoje (sites de fornecedores com muitas câmaras pequenas)",
+        "orgao": (
+            "Câmaras do Maranhão (webservicesistemas), Piauí (STS), Rio Grande do Sul "
+            "(Cespro e iCamaras), Minas Gerais (Portal Fácil) e Paraná (Ingá Digital)"
+        ),
+        "fontes": ["fornecedores_cobertura_camaras"],
+        "url": "https://cmbernardodomearim.ma.gov.br/vereadores",
+    },
+    {
         "dado": "Vereadores no cargo hoje (câmaras no Portal da Transparência da CR2)",
         "orgao": "Câmaras de Beruri (AM), Itamarandiba (MG), Benevides e São Miguel do Guamá (PA)",
         "fontes": ["cr2_camaras"],
