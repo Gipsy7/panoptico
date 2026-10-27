@@ -50,5 +50,5 @@ Preenchido em 27/10/2026 a partir de `docs/emendas_estaduais_levantamento.md` (n
 | RS | Governo do RS (CAGE/SEFAZ) e ALRS | Arquivo aberto (os "dados abertos" do painel são o próprio Power BI). | | | | |
 | SC | ALESC e TCE/SC | Ver alesc_emendas_impositivas.md e tcesc_painel_emendas.md (repasses fundo a fundo e às prefeituras). | | | | |
 | SE | Governo de SE e ALESE | Número da emenda e valor empenhado na API já publicada. | | | | |
-| SP | Governo de SP (SGRI/Fazenda) e ALESP | Correção do arquivo aberto: uma linha por emenda (ou por evento com chave), com valor previsto; hoje as linhas de execução se repetem e as somas não fecham (conferido de novo em 27/10/2026: o zip foi republicado em 23/10, mas o CSV dentro é o de 29/05/2026, 238.420 linhas, uma emenda com 44.640). | | | | |
+| SP | Governo de SP (SGRI/Fazenda) e ALESP | Correção do arquivo aberto: uma linha por emenda (ou por evento com chave), com valor previsto; hoje as linhas de execução se repetem e as somas não fecham (conferido de novo em 27/10/2026: o zip foi republicado em 23/10, mas o CSV dentro tem data de 29/05/2026: 238.420 linhas, uma emenda com 44.640). | | | | |
 | TO | Governo do TO e ALETO | Indicar onde estão as emendas estaduais e publicar em arquivo aberto. | | | | |

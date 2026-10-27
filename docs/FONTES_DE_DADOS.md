@@ -558,9 +558,9 @@ Reconhecimento de 11/10/2026. As duas fontes são arquivos em lote, sem chave (a
 - **Outras fontes de SC avaliadas:** Painel de Emendas do TCE/SC (Farol, Qlik Sense, 403 ao User-Agent do projeto, sem exportação; pedido em `docs/pedidos/tcesc_painel_emendas.md`); `dados.sc.gov.br` (sem conjunto de emendas); portarias da SEF em PDF com repasses às prefeituras (não lidas). Ver `docs/DECISOES.md`, 19/10/2026.
 
 
-## Emendas estaduais das outras UFs (MG, BA, PE, MA, ES, AL, SE, AC)
+## Emendas estaduais das outras UFs (MG, BA, PE, MA, ES, AL, SE, AC, GO, PB, DF)
 
-Um módulo por fonte em `backend/ingestion/emendas_estaduais/` (a docstring de cada um traz URL, campos e armadilhas medidas na amostra de 21/10/2026); levantamento das 27 UFs em `docs/emendas_estaduais_levantamento.md`. Frequência semanal (`deploy/vps/agenda/camaras.sh`). Resumo:
+Um módulo por fonte em `backend/ingestion/emendas_estaduais/` (a docstring de cada um traz URL, campos e armadilhas medidas na amostra de 21/10/2026; GO, PB e DF, 27/10/2026); levantamento das 27 UFs em `docs/emendas_estaduais_levantamento.md`. Frequência semanal (`deploy/vps/agenda/camaras.sh`). Resumo:
 
 | UF | Fonte (`fontes.toml`) | Endereço | Formato | Armadilhas principais |
 |---|---|---|---|---|
@@ -572,6 +572,15 @@ Um módulo por fonte em `backend/ingestion/emendas_estaduais/` (a docstring de c
 | AL | `transparencia_al_emendas` | transparencia.al.gov.br/despesa/json-emendas-parlamentares/ | JSON paginado | só 2026; CNPJ só no texto do objeto |
 | SE | `transparencia_se_emendas` | api.transparencia.se.gov.br/api/emendas-estaduais?ano=&page=&limit=100 | JSON paginado | sem número da emenda nem empenhado (chave: ano + sha1 da linha); " -   " no pago |
 | AC | `seplan_ac_emendas` | planilha publicada em CSV que a página da SEPLAN/AC usa | CSV `,` | números em dois formatos; linhas em branco no fim; conta bancária na planilha (não lida) |
+| GO | `dadosabertos_go_emendas` | dadosabertos.go.gov.br/dataset/emendas-parlamentares, só `emendas_parlamentares_ano_2023.zip` (lido pelo `package_show`) | zip com CSV latin-1 `;` | rodapé "Total" (a soma é conferida com ele) e "Filtros aplicados"; CNPJ sem zeros à esquerda (volta a 14 dígitos só se o verificador conferir); emenda com várias linhas, cada uma com o seu previsto; 2024 e 2025 com empenho, processo e CNPJ em notação científica (não carregados) |
+| PB | `dadospb_emendas` | api.dados.pb.gov.br/api/v1/orcamento/execucao_emendas?ano=&page=&per_page=1000 (swagger em /swagger/) | JSON paginado | 404 "Nenhum registro" nos anos sem dado (antes de 2021); emenda em mais de uma linha (outro órgão ou natureza), código com número de ordem; sem município nem favorecido; o proxy da página (`transparencia.pb.gov.br/api/execucao-emendas`) responde 403 e não é usado |
+| DF | `transparencia_df_emendas` | www.transparencia.df.gov.br/api/despesa/emendas-parlamentares?anoExercicio=&page=&size=100 (anos em `/anos`) | JSON paginado (Spring) | exige cabeçalho `x-client-id` (UUID que a página sorteia); `Accept: application/json` na página inicial dá 406; sem número da emenda (chave: ano + sha1 dos códigos da linha); emendas de vários autores num texto só (coletivas); sem favorecido nem região administrativa em campo próprio; lento (dezenas de segundos por página) |
+
+Avaliadas em 27/10/2026 e **não carregadas** (levantamento e pedido em `docs/pedidos/emendas_estaduais_27_ufs.md`):
+
+- **RO:** `transparencia.ro.gov.br/emenda` (POST `/Emenda/Filtrar` e `/Emenda/FiltrarEspeciais`, formulário com token antifalsificação lido da própria página, sem captcha; `robots.txt` libera). Uma linha por nota de empenho, com previsto (`maior_empenhar`), empenhado, liquidado, pago, localidade, beneficiário (com CNPJ no texto) e **conta bancária** (não seria lida). Empenhado, liquidado e pago vêm zerados em 2023 (R$ 216,94 empenhados de R$ 224 mi previstos), 2024 e 2025 (R$ 0 de R$ 489 mi), em empenhos com número emitido; só 2026 tem execução (R$ 6,3 mi pagos) e a base diz "última atualização 25/03/2026". Número que não fecha não vai ao site.
+- **PI:** `api.transparencia.pi.gov.br/api/v1/emendas-estaduais/...` (aberta, `robots.txt` libera). 2021-2025 (`/2025-e-anteriores/{ano}/`) vêm por nota de empenho, sem o valor da emenda e com o credor no texto ("CNPJ - nome", pode ser pessoa física); 2026 (`/{ano}/`, 1.370 emendas) traz o valor e o destino, mas a execução só no detalhe de cada emenda (`/{id}/detalhamento/`), lançada à mão no SIGRP, junto com contas bancárias e planos de trabalho. Falta uma série única com previsto e execução contábil.
+- **SP:** o zip (`/Dados Abertos/Emendas/emendas.zip`) foi republicado em 23/10/2026, mas o CSV dentro tem data de 29/05/2026 e a mesma estrutura: 238.420 linhas, a emenda 2024.258.56666 em 44.640 delas; segue sem previsto e sem chave de linha.
 
 ## ALEP: Assembleia Legislativa do Paraná
 
