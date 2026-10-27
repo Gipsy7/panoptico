@@ -58,9 +58,10 @@ export default function Home() {
     <div data-largura="larga" className="flex flex-col gap-[var(--esp-16)]">
       <JsonLd dados={JSON_LD_SITE} />
       <LocalizacaoProvider>
-      {/* No computador, o primeiro bloco ocupa a tela (100svh menos cabeçalho e margem); o resto vem ao rolar. */}
+      {/* O primeiro bloco ocupa a tela (100svh menos cabeçalho e margem); o resto vem ao rolar. No
+          celular é a coluna da esquerda que ocupa a tela, para o exemplo de comparação ficar abaixo. */}
       <section className="relative grid grid-cols-1 items-start gap-12 pt-2 md:min-h-[calc(100svh-5.5rem)] md:grid-cols-[minmax(0,1fr)_minmax(0,25rem)] md:items-center md:gap-16 md:pt-0 md:pb-14">
-        <div className="flex flex-col gap-6">
+        <div className="flex min-h-[calc(100svh-6rem)] flex-col gap-6 md:min-h-0">
           <div className="flex items-center gap-3">
             <Marca tamanho={28} animada traco={2.6} className="text-bronze" />
             <p className="sobretitulo">O panóptico, invertido</p>
@@ -83,10 +84,11 @@ export default function Home() {
               <AvisoSegundoTurno href="/segundo-turno" />
             </div>
           </Suspense>
+          <IndicadorRolagem className="mt-auto flex md:hidden" />
         </div>
 
         <ExemploRegional />
-        <IndicadorRolagem />
+        <IndicadorRolagem className="absolute inset-x-0 bottom-2 hidden md:flex" />
       </section>
       </LocalizacaoProvider>
 

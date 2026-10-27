@@ -94,7 +94,8 @@ export function Revelar() {
 }
 
 // Dica discreta no pé do primeiro bloco (só no computador); some depois que a pessoa rola.
-export function IndicadorRolagem() {
+// `className` diz onde fica: no pé do bloco (computador) ou no fim da coluna (celular).
+export function IndicadorRolagem({ className }: { className: string }) {
   const [rolou, setRolou] = useState(false);
 
   useEffect(() => {
@@ -107,7 +108,7 @@ export function IndicadorRolagem() {
   return (
     <div
       aria-hidden
-      className={`pointer-events-none absolute inset-x-0 bottom-2 hidden flex-col items-center gap-1 text-sm text-muted-foreground transition-opacity duration-500 md:flex ${rolou ? "opacity-0" : "opacity-100"}`}
+      className={`pointer-events-none flex-col items-center gap-1 text-sm text-muted-foreground transition-opacity duration-500 ${className} ${rolou ? "opacity-0" : "opacity-100"}`}
     >
       <span>Role para ver mais</span>
       <svg viewBox="0 0 24 24" className="size-5 animate-bounce motion-reduce:animate-none" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
