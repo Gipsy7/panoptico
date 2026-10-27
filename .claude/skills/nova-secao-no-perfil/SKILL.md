@@ -35,7 +35,7 @@ Crie o componente em `frontend/components/<assunto>-secao.tsx` seguindo `gastos-
 
 **Cores**: use os tokens do tema (`bg-chart-1`, `text-muted-foreground`, `text-primary`), nunca cores fixas. A paleta evita vermelho, azul e verde-amarelo como cor principal (associação partidária). Se for desenhar gráfico ou barra, carregue a skill `dataviz` antes e valide qualquer cor nova com o `validate_palette.js` dela.
 
-**Acessibilidade**: contraste AA, `alt` nas imagens, foco visível, `role="meter"` com `aria-valuenow` em medidores, tabelas com `<th scope>`.
+**Acessibilidade**: siga o checklist da seção "Acessibilidade" do `docs/DESIGN.md` (foco visível, teclado, nomes, `alt`, gráfico com texto, tabela com `caption` e `th scope`, erro ligado ao campo, anúncio curto, diálogo com foco preso). Depois de subir o site, rode `npm run e2e` com `E2E_BASE_URL` apontando para ele.
 
 ## Verificar
 

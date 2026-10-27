@@ -454,3 +454,181 @@ def test_eleitos_de_eleicao_sem_posse_nao_aparecem_como_no_cargo(client, session
     session.flush()
     corpo = client.get("/estados/RR/deputados-estaduais").json()
     assert (corpo["ano_eleicao"], [i["nome_urna"] for i in corpo["itens"]]) == (atual, ["No cargo"])
+
+
+def test_sq_de_2002_e_2006_inclui_a_uf():
+    # O SQ sequencial se repete entre estados nesses anos; nos demais vale como vem.
+    assert (
+        comum_tse.sq_candidato({"ANO_ELEICAO": "2006", "SG_UF": "SP", "SQ_CANDIDATO": "23"})
+        == "SP-23"
+    )
+    assert (
+        comum_tse.sq_candidato({"ANO_ELEICAO": "2002", "SG_UF": "BR", "SQ_CANDIDATO": "9574"})
+        == "BR-9574"
+    )
+    assert (
+        comum_tse.sq_candidato({"ANO_ELEICAO": "2010", "SG_UF": "BR", "SQ_CANDIDATO": "99"}) == "99"
+    )
+
+
+def test_eleicoes_de_1998_a_2014_so_guardam_quem_ja_temos_pelo_titulo(session):
+    base = {"cargo": "DEPUTADO FEDERAL", "uf": "RR", "unidade": "Roraima", "codigo_ue": "RR",
+            "nome": "X", "nome_urna": "X", "partido": "PL", "numero": "2222",
+            "situacao_turno": "NÃO ELEITO", "situacao_candidatura": "APTO", "cpf": None}  # fmt: skip
+    ingestao = _ingestao(session).id
+    candidaturas.carregar_registros(
+        session,
+        [
+            {
+                **base,
+                "ano_eleicao": 2022,
+                "sq_candidato": "a",
+                "titulo": "111",
+                "situacao_turno": "ELEITO",
+            }
+        ],
+        2022,
+        ingestao,
+    )
+    for ano in (1998, 2002, 2006, 2010, 2014):
+        registros = [
+            {**base, "ano_eleicao": ano, "sq_candidato": f"k{ano}", "titulo": "111"},
+            {**base, "ano_eleicao": ano, "sq_candidato": f"o{ano}", "titulo": "222"},
+        ]
+        assert candidaturas.carregar_registros(session, registros, ano, ingestao) == 1
+    anos = session.scalars(
+        select(Candidatura.ano_eleicao).where(Candidatura.titulo == "111").order_by("ano_eleicao")
+    ).all()
+    assert anos == [1998, 2002, 2006, 2010, 2014, 2022]
+
+
+def test_1994_so_entra_com_nome_e_nascimento_iguais_e_unicos(session):
+    from datetime import date
+
+    base = {"cargo": "DEPUTADO FEDERAL", "uf": "RR", "unidade": "Roraima", "codigo_ue": "RR",
+            "nome_urna": "X", "partido": "PL", "numero": "2222", "situacao_turno": "ELEITO",
+            "situacao_candidatura": "#NE", "cpf": None, "titulo": None}  # fmt: skip
+    ingestao = _ingestao(session).id
+    nasc = date(1945, 10, 6)
+    guardadas = [
+        {**base, "ano_eleicao": 2022, "sq_candidato": "g1", "nome": "Luiz Inácio Lula da Silva", "titulo": "111", "data_nascimento": nasc},
+        {**base, "ano_eleicao": 2022, "sq_candidato": "g2", "nome": "Maria Souza", "titulo": "222", "data_nascimento": date(1960, 1, 1)},
+        # Homônimos com a mesma data de nascimento em duas pessoas guardadas: dúvida.
+        {**base, "ano_eleicao": 2022, "sq_candidato": "g3", "nome": "José Silva", "titulo": "333", "data_nascimento": date(1950, 5, 5)},
+        {**base, "ano_eleicao": 2022, "sq_candidato": "g4", "nome": "José Silva", "titulo": "444", "data_nascimento": date(1950, 5, 5)},
+    ]  # fmt: skip
+    candidaturas.carregar_registros(session, guardadas, 2022, ingestao)
+    antigas = [
+        # Mesmo nome (sem acento/caixa) e nascimento: entra.
+        {**base, "ano_eleicao": 1994, "sq_candidato": "a", "nome": "LUIZ INACIO LULA DA SILVA", "data_nascimento": nasc},
+        # Mesmo nome, nascimento diferente: fora.
+        {**base, "ano_eleicao": 1994, "sq_candidato": "b", "nome": "Maria Souza", "data_nascimento": date(1961, 1, 1)},
+        # Sem nascimento: fora.
+        {**base, "ano_eleicao": 1994, "sq_candidato": "c", "nome": "Maria Souza", "data_nascimento": None},
+        # Duas pessoas guardadas com a mesma chave: fora.
+        {**base, "ano_eleicao": 1994, "sq_candidato": "d", "nome": "José Silva", "data_nascimento": date(1950, 5, 5)},
+    ]  # fmt: skip
+    assert candidaturas.carregar_registros(session, antigas, 1994, ingestao) == 1
+    assert session.scalars(
+        select(Candidatura.sq_candidato).where(Candidatura.ano_eleicao == 1994)
+    ).all() == ["a"]
+    # Herda o título da pessoa guardada, para a identidade ligá-la como as demais.
+    assert (
+        session.scalar(select(Candidatura.titulo).where(Candidatura.ano_eleicao == 1994)) == "111"
+    )
+    # Dois candidatos de 1994 com a mesma chave no arquivo: nenhum entra.
+    gemeos = [
+        {**base, "ano_eleicao": 1994, "sq_candidato": f"m{i}", "nome": "Maria Souza", "data_nascimento": date(1960, 1, 1)}
+        for i in (1, 2)
+    ]  # fmt: skip
+    assert (
+        candidaturas.escolher_por_nome(gemeos, candidaturas.pessoas_guardadas(session, 1994)) == []
+    )
+
+
+def test_votos_preenchem_so_a_situacao_vazia_de_ano_antigo(session):
+    from ingestion.tse import votos
+
+    linhas = [
+        {"ANO_ELEICAO": "2006", "SG_UF": "BR", "SQ_CANDIDATO": "7", "NR_TURNO": "1", "QT_VOTOS_NOMINAIS": "10", "DS_SIT_TOT_TURNO": "2º TURNO"},
+        {"ANO_ELEICAO": "2006", "SG_UF": "BR", "SQ_CANDIDATO": "7", "NR_TURNO": "2", "QT_VOTOS_NOMINAIS": "30", "DS_SIT_TOT_TURNO": "#NULO"},
+        {"ANO_ELEICAO": "2006", "SG_UF": "BR", "SQ_CANDIDATO": "8", "NR_TURNO": "1", "QT_VOTOS_NOMINAIS": "5", "DS_SIT_TOT_TURNO": "NÃO ELEITO"},
+        {"ANO_ELEICAO": "2006", "SG_UF": "SP", "SQ_CANDIDATO": "8", "NR_TURNO": "1", "QT_VOTOS_NOMINAIS": "99", "DS_SIT_TOT_TURNO": "ELEITO"},
+    ]  # fmt: skip
+    totais, situacoes = votos.resumir(linhas, {"BR-7", "BR-8"})
+    assert totais == {"BR-7": 30, "BR-8": 5}
+    # O 2º turno de "BR-7" também vem vazio na fonte: fica sem situação (não se supõe).
+    assert situacoes == {"BR-8": "NÃO ELEITO"}
+
+
+def test_situacoes_antigas_abreviadas_sem_mudar_o_sentido():
+    assert candidaturas.situacao_final({"DS_SIT_TOT_TURNO": "MÉDIA"}) == "ELEITO POR MÉDIA"
+    assert (
+        candidaturas.situacao_final(
+            {"DS_SIT_TOT_TURNO": "RENÚNCIA/FALECIMENTO/CASSAÇÃO ANTES DA ELEIÇÃO"}
+        )
+        == "RENÚNCIA/FALEC./CASSAÇÃO ANTES ELEIÇÃO"
+    )
+    assert candidaturas.situacao_final({"DS_SIT_TOT_TURNO": "#NULO#"}) is None
+    assert candidaturas.situacao_final({"DS_SIT_TOT_TURNO": "NÃO ELEITO"}) == "NÃO ELEITO"
+
+
+def test_linhas_so_brasil_le_apenas_o_arquivo_brasil():
+    payload = _zip(
+        {
+            "votacao_candidato_munzona_1998_SC.csv": CAND[:1],
+            "votacao_candidato_munzona_1998_BRASIL.csv": CAND[1:2],
+        }
+    )
+    assert [
+        x["NR_TURNO"] for x in comum_tse.linhas(payload, "votacao_candidato_munzona_1998_")
+    ] == ["1"]
+    brasil = comum_tse.linhas(payload, "votacao_candidato_munzona_1998_", so_brasil=True)
+    assert [linha["NR_TURNO"] for linha in brasil] == ["2"]
+
+
+def test_2_turno_com_situacao_nulo_decide_pelo_mais_votado_so_com_2_candidatos():
+    from ingestion.tse import votos
+
+    def linha(sq, uf, cargo, n, sit="#NULO"):
+        return {"ANO_ELEICAO": "2006", "SG_UF": uf, "SQ_CANDIDATO": sq, "NR_TURNO": "2",
+                "DS_CARGO": cargo, "QT_VOTOS_NOMINAIS": n, "DS_SIT_TOT_TURNO": sit}  # fmt: skip
+
+    linhas = [
+        linha("1", "BR", "Presidente", "30"), linha("2", "BR", "Presidente", "37"),
+        # Em 2006 o presidente vem por estado, com a disputa nacional em SG_UE.
+        {**linha("1", "SP", "Presidente", "28"), "SG_UE": "BR"},
+        linha("3", "SP", "Governador", "5"), linha("4", "SP", "Governador", "5"),  # empate
+        linha("5", "RJ", "Governador", "9"), linha("6", "RJ", "Governador", "3", "ELEITO"),
+                linha("7", "MG", "Senador", "9"), linha("8", "MG", "Senador", "3"),  # outro cargo
+    ]  # fmt: skip
+    disputas: dict = {}
+    votos.resumir(linhas, set(), disputas)
+    assert votos.vencedores_2_turno(disputas) == {"BR-1": "ELEITO", "BR-2": "NÃO ELEITO"}
+
+
+def test_vice_antigo_herda_a_situacao_do_titular(session):
+    base = {"uf": "SP", "unidade": "São Paulo", "codigo_ue": "SP", "nome": "X", "nome_urna": "X",
+            "partido": "PL", "numero": "22", "situacao_candidatura": "APTO", "cpf": None,
+            "titulo": "111"}  # fmt: skip
+    ingestao = _ingestao(session).id
+    candidaturas.carregar_registros(
+        session,
+        [{**base, "ano_eleicao": 2022, "sq_candidato": "t", "cargo": "GOVERNADOR", "situacao_turno": "ELEITO"}],
+        2022, ingestao,
+    )  # fmt: skip
+    registros = [
+        {**base, "ano_eleicao": 2006, "sq_candidato": "SP-1", "cargo": "GOVERNADOR", "situacao_turno": None},
+        {**base, "ano_eleicao": 2006, "sq_candidato": "SP-2", "cargo": "VICE-GOVERNADOR", "situacao_turno": None},
+    ]  # fmt: skip
+    candidaturas.carregar_registros(session, registros, 2006, ingestao)
+    from sqlalchemy import update as upd
+
+    session.execute(
+        upd(Candidatura).where(Candidatura.sq_candidato == "SP-1").values(situacao_turno="ELEITO")
+    )
+    from ingestion.tse import votos
+
+    votos.herdar_situacao_dos_vices(session, 2006)
+    vice = session.scalars(select(Candidatura).where(Candidatura.sq_candidato == "SP-2")).one()
+    assert vice.situacao_turno == "ELEITO"

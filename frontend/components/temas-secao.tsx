@@ -13,7 +13,7 @@ export function TemasSecao({ dados, casa }: { dados: Temas; casa: Casa }) {
         <h2 id="temas-titulo" className="text-2xl">
           Projetos por tema
         </h2>
-        <p className="text-xs text-muted-foreground">
+        <p className="text-sm text-muted-foreground">
           Classificação oficial {casa === "camara" ? "da Câmara" : "do Senado"}. Um projeto pode ter mais de um tema.
         </p>
       </div>
@@ -29,7 +29,7 @@ export function TemasSecao({ dados, casa }: { dados: Temas; casa: Casa }) {
               <span className="shrink-0 tabular-nums">
                 <span className="font-medium">{t.primeiro_autor}</span>
                 {t.coautor > 0 && (
-                  <span className="text-xs text-muted-foreground"> · coautor em {t.coautor}</span>
+                  <span className="text-sm text-muted-foreground"> · coautor em {t.coautor}</span>
                 )}
               </span>
             </div>

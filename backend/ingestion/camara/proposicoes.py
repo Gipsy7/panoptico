@@ -7,13 +7,16 @@ são grandes (dezenas de MB), então o CSV é lido em fluxo e o bruto é gravado
 import argparse
 import csv
 import io
+import time
 from datetime import date
 from pathlib import Path
 from typing import Any
 
-from sqlalchemy import select
+import httpx
+from sqlalchemy import bindparam, select, update
 from sqlalchemy.orm import Session
 
+from app.db import SessionLocal
 from app.models import FonteIngestao, Proposicao
 from ingestion import comum
 from ingestion import proposicoes_comum as pc
@@ -27,6 +30,10 @@ URL_PROPOSICOES = (
 URL_AUTORES = "https://dadosabertos.camara.leg.br/arquivos/proposicoesAutores/csv/proposicoesAutores-{ano}.csv"
 URL_PAGINA = "https://www.camara.leg.br/proposicoesWeb/fichadetramitacao?idProposicao={id}"
 COD_TIPO_DEPUTADO = "10000"
+DESCRICAO_MAX = 300
+FONTE_VOTADAS = "camara_proposicoes_votadas"
+URL_FICHA = "https://dadosabertos.camara.leg.br/api/v2/proposicoes/{id}"
+PAUSA = 0.3
 
 
 def _linhas(conteudo: bytes):
@@ -53,6 +60,7 @@ def normalizar_proposicoes(conteudo: bytes) -> list[dict[str, Any]]:
                 "situacao": situacao,
                 "virou_lei": pc.virou_lei(situacao),
                 "url": URL_PAGINA.format(id=linha["id"]),
+                "origem": pc.ORIGEM_LEGISLATURA,
             }
         )
     return registros
@@ -68,6 +76,92 @@ def normalizar_autores(conteudo: bytes) -> list[dict[str, Any]]:
         for linha in _linhas(conteudo)
         if linha["codTipoAutor"] == COD_TIPO_DEPUTADO and linha["idDeputadoAutor"]
     ]
+
+
+def normalizar_autores_externos(
+    conteudo: bytes, deputados_no_cadastro: set[str] | None = None
+) -> dict[str, str]:
+    """Autores que a página não consegue ligar a um perfil -> como a Câmara os publica, na ordem
+    de assinatura: órgãos e pessoas de fora ("Poder Executivo", "Comissão de ...", "Senado
+    Federal - Fulano") e deputados que não estão no cadastro do site (ex.: fora do exercício do
+    mandato), estes como "Deputado(a) Nome (PARTIDO-UF)". Assim nenhum autor some da ficha.
+    Sem `deputados_no_cadastro`, todo deputado conta como ligado (comportamento antigo)."""
+    # Por proposição: chave do autor (id do deputado ou nome) -> (ordem, nome). O mesmo deputado
+    # pode vir em duas linhas, uma delas sem partido: fica a que tem partido e UF.
+    outros: dict[str, dict[str, tuple[int, str]]] = {}
+    for linha in _linhas(conteudo):
+        nome = " ".join(linha["nomeAutor"].split())
+        chave = nome
+        if linha["codTipoAutor"] == COD_TIPO_DEPUTADO and linha["idDeputadoAutor"]:
+            if deputados_no_cadastro is None or linha["idDeputadoAutor"] in deputados_no_cadastro:
+                continue
+            chave = "dep:" + linha["idDeputadoAutor"]
+            partido_uf = "-".join(
+                p for p in (linha.get("siglaPartidoAutor"), linha.get("siglaUFAutor")) if p
+            )
+            nome = f"Deputado(a) {nome}" + (f" ({partido_uf})" if partido_uf else "")
+        if nome:
+            ordem = int(linha["ordemAssinatura"] or 0)
+            autores = outros.setdefault(linha["idProposicao"], {})
+            anterior = autores.get(chave)
+            if anterior is None or len(nome) > len(anterior[1]):
+                autores[chave] = (min(ordem, anterior[0]) if anterior else ordem, nome)
+    descricoes = {}
+    for id_proposicao, autores in outros.items():
+        nomes = list(dict.fromkeys(n for _, n in sorted(autores.values())))
+        descricoes[id_proposicao] = "; ".join(nomes)[:DESCRICAO_MAX]
+    return descricoes
+
+
+def normalizar_ficha(ficha: dict[str, Any]) -> dict[str, Any] | None:
+    """A ficha de uma proposição (API) no formato da tabela; None se faltar o essencial."""
+    if not ficha.get("dataApresentacao") or not ficha.get("numero") or not ficha.get("ano"):
+        return None
+    situacao = (ficha.get("statusProposicao") or {}).get("descricaoSituacao") or None
+    return {
+        "id_externo": str(ficha["id"]),
+        "sigla_tipo": ficha["siglaTipo"],
+        "numero": int(ficha["numero"]),
+        "ano": int(ficha["ano"]),
+        "ementa": " ".join((ficha.get("ementa") or "").split()),
+        "data_apresentacao": date.fromisoformat(ficha["dataApresentacao"][:10]),
+        "situacao": situacao,
+        "virou_lei": pc.virou_lei(situacao),
+        "url": URL_PAGINA.format(id=ficha["id"]),
+    }
+
+
+def baixar_fichas(client: httpx.Client, ids: list[str]) -> dict[str, dict]:
+    """Uma chamada por proposição votada que falta (dezenas), com pausa. Ficha que a API
+    não tem (404) fica de fora."""
+    fichas = {}
+    for id_ in ids:
+        time.sleep(PAUSA)
+        try:
+            fichas[id_] = comum.get_json(client, URL_FICHA.format(id=id_))["dados"]
+        except httpx.HTTPStatusError as erro:
+            if erro.response.status_code != 404:
+                raise
+    return fichas
+
+
+def carregar_votadas(session: Session, payload: dict[str, dict], ingestao: FonteIngestao) -> int:
+    registros = [r for f in payload.values() if (r := normalizar_ficha(f))]
+    return pc.inserir_votadas(session, CASA, registros, ingestao)
+
+
+def executar_votadas(de_raw: Path | None = None) -> int:
+    """Fichas das proposições votadas que não estão na tabela (anteriores a 2023, MPV...).
+    Rode depois das cargas anuais: só busca o que ainda falta."""
+    with SessionLocal() as session:
+        ids = pc.ids_votados_faltantes(session, CASA)
+    return comum.executar_ingestao(
+        FONTE_VOTADAS,
+        URL_FICHA.format(id="{id}"),
+        lambda client: baixar_fichas(client, ids),
+        carregar_votadas,
+        de_raw=de_raw,
+    )
 
 
 def carregar_proposicoes(session: Session, conteudo: bytes, ingestao: FonteIngestao) -> int:
@@ -99,7 +193,43 @@ def carregar_autores(session: Session, conteudo: bytes, ingestao: FonteIngestao)
         if a["id_proposicao"] in proposicoes and a["id_deputado"] in deputados
     ]
     alvo = [id_ for id_externo, id_ in proposicoes.items() if id_externo in ids_do_arquivo]
+    _gravar_descricoes(
+        session, proposicoes, ids_do_arquivo, normalizar_autores_externos(conteudo, set(deputados))
+    )
     return pc.substituir_autorias(session, alvo, autorias)
+
+
+def _gravar_descricoes(
+    session: Session,
+    proposicoes: dict[str, int],
+    ids_do_arquivo: set[str],
+    descricoes: dict[str, str],
+) -> None:
+    """`autor_descricao` das proposições com algum autor sem perfil no site; a que passou a ter
+    todos os autores ligados volta a ficar sem. O arquivo cita só as proposições que têm autor
+    registrado."""
+    parametros = [
+        {"alvo": proposicoes[i], "d": d} for i, d in descricoes.items() if i in proposicoes
+    ]
+    if parametros:
+        session.execute(
+            update(Proposicao.__table__)
+            .where(Proposicao.__table__.c.id == bindparam("alvo"))
+            .values(autor_descricao=bindparam("d")),
+            parametros,
+        )
+    com_deputado = [
+        proposicoes[i] for i in ids_do_arquivo if i in proposicoes and i not in descricoes
+    ]
+    for inicio in range(0, len(com_deputado), 5000):
+        session.execute(
+            update(Proposicao)
+            .where(
+                Proposicao.id.in_(com_deputado[inicio : inicio + 5000]),
+                Proposicao.autor_descricao.is_not(None),
+            )
+            .values(autor_descricao=None)
+        )
 
 
 def executar(ano: int, de_raw: Path | None = None, de_raw_autores: Path | None = None) -> int:
@@ -132,7 +262,15 @@ if __name__ == "__main__":
     parser.add_argument("--ano", type=int, nargs="*", default=comum.anos_padrao())
     parser.add_argument("--de-raw", type=Path, help="Bruto das proposições (um ano só)")
     parser.add_argument("--de-raw-autores", type=Path, help="Bruto dos autores (um ano só)")
+    parser.add_argument(
+        "--votadas",
+        action="store_true",
+        help="Só as fichas das proposições votadas que faltam na tabela (aceita --de-raw)",
+    )
     args = parser.parse_args()
+    if args.votadas:
+        print(f"{FONTE_VOTADAS}: {executar_votadas(de_raw=args.de_raw)} proposições")
+        raise SystemExit
     for ano in args.ano:
         total = executar(ano, de_raw=args.de_raw, de_raw_autores=args.de_raw_autores)
         print(f"camara_proposicoes {ano}: {total} autorias")

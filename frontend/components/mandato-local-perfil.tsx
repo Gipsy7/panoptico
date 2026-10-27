@@ -10,8 +10,9 @@ import { EmendasDoDeputadoEstadual } from "@/components/emendas-estaduais";
 import { SancoesSecao, TEXTO_REGISTRO } from "@/components/sancoes-secao";
 import { ServicoFederalSecao } from "@/components/servico-federal-secao";
 import { CandidaturaSecao } from "@/components/candidatura-secao";
-import { AcompanharPorFeed, CompartilharWhatsApp } from "@/components/compartilhar";
+import { CompartilharWhatsApp } from "@/components/compartilhar";
 import { QuemESecao } from "@/components/dados-pessoais";
+import { SeloEleitoFuturo } from "@/components/eleito-futuro";
 import { FonteRodape } from "@/components/fonte-rodape";
 import { PorQueFalta } from "@/components/por-que-falta";
 import { ContratosSocioSecao } from "@/components/contratos-socio-secao";
@@ -22,6 +23,7 @@ import { CartaoNumero, GradeCartoes } from "@/components/painel/cartao-numero";
 import { ListaPerguntas, Pergunta } from "@/components/painel/pergunta";
 import { getEleito, getEmendasDeputadoEstadual, getLinhaDoTempo, getSancoes, getVereador, getVotacoesLocais, type VereadorDetalhe } from "@/lib/api";
 import { formatarData, formatarGastos, formatarReais, formatarReaisCompacto } from "@/lib/formato";
+import { LinkExterno } from "@/components/link-externo";
 
 /** Perfil de quem está no cargo numa câmara ou assembleia, com os dados da própria casa. */
 export async function PerfilMandatoLocal({ id, paginaVotos }: { id: string; paginaVotos?: string }) {
@@ -110,6 +112,18 @@ export async function PerfilMandatoLocal({ id, paginaVotos }: { id: string; pagi
         },
         { id: "candidatura", titulo: "Candidatura e bens", conteudo: dEleicao && <CandidaturaSecao dados={dEleicao} /> },
         {
+          id: "candidatura-recente",
+          titulo: v.eleicao_recente ? `Candidatura e bens de ${v.eleicao_recente.ano_eleicao}` : "Candidatura e bens",
+          conteudo: v.eleicao_recente && (
+            <CandidaturaSecao
+              dados={v.eleicao_recente}
+              idTitulo="tse-recente-titulo"
+              titulo={`Eleição de ${v.eleicao_recente.ano_eleicao}`}
+              posse={`a da eleição para o mandato que começa em ${v.eleicao_recente.ano_eleicao + 1}`}
+            />
+          ),
+        },
+        {
           id: "linha-do-tempo",
           titulo: "Linha do tempo",
           conteudo: linha.ok && <LinhaDoTempoSecao dados={linha.dados} />,
@@ -137,7 +151,7 @@ export async function PerfilMandatoLocal({ id, paginaVotos }: { id: string; pagi
   return (
     <article data-largura="larga" className="pagina-secoes">
       <header className="flex items-start gap-4">
-        <FotoVereador vereador={v} tamanho={72} />
+        <FotoVereador vereador={v} tamanho={72} decorativa />
         <div className="flex min-w-0 flex-col gap-1">
           <p className="sobretitulo">{cargo}</p>
           <h1 className="titulo-pagina">{v.nome}</h1>
@@ -156,6 +170,8 @@ export async function PerfilMandatoLocal({ id, paginaVotos }: { id: string; pagi
           )}
         </div>
       </header>
+
+      {v.eleito_2026 && <SeloEleitoFuturo eleito={v.eleito_2026} atualizadoEm={v.atualizado_em} />}
 
       <GradeCartoes rotulo="Números principais">
         {v.presenca && v.presenca.sessoes > 0 && (
@@ -216,6 +232,18 @@ export async function PerfilMandatoLocal({ id, paginaVotos }: { id: string; pagi
           valor={formatarNumero(v.projetos, "inteiro")}
           apoio={`${formatarNumero(v.proposicoes, "inteiro")} proposições no total`}
         />
+        {v.eleicao_recente?.bens && (
+          <CartaoNumero
+            destino="candidatura-recente"
+            rotulo={`Bens declarados em ${v.eleicao_recente.bens.candidatura.ano}`}
+            valor={formatarReaisCompacto(v.eleicao_recente.bens.total)}
+            apoio={
+              v.eleicao_recente.bens.anterior
+                ? `Em ${v.eleicao_recente.bens.anterior.candidatura.ano}: ${formatarReaisCompacto(v.eleicao_recente.bens.anterior.total)}`
+                : "Valor informado ao TSE"
+            }
+          />
+        )}
         {dEleicao?.bens && (
           <CartaoNumero
             destino="candidatura"
@@ -245,7 +273,7 @@ export async function PerfilMandatoLocal({ id, paginaVotos }: { id: string; pagi
           />
         )}
       </GradeCartoes>
-      <p className="text-sm text-muted-foreground">Toque num número para ver o detalhe, com a fonte e a data.</p>
+      <p className="text-sm text-muted-foreground">Toque ou clique num número para ver o detalhe, com a fonte e a data.</p>
 
       <Link href={`/comparar/local?a=${v.id}`} className="botao-linha self-start">
         Comparar com outro {camara ? "vereador desta câmara" : "deputado desta assembleia"}
@@ -259,8 +287,6 @@ export async function PerfilMandatoLocal({ id, paginaVotos }: { id: string; pagi
             : `${v.nome} (${cargo.toLowerCase()}) tem ${v.projetos} projetos no ano atual e no anterior, segundo a ${nomeCasa}. Veja o perfil com dados oficiais:`
         }
       />
-
-      {linha.ok && <AcompanharPorFeed pessoaId={linha.dados.pessoa_id} />}
 
       <ListaPerguntas titulo="Para entender os números">
         <Pergunta
@@ -350,7 +376,7 @@ function ProjetosLocaisSecao({ v, nomeCasa }: { v: VereadorDetalhe; nomeCasa: st
         <h2 id="atuacao-titulo" className="text-2xl">
           Projetos e proposições
         </h2>
-        <p className="text-xs text-muted-foreground">Ano atual e anterior, como a {nomeCasa} publica</p>
+        <p className="text-sm text-muted-foreground">Ano atual e anterior, como a {nomeCasa} publica</p>
       </div>
       {v.proposicoes_por_tipo.length === 0 ? (
         <p className="text-muted-foreground">Nenhuma proposição como autor neste período.</p>
@@ -364,7 +390,7 @@ function ProjetosLocaisSecao({ v, nomeCasa }: { v: VereadorDetalhe; nomeCasa: st
           ))}
         </dl>
       )}
-      <p className="text-xs text-muted-foreground">
+      <p className="text-sm text-muted-foreground">
         Requerimentos e indicações são pedidos (de informação, de obra, de serviço); projetos podem virar lei. Conta
         como autor ou coautor.
       </p>
@@ -374,11 +400,11 @@ function ProjetosLocaisSecao({ v, nomeCasa }: { v: VereadorDetalhe; nomeCasa: st
           <ul className="lista-fios flex flex-col">
             {v.lista_projetos.map((p, i) => (
               <li key={i} className="flex flex-col gap-1 py-3">
-                <a href={p.url} target="_blank" rel="noopener noreferrer" className="font-medium underline underline-offset-2">
+                <LinkExterno href={p.url} className="font-medium underline underline-offset-2">
                   {p.tipo} {p.numero ? `nº ${p.numero}` : ""}/{p.ano}
-                </a>
+                </LinkExterno>
                 <TextoLongo linhas={3}>{p.ementa}</TextoLongo>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-sm text-muted-foreground">
                   {p.data_apresentacao ? formatarData(p.data_apresentacao) : ""}
                   {p.em_tramitacao === true ? " · em tramitação" : p.em_tramitacao === false ? " · tramitação encerrada" : ""}
                   {p.primeiro_autor ? "" : " · coautor"}

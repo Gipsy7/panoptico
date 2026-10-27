@@ -1,0 +1,460 @@
+{
+ "AgendaPlenario": {
+  "noNamespaceSchemaLocation": "https://legis.senado.leg.br/dadosabertos/dados/AgendaPlenariov2.xsd",
+  "Metadados": {
+   "Versao": "21/10/2026 07:24:32",
+   "VersaoServico": "2",
+   "DataVersaoServico": "2019-10-15",
+   "DescricaoDataSet": "Retorna a Agenda do mês nos Plenários do Senado Federal e Congresso Nacional (a partir da data informada até o fim do mês."
+  },
+  "Sessoes": {
+   "Sessao": [
+    {
+     "DiaUtil": "06",
+     "Data": "2026-10-06",
+     "DiaSemana": "terça-feira",
+     "Mes": "Outubro",
+     "Horario": "14 horas ",
+     "Hora": "14:00",
+     "NumeroSessao": "128ª SESSÃO ",
+     "TipoSessao": "SESSÃO DELIBERATIVA ORDINÁRIA ",
+     "LocalSessao": "Plenário do Senado Federal",
+     "CodigoSessao": "590398",
+     "Casa": "SF",
+     "SessaoLegislativa": "4",
+     "Legislatura": "57",
+     "CodigoSituacaoSessao": "40",
+     "SituacaoSessao": "Encerrada",
+     "Realizada": {
+      "Status": "Sim"
+     },
+     "PautaConfirmada": "Sim",
+     "TipoPresenca": "S",
+     "DescricaoTipoPresenca": "Semipresencial",
+     "Materias": {
+      "Materia": [
+       {
+        "CodigoMateria": "175914",
+        "SiglaMateria": "REQ",
+        "NumeroMateria": "00341",
+        "AnoMateria": "2026",
+        "SiglaComissaoRequerimento": "CDIR",
+        "DescricaoIdentificacaoMateria": "REQ 341/2026 - CDIR",
+        "SiglaCasaIniciadora": "SF",
+        "Ementa": "Requer licença saúde, no dia 3 de outubro de 2026.",
+        "Apreciacao": "Votação, em turno único",
+        "NomeAutor": "Leila Barros",
+        "TipoPauta": "E",
+        "DescricaoTipoPauta": "Extrapauta",
+        "SequenciaOrdem": "1"
+       },
+       {
+        "CodigoMateria": "174386",
+        "SiglaMateria": "PEC",
+        "NumeroMateria": "00221",
+        "AnoMateria": "2019",
+        "DescricaoObjetivoProcesso": "Revisora",
+        "DescricaoIdentificacaoMateria": "PEC 221/2019",
+        "SiglaCasaIniciadora": "CD",
+        "Ementa": "Altera o art. 7º da Constituição Federal para reduzir a duração máxima semanal do trabalho e prever 2 (dois) dias de repouso semanal remunerado, sem qualquer redução salarial; e dá outras providências.",
+        "Apreciacao": "Primeira sessão de discussão, em primeiro turno",
+        "Cabecalho": "(Fim da escala 6x1)",
+        "NomeAutor": "Reginaldo Lopes",
+        "TipoPauta": "O",
+        "DescricaoTipoPauta": "Pauta",
+        "SequenciaOrdem": "1"
+       },
+       {
+        "CodigoMateria": "175915",
+        "SiglaMateria": "REQ",
+        "NumeroMateria": "00342",
+        "AnoMateria": "2026",
+        "SiglaComissaoRequerimento": "CDIR",
+        "DescricaoIdentificacaoMateria": "REQ 342/2026 - CDIR",
+        "SiglaCasaIniciadora": "SF",
+        "Ementa": "Requer licença para tratar de interesse particular, no período de 4 de outubro de 2026 a 31 de janeiro de 2027.",
+        "Apreciacao": "Votação, em turno único",
+        "NomeAutor": "Leila Barros",
+        "TipoPauta": "E",
+        "DescricaoTipoPauta": "Extrapauta",
+        "SequenciaOrdem": "2"
+       },
+       {
+        "CodigoMateria": "175820",
+        "SiglaMateria": "REQ",
+        "NumeroMateria": "00330",
+        "AnoMateria": "2026",
+        "SiglaComissaoRequerimento": "CDIR",
+        "DescricaoIdentificacaoMateria": "REQ 330/2026 - CDIR",
+        "SiglaCasaIniciadora": "SF",
+        "Ementa": "Solicita, com fundamento no art. 40 do Regimento Interno, licença dos trabalhos da Casa para participar de missão oficial, nos termos da autorização da Presidência do Senado Federal.",
+        "Apreciacao": "Votação, em turno único",
+        "NomeAutor": "Humberto Costa",
+        "TipoPauta": "E",
+        "DescricaoTipoPauta": "Extrapauta",
+        "SequenciaOrdem": "3"
+       },
+       {
+        "CodigoMateria": "175830",
+        "SiglaMateria": "REQ",
+        "NumeroMateria": "00332",
+        "AnoMateria": "2026",
+        "SiglaComissaoRequerimento": "CDIR",
+        "DescricaoIdentificacaoMateria": "REQ 332/2026 - CDIR",
+        "SiglaCasaIniciadora": "SF",
+        "Ementa": "Solicita, com fundamento no art. 40 do Regimento Interno, licença dos trabalhos da Casa para participar de missão oficial, nos termos da autorização da Presidência do Senado Federal.",
+        "Apreciacao": "Votação, em turno único",
+        "NomeAutor": "Irajá",
+        "TipoPauta": "E",
+        "DescricaoTipoPauta": "Extrapauta",
+        "SequenciaOrdem": "4"
+       },
+       {
+        "CodigoMateria": "175882",
+        "SiglaMateria": "REQ",
+        "NumeroMateria": "00337",
+        "AnoMateria": "2026",
+        "SiglaComissaoRequerimento": "CDIR",
+        "DescricaoIdentificacaoMateria": "REQ 337/2026 - CDIR",
+        "SiglaCasaIniciadora": "SF",
+        "Ementa": "Solicita, com fundamento no art. 40 do Regimento Interno, licença dos trabalhos da Casa para participar de missão oficial, nos termos da autorização da Presidência do Senado Federal.",
+        "Apreciacao": "Votação, em turno único",
+        "NomeAutor": "Ciro Nogueira",
+        "TipoPauta": "E",
+        "DescricaoTipoPauta": "Extrapauta",
+        "SequenciaOrdem": "5"
+       },
+       {
+        "CodigoMateria": "175911",
+        "SiglaMateria": "REQ",
+        "NumeroMateria": "00338",
+        "AnoMateria": "2026",
+        "SiglaComissaoRequerimento": "CDIR",
+        "DescricaoIdentificacaoMateria": "REQ 338/2026 - CDIR",
+        "SiglaCasaIniciadora": "SF",
+        "Ementa": "Solicita, com fundamento no art. 40 do Regimento Interno, licença dos trabalhos da Casa para participar de missão oficial, nos termos da autorização da Presidência do Senado Federal.",
+        "Apreciacao": "Votação, em turno único",
+        "NomeAutor": "Nelsinho Trad",
+        "TipoPauta": "E",
+        "DescricaoTipoPauta": "Extrapauta",
+        "SequenciaOrdem": "6"
+       }
+      ]
+     }
+    },
+    {
+     "DiaUtil": "09",
+     "Data": "2026-10-09",
+     "DiaSemana": "sexta-feira",
+     "Mes": "Outubro",
+     "Horario": "10 horas ",
+     "Hora": "10:00",
+     "TipoSessao": "SESSÃO NÃO DELIBERATIVA ",
+     "LocalSessao": "Plenário do Senado Federal",
+     "CodigoSessao": "590400",
+     "Casa": "SF",
+     "SessaoLegislativa": "4",
+     "Legislatura": "57",
+     "CodigoSituacaoSessao": "36",
+     "SituacaoSessao": "Sessão não realizada",
+     "Realizada": {
+      "Status": "Não"
+     },
+     "PautaConfirmada": "Sim",
+     "TipoPresenca": "S",
+     "DescricaoTipoPresenca": "Semipresencial"
+    },
+    {
+     "DiaUtil": "14",
+     "Data": "2026-10-14",
+     "DiaSemana": "quarta-feira",
+     "Mes": "Outubro",
+     "Horario": "14 horas ",
+     "Hora": "14:00",
+     "NumeroSessao": "134ª SESSÃO ",
+     "TipoSessao": "SESSÃO DELIBERATIVA ORDINÁRIA ",
+     "LocalSessao": "Plenário do Senado Federal",
+     "CodigoSessao": "591267",
+     "Casa": "SF",
+     "SessaoLegislativa": "4",
+     "Legislatura": "57",
+     "CodigoSituacaoSessao": "40",
+     "SituacaoSessao": "Encerrada",
+     "Realizada": {
+      "Status": "Sim"
+     },
+     "PautaConfirmada": "Sim",
+     "TipoPresenca": "S",
+     "DescricaoTipoPresenca": "Semipresencial",
+     "Materias": {
+      "Materia": [
+       {
+        "CodigoMateria": "174386",
+        "SiglaMateria": "PEC",
+        "NumeroMateria": "00221",
+        "AnoMateria": "2019",
+        "DescricaoObjetivoProcesso": "Revisora",
+        "DescricaoIdentificacaoMateria": "PEC 221/2019",
+        "SiglaCasaIniciadora": "CD",
+        "Ementa": "Altera o art. 7º da Constituição Federal para reduzir a duração máxima semanal do trabalho e prever 2 (dois) dias de repouso semanal remunerado, sem qualquer redução salarial; e dá outras providências.",
+        "Apreciacao": "Quinta e última sessão de discussão, em primeiro turno",
+        "Cabecalho": "(Fim da escala 6x1)",
+        "NomeAutor": "Reginaldo Lopes",
+        "TipoPauta": "O",
+        "DescricaoTipoPauta": "Pauta",
+        "SequenciaOrdem": "1"
+       },
+       {
+        "CodigoMateria": "175964",
+        "SiglaMateria": "RQS",
+        "NumeroMateria": "00713",
+        "AnoMateria": "2026",
+        "DescricaoIdentificacaoMateria": "RQS 713/2026",
+        "SiglaCasaIniciadora": "SF",
+        "Ementa": "Solicita calendário especial para a Proposta de Emenda à Constituição nº 18, de 2025.",
+        "Apreciacao": "Votação, em turno único",
+        "NomeAutor": "Eduardo Braga",
+        "TipoPauta": "E",
+        "DescricaoTipoPauta": "Extrapauta",
+        "SequenciaOrdem": "1"
+       }
+      ]
+     }
+    },
+    {
+     "DiaUtil": "15",
+     "Data": "2026-10-15",
+     "DiaSemana": "quinta-feira",
+     "Mes": "Outubro",
+     "Horario": "14 horas ",
+     "Hora": "14:00",
+     "NumeroSessao": "135ª SESSÃO ",
+     "TipoSessao": "SESSÃO DELIBERATIVA ORDINÁRIA ",
+     "LocalSessao": "Plenário do Senado Federal",
+     "CodigoSessao": "591273",
+     "Casa": "SF",
+     "SessaoLegislativa": "4",
+     "Legislatura": "57",
+     "CodigoSituacaoSessao": "40",
+     "SituacaoSessao": "Encerrada",
+     "Realizada": {
+      "Status": "Sim"
+     },
+     "PautaConfirmada": "Sim",
+     "TipoPresenca": "S",
+     "DescricaoTipoPresenca": "Semipresencial",
+     "Materias": {
+      "Materia": [
+       {
+        "CodigoMateria": "175969",
+        "SiglaMateria": "PLP",
+        "NumeroMateria": "00186",
+        "AnoMateria": "2026",
+        "DescricaoObjetivoProcesso": "Revisora",
+        "DescricaoIdentificacaoMateria": "PLP 186/2026",
+        "SiglaCasaIniciadora": "CD",
+        "Ementa": "Altera a Lei Complementar nº 123, de 14 de dezembro de 2006, para atualizar o limite de receita bruta anual e o número de empregados do Microempreendedor Individual (MEI), conceder remissão de créditos de titularidade da União de sua responsabilidade e dispor sobre a aplicação da medida.",
+        "Apreciacao": "-",
+        "NomeAutor": "Presidência da República",
+        "TipoPauta": "E",
+        "DescricaoTipoPauta": "Extrapauta",
+        "SequenciaOrdem": "1"
+       },
+       {
+        "CodigoMateria": "172997",
+        "SiglaMateria": "PEC",
+        "NumeroMateria": "00018",
+        "AnoMateria": "2025",
+        "DescricaoObjetivoProcesso": "Revisora",
+        "DescricaoIdentificacaoMateria": "PEC 18/2025",
+        "SiglaCasaIniciadora": "CD",
+        "Ementa": "Altera os arts. 5º, 15, 22, 23, 24, 40, 49, 84, 103-B, 130-A e 144 da Constituição Federal e o art.76 do Ato das Disposições Constitucionais Transitórias; acrescenta os arts. 144-A e 144-B à Constituição Federal e os arts. 139, 140 e 141 ao Ato das Disposições Constitucionais Transitórias; e dá outras providências.",
+        "Apreciacao": "Discussão, em primeiro turno",
+        "NomeAutor": "Presidência da República",
+        "TipoPauta": "R",
+        "SequenciaOrdem": "1"
+       },
+       {
+        "CodigoMateria": "175971",
+        "SiglaMateria": "REQ",
+        "NumeroMateria": "00358",
+        "AnoMateria": "2026",
+        "SiglaComissaoRequerimento": "CDIR",
+        "DescricaoIdentificacaoMateria": "REQ 358/2026 - CDIR",
+        "SiglaCasaIniciadora": "SF",
+        "Ementa": "Requer licença para desempenhar missão oficial, a fim de participar da Formação Internacional no Worcester College, na Universidade de Oxford, e de visitas técnicas, em Londres e Oxford, Reino Unido.",
+        "Apreciacao": "Votação, em turno único",
+        "NomeAutor": "Alessandro Vieira",
+        "TipoPauta": "E",
+        "DescricaoTipoPauta": "Extrapauta",
+        "SequenciaOrdem": "2"
+       },
+       {
+        "CodigoMateria": "102633",
+        "SiglaMateria": "PDS",
+        "NumeroMateria": "00240",
+        "AnoMateria": "2011",
+        "DescricaoObjetivoProcesso": "Revisora",
+        "DescricaoIdentificacaoMateria": "PDS 240/2011",
+        "SiglaCasaIniciadora": "CD",
+        "Ementa": "Aprova o texto do Acordo entre o Governo da República Federativa do Brasil e o Governo da República da Guiana sobre Cooperação em Matéria de Defesa, assinado em Bonfim-RR, em 14 de setembro de 2009.",
+        "Apreciacao": "Discussão, em turno único",
+        "NomeAutor": "Comissão de Relações Exteriores e de Defesa Nacional",
+        "TipoPauta": "R",
+        "SequenciaOrdem": "2"
+       },
+       {
+        "CodigoMateria": "174819",
+        "SiglaMateria": "MPV",
+        "NumeroMateria": "01370",
+        "AnoMateria": "2026",
+        "DescricaoIdentificacaoMateria": "MPV 1370/2026",
+        "SiglaCasaIniciadora": "CN",
+        "Ementa": "Institui o Exame Nacional de Avaliação da Formação Médica; e altera as Leis nºs 12.871, de 22 de outubro de 2013, 3.268, de 30 de setembro de 1957, 6.932, de 7 de julho de 1981, 13.959, de 18 de dezembro de 2019, e 10.861, de 14 de abril de 2004 (proveniente da Medida Provisória nº 1.370, de 2026).",
+        "Apreciacao": "Discussão, em turno único",
+        "Cabecalho": "(Instituição do Exame Nacional de Avaliação da Formação Médica - Enamed)",
+        "NomeAutor": "Presidência da República",
+        "TipoPauta": "E",
+        "DescricaoTipoPauta": "Extrapauta",
+        "SequenciaOrdem": "2"
+       },
+       {
+        "CodigoMateria": "168799",
+        "SiglaMateria": "PDL",
+        "NumeroMateria": "00344",
+        "AnoMateria": "2024",
+        "DescricaoObjetivoProcesso": "Revisora",
+        "DescricaoIdentificacaoMateria": "PDL 344/2024",
+        "SiglaCasaIniciadora": "CD",
+        "Ementa": "Aprova o texto do Acordo entre o Governo da República Federativa do Brasil e o Governo da República da Croácia sobre Cooperação na Área de Educação, assinado em Zagreb, em 14 de fevereiro de 2023.",
+        "Apreciacao": "Discussão, em turno único",
+        "NomeAutor": "Comissão de Relações Exteriores e de Defesa Nacional",
+        "TipoPauta": "R",
+        "SequenciaOrdem": "3"
+       },
+       {
+        "CodigoMateria": "175957",
+        "SiglaMateria": "RQS",
+        "NumeroMateria": "00708",
+        "AnoMateria": "2026",
+        "DescricaoIdentificacaoMateria": "RQS 708/2026",
+        "SiglaCasaIniciadora": "SF",
+        "Ementa": "Solicita a realização de Sessão Especial destinada a homenagear as cientistas brasileiras.",
+        "Apreciacao": "Votação, em turno único",
+        "NomeAutor": "Leany Lemos",
+        "TipoPauta": "E",
+        "DescricaoTipoPauta": "Extrapauta",
+        "SequenciaOrdem": "3"
+       },
+       {
+        "CodigoMateria": "171234",
+        "SiglaMateria": "PDL",
+        "NumeroMateria": "00359",
+        "AnoMateria": "2024",
+        "DescricaoObjetivoProcesso": "Revisora",
+        "DescricaoIdentificacaoMateria": "PDL 359/2024",
+        "SiglaCasaIniciadora": "CD",
+        "Ementa": "Aprova o texto do Protocolo, de 30 de novembro de 1972, para Alterar a Convenção Assinada em Paris em 22 de novembro de 1928 sobre Exposições Internacionais, alterado pelas Emendas de 24 de junho de 1982 e de 31 de maio de 1988.",
+        "Apreciacao": "Discussão, em turno único",
+        "NomeAutor": "Comissão de Relações Exteriores e de Defesa Nacional",
+        "TipoPauta": "R",
+        "SequenciaOrdem": "4"
+       },
+       {
+        "CodigoMateria": "175958",
+        "SiglaMateria": "RQS",
+        "NumeroMateria": "00709",
+        "AnoMateria": "2026",
+        "DescricaoIdentificacaoMateria": "RQS 709/2026",
+        "SiglaCasaIniciadora": "SF",
+        "Ementa": "Solicita a realização de Sessão Especial destinada a celebrar os 30 anos de história do Coral do Senado Federal.",
+        "Apreciacao": "Votação, em turno único",
+        "NomeAutor": "Nelsinho Trad",
+        "TipoPauta": "E",
+        "DescricaoTipoPauta": "Extrapauta",
+        "SequenciaOrdem": "4"
+       },
+       {
+        "CodigoMateria": "175975",
+        "SiglaMateria": "REQ",
+        "NumeroMateria": "00359",
+        "AnoMateria": "2026",
+        "SiglaComissaoRequerimento": "CDIR",
+        "DescricaoIdentificacaoMateria": "REQ 359/2026 - CDIR",
+        "SiglaCasaIniciadora": "SF",
+        "Ementa": "Requer licença para desempenhar missão oficial, a fim de participar das reuniões\nde Comissões Permanentes e na Sessão Ordinária da Assembleia Parlamentar Euro\nLatina-Americana, Eurolat, nas Ilhas Canárias, Espanha.",
+        "Apreciacao": "Votação, em turno único",
+        "NomeAutor": "Humberto Costa",
+        "TipoPauta": "E",
+        "DescricaoTipoPauta": "Extrapauta",
+        "SequenciaOrdem": "11"
+       }
+      ]
+     }
+    },
+    {
+     "DiaUtil": "16",
+     "Data": "2026-10-16",
+     "DiaSemana": "sexta-feira",
+     "Mes": "Outubro",
+     "Horario": "10 horas ",
+     "Hora": "10:00",
+     "TipoSessao": "SESSÃO NÃO DELIBERATIVA ",
+     "LocalSessao": "Plenário do Senado Federal",
+     "CodigoSessao": "591285",
+     "Casa": "SF",
+     "SessaoLegislativa": "4",
+     "Legislatura": "57",
+     "CodigoSituacaoSessao": "32",
+     "SituacaoSessao": "Cancelada",
+     "Realizada": {
+      "Status": "Não"
+     },
+     "PautaConfirmada": "Não",
+     "TipoPresenca": "S",
+     "DescricaoTipoPresenca": "Semipresencial"
+    },
+    {
+     "DiaUtil": "21",
+     "Data": "2026-10-21",
+     "DiaSemana": "quarta-feira",
+     "Mes": "Outubro",
+     "Horario": "10 horas ",
+     "Hora": "10:00",
+     "TipoSessao": "SESSÃO ESPECIAL ",
+     "LocalSessao": "Plenário do Senado Federal",
+     "CodigoSessao": "591551",
+     "Casa": "SF",
+     "SessaoLegislativa": "4",
+     "Legislatura": "57",
+     "CodigoSituacaoSessao": "30",
+     "SituacaoSessao": "Agendada",
+     "Realizada": {
+      "Status": "Não"
+     },
+     "PautaConfirmada": "Não",
+     "TipoPresenca": "P",
+     "DescricaoTipoPresenca": "Presencial",
+     "Evento": {
+      "DescricaoTipoEvento": "Sessão Especial",
+      "Data": "21 de outubro de 2026",
+      "DiaSemana": "quarta-feira",
+      "Horario": "às 10 horas",
+      "TipoSessao": "(SESSÃO ESPECIAL ) ",
+      "DescricaoEvento": "Celebrar os 120 anos do primeiro voo do 14-Bis, bem como o Dia do Aviador e o Dia da Força Aérea Brasileira.",
+      "OrigemAutor": {
+       "Requerimento": {
+        "Origem": "Requerimento nº 399, de 2026",
+        "NomeAutor": "Senador Dr. Hiran",
+        "DataAprovacao": "2026-07-08",
+        "IndicadorTextoNegrito": "0"
+       }
+      },
+      "FimInscricao": "(Até as 18h35min de 20.10.2026)",
+      "IndicadorPublicaOrador": "0"
+     }
+    }
+   ]
+  }
+ }
+}

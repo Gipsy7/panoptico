@@ -177,6 +177,10 @@ class EleitoFuturo(BaseModel):
     parlamentar_id: int | None
     ja_no_cargo: bool
     vice: str | None
+    perfil: str  # onde o site abre a pessoa (perfil do mandato atual, se houver)
+    foto: bool = False
+    foto_de: int | None = None  # candidatura dona da foto, quando não é esta
+    foto_ano: int | None = None  # ano da foto emprestada de outra candidatura
 
 
 class EleitosFuturos(BaseModel):
@@ -206,6 +210,8 @@ class CandidaturaResposta(BaseModel):
 class EleitoItem(BaseModel):
     id: int
     foto: bool = False
+    foto_de: int | None = None  # candidatura dona da foto, quando a foto é de outra eleição
+    foto_ano: int | None = None  # ano da eleição dessa foto
     nome_urna: str
     partido: str | None
     numero: str | None
@@ -246,14 +252,34 @@ class MandatoLocalRef(BaseModel):
     casa: str  # "camara" ou "assembleia"
 
 
+class EleicaoRecente(BaseModel):
+    """Bens, campanha e dados da candidatura de uma eleição cuja posse ainda não aconteceu,
+    mostrados no perfil principal da pessoa."""
+
+    id: int
+    ano_eleicao: int
+    cargo: str
+    unidade: str
+    bens: BensDeclarados | None
+    campanha: Campanha | None
+    pessoais: Pessoais | None
+    fonte_nome: str
+    fonte_url: str
+    atualizado_em: datetime | None
+
+
 class EleitoDetalhe(EleitoItem):
     mandato_local: MandatoLocalRef | None
+    # Caminho do perfil principal da pessoa (ex.: "/eleito/64190"), quando esta candidatura de
+    # eleição recente é de quem já tem perfil de um mandato anterior; o site redireciona para ele.
+    perfil_principal: str | None = None
     pessoais: Pessoais | None
     cargo: str
     unidade: str
     municipio_ibge: str | None
     ano_eleicao: int
     eleito_2026: EleitoFuturo | None = None
+    eleicao_recente: EleicaoRecente | None = None
     bens: BensDeclarados | None
     campanha: Campanha | None
     fonte_nome: str
@@ -523,6 +549,8 @@ class GastosLocais(BaseModel):
 
 
 class VereadorDetalhe(VereadorItem):
+    eleito_2026: EleitoFuturo | None = None
+    eleicao_recente: EleicaoRecente | None = None
     presenca: PresencaLocal | None
     gastos: GastosLocais | None
     casa: str  # "camara" (vereador) ou "assembleia" (deputado estadual)
@@ -713,6 +741,8 @@ class VotoItem(BaseModel):
     url: str | None
     # Votação no explicador (/votacoes/{casa}/{id_externo}); nulo quando não deu para ligar.
     id_externo: str | None = None
+    # Id do projeto na Casa, para o link /projeto/{casa}/{id}; nulo sem proposição ligada.
+    proposicao_id_externo: str | None = None
 
 
 class VotoComissaoItem(BaseModel):

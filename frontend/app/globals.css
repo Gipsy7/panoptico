@@ -35,6 +35,7 @@
   --color-chart-1: var(--chart-1);
   --color-bronze: var(--bronze);
   --color-bronze-texto: var(--bronze-texto);
+  --color-borda-controle: var(--borda-controle);
   --color-marca-nome: var(--marca-nome);
   --color-ring: var(--ring);
   --color-input: var(--input);
@@ -77,12 +78,14 @@
   --secondary: #eae5da;
   --secondary-foreground: #141414;
   --muted: #ece7dd;
-  --muted-foreground: #6e6a63;
+  --muted-foreground: #6a665f;
   --accent: #e9e3d7;
   --accent-foreground: #141414;
   --destructive: #8a2c1c;
   --border: #d9d3c7;
   --input: #b8b0a2;
+  /* borda de campo e seletor: 3,5:1 sobre o marfim, 3,2:1 sobre --muted; nos dois temas (3,7:1 a 4,4:1 no escuro) */
+  --borda-controle: #857f73;
   --ring: #9c6a2a;
   --bronze: #9c6a2a; /* marca e gráficos */
   --bronze-texto: #7a5a32; /* textos pequenos em bronze */
@@ -197,7 +200,13 @@
 
 @layer base {
   * {
-    @apply border-border outline-ring/50;
+    @apply border-border;
+  }
+  /* Foco visível: contorno sólido de 2 px em --bronze-texto, afastado 2 px.
+     Contraste sobre o fundo: claro 5,6:1 (marfim) e 5,8:1 (cartão); escuro 8,0:1 e 7,4:1 (cartão); mínimo 3:1. */
+  :focus-visible {
+    outline: 2px solid var(--bronze-texto);
+    outline-offset: 2px;
   }
   body {
     @apply bg-background text-foreground;
@@ -211,6 +220,14 @@
   }
 }
 @layer base {
+  main :is(p, li, dd, dt, a, span) {
+    overflow-wrap: break-word;
+  }
+  h1,
+  h2,
+  h3 {
+    overflow-wrap: anywhere;
+  }
   h1,
   h2 {
     font-family: var(--font-heading);
@@ -261,6 +278,14 @@
   line-height: 1;
   color: var(--foreground);
   white-space: nowrap;
+  max-width: 100%;
+  @media (max-width: 30rem) {
+    height: auto;
+    min-height: 1.375rem;
+    padding-block: 0.25rem;
+    white-space: normal;
+    line-height: 1.2;
+  }
 }
 /* Número grande em serifa. */
 @utility numero {
@@ -276,6 +301,7 @@
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--bronze-texto);
+  overflow-wrap: anywhere;
 }
 /* Título de página (h1): 32 px no celular, 56 px no desktop (ver docs/DESIGN.md). */
 @utility titulo-pagina {
@@ -310,6 +336,7 @@
   display: inline-flex;
   align-items: center;
   min-height: 2.75rem;
+  overflow-wrap: anywhere;
 }
 /* Tabela rolável com primeira coluna fixa (ver ui/tabela-rolavel.tsx). */
 .tabela-fixa :is(th, td):first-child {
@@ -324,29 +351,31 @@
   height: 3rem;
   width: 100%;
   border: 0;
-  border-bottom: 1px solid var(--input);
+  border-bottom: 1px solid var(--borda-controle);
   background: transparent;
   padding-inline: 0.125rem;
   transition: border-color 200ms;
   &::placeholder {
-    color: color-mix(in oklab, var(--muted-foreground) 70%, transparent);
+    color: var(--muted-foreground);
+    opacity: 1;
   }
   &:focus-visible {
-    outline: none;
+    outline: 2px solid var(--bronze-texto);
+    outline-offset: 2px;
     border-bottom-color: var(--foreground);
-    box-shadow: 0 1px 0 0 var(--foreground);
   }
 }
 /* Seletor discreto. */
 @utility seletor {
   height: 2.75rem;
-  border: 1px solid var(--border);
+  border: 1px solid var(--borda-controle);
   border-radius: 2px;
   background: transparent;
   padding-inline: 0.75rem;
   font-size: 0.875rem;
   &:focus-visible {
-    outline: none;
+    outline: 2px solid var(--bronze-texto);
+    outline-offset: 2px;
     border-color: var(--foreground);
   }
 }
@@ -383,6 +412,7 @@
   padding-inline: 1.25rem;
   border-radius: 2px;
   border: 1px solid color-mix(in oklab, var(--foreground) 35%, transparent);
+  max-width: 100%;
   font-size: 0.875rem;
   font-weight: 500;
   transition: border-color 200ms, background-color 200ms;
@@ -393,6 +423,59 @@
   &:focus-visible {
     outline: 2px solid var(--bronze);
     outline-offset: 2px;
+  }
+}
+
+/* Campo grande de filtro (seletor ou busca): 48 px, texto de 16 px (o iOS não dá zoom). */
+/* Borda em --muted-foreground: contraste de 4,8:1 (claro) e 6,4:1 (escuro), acima dos 3:1 de componente. */
+@utility campo-filtro {
+  height: 3rem;
+  width: 100%;
+  min-width: 0;
+  border: 1px solid var(--muted-foreground);
+  border-radius: 2px;
+  background-color: var(--background);
+  color: var(--foreground);
+  padding-inline: 0.75rem;
+  font-size: 1rem;
+  &::placeholder {
+    color: var(--muted-foreground);
+  }
+  &:focus-visible {
+    outline: 2px solid var(--bronze);
+    outline-offset: 1px;
+    border-color: var(--foreground);
+  }
+}
+
+/* Folha de filtros (ui/painel-filtros.tsx). Sem JavaScript fica aberta, no fluxo da página.
+   Com JavaScript, no celular, some até o botão "Filtrar" abrir e então sobe de baixo. */
+@media (max-width: 47.99rem) {
+  :root[data-js] .folha-filtros:not([data-aberto]) {
+    display: none;
+  }
+  :root[data-js] .folha-filtros[data-aberto] {
+    position: fixed;
+    inset-inline: 0;
+    bottom: 0;
+    z-index: 51;
+    max-height: 88dvh;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    background: var(--background);
+    border-top: 1px solid var(--foreground);
+    padding: var(--esp-4) var(--esp-4) env(safe-area-inset-bottom);
+  }
+}
+@media (prefers-reduced-motion: no-preference) and (max-width: 47.99rem) {
+  :root[data-js] .folha-filtros[data-aberto] {
+    animation: folha-sobe var(--duracao-entrada) var(--curva-suave);
+  }
+}
+@keyframes folha-sobe {
+  from {
+    transform: translateY(1.5rem);
+    opacity: 0;
   }
 }
 
@@ -427,6 +510,24 @@
       animation-timeline: view();
       animation-range: entry 0% entry 35%;
     }
+  }
+}
+
+/* Apoiadores: os raios do sol se desenham ao abrir a página, e os nomes aparecem em seguida. */
+@media (prefers-reduced-motion: no-preference) {
+  .sol-raio {
+    stroke-dasharray: var(--len);
+    stroke-dashoffset: var(--len);
+    animation: desenhar-traco 700ms var(--curva-suave) var(--atraso) forwards;
+  }
+  .sol-nome {
+    opacity: 0;
+    animation: sol-nome-aparece 500ms ease-out var(--atraso) forwards;
+  }
+}
+@keyframes sol-nome-aparece {
+  to {
+    opacity: 1;
   }
 }
 
@@ -534,4 +635,19 @@
    primeiro paint. Quando o cliente monta, passa a usar hidden="until-found" nos inativos. */
 html[data-js] [data-aba][data-ativa="false"]:not([hidden]) {
   display: none;
+}
+
+/* Conteúdo que entra depois de uma busca (exemplo regional, curiosidades da cidade): só esmaece. */
+@media (prefers-reduced-motion: no-preference) {
+  .troca-suave {
+    animation: entrar-suave 320ms ease-out both;
+  }
+}
+@keyframes entrar-suave {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }

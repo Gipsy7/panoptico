@@ -6,6 +6,7 @@ import { EsqueletoSecao } from "@/components/esqueleto-secao";
 import { Revelacao } from "@/components/revelacao";
 import { getFontes } from "@/lib/api";
 import { formatarData } from "@/lib/formato";
+import { LinkExterno } from "@/components/link-externo";
 
 export const metadata: Metadata = {
   title: "Sobre as fontes",
@@ -239,14 +240,12 @@ async function ListaFontes() {
         <li key={f.dado} className="flex flex-col gap-0.5 p-4">
           <span className="font-medium">{f.dado}</span>
           <span className="text-sm text-muted-foreground">
-            <a
+            <LinkExterno
               href={f.url}
-              target="_blank"
-              rel="noopener noreferrer"
               className="underline underline-offset-2"
             >
               {f.orgao}
-            </a>
+            </LinkExterno>
             {f.atualizado_em && <> · atualizado em {formatarData(f.atualizado_em)}</>}
           </span>
         </li>

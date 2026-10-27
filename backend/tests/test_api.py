@@ -120,3 +120,14 @@ def test_cache_na_cdn_so_para_respostas_boas(client, session):
     assert "s-maxage" in ok.headers["cache-control"]
     assert "cache-control" not in client.get("/representantes?uf=XX").headers
     assert "cache-control" not in client.get("/saude").headers
+
+
+def test_copia_da_cdn_serve_a_qualquer_origem(client, session):
+    """A CDN guarda uma cópia por endereço: com ou sem Origin, a resposta libera a leitura."""
+    camara, _ = _popular(session)
+    url = f"/representantes?uf={camara[0]['uf']}"
+    sem_origem = client.get(url)
+    com_origem = client.get(url, headers={"Origin": "https://vps.panoptico.social.br"})
+    for r in (sem_origem, com_origem):
+        assert r.headers["access-control-allow-origin"] == "*"
+        assert "vary" not in r.headers

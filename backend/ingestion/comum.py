@@ -323,6 +323,16 @@ cargas_sem_mudanca = 0
 forcar = os.environ.get("PANOPTICO_FORCAR", "") in ("1", "true", "sim")
 
 
+def ultima_carga_ok(fonte: str) -> datetime | None:
+    """Quando terminou a última carga bem-sucedida da fonte (None se nunca houve)."""
+    with SessionLocal() as session:
+        return session.scalar(
+            select(func.max(FonteIngestao.concluido_em)).where(
+                FonteIngestao.fonte == fonte, FonteIngestao.status.in_(STATUS_SUCESSO)
+            )
+        )
+
+
 @dataclass
 class Incremental:
     """Liga a carga incremental numa fonte (opt-in).
@@ -587,7 +597,8 @@ def executar_ingestao(
             total = carregar(session, payload, ingestao)
             ingestao.registros = total
             ingestao.status = "ok"
-            ingestao.concluido_em = datetime.now(UTC)
+            # A carga pode ter fixado a data da própria fonte (ex.: totalização do TSE).
+            ingestao.concluido_em = ingestao.concluido_em or datetime.now(UTC)
             if sha is not None:  # só vale como "último download" se a carga deu certo
                 _guardar_cache(session, chave, url, sha, tamanho, info, contexto)
             session.commit()

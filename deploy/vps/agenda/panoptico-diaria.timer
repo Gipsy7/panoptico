@@ -1,0 +1,10 @@
+[Unit]
+Description=Agenda: ingestao diaria (6h de Brasilia)
+
+[Timer]
+# Horário em UTC, igual ao cron do workflow que esta carga substitui.
+OnCalendar=*-*-* 09:00:00 UTC
+Persistent=true
+
+[Install]
+WantedBy=timers.target

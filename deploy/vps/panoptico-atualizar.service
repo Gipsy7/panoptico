@@ -1,0 +1,10 @@
+[Unit]
+Description=Panoptico: atualiza a VPS se o main mudou
+After=docker.service network-online.target
+Wants=network-online.target
+Requires=docker.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/bash /opt/panoptico/deploy/vps/atualizar.sh
+TimeoutStartSec=30min

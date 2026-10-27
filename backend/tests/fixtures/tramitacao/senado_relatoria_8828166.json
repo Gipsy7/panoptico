@@ -1,0 +1,26 @@
+[
+ {
+  "codigoMateria": 168484,
+  "codigoParlamentar": 22,
+  "dataDesignacao": "2025-06-10 17:50:18",
+  "dataDestituicao": "2025-11-05 18:36:31",
+  "descricaoTipoEncerramento": "Deliberação da matéria",
+  "descricaoTipoRelator": "Relator",
+  "idProcesso": 8828166,
+  "nomeColegiado": "Comissão de Constituição, Justiça e Cidadania",
+  "nomeParlamentar": "Esperidião Amin",
+  "siglaColegiado": "CCJ"
+ },
+ {
+  "codigoMateria": 168484,
+  "codigoParlamentar": 22,
+  "dataDesignacao": "2025-12-17 18:15:25",
+  "dataDestituicao": "2026-02-24 18:57:26",
+  "descricaoTipoEncerramento": "Matéria deliberada no plenário",
+  "descricaoTipoRelator": "Relator",
+  "idProcesso": 8828166,
+  "nomeColegiado": "Plenário do Senado Federal",
+  "nomeParlamentar": "Esperidião Amin",
+  "siglaColegiado": "PLEN"
+ }
+]

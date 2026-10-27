@@ -2,6 +2,7 @@ import { TabelaRolavel } from "@/components/ui/tabela-rolavel";
 import { FonteRodape } from "@/components/fonte-rodape";
 import type { EmendasRelator } from "@/lib/api";
 import { formatarData, formatarReais } from "@/lib/formato";
+import { LinkExterno } from "@/components/link-externo";
 
 export function EmendasRelatorSecao({ dados }: { dados: EmendasRelator }) {
   return (
@@ -10,7 +11,7 @@ export function EmendasRelatorSecao({ dados }: { dados: EmendasRelator }) {
         <h2 id="emendas-relator-titulo" className="text-2xl">
           Indicações de emendas de relator (RP9)
         </h2>
-        <p className="text-xs text-muted-foreground">
+        <p className="text-sm text-muted-foreground">
           Pedidos de recursos registrados em nome deste parlamentar na planilha oficial do
           Congresso, orçamento de {dados.ano}
         </p>
@@ -22,7 +23,7 @@ export function EmendasRelatorSecao({ dados }: { dados: EmendasRelator }) {
         <Numero rotulo="Beneficiários diferentes" valor={String(dados.beneficiarios)} />
       </dl>
 
-      <TabelaRolavel larguraMinima="28rem">
+      <TabelaRolavel larguraMinima="28rem" rotulo="Indicações por órgão, tabela com rolagem lateral">
       <table className="w-full text-left text-sm">
         <caption className="pb-1 text-left font-medium">Por órgão que executaria o recurso</caption>
         <thead className="sr-only">
@@ -83,14 +84,12 @@ export function EmendasRelatorSecao({ dados }: { dados: EmendasRelator }) {
       </details>
 
       <p className="text-sm">
-        <a
+        <LinkExterno
           href={dados.arquivo_url}
-          target="_blank"
-          rel="noopener noreferrer"
           className="underline underline-offset-2"
         >
           Baixar a planilha oficial (xlsx)
-        </a>
+        </LinkExterno>
       </p>
 
       <FonteRodape

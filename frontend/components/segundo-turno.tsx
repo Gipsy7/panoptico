@@ -9,8 +9,9 @@ import type { ReactNode } from "react";
 
 import { Iniciais } from "@/components/eleitos-secao";
 import { FonteRodape } from "@/components/fonte-rodape";
-import { type CandidatoSegundoTurno, type DisputaSegundoTurno, type SegundoTurno, urlFotoTse } from "@/lib/api";
+import { type CandidatoSegundoTurno, type DisputaSegundoTurno, type SegundoTurno, legendaFoto, urlFotoDe } from "@/lib/api";
 import { formatarData, formatarReais, formatarReaisCompacto } from "@/lib/formato";
+import { LinkExterno } from "@/components/link-externo";
 
 const NAO_INFORMADO = "não informado pela fonte";
 const NAO_IDENTIFICADO = "não identificado na base";
@@ -48,20 +49,33 @@ export function tituloDisputa(d: DisputaSegundoTurno): string {
   return d.chave === "presidente" ? "Presidente da República" : `Governador ${deEstado(d.unidade)}`;
 }
 
-function Foto({ c, tamanho }: { c: { id: number; nome_urna: string; foto: boolean; foto_url?: string | null }; tamanho: number }) {
-  const src = c.foto ? urlFotoTse(c.id) : (c.foto_url ?? null);
+function Foto({
+  c,
+  tamanho,
+  decorativa = false,
+}: {
+  c: { id: number; nome_urna: string; foto: boolean; foto_de?: number | null; foto_ano?: number | null; foto_url?: string | null };
+  tamanho: number;
+  /** Com o nome escrito logo abaixo: alt vazio. */
+  decorativa?: boolean;
+}) {
+  const src = c.foto ? urlFotoDe(c) : (c.foto_url ?? null);
   if (!src) return <Iniciais nome={c.nome_urna} tamanho={tamanho} />;
+  const legenda = c.foto ? legendaFoto(c) : null;
   return (
-    // eslint-disable-next-line @next/next/no-img-element -- foto do TSE ou da Casa, já pequena
-    <img
-      src={src}
-      alt={`Foto de ${c.nome_urna}`}
-      width={tamanho}
-      height={Math.round((tamanho * 4) / 3)}
-      loading="lazy"
-      className="shrink-0 rounded-[2px] bg-muted object-cover"
-      style={{ width: tamanho, height: Math.round((tamanho * 4) / 3) }}
-    />
+    <span className="flex shrink-0 flex-col items-center gap-0.5">
+      {/* eslint-disable-next-line @next/next/no-img-element -- foto do TSE ou da Casa, já pequena */}
+      <img
+        src={src}
+        alt={decorativa ? "" : `Foto de ${c.nome_urna}`}
+        width={tamanho}
+        height={Math.round((tamanho * 4) / 3)}
+        loading="lazy"
+        className="shrink-0 rounded-[2px] bg-muted object-cover"
+        style={{ width: tamanho, height: Math.round((tamanho * 4) / 3) }}
+      />
+      {legenda && <span className="text-[0.7rem] leading-none text-muted-foreground">{legenda}</span>}
+    </span>
   );
 }
 
@@ -83,7 +97,7 @@ function Linha({
     <div className="border-b border-border py-3">
       <dt className="text-sm text-muted-foreground">
         {rotulo}
-        {detalhe && <span className="block text-[13px]">{detalhe}</span>}
+        {detalhe && <span className="block text-sm">{detalhe}</span>}
       </dt>
       <div className="mt-1 grid grid-cols-2 gap-3 sm:gap-6">
         {valores.map((v, i) => (
@@ -100,7 +114,7 @@ function Numero({ valor, apoio }: { valor: string; apoio?: string | null }) {
   return (
     <>
       <span className="numero text-xl leading-tight">{valor}</span>
-      {apoio && <span className="text-[13px] leading-snug text-muted-foreground tabular-nums">{apoio}</span>}
+      {apoio && <span className="text-sm leading-snug text-muted-foreground tabular-nums">{apoio}</span>}
     </>
   );
 }
@@ -156,7 +170,7 @@ function valorVice(c: CandidatoSegundoTurno) {
   return (
     <>
       <span className="text-sm font-medium leading-snug">{c.vice.nome_urna}</span>
-      {c.vice.partido && <span className="text-[13px] text-muted-foreground">{c.vice.partido}</span>}
+      {c.vice.partido && <span className="text-sm text-muted-foreground">{c.vice.partido}</span>}
     </>
   );
 }
@@ -165,7 +179,7 @@ function valorVice(c: CandidatoSegundoTurno) {
 function Cabecalho({ c }: { c: CandidatoSegundoTurno }) {
   return (
     <div className="flex min-w-0 flex-col gap-2">
-      <Foto c={c} tamanho={72} />
+      <Foto c={c} tamanho={72} decorativa />
       <p className="text-base font-semibold leading-tight break-words">{c.nome_urna}</p>
       <p className="flex flex-wrap gap-1">
         {c.numero && <span className="pilula tabular-nums">Número {c.numero}</span>}
@@ -337,7 +351,7 @@ export function DetalheCandidato({
                   </li>
                 ))}
               </ul>
-              <p className="text-[13px] text-muted-foreground">
+              <p className="text-sm text-muted-foreground">
                 Origem como o TSE classifica. Nomes de doadores pessoas físicas não são mostrados.
               </p>
             </>
@@ -361,7 +375,7 @@ export function DetalheCandidato({
                   <span>
                     <span className="tabular-nums">{e.ano}</span> · {e.cargo} · {e.unidade}
                   </span>
-                  <span className="text-[13px] text-muted-foreground">
+                  <span className="text-sm text-muted-foreground">
                     {[e.partido, e.situacao].filter(Boolean).join(" · ")}
                   </span>
                 </li>
@@ -383,14 +397,14 @@ export function DetalheCandidato({
               {c.sancoes.map((s, i) => (
                 <li key={i} className="flex flex-col gap-0.5 py-2">
                   <span className="break-words">{s.descricao}</span>
-                  <span className="text-[13px] text-muted-foreground">
+                  <span className="text-sm text-muted-foreground">
                     {[s.orgao, s.data ? formatarData(s.data) : null, s.situacao].filter(Boolean).join(" · ")}
                     {s.fonte_url && (
                       <>
                         {" · "}
-                        <a href={s.fonte_url} target="_blank" rel="noopener noreferrer" className="underline underline-offset-2">
+                        <LinkExterno href={s.fonte_url} className="underline underline-offset-2">
                           fonte
-                        </a>
+                        </LinkExterno>
                       </>
                     )}
                   </span>

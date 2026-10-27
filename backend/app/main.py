@@ -13,6 +13,7 @@ from app.api import (
     parlamentares,
     partidos,
     pessoas,
+    projetos,
     representantes,
     saude,
     segundo_turno,
@@ -50,6 +51,12 @@ async def cache_na_cdn(request: Request, call_next):
         and "cache-control" not in resposta.headers
     ):
         resposta.headers["Cache-Control"] = CACHE_CDN
+        # A CDN guarda uma cópia só por endereço, sem olhar a origem do pedido: se o servidor do
+        # site (sem Origin) chegasse primeiro, a cópia ficaria sem CORS e o navegador seria
+        # barrado. A API é pública e só de leitura, então a cópia serve a qualquer origem.
+        resposta.headers["Access-Control-Allow-Origin"] = "*"
+        if "vary" in resposta.headers:
+            del resposta.headers["vary"]
     return resposta
 
 
@@ -67,4 +74,6 @@ app.include_router(busca.router)
 app.include_router(pessoas.router)
 app.include_router(partidos.router)
 app.include_router(segundo_turno.router)
+# projetos antes de votacoes: /votacoes/local/{id} precisa vir antes de /votacoes/{casa}/{id}.
+app.include_router(projetos.router)
 app.include_router(votacoes.router)

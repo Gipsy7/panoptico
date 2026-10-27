@@ -40,6 +40,16 @@ export const viewport: Viewport = {
   ],
 };
 
+const SALTO =
+  "sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:rounded-lg focus:bg-card focus:px-3 focus:py-2 focus:ring-3 focus:ring-ring/50";
+
+// Atalhos do eMAG (accesskey): Alt+1 conteúdo, Alt+2 menu, Alt+3 busca.
+const SALTOS = [
+  { tecla: "1", href: "#conteudo", rotulo: "Pular para o conteúdo" },
+  { tecla: "2", href: "#menu-principal", rotulo: "Ir para o menu" },
+  { tecla: "3", href: "/#cep", rotulo: "Ir para a busca por CEP" },
+];
+
 const LINK = "alvo-link underline underline-offset-2 hover:text-foreground";
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
@@ -58,28 +68,30 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         />
       </head>
       <body className="flex min-h-full flex-col">
-        <a
-          href="#conteudo"
-          className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:rounded-lg focus:bg-card focus:px-3 focus:py-2 focus:ring-3 focus:ring-ring/50"
-        >
-          Pular para o conteúdo
-        </a>
+        <div className="contents">
+          {SALTOS.map((l) => (
+            // eslint-disable-next-line jsx-a11y/no-access-key -- atalhos 1, 2 e 3 pedidos pelo eMAG
+            <a key={l.tecla} href={l.href} accessKey={l.tecla} className={SALTO}>
+              {l.rotulo}
+            </a>
+          ))}
+        </div>
         <header
           style={{ viewTransitionName: "site-header" }}
           className="sticky top-0 z-40 border-b border-border/70 bg-background/85 backdrop-blur-md"
         >
-          <div className="mx-auto flex w-full max-w-5xl items-center h-14 justify-between gap-4 px-4">
+          <div id="menu-principal" tabIndex={-1} className="outline-none mx-auto flex w-full max-w-5xl items-center min-h-14 flex-wrap justify-between gap-x-4 gap-y-1 px-4 xl:flex-nowrap">
             <Link
               href="/"
               aria-label="Panóptico.social, página inicial"
-              className="shrink-0 rounded-md focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none"
+              className="shrink-0 rounded-md"
             >
               <Logo tamanho={28} />
             </Link>
             <MenuPrincipal />
           </div>
         </header>
-        <main id="conteudo" className="mx-auto w-full max-w-3xl flex-1 px-4 py-8 has-[[data-largura=larga]]:max-w-5xl">
+        <main id="conteudo" tabIndex={-1} className="outline-none mx-auto w-full max-w-3xl flex-1 px-4 py-8 has-[[data-largura=larga]]:max-w-5xl">
           {children}
         </main>
         <footer className="mt-8 border-t border-border/70">
@@ -87,13 +99,23 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
             <div className="flex items-start gap-3">
               <Marca tamanho={28} traco={2.4} className="shrink-0 text-bronze" />
               <p className="max-w-prose text-sm leading-relaxed">
-                O panóptico era uma prisão em que um vigia, de uma torre, via todos sem ser visto.
-                Aqui é o contrário: todos podem ver quem os representa.
+                O{" "}
+                <Link href="/o-panoptico" className="underline underline-offset-2 hover:text-foreground">
+                  panóptico
+                </Link>{" "}
+                era uma prisão em que um vigia, de uma torre, via todos sem ser visto. Aqui é o
+                contrário: todos podem ver quem os representa.
               </p>
             </div>
             <nav aria-label="Rodapé" className="flex flex-wrap gap-x-6 gap-y-1">
               <Link href="/partidos" className={LINK}>
                 Dinheiro dos partidos
+              </Link>
+              <Link href="/o-panoptico" className={LINK}>
+                O que é o Panóptico
+              </Link>
+              <Link href="/perguntas" className={LINK}>
+                Perguntas frequentes
               </Link>
               <Link href="/sobre-as-fontes" className={LINK}>
                 Sobre as fontes
@@ -101,11 +123,17 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
               <Link href="/privacidade" className={LINK}>
                 Privacidade
               </Link>
+              <Link href="/acessibilidade" className={LINK}>
+                Acessibilidade
+              </Link>
               <a href="https://github.com/Gipsy7/panoptico" className={LINK}>
                 Código aberto
               </a>
               <Link href="/apoie" className={LINK}>
                 Apoie
+              </Link>
+              <Link href="/apoiadores" className={LINK}>
+                Apoiadores
               </Link>
               <a href={`mailto:${CONTATO_EMAIL}`} className={LINK}>
                 {CONTATO_EMAIL}

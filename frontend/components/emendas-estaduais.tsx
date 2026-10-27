@@ -27,7 +27,7 @@ export function EmendasEstaduaisCidade({ dados, cidade }: { dados: EmendasEstadu
         <h3 id="emendas-estaduais-titulo" className="text-xl">
           Emendas de deputados estaduais
         </h3>
-        <p className="text-xs text-muted-foreground">
+        <p className="text-sm text-muted-foreground">
           {dados.casa}. Dinheiro do orçamento do Estado, não da União: não está somado às emendas federais acima.
         </p>
       </div>
@@ -73,7 +73,7 @@ export function EmendasEstaduaisCidade({ dados, cidade }: { dados: EmendasEstadu
                           ) : (
                             <span className="font-medium">{nome}</span>
                           )}
-                          <span className="ml-1 text-xs text-muted-foreground">
+                          <span className="ml-1 text-sm text-muted-foreground">
                             {a.tipo === "bancada" ? "bancada" : a.em_exercicio ? "" : "sem mandato atual"}
                           </span>
                         </span>
@@ -102,7 +102,7 @@ export function EmendasEstaduaisCidade({ dados, cidade }: { dados: EmendasEstadu
                 ))}
               </ul>
               {dados.numero_favorecidos > dados.favorecidos.length && (
-                <p className="text-xs text-muted-foreground">
+                <p className="text-sm text-muted-foreground">
                   E mais {dados.numero_favorecidos - dados.favorecidos.length} com valores menores.
                 </p>
               )}
@@ -111,7 +111,7 @@ export function EmendasEstaduaisCidade({ dados, cidade }: { dados: EmendasEstadu
         </>
       )}
       <p className="text-sm text-muted-foreground">{RECORTE_SIMPLES}</p>
-      <p className="text-xs text-muted-foreground">{dados.recorte}</p>
+      <p className="text-sm text-muted-foreground">{dados.recorte}</p>
       <FonteRodape fonte={dados.fonte_nome} url={dados.fonte_url} atualizadoEm={dados.atualizado_em} />
     </section>
   );
@@ -156,7 +156,7 @@ export function EmendasDoDeputadoEstadual({ dados }: { dados: EmendasDeputadoEst
             media={{ rotulo: "Média da Assembleia", valor: dados.media_casa_pago }}
             formato="reais"
           />
-          <p className="text-xs text-muted-foreground">{dados.media_descricao}</p>
+          <p className="text-sm text-muted-foreground">{dados.media_descricao}</p>
         </div>
       )}
       {dados.por_municipio.length > 0 && (
@@ -173,7 +173,7 @@ export function EmendasDoDeputadoEstadual({ dados }: { dados: EmendasDeputadoEst
                   ) : (
                     m.nome
                   )}
-                  <span className="block text-xs text-muted-foreground">
+                  <span className="block text-sm text-muted-foreground">
                     {m.emendas} {m.emendas === 1 ? "emenda" : "emendas"}
                   </span>
                 </span>
@@ -182,7 +182,7 @@ export function EmendasDoDeputadoEstadual({ dados }: { dados: EmendasDeputadoEst
             ))}
           </ul>
           {dados.numero_municipios > dados.por_municipio.length && (
-            <p className="text-xs text-muted-foreground">
+            <p className="text-sm text-muted-foreground">
               E mais {dados.numero_municipios - dados.por_municipio.length} municípios com valores menores.
             </p>
           )}
@@ -198,15 +198,15 @@ export function EmendasDoDeputadoEstadual({ dados }: { dados: EmendasDeputadoEst
                   <span className="min-w-0 text-sm font-medium">{i.favorecido}</span>
                   <span className="shrink-0 text-sm font-medium tabular-nums">{formatarReais(i.pago, true)}</span>
                 </div>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-sm text-muted-foreground">
                   {[i.ano, i.municipio_nome, i.situacao].filter(Boolean).join(" · ")}
                 </p>
-                {i.objeto && <p className="text-xs text-muted-foreground">{i.objeto}</p>}
+                {i.objeto && <p className="text-sm text-muted-foreground">{i.objeto}</p>}
               </li>
             ))}
           </ul>
           {dados.numero_itens > dados.itens.length && (
-            <p className="text-xs text-muted-foreground">
+            <p className="text-sm text-muted-foreground">
               Mostrando {dados.itens.length} de {dados.numero_itens}.
             </p>
           )}

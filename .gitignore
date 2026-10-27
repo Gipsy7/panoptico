@@ -33,3 +33,4 @@ Thumbs.db
 # Deploy
 deploy/.env
 deploy/backups/
+frontend/.netlify/

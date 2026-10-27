@@ -1,0 +1,10 @@
+[Unit]
+Description=Agenda: justica e identidade (terca, 10h de Brasilia)
+
+[Timer]
+# Horário em UTC, igual ao cron do workflow que esta carga substitui.
+OnCalendar=Tue *-*-* 13:00:00 UTC
+Persistent=true
+
+[Install]
+WantedBy=timers.target
