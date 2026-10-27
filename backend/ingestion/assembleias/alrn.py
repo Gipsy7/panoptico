@@ -318,7 +318,7 @@ def coletar(hoje: date, de_raw: Path | None = None) -> tuple[dict, list[str]]:
         ids = iniciativas(comum.get_json(client, API + "parlamentar/").get("dados", []))
         registros = []
         for d in lista:
-            g, fora = gastos.get(d["id"], ([], []))
+            g, fora = gastos.get(d["id"]) or gastos.get(str(d["id"])) or ([], [])
             iniciativa = ids.get(comum.chave_nome(d["nome"]))
             if iniciativa is None:
                 print(f"  {d['nome']}: sem iniciativa na API; entra sem proposições", flush=True)
