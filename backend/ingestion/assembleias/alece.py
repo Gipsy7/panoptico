@@ -13,7 +13,8 @@ Gastos: o portal da transparência publica, por mês, o CSV da "verba de desempe
 parlamentar" (empenhos do gabinete: benefício de alimentação, combustível, consultoria,
 telefonia, divulgação, reembolsos indenizatórios). Soma por deputado, mês e tipo de gasto.
 O CSV não traz CPF do deputado (o CPF e o CNPJ são do fornecedor e nunca são guardados), só
-o nome com erros de digitação; liga-se só por nome exato (site ou TSE), nunca aproximado.
+o nome com erros de digitação; liga-se sozinho só por nome exato (site ou TSE); o aproximado vai
+para a fila de revisão humana (`apelidos.py`) e só liga depois de aceito.
 
 Indicações não entram (são milhares de páginas de listagem). Os votos nominais saem em
 planilhas de relatório de impressão (uma por matéria), sem estrutura aproveitável.
@@ -339,14 +340,31 @@ def linhas_dos_arquivos(arquivos: dict[str, bytes]) -> list[dict[str, str]]:
     return linhas
 
 
+def totais_por_nome(linhas: list[dict[str, str]]) -> dict[str, tuple[int, Decimal]]:
+    """Chave de nome -> (lançamentos, valor líquido) de toda a planilha, para dimensionar a
+    fila de apelidos (nomes sem deputado)."""
+    totais: dict[str, tuple[int, Decimal]] = {}
+    for lin in linhas:
+        nome = nome_do_csv(lin.get("DEPUTADO", ""))
+        if not nome:
+            continue
+        try:
+            valor = _valor(lin.get("VALOR", ""))
+        except InvalidOperation:
+            valor = Decimal(0)
+        n, total = totais.get(nome, (0, Decimal(0)))
+        totais[nome] = (n + 1, total + valor)
+    return totais
+
+
 def anexar_gastos(session: Any, casa: dict, linhas: list[dict[str, str]]) -> list[str]:
     """Põe os gastos em cada deputado (e o que não entra na soma em `gastos_fora`). Devolve
     os nomes do CSV que não casaram com nenhum deputado da lista (ex-deputados, erros de
     digitação)."""
     deputados = casa["vereadores"]
     soma, fora = somar_gastos(linhas)
-    ligados, sobras = base.ligar_nomes_exatos(
-        set(soma) | set(fora), deputados, base.nomes_do_tse(session, "CE")
+    ligados, sobras = base.ligar_nomes(
+        FONTE, totais_por_nome(linhas), deputados, base.nomes_do_tse(session, "CE")
     )
     por_nome: dict[str, list[dict]] = defaultdict(list)
     fora_por_nome: dict[str, list[dict]] = defaultdict(list)

@@ -742,6 +742,7 @@ modulo = "ingestion.assembleias.alrn"
 uso = "Assembleia do Rio Grande do Norte hoje"
 recorte = "deputados em exercício; projetos e notas da verba de ressarcimento (formulário do site, por mês, sem tipo nem fornecedor) do ano atual e anterior (sem votos nominais e presença)"
 frequencia = "semanal"
+# Verbas: o portal novo exige credencial na API (401); ver docs/pedidos/alrn_verbas_portal_novo.md.
 
 [[fonte]]
 nome = "alese"

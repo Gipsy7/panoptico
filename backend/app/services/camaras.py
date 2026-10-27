@@ -131,6 +131,25 @@ def _atualizado_em(session: Session, casa: str, uf: str = "") -> datetime | None
     )
 
 
+# Marcador no alerta da carga que manteve os gastos da carga anterior (a fonte das verbas não
+# respondeu): essa carga não atualiza os gastos, então a data deles é a de uma carga sem ele.
+MARCA_GASTOS_MANTIDOS = "[gastos_mantidos]"
+
+
+def _gastos_atualizado_em(session: Session, casa: str, uf: str = "") -> datetime | None:
+    """Data da última carga `ok` que de fato atualizou os gastos (sem o marcador de gastos
+    mantidos nos alertas). Sem nenhuma, cai na data da última carga ok."""
+    cargas = session.execute(
+        select(FonteIngestao.concluido_em, FonteIngestao.alertas)
+        .where(FonteIngestao.fonte == _fonte(casa, uf)[0], FonteIngestao.status == "ok")
+        .order_by(FonteIngestao.concluido_em.desc())
+    ).all()
+    for concluido_em, alertas in cargas:
+        if not any(MARCA_GASTOS_MANTIDOS in str(a) for a in (alertas or [])):
+            return concluido_em
+    return _atualizado_em(session, casa, uf)
+
+
 POR_PAGINA = 20
 # Registros de voto que não são voto: a pessoa estava na lista mas não votou.
 NAO_VOTOU = ("não votou", "nao votou", "ausente")
@@ -193,6 +212,7 @@ def gastos(session: Session, m: MandatoLocal) -> dict | None:
     ).all()
     if ano is None and not fora:
         return None
+    atualizado = _gastos_atualizado_em(session, m.casa, m.uf)
     if ano is None:  # só há o que ficou fora da soma: a seção diz isso, sem número de gasto
         a, linhas, valor, ilegiveis, motivo = fora[0]
         return {
@@ -202,6 +222,7 @@ def gastos(session: Session, m: MandatoLocal) -> dict | None:
             "media_casa": None,
             "por_categoria": [],
             "fora_da_soma": _fora(linhas, valor, ilegiveis, motivo),
+            "atualizado_em": atualizado,
         }
     do_ano = next((f for f in fora if f[0] == ano), None)
     categorias = session.execute(
@@ -228,6 +249,7 @@ def gastos(session: Session, m: MandatoLocal) -> dict | None:
         "media_casa": soma_casa / len(colegas) if colegas else None,
         "por_categoria": [{"categoria": c, "valor": v} for c, v in categorias],
         "fora_da_soma": _fora(*do_ano[1:]) if do_ano else None,
+        "atualizado_em": atualizado,
     }
 
 

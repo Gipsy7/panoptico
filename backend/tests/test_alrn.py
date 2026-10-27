@@ -111,3 +111,73 @@ def test_baixar_verbas_usa_o_token_do_formulario_e_busca_sem_mes(monkeypatch):
     with pytest.raises(ValueError, match="_token"):
         with httpx.Client() as client:
             alrn.baixar_verbas(client, "<html></html>", ["87"])
+
+
+def test_fonte_de_verbas_fora_do_ar_mantem_os_gastos_anteriores(session, monkeypatch):
+    from contextlib import contextmanager
+    from datetime import date
+    from decimal import Decimal
+
+    import httpx
+
+    from app.models import GastoLocal, MandatoLocal
+
+    mandato = MandatoLocal(
+        casa="assembleia", uf="RN", id_externo="42", nome="Fulana", sapl_url="https://x"
+    )
+    session.add(mandato)
+    session.flush()
+    session.add(
+        GastoLocal(
+            mandato_id=mandato.id, ano=2026, mes=3, categoria="Verba", valor=Decimal("100.50")
+        )
+    )
+    session.flush()
+
+    @contextmanager
+    def sessao():
+        yield session
+
+    def falha(*a, **k):
+        resposta = httpx.Response(404, request=httpx.Request("GET", "https://x"))
+        raise httpx.HTTPStatusError("404", request=resposta.request, response=resposta)
+
+    monkeypatch.setattr(alrn, "SessionLocal", sessao)
+    monkeypatch.setattr(alrn, "gastos_dos_deputados", falha)
+    gastos, avisos = alrn.gastos_ou_anteriores(None, [], [], date(2026, 10, 27), None)
+    assert gastos["42"][0] == [
+        {"ano": 2026, "mes": 3, "categoria": "Verba", "valor": Decimal("100.50")}
+    ]
+    assert len(avisos) == 1 and "mantidos os gastos da carga anterior" in avisos[0]
+
+
+def test_data_dos_gastos_ignora_carga_que_so_manteve_os_gastos(session):
+    from datetime import UTC, datetime
+    from decimal import Decimal
+
+    from app.models import FonteIngestao, GastoLocal, MandatoLocal
+    from app.services import camaras
+
+    mandato = MandatoLocal(
+        casa="assembleia", uf="RN", id_externo="7", nome="Fulano", sapl_url="https://x"
+    )
+    session.add(mandato)
+    session.flush()
+    session.add(
+        GastoLocal(mandato_id=mandato.id, ano=2026, mes=3, categoria="Verba", valor=Decimal("10"))
+    )
+    antiga = datetime(2026, 10, 20, tzinfo=UTC)
+    nova = datetime(2026, 10, 27, tzinfo=UTC)
+    for quando, alertas in (
+        (antiga, None),
+        (nova, [f"{alrn.MARCA_GASTOS_MANTIDOS} Gastos ALRN: a fonte das verbas não respondeu"]),
+    ):
+        session.add(
+            FonteIngestao(
+                fonte="alrn", url="https://x", arquivo_raw="(não guardado)", registros=1,
+                status="ok", concluido_em=quando, alertas=alertas,
+            )
+        )  # fmt: skip
+    session.flush()
+    assert camaras._atualizado_em(session, "assembleia", "RN") == nova  # o resto do perfil
+    assert camaras.gastos(session, mandato)["atualizado_em"] == antiga  # os gastos

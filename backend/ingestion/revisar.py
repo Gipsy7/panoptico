@@ -8,7 +8,9 @@ Os atos de nomeação e exoneração sugeridos pelos diários oficiais (tabela d
 mesma revisão, com --tipo diario; a decisão vai para data/atos_revisados.csv. Os pedidos de
 indiciamento dos relatórios de CPI (tabela cpi_indiciamento_sugestao) também, com --tipo cpi:
 o revisor liga o nome a uma pessoa da base ou recusa; a decisão vai para
-data/indiciamentos_revisados.csv.
+data/indiciamentos_revisados.csv. Os nomes de gastos de assembleias que a fonte grafa
+diferente do deputado (apelido, erro de digitação) também, com --tipo apelido: a fila vem da
+última carga da Casa (hoje a ALECE) e a decisão vai para data/curadoria/apelidos_revisados.csv.
 
 Uso:
     python -m ingestion.revisar                    # um por um: [a]ceitar, [r]ecusar, [p]ular
@@ -17,6 +19,7 @@ Uso:
     python -m ingestion.revisar --tipo diario      # atos dos diários (também com --exportar)
     python -m ingestion.revisar --tipo dou         # atos de pessoal do DOU (Seção 2)
     python -m ingestion.revisar --tipo cpi         # indiciamentos sugeridos pelas CPIs
+    python -m ingestion.revisar --tipo apelido     # nomes de gastos grafados diferente do deputado
 """
 
 import argparse
@@ -29,6 +32,7 @@ from sqlalchemy import select
 
 from app.db import SessionLocal
 from app.models import Candidatura, MandatoLocal, Municipio, PessoaVinculo
+from ingestion.assembleias import apelidos
 from ingestion.congresso.cpi_revisao import INDICIAMENTOS_REVISADOS
 from ingestion.congresso.cpi_revisao import gravar_decisao as gravar_indiciamento
 from ingestion.congresso.cpi_revisao import pendentes as pendentes_indiciamentos
@@ -191,30 +195,60 @@ def _revisar_cpis(fila: list[dict], revisor: str) -> None:
             gravar_indiciamento(item, "aceito", revisor, pessoa_chave=escolhida["pessoa_chave"])
 
 
+def _revisar_apelidos(fila: list[dict], revisor: str) -> None:
+    for i, item in enumerate(fila, start=1):
+        valor = f"{item['valor']:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
+        print(f"\n[{i}/{len(fila)}] {item['escopo']}: nome na planilha:{item['nome_fonte']}")
+        print(f"  {item['linhas']} lançamentos, R$ {valor} (líquido)")
+        candidatos = item["candidatos"]
+        for n, c in enumerate(candidatos, start=1):
+            print(f"  [{n}] {c['nome']} (semelhança {c['pontuacao']:.2f})")
+        if not candidatos:
+            print("  (nenhum deputado da lista parecido: provável ex-deputado ou suplente)")
+        pergunta = "  Número do deputado (é a mesma pessoa), [n] nenhum deles, [p]ular, [s]air: "
+        resposta = input(pergunta).strip().lower()
+        if resposta == "s":
+            break
+        if resposta == "n":
+            apelidos.gravar_decisao(item, "recusado", revisor)
+        elif resposta.isdigit() and 1 <= int(resposta) <= len(candidatos):
+            c = candidatos[int(resposta) - 1]
+            apelidos.gravar_decisao(item, "aceito", revisor, c["id_externo"], c["nome"])
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Revisão humana de vínculos e de atos")
     parser.add_argument(
-        "--tipo", choices=["vinculo", "diario", "dou", "cpi"], default="vinculo",
+        "--tipo", choices=["vinculo", "diario", "dou", "cpi", "apelido"], default="vinculo",
         help="vinculo: nomes aproximados (padrão); diario: atos de nomeação/exoneração "
         "sugeridos pelos diários oficiais; dou: atos de pessoal sugeridos pelo Diário Oficial "
-        "da União (Seção 2); cpi: pedidos de indiciamento dos relatórios de CPI",
+        "da União (Seção 2); cpi: pedidos de indiciamento dos relatórios de CPI; apelido: nomes de "
+        "gastos de assembleias grafados diferente do deputado",
     )  # fmt: skip
     parser.add_argument("--exportar", type=Path, help="Grava a fila num CSV, sem perguntar")
     parser.add_argument("--revisor", default="", help="Quem está revisando (vai no CSV)")
     args = parser.parse_args(argv)
     diario, cpi, dou = args.tipo == "diario", args.tipo == "cpi", args.tipo == "dou"
+    apelido = args.tipo == "apelido"
     busca = (
-        pendentes_indiciamentos if cpi else pendentes_dou if dou
+        apelidos.pendentes if apelido
+        else pendentes_indiciamentos if cpi else pendentes_dou if dou
         else pendentes_atos if diario else pendentes
     )  # fmt: skip
-    with SessionLocal() as session:
-        fila = busca(session)
+    if apelido:
+        fila = busca()
+    else:
+        with SessionLocal() as session:
+            fila = busca(session)
     destino = (
-        INDICIAMENTOS_REVISADOS if cpi else DOU_REVISADOS if dou
+        apelidos.REVISADOS if apelido
+        else INDICIAMENTOS_REVISADOS if cpi else DOU_REVISADOS if dou
         else ATOS_REVISADOS if diario else REVISOES
     )  # fmt: skip
     rotulo = (
-        "pedidos de indiciamento de CPI"
+        "nomes de gastos sem deputado"
+        if apelido
+        else "pedidos de indiciamento de CPI"
         if cpi
         else "atos do Diário Oficial da União"
         if dou
@@ -226,14 +260,28 @@ def main(argv: list[str] | None = None) -> int:
     if args.exportar:
         if cpi:  # a lista de candidatos vira texto numa coluna
             fila = [{**f, "candidatos": _candidatos_em_texto(f["candidatos"])} for f in fila]
+        elif apelido:
+            fila = [
+                {
+                    **f,
+                    "candidatos": " | ".join(
+                        f"{c['id_externo']} = {c['nome']}" for c in f["candidatos"]
+                    ),
+                }
+                for f in fila
+            ]
         _exportar(fila, args.exportar, destino)
         return 0
     revisor = args.revisor or input("Seu nome (vai no CSV): ").strip()
     (
-        _revisar_cpis if cpi else _revisar_dou if dou
+        _revisar_apelidos if apelido else _revisar_cpis if cpi else _revisar_dou if dou
         else _revisar_diarios if diario else _revisar_vinculos
     )(fila, revisor)  # fmt: skip
-    proxima = "a próxima carga de pessoas (python -m ingestion.pessoas)"
+    proxima = (
+        "próxima carga da Casa (ex.: python -m ingestion.assembleias.alece)"
+        if apelido
+        else "a próxima carga de pessoas (python -m ingestion.pessoas)"
+    )
     print(f"\nDecisões em {destino}. Valem na {proxima}.")
     return 0
 

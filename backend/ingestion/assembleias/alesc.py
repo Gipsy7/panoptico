@@ -47,6 +47,7 @@ from ingestion.camaras import sapl
 from ingestion.identidade import casar_nome
 
 FONTE = "alesc"
+FONTE_VOTOS = "alesc_votos"  # escopo da fila de apelidos dos nomes nos extratos de votos
 GASTOS = "https://transparencia.alesc.sc.gov.br/gabinetes-parlamentares/csv/{ano}"
 DEPUTADOS = "https://www.alesc.sc.gov.br/deputados"
 ELEGIS = "https://portalelegis.alesc.sc.gov.br"
@@ -385,10 +386,11 @@ def montar_votacoes(
     de urna/civil do TSE da mesma candidatura; os totais da votação contam todo o extrato."""
     indice = json.loads(arquivos["indice.json"])
     por_nome = {comum.chave_nome(d["nome"]): d["slug"][:20] for d in deputados_da_casa}
-    nomes = {n for n, _ in _todos_os_nomes(arquivos)}
-    ligados, _ = base.ligar_nomes_exatos(
-        {comum.chave_nome(n) for n in nomes}, deputados_da_casa, tse
-    )
+    totais: dict[str, tuple[int, Decimal]] = {}
+    for n, _ in _todos_os_nomes(arquivos):  # votos por nome; sem valor em reais
+        votos_n, _zero = totais.get(comum.chave_nome(n), (0, Decimal(0)))
+        totais[comum.chave_nome(n)] = (votos_n + 1, Decimal(0))
+    ligados, _ = base.ligar_nomes(FONTE_VOTOS, totais, deputados_da_casa, tse)
     votacoes, votos, vistos = [], [], set()
     for sessao in indice:
         pagina = arquivos[f"od_{sessao['sessao']}.html"].decode("utf-8", "replace")

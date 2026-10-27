@@ -3,9 +3,11 @@ deputado no formato que `sapl.gravar` espera e o atalho de gravação (`ple.grav
 
 import html
 import re
+from decimal import Decimal
 from typing import Any
 
 from ingestion import comum
+from ingestion.assembleias import apelidos
 from ingestion.assembleias.ple import gravar  # noqa: F401  (reexportado)
 
 
@@ -91,6 +93,22 @@ def ligar_nomes_exatos(
             ligados[chave] = next(iter(alvo))
         else:
             sobras.append(chave)
+    return ligados, sobras
+
+
+def ligar_nomes(
+    escopo: str,
+    totais: dict[str, tuple[int, Decimal]],
+    deputados: list[dict],
+    tse: list[tuple[str, str]],
+) -> tuple[dict[str, str], list[str]]:
+    """Liga por nome idêntico (`ligar_nomes_exatos`), reaplica as decisões humanas já gravadas
+    (`apelidos`) e deixa o resto numa fila de revisão (`apelidos_pendentes_<escopo>.csv`), com
+    candidatos por semelhança. Nada aproximado liga sem decisão. `totais`: chave de nome na
+    planilha -> (linhas, valor). Devolve (ligados, sobras sem decisão)."""
+    ligados, sobras = ligar_nomes_exatos(set(totais), deputados, tse)
+    sobras = apelidos.aplicar(escopo, sobras, deputados, ligados)
+    apelidos.gravar_pendentes(escopo, sobras, deputados, totais)
     return ligados, sobras
 
 

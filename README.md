@@ -347,6 +347,7 @@ Atualização diária no Windows: [scripts/acervo_diario.ps1](scripts/acervo_dia
 | `uv run python -m ingestion.diarios.sigpub` e `uv run python -m ingestion.diarios.domsc` | Diários municipais por plataforma (SIGPub das associações de municípios e DOM/SC pelos dados abertos do CIGA): 2.752 municípios lidos, contra 441 do Querido Diário; só no acervo, geram a fila acima. Levantamento: [docs/diarios_plataformas_levantamento.md](docs/diarios_plataformas_levantamento.md) |
 | `uv run python -m ingestion.revisar --tipo dou` | Atos de pessoal do Diário Oficial da União |
 | `uv run python -m ingestion.revisar --tipo cpi` | Pedidos de indiciamento das CPIs |
+| `uv run python -m ingestion.revisar --tipo apelido` | Nomes de gastos de assembleias grafados diferente do deputado (hoje ALECE) |
 
 </details>
 

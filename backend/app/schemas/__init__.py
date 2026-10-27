@@ -546,6 +546,8 @@ class GastosLocais(BaseModel):
     media_casa: float | None
     por_categoria: list[CategoriaGasto]
     fora_da_soma: GastoForaDaSoma | None = None
+    # Data da última carga que atualizou os gastos (não a da que só os manteve).
+    atualizado_em: datetime | None = None
 
 
 class VereadorDetalhe(VereadorItem):

@@ -131,6 +131,7 @@
 - [2026-10-27: emendas estaduais em nove UFs, uma base comum](#2026-10-27-emendas-estaduais-em-nove-ufs-uma-base-comum)
 - [2026-10-27: emendas estaduais de GO, PB e DF; RO, PI e SP de fora](#2026-10-27-emendas-estaduais-de-go-pb-e-df-ro-pi-e-sp-de-fora)
 - [2026-10-27: deputados de BA, ES e SE na VPS e suplentes ligados pelo nome civil](#2026-10-27-deputados-de-ba-es-e-se-na-vps-e-suplentes-ligados-pelo-nome-civil)
+- [2026-10-27: apelidos nos gastos das assembleias (fila de revisão)](#2026-10-27-apelidos-nos-gastos-das-assembleias-fila-de-revisão)
 - [2026-10-21: diários municipais por plataforma compartilhada (SIGPub e DOM/SC)](#2026-10-21-diários-municipais-por-plataforma-compartilhada-sigpub-e-domsc)
 - [2026-10-21: câmaras sem canal, atacadas por sistema (e o que veda robô)](#2026-10-21-câmaras-sem-canal-atacadas-por-sistema-e-o-que-veda-robô)
 
@@ -1504,3 +1505,11 @@ A reserva da VPS é uma **versão congelada** do site, da API e do banco, na Ver
 - **Solução (via 1, conector da própria casa):** nada de contorno; a VPS de São Paulo roda os três (`deploy/vps/agenda/camaras.sh`, semanal, antes das emendas). `acesso` passou de `brasil` para `aberto` em `fontes.toml` e a régua de cobertura deixa de marcar "bloqueado". Carga conferida do Brasil: ALBA 63, ALES 30, ALESE 24 deputados (as cadeiras de cada casa). A ALES leva ~21 min por causa das proposições; sem limite de tempo na VPS.
 - **Identidade:** o deputado em exercício que não concorreu em 2022 ganhava uma pessoa nova, separada da que já existia pelas eleições antigas. Em `ingestion/pessoas.py`, mandato de assembleia sem candidatura ligada passa a ligar (regra `nome_exato_casa`, forte) quando o nome civil completo (três palavras ou mais) é idêntico ao de candidaturas a deputado estadual da mesma UF e todas têm o mesmo CPF. Nome aproximado continua na fila `ingestion.revisar`; revisão "recusado" vale.
 - **Efeito nas emendas (acervo):** autores individuais ligados a uma pessoa: BA 103 de 135 para 105, ES 44 de 51, SE 40 de 48. O resto são ex-deputados, nomes escritos de outro jeito na fonte ("Alex De Piatã" x "Alex da Piatã") e nomes ambíguos; não se liga por aproximação.
+
+## 2026-10-27: apelidos nos gastos das assembleias (fila de revisão)
+
+- **Problema:** a planilha de gastos da ALECE traz só o nome do deputado, com apelido, erro de digitação ou ex-deputado. No acervo (jan/2025 a out/2026), 30 dos 82 nomes (401 lançamentos, R$ 2.798.683,69 líquidos) não casavam com deputado da lista.
+- **Regra (vale para qualquer Casa, ALECE é o primeiro caso):** só o nome idêntico após `comum.chave_nome` liga sozinho. O parecido vira sugestão (até 3 deputados da lista, por semelhança de letras e de palavras, mínimo 0,62) na fila `backend/data/processed/apelidos_pendentes_<escopo>.csv`, fora do git e que nenhuma rota da API, página ou exportação lê. Ex-deputado ou suplente sem registro na lista fica na fila sem candidato: só dá para recusar (ligar exigiria um deputado para receber o gasto).
+- **Decisão humana:** `python -m ingestion.revisar --tipo apelido` grava em `data/curadoria/apelidos_revisados.csv` (versionado; escopo, nome na planilha, `id_externo` do deputado na Casa, aceito/recusado). `base.ligar_nomes` reaplica a cada carga, na VPS também; decisão de deputado que saiu da lista é ignorada; recusado sai da fila.
+- **Adoção por outras Casas:** trocar `base.ligar_nomes_exatos` por `base.ligar_nomes(escopo, totais, deputados, tse)`. Usam hoje: ALECE (gastos), ALRN (seletor de verbas; só quem liga é buscado) e ALESC (nomes nos extratos de voto, escopo `alesc_votos`; 8 nomes e 172 votos sem deputado igual, só 1 com candidato). A ALRN não foi medida: a página de verbas (`/portal/verbas`) responde 404 em 27/10/2026 (mudou de endereço, não é bloqueio). Sem migração.
+
