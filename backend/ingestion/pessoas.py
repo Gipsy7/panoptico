@@ -67,7 +67,7 @@ def ler(session: Session) -> tuple[dict[Chave, Registro], list[Aresta]]:
         select(
             Candidatura.id, Candidatura.ano_eleicao, Candidatura.sq_candidato, Candidatura.cpf,
             Candidatura.titulo, Candidatura.nome, Candidatura.data_nascimento,
-            Candidatura.parlamentar_id, Candidatura.nome_urna,
+            Candidatura.parlamentar_id, Candidatura.nome_urna, Candidatura.cargo, Candidatura.uf,
         )
     ).all()  # fmt: skip
     parlamentares = session.execute(
@@ -118,6 +118,29 @@ def ler(session: Session) -> tuple[dict[Chave, Registro], list[Aresta]]:
                 "nome_exato_casa" if nomes & nomes_candidatura[m.candidatura_id] else "nome_casa"
             )
             arestas.append(Aresta(alvo, chave, regra))
+
+    # Deputado estadual no cargo hoje que não concorreu na última eleição (suplente que assumiu):
+    # o nome civil completo idêntico ao de candidaturas a deputado estadual da mesma UF, todas
+    # com o mesmo CPF, é a mesma pessoa. Sem isso, ela ficaria duplicada (uma pessoa por fonte).
+    por_nome_civil: dict[tuple[str, str], list] = defaultdict(list)
+    for c in candidaturas:
+        if c.cargo in ("DEPUTADO ESTADUAL", "DEPUTADO DISTRITAL") and c.cpf:
+            por_nome_civil[(c.uf, comum.chave_nome(c.nome))].append(c)
+    for m in mandatos:
+        completo = comum.chave_nome(m.nome_completo)
+        if (
+            m.casa != "assembleia"
+            or m.candidatura_id in chave_candidatura
+            or len(completo.split()) < 3
+        ):
+            continue
+        achadas = por_nome_civil.get((m.uf, completo), [])
+        if achadas and len({c.cpf for c in achadas}) == 1:
+            mais_recente = max(achadas, key=lambda c: c.ano_eleicao)
+            origem = ("mandato_local", f"{m.casa}:{m.uf}:{m.municipio_ibge or ''}:{m.id_externo}")
+            alvo = ("candidatura", f"{mais_recente.ano_eleicao}:{mais_recente.sq_candidato}")
+            if (origem[0], origem[1], f"{alvo[0]}:{alvo[1]}") not in recusados:
+                arestas.append(Aresta(alvo, origem, "nome_exato_casa"))
 
     for campo, regra in (("cpf", "cpf"), ("titulo", "titulo")):
         por_valor: dict[str, list[Chave]] = defaultdict(list)

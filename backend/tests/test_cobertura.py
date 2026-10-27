@@ -31,7 +31,8 @@ def test_alep_tem_conector_e_pedido_so_no_que_falta():
 
 def test_geobloqueio_vira_bloqueado():
     linhas = cobertura.montar()
-    for uf in ("MG", "PE", "BA", "ES", "RS", "RR", "AP", "MA", "DF"):
+    # BA, ES e SE saíram da lista em 27/10/2026: rodam na VPS de São Paulo (acesso "aberto").
+    for uf in ("MG", "PE", "RS", "RR", "AP", "MA", "DF"):
         proj = next(
             x
             for x in linhas

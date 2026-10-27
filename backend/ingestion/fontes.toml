@@ -685,8 +685,9 @@ modulo = "ingestion.assembleias.alba"
 uso = "Assembleia da Bahia hoje"
 recorte = "deputados em exercício; proposições e presença em plenário do ano atual e anterior"
 frequencia = "semanal"
-# Bloqueia IP de fora do Brasil (GitHub Actions, 11/10/2026: tempo esgotado nos EUA); roda no acervo local.
-acesso = "brasil"
+# Bloqueava IP de fora do Brasil (GitHub Actions, 11/10/2026: tempo esgotado nos EUA); desde 27/10/2026 roda
+# na VPS de São Paulo (deploy/vps/agenda/camaras.sh), por isso o degrau é "aberto".
+acesso = "aberto"
 
 [[fonte]]
 nome = "ales"
@@ -694,8 +695,9 @@ modulo = "ingestion.assembleias.ales"
 uso = "Assembleia do Espírito Santo hoje"
 recorte = "deputados em exercício; proposições e presença em plenário do ano atual e anterior"
 frequencia = "semanal"
-# Bloqueia IP de fora do Brasil (GitHub Actions, 11/10/2026: tempo esgotado nos EUA); roda no acervo local.
-acesso = "brasil"
+# Bloqueava IP de fora do Brasil (GitHub Actions, 11/10/2026: tempo esgotado nos EUA); desde 27/10/2026 roda
+# na VPS de São Paulo (deploy/vps/agenda/camaras.sh), por isso o degrau é "aberto".
+acesso = "aberto"
 
 [[fonte]]
 nome = "alece"
@@ -747,8 +749,9 @@ modulo = "ingestion.assembleias.alese"
 uso = "Assembleia de Sergipe hoje"
 recorte = "deputados em exercício e presença em plenário do ano corrente (sem proposições, votos e gastos)"
 frequencia = "semanal"
-# Bloqueia IP de fora do Brasil (GitHub Actions, 11/10/2026: tempo esgotado nos EUA); roda no acervo local.
-acesso = "brasil"
+# Bloqueava IP de fora do Brasil (GitHub Actions, 11/10/2026: tempo esgotado nos EUA); desde 27/10/2026 roda
+# na VPS de São Paulo (deploy/vps/agenda/camaras.sh), por isso o degrau é "aberto".
+acesso = "aberto"
 
 [[fonte]]
 nome = "alap"
