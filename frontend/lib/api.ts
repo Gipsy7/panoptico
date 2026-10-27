@@ -353,6 +353,9 @@ export type VereadorDetalhe = VereadorItem & {
     ate_mes: number | null;
     total: number;
     media_casa: number | null;
+    /** Fonte parcial: a média saiu só de quem consta nela; `media_descricao` diz "X dos Y". */
+    media_parcial?: boolean;
+    media_descricao?: string | null;
     por_categoria: { categoria: string; valor: number }[];
     /** O que a planilha traz mas não entra na soma por mês (ex.: comprovantes sem data). */
     fora_da_soma?: { linhas: number; valor: number; linhas_valor_ilegivel: number; motivo: string } | null;
@@ -692,6 +695,7 @@ export type EmendasDeputadoEstadual = {
   emendas: number;
   media_casa_pago: number | null;
   deputados_na_media: number;
+  media_parcial?: boolean;
   media_descricao: string;
   por_ano: (EmendaEstadualSomas & { ano: number })[];
   por_municipio: (EmendaEstadualSomas & { ibge: string | null; nome: string })[];
