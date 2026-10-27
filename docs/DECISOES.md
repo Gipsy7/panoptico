@@ -129,6 +129,7 @@
 - [2026-10-26: produção numa VPS (Locaweb) com banco próprio](#2026-10-26-produção-numa-vps-locaweb-com-banco-próprio)
 - [2026-10-26: reserva congelada (Vercel + Neon)](#2026-10-26-reserva-congelada-vercel--neon)
 - [2026-10-27: emendas estaduais em nove UFs, uma base comum](#2026-10-27-emendas-estaduais-em-nove-ufs-uma-base-comum)
+- [2026-10-27: deputados de BA, ES e SE na VPS e suplentes ligados pelo nome civil](#2026-10-27-deputados-de-ba-es-e-se-na-vps-e-suplentes-ligados-pelo-nome-civil)
 - [2026-10-21: diários municipais por plataforma compartilhada (SIGPub e DOM/SC)](#2026-10-21-diários-municipais-por-plataforma-compartilhada-sigpub-e-domsc)
 - [2026-10-21: câmaras sem canal, atacadas por sistema (e o que veda robô)](#2026-10-21-câmaras-sem-canal-atacadas-por-sistema-e-o-que-veda-robô)
 
@@ -1487,3 +1488,9 @@ A reserva da VPS é uma **versão congelada** do site, da API e do banco, na Ver
 - **O que falta:** 203 câmaras com site achado, sem leitor: sistema não identificado (75), WordPress/gerador próprio (34), Betha (16; é só o portal de transparência), Ingá Digital e Cespro com layout diferente (21), AOS (7; outro modelo de página que o leitor atual não lê), IPM (7), Portal do Município/BA (5), Legislador (5; modelo de capa diferente do de Perdões) e outros. Próximos de maior alcance: Ingá Digital/Cespro com layouts alternativos, AOS e Legislador.
 - **Agenda:** o conector novo entra no `deploy/vps/agenda/camaras.sh`. Todos respondem de fora do Brasil (testado do Brasil; nenhum geobloqueio visto), então não pedem o runner/VPS de São Paulo por causa disso.
 
+## 2026-10-27: deputados de BA, ES e SE na VPS e suplentes ligados pelo nome civil
+
+- **Causa:** os conectores da ALBA, ALES e ALESE já existiam, mas as casas respondem só a IP do Brasil e a carga ficava no acervo local; sem `mandato_local` dessas UFs, o autor da emenda estadual só ligava se tivesse sido eleito em 2022 (lista do TSE). Suplente que assumiu ficava sem página.
+- **Solução (via 1, conector da própria casa):** nada de contorno; a VPS de São Paulo roda os três (`deploy/vps/agenda/camaras.sh`, semanal, antes das emendas). `acesso` passou de `brasil` para `aberto` em `fontes.toml` e a régua de cobertura deixa de marcar "bloqueado". Carga conferida do Brasil: ALBA 63, ALES 30, ALESE 24 deputados (as cadeiras de cada casa). A ALES leva ~21 min por causa das proposições; sem limite de tempo na VPS.
+- **Identidade:** o deputado em exercício que não concorreu em 2022 ganhava uma pessoa nova, separada da que já existia pelas eleições antigas. Em `ingestion/pessoas.py`, mandato de assembleia sem candidatura ligada passa a ligar (regra `nome_exato_casa`, forte) quando o nome civil completo (três palavras ou mais) é idêntico ao de candidaturas a deputado estadual da mesma UF e todas têm o mesmo CPF. Nome aproximado continua na fila `ingestion.revisar`; revisão "recusado" vale.
+- **Efeito nas emendas (acervo):** autores individuais ligados a uma pessoa: BA 103 de 135 para 105, ES 44 de 51, SE 40 de 48. O resto são ex-deputados, nomes escritos de outro jeito na fonte ("Alex De Piatã" x "Alex da Piatã") e nomes ambíguos; não se liga por aproximação.

@@ -617,6 +617,7 @@ Um módulo por fonte em `backend/ingestion/emendas_estaduais/` (a docstring de c
   - outras: comissões, mesa, lideranças, partidos, reuniões de comissão.
 - **Tipos:** PL, PLC, PEC, PDL e PRS (projeto de resolução) guardam a ementa; IND (indicação), MOC (moção), REQ (requerimento) e UP (utilidade pública) viram contagem. OF, MSG e outros ficam de fora.
 - **Sem votos nominais** na API (as sessões trazem pauta e presenças, não o voto de cada deputado) e **sem verba de gabinete** nos dados abertos.
+- **Acesso (27/10/2026):** o site só responde a IP do Brasil (no GitHub Actions dava tempo esgotado). Agora a carga roda na VPS de São Paulo (`deploy/vps/agenda/camaras.sh`, semanal), sem contorno; `acesso = "aberto"` em `fontes.toml`. Carga completa conferida do Brasil: 63 deputados ativos.
 
 ## Câmaras que saíram do SAPL (levantamento de 09/10/2026)
 
@@ -665,6 +666,7 @@ Um módulo por fonte em `backend/ingestion/emendas_estaduais/` (a docstring de c
   - **Frequência:** os nomes são `Presente`, `Ausência`, `Ausência Justificada`, `Falta`, `Licenciado`, `Afastado` e `Governador Interino`. Sessões = presenças + faltas + ausências (justificadas ou não), como na ALBA.
 - **Armadilhas:** o autor da proposição traz o nome digitado à mão (ex.: "Engenherio José Esmeraldo"), então o nome nem sempre casa com a razão social do deputado; o `autorId` da proposição casa com o `autorID` do parlamentar e serve de segunda chave. O autor traz CPF/CNPJ e endereço, que não guardamos.
 - **Sem votos nominais** (só o "Boletim de Votação Nominal" em PDF) e **sem verba de gabinete** nos dados abertos. O portal de transparência tem cotas parlamentares (`/Transparencia/CotasParlamentares`), não lidas.
+- **Acesso (27/10/2026):** o site só responde a IP do Brasil (no GitHub Actions dava tempo esgotado). Agora a carga roda na VPS de São Paulo (`deploy/vps/agenda/camaras.sh`, semanal), sem contorno; `acesso = "aberto"` em `fontes.toml`. Carga completa conferida do Brasil: 30 deputados ativos (a carga leva ~21 min por causa das proposições, página a página, com pausa; sem limite de tempo na VPS).
 
 ## ALECE: Assembleia Legislativa do Ceará
 
@@ -853,6 +855,7 @@ FAMEM/SigaNet (MA), AMUNES (ES), DOEM e DOSP: bloqueio deliberado ou falha de se
 
 - **Sem SAPL.** O Processo Legislativo (SPL, ASP.NET) está em `aleselegis.al.se.leg.br/spl/`; `robots.txt` libera tudo. A consulta de proposições só responde a envio de formulário com `__VIEWSTATE`, sem rota de listagem; não coletamos.
 - **Deputados:** `al.se.leg.br/deputados/` (24 cartões com partido, foto e o código do SPL). **Presença:** a aba "Frequência em Plenário" de `parlamentar.aspx?id=` traz presente/falta/falta justificada/licenciado do ano corrente.
+- **Acesso (27/10/2026):** geobloqueio de fora do Brasil; a carga roda na VPS de São Paulo (`camaras.sh`), sem contorno. Carga conferida do Brasil: 24 deputados (as 24 cadeiras).
 
 ## ALAP: Assembleia Legislativa do Amapá
 

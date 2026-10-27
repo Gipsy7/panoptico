@@ -264,3 +264,28 @@ def test_linha_do_tempo_diz_quando_o_dado_foi_conferido(client, session):
     assert sancao["conferido_em"] == "2026-10-08"
     # Candidaturas montadas sem carga registrada: sem data de conferência.
     assert all(i["conferido_em"] is None for i in itens if i["tipo"] == "eleito")
+
+
+def test_suplente_que_assumiu_liga_a_candidatura_antiga_por_nome_civil_e_cpf(session):
+    # Deputado no cargo hoje que não concorreu em 2022: sem candidatura_id, mas o nome civil
+    # completo é idêntico ao de candidatura antiga a deputado estadual da UF (mesmo CPF).
+    antiga = _candidatura(session, 2018, "9", "000333", cpf="55555555555",
+                          nome="Jusmari Terezinha de Souza Oliveira")  # fmt: skip
+    ele = MandatoLocal(
+        casa="assembleia", uf="AC", id_externo="500", nome="Jusmari Oliveira",
+        nome_completo="Jusmari Terezinha de Souza Oliveira", sapl_url="https://x",
+    )  # fmt: skip
+    homonimo = MandatoLocal(
+        casa="assembleia", uf="AC", id_externo="501", nome="Ana Souza",
+        nome_completo="Ana Souza", sapl_url="https://x",
+    )  # fmt: skip
+    session.add_all([ele, homonimo])
+    session.flush()
+    carga.processar(session)
+    assert _pessoa_de(session, "mandato_local", "assembleia:AC::500") == _pessoa_de(
+        session, "candidatura", f"2018:{antiga.sq_candidato}"
+    )
+    # Nome curto (menos de três palavras) não liga por esse caminho.
+    assert _pessoa_de(session, "mandato_local", "assembleia:AC::501") != _pessoa_de(
+        session, "candidatura", "2018:9"
+    )
