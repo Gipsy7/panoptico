@@ -31,7 +31,7 @@ Preenchido em 27/10/2026 a partir de `docs/emendas_estaduais_levantamento.md` (n
 | AP | Governo do AP e ALAP | Indicar onde estão as emendas estaduais e publicar em arquivo aberto. | | | | |
 | BA | Governo da BA (SEFAZ) e ALBA | Município de destino e beneficiário (CNPJ) de cada emenda no conjunto de dados abertos já publicado. | | | | |
 | CE | Governo do CE (CGE/SEPLAG) e ALECE | Arquivo ou API das emendas (hoje só página HTML; a API de dados abertos não tem emendas). | | | | |
-| DF | Governo do DF (SEEC) e CLDF | Município ou região administrativa e favorecido (CNPJ) de cada emenda; número da emenda (a API publica autor e valores por programa de trabalho, carregados desde 2016). | | | | |
+| DF | Governo do DF (SEEC) e CLDF | Município ou região administrativa e favorecido (CNPJ) de cada emenda; número da emenda (a API publica autor e valores por programa de trabalho, carregados desde 2021; de 2016 a 2020 o empenhado vem zerado com pago preenchido, e pedimos a correção). | | | | |
 | ES | — | Não precisa: dado aberto carregado (SEFAZ/ES). | | | | |
 | GO | Governo de GO (SEFAZ/SERINT) e ALEGO | Arquivos de 2024 e 2025 refeitos sem notação científica no empenho, no processo e no CNPJ (hoje o empenho tem 5 valores em 2.594 linhas), com delimitador fixo e atualizados depois de julho/2025; município e posição atual de execução em 2021 e 2022; consulta EmendasGO sem captcha. Só 2023 está carregado. | | | | |
 | MA | Governo do MA (SEPLAN/SEFAZ) e ALEMA | Anos anteriores a 2026 na exportação (o filtro só oferece 2026). | | | | |

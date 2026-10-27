@@ -138,7 +138,7 @@ EMENDAS_ESTADUAIS: dict[str, tuple[str, str, str, str]] = {
     "SP": ("pedido", "O arquivo aberto repete as linhas de execução sem chave e as somas não "
            "fecham (empenhado de 2024 passaria de R$ 12 bilhões); não carregamos e pedimos a "
            "correção.", "", _PED),
-    "DF": ("parcial", "Emendas distritais desde 2016 no Portal da Transparência (autor, ação, "
+    "DF": ("parcial", "Emendas distritais desde 2021 no Portal da Transparência (autor, ação, "
            "autorizado, empenhado e pago); a fonte não informa quem recebeu nem a região "
            "administrativa em campo próprio, e pedimos.", "transparencia_df_emendas", _PED),
     "RO": ("pedido", "A consulta de emendas do Portal da Transparência traz empenhado e pago "

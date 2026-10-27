@@ -25,7 +25,7 @@ Situação: **implementada** (carga no Panóptico), **aberta, não carregada** (
 | MT | a verificar | transparencia.mt.gov.br (rota de emendas 404, página com captcha) | — | — | — | Pedido. |
 | AL | **implementada** (parcial) | transparencia.al.gov.br/despesa/emendas-parlamentares-estaduais (JSON `/despesa/json-emendas-parlamentares/`) | JSON | A, M, F (nome), P, E, Pg | 2026 | Só 2026 na consulta. |
 | PI | aberta, não carregada | api.transparencia.pi.gov.br (`/api/v1/emendas-estaduais/2025-e-anteriores/{ano}/` e `/emendas-estaduais/{ano}/`) | JSON | 2021-2025: A, F (credor no texto), E, Pg por nota de empenho, sem previsto; 2026: A, M (localidade), F, P | 2021-2026 | Duas séries que não se juntam: até 2025 sem valor da emenda; 2026 com a execução só no detalhe de cada emenda, lançada à mão (com contas bancárias). Pedido de série única. |
-| DF | **implementada** (parcial) | transparencia.df.gov.br (API `/api/despesa/emendas-parlamentares`, cabeçalho `x-client-id` que a página sorteia); painel da CLDF (Siggo) | JSON | A, P (autorizado), E, Pg; sem F; M = Brasília | 2016-2026 | Uma linha por autor e programa de trabalho. A região administrativa só no nome do subtítulo. Emendas de vários autores juntos ficam como coletivas. |
+| DF | **implementada** (parcial) | transparencia.df.gov.br (API `/api/despesa/emendas-parlamentares`, cabeçalho `x-client-id` que a página sorteia); painel da CLDF (Siggo) | JSON | A, P (autorizado), E, Pg; sem F; M = Brasília | 2021-2026 | Uma linha por autor e programa de trabalho. Paginação instável, completada por autor e conferida com o totalizador da API. 2016-2020 com empenhado zerado e pago preenchido: fora. A região administrativa só no nome do subtítulo. Emendas de vários autores juntos ficam como coletivas. |
 | MS | a verificar | transparencia.ms.gov.br (aplicação; emendas não localizadas) | — | — | — | Citado como portal completo em petição ao STF; não achamos o caminho. Pedido. |
 | SE | **implementada** (parcial) | transparencia.se.gov.br/EmendasParlamentares/EmendasEstaduais (API `api.transparencia.se.gov.br/api/emendas-estaduais`) | JSON | A, M, F (executor, CNPJ), P, Pg (sem E) | 2022-2025 | Sem número da emenda nem empenhado. |
 | RO | aberta, não carregada | transparencia.ro.gov.br/emenda (POST `/Emenda/Filtrar`, token antifalsificação lido da página, sem captcha) | JSON | A, M (localidade), F, P, E, Pg | 2023-2026 | Empenhado, liquidado e pago zerados em 2023-2025 (R$ 0 pago de R$ 489 mi previstos em 2025) em empenhos com número emitido; base "atualizada em 25/03/2026". Números não fecham: pedido de correção. Traz conta bancária (não seria lida). |
@@ -49,8 +49,13 @@ Soma literal do campo "pago" de cada fonte, por ano da emenda (R$). A esfera est
 | AL | — | — | — | — | — | 184.560.128,18 |
 | SE | — | 33.634.901,00 | 39.221.972,00 | 55.606.290,00 | 33.824.000,00 | — |
 | AC | — | — | 44.462.136,75 | 69.500.263,03 | 90.043.920,61 | 55.823.646,40 |
+| GO | — | — | 411.359.590,20 | — | — | — |
+| PB | 11.918.214,93 (2021) | 43.252.913,58 | 84.561.665,47 | 110.869.259,52 | 154.199.385,77 | 134.681.448,91 |
+| DF | 354.870.042,97 (2021) | 368.716.607,48 | 478.471.824,80 | 535.307.692,83 | 538.806.642,45 | 349.949.845,50 |
 
-2026 é o ano em curso (pago até a data da carga). Tabela `emenda_estadual` no acervo: 62.752 linhas, 37 MB.
+2026 é o ano em curso (pago até a data da carga). Tabela `emenda_estadual` no acervo: 72.415 linhas, 46 MB (GO, PB e DF somam 9.661).
+
+Conferência das UFs novas (27/10/2026): GO 2023 igual à linha "Total" do arquivo (previsto R$ 432.356.704,53, pago R$ 411.359.590,20); PB igual à soma da API por ano; DF igual ao `totalizador` da API em cada ano (contagem, autorizado, empenhado e pago). No DF de 2025 o pago (R$ 538,8 mi) passa do liquidado (R$ 503,5 mi): é o que o portal mostra na coluna Pago; fica como a fonte publica.
 
 Já sem as linhas repetidas pela exportação (ES 2023 e 2025, PE 2026; ver `docs/DECISOES.md`, 27/10/2026).
 

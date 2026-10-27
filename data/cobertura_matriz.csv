@@ -249,7 +249,7 @@ DF,CLDF,deputado distrital,gastos,sem_fonte,O site ainda não lê gastos do gabi
 DF,CLDF,deputado distrital,votos,sem_fonte,O site ainda não lê votos nominais desta Casa.,cldf,
 DF,CLDF,deputado distrital,presenca,sem_fonte,O site ainda não lê presença em plenário desta Casa.,cldf,
 DF,CLDF,deputado distrital,projetos,bloqueado,"O site já lê projetos de lei, mas o site da Casa só responde a acessos feitos do Brasil; por isso só dá para atualizar a partir de um computador no Brasil, e o site no ar não se atualiza sozinho.",cldf,
-DF,CLDF,deputado distrital,emendas,parcial,"Emendas distritais desde 2016 no Portal da Transparência (autor, ação, autorizado, empenhado e pago); a fonte não informa quem recebeu nem a região administrativa em campo próprio, e pedimos.",transparencia_df_emendas,emendas_estaduais_27_ufs.md
+DF,CLDF,deputado distrital,emendas,parcial,"Emendas distritais desde 2021 no Portal da Transparência (autor, ação, autorizado, empenhado e pago); a fonte não informa quem recebeu nem a região administrativa em campo próprio, e pedimos.",transparencia_df_emendas,emendas_estaduais_27_ufs.md
 DF,CLDF,deputado distrital,salario,sem_fonte,Subsídio e folha dos deputados estaduais não coletados.,,
 DF,CLDF,deputado distrital,agenda,sem_fonte,Nenhuma fonte de agenda de deputados estaduais.,,
 DF,CLDF,deputado distrital,atos,sem_fonte,Diários oficiais estaduais não são lidos.,,
@@ -274,7 +274,7 @@ DF,Senado Federal,senador,atos,parcial,"Nomeações no Diário Oficial da União
 DF,Senado Federal,senador,bens_campanha,sim,Bens e campanha declarados ao TSE.,tse_bens; tse_campanha,
 DF,Governo de DF,governador,gastos,parcial,"Contas do estado (Tesouro Nacional, SICONFI): receita e despesa por área, com a média dos estados; sem pagamento por fornecedor.",siconfi_contas_estados,
 DF,Governo de DF,governador,projetos,sem_fonte,Projetos enviados ao Legislativo não coletados.,,
-DF,Governo de DF,governador,emendas,parcial,"Emendas distritais desde 2016 no Portal da Transparência (autor, ação, autorizado, empenhado e pago); a fonte não informa quem recebeu nem a região administrativa em campo próprio, e pedimos.",transparencia_df_emendas,emendas_estaduais_27_ufs.md
+DF,Governo de DF,governador,emendas,parcial,"Emendas distritais desde 2021 no Portal da Transparência (autor, ação, autorizado, empenhado e pago); a fonte não informa quem recebeu nem a região administrativa em campo próprio, e pedimos.",transparencia_df_emendas,emendas_estaduais_27_ufs.md
 DF,Governo de DF,governador,salario,sem_fonte,Subsídio do cargo não coletado.,,
 DF,Governo de DF,governador,agenda,sem_fonte,Nenhuma fonte de agenda coletada.,,
 DF,Governo de DF,governador,atos,sem_fonte,Diários oficiais deste nível não são lidos.,,

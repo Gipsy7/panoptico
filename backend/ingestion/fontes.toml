@@ -648,13 +648,13 @@ depende = ["sapl_assembleias", "pessoas"]
 nome = "transparencia_df_emendas"
 modulo = "ingestion.emendas_estaduais.df"
 uso = "Emendas de deputados distritais na página de Brasília e do deputado"
-recorte = "emendas desde 2016, uma linha por autor e programa de trabalho (natureza, fonte, unidade gestora): autorizado, empenhado e pago; sem favorecido; o DF é um município só no IBGE (Brasília)"
+recorte = "emendas desde 2021 (antes, empenhado zerado com pago preenchido), uma linha por autor e programa de trabalho (natureza, fonte, unidade gestora): autorizado, empenhado e pago; sem favorecido; o DF é um município só no IBGE (Brasília)"
 frequencia = "semanal"
 acesso = "aberto"
 depende = ["cldf", "pessoas"]
 # Portal da Transparência do DF: /api/despesa/emendas-parlamentares?anoExercicio=&page=&size=100 (JSON paginado).
-# Exige o cabeçalho x-client-id, um UUID que a própria página sorteia por sessão (sem cadastro). Lento: ~1 min
-# por página em 27/10/2026.
+# Exige o cabeçalho x-client-id, um UUID que a própria página sorteia por sessão (sem cadastro). A paginação
+# não tem ordem estável: o ano é completado por autor e conferido com o totalizador da API.
 
 [[fonte]]
 nome = "alep"

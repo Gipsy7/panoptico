@@ -387,3 +387,14 @@ def test_carga_df_pb_go(session, client, monkeypatch):
     assert est["total_pago"] == pytest.approx(11254378.44 + 10879000 + 5750571.32)
     est = client.get(f"/municipios/{buriti}/emendas").json()["estaduais"]
     assert est["total_previsto"] == pytest.approx(1_380_000)  # as duas linhas da emenda 10
+
+
+def test_df_confere_com_totalizador():
+    linhas = json.loads(_ler("df_emendas.json"))
+    totalizador = {c: sum(x[c] for x in linhas) for c in df.VALORES}
+    df.conferir(2025, linhas, 3, totalizador)
+    with pytest.raises(ValueError, match="2 de 3"):
+        df.conferir(2025, linhas[:2], 3, totalizador)  # a paginação perdeu uma linha
+    totalizador["valorEmpenhoPago"] += 1
+    with pytest.raises(ValueError, match="valorEmpenhoPago"):
+        df.conferir(2025, linhas, 3, totalizador)
