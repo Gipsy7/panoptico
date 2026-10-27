@@ -110,6 +110,13 @@ class VotacaoLocal(Base):
     abstencoes: Mapped[int] = mapped_column(SmallInteger, default=0)
     data: Mapped[date | None] = mapped_column(Date)
     url: Mapped[str | None] = mapped_column(Text)
+    # A matéria votada: id na casa (SAPL: `materia`; ALESC: código da proposição), a ementa da
+    # ficha dela e, quando a matéria é um projeto de vereador/deputado que guardamos, o vínculo.
+    materia_id_externo: Mapped[str | None] = mapped_column(String(40))
+    materia_ementa: Mapped[str | None] = mapped_column(Text)
+    projeto_local_id: Mapped[int | None] = mapped_column(
+        ForeignKey("projeto_local.id", ondelete="SET NULL"), index=True
+    )
 
 
 class VotoLocal(Base):

@@ -16,6 +16,7 @@ from app.models.cpi import Cpi, CpiIndiciamentoSugestao, CpiParticipacao
 from app.models.despesa import Despesa
 from app.models.despesa_fornecedor import DespesaFornecedor
 from app.models.dinheiro_federal import ArrecadacaoUF, PopulacaoIbge, TransferenciaUniao
+from app.models.discurso import Discurso
 from app.models.emenda import Emenda
 from app.models.emenda_estadual import EmendaEstadual
 from app.models.emenda_pagamento import EmendaPagamento, EmendaPagamentoSemCodigo
@@ -31,6 +32,7 @@ from app.models.partido_conta import (
     PartidoDespesaVinculada,
     PartidoFefcFp,
 )
+from app.models.pauta import PautaItem, Tramitacao
 from app.models.pessoa import (
     Caso,
     CasoDocumento,
@@ -84,6 +86,7 @@ __all__ = [
     "PopulacaoIbge",
     "TransferenciaUniao",
     "Despesa",
+    "Discurso",
     "EmendaEstadual",
     "DespesaFornecedor",
     "Emenda",
@@ -105,6 +108,7 @@ __all__ = [
     "Municipio",
     "Orientacao",
     "Parlamentar",
+    "PautaItem",
     "PartidoContaSoma",
     "PartidoCotaMensal",
     "PartidoDespesaVinculada",
@@ -129,6 +133,7 @@ __all__ = [
     "CpgfPortadorMes",
     "ServidorFederal",
     "SocioPessoa",
+    "Tramitacao",
     "ViagemFederalAno",
     "Votacao",
     "VotacaoComissao",

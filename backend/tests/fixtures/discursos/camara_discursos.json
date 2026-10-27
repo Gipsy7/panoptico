@@ -1,0 +1,216 @@
+{
+ "inicio": "2025-02-01",
+ "fim": "2025-02-28",
+ "deputados": {
+  "220574": [
+   {
+    "dataHoraInicio": "2025-02-04T15:36",
+    "dataHoraFim": null,
+    "uriEvento": "",
+    "faseEvento": {
+     "titulo": "Breves Comunicações",
+     "dataHoraInicio": null,
+     "dataHoraFim": null
+    },
+    "tipoDiscurso": "BREVES COMUNICAÇÕES",
+    "urlTexto": "https://imagem.camara.gov.br/dc_20b.asp?largura=&altura=&tipoForm=diarios&selCodColecaoCsv=D&Datain=5%2F2%2F2025&txPagina=74&txSuplemento=&enviar=Pesquisar",
+    "urlAudio": null,
+    "urlVideo": null,
+    "keywords": "Empresa estatal,gestão,precariedade,Economia",
+    "sumario": "O Deputado fez um apelo sobre a situação das estatais no Brasil. Afirmou que o atual Governo tem prejudicado essas empresas, o que afeta a economia, a geração de empregos e a credibilidade do País. Criticou a gestão das estatais e mencionou prejuízos financeiros, classificando-os como os maiores da História do Brasil. Encerrou apontando que essa condução impacta diretamente a população."
+   },
+   {
+    "dataHoraInicio": "2025-02-04T16:16",
+    "dataHoraFim": null,
+    "uriEvento": "",
+    "faseEvento": {
+     "titulo": "Ordem do Dia",
+     "dataHoraInicio": null,
+     "dataHoraFim": null
+    },
+    "tipoDiscurso": "DISCUSSÃO",
+    "urlTexto": "https://imagem.camara.gov.br/dc_20b.asp?largura=&altura=&tipoForm=diarios&selCodColecaoCsv=D&Datain=5%2F2%2F2025&txPagina=97&txSuplemento=&enviar=Pesquisar",
+    "urlAudio": null,
+    "urlVideo": null,
+    "keywords": "Discussão,Medida provisória\r\nPresidente da República,Desastre ambiental,Enchente,Inundação,Rio Grande do Sul,Deficit,Desequilíbrio fiscal,Auxílio em situação de desastre e calamidade pública\r\nPresidente da República,Nomeação,Ministro de Estado das Comunicações,popularidade,motivação política",
+    "sumario": "O Deputado discutiu a Medida Provisória nº 1.257, de 2024, que abre crédito extraordinário, em favor dos Ministérios da Previdência Social, da Saúde e do Desenvolvimento e Assistência Social, Família e Combate à Fome e de Encargos Financeiros da União e de Transferências a Estados, Distrito Federal e Municípios, no valor de R$ 5.131.822.721,00, para os fins que especifica. Ademais, criticou o Presidente Lula por responsabilizar o desastre ocorrido no Rio Grande do Sul pelo déficit fiscal do País, classificando essa justificativa como irresponsável. Além disso, denunciou que, apesar das medidas aprovadas pelo Congresso Nacional para ajudar o Estado, os recursos não chegaram de maneira eficaz à população afetada. Repudiou ainda o Governo Federal por manipular a narrativa, minimizando a gravidade da situação e ocultando a ineficiência na gestão da crise. Adicionalmente, desaprovou a nomeação do novo Ministro das Comunicações, destacando que a escolha foi motivada por interesses políticos face à queda de popularidade do Presidente da República. Por fim, condenou a falta de ações concretas para auxiliar os gaúchos e afirmou que o Presidente Lula apenas faz promessas sem cumprir os compromissos assumidos."
+   },
+   {
+    "dataHoraInicio": "2025-02-04T17:52",
+    "dataHoraFim": null,
+    "uriEvento": "",
+    "faseEvento": {
+     "titulo": "Ordem do Dia",
+     "dataHoraInicio": null,
+     "dataHoraFim": null
+    },
+    "tipoDiscurso": "DISCUSSÃO",
+    "urlTexto": "https://imagem.camara.gov.br/dc_20b.asp?largura=&altura=&tipoForm=diarios&selCodColecaoCsv=D&Datain=5%2F2%2F2025&txPagina=128&txSuplemento=&enviar=Pesquisar",
+    "urlAudio": null,
+    "urlVideo": null,
+    "keywords": "Discussão,Medida provisória,contrário\r\nGoverno federal,Notícia falsa (fake news),Presidente da República,declaração,responsabilização,Rio Grande do Sul,Deficit,Recursos orçamentários,Auxílio financeiro",
+    "sumario": "O Deputado discutiu a Medida Provisória nº 1.260, de 2024, que abre crédito extraordinário, em favor dos Ministérios da Agricultura e Pecuária, da Ciência, Tecnologia e Inovação, do Desenvolvimento Agrário e Agricultura Familiar, e de Portos e Aeroportos, e de Operações Oficiais de Crédito, no valor de R$ 1.659.821.159,00, para os fins que especifica. Além disso, &nbsp;criticou o Governo Lula, classificando a medida provisória como mais uma fake news da atual gestão. Afirmou que o discurso do Governo parece positivo, mas que, na prática, não corresponde à realidade.&nbsp;&nbsp;Rebateu, ainda, a declaração do Presidente Lula sobre o impacto do Rio Grande do Sul na questão fiscal do País, classificando-a como uma falta de respeito com os gaúchos e com os brasileiros em geral."
+   },
+   {
+    "dataHoraInicio": "2025-02-04T20:24",
+    "dataHoraFim": null,
+    "uriEvento": "",
+    "faseEvento": {
+     "titulo": "Ordem do Dia",
+     "dataHoraInicio": null,
+     "dataHoraFim": null
+    },
+    "tipoDiscurso": "PELA ORDEM",
+    "urlTexto": "https://imagem.camara.gov.br/dc_20b.asp?largura=&altura=&tipoForm=diarios&selCodColecaoCsv=D&Datain=5%2F2%2F2025&txPagina=175&txSuplemento=&enviar=Pesquisar",
+    "urlAudio": null,
+    "urlVideo": null,
+    "keywords": "Paraíba,Polícia militar,Aniversário de fundação,Salário,Efetivo militar,defasagem,Crime organizado,Governo estadual,Segurança pública,Negligência,Política de segurança pública",
+    "sumario": "O Deputado destacou o aniversário de 193 anos da Polícia Militar da Paraíba, ressaltando, no entanto, que não há motivos para comemoração. Informou que a corporação enfrenta salários defasados, más condições de trabalho e falta de efetivo para atender os 223 Municípios do Estado. Além disso, enfatizou que facções criminosas, como o Comando Vermelho, se instalaram na Paraíba, promovendo ataques violentos e colocando a população em risco. Por fim, criticou o Governo Estadual, alegando que a Gestão do PSB, que completará 16 anos no próximo ano, tem negligenciado a segurança pública, tratando-a como despesa em vez de investimento."
+   },
+   {
+    "dataHoraInicio": "2025-02-12T16:12",
+    "dataHoraFim": null,
+    "uriEvento": "",
+    "faseEvento": {
+     "titulo": "Breves Comunicações",
+     "dataHoraInicio": null,
+     "dataHoraFim": null
+    },
+    "tipoDiscurso": "BREVES COMUNICAÇÕES",
+    "urlTexto": "https://imagem.camara.gov.br/dc_20b.asp?largura=&altura=&tipoForm=diarios&selCodColecaoCsv=D&Datain=13%2F2%2F2025&txPagina=76&txSuplemento=&enviar=Pesquisar",
+    "urlAudio": null,
+    "urlVideo": null,
+    "keywords": "Governo federal,Presidente da República,Inflação,Alimento,Cesta básica,Congresso Nacional,Atuação parlamentar",
+    "sumario": "O Deputado criticou o Governo Lula pela inflação dos alimentos, destacando o sofrimento da população e o aumento dos preços da cesta básica no Estado da Paraíba, além de pedir atenção ao Congresso Nacional para enfrentar esse grave problema social."
+   },
+   {
+    "dataHoraInicio": "2025-02-12T17:52",
+    "dataHoraFim": null,
+    "uriEvento": "",
+    "faseEvento": {
+     "titulo": "Ordem do Dia",
+     "dataHoraInicio": null,
+     "dataHoraFim": null
+    },
+    "tipoDiscurso": "DISCUSSÃO",
+    "urlTexto": "https://imagem.camara.gov.br/dc_20b.asp?largura=&altura=&tipoForm=diarios&selCodColecaoCsv=D&Datain=13%2F2%2F2025&txPagina=116&txSuplemento=&enviar=Pesquisar",
+    "urlAudio": null,
+    "urlVideo": null,
+    "keywords": "Discussão,Projeto de lei ordinária,contrário\r\nPolítica ambiental,Governo federal,Queimadas (BA),Floresta Amazônica,Rede social digital,manipulação,Recursos públicos,Artista,Partido dos Trabalhadores (PT)",
+    "sumario": "O Deputado discutiu o Projeto de Lei nº 2.215, de 2024, que institui o Dia Nacional para a Ação Climática. Além disso, criticou o Governo de Lula, acusando-o de não cumprir suas promessas no combate às queimadas e na proteção ambiental. Afirmou que o Governo quer censurar as redes sociais para manipular a população e controlar a narrativa. Também menciona o uso de recursos públicos para beneficiar artistas ligados ao PT, sem resultados efetivos."
+   },
+   {
+    "dataHoraInicio": "2025-02-12T19:28",
+    "dataHoraFim": null,
+    "uriEvento": "",
+    "faseEvento": {
+     "titulo": "Ordem do Dia",
+     "dataHoraInicio": null,
+     "dataHoraFim": null
+    },
+    "tipoDiscurso": "PELA ORDEM",
+    "urlTexto": "https://imagem.camara.gov.br/dc_20b.asp?largura=&altura=&tipoForm=diarios&selCodColecaoCsv=D&Datain=13%2F2%2F2025&txPagina=143&txSuplemento=&enviar=Pesquisar",
+    "urlAudio": null,
+    "urlVideo": null,
+    "keywords": "Orientação de bancada,Projeto de lei ordinária,Minoria parlamentar,Voto contrário",
+    "sumario": "O Deputado orientou a bancada na votação do Projeto de lei n° 2.215, de 2024, que institui o Dia Nacional para a Ação Climática."
+   },
+   {
+    "dataHoraInicio": "2025-02-18T18:04",
+    "dataHoraFim": null,
+    "uriEvento": "",
+    "faseEvento": {
+     "titulo": "Ordem do Dia",
+     "dataHoraInicio": null,
+     "dataHoraFim": null
+    },
+    "tipoDiscurso": "DISCUSSÃO",
+    "urlTexto": "https://imagem.camara.gov.br/dc_20b.asp?largura=&altura=&tipoForm=diarios&selCodColecaoCsv=D&Datain=19%2F2%2F2025&txPagina=123&txSuplemento=&enviar=Pesquisar",
+    "urlAudio": null,
+    "urlVideo": null,
+    "keywords": "Discussão,Projeto de lei ordinária,favorável\r\nPresidente da República,Pessoa com deficiência,declaração",
+    "sumario": "O Deputado discutiu o Projeto de Lei nº 3.987, de 2023, que altera a Lei nº 13.105, de 16 de março de 2015, para introduzir modificações no Código de Processo Civil, tornado impenhoráveis os medicamentos de uso contínuo, próteses, órteses e seus auxiliares, como bengalas, muletas, andadores, cadeiras de rodas e dispositivos criados com o propósito de auxiliar pessoas com deficiência ou mobilidade reduzida a superar desafios e limitações. Além disso, criticou declarações do Presidente da República sobre pessoas com deficiência, classificando-as como irresponsáveis."
+   },
+   {
+    "dataHoraInicio": "2025-02-18T18:12",
+    "dataHoraFim": null,
+    "uriEvento": "",
+    "faseEvento": {
+     "titulo": "Ordem do Dia",
+     "dataHoraInicio": null,
+     "dataHoraFim": null
+    },
+    "tipoDiscurso": "PELA ORDEM",
+    "urlTexto": "https://imagem.camara.gov.br/dc_20b.asp?largura=&altura=&tipoForm=diarios&selCodColecaoCsv=D&Datain=19%2F2%2F2025&txPagina=127&txSuplemento=&enviar=Pesquisar",
+    "urlAudio": null,
+    "urlVideo": null,
+    "keywords": "Orientação de bancada,Requerimento de urgência,Projeto de lei ordinária,Minoria parlamentar,Voto contrário\r\naumento,Combustível,Presidente da República,Censura,Rede social",
+    "sumario": "O Deputado orientou a bancada na votação do requerimento de urgência do Projeto de Lei nº 4.187, de 2024, que institui o dia 17 de fevereiro como Dia Nacional da Axé-Music. Na oportunidade, alertou o Congresso Nacional sobre declarações do Presidente Lula a respeito do aumento dos combustíveis. Afirmou que, durante as eleições de 2022, Lula atribuiu a alta dos preços ao então Presidente, mas agora responsabiliza Estados e intermediários. Criticou o uso de termos ofensivos por Lula em eventos públicos e classificou suas declarações como irresponsáveis. Além disso, informou que o Governo tenta censurar as redes sociais para impedir que a população exponha a realidade sobre a gestão atual."
+   },
+   {
+    "dataHoraInicio": "2025-02-18T19:28",
+    "dataHoraFim": null,
+    "uriEvento": "",
+    "faseEvento": {
+     "titulo": "Ordem do Dia",
+     "dataHoraInicio": null,
+     "dataHoraFim": null
+    },
+    "tipoDiscurso": "ENCAMINHAMENTO DE VOTAÇÃO",
+    "urlTexto": "https://imagem.camara.gov.br/dc_20b.asp?largura=&altura=&tipoForm=diarios&selCodColecaoCsv=D&Datain=19%2F2%2F2025&txPagina=152&txSuplemento=&enviar=Pesquisar",
+    "urlAudio": null,
+    "urlVideo": null,
+    "keywords": "Encaminhamento de votação,Projeto de lei complementar,favorável\r\nPresidente da República,Recursos públicos,Município,Rio Grande do Sul,Enchente,Inundação,Calamidade pública",
+    "sumario": "O Deputado encaminhou a votação do Projeto de Lei Complementar nº 223, de 2023, que altera a Lei Complementar nº 123, de 2006, para dispor sobre a prorrogação do prazo para o recolhimento de impostos para as Microempresas e Empresas de Pequeno Porte, em situação de decretação de estado de calamidade pública estadual ou distrital. Ademais, criticou o Presidente Lula, uma vez que os recursos públicos prometidos não chegaram aos Municípios do Rio Grande do Sul atingidos pelas enchentes."
+   },
+   {
+    "dataHoraInicio": "2025-02-18T19:40",
+    "dataHoraFim": null,
+    "uriEvento": "",
+    "faseEvento": {
+     "titulo": "Ordem do Dia",
+     "dataHoraInicio": null,
+     "dataHoraFim": null
+    },
+    "tipoDiscurso": "PELA ORDEM",
+    "urlTexto": "https://imagem.camara.gov.br/dc_20b.asp?largura=&altura=&tipoForm=diarios&selCodColecaoCsv=D&Datain=19%2F2%2F2025&txPagina=156&txSuplemento=&enviar=Pesquisar",
+    "urlAudio": null,
+    "urlVideo": null,
+    "keywords": "Orientação de bancada,Substitutivo,Projeto de lei complementar,Partido Liberal (PL),Voto contrário\r\nVotação nominal,Proposição legislativa\r\nAgravação penal,Criminoso,Enchente,Calamidade pública,Legislação penal\r\nPresidente da República,Governo federal,declaração,Enchente,Calamidade pública,Desequilíbrio fiscal,Rio Grande do Sul",
+    "sumario": "O Deputado orientou a bancada na votação do Substitutivo apresentado ao Projeto de Lei Complementar nº 223, de 2023, que altera a Lei Complementar nº 123, de 2006, para dispor sobre a prorrogação do prazo para o recolhimento de impostos para as Microempresas e Empresas de Pequeno Porte, em situação de decretação de estado de calamidade pública estadual ou distrital. Ademais, solicitou que a votação fosse nominal. Além disso, defendeu o endurecimento da legislação penal para punir criminosos que se aproveitam das calamidades públicas para agir e condenou a atuação do Governo Lula em relação às enchentes do Rio Grande do Sul. Por fim, criticou a declaração do Presidente Lula que atribuiu o rombo fiscal do Governo aos recursos destinados ao Estado do Rio Grande do Sul."
+   },
+   {
+    "dataHoraInicio": "2025-02-18T20:32",
+    "dataHoraFim": null,
+    "uriEvento": "",
+    "faseEvento": {
+     "titulo": "Ordem do Dia",
+     "dataHoraInicio": null,
+     "dataHoraFim": null
+    },
+    "tipoDiscurso": "PELA ORDEM",
+    "urlTexto": "https://imagem.camara.gov.br/dc_20b.asp?largura=&altura=&tipoForm=diarios&selCodColecaoCsv=D&Datain=19%2F2%2F2025&txPagina=176&txSuplemento=&enviar=Pesquisar",
+    "urlAudio": null,
+    "urlVideo": null,
+    "keywords": "Orientação de bancada,Projeto de lei ordinária,Minoria parlamentar,Voto favorável\r\nRio Grande do Sul,Auxílio emergencial,Governo federal,Recursos orçamentários",
+    "sumario": "O Deputado orientou a bancada na votação do Projeto de Lei nº 3.875, de 2024, que altera a Lei de Saneamento Básico, para prever a possibilidade de emprego de recursos públicos em serviços de drenagem e manejo de águas urbanas em condições emergenciais. Na oportunidade, criticou o Governo Lula, alegando que promessas de auxílio ao Rio Grande do Sul supostamente não foram cumpridas,&nbsp;e solicitou tempo de Liderança para aprofundar a discussão."
+   },
+   {
+    "dataHoraInicio": "2025-02-18T20:36",
+    "dataHoraFim": null,
+    "uriEvento": "",
+    "faseEvento": {
+     "titulo": "Ordem do Dia",
+     "dataHoraInicio": null,
+     "dataHoraFim": null
+    },
+    "tipoDiscurso": "COMO LÍDER",
+    "urlTexto": "https://imagem.camara.gov.br/dc_20b.asp?largura=&altura=&tipoForm=diarios&selCodColecaoCsv=D&Datain=19%2F2%2F2025&txPagina=178&txSuplemento=&enviar=Pesquisar",
+    "urlAudio": null,
+    "urlVideo": null,
+    "keywords": "Paraíba,Polícia,Salário,Governador,Governo estadual,Segurança pública\r\nPlataforma política,Censura,Rede social,Presidente da República,Governo federal,popularidade,Crise econômica,Gestão pública,Opinião pública,Manifestação pública",
+    "sumario": "O Deputado criticou o Governador da Paraíba, João Azevêdo, por supostamente divulgar informações falsas sobre os salários dos policiais do Estado, alegando que os valores reais são bem menores do que os anunciados pelo Governo. Apresentou dados oficiais para desmentir as declarações do Governador e acusou a administração estadual de prejudicar a segurança pública. Em seguida, atacou o Governo Lula, acusando-o de não cumprir promessas de campanha, manipular informações e tentar censurar as redes sociais. Disse que a popularidade do Presidente está em queda, e a população está insatisfeita com a crise econômica e a má gestão. Por fim, anunciou ainda a realização de manifestações contra o Governo Federal no dia 16 de março, destacando o crescente descontentamento popular."
+   }
+  ]
+ }
+}

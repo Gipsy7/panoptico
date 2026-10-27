@@ -1,4 +1,5 @@
 # ruff: noqa: E501  (recortes reais das páginas e do CSV da ALESC)
+import re
 from decimal import Decimal
 from pathlib import Path
 
@@ -153,6 +154,7 @@ def test_so_votacao_nominal_com_extrato_entra():
         ("PLC/0001/2026", "Aprovado"),
     ]
     assert itens[0]["extrato"] == "5Z3aR"  # o código do botão "Extrato de votação"
+    assert all(re.fullmatch(r"\w{5}", i["proposicao_id"]) for i in itens)  # /proposicoes/<id>
     assert itens[0]["ementa"].startswith("Altera e acresce dispositivos")
 
 
@@ -186,6 +188,9 @@ def test_montar_votacoes_liga_so_nome_exato_e_conta_o_extrato_todo():
     assert (v["sim"], v["nao"], v["abstencoes"], v["resultado"]) == (3, 2, 0, "Aprovado")
     assert v["data"] == "2026-06-16" and v["id_externo"] == item["extrato"]
     assert v["url"].endswith("/sessoes-plenarias/zer8K/ordem-do-dia")
+    # O id da proposição no e-Legis é o mesmo `id_externo` do projeto do deputado.
+    assert v["materia_id_externo"] == item["proposicao_id"]
+    assert v["materia_ementa"].startswith("Altera e acresce dispositivos")
     assert sorted((x["parlamentar"], x["voto"]) for x in votos) == [
         ("alex-brasil", "Sim"),
         ("jesse-lopes", "Não"),

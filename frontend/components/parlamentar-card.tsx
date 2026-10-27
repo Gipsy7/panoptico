@@ -16,13 +16,13 @@ export function ParlamentarCard({
       href={`/parlamentar/${parlamentar.id}`}
       className="group flex items-center gap-4 py-3 transition-colors duration-300 hover:bg-accent/50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-bronze"
     >
-      <Foto parlamentar={parlamentar} largura={56} />
+      <Foto parlamentar={parlamentar} largura={56} decorativa />
       <div className="min-w-0">
         <p className="truncate text-base font-semibold">{parlamentar.nome_parlamentar}</p>
         <p className="text-sm text-muted-foreground">
           {[parlamentar.partido, parlamentar.uf].filter(Boolean).join(" · ")}
         </p>
-        {destaque && <p className="text-xs font-medium text-bronze-texto">{destaque}</p>}
+        {destaque && <p className="text-sm font-medium text-bronze-texto">{destaque}</p>}
       </div>
     </Link>
   );
@@ -32,10 +32,13 @@ export function Foto({
   parlamentar,
   largura,
   prioridade = false,
+  decorativa = false,
 }: {
   parlamentar: ParlamentarResumo;
   largura: number;
   prioridade?: boolean;
+  /** Com o nome escrito ao lado, dentro do mesmo link ou botão: alt vazio, para não repetir. */
+  decorativa?: boolean;
 }) {
   const altura = Math.round((largura * 4) / 3);
   if (!parlamentar.foto_url) {
@@ -53,7 +56,7 @@ export function Foto({
     <ViewTransition name={`foto-${parlamentar.id}`} share="morph" default="none">
       <Image
         src={parlamentar.foto_url}
-        alt={`Foto de ${parlamentar.nome_parlamentar}`}
+        alt={decorativa ? "" : `Foto de ${parlamentar.nome_parlamentar}`}
         width={largura}
         height={altura}
         preload={prioridade}

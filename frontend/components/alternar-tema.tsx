@@ -1,63 +1,67 @@
 "use client";
 
+/**
+ * Botão de tema: um ícone só, que alterna entre claro e escuro. Enquanto a pessoa não escolhe,
+ * o site segue o sistema (prefers-color-scheme), sem atributo na raiz. Ao tocar, grava a escolha
+ * no localStorage (chave "tema") e marca `data-theme` na raiz; o script do <head> em layout.tsx
+ * a aplica antes da pintura nas visitas seguintes, sem piscar. O ícone mostra para onde vai:
+ * lua quando está claro, sol quando está escuro.
+ */
 import { useSyncExternalStore } from "react";
 
-type Tema = "system" | "light" | "dark";
+type Tema = "light" | "dark";
 
-const OPCOES: { valor: Tema; rotulo: string }[] = [
-  { valor: "system", rotulo: "Automático" },
-  { valor: "light", rotulo: "Claro" },
-  { valor: "dark", rotulo: "Escuro" },
-];
+const ESCURO = "(prefers-color-scheme: dark)";
 
-function aplicar(tema: Tema) {
-  const raiz = document.documentElement;
-  if (tema === "system") raiz.removeAttribute("data-theme");
-  else raiz.setAttribute("data-theme", tema);
-}
-
-/**
- * Escolha do tema: automático (segue o sistema), claro ou escuro. A preferência fica no
- * localStorage (chave "tema"); o script do <head> em layout.tsx a aplica antes da pintura.
- */
 function observar(aviso: () => void) {
   const o = new MutationObserver(aviso);
   o.observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
-  return () => o.disconnect();
+  const sistema = window.matchMedia(ESCURO);
+  sistema.addEventListener("change", aviso);
+  return () => {
+    o.disconnect();
+    sistema.removeEventListener("change", aviso);
+  };
 }
 
-function atual(): Tema {
+/** Tema em uso: o escolhido (atributo na raiz) ou, sem escolha, o do sistema. */
+function emUso(): Tema {
   const t = document.documentElement.getAttribute("data-theme");
-  return t === "light" || t === "dark" ? t : "system";
+  if (t === "light" || t === "dark") return t;
+  return window.matchMedia(ESCURO).matches ? "dark" : "light";
 }
 
 export function AlternarTema({ className = "" }: { className?: string }) {
-  // O tema vive no atributo data-theme da página (aplicado pelo script do <head>).
-  const tema = useSyncExternalStore(observar, atual, () => "system" as Tema);
+  // No servidor não se sabe o tema: o rótulo sai neutro e se acerta na hidratação.
+  const tema = useSyncExternalStore(observar, emUso, () => null);
+  const proximo: Tema = tema === "dark" ? "light" : "dark";
+  const rotulo = tema === null ? "Trocar entre tema claro e escuro" : proximo === "dark" ? "Usar tema escuro" : "Usar tema claro";
 
-  function escolher(novo: Tema) {
-    aplicar(novo);
+  function alternar() {
+    document.documentElement.setAttribute("data-theme", proximo);
     try {
-      if (novo === "system") localStorage.removeItem("tema");
-      else localStorage.setItem("tema", novo);
-    } catch {}
+      localStorage.setItem("tema", proximo);
+    } catch {
+      // Armazenamento bloqueado: vale só nesta visita.
+    }
   }
 
   return (
-    <div role="group" aria-label="Tema do site" className={`flex items-center gap-1 text-sm ${className}`}>
-      {OPCOES.map((o) => (
-        <button
-          key={o.valor}
-          type="button"
-          aria-pressed={tema === o.valor}
-          onClick={() => escolher(o.valor)}
-          className={`alvo-44 rounded-[2px] px-2 focus-visible:outline-2 focus-visible:outline-bronze ${
-            tema === o.valor ? "bg-muted font-medium text-foreground" : "text-muted-foreground hover:text-foreground"
-          }`}
-        >
-          {o.rotulo}
-        </button>
-      ))}
-    </div>
+    <button
+      type="button"
+      onClick={alternar}
+      aria-label={rotulo}
+      title={rotulo}
+      className={`flex size-11 shrink-0 items-center justify-center rounded-[2px] text-foreground hover:bg-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-bronze ${className}`}
+    >
+      {/* Antes de hidratar, o CSS escolhe o ícone pelo tema da página (classes dark:). */}
+      <svg aria-hidden viewBox="0 0 24 24" className="size-6 dark:hidden" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5Z" />
+      </svg>
+      <svg aria-hidden viewBox="0 0 24 24" className="hidden size-6 dark:block" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round">
+        <circle cx="12" cy="12" r="4" />
+        <path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.3 5.3l1.4 1.4M17.3 17.3l1.4 1.4M5.3 18.7l1.4-1.4M17.3 6.7l1.4-1.4" />
+      </svg>
+    </button>
   );
 }

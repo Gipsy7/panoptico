@@ -2,6 +2,7 @@ import { TabelaRolavel } from "@/components/ui/tabela-rolavel";
 import { FonteRodape } from "@/components/fonte-rodape";
 import type { DestinoEmendaItem, DestinoEmendas } from "@/lib/api";
 import { formatarData, formatarReais } from "@/lib/formato";
+import { LinkExterno } from "@/components/link-externo";
 
 const TIPO: Record<string, string> = {
   convenio: "Convênio",
@@ -18,7 +19,7 @@ export function DestinoEmendasSecao({ dados }: { dados: DestinoEmendas }) {
         <h2 id="destino-emendas-titulo" className="text-2xl">
           O que aconteceu com o dinheiro das emendas
         </h2>
-        <p className="text-xs text-muted-foreground">
+        <p className="text-sm text-muted-foreground">
           Convênios e transferências especiais ligados às emendas individuais deste parlamentar, de{" "}
           {dados.desde} em diante
         </p>
@@ -105,7 +106,7 @@ function TabelaSituacoes({
   linhas: { rotulo: string; quantidade: number; valor?: number }[];
 }) {
   return (
-    <TabelaRolavel larguraMinima="28rem">
+    <TabelaRolavel larguraMinima="28rem" rotulo={`${titulo}, tabela com rolagem lateral`}>
     <table className="w-full text-left text-sm">
       <caption className="pb-1 text-left font-medium">{titulo}</caption>
       <thead className="sr-only">
@@ -169,16 +170,14 @@ function Item({ item }: { item: DestinoEmendaItem }) {
         )}
         {vigencia && <> · vigência {vigencia}</>}
       </p>
-      <a
+      <LinkExterno
         href={item.fonte_url}
-        target="_blank"
-        rel="noopener noreferrer"
         className="w-fit underline underline-offset-2"
       >
         {item.tipo === "especial"
           ? "Ver o registro oficial (TransfereGov)"
           : "Consultar o convênio no Portal da Transparência"}
-      </a>
+      </LinkExterno>
     </li>
   );
 }

@@ -35,6 +35,8 @@ class ViceDoCandidato(BaseModel):
     nome_urna: str
     partido: str | None
     foto: bool
+    foto_de: int | None = None
+    foto_ano: int | None = None
 
 
 class CargoAnterior(BaseModel):
@@ -61,6 +63,8 @@ class CandidatoSegundoTurno(BaseModel):
     numero: str | None
     partido: str | None
     foto: bool
+    foto_de: int | None = None  # candidatura dona da foto, quando é de outra eleição da pessoa
+    foto_ano: int | None = None
     foto_url: str | None
     vice: ViceDoCandidato | None
     votos_1turno: int | None
@@ -89,6 +93,7 @@ class GovernadorEleito(BaseModel):
     nome_urna: str
     partido: str | None
     numero: str | None
+    perfil: str | None = None  # perfil principal da pessoa, se já tiver um mandato
 
 
 class SegundoTurnoResposta(BaseModel):
@@ -103,6 +108,10 @@ class SegundoTurnoResposta(BaseModel):
     fonte_url: str
     contas_url: str
     atualizado_em: datetime | None
+    # Resultado do 2º turno pela divulgação de resultados do TSE (antes dos dados abertos):
+    # a página oficial e o momento da totalização; nulos enquanto não houver resultado.
+    resultado_fonte_url: str | None = None
+    resultado_atualizado_em: datetime | None = None
     sancoes_fonte_nome: str
     sancoes_fonte_url: str
     sancoes_atualizado_em: datetime | None

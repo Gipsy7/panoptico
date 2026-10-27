@@ -1,0 +1,10 @@
+[Unit]
+Description=Agenda: contratos do PNCP (2h30 de Brasilia)
+
+[Timer]
+# Horário em UTC, igual ao cron do workflow que esta carga substitui.
+OnCalendar=*-*-* 05:30:00 UTC
+Persistent=true
+
+[Install]
+WantedBy=timers.target

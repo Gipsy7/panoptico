@@ -1,0 +1,11 @@
+[Unit]
+Description=Panoptico: justica e identidade
+After=docker.service network-online.target
+Wants=network-online.target
+Requires=docker.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/bash /opt/panoptico/deploy/vps/agenda/justica.sh
+TimeoutStartSec=infinity
+Nice=10

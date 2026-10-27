@@ -31,9 +31,32 @@ CATALOGO = [
         "url": "https://dadosabertos.camara.leg.br/",
     },
     {
-        "dado": "Projetos de lei e autores",
+        "dado": "Projetos de lei e autores (inclui os projetos votados antes de 2023)",
         "orgao": "Câmara dos Deputados e Senado Federal",
-        "fontes": ["camara_proposicoes", "camara_autores", "senado_proposicoes"],
+        "fontes": [
+            "camara_proposicoes",
+            "camara_proposicoes_votadas",
+            "camara_autores",
+            "senado_proposicoes",
+        ],
+        "url": "https://dadosabertos.camara.leg.br/",
+    },
+    {
+        "dado": "Discursos em Plenário nos dias de votação (resumo publicado pela Casa e link)",
+        "orgao": "Câmara dos Deputados e Senado Federal",
+        "fontes": ["camara_discursos", "senado_discursos"],
+        "url": "https://dadosabertos.camara.leg.br/",
+    },
+    {
+        "dado": "Pauta do Plenário nos próximos dias",
+        "orgao": "Câmara dos Deputados e Senado Federal",
+        "fontes": ["camara_pauta", "senado_pauta"],
+        "url": "https://dadosabertos.camara.leg.br/",
+    },
+    {
+        "dado": "Caminho dos projetos (tramitação) e relator",
+        "orgao": "Câmara dos Deputados e Senado Federal",
+        "fontes": ["camara_tramitacoes", "senado_tramitacoes"],
         "url": "https://dadosabertos.camara.leg.br/",
     },
     {
@@ -72,6 +95,7 @@ CATALOGO = [
             "tse_campanha",
             "tse_redes",
             "tse_votos",
+            "tse_resultado_2_turno",
             "tse_fotos",
         ],
         "url": "https://dadosabertos.tse.jus.br/",

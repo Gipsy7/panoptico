@@ -4,13 +4,14 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 
 import { AlternarTema } from "@/components/alternar-tema";
+import { tornarFundoInerte } from "@/lib/fundo-inerte";
 
 const ITENS = [
   { href: "/parlamentares", rotulo: "Parlamentares" },
+  { href: "/projetos", rotulo: "Projetos e votações" },
   { href: "/comparar", rotulo: "Comparar" },
   { href: "/impostos-e-repasses", rotulo: "Impostos e repasses" },
   { href: "/partidos", rotulo: "Partidos" },
-  { href: "/sobre-as-fontes", rotulo: "Fontes" },
   { href: "/apoie", rotulo: "Apoie" },
 ];
 
@@ -18,11 +19,19 @@ const ITENS = [
  * Menu do topo. No computador, links em linha. No celular, o botão "Buscar pelo CEP" fica sempre
  * visível e o menu é um botão (`aria-expanded`) que abre um painel sob o cabeçalho; o painel fecha
  * ao tocar num link, ao tocar fora e com Esc, e trava a rolagem do fundo. Não lê a URL atual de
- * propósito: no layout, isso obrigaria a renderizar o cabeçalho a cada pedido.
+ * propósito: no layout, isso obrigaria a renderizar o cabeçalho a cada pedido. O botão de tema
+ * (só o ícone de sol/lua) fica no cabeçalho; em telas abaixo de 640 px, no topo do painel do menu.
  */
 export function MenuPrincipal() {
   const [aberto, setAberto] = useState(false);
   const botao = useRef<HTMLButtonElement>(null);
+  const painel = useRef<HTMLDivElement>(null);
+
+  function aoSairFoco(e: React.FocusEvent<HTMLDivElement>) {
+    const para = e.relatedTarget as Node | null;
+    if (!para || e.currentTarget.contains(para) || botao.current?.contains(para)) return;
+    setAberto(false);
+  }
 
   useEffect(() => {
     if (!aberto) return;
@@ -35,7 +44,10 @@ export function MenuPrincipal() {
       }
     };
     document.addEventListener("keydown", aoTeclar);
+    // Resto da página inerte (o TalkBack ignora aria-modal); o botão do menu continua ativo.
+    const desfazerInerte = painel.current ? tornarFundoInerte(painel.current, [botao.current]) : () => {};
     return () => {
+      desfazerInerte();
       document.body.style.overflow = anterior;
       document.removeEventListener("keydown", aoTeclar);
     };
@@ -43,7 +55,7 @@ export function MenuPrincipal() {
 
   return (
     <>
-      <nav aria-label="Principal" className="hidden items-center gap-3 text-sm whitespace-nowrap xl:flex xl:gap-6">
+      <nav aria-label="Principal" className="hidden items-center gap-3 text-sm whitespace-nowrap xl:flex xl:gap-4">
         {ITENS.map((i) => (
           <Link key={i.href} href={i.href} className="alvo-link underline-offset-4 hover:underline">
             {i.rotulo}
@@ -55,9 +67,17 @@ export function MenuPrincipal() {
         <AlternarTema />
       </nav>
 
-      <div className="flex items-center gap-2 xl:hidden">
-        <Link href="/#cep" onClick={() => setAberto(false)} aria-label="Buscar pelo CEP" className="botao-linha px-3 whitespace-nowrap">
-          Buscar CEP
+      <div className="flex items-center gap-1 min-[22rem]:gap-2 xl:hidden">
+        {/* Botão de tema no cabeçalho quando cabe (a partir de 640 px); abaixo disso, no topo do menu. */}
+        <div className="hidden sm:block">
+          <AlternarTema />
+        </div>
+        <Link href="/#cep" onClick={() => setAberto(false)} aria-label="Buscar seus representantes" className="botao-linha px-3 whitespace-nowrap max-[22rem]:w-11 max-[22rem]:px-0">
+          <span className="max-[22rem]:sr-only">Buscar</span>
+          <svg aria-hidden viewBox="0 0 24 24" className="hidden size-5 max-[22rem]:block" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round">
+            <circle cx="11" cy="11" r="6" />
+            <path d="M16 16l4 4" />
+          </svg>
         </Link>
         <button
           ref={botao}
@@ -75,17 +95,28 @@ export function MenuPrincipal() {
       </div>
 
       {aberto && (
-        // Toque fora da lista (na área abaixo dela) fecha o painel.
+        // O painel fecha quando o foco sai dele (exceto para o botão do menu, que alterna).
+        // eslint-disable-next-line jsx-a11y/no-static-element-interactions -- só observa a saída do foco; não recebe clique nem tecla
         <div
           id="menu-celular"
-          onClick={() => setAberto(false)}
+          ref={painel}
+          onBlur={aoSairFoco}
           className="absolute inset-x-0 top-full h-[calc(100dvh-3.5rem)] bg-background/95 xl:hidden"
         >
-          <nav
-            aria-label="Menu"
-            onClick={(e) => e.stopPropagation()}
-            className="border-b border-border bg-background px-4 pb-5 shadow-[var(--sombra-menu)]"
-          >
+          {/* Fundo: botão transparente que fecha ao toque fora da lista. Fora da ordem de Tab e
+              do leitor de tela de propósito: o botão do menu (sempre visível) já fecha. */}
+          <button
+            type="button"
+            tabIndex={-1}
+            aria-hidden
+            aria-label="Fechar o menu"
+            onClick={() => setAberto(false)}
+            className="absolute inset-0 size-full cursor-default"
+          />
+          <nav aria-label="Menu" className="relative border-b border-border bg-background px-4 pb-5 shadow-[var(--sombra-menu)]">
+            <div className="flex justify-end pt-1 sm:hidden">
+              <AlternarTema />
+            </div>
             <ul className="lista-fios flex flex-col text-base">
               {ITENS.map((i) => (
                 <li key={i.href}>
@@ -95,10 +126,6 @@ export function MenuPrincipal() {
                 </li>
               ))}
             </ul>
-            <div className="mt-3 flex items-center justify-between gap-3 text-sm text-muted-foreground">
-              <span>Tema</span>
-              <AlternarTema />
-            </div>
           </nav>
         </div>
       )}

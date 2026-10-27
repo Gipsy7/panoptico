@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 import { FonteRodape } from "@/components/fonte-rodape";
 import { getSancoes, type SancaoItem } from "@/lib/api";
 import { formatarData } from "@/lib/formato";
+import { LinkExterno } from "@/components/link-externo";
 
 const ROTULO_TIPO: Record<string, string> = {
   sancao: "Sanção em cadastro da CGU",
@@ -92,12 +93,12 @@ function Item({ item }: { item: SancaoItem }) {
       </dl>
       {item.fonte_url && (
         <p className="text-sm text-muted-foreground">
-          <a href={item.fonte_url} target="_blank" rel="noopener noreferrer" className="underline underline-offset-2">
+          <LinkExterno href={item.fonte_url} className="underline underline-offset-2">
             Ver na fonte oficial
-          </a>
+          </LinkExterno>
         </p>
       )}
-      {item.ligacao && <p className="text-xs text-muted-foreground">{item.ligacao}</p>}
+      {item.ligacao && <p className="text-sm text-muted-foreground">{item.ligacao}</p>}
     </li>
   );
 }

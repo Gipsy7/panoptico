@@ -1,5 +1,6 @@
 import type { Canal } from "@/lib/api";
 import { formatarData } from "@/lib/formato";
+import { LinkExterno } from "@/components/link-externo";
 
 const ROTULOS: Record<string, string> = {
   prefeitura: "Site da prefeitura",
@@ -29,13 +30,13 @@ export function CanaisSecao({ canais, cidade }: { canais: Canal[]; cidade: strin
         {canais.map((c) => (
           <li key={c.tipo} className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 py-3">
             <span className="text-sm text-muted-foreground">{ROTULOS[c.tipo] ?? c.tipo}</span>
-            <a href={c.url} target="_blank" rel="noopener noreferrer" className="min-w-0 truncate text-sm underline underline-offset-2">
+            <LinkExterno href={c.url} className="min-w-0 truncate text-sm underline underline-offset-2">
               {new URL(c.url).hostname.replace(/^www\./, "")}
-            </a>
+            </LinkExterno>
           </li>
         ))}
       </ul>
-      <p className="text-xs text-muted-foreground">
+      <p className="text-sm text-muted-foreground">
         Encontrados automaticamente
         {verificado ? ` e verificados em ${formatarData(verificado)}` : ""}. Achou um link errado
         ou faltando? O catálogo é aberto:{" "}

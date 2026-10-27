@@ -9,7 +9,7 @@ import { AbasDetalhe, type AbaDetalhe } from "@/components/painel/abas-detalhe";
 import { BarraComparacao } from "@/components/painel/barra-comparacao";
 import { ListaPerguntas, Pergunta } from "@/components/painel/pergunta";
 import { Migalhas } from "@/components/ui/migalhas";
-import { AcompanharPorFeed, CompartilharWhatsApp } from "@/components/compartilhar";
+import { CompartilharWhatsApp } from "@/components/compartilhar";
 import { FonteRodape } from "@/components/fonte-rodape";
 import { SeloEleitoFuturo } from "@/components/eleito-futuro";
 import { CarreiraSecao } from "@/components/carreira-secao";
@@ -52,6 +52,7 @@ import {
 } from "@/lib/api";
 import { CASA_CURTA, FONTE_CASA, NOME_CASA, formatarReais } from "@/lib/formato";
 import { JsonLdPerfil, montarDescricao, nomeComSigla } from "@/components/json-ld";
+import { LinkExterno } from "@/components/link-externo";
 
 export async function generateMetadata({
   params,
@@ -281,7 +282,7 @@ async function Perfil({
           ]}
         />
         <header className="flex items-start gap-4">
-          <Foto parlamentar={p} largura={96} prioridade />
+          <Foto parlamentar={p} largura={96} prioridade decorativa />
           <div className="flex min-w-0 flex-col gap-1">
             <p className="sobretitulo">{p.casa === "senado" ? "Senador" : "Deputado federal"}</p>
             <h1 className="titulo-pagina">{p.nome_parlamentar}</h1>
@@ -310,12 +311,27 @@ async function Perfil({
           sancoes={sancoes?.ok ? sancoes.dados : undefined}
           subsidio={p.remuneracao.subsidio_mensal}
         />
-        <p className="text-sm text-muted-foreground">Toque num número para ver o detalhe, com a fonte e a data.</p>
+        <p className="text-sm text-muted-foreground">Toque ou clique num número para ver o detalhe, com a fonte e a data.</p>
 
         <div className="flex flex-wrap gap-2">
           <Link href={`/comparar?a=${p.id}`} className="botao-linha">
             Comparar com outro parlamentar
           </Link>
+        </div>
+        <div className="flex flex-col gap-1">
+          {p.uf && (
+            <Link href={`/representantes?uf=${p.uf}`} className="alvo-link self-start text-sm text-muted-foreground underline underline-offset-4">
+              Ver quem mais representa o estado ({p.uf})
+            </Link>
+          )}
+          {p.partido && (
+            <Link
+              href={`/parlamentares?partido=${encodeURIComponent(p.partido)}`}
+              className="alvo-link self-start text-sm text-muted-foreground underline underline-offset-4"
+            >
+              Ver os outros parlamentares do {p.partido}
+            </Link>
+          )}
         </div>
         {p.uf && (
           <Link
@@ -329,7 +345,6 @@ async function Perfil({
           caminho={`/parlamentar/${p.id}`}
           texto={`Veja os gastos, a presença e os projetos de ${p.nome_parlamentar} (${NOME_CASA[p.casa]}), com dados oficiais:`}
         />
-        {linha.ok && <AcompanharPorFeed pessoaId={linha.dados.pessoa_id} />}
       </div>
 
       <PerguntasPerfil
@@ -379,9 +394,9 @@ function Contato({ p }: { p: ParlamentarDetalhe }) {
           <>
             <dt className="text-muted-foreground">Página oficial</dt>
             <dd>
-              <a href={p.pagina_url} target="_blank" rel="noopener noreferrer" className="underline underline-offset-2">
+              <LinkExterno href={p.pagina_url} className="underline underline-offset-2">
                 {NOME_CASA[p.casa]}
-              </a>
+              </LinkExterno>
             </dd>
           </>
         )}
@@ -552,8 +567,10 @@ function ComposicaoPresenca({ presenca: p }: { presenca: Presenca }) {
 
 function Carregando() {
   return (
-    <div className="flex flex-col gap-[var(--esp-10)]" aria-busy="true" aria-live="polite">
-      <span className="sr-only">Carregando perfil…</span>
+    <div className="flex flex-col gap-[var(--esp-10)]">
+      <span role="status" className="sr-only">
+        Carregando perfil…
+      </span>
       <div aria-hidden className="flex gap-4">
         <div className="h-32 w-24 animate-pulse rounded-[2px] bg-muted motion-reduce:animate-none" />
         <div className="flex flex-1 flex-col gap-2">

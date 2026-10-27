@@ -2,30 +2,62 @@ import Link from "next/link";
 import { Suspense } from "react";
 
 import { AvisoSegundoTurno } from "@/components/aviso-segundo-turno";
-import { EsqueletoSecao } from "@/components/esqueleto-secao";
 import { BuscaGeral } from "@/components/busca-geral";
 import { CepForm } from "@/components/cep-form";
+import { CuriosidadesCidade } from "@/components/curiosidades-cidade";
+import { ExemploRegional } from "@/components/exemplo-regional";
+import { LocalizacaoProvider } from "@/components/localizacao-home";
 import { FonteRodape } from "@/components/fonte-rodape";
 import { MENSAGEM_CARREGANDO, reais, textoSemDado } from "@/components/dinheiro-federal/formatos";
 import { MapaHome } from "@/components/home-mapa/mapa-home";
 import { Marca } from "@/components/logo";
-import { Foto } from "@/components/parlamentar-card";
-import {
-  type ParlamentarNaLista,
-  type ParlamentarResumo,
-  getComparacao,
-  getDinheiroFederal,
-  getRepresentantes,
-} from "@/lib/api";
-import { formatarGastos } from "@/lib/formato";
+import { PanopticoDesenho } from "@/components/panoptico-desenho";
+import { JsonLd } from "@/components/json-ld";
+import { getDinheiroFederal } from "@/lib/api";
+import { SITE_URL } from "@/lib/site";
 
-// O exemplo de comparação usa os senadores deste estado (sempre há 3 em exercício).
-const UF_DO_EXEMPLO = "SC";
+const REPOSITORIO = "https://github.com/Gipsy7/panoptico";
+
+// Dados estruturados do site: quem publica, o que é e sob que licença os dados abertos são reutilizáveis.
+const JSON_LD_SITE = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "@id": `${SITE_URL}/#organizacao`,
+      name: "Panóptico",
+      url: SITE_URL,
+      sameAs: [REPOSITORIO],
+    },
+    {
+      "@type": "WebSite",
+      "@id": `${SITE_URL}/#site`,
+      url: SITE_URL,
+      name: "Panóptico: quem te representa, às claras",
+      inLanguage: "pt-BR",
+      publisher: { "@id": `${SITE_URL}/#organizacao` },
+    },
+    {
+      "@type": "Dataset",
+      name: "Representantes políticos do Brasil: mandato, gastos, votos e patrimônio",
+      description:
+        "Dados oficiais (Câmara, Senado, TSE, Tesouro e outros) sobre quem representa cada cidadão, do presidente ao vereador, com fonte e data.",
+      url: SITE_URL,
+      inLanguage: "pt-BR",
+      license: "https://creativecommons.org/licenses/by/4.0/",
+      isAccessibleForFree: true,
+      creator: { "@id": `${SITE_URL}/#organizacao` },
+      isBasedOn: REPOSITORIO,
+    },
+  ],
+};
 
 export default function Home() {
   return (
     <div data-largura="larga" className="flex flex-col gap-[var(--esp-16)]">
-      <section className="grid items-start gap-12 pt-2 md:grid-cols-[minmax(0,1fr)_minmax(0,25rem)] md:gap-16 md:pt-10">
+      <JsonLd dados={JSON_LD_SITE} />
+      <LocalizacaoProvider>
+      <section className="grid grid-cols-1 items-start gap-12 pt-2 md:grid-cols-[minmax(0,1fr)_minmax(0,25rem)] md:gap-16 md:pt-10">
         <div className="flex flex-col gap-6">
           <div className="flex items-center gap-3">
             <Marca tamanho={28} animada traco={2.6} className="text-bronze" />
@@ -41,6 +73,7 @@ export default function Home() {
           <div id="cep" className="max-w-md scroll-mt-24 border-t border-foreground pt-6">
             <CepForm />
           </div>
+          <CuriosidadesCidade />
           <div className="flex max-w-md flex-col gap-2">
             <BuscaGeral rotulo="Ou procure pelo nome: parlamentar, governador, prefeito ou vereador" />
           </div>
@@ -51,22 +84,17 @@ export default function Home() {
           </Suspense>
         </div>
 
-        <Suspense
-          fallback={
-            <div className="min-h-96 border border-border p-[var(--esp-4)]">
-              <EsqueletoSecao rotulo="Carregando o exemplo de comparação…" />
-            </div>
-          }
-        >
-          <ExemploDeComparacao />
-        </Suspense>
+        <ExemploRegional />
       </section>
+      </LocalizacaoProvider>
 
       <Suspense fallback={<div className="min-h-96" aria-hidden />}>
         <DinheiroFederalHome />
       </Suspense>
 
       <OQueVoceEncontra />
+
+      <PorQuePanoptico />
     </div>
   );
 }
@@ -93,13 +121,13 @@ async function DinheiroFederalHome() {
   const { brasil, ufs, ano, avisos, fontes } = r.dados;
   const dataFonte = fontes.map((f) => f.atualizado_em).filter((d): d is string => Boolean(d)).sort()[0] ?? null;
   return (
-    <section aria-labelledby="impostos-titulo" className="revelar grid items-start gap-8 md:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)] md:gap-16">
+    <section aria-labelledby="impostos-titulo" className="revelar grid grid-cols-1 items-start gap-8 md:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)] md:gap-16">
       <div className="flex flex-col gap-4">
         <p className="sobretitulo">Impostos e repasses</p>
         <h2 id="impostos-titulo" className="text-3xl leading-tight text-balance sm:text-4xl">
           Quanto a União arrecada e repassa em cada estado
         </h2>
-        <p className="text-muted-foreground">Dados de {ano}. Passe o mouse ou toque num estado para ver os números.</p>
+        <p className="text-muted-foreground">Dados de {ano}. Passe o mouse, toque ou clique num estado para ver os números.</p>
         <dl className="grid grid-cols-2 gap-4 border-t border-foreground pt-4">
           <div>
             <dt className="text-sm text-muted-foreground">Arrecadado no país</dt>
@@ -127,90 +155,6 @@ async function DinheiroFederalHome() {
         ufs={ufs.map((u) => ({ uf: u.uf, nome: u.nome, arrecadacao: u.arrecadacao, repasse: u.repasse }))}
       />
     </section>
-  );
-}
-
-async function ExemploDeComparacao() {
-  const representantes = await getRepresentantes({ uf: UF_DO_EXEMPLO });
-  if (!representantes.ok) return null;
-  const [a, b] = representantes.dados.senadores;
-  if (!a || !b) return null;
-  const resultado = await getComparacao(String(a.id), String(b.id));
-  if (!resultado.ok) return null;
-  const { numeros_a: na, numeros_b: nb, convergencia, ano } = resultado.dados;
-  if (!na || !nb) return null;
-
-  const linhas: { rotulo: string; a: string; b: string }[] = [
-    { rotulo: `Gastos do gabinete em ${ano}`, a: formatarGastos(na.gastos, true), b: formatarGastos(nb.gastos, true) },
-    { rotulo: "Votou nas votações", a: presenca(na), b: presenca(nb) },
-    { rotulo: "Projetos como autor", a: String(na.projetos), b: String(nb.projetos) },
-  ];
-
-  return (
-    <aside aria-labelledby="exemplo-titulo" className="flex flex-col gap-3">
-      <p id="exemplo-titulo" className="sobretitulo flex items-center gap-2">
-        <span aria-hidden className="size-1.5 rounded-full bg-bronze" />
-        Exemplo de comparação
-      </p>
-      <div className="flex flex-col rounded-[2px] border border-border bg-card">
-        <div className="grid grid-cols-2 gap-3 border-b border-foreground p-4 sm:gap-4 sm:p-5">
-          <Pessoa p={a} />
-          <Pessoa p={b} />
-        </div>
-        <dl className="flex flex-col px-4 sm:px-5">
-          {linhas.map((l) => (
-            <div key={l.rotulo} className="border-b border-border py-3">
-              <dt className="text-sm text-muted-foreground">{l.rotulo}</dt>
-              <div className="mt-1 grid grid-cols-2 gap-3 sm:gap-4">
-                <dd className="numero text-xl">{l.a}</dd>
-                <dd className="numero text-xl">{l.b}</dd>
-              </div>
-            </div>
-          ))}
-        </dl>
-        {convergencia && convergencia.votacoes_em_comum > 0 && (
-          <div className="flex flex-col gap-2 px-4 pt-4 sm:px-5">
-            <p className="text-sm">
-              Votaram igual em{" "}
-              <span className="numero text-lg">
-                {convergencia.iguais} de {convergencia.votacoes_em_comum}
-              </span>{" "}
-              votações em {ano}
-            </p>
-            <div aria-hidden className="h-1.5 w-full rounded-full bg-muted">
-              <div className="h-1.5 rounded-full bg-chart-1" style={{ width: `${convergencia.percentual ?? 0}%` }} />
-            </div>
-          </div>
-        )}
-        <div className="flex flex-wrap items-center justify-between gap-3 p-4 sm:p-5">
-          <Link href={`/comparar?a=${a.id}&b=${b.id}`} className="botao-linha">
-            Ver a comparação completa
-          </Link>
-          <Link href="/comparar" className="alvo-link text-sm underline underline-offset-4">
-            Comparar outros
-          </Link>
-        </div>
-      </div>
-    </aside>
-  );
-}
-
-function presenca(n: ParlamentarNaLista) {
-  return n.presenca === null ? "—" : `${n.presenca_votou} de ${n.presenca_total}`;
-}
-
-function Pessoa({ p }: { p: ParlamentarResumo }) {
-  return (
-    <Link href={`/parlamentar/${p.id}`} className="flex min-w-0 items-center gap-3 hover:opacity-80">
-      <Foto parlamentar={p} largura={44} />
-      <span className="flex min-w-0 flex-col gap-1">
-        <span className="line-clamp-2 break-words text-sm font-semibold leading-tight">{p.nome_parlamentar}</span>
-        <span className="flex flex-wrap gap-1">
-          {p.partido && <span className="pilula">{p.partido}</span>}
-          <span className="pilula">{p.uf}</span>
-        </span>
-      </span>
-    </Link>
   );
 }
 
@@ -247,6 +191,17 @@ const RECURSOS = [
       <svg aria-hidden viewBox="0 0 24 24" className={ICONE} fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
         <path d="M4 14h16v6H4z" />
         <path d="M8 14V5h8v9M10.5 9.5l1.5 1.5 2.5-3" />
+      </svg>
+    ),
+  },
+  {
+    titulo: "Projetos e votações",
+    texto: "Procure um projeto pelo número ou assunto: o que diz, quem votou e o que disseram no Plenário.",
+    href: "/projetos",
+    icone: (
+      <svg aria-hidden viewBox="0 0 24 24" className={ICONE} fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="10.5" cy="10.5" r="6" />
+        <path d="M15 15l5 5M8 10.5h5M10.5 8v5" />
       </svg>
     ),
   },
@@ -288,7 +243,7 @@ const RECURSOS = [
 
 function OQueVoceEncontra() {
   return (
-    <section aria-labelledby="encontra-titulo" className="revelar grid gap-8 md:grid-cols-[minmax(0,1fr)_minmax(0,1.6fr)] md:gap-16">
+    <section aria-labelledby="encontra-titulo" className="revelar grid grid-cols-1 gap-8 md:grid-cols-[minmax(0,1fr)_minmax(0,1.6fr)] md:gap-16">
       <div className="flex flex-col gap-3">
         <p className="sobretitulo">O que você encontra</p>
         <h2 id="encontra-titulo" className="text-4xl leading-tight text-balance">
@@ -314,6 +269,29 @@ function OQueVoceEncontra() {
           </li>
         ))}
       </ul>
+    </section>
+  );
+}
+
+function PorQuePanoptico() {
+  return (
+    <section aria-labelledby="porque-titulo" className="revelar grid grid-cols-1 items-center gap-8 md:grid-cols-[minmax(0,1fr)_minmax(0,18rem)] md:gap-16">
+      <div className="flex flex-col gap-3">
+        <p className="sobretitulo">A ideia</p>
+        <h2 id="porque-titulo" className="text-4xl leading-tight text-balance">
+          Por que &ldquo;Panóptico&rdquo;?
+        </h2>
+        <p className="max-w-lg text-muted-foreground">
+          Uma prisão imaginada em 1791 para vigiar todos, usada aqui ao contrário: quem está sob o
+          olhar de todos é quem exerce o mandato.
+        </p>
+        <div>
+          <Link href="/o-panoptico" className="botao-linha">
+            Entenda a ideia →
+          </Link>
+        </div>
+      </div>
+      <PanopticoDesenho estado={4} idBase="home" className="mx-auto h-auto w-full max-w-64 md:order-last" />
     </section>
   );
 }

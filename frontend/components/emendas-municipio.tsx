@@ -58,7 +58,7 @@ export function EmendasMunicipioSecao({ dados }: { dados: EmendasMunicipio }) {
         <h2 id="emendas-titulo" className="text-2xl">
           Dinheiro enviado para {cidade}
         </h2>
-        <p className="text-xs text-muted-foreground">
+        <p className="text-sm text-muted-foreground">
           {novo
             ? `Emendas parlamentares de todos os tipos, pagas ${periodo}`
             : `Emendas parlamentares individuais, orçamentos de ${dados.desde} a ${fim}`}
@@ -92,7 +92,7 @@ export function EmendasMunicipioSecao({ dados }: { dados: EmendasMunicipio }) {
                     Média dos {dados.municipios_na_media?.toLocaleString("pt-BR")} municípios de{" "}
                     {dados.municipio.uf}: {formatarReais(mediaUf, true)} por habitante
                     {dados.media_uf_descricao && (
-                      <span className="block text-xs">{dados.media_uf_descricao}</span>
+                      <span className="block text-sm">{dados.media_uf_descricao}</span>
                     )}
                   </dd>
                 )}
@@ -171,7 +171,7 @@ export function EmendasMunicipioSecao({ dados }: { dados: EmendasMunicipio }) {
                     <span className="min-w-0 font-medium">Autor não informado pela fonte (CGU)</span>
                     <span className="shrink-0 font-medium tabular-nums">{formatarReais(semId.total, true)}</span>
                   </span>
-                  <span className="text-xs text-muted-foreground">
+                  <span className="text-sm text-muted-foreground">
                     {semId.pagamentos} {semId.pagamentos === 1 ? "pagamento" : "pagamentos"}
                     {periodoMes(semId.primeiro_pagamento, semId.ultimo_pagamento)}. A fonte publica esses
                     pagamentos sem o código da emenda e sem o nome do autor; o valor está no total, mas não é
@@ -180,7 +180,7 @@ export function EmendasMunicipioSecao({ dados }: { dados: EmendasMunicipio }) {
                 </p>
               )}
               {novo && (dados.autores_sem_mandato ?? 0) > 0 && (
-                <p className="text-xs text-muted-foreground">
+                <p className="text-sm text-muted-foreground">
                   &quot;Sem mandato atual&quot; indica quem enviou o dinheiro em anos anteriores e hoje não exerce
                   mandato de deputado ou senador.
                 </p>
@@ -204,7 +204,7 @@ export function EmendasMunicipioSecao({ dados }: { dados: EmendasMunicipio }) {
           {colegiados.length > 0 && (
             <div className="flex flex-col gap-2">
               <h3 className="font-medium">Bancadas, comissões e relatores</h3>
-              <p className="text-xs text-muted-foreground">
+              <p className="text-sm text-muted-foreground">
                 Nestes tipos o autor é um grupo, não um parlamentar.
               </p>
               <ul className="flex flex-col gap-3">
@@ -238,9 +238,9 @@ export function EmendasMunicipioSecao({ dados }: { dados: EmendasMunicipio }) {
                   Nenhum plano de transferência especial (&quot;emenda Pix&quot;) válido sem pagamento registrado.
                 </p>
               )}
-              {previsto.descricao && <p className="text-xs text-muted-foreground">{previsto.descricao}</p>}
+              {previsto.descricao && <p className="text-sm text-muted-foreground">{previsto.descricao}</p>}
               {previsto.impedidos && (
-                <p className="text-xs text-muted-foreground">
+                <p className="text-sm text-muted-foreground">
                   Fora desta conta: {previsto.impedidos.planos}{" "}
                   {previsto.impedidos.planos === 1 ? "plano" : "planos"} (
                   {formatarReais(previsto.impedidos.valor, true)}) que o TransfereGov marca como
@@ -261,7 +261,7 @@ export function EmendasMunicipioSecao({ dados }: { dados: EmendasMunicipio }) {
                             {formatarReais(p.valor, true)}
                           </span>
                         </div>
-                        <p className="text-xs text-muted-foreground">
+                        <p className="text-sm text-muted-foreground">
                           Plano de {p.ano}
                           {p.autor_nome && !p.com_mandato_atual && " · sem mandato atual"}
                           {p.beneficiario && ` · ${p.beneficiario}`}
@@ -289,7 +289,7 @@ export function EmendasMunicipioSecao({ dados }: { dados: EmendasMunicipio }) {
                 {formatarReais(convenios.valor_liberado, true)} já liberados. Convênio é um acordo com o governo
                 federal para uma obra ou serviço; os valores não estão somados ao total pago acima.
               </p>
-              {convenios.descricao && <p className="text-xs text-muted-foreground">{convenios.descricao}</p>}
+              {convenios.descricao && <p className="text-sm text-muted-foreground">{convenios.descricao}</p>}
               <FonteRodape
                 fonte={convenios.fonte_nome}
                 url={convenios.fonte_url}
@@ -312,7 +312,7 @@ export function EmendasMunicipioSecao({ dados }: { dados: EmendasMunicipio }) {
                   />
                 ))}
               </ul>
-              <p className="mt-3 text-xs text-muted-foreground">
+              <p className="mt-3 text-sm text-muted-foreground">
                 Área é a função do orçamento a que a emenda pertence.
                 {dados.por_area.some((a) => a.area === "Encargos especiais") &&
                   " \"Encargos especiais\" reúne, entre outras, as transferências especiais (as \"emendas Pix\"), em que o dinheiro vai direto para o caixa da prefeitura sem área definida."}
@@ -334,11 +334,11 @@ export function EmendasMunicipioSecao({ dados }: { dados: EmendasMunicipio }) {
                         {formatarReais(f.total, true)}
                       </span>
                     </div>
-                    <p className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground">
+                    <p className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-muted-foreground">
                       <span className="pilula">{f.grupo === "entidade" ? "Entidade" : "Prefeitura ou fundo"}</span>
                       <span className="tabular-nums">CNPJ {formatarCnpj(f.cnpj)}</span>
                     </p>
-                    <p className="text-xs text-muted-foreground">
+                    <p className="text-sm text-muted-foreground">
                       Enviado por{" "}
                       {f.autores.map((a, i) => (
                         <span key={a.autor_nome}>
@@ -457,11 +457,11 @@ function Barra({
           ) : (
             <span className="font-medium">{rotulo}</span>
           )}
-          {detalhe && <span className="ml-1 text-xs text-muted-foreground">{detalhe}</span>}
+          {detalhe && <span className="ml-1 text-sm text-muted-foreground">{detalhe}</span>}
         </span>
         <span className="shrink-0 font-medium tabular-nums">{formatarReais(valor, true)}</span>
       </div>
-      {nota && <p className="text-xs text-muted-foreground">{nota}</p>}
+      {nota && <p className="text-sm text-muted-foreground">{nota}</p>}
       <div className="h-2 w-full rounded-full bg-muted" aria-hidden>
         <div
           className="h-2 rounded-full bg-chart-1 transition-opacity group-hover:opacity-80"

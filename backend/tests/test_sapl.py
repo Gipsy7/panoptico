@@ -1,9 +1,18 @@
 # ruff: noqa: E501  (recortes de respostas reais do SAPL)
+import json
 from datetime import date
+from pathlib import Path
 
-from app.models import Candidatura, Municipio, VotacaoLocal
+from sqlalchemy import select
+
+from app.models import Candidatura, Municipio, ProjetoLocal, VotacaoLocal
 from ingestion.camaras import sapl
 from tests.test_api import _ingestao
+
+# Ficha real da matéria 17398 (Assembleia do Acre), recortada.
+FICHA_MATERIA = json.loads(
+    (Path(__file__).parent / "fixtures" / "sapl_materia_ficha.json").read_text(encoding="utf-8")
+)
 
 
 def test_ler_autoria_tipo_numero_e_ano():
@@ -150,6 +159,10 @@ class _SaplFalso:
     def recentes(self, caminho, antigo, **params):
         return self.todos(caminho, **params)
 
+    def talvez(self, caminho):
+        self.pedidos = [*getattr(self, "pedidos", []), caminho]
+        return self.respostas.get((caminho, ()))
+
 
 def test_votacoes_e_presenca():
     registro = {
@@ -162,10 +175,13 @@ def test_votacoes_e_presenca():
         "materia": 17398,
     }
     simbolica = {**registro, "id": 108}
+    outra_votacao = {**registro, "id": 109}  # mesma matéria votada de novo: uma ficha só
     falso = _SaplFalso({
-        ("sessao/registrovotacao/", (("data_hora__year", 2025),)): [registro, simbolica],
+        ("materia/materialegislativa/17398/", ()): FICHA_MATERIA,
+        ("sessao/registrovotacao/", (("data_hora__year", 2025),)): [registro, simbolica, outra_votacao],
         ("sessao/votoparlamentar/", (("data_hora__year", 2025),)): [
             {"votacao": 107, "parlamentar": 248, "voto": "Sim"},
+            {"votacao": 109, "parlamentar": 248, "voto": "Não"},
             {"votacao": 107, "parlamentar": 999, "voto": "Não"},  # fora do cargo hoje
         ],
         ("sessao/sessaoplenaria/", (("data_inicio__year", 2025),)): [
@@ -176,9 +192,20 @@ def test_votacoes_e_presenca():
         ("sessao/sessaoplenariapresenca/", (("parlamentar", 250),)): [{"sessao_plenaria": 3}],
     })  # fmt: skip
     resultado = sapl.coletar_votacoes(falso, {2025}, {248, 250})
-    assert [v["id_externo"] for v in resultado["votacoes"]] == ["107"]  # a simbólica não entra
+    assert [v["id_externo"] for v in resultado["votacoes"]] == [
+        "107",
+        "109",
+    ]  # a simbólica não entra
     assert resultado["votacoes"][0]["materia"] == "Veto nº 1 de 2025"
-    assert resultado["votos"] == [{"votacao": "107", "parlamentar": "248", "voto": "Sim"}]
+    # A ementa vem da ficha da matéria, buscada uma vez só para as duas votações.
+    assert resultado["votacoes"][0]["materia_id_externo"] == "17398"
+    assert resultado["votacoes"][0]["materia_ementa"].startswith("REQUEIRO à Mesa Diretora")
+    assert resultado["votacoes"][1]["materia_ementa"] == resultado["votacoes"][0]["materia_ementa"]
+    assert falso.pedidos == ["materia/materialegislativa/17398/"]
+    assert resultado["votos"] == [
+        {"votacao": "107", "parlamentar": "248", "voto": "Sim"},
+        {"votacao": "109", "parlamentar": "248", "voto": "Não"},
+    ]
     # 250 assumiu em julho: só conta a sessão 3 (a 4 não tem presença lançada).
     presenca = sapl.coletar_presenca(
         falso, {2025}, date(2026, 1, 1), {248: (None, None), 250: ("2025-07-01", None)}
@@ -387,3 +414,49 @@ def test_projetos_em_lote_ou_item_a_item_quando_o_filtro_e_ignorado():
     assert sapl.projetos_do_periodo(Falso([pl]), {2025}) == {50: pl}
     # O SAPL devolveu um requerimento para o filtro tipo=1: não confia no lote.
     assert sapl.projetos_do_periodo(Falso([{**pl, "tipo": 3}]), {2025}) is None
+
+
+def test_votacao_com_ficha_ausente_entra_sem_ementa():
+    registro = {
+        "id": 5, "__str__": "Ordem: Ordem do Dia/Expediente: 1 - Veto nº 1 de 2025 em 10ª Ordinária - Votação: Aprovado",
+        "numero_votos_sim": 1, "numero_votos_nao": 0, "numero_abstencoes": 0,
+        "data_hora": "2025-06-26T12:42:52-03:00", "materia": 999,
+    }  # fmt: skip
+    falso = _SaplFalso({
+        ("sessao/registrovotacao/", (("data_hora__year", 2025),)): [registro],
+        ("sessao/votoparlamentar/", (("data_hora__year", 2025),)): [
+            {"votacao": 5, "parlamentar": 248, "voto": "Sim"}
+        ],
+    })  # fmt: skip
+    votacao = sapl.coletar_votacoes(falso, {2025}, {248})["votacoes"][0]  # ficha 999 sumiu (404)
+    assert votacao["materia_id_externo"] == "999" and votacao["materia_ementa"] is None
+
+
+def test_gravar_guarda_a_materia_e_liga_ao_projeto_da_casa(session):
+    projeto = {
+        "id_externo": "17398", "tipo": "Projeto de Lei", "numero": 62, "ano": 2025,
+        "ementa": "Outra ementa, do projeto.", "data_apresentacao": "2025-06-10",
+        "em_tramitacao": False, "primeiro_autor": True, "url": "https://sapl.al.ac.leg.br/materia/17398",
+    }  # fmt: skip
+    casa = {
+        "base": "https://sapl.al.ac.leg.br/",
+        "vereadores": [{**_deputado("1", "Ana"), "projetos": [projeto]}, {**_deputado("2", "Bia"), "projetos": [projeto]}],
+        "votacoes": [
+            {**_votacao("10", "2025-06-11"), "materia_id": 17398, "materia_id_externo": "17398", "materia_ementa": FICHA_MATERIA["ementa"]},
+            # Matéria que não é projeto guardado (um requerimento qualquer): só o id e a ementa.
+            {**_votacao("11", "2025-06-12"), "materia_id": 555, "materia_id_externo": "555", "materia_ementa": "Requer..."},
+            {**_votacao("12", "2025-06-13")},  # casa que não informa a matéria
+        ],
+        "votos": [],
+    }  # fmt: skip
+    sapl.gravar(session, None, casa, uf="AC")
+    sapl.gravar(session, None, casa, uf="AC")  # recarga: troca, sem duplicar
+    session.flush()
+    projetos = session.scalars(select(ProjetoLocal).where(ProjetoLocal.id_externo == "17398")).all()
+    votacoes = {v.id_externo: v for v in session.scalars(select(VotacaoLocal)).all()}
+    assert len(projetos) == 2 and len(votacoes) == 3
+    assert votacoes["10"].materia_id_externo == "17398"
+    assert votacoes["10"].materia_ementa.startswith("REQUEIRO")  # a ementa é a da ficha
+    assert votacoes["10"].projeto_local_id == min(p.id for p in projetos)
+    assert (votacoes["11"].materia_id_externo, votacoes["11"].projeto_local_id) == ("555", None)
+    assert (votacoes["12"].materia_id_externo, votacoes["12"].projeto_local_id) == (None, None)

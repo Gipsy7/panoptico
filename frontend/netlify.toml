@@ -1,0 +1,19 @@
+# Cópia de reserva do site na Netlify (atrás do Cloudflare). Plano grátis: cada
+# deploy de produção custa 15 créditos dos 300 mensais; por isso nada de
+# deploy previews nem branch deploys. O adaptador do Next é o automático da Netlify.
+# Sem `base`: o arquivo já está em frontend/ (na Netlify, "Base directory" = frontend).
+[build]
+  command = "npm run build"
+  publish = ".next"
+
+[build.environment]
+  NODE_VERSION = "24"
+  NEXT_PUBLIC_API_URL = "https://api.panoptico.social.br"
+  NEXT_PUBLIC_SITE_URL = "https://panoptico.social.br"
+  NEXT_PUBLIC_CONTATO_EMAIL = "contato@panoptico.social.br"
+
+[context.deploy-preview]
+  ignore = "exit 0"
+
+[context.branch-deploy]
+  ignore = "exit 0"

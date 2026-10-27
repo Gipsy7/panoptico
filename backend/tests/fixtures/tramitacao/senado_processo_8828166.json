@@ -1,0 +1,724 @@
+{
+ "id": 8828166,
+ "codigoMateria": 168484,
+ "identificacao": "PEC 22/2025",
+ "sigla": "PEC",
+ "descricaoSigla": "Proposta de Emenda à Constituição",
+ "numero": "22",
+ "ano": 2025,
+ "objetivo": "Iniciadora",
+ "casaIdentificadora": "SF",
+ "siglaEnteIdentificador": "SF",
+ "identificacaoExterna": {},
+ "tramitando": "Não",
+ "dataInicioEfetivo": "2025-05-08",
+ "situacaoAtual": "REMETIDA À CÂMARA DOS DEPUTADOS",
+ "siglaSituacaoAtual": "RMCD",
+ "dataSituacaoAtual": "2026-02-26",
+ "idProcessoCasaInicial": 8828166,
+ "identificacaoProcessoInicial": "PEC 22/2025",
+ "siglaCasaIniciadora": "SF",
+ "comissaoMpv": "{}",
+ "outrosNumeros": [
+  {
+   "idOutroProcesso": 8998714,
+   "sigla": "PEC",
+   "numero": "00022",
+   "ano": 2025,
+   "tramitando": "Sim",
+   "externaAoCongresso": "Não",
+   "casaIdentificadora": "CD",
+   "siglaEnteIdentificador": "CD",
+   "enteIdentificador": "Câmara dos Deputados"
+  }
+ ],
+ "autuacoes": [
+  {
+   "numero": 1,
+   "descricao": "Autuação Principal",
+   "idEnteControleAtual": 55304,
+   "siglaEnteControleAtual": "SEXPE",
+   "nomeEnteControleAtual": "Secretaria de Expediente",
+   "situacoes": [
+    {
+     "idTipo": 175,
+     "sigla": "AGDESP",
+     "descricao": "AGUARDANDO DESPACHO",
+     "inicio": "2025-05-08",
+     "fim": "2025-05-21",
+     "colegiado": {
+      "codigo": 1998,
+      "casa": "SF",
+      "sigla": "PLEN",
+      "nome": "Plenário do Senado Federal"
+     },
+     "enteAdministrativo": {
+      "id": 55312,
+      "casa": "SF",
+      "sigla": "SLSF",
+      "nome": "Secretaria Legislativa do Senado Federal"
+     }
+    },
+    {
+     "idTipo": 177,
+     "sigla": "MATDESP",
+     "descricao": "MATÉRIA DESPACHADA",
+     "inicio": "2025-05-21",
+     "fim": "2025-05-21",
+     "colegiado": {
+      "codigo": 1998,
+      "casa": "SF",
+      "sigla": "PLEN",
+      "nome": "Plenário do Senado Federal"
+     },
+     "enteAdministrativo": {
+      "id": 13594,
+      "casa": "SF",
+      "sigla": "SEADI",
+      "nome": "Secretaria de Atas e Diários"
+     }
+    },
+    {
+     "idTipo": 87,
+     "sigla": "AGDREL",
+     "descricao": "AGUARDANDO DESIGNAÇÃO DO RELATOR",
+     "inicio": "2025-05-22",
+     "fim": "2025-06-10",
+     "colegiado": {
+      "codigo": 34,
+      "casa": "SF",
+      "sigla": "CCJ",
+      "nome": "Comissão de Constituição, Justiça e Cidadania"
+     },
+     "enteAdministrativo": {
+      "id": 13565,
+      "casa": "SF",
+      "sigla": "SACCJ",
+      "nome": "Secretaria de Apoio à Comissão de Constituição, Justiça e Cidadania"
+     }
+    },
+    {
+     "idTipo": 91,
+     "sigla": "RELATOR",
+     "descricao": "MATÉRIA COM A RELATORIA",
+     "inicio": "2025-06-10",
+     "fim": "2025-07-15",
+     "colegiado": {
+      "codigo": 34,
+      "casa": "SF",
+      "sigla": "CCJ",
+      "nome": "Comissão de Constituição, Justiça e Cidadania"
+     },
+     "enteAdministrativo": {
+      "id": 13565,
+      "casa": "SF",
+      "sigla": "SACCJ",
+      "nome": "Secretaria de Apoio à Comissão de Constituição, Justiça e Cidadania"
+     }
+    },
+    {
+     "idTipo": 42,
+     "sigla": "PRONTPAUT",
+     "descricao": "PRONTA PARA A PAUTA NA COMISSÃO",
+     "inicio": "2025-07-15",
+     "fim": "2025-10-07",
+     "colegiado": {
+      "codigo": 34,
+      "casa": "SF",
+      "sigla": "CCJ",
+      "nome": "Comissão de Constituição, Justiça e Cidadania"
+     },
+     "enteAdministrativo": {
+      "id": 13565,
+      "casa": "SF",
+      "sigla": "SACCJ",
+      "nome": "Secretaria de Apoio à Comissão de Constituição, Justiça e Cidadania"
+     }
+    },
+    {
+     "idTipo": 138,
+     "sigla": "INPAUTA",
+     "descricao": "INCLUÍDA NA PAUTA DA REUNIÃO",
+     "inicio": "2025-10-07",
+     "fim": "2025-10-08",
+     "colegiado": {
+      "codigo": 34,
+      "casa": "SF",
+      "sigla": "CCJ",
+      "nome": "Comissão de Constituição, Justiça e Cidadania"
+     },
+     "enteAdministrativo": {
+      "id": 13565,
+      "casa": "SF",
+      "sigla": "SACCJ",
+      "nome": "Secretaria de Apoio à Comissão de Constituição, Justiça e Cidadania"
+     }
+    },
+    {
+     "idTipo": 90,
+     "sigla": "PEDVISTA",
+     "descricao": "PEDIDO DE VISTA CONCEDIDO",
+     "inicio": "2025-10-08",
+     "fim": "2025-11-05",
+     "colegiado": {
+      "codigo": 34,
+      "casa": "SF",
+      "sigla": "CCJ",
+      "nome": "Comissão de Constituição, Justiça e Cidadania"
+     },
+     "enteAdministrativo": {
+      "id": 13565,
+      "casa": "SF",
+      "sigla": "SACCJ",
+      "nome": "Secretaria de Apoio à Comissão de Constituição, Justiça e Cidadania"
+     }
+    },
+    {
+     "idTipo": 89,
+     "sigla": "APRVPAR",
+     "descricao": "APROVADO PARECER NA COMISSÃO",
+     "inicio": "2025-11-05",
+     "fim": "2025-11-06",
+     "colegiado": {
+      "codigo": 34,
+      "casa": "SF",
+      "sigla": "CCJ",
+      "nome": "Comissão de Constituição, Justiça e Cidadania"
+     },
+     "enteAdministrativo": {
+      "id": 13565,
+      "casa": "SF",
+      "sigla": "SACCJ",
+      "nome": "Secretaria de Apoio à Comissão de Constituição, Justiça e Cidadania"
+     }
+    },
+    {
+     "idTipo": 8,
+     "sigla": "PRONDEPLEN",
+     "descricao": "PRONTO PARA DELIBERAÇÃO DO PLENÁRIO",
+     "inicio": "2025-11-06",
+     "fim": "2025-11-06",
+     "colegiado": {
+      "codigo": 1998,
+      "casa": "SF",
+      "sigla": "PLEN",
+      "nome": "Plenário do Senado Federal"
+     },
+     "enteAdministrativo": {
+      "id": 13594,
+      "casa": "SF",
+      "sigla": "SEADI",
+      "nome": "Secretaria de Atas e Diários"
+     }
+    },
+    {
+     "idTipo": 8,
+     "sigla": "PRONDEPLEN",
+     "descricao": "PRONTO PARA DELIBERAÇÃO DO PLENÁRIO",
+     "inicio": "2025-11-06",
+     "fim": "2026-02-20",
+     "colegiado": {
+      "codigo": 1998,
+      "casa": "SF",
+      "sigla": "PLEN",
+      "nome": "Plenário do Senado Federal"
+     },
+     "enteAdministrativo": {
+      "id": 55312,
+      "casa": "SF",
+      "sigla": "SLSF",
+      "nome": "Secretaria Legislativa do Senado Federal"
+     }
+    },
+    {
+     "idTipo": 78,
+     "sigla": "INCLOD",
+     "descricao": "INCLUÍDA EM ORDEM DO DIA",
+     "inicio": "2026-02-20",
+     "fim": "2026-02-24",
+     "colegiado": {
+      "codigo": 1998,
+      "casa": "SF",
+      "sigla": "PLEN",
+      "nome": "Plenário do Senado Federal"
+     },
+     "enteAdministrativo": {
+      "id": 55312,
+      "casa": "SF",
+      "sigla": "SLSF",
+      "nome": "Secretaria Legislativa do Senado Federal"
+     }
+    },
+    {
+     "idTipo": 25,
+     "sigla": "APRVD",
+     "descricao": "APROVADA",
+     "inicio": "2026-02-24",
+     "fim": "2026-02-26",
+     "colegiado": {
+      "codigo": 1998,
+      "casa": "SF",
+      "sigla": "PLEN",
+      "nome": "Plenário do Senado Federal"
+     },
+     "enteAdministrativo": {
+      "id": 13594,
+      "casa": "SF",
+      "sigla": "SEADI",
+      "nome": "Secretaria de Atas e Diários"
+     }
+    },
+    {
+     "idTipo": 52,
+     "sigla": "RMCD",
+     "descricao": "REMETIDA À CÂMARA DOS DEPUTADOS",
+     "inicio": "2026-02-26",
+     "colegiado": {},
+     "enteAdministrativo": {
+      "id": 55304,
+      "casa": "SF",
+      "sigla": "SEXPE",
+      "nome": "Secretaria de Expediente"
+     }
+    }
+   ],
+   "informesLegislativos": [
+    {
+     "id": 2238050,
+     "data": "2025-05-08 17:40:03",
+     "colegiado": {
+      "codigo": 1998,
+      "casa": "SF",
+      "sigla": "PLEN",
+      "nome": "Plenário do Senado Federal"
+     },
+     "enteAdministrativo": {
+      "id": 55312,
+      "casa": "SF",
+      "sigla": "SLSF",
+      "nome": "Secretaria Legislativa do Senado Federal"
+     },
+     "descricao": "Autuada a Proposta de Emenda à Constituição nº 22/2025. A proposta vai à publicação",
+     "idSituacaoIniciada": 175,
+     "siglaSituacaoIniciada": "AGDESP"
+    },
+    {
+     "id": 2239425,
+     "data": "2025-05-21 22:08:04",
+     "colegiado": {
+      "codigo": 1998,
+      "casa": "SF",
+      "sigla": "PLEN",
+      "nome": "Plenário do Senado Federal"
+     },
+     "enteAdministrativo": {
+      "id": 13594,
+      "casa": "SF",
+      "sigla": "SEADI",
+      "nome": "Secretaria de Atas e Diários"
+     },
+     "descricao": "A matéria vai à CCJ.",
+     "idSituacaoIniciada": 177,
+     "siglaSituacaoIniciada": "MATDESP"
+    },
+    {
+     "id": 2239449,
+     "data": "2025-05-22 09:11:05",
+     "colegiado": {
+      "codigo": 34,
+      "casa": "SF",
+      "sigla": "CCJ",
+      "nome": "Comissão de Constituição, Justiça e Cidadania"
+     },
+     "enteAdministrativo": {
+      "id": 13565,
+      "casa": "SF",
+      "sigla": "SACCJ",
+      "nome": "Secretaria de Apoio à Comissão de Constituição, Justiça e Cidadania"
+     },
+     "descricao": "Matéria aguardando distribuição.",
+     "idSituacaoIniciada": 87,
+     "siglaSituacaoIniciada": "AGDREL"
+    },
+    {
+     "id": 2239858,
+     "data": "2025-05-26 16:03:31",
+     "colegiado": {
+      "codigo": 1998,
+      "casa": "SF",
+      "sigla": "PLEN",
+      "nome": "Plenário do Senado Federal"
+     },
+     "enteAdministrativo": {
+      "id": 55312,
+      "casa": "SF",
+      "sigla": "SLSF",
+      "nome": "Secretaria Legislativa do Senado Federal"
+     },
+     "descricao": "Recebido o Requerimento nº 403, de 2025, do Senador Marcos do Val, de apoiamento à PEC nº 22/2025, nos termos do art. 243, do Regimento Interno do Senado Federal."
+    },
+    {
+     "id": 2239895,
+     "data": "2025-05-26 16:09:20",
+     "colegiado": {
+      "codigo": 34,
+      "casa": "SF",
+      "sigla": "CCJ",
+      "nome": "Comissão de Constituição, Justiça e Cidadania"
+     },
+     "enteAdministrativo": {
+      "id": 13565,
+      "casa": "SF",
+      "sigla": "SACCJ",
+      "nome": "Secretaria de Apoio à Comissão de Constituição, Justiça e Cidadania"
+     },
+     "descricao": "Recebido nesta Comissão. Matéria aguardando distribuição."
+    },
+    {
+     "id": 2241454,
+     "data": "2025-06-10 17:50:18",
+     "colegiado": {
+      "codigo": 34,
+      "casa": "SF",
+      "sigla": "CCJ",
+      "nome": "Comissão de Constituição, Justiça e Cidadania"
+     },
+     "enteAdministrativo": {
+      "id": 13565,
+      "casa": "SF",
+      "sigla": "SACCJ",
+      "nome": "Secretaria de Apoio à Comissão de Constituição, Justiça e Cidadania"
+     },
+     "descricao": "Distribuído ao Senador Esperidião Amin, para emitir relatório.",
+     "idSituacaoIniciada": 91,
+     "siglaSituacaoIniciada": "RELATOR"
+    },
+    {
+     "id": 2245827,
+     "data": "2025-07-15 18:12:24",
+     "colegiado": {
+      "codigo": 34,
+      "casa": "SF",
+      "sigla": "CCJ",
+      "nome": "Comissão de Constituição, Justiça e Cidadania"
+     },
+     "enteAdministrativo": {
+      "id": 13565,
+      "casa": "SF",
+      "sigla": "SACCJ",
+      "nome": "Secretaria de Apoio à Comissão de Constituição, Justiça e Cidadania"
+     },
+     "descricao": "Recebido o Relatório do Senador Esperidião Amin, com voto favorável à Proposta de Emenda à Constituição nº 22, de 2025, com uma emenda que apresenta.",
+     "idSituacaoIniciada": 42,
+     "siglaSituacaoIniciada": "PRONTPAUT"
+    },
+    {
+     "id": 2248620,
+     "data": "2025-08-12 08:54:57",
+     "colegiado": {
+      "codigo": 34,
+      "casa": "SF",
+      "sigla": "CCJ",
+      "nome": "Comissão de Constituição, Justiça e Cidadania"
+     },
+     "enteAdministrativo": {
+      "id": 13565,
+      "casa": "SF",
+      "sigla": "SACCJ",
+      "nome": "Secretaria de Apoio à Comissão de Constituição, Justiça e Cidadania"
+     },
+     "descricao": "Recebida a Emenda nº 1, de autoria do Senador Laércio Oliveira.\r\nEncaminhada ao Relator, para análise."
+    },
+    {
+     "id": 2251316,
+     "data": "2025-09-02 19:24:34",
+     "colegiado": {
+      "codigo": 34,
+      "casa": "SF",
+      "sigla": "CCJ",
+      "nome": "Comissão de Constituição, Justiça e Cidadania"
+     },
+     "enteAdministrativo": {
+      "id": 13565,
+      "casa": "SF",
+      "sigla": "SACCJ",
+      "nome": "Secretaria de Apoio à Comissão de Constituição, Justiça e Cidadania"
+     },
+     "descricao": "Recebido o Relatório do Senador Esperidião Amin, com voto favorável à Proposta, e pela aprovação parcial da Emenda nº 1, nos termos da Emenda Substitutiva que apresenta."
+    },
+    {
+     "id": 2257539,
+     "data": "2025-10-07 00:18:07",
+     "colegiado": {
+      "codigo": 34,
+      "casa": "SF",
+      "sigla": "CCJ",
+      "nome": "Comissão de Constituição, Justiça e Cidadania"
+     },
+     "enteAdministrativo": {
+      "id": 13565,
+      "casa": "SF",
+      "sigla": "SACCJ",
+      "nome": "Secretaria de Apoio à Comissão de Constituição, Justiça e Cidadania"
+     },
+     "descricao": "Matéria constante da Pauta da 34ª Reunião da Comissão de Constituição, Justiça e Cidadania, agendada para o dia 08/10/2025.",
+     "idSituacaoIniciada": 138,
+     "siglaSituacaoIniciada": "INPAUTA"
+    },
+    {
+     "id": 2257739,
+     "data": "2025-10-08 10:12:32",
+     "colegiado": {
+      "codigo": 34,
+      "casa": "SF",
+      "sigla": "CCJ",
+      "nome": "Comissão de Constituição, Justiça e Cidadania"
+     },
+     "enteAdministrativo": {
+      "id": 13565,
+      "casa": "SF",
+      "sigla": "SACCJ",
+      "nome": "Secretaria de Apoio à Comissão de Constituição, Justiça e Cidadania"
+     },
+     "descricao": "Na 34ª Reunião Extraordinária, realizada nesta data, a Presidência concede vista coletiva aos Senadores nos termos regimentais.",
+     "idSituacaoIniciada": 90,
+     "siglaSituacaoIniciada": "PEDVISTA"
+    },
+    {
+     "id": 2262864,
+     "data": "2025-11-05 11:25:48",
+     "colegiado": {
+      "codigo": 34,
+      "casa": "SF",
+      "sigla": "CCJ",
+      "nome": "Comissão de Constituição, Justiça e Cidadania"
+     },
+     "enteAdministrativo": {
+      "id": 13565,
+      "casa": "SF",
+      "sigla": "SACCJ",
+      "nome": "Secretaria de Apoio à Comissão de Constituição, Justiça e Cidadania"
+     },
+     "descricao": "Recebida a Emenda nº 2, de autoria do Senador Rogério Carvalho.\r\nEncaminhada ao Relator, para análise."
+    },
+    {
+     "id": 2262891,
+     "data": "2025-11-05 12:42:27",
+     "colegiado": {
+      "codigo": 34,
+      "casa": "SF",
+      "sigla": "CCJ",
+      "nome": "Comissão de Constituição, Justiça e Cidadania"
+     },
+     "enteAdministrativo": {
+      "id": 13565,
+      "casa": "SF",
+      "sigla": "SACCJ",
+      "nome": "Secretaria de Apoio à Comissão de Constituição, Justiça e Cidadania"
+     },
+     "descricao": "Na 38ª Reunião Extraordinária, realizada nesta data, durante a discussão da matéria o Senador Esperidião Amin acolhe a emenda n° 2, que é incorporada ao Substitutivo.\r\n\r\nA Comissão aprova o Relatório, que passa a constituir o Parecer da CCJ, favorável à Proposta, com acolhimento parcial da emenda n° 1, e com acolhimento integral da Emenda n° 2, nos termos da Emenda n° 3-CCJ (Substitutivo).\r\n\r\nA Comissão aprova Requerimento n° 55/2025, de autoria do Senador Esperidião Amin, de Calendário Especial para a matéria.",
+     "idSituacaoIniciada": 89,
+     "siglaSituacaoIniciada": "APRVPAR"
+    },
+    {
+     "id": 2263129,
+     "data": "2025-11-05 18:36:31",
+     "colegiado": {
+      "codigo": 34,
+      "casa": "SF",
+      "sigla": "CCJ",
+      "nome": "Comissão de Constituição, Justiça e Cidadania"
+     },
+     "enteAdministrativo": {
+      "id": 13565,
+      "casa": "SF",
+      "sigla": "SACCJ",
+      "nome": "Secretaria de Apoio à Comissão de Constituição, Justiça e Cidadania"
+     },
+     "descricao": "Encerrada a relatoria do Senador Esperidião Amin por deliberação da matéria.\nÀ SLSF, para prosseguimento da tramitação."
+    },
+    {
+     "id": 2263397,
+     "data": "2025-11-06 14:49:58",
+     "colegiado": {
+      "codigo": 1998,
+      "casa": "SF",
+      "sigla": "PLEN",
+      "nome": "Plenário do Senado Federal"
+     },
+     "enteAdministrativo": {
+      "id": 13594,
+      "casa": "SF",
+      "sigla": "SEADI",
+      "nome": "Secretaria de Atas e Diários"
+     },
+     "descricao": "Concluída a instrução da matéria, a Proposta de Emenda à Constituição aguardará inclusão em Ordem do Dia oportunamente.",
+     "idSituacaoIniciada": 8,
+     "siglaSituacaoIniciada": "PRONDEPLEN"
+    },
+    {
+     "id": 2263406,
+     "data": "2025-11-06 15:21:36",
+     "colegiado": {
+      "codigo": 1998,
+      "casa": "SF",
+      "sigla": "PLEN",
+      "nome": "Plenário do Senado Federal"
+     },
+     "enteAdministrativo": {
+      "id": 55312,
+      "casa": "SF",
+      "sigla": "SLSF",
+      "nome": "Secretaria Legislativa do Senado Federal"
+     },
+     "descricao": "Aguardando inclusão em Ordem do Dia.\r\nPrimeira sessão de discussão, em primeiro turno.",
+     "idSituacaoIniciada": 8,
+     "siglaSituacaoIniciada": "PRONDEPLEN"
+    },
+    {
+     "id": 2269410,
+     "data": "2025-12-12 08:45:42",
+     "colegiado": {
+      "codigo": 1998,
+      "casa": "SF",
+      "sigla": "PLEN",
+      "nome": "Plenário do Senado Federal"
+     },
+     "enteAdministrativo": {
+      "id": 55312,
+      "casa": "SF",
+      "sigla": "SLSF",
+      "nome": "Secretaria Legislativa do Senado Federal"
+     },
+     "descricao": "Recebida a Emenda nº 4, do Senador Efraim Filho e outros Senadores, à Emenda nº 3 (Substitutivo)."
+    },
+    {
+     "id": 2270054,
+     "data": "2025-12-17 18:16:45",
+     "colegiado": {
+      "codigo": 1998,
+      "casa": "SF",
+      "sigla": "PLEN",
+      "nome": "Plenário do Senado Federal"
+     },
+     "enteAdministrativo": {
+      "id": 55312,
+      "casa": "SF",
+      "sigla": "SLSF",
+      "nome": "Secretaria Legislativa do Senado Federal"
+     },
+     "descricao": "Recebido o Requerimento nº 990, de 2025, de Líderes, solicitando calendário especial para a matéria."
+    },
+    {
+     "id": 2270056,
+     "data": "2025-12-17 18:19:17",
+     "colegiado": {
+      "codigo": 1998,
+      "casa": "SF",
+      "sigla": "PLEN",
+      "nome": "Plenário do Senado Federal"
+     },
+     "enteAdministrativo": {
+      "id": 55312,
+      "casa": "SF",
+      "sigla": "SLSF",
+      "nome": "Secretaria Legislativa do Senado Federal"
+     },
+     "descricao": "Designado Relator de Plenário o Senador Esperidião Amin."
+    },
+    {
+     "id": 2270059,
+     "data": "2025-12-17 18:22:46",
+     "colegiado": {
+      "codigo": 1998,
+      "casa": "SF",
+      "sigla": "PLEN",
+      "nome": "Plenário do Senado Federal"
+     },
+     "enteAdministrativo": {
+      "id": 55312,
+      "casa": "SF",
+      "sigla": "SLSF",
+      "nome": "Secretaria Legislativa do Senado Federal"
+     },
+     "descricao": "Recebido o Relatório do Senador Esperidião Amin."
+    },
+    {
+     "id": 2273800,
+     "data": "2026-02-20 18:15:57",
+     "colegiado": {
+      "codigo": 1998,
+      "casa": "SF",
+      "sigla": "PLEN",
+      "nome": "Plenário do Senado Federal"
+     },
+     "enteAdministrativo": {
+      "id": 55312,
+      "casa": "SF",
+      "sigla": "SLSF",
+      "nome": "Secretaria Legislativa do Senado Federal"
+     },
+     "descricao": "Incluída em Ordem do Dia da Sessão Deliberativa Ordinária de 24/02/2026. \r\n(Pendente de apreciação do Requerimento nº 990, de 2025, de Líderes, que solicita Calendário Especial para a matéria).",
+     "idSituacaoIniciada": 78,
+     "siglaSituacaoIniciada": "INCLOD"
+    },
+    {
+     "id": 2274479,
+     "data": "2026-02-24 18:57:56",
+     "colegiado": {
+      "codigo": 1998,
+      "casa": "SF",
+      "sigla": "PLEN",
+      "nome": "Plenário do Senado Federal"
+     },
+     "enteAdministrativo": {
+      "id": 13594,
+      "casa": "SF",
+      "sigla": "SEADI",
+      "nome": "Secretaria de Atas e Diários"
+     },
+     "descricao": "(Sessão Deliberativa Ordinária, realizada em 24/02/2026) \r\nEncaminhada à publicação a Emenda nº 4-PLEN. \r\nAprovado o RQS nº 990/2025, de Líderes, que solicita Calendário Especial para apreciação da matéria. \r\nEncaminhado à publicação o Parecer nº 2/2026-PLEN/SF, proferido pelo Senador Esperidião Amin, favorável à proposta e às Emendas nºs 2 e 4, pelo acolhimento parcial da Emenda nº 1 e pela rejeição da Emenda nº 3, na forma da Emenda nº 5 (Substitutivo), que apresenta. \r\nDiscussão encerrada, em primeiro turno. \r\nAprovado a Emenda nº 5-PLEN, Substitutivo, em primeiro turno, nos termos do parecer de Plenário, com o seguinte resultado: Sim 66, Presidente 1, Total 67. \r\nFicam prejudicadas a proposta e as demais emendas. \r\nEncaminhado à publicação o Parecer nº 3/2026-PLEN/SF, da Comissão Diretora, apresentando a redação para o segundo turno. \r\nApós consulta e aquiescência do Plenário, passa-se à discussão da proposta em segundo turno.  \r\nDiscussão encerrada, em segundo turno. \r\nAprovada a proposta, em segundo turno, nos termos do parecer da Comissão Diretora, com o seguinte resultado: Sim 69, Presidente 1, Total 70. \r\nÀ Câmara dos Deputados.",
+     "idSituacaoIniciada": 25,
+     "siglaSituacaoIniciada": "APRVD"
+    },
+    {
+     "id": 2274832,
+     "data": "2026-02-26 09:46:44",
+     "colegiado": {},
+     "enteAdministrativo": {
+      "id": 55304,
+      "casa": "SF",
+      "sigla": "SEXPE",
+      "nome": "Secretaria de Expediente"
+     },
+     "descricao": "Anexado o texto revisado."
+    },
+    {
+     "id": 2274968,
+     "data": "2026-02-26 19:13:14",
+     "colegiado": {},
+     "enteAdministrativo": {
+      "id": 55304,
+      "casa": "SF",
+      "sigla": "SEXPE",
+      "nome": "Secretaria de Expediente"
+     },
+     "descricao": "Remetido Ofício SF nº 50, de 2026, ao Primeiro-Secretário da Câmara dos Deputados, encaminhando, ao exame daquela Casa, a Proposta de Emenda à Constituição nº 22, de 2025.",
+     "idSituacaoIniciada": 52,
+     "siglaSituacaoIniciada": "RMCD"
+    }
+   ]
+  }
+ ],
+ "deliberacao": {
+  "data": "2026-02-24",
+  "siglaTipo": "APROVADA_NO_PLENARIO",
+  "tipoDeliberacao": "Aprovada pelo Plenário",
+  "idDestino": 1,
+  "siglaDestino": "CAMARA",
+  "destino": "À Câmara dos Deputados"
+ },
+ "normaGerada": {},
+ "ultimaInformacaoAtualizada": "DADOS_BASICOS_PROCESSO",
+ "dthUltimaAtualizacao": "2026-08-26T16:50:01.119000"
+}

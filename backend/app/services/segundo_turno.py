@@ -14,8 +14,8 @@ from datetime import date, timedelta
 from sqlalchemy import and_, extract, func, or_, select
 from sqlalchemy.orm import Session
 
-from app.models import Candidatura, Parlamentar, PessoaVinculo
-from app.services import cruzamentos, tse
+from app.models import Candidatura, FonteIngestao, Parlamentar, PessoaVinculo
+from app.services import cruzamentos, perfil_unico, tse
 from app.services.pessoas import publicavel
 from app.services.representantes import UFS
 
@@ -29,6 +29,8 @@ URL_DIVULGACAND = "https://divulgacandcontas.tse.jus.br/divulga/#/home"
 # Cargas que alimentam os registros de punições (CGU) e de condenações (TCU).
 FONTES_SANCOES = ("cgu_sancoes", "tcu_condenacoes")
 CARGO_LEGIVEL = {"PRESIDENTE": "Presidente", "GOVERNADOR": "Governador"}
+FONTE_RESULTADO = "tse_resultado_2_turno"
+URL_RESULTADO = "https://resultados.tse.jus.br/"
 
 
 def data_segundo_turno(ano: int) -> date:
@@ -128,6 +130,15 @@ def _campanha(session: Session, c: Candidatura) -> dict | None:
     }
 
 
+def _foto(session: Session, c: Candidatura) -> dict:
+    ref = perfil_unico.fotos(session, [c]).get(c.id)
+    return {
+        "foto": ref is not None,
+        "foto_de": ref[0] if ref and ref[1] else None,
+        "foto_ano": ref[1] if ref else None,
+    }
+
+
 def _vice(session: Session, c: Candidatura) -> dict | None:
     vice = session.scalars(
         select(Candidatura).where(Candidatura.chapa_titular_id == c.id).order_by(Candidatura.id)
@@ -138,7 +149,7 @@ def _vice(session: Session, c: Candidatura) -> dict | None:
         "id": vice.id,
         "nome_urna": vice.nome_urna,
         "partido": vice.partido,
-        "foto": bool(tse._com_foto(session, [vice.id])),
+        **_foto(session, vice),
     }
 
 
@@ -157,7 +168,7 @@ def _candidato(session: Session, c: Candidatura) -> dict:
         "nome_urna": c.nome_urna,
         "numero": c.numero,
         "partido": c.partido,
-        "foto": bool(tse._com_foto(session, [c.id])),
+        **_foto(session, c),
         "foto_url": foto_parlamentar,
         "vice": _vice(session, c),
         # A coluna guarda os votos do último turno disputado: antes do resultado, os do 1º
@@ -197,7 +208,10 @@ def _candidato(session: Session, c: Candidatura) -> dict:
         if sancoes
         else None,
         "pessoa_id": pessoa_id,
-        "perfil": f"/parlamentar/{c.parlamentar_id}" if c.parlamentar_id else f"/eleito/{c.id}",
+        # O perfil de quem já está no cargo, se houver; senão a página da candidatura.
+        "perfil": perfil_unico.principais(session, [c], qualquer_situacao=True).get(
+            c.id, f"/eleito/{c.id}"
+        ),
     }
 
 
@@ -227,7 +241,22 @@ def _governador_eleito(session: Session, ano: int, uf: str) -> dict | None:
     ).first()
     if c is None:
         return None
-    return {"id": c.id, "nome_urna": c.nome_urna, "partido": c.partido, "numero": c.numero}
+    return {
+        "id": c.id,
+        "nome_urna": c.nome_urna,
+        "partido": c.partido,
+        "numero": c.numero,
+        "perfil": perfil_unico.principais(session, [c], qualquer_situacao=True).get(c.id),
+    }
+
+
+def _resultado_totalizado_em(session: Session):
+    """Momento da totalização do TSE da última carga do resultado (a data da carga é a do JSON)."""
+    return session.scalar(
+        select(func.max(FonteIngestao.concluido_em)).where(
+            FonteIngestao.fonte == FONTE_RESULTADO, FonteIngestao.status == "ok"
+        )
+    )
 
 
 def comparar(session: Session, uf: str) -> dict:
@@ -246,6 +275,9 @@ def comparar(session: Session, uf: str) -> dict:
         else:
             governador_1turno = _governador_eleito(session, ano, uf)
     sancoes_atualizado = cruzamentos._atualizado(session, FONTES_SANCOES)
+    resultado_em = (
+        _resultado_totalizado_em(session) if any(d["decidida"] for d in disputas) else None
+    )
     return {
         "ano_eleicao": ano,
         "data_segundo_turno": data_segundo_turno(ano) if ano else None,
@@ -257,6 +289,8 @@ def comparar(session: Session, uf: str) -> dict:
         "fonte_url": tse.URL_CANDIDATOS.format(ano=ano or date.today().year),
         "contas_url": tse.URL_CONTAS.format(ano=ano or date.today().year),
         "atualizado_em": tse._atualizado_em(session),
+        "resultado_fonte_url": URL_RESULTADO if resultado_em else None,
+        "resultado_atualizado_em": resultado_em,
         "sancoes_fonte_nome": "Portal da Transparência (CGU) e Tribunal de Contas da União",
         "sancoes_fonte_url": cruzamentos.URL_SANCOES,
         "sancoes_atualizado_em": sancoes_atualizado,

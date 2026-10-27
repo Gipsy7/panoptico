@@ -88,6 +88,14 @@ anos = "desde_2023"
 depende = ["camara_deputados"]
 
 [[fonte]]
+nome = "camara_proposicoes_votadas"
+modulo = "ingestion.camara.proposicoes_votadas"
+uso = "Ficha dos projetos votados no Plenário que não estão entre os apresentados desde 2023 (antigos, MPV)"
+recorte = "só as proposições citadas nas votações nominais carregadas"
+frequencia = "diaria"
+depende = ["camara_votacoes", "camara_proposicoes"]
+
+[[fonte]]
 nome = "senado_proposicoes"
 modulo = "ingestion.senado.proposicoes"
 uso = "Projetos de lei do senador"
@@ -110,6 +118,56 @@ uso = "Temas das votações e projetos (Senado)"
 recorte = "só o que foi votado ou apresentado"
 frequencia = "diaria"
 depende = ["senado_votacoes", "senado_proposicoes"]
+
+[[fonte]]
+nome = "camara_discursos"
+modulo = "ingestion.camara.discursos"
+uso = "Discursos em Plenário no dia em que o projeto foi votado (Câmara; só o sumário oficial e o link)"
+recorte = "Plenário, dias de votação nominal, sumário que cita alguma matéria; ano anterior e atual"
+frequencia = "diaria"
+depende = ["camara_deputados", "camara_votacoes"]
+
+[[fonte]]
+nome = "senado_discursos"
+modulo = "ingestion.senado.discursos"
+uso = "Discursos em Plenário no dia em que o projeto foi votado (Senado; só o resumo oficial e o link)"
+recorte = "Plenário, dias de votação nominal, resumo que cita alguma matéria; ano anterior e atual"
+frequencia = "diaria"
+depende = ["senado_senadores", "senado_votacoes"]
+
+[[fonte]]
+nome = "camara_pauta"
+modulo = "ingestion.camara.pauta"
+uso = "Pauta da semana no Plenário da Câmara (projetos e votações)"
+recorte = "sessões de hoje a +14 dias; a janela é recarregada inteira a cada carga"
+frequencia = "diaria"
+depende = ["camara_votacoes"]
+
+[[fonte]]
+nome = "senado_pauta"
+modulo = "ingestion.senado.pauta"
+uso = "Pauta da semana no Plenário do Senado (projetos e votações)"
+recorte = "sessões de hoje a +14 dias; a janela é recarregada inteira a cada carga"
+frequencia = "diaria"
+depende = ["senado_votacoes"]
+
+[[fonte]]
+nome = "camara_tramitacoes"
+modulo = "ingestion.camara.tramitacoes"
+uso = "Caminho do projeto (tramitação) e relator, na página de votações e projetos"
+recorte = "proposições com votação nominal no ano anterior e no atual e as da pauta; no acervo (--todas), também todos os PL, PLP, PEC e PDL desde 2023"
+frequencia = "diaria"
+args = { todas = true }
+depende = ["camara_votacoes", "camara_pauta", "camara_proposicoes"]
+
+[[fonte]]
+nome = "senado_tramitacoes"
+modulo = "ingestion.senado.tramitacoes"
+uso = "Caminho do projeto (tramitação) e relator, na página de votações e projetos"
+recorte = "matérias com votação nominal no ano anterior e no atual e as da pauta; no acervo (--todas), também todos os PL, PLP, PEC e PDL desde 2023"
+frequencia = "diaria"
+args = { todas = true }
+depende = ["senado_votacoes", "senado_pauta", "senado_proposicoes"]
 
 [[fonte]]
 nome = "ibge_municipios"
@@ -211,9 +269,9 @@ depende = ["camara_despesas", "senado_despesas", "camara_votacoes", "senado_vota
 nome = "tse_candidaturas"
 modulo = "ingestion.tse.candidaturas"
 uso = "Representantes eleitos e \"Quem é\" (TSE)"
-recorte = "eleitos e parlamentares; em 2026 também as chapas de presidente e governador no 2º turno (titular e vice); 2016 e 2020 só de quem já temos (pelo título), depois das demais"
+recorte = "eleitos e parlamentares; em 2026 também as chapas de presidente e governador no 2º turno (titular e vice); de 1998 a 2020 só de quem já temos (pelo título), depois das demais; 1994 só com nome e nascimento idênticos a uma candidatura guardada"
 frequencia = "manual"
-anos = [2018, 2022, 2024, 2026, 2020, 2016]
+anos = [2018, 2022, 2024, 2026, 2020, 2016, 2014, 2010, 2006, 2002, 1998, 1994]
 depende = ["camara_deputados", "senado_senadores", "ibge_municipios"]
 bruto = "recorte"
 
@@ -254,9 +312,18 @@ uso = "Votos recebidos"
 recorte = "candidaturas guardadas"
 guarda = "somas"
 frequencia = "manual"
-anos = [2018, 2022, 2024, 2026]
+anos = [2018, 2022, 2024, 2026, 2014, 2010, 2006, 2002, 1998, 1994]
 depende = ["tse_candidaturas"]
 bruto = "recorte"
+
+[[fonte]]
+nome = "tse_resultado_2_turno"
+modulo = "ingestion.tse.resultado_2_turno"
+uso = "Resultado do 2º turno (eleito, votos) na noite da votação, antes dos dados abertos"
+recorte = "titulares e vices de presidente e governador do 2º turno, só candidaturas guardadas"
+guarda = "somas"
+frequencia = "manual"
+depende = ["tse_candidaturas"]
 
 # Municípios
 [[fonte]]

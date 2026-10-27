@@ -10,7 +10,7 @@ from sqlalchemy import or_, select
 from sqlalchemy.orm import Session
 
 from app.models import Candidatura, Parlamentar
-from app.services import tse
+from app.services import perfil_unico, tse
 
 SEGUNDO_TURNO = "2º TURNO"
 # Data do 2º turno por ano de eleição (o TSE só traz a data do turno que decidiu).
@@ -46,12 +46,16 @@ def _decidido_ou_segundo_turno():
     )
 
 
-def data_posse(cargo: str, ano: int) -> date:
-    """Presidente e governador tomam posse em 1º/1; Congresso e assembleias em 1º/2."""
-    return date(ano + 1, 1 if cargo in CARGOS_POSSE_1_1 else 2, 1)
+data_posse = perfil_unico.data_posse
 
 
-def _item(c: Candidatura, em_exercicio: set[int], vice: str | None = None) -> dict:
+def _item(
+    c: Candidatura,
+    em_exercicio: set[int],
+    vice: str | None = None,
+    principal: str | None = None,
+    foto: tuple[int, int | None] | None = None,
+) -> dict:
     segundo = c.situacao_turno == SEGUNDO_TURNO
     return {
         "id": c.id,
@@ -72,6 +76,12 @@ def _item(c: Candidatura, em_exercicio: set[int], vice: str | None = None) -> di
         # Já exerce hoje um mandato federal (por exemplo, reeleito).
         "ja_no_cargo": c.parlamentar_id in em_exercicio,
         "vice": vice,
+        # Onde o site abre esta pessoa: o perfil de quem já está no cargo, se houver; senão a
+        # página da própria candidatura.
+        "perfil": principal or f"/eleito/{c.id}",
+        "foto": foto is not None,
+        "foto_de": foto[0] if foto and foto[1] else None,
+        "foto_ano": foto[1] if foto else None,
     }
 
 
@@ -98,7 +108,12 @@ def _itens(session: Session, candidaturas: list[Candidatura]) -> list[dict]:
                 )
             ).all()
         )
-    return [_item(c, atuais, vices.get(c.id)) for c in candidaturas]
+    principais = perfil_unico.principais(session, candidaturas)
+    fotos = perfil_unico.fotos(session, candidaturas)
+    return [
+        _item(c, atuais, vices.get(c.id), principais.get(c.id), fotos.get(c.id))
+        for c in candidaturas
+    ]
 
 
 def _por_cargo(session: Session, cargos: tuple[str, ...], uf: str | None) -> list[Candidatura]:
@@ -136,6 +151,7 @@ def da_pessoa(
     *,
     parlamentar_id: int | None = None,
     titulo: str | None = None,
+    cpf: str | None = None,
     candidatura: Candidatura | None = None,
 ) -> dict | None:
     """A candidatura eleita (ou no 2º turno) da eleição recente de uma pessoa, ligada pelo
@@ -150,6 +166,8 @@ def da_pessoa(
         ligacao.append(Candidatura.parlamentar_id == parlamentar_id)
     if titulo:
         ligacao.append(Candidatura.titulo == titulo)
+    if cpf:
+        ligacao.append(Candidatura.cpf == cpf)
     if not ligacao:
         return None
     achadas = list(
@@ -201,7 +219,7 @@ def para_busca(session: Session, palavras: list[str], casa, limite: int) -> list
                 "lugar": "Brasil" if item["cargo"] == "Presidente" else item["uf"],
                 "caminho": f"/parlamentar/{item['parlamentar_id']}"
                 if item["parlamentar_id"]
-                else f"/eleito/{item['id']}",
+                else item["perfil"],
             }
         )
     return resultado

@@ -18,6 +18,16 @@ export function urlFotoTse(candidaturaId: number) {
   return `${API_PUBLICA}/fotos/${candidaturaId}.webp`;
 }
 
+/** Foto de quem tem a foto de outra eleição: usa a candidatura dona da foto, se houver. */
+export function urlFotoDe(candidato: { id: number; foto_de?: number | null }) {
+  return urlFotoTse(candidato.foto_de ?? candidato.id);
+}
+
+/** "foto de 2022", só quando a foto vem de outra eleição da mesma pessoa. */
+export function legendaFoto(candidato: { foto_ano?: number | null }): string | null {
+  return candidato.foto_ano ? `foto de ${candidato.foto_ano}` : null;
+}
+
 export type Casa = "camara" | "senado";
 
 export type ParlamentarResumo = {
@@ -199,6 +209,11 @@ export type EleitoFuturo = {
   /** Já exerce hoje um mandato federal (por exemplo, reeleito). */
   ja_no_cargo: boolean;
   vice: string | null;
+  /** Onde o site abre a pessoa: o perfil de quem já está no cargo, se houver. */
+  perfil: string;
+  foto?: boolean;
+  foto_de?: number | null;
+  foto_ano?: number | null;
 };
 
 export type EleitosFuturos = {
@@ -220,6 +235,9 @@ export function getEleitos2026(uf: string) {
 export type Eleito = {
   id: number;
   foto?: boolean;
+  /** Candidatura dona da foto, quando a foto é de outra eleição da mesma pessoa. */
+  foto_de?: number | null;
+  foto_ano?: number | null;
   nome_urna: string;
   partido: string | null;
   numero: string | null;
@@ -249,6 +267,15 @@ export type ListaEleitos = {
   atualizado_em: string | null;
 };
 
+/** Bens, campanha e dados da candidatura de uma eleição cuja posse ainda não aconteceu. */
+export type EleicaoRecente = Pick<CandidaturaTse, "bens" | "campanha" | "fonte_nome" | "fonte_url" | "atualizado_em"> & {
+  id: number;
+  ano_eleicao: number;
+  cargo: string;
+  unidade: string;
+  pessoais: Pessoais | null;
+};
+
 export type EleitoDetalhe = Eleito &
   Pick<CandidaturaTse, "bens" | "campanha" | "fonte_nome" | "fonte_url" | "atualizado_em"> & {
     /** Quando a própria casa (SAPL) lista a pessoa no cargo: o perfil com a atividade. */
@@ -259,6 +286,9 @@ export type EleitoDetalhe = Eleito &
     municipio_ibge: string | null;
     ano_eleicao: number;
     eleito_2026?: EleitoFuturo | null;
+    /** Caminho do perfil principal da pessoa; a página da candidatura nova redireciona para ele. */
+    perfil_principal?: string | null;
+    eleicao_recente?: EleicaoRecente | null;
   };
 
 export type Chapa = {
@@ -311,6 +341,8 @@ export type Camara = {
 };
 
 export type VereadorDetalhe = VereadorItem & {
+  eleito_2026?: EleitoFuturo | null;
+  eleicao_recente?: EleicaoRecente | null;
   /** "camara" (vereador) ou "assembleia" (deputado estadual). */
   casa: "camara" | "assembleia";
   uf: string;
@@ -851,6 +883,8 @@ export type VotoItem = {
   url: string | null;
   /** Id da votação na fonte, para o link ao explicador (/votacao/[casa]/[id]). */
   id_externo?: string | null;
+  /** Id do projeto na Casa, para o link /projeto/[casa]/[id]. */
+  proposicao_id_externo?: string | null;
 };
 
 export type Votos = {
@@ -1297,10 +1331,6 @@ export function getCarreira(pessoaId: number) {
   return getJson<Carreira>(`/pessoas/${pessoaId}/carreira`);
 }
 
-/** Feed (Atom) público dos fatos novos da pessoa. */
-export function urlFeedDaPessoa(pessoaId: number) {
-  return `${API_PUBLICA}/pessoas/${pessoaId}/eventos.rss`;
-}
 
 export type VotoTema = {
   tema: string;
@@ -1336,8 +1366,10 @@ export type CandidatoSegundoTurno = {
   numero: string | null;
   partido: string | null;
   foto: boolean;
+  foto_de?: number | null;
+  foto_ano?: number | null;
   foto_url: string | null;
-  vice: { id: number; nome_urna: string; partido: string | null; foto: boolean } | null;
+  vice: { id: number; nome_urna: string; partido: string | null; foto: boolean; foto_de?: number | null; foto_ano?: number | null } | null;
   votos_1turno: number | null;
   /** Só depois do resultado: os votos do 2º turno (a fonte troca a coluna). */
   votos_2turno: number | null;
@@ -1389,7 +1421,7 @@ export type SegundoTurno = {
   data_segundo_turno: string | null;
   em_andamento: boolean;
   disputas: DisputaSegundoTurno[];
-  governador_eleito_1turno: { id: number; nome_urna: string; partido: string | null; numero: string | null } | null;
+  governador_eleito_1turno: { id: number; nome_urna: string; partido: string | null; numero: string | null; perfil?: string | null } | null;
   propostas_url: string;
   fonte_nome: string;
   fonte_url: string;
@@ -1455,6 +1487,7 @@ export type VotacaoDetalhe = {
   proposicao: string | null;
   proposicao_ementa: string | null;
   proposicao_url: string | null;
+  proposicao_id_externo?: string | null;
   temas: string[];
   secreta: boolean;
   resultado: "aprovada" | "rejeitada" | null;
@@ -1469,6 +1502,41 @@ export type VotacaoDetalhe = {
   seguiram_partido: Placar;
   partidos: PartidoNaVotacao[];
   parlamentares: ParlamentarNaVotacao[];
+  fonte_nome: string;
+  fonte_url: string;
+  atualizado_em: string | null;
+  /** Campos acrescentados em 21/10/2026; podem faltar em respostas antigas. */
+  por_uf?: PorUf[] | null;
+  discursos?: DiscursosDaVotacao | null;
+};
+
+export type PorUf = { uf: string; sim: number; nao: number; outros: number; total: number };
+
+export type DiscursoNaVotacao = {
+  parlamentar_id: number;
+  nome: string;
+  partido: string | null;
+  uf: string | null;
+  data: string;
+  data_hora: string | null;
+  fase: string | null;
+  tipo: string | null;
+  /** Resumo publicado pela própria Casa; nunca interpretamos o texto. */
+  sumario: string | null;
+  url_texto: string | null;
+  url_video: string | null;
+};
+
+export type GrupoDiscursos = {
+  chave: "sim" | "nao" | "outro" | "sem_voto" | string;
+  rotulo: string;
+  quantidade: number;
+  discursos: DiscursoNaVotacao[];
+};
+
+export type DiscursosDaVotacao = {
+  total: number;
+  grupos: GrupoDiscursos[];
   fonte_nome: string;
   fonte_url: string;
   atualizado_em: string | null;
@@ -1708,4 +1776,263 @@ export function getDinheiroFederalUf(uf: string, ano?: number) {
 
 export function getDinheiroFederalMunicipio(ibge: string) {
   return getJson<DinheiroFederalMunicipio>(`/municipios/${encodeURIComponent(ibge)}/dinheiro-federal`);
+}
+
+// ---- Projetos e votações (docs/DECISOES.md, 21/10/2026) ----
+
+export type FonteBloco = { fonte_nome: string; fonte_url: string; atualizado_em: string | null };
+
+export type CasaProjeto = "camara" | "senado" | "assembleia" | "camara_municipal";
+
+export type UltimaVotacaoItem = {
+  data: string | null;
+  resultado: string | null;
+  sim: number | null;
+  nao: number | null;
+  descricao: string | null;
+  link: string;
+};
+
+export type ItemProjeto = {
+  tipo: "proposicao" | "votacao_local" | "projeto_local";
+  rotulo: string;
+  ementa: string | null;
+  esfera: "federal" | "estadual" | "municipal";
+  casa: CasaProjeto;
+  uf: string | null;
+  municipio_ibge: string | null;
+  municipio: string | null;
+  situacao: string | null;
+  virou_lei: boolean | null;
+  ultima_votacao: UltimaVotacaoItem | null;
+  na_pauta: string | null;
+  ultima_movimentacao: string | null;
+  link: string;
+  /** Quantos itens de informação o projeto tem publicados (votação, discursos, caminho, situação, tema). */
+  nivel_informacao?: number | null;
+  /** Só no Congresso: discursos ligados ao projeto e passos do caminho. */
+  discursos?: number | null;
+  passos_caminho?: number | null;
+};
+
+/** Só com filtro de estado ou cidade: se há dado da câmara e da assembleia aqui. */
+export type CoberturaBusca = {
+  uf: string | null;
+  camara: { municipio_ibge: string; municipio: string; tem_dados: boolean; canal_url: string | null } | null;
+  assembleia: { uf: string; tem_dados: boolean } | null;
+};
+
+export type BuscaProjetos = {
+  q: string | null;
+  total: number;
+  pagina: number;
+  por_pagina: number;
+  itens: ItemProjeto[];
+  fontes: FonteBloco[];
+  ordem?: "informacao" | "recentes";
+  cobertura?: CoberturaBusca | null;
+};
+
+export type FiltrosProjetos = {
+  q?: string;
+  esfera?: string;
+  casa?: string;
+  uf?: string;
+  municipio?: string;
+  tema?: string;
+  ano?: string;
+  votacao?: string;
+  ordem?: string;
+  pagina?: string;
+};
+
+export function buscarProjetos(filtros: FiltrosProjetos) {
+  const params = new URLSearchParams();
+  for (const [chave, valor] of Object.entries(filtros)) if (valor) params.set(chave, valor);
+  return getJson<BuscaProjetos>(`/projetos?${params}`);
+}
+
+/** Temas dos projetos do Congresso (GET /projetos/temas), para o filtro de /projetos. */
+export function getTemasProjetos(casa?: string) {
+  const params = new URLSearchParams();
+  if (casa === "camara" || casa === "senado") params.set("casa", casa);
+  return getJson<{ casa: string | null; temas: string[] }>(`/projetos/temas?${params}`);
+}
+
+/** Projetos do Congresso com votação nominal, só casa, id e data (GET /projetos/ids), para o sitemap. */
+export function getIdsProjetos(limite = 5000) {
+  return getJson<{ itens: { casa: string; id_externo: string; data: string }[] }>(
+    `/projetos/ids?votacao=com&limite=${limite}`,
+  );
+}
+
+export type AutorProjeto = {
+  parlamentar_id: number;
+  nome: string;
+  partido: string | null;
+  uf: string;
+  primeiro_autor: boolean;
+};
+
+export type FichaProjeto = FonteBloco & {
+  temas: string[];
+  autores: AutorProjeto[];
+  autor_descricao: string | null;
+  situacao: string | null;
+  virou_lei: boolean | null;
+  relator: string | null;
+  relator_parlamentar_id: number | null;
+  url_oficial: string | null;
+  origem: string | null;
+  data_apresentacao: string | null;
+};
+
+export type VotacaoDoProjeto = {
+  id_externo: string;
+  data: string;
+  descricao: string;
+  resultado: string | null;
+  secreta: boolean;
+  placar_publicado: { sim: number | null; nao: number | null; abstencao: number | null } | null;
+  placar_contado: { sim: number; nao: number; abstencao: number; obstrucao: number; outros: number };
+  link: string;
+};
+
+export type BlocoVotacoes = FonteBloco & { itens: VotacaoDoProjeto[]; aviso: string | null };
+
+export type PessoaQueVotou = {
+  parlamentar_id: number;
+  nome: string;
+  partido: string;
+  uf: string;
+  registro: string;
+};
+
+export type GrupoQuemVotou = {
+  chave: "sim" | "nao" | "outros" | string;
+  rotulo: string;
+  quantidade: number;
+  partidos: { partido: string; quantidade: number }[];
+  pessoas: PessoaQueVotou[];
+};
+
+export type BlocoQuemVotou = FonteBloco & {
+  votacao: VotacaoDoProjeto;
+  regra: string;
+  grupos: GrupoQuemVotou[];
+  por_uf: PorUf[];
+};
+
+export type DiaDeDiscursos = {
+  data: string;
+  votacao_id_externo: string | null;
+  total: number;
+  grupos: GrupoDiscursos[];
+};
+
+export type BlocoDiscursos = FonteBloco & { dias: DiaDeDiscursos[]; aviso: string };
+
+export type PassoDoCaminho = { data: string; orgao: string | null; descricao: string; etapa: string };
+
+export type ProjetoFederal = {
+  casa: Casa;
+  id_externo: string;
+  rotulo: string;
+  sigla: string | null;
+  numero: number | null;
+  ano: number | null;
+  ementa: string | null;
+  ficha: FichaProjeto;
+  votacoes: BlocoVotacoes;
+  votacao_principal: BlocoQuemVotou | null;
+  discursos: BlocoDiscursos;
+  discursos_do_dia: FonteBloco & { quantidade_nao_atribuida: number; itens: unknown[]; aviso: string };
+  caminho: FonteBloco & { itens: PassoDoCaminho[] };
+  pauta: FonteBloco & { proxima: { data: string; sessao: string; url: string | null } | null };
+};
+
+export function getProjetoFederal(casa: string, id: string) {
+  return getJson<ProjetoFederal>(`/projetos/${encodeURIComponent(casa)}/${encodeURIComponent(id)}`);
+}
+
+export type VotacaoLocalResumo = {
+  id: number;
+  data: string | null;
+  materia: string;
+  resultado: string | null;
+  sim: number;
+  nao: number;
+  abstencoes: number;
+  link: string;
+};
+
+export type ProjetoLocal = FonteBloco & {
+  id: number;
+  rotulo: string;
+  tipo: string;
+  numero: number | null;
+  ano: number;
+  ementa: string;
+  data_apresentacao: string | null;
+  em_tramitacao: boolean | null;
+  casa: CasaProjeto;
+  uf: string | null;
+  municipio_ibge: string | null;
+  municipio: string | null;
+  autor: { mandato_id: number; nome: string; partido: string | null } | null;
+  votacoes: VotacaoLocalResumo[];
+  url_oficial: string;
+  sem_orientacao: boolean;
+  sem_discursos: boolean;
+  aviso: string;
+};
+
+export function getProjetoLocal(id: string) {
+  return getJson<ProjetoLocal>(`/projetos/local/${encodeURIComponent(id)}`);
+}
+
+export type VotacaoLocal = FonteBloco & {
+  id: number;
+  casa: CasaProjeto;
+  uf: string;
+  municipio_ibge: string | null;
+  municipio: string | null;
+  data: string | null;
+  materia: string;
+  ementa: string | null;
+  resultado: string | null;
+  sim: number;
+  nao: number;
+  abstencoes: number;
+  votos: { mandato_id: number; nome: string; partido: string | null; voto: string }[];
+  projeto_local_id: number | null;
+  projeto_link: string | null;
+  url_oficial: string | null;
+  sem_orientacao: boolean;
+  sem_discursos: boolean;
+  aviso: string;
+};
+
+export function getVotacaoLocal(id: string) {
+  return getJson<VotacaoLocal>(`/votacoes/local/${encodeURIComponent(id)}`);
+}
+
+export type ItemDePauta = {
+  casa: Casa;
+  data: string;
+  sessao: string;
+  ordem: number | null;
+  proposicao: string | null;
+  proposicao_id_externo: string | null;
+  ementa: string | null;
+  url_oficial: string | null;
+  link: string | null;
+};
+
+export type Pauta = FonteBloco & { casa: Casa | null; dias: number; itens: ItemDePauta[]; aviso: string | null };
+
+export function getPauta(dias = 14, casa?: Casa) {
+  const params = new URLSearchParams({ dias: String(dias) });
+  if (casa) params.set("casa", casa);
+  return getJson<Pauta>(`/pauta?${params}`);
 }

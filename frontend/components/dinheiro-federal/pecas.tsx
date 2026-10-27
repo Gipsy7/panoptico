@@ -38,9 +38,9 @@ export function Secao({
 export function Figura({ rotulo, valor, apoio }: { rotulo: string; valor: string; apoio?: string }) {
   return (
     <div className="flex min-w-0 flex-col gap-0.5 border-t border-foreground pt-2">
-      <span className="text-[13px] text-muted-foreground">{rotulo}</span>
+      <span className="text-sm text-muted-foreground">{rotulo}</span>
       <span className="font-heading text-[1.65rem] leading-tight tabular-nums">{valor}</span>
-      {apoio && <span className="text-[13px] text-muted-foreground">{apoio}</span>}
+      {apoio && <span className="text-sm text-muted-foreground">{apoio}</span>}
     </div>
   );
 }
@@ -57,11 +57,12 @@ export function Barras({ itens, rotulo }: { itens: ItemBarra[]; rotulo: string }
           <div className="flex items-baseline justify-between gap-2 text-sm">
             <span className={i.destaque ? "font-medium" : undefined}>
               {i.nome}
-              {i.oficial && <span className="block text-[13px] text-muted-foreground">{i.oficial}</span>}
+              {i.destaque && <span className="sr-only"> (em destaque)</span>}
+              {i.oficial && <span className="block text-sm text-muted-foreground">{i.oficial}</span>}
             </span>
             <span className="shrink-0 tabular-nums">{i.extra ?? ""}</span>
           </div>
-          <div aria-hidden className="h-1.5 w-full bg-muted">
+          <div aria-hidden className={`w-full bg-muted ${i.destaque ? "h-2.5 outline outline-1 outline-foreground" : "h-1.5"}`}>
             <div
               className={`h-full ${i.destaque ? "bg-foreground" : "bg-bronze"}`}
               style={{ width: `${i.valor == null ? 0 : Math.max(1, (i.valor / max) * 100)}%` }}

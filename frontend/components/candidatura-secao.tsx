@@ -1,6 +1,7 @@
 import { FonteRodape } from "@/components/fonte-rodape";
 import type { CandidaturaTse } from "@/lib/api";
 import { formatarReais } from "@/lib/formato";
+import { LinkExterno } from "@/components/link-externo";
 
 const LIMITE_VISIVEL = 8;
 
@@ -8,17 +9,25 @@ const LIMITE_VISIVEL = 8;
  * ficam em "Quem é" (QuemESecao), no topo do perfil. */
 export function CandidaturaSecao({
   dados,
+  idTitulo = "tse-titulo",
+  titulo = "Eleição",
+  posse,
 }: {
   dados: Pick<CandidaturaTse, "bens" | "campanha" | "fonte_nome" | "fonte_url" | "atualizado_em">;
+  /** Id do título, quando a página tem duas seções destas (a eleição de hoje e a mais recente). */
+  idTitulo?: string;
+  titulo?: string;
+  /** Eleição cuja posse ainda não aconteceu: o texto da campanha diz isso em vez de "mandato atual". */
+  posse?: string;
 }) {
   const { bens, campanha } = dados;
   if (!bens && !campanha) return null;
 
   return (
-    <section aria-labelledby="tse-titulo" className="revelar flex flex-col gap-6">
+    <section aria-labelledby={idTitulo} className="revelar flex flex-col gap-6">
       <div>
-        <h2 id="tse-titulo" className="text-2xl">
-          Eleição
+        <h2 id={idTitulo} className="text-2xl">
+          {titulo}
         </h2>
         <p className="text-sm text-muted-foreground">
           Declarados pelo próprio candidato à Justiça Eleitoral (TSE)
@@ -76,9 +85,9 @@ export function CandidaturaSecao({
           <p className="text-sm text-muted-foreground">
             Valores como o candidato declarou, sem correção pela inflação. Bens costumam ser
             declarados pelo valor de compra, que pode ser diferente do valor de mercado.{" "}
-            <a href={bens.fonte_url} target="_blank" rel="noopener noreferrer" className="underline underline-offset-2">
+            <LinkExterno href={bens.fonte_url} className="underline underline-offset-2">
               Arquivo oficial
-            </a>
+            </LinkExterno>
           </p>
         </div>
       )}
@@ -88,7 +97,7 @@ export function CandidaturaSecao({
           <h3 className="font-medium">
             Campanha de {campanha.candidatura.ano}
             <span className="block text-sm font-normal text-muted-foreground">
-              a que deu o mandato atual · {campanha.candidatura.cargo.toLowerCase()} · {campanha.candidatura.unidade}
+              {posse ?? "a que deu o mandato atual"} · {campanha.candidatura.cargo.toLowerCase()} · {campanha.candidatura.unidade}
             </span>
           </h3>
           <dl className="grid grid-cols-2 gap-3">
