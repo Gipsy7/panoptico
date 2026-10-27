@@ -309,6 +309,27 @@ CATALOGO = [
         "url": "https://seplan.ac.gov.br/gestao-de-recursos/convenios/emendas-parlamentares-estaduais/",
     },
     {
+        "dado": "Emendas de deputados estaduais de GO (só 2023): autor, cidade, quem recebeu e "
+        "valores previsto, empenhado e pago",
+        "orgao": "Governo de Goiás (Portal de Dados Abertos)",
+        "fontes": ["dadosabertos_go_emendas"],
+        "url": "https://dadosabertos.go.gov.br/dataset/emendas-parlamentares",
+    },
+    {
+        "dado": "Emendas de deputados estaduais da PB: autor e valores previsto, empenhado e "
+        "pago (sem cidade)",
+        "orgao": "Governo da Paraíba (API de dados abertos, CGE e Codata)",
+        "fontes": ["dadospb_emendas"],
+        "url": "https://transparencia.pb.gov.br/emendas-parlamentares",
+    },
+    {
+        "dado": "Emendas de deputados distritais (DF): autor, ação e valores autorizado, "
+        "empenhado e pago",
+        "orgao": "Portal da Transparência do Distrito Federal",
+        "fontes": ["transparencia_df_emendas"],
+        "url": "https://www.transparencia.df.gov.br/#/despesas/emendas-parlamentares",
+    },
+    {
         "dado": "Deputados estaduais do PR: no cargo, presença em plenário e votos nominais",
         "orgao": "Assembleia Legislativa do Paraná (site e Portal da Transparência)",
         "fontes": ["alep"],

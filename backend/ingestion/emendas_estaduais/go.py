@@ -24,7 +24,10 @@ Armadilhas do arquivo de 2023:
 - o número da emenda se repete (uma linha por processo e beneficiário), cada linha com o
   seu previsto (que soma o "Total"): a chave é por linha;
 - o CNPJ perdeu os zeros à esquerda ("1112580000171"): volta a 14 dígitos só se o dígito
-  verificador conferir; número de 11 dígitos que seja CPF válido não é guardado, nem o nome.
+  verificador conferir; número de 11 dígitos que seja CPF válido não é guardado, nem o nome;
+- dois municípios com o nome por extenso ("CIDADE DE GOIAS" é Goiás, "CAMPOS VERDES DE GOIAS"
+  é Campos Verdes): código IBGE fixado abaixo; "LARANJEIRAS" (2 linhas) não é município de
+  GO e fica sem cidade.
 """
 
 import csv
@@ -55,6 +58,8 @@ ANO = 2023
 ARQUIVO = re.compile(rf"emendas_parlamentares_ano_{ANO}\.zip$", re.I)
 MINIMO = 1000  # eram 1.924 linhas de 2023 em 27/10/2026
 SITUACOES_FORA: tuple[str, ...] = ()
+# Nome por extenso no arquivo -> código IBGE (conferido na tabela do IBGE).
+MUNICIPIOS = {"CIDADE DE GOIAS": "5208905", "CAMPOS VERDES DE GOIAS": "5204953"}
 RECORTE = (
     "Só as emendas de deputados estaduais de 2023, uma linha por emenda, processo e "
     "beneficiário, como o portal de dados abertos de Goiás publica. Os arquivos de 2024 e "
@@ -120,6 +125,7 @@ def ler(conteudo: bytes) -> list[dict[str, Any]]:
         contagem[chave] = contagem.get(chave, 0) + 1
         chave = f"{chave}:{contagem[chave]}"
         cnpj, pessoa_fisica = documento(x["CNPJ do Beneficiário"])
+        municipio = base.texto(x["Município"]) or ""
         linhas.append(
             {
                 "ano": ANO,
@@ -128,8 +134,8 @@ def ler(conteudo: bytes) -> list[dict[str, Any]]:
                 "transferencia": base.texto(x["Nº Processo"]),
                 "tipo": None,
                 "autor_nome": base.texto(x["Autor da Emenda"]) or "",
-                "municipio_nome": base.texto(x["Município"]) or "",
-                "municipio_ibge": None,
+                "municipio_nome": municipio,
+                "municipio_ibge": MUNICIPIOS.get(municipio),
                 "favorecido_nome": None if pessoa_fisica else base.texto(x["Beneficiário"]),
                 "favorecido_cnpj": cnpj,
                 "favorecido_natureza": "Pessoa física" if pessoa_fisica else None,

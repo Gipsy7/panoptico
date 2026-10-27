@@ -623,6 +623,40 @@ depende = ["sapl_assembleias", "pessoas"]
 # SEPLAN/AC: a planilha (Google Sheets publicada em CSV) que a página de emendas estaduais usa.
 
 [[fonte]]
+nome = "dadosabertos_go_emendas"
+modulo = "ingestion.emendas_estaduais.go"
+uso = "Emendas de deputados estaduais de GO na página da cidade e do deputado"
+recorte = "só 2023, uma linha por emenda, processo e beneficiário (2024 e 2025 com empenho e CNPJ corrompidos em notação científica; 2021-2022 sem município; 2019-2020 sem execução); soma conferida com a linha Total do arquivo"
+frequencia = "semanal"
+acesso = "aberto"
+depende = ["alego", "pessoas"]
+# Dados abertos de GO: dadosabertos.go.gov.br/dataset/emendas-parlamentares, emendas_parlamentares_ano_2023.zip
+# (lido pelo package_show). Os arquivos de 2024 e 2025 ficam de fora até virem corrigidos (pedido).
+
+[[fonte]]
+nome = "dadospb_emendas"
+modulo = "ingestion.emendas_estaduais.pb"
+uso = "Emendas de deputados estaduais da PB na página do deputado (a fonte não informa cidade nem favorecido)"
+recorte = "emendas impositivas desde 2021, uma linha por emenda e classificação da despesa: autor, órgão, ação, valor da emenda, empenhado e pago"
+frequencia = "semanal"
+acesso = "aberto"
+depende = ["sapl_assembleias", "pessoas"]
+# API de dados abertos da PB: api.dados.pb.gov.br/api/v1/orcamento/execucao_emendas?ano= (JSON paginado,
+# sem chave). O proxy da página do portal (/api/execucao-emendas) responde 403 a leitura automática: não usado.
+
+[[fonte]]
+nome = "transparencia_df_emendas"
+modulo = "ingestion.emendas_estaduais.df"
+uso = "Emendas de deputados distritais na página de Brasília e do deputado"
+recorte = "emendas desde 2016, uma linha por autor e programa de trabalho (natureza, fonte, unidade gestora): autorizado, empenhado e pago; sem favorecido; o DF é um município só no IBGE (Brasília)"
+frequencia = "semanal"
+acesso = "aberto"
+depende = ["cldf", "pessoas"]
+# Portal da Transparência do DF: /api/despesa/emendas-parlamentares?anoExercicio=&page=&size=100 (JSON paginado).
+# Exige o cabeçalho x-client-id, um UUID que a própria página sorteia por sessão (sem cadastro). Lento: ~1 min
+# por página em 27/10/2026.
+
+[[fonte]]
 nome = "alep"
 modulo = "ingestion.assembleias.alep"
 uso = "Assembleia do Paraná hoje"

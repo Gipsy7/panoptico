@@ -31,24 +31,24 @@ Preenchido em 27/10/2026 a partir de `docs/emendas_estaduais_levantamento.md` (n
 | AP | Governo do AP e ALAP | Indicar onde estão as emendas estaduais e publicar em arquivo aberto. | | | | |
 | BA | Governo da BA (SEFAZ) e ALBA | Município de destino e beneficiário (CNPJ) de cada emenda no conjunto de dados abertos já publicado. | | | | |
 | CE | Governo do CE (CGE/SEPLAG) e ALECE | Arquivo ou API das emendas (hoje só página HTML; a API de dados abertos não tem emendas). | | | | |
-| DF | — | Ainda não: há API aberta no Portal da Transparência do DF (carga a fazer). | | | | |
+| DF | Governo do DF (SEEC) e CLDF | Município ou região administrativa e favorecido (CNPJ) de cada emenda; número da emenda (a API publica autor e valores por programa de trabalho, carregados desde 2016). | | | | |
 | ES | — | Não precisa: dado aberto carregado (SEFAZ/ES). | | | | |
-| GO | Governo de GO (SEFAZ/SERINT) e ALEGO | Arquivo atualizado depois de julho/2025, sem CNPJ e empenho em notação científica, com delimitador fixo; consulta EmendasGO sem captcha. | | | | |
+| GO | Governo de GO (SEFAZ/SERINT) e ALEGO | Arquivos de 2024 e 2025 refeitos sem notação científica no empenho, no processo e no CNPJ (hoje o empenho tem 5 valores em 2.594 linhas), com delimitador fixo e atualizados depois de julho/2025; município e posição atual de execução em 2021 e 2022; consulta EmendasGO sem captcha. Só 2023 está carregado. | | | | |
 | MA | Governo do MA (SEPLAN/SEFAZ) e ALEMA | Anos anteriores a 2026 na exportação (o filtro só oferece 2026). | | | | |
 | MG | — | Não precisa: dado aberto carregado (SEGOV/MG). | | | | |
 | MS | Governo do MS e ALEMS | Indicar onde estão as emendas estaduais e publicar em arquivo aberto. | | | | |
 | MT | Governo do MT (SEPLAG) e ALMT | Arquivo aberto das emendas; a página de emendas não abre e o portal usa captcha. | | | | |
 | PA | Governo do PA (SEPLAD) e ALEPA | Arquivo aberto do módulo de emendas do SIGPLAN; o portal da transparência não respondeu. | | | | |
-| PB | Governo da PB e ALPB | Arquivo ou API documentada da consulta "Execução de emendas parlamentares impositivas". | | | | |
+| PB | Governo da PB e ALPB | Município de destino e favorecido (CNPJ) em campo próprio na API de dados abertos (`execucao_emendas`, carregada desde 2021). | | | | |
 | PE | Governo de PE (SEPLAG) e ALEPE | Autor e município nos arquivos de 2012 a 2025 (hoje só empenhos); uma linha por empenho sem repetição por chamamento. | | | | |
-| PI | Governo do PI e ALEPI | Arquivo ou API documentada das emendas (hoje só dentro das despesas da aplicação). | | | | |
+| PI | Governo do PI (CGE/SEPLAN) e ALEPI | Uma série única de 2021 em diante com valor da emenda e execução contábil (empenhado, liquidado, pago) por emenda: a API pública traz 2021-2025 só por nota de empenho, sem valor da emenda, e 2026 com o valor mas a execução lançada à mão no detalhe de cada emenda. | | | | |
 | PR | Governo do PR (SEFA) e ALEP | Arquivo aberto (hoje só painel Power BI). | | | | |
 | RJ | Governo do RJ (SEPLAG) e ALERJ | Arquivo aberto (hoje só painel Qlik; o portal de dados abertos aponta para o painel). | | | | |
 | RN | Governo do RN e ALRN | Arquivo aberto (hoje só painel Power BI). | | | | |
-| RO | — | Ainda não: há consulta com JSON no Portal da Transparência de RO (carga a fazer). | | | | |
+| RO | Governo de RO (SEPOG/COGES) e ALE-RO | Correção da consulta de emendas: empenhado, liquidado e pago vêm zerados em 2023-2025 (R$ 0 pago de R$ 489 milhões previstos em 2025, em empenhos com número emitido) e a base foi atualizada em 25/03/2026. | | | | |
 | RR | Governo de RR e ALE-RR | Indicar onde estão as emendas estaduais e publicar em arquivo aberto. | | | | |
 | RS | Governo do RS (CAGE/SEFAZ) e ALRS | Arquivo aberto (os "dados abertos" do painel são o próprio Power BI). | | | | |
 | SC | ALESC e TCE/SC | Ver alesc_emendas_impositivas.md e tcesc_painel_emendas.md (repasses fundo a fundo e às prefeituras). | | | | |
 | SE | Governo de SE e ALESE | Número da emenda e valor empenhado na API já publicada. | | | | |
-| SP | Governo de SP (SGRI/Fazenda) e ALESP | Correção do arquivo aberto: uma linha por emenda (ou por evento com chave), com valor previsto; hoje as linhas de execução se repetem e as somas não fecham. | | | | |
+| SP | Governo de SP (SGRI/Fazenda) e ALESP | Correção do arquivo aberto: uma linha por emenda (ou por evento com chave), com valor previsto; hoje as linhas de execução se repetem e as somas não fecham (conferido de novo em 27/10/2026: o zip foi republicado em 23/10, mas o CSV dentro é o de 29/05/2026, 238.420 linhas, uma emenda com 44.640). | | | | |
 | TO | Governo do TO e ALETO | Indicar onde estão as emendas estaduais e publicar em arquivo aberto. | | | | |

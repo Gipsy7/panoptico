@@ -138,13 +138,21 @@ EMENDAS_ESTADUAIS: dict[str, tuple[str, str, str, str]] = {
     "SP": ("pedido", "O arquivo aberto repete as linhas de execução sem chave e as somas não "
            "fecham (empenhado de 2024 passaria de R$ 12 bilhões); não carregamos e pedimos a "
            "correção.", "", _PED),
-    "DF": ("sem_fonte", "O Portal da Transparência do DF tem uma consulta de emendas por autor "
-           "e empenho; ainda não lemos.", "", _PED),
-    "RO": ("sem_fonte", "O Portal da Transparência de RO tem uma consulta de emendas por "
-           "empenho; ainda não lemos.", "", _PED),
-    "GO": ("pedido", "O arquivo aberto vai só até julho de 2025 e traz CNPJ e empenho "
-           "corrompidos pela planilha; a consulta completa exige captcha. Pedimos o arquivo "
-           "corrigido.", "", _PED),
+    "DF": ("parcial", "Emendas distritais desde 2016 no Portal da Transparência (autor, ação, "
+           "autorizado, empenhado e pago); a fonte não informa quem recebeu nem a região "
+           "administrativa em campo próprio, e pedimos.", "transparencia_df_emendas", _PED),
+    "RO": ("pedido", "A consulta de emendas do Portal da Transparência traz empenhado e pago "
+           "zerados de 2023 a 2025 (empenhos emitidos com valor zero); não carregamos e pedimos "
+           "a correção.", "", _PED),
+    "GO": ("parcial", "Só 2023 (autor, cidade, quem recebeu e valores): os arquivos de 2024 e "
+           "2025 trazem CNPJ e empenho corrompidos pela planilha, e a consulta completa exige "
+           "captcha. Pedimos os arquivos corrigidos.", "dadosabertos_go_emendas", _PED),
+    "PB": ("parcial", "Emendas impositivas desde 2021 na API de dados abertos (autor e valores); "
+           "a fonte não informa a cidade nem quem recebeu: aparece só na página do deputado; "
+           "pedimos o destino.", "dadospb_emendas", _PED),
+    "PI": ("pedido", "A API do Portal da Transparência traz 2021 a 2025 só por empenho, sem o "
+           "valor da emenda, e 2026 com a execução lançada à mão em cada emenda; ainda não "
+           "carregamos e pedimos uma série única.", "", _PED),
     "RJ": ("pedido", "Só há painel (sem arquivo para baixar); pedido de acesso redigido.", "",
            _PED),
     "RS": ("pedido", "Só há painel (sem arquivo para baixar); pedido de acesso redigido.", "",
