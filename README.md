@@ -60,7 +60,7 @@ flowchart LR
 | ⚖️ | **Comparadores** | Até 4 parlamentares lado a lado, vereadores da mesma câmara, e os candidatos do 2º turno com os mesmos campos. |
 | 🏛 | **Partidos** | Fundo Partidário, fundo eleitoral, receitas, gastos e repasses (TSE). |
 | 🔍 | **Busca por nome** | Todos os níveis e partidos, sem diferença de acento. |
-| 💡 | **A ideia e as dúvidas** | [O que é o Panóptico](https://panoptico.social.br/o-panoptico) (história ao rolar: de Bentham e Foucault à inversão que dá nome ao projeto), [Perguntas frequentes](https://panoptico.social.br/perguntas) e [Apoiadores](https://panoptico.social.br/apoiadores) (um raio do sol da marca por pessoa; só quem autorizou o nome, lista em `frontend/lib/apoiadores.ts`). Ficam no rodapé; "Fontes" saiu do menu do topo. |
+| 💡 | **A ideia e as dúvidas** | [O que é o Panóptico](https://panoptico.social.br/o-panoptico) (história ao rolar: de Bentham e Foucault à inversão que dá nome ao projeto), [Perguntas frequentes](https://panoptico.social.br/perguntas) e [Apoiadores](https://panoptico.social.br/apoiadores) (a torre da marca no centro e um olho por pessoa, observando; só quem autorizou o nome, lista em `frontend/lib/apoiadores.ts`). Ficam no rodapé; "Fontes" saiu do menu do topo. |
 
 E mais: **modo escuro** (segue o aparelho; um ícone troca), **filtros** com o mesmo padrão em todo o site (painel no celular, filtros ativos removíveis, link compartilhável), **cartões de prévia** com botão de WhatsApp e telas em três camadas (número → pergunta que explica → detalhe completo).
 

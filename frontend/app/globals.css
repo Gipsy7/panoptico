@@ -517,21 +517,39 @@
   }
 }
 
-/* Apoiadores: os raios do sol se desenham ao abrir a página, e os nomes aparecem em seguida. */
+/* Apoiadores: os olhos aparecem um a um ao abrir a página (`backwards`, para não prender a
+   opacidade do destaque depois), os cones de visão respiram e o halo da torre pulsa. A piscada
+   é SMIL, disparada pelo componente (components/olhos-apoiadores.tsx). */
 @media (prefers-reduced-motion: no-preference) {
-  .sol-raio {
-    stroke-dasharray: var(--len);
-    stroke-dashoffset: var(--len);
-    animation: desenhar-traco 700ms var(--curva-suave) var(--atraso) forwards;
+  .olho-entra {
+    animation: olho-aparece 500ms ease-out var(--atraso) backwards;
   }
-  .sol-nome {
-    opacity: 0;
-    animation: sol-nome-aparece 500ms ease-out var(--atraso) forwards;
+  .olho-cone {
+    animation: cone-respira 4.2s ease-in-out var(--atraso) infinite;
+  }
+  .olho-torre {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: torre-pulsa 3.2s ease-in-out infinite;
   }
 }
-@keyframes sol-nome-aparece {
-  to {
-    opacity: 1;
+@keyframes olho-aparece {
+  from {
+    opacity: 0;
+  }
+}
+@keyframes cone-respira {
+  0%,
+  100% {
+    fill-opacity: 0.55;
+  }
+  50% {
+    fill-opacity: 1;
+  }
+}
+@keyframes torre-pulsa {
+  50% {
+    transform: scale(1.12);
   }
 }
 

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
-import { SolApoiadores } from "@/components/sol-apoiadores";
+import { OlhosApoiadores } from "@/components/olhos-apoiadores";
 import { APOIADORES } from "@/lib/apoiadores";
 
 export const metadata: Metadata = {
@@ -15,10 +15,11 @@ export default function ApoiadoresPage() {
     <article className="pagina-secoes">
       <header className="flex flex-col gap-2">
         <p className="sobretitulo">Apoiadores</p>
-        <h1 className="titulo-pagina">Cada raio é alguém que ajuda</h1>
+        <h1 className="titulo-pagina">Cada olho é alguém que ajuda</h1>
         <p className="text-muted-foreground">
           Obrigado a quem ajudou a fazer o Panóptico existir: no código, nas ideias, nos testes,
-          na divulgação ou com doações. No sol da marca, cada raio é uma dessas pessoas.
+          na divulgação ou com doações. No desenho, a torre do centro é o poder, e cada olho em volta,
+          observando a torre, é uma dessas pessoas.
         </p>
       </header>
 
@@ -30,7 +31,7 @@ export default function ApoiadoresPage() {
           <p className="text-muted-foreground">Ainda não há nomes publicados.</p>
         ) : (
           <>
-            <SolApoiadores apoiadores={nomes} />
+            <OlhosApoiadores apoiadores={nomes} />
             <p className="text-sm text-muted-foreground">
               {nomes.length} {nomes.length === 1 ? "nome publicado" : "nomes publicados"}, em ordem alfabética.
             </p>
