@@ -129,6 +129,7 @@
 - [2026-10-26: produção numa VPS (Locaweb) com banco próprio](#2026-10-26-produção-numa-vps-locaweb-com-banco-próprio)
 - [2026-10-26: reserva congelada (Vercel + Neon)](#2026-10-26-reserva-congelada-vercel--neon)
 - [2026-10-27: emendas estaduais em nove UFs, uma base comum](#2026-10-27-emendas-estaduais-em-nove-ufs-uma-base-comum)
+- [2026-10-27: apelidos nos gastos das assembleias (fila de revisão)](#2026-10-27-apelidos-nos-gastos-das-assembleias-fila-de-revisão)
 - [2026-10-21: diários municipais por plataforma compartilhada (SIGPub e DOM/SC)](#2026-10-21-diários-municipais-por-plataforma-compartilhada-sigpub-e-domsc)
 - [2026-10-21: câmaras sem canal, atacadas por sistema (e o que veda robô)](#2026-10-21-câmaras-sem-canal-atacadas-por-sistema-e-o-que-veda-robô)
 
@@ -1486,4 +1487,11 @@ A reserva da VPS é uma **versão congelada** do site, da API e do banco, na Ver
 - **Bloqueios (não contornados):** 191 câmaras (SC 138, RS 22, PR 15, SP 11, MG 5) têm `robots.txt` com `User-agent: * / Disallow: /` e o mesmo conjunto de pastas (`/softcam/`, `/legisbr/`, ...), ou seja, um sistema só: nem a página inicial foi aberta. Outras 86 vedam por `robots.txt` ou respondem 403/429 já na capa (a maioria atrás do Cloudflare). Pedidos redigidos em `docs/pedidos/softcam_robots.md` e `docs/pedidos/camaras_bloqueio_robos.md`. O link do site continua no catálogo, para o cidadão.
 - **O que falta:** 203 câmaras com site achado, sem leitor: sistema não identificado (75), WordPress/gerador próprio (34), Betha (16; é só o portal de transparência), Ingá Digital e Cespro com layout diferente (21), AOS (7; outro modelo de página que o leitor atual não lê), IPM (7), Portal do Município/BA (5), Legislador (5; modelo de capa diferente do de Perdões) e outros. Próximos de maior alcance: Ingá Digital/Cespro com layouts alternativos, AOS e Legislador.
 - **Agenda:** o conector novo entra no `deploy/vps/agenda/camaras.sh`. Todos respondem de fora do Brasil (testado do Brasil; nenhum geobloqueio visto), então não pedem o runner/VPS de São Paulo por causa disso.
+
+## 2026-10-27: apelidos nos gastos das assembleias (fila de revisão)
+
+- **Problema:** a planilha de gastos da ALECE traz só o nome do deputado, com apelido, erro de digitação ou ex-deputado. No acervo (jan/2025 a out/2026), 30 dos 82 nomes (401 lançamentos, R$ 2.798.683,69 líquidos) não casavam com deputado da lista.
+- **Regra (vale para qualquer Casa, ALECE é o primeiro caso):** só o nome idêntico após `comum.chave_nome` liga sozinho. O parecido vira sugestão (até 3 deputados da lista, por semelhança de letras e de palavras, mínimo 0,62) na fila `backend/data/processed/apelidos_pendentes_<escopo>.csv`, fora do git e que nenhuma rota da API, página ou exportação lê. Ex-deputado ou suplente sem registro na lista fica na fila sem candidato: só dá para recusar (ligar exigiria um deputado para receber o gasto).
+- **Decisão humana:** `python -m ingestion.revisar --tipo apelido` grava em `data/curadoria/apelidos_revisados.csv` (versionado; escopo, nome na planilha, `id_externo` do deputado na Casa, aceito/recusado). `base.ligar_nomes` reaplica a cada carga, na VPS também; decisão de deputado que saiu da lista é ignorada; recusado sai da fila.
+- **Adoção por outras Casas:** trocar `base.ligar_nomes_exatos` por `base.ligar_nomes(escopo, totais, deputados, tse)`. Só a ALECE usa hoje (ALESC e ALRN ainda usam a ligação exata). Sem migração.
 

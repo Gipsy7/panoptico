@@ -25,6 +25,16 @@ def _limpar_cache_cep():
     cep.limpar_cache()
 
 
+@pytest.fixture(autouse=True)
+def _isolar_apelidos(tmp_path, monkeypatch):
+    """Filas e decisões de apelidos em pasta temporária: o teste nunca lê nem sobrescreve a
+    fila real (backend/data/processed) nem o CSV versionado."""
+    from ingestion.assembleias import apelidos
+
+    monkeypatch.setattr(apelidos, "REVISADOS", tmp_path / "apelidos_revisados.csv")
+    monkeypatch.setattr(apelidos, "PENDENTES_DIR", tmp_path / "processed")
+
+
 @pytest.fixture(scope="session")
 def engine():
     eng = create_engine(settings.test_database_url)
