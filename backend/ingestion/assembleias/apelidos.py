@@ -39,6 +39,11 @@ LIMIAR = 0.62
 MAX_CANDIDATOS = 3
 
 
+def _id(d: dict) -> str:
+    """Identificador estável do deputado na lista da Casa (`id_externo`, `id` ou `slug`)."""
+    return str(d.get("id_externo") or d.get("id") or d.get("slug") or "")
+
+
 def pendentes_caminho(escopo: str) -> Path:
     return PENDENTES_DIR / f"apelidos_pendentes_{escopo}.csv"
 
@@ -73,7 +78,7 @@ def sugerir(nome_fonte: str, deputados: list[dict]) -> list[dict]:
     achados = sorted(
         (
             {
-                "id_externo": d["id_externo"],
+                "id_externo": _id(d),
                 "nome": d["nome"],
                 "pontuacao": round(pontuacao(nome_fonte, d["nome"]), 2),
             }
@@ -94,7 +99,7 @@ def aplicar(
     """Reaplica as decisões humanas: o que foi aceito entra em `ligados` (chave -> nome do
     deputado); o que foi recusado sai das sobras (não volta para a fila). Devolve as sobras
     ainda sem decisão. Decisão cujo deputado não está mais na lista é ignorada."""
-    por_id = {d["id_externo"]: d["nome"] for d in deputados}
+    por_id = {_id(d): d["nome"] for d in deputados}
     aceitos, recusados = {}, set()
     for dec in decisoes(escopo, caminho):
         chave = comum.chave_nome(dec["nome_fonte"])

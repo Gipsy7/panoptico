@@ -229,7 +229,8 @@ def gastos_dos_deputados(
     ate: date | None = None,
 ) -> tuple[dict[str, tuple[list[dict], list[dict]]], list[str]]:
     """id do deputado na lista da Casa -> (gastos, fora) e as mensagens de aviso. A busca só é
-    feita para quem casa por nome exato com o seletor (ver `base.ligar_nomes_exatos`)."""
+    feita para quem casa por nome exato com o seletor ou foi aceito na revisão
+    (ver `base.ligar_nomes`)."""
     if de_raw:
         with zipfile.ZipFile(de_raw) as z:
             arquivos = {n: z.read(n) for n in z.namelist()}
@@ -238,7 +239,8 @@ def gastos_dos_deputados(
         pagina = comum._get(client, VERBAS, None, 4).text
         arquivos = {}
     seletor = seletor_de_deputados(pagina)
-    ligados, sobras = base.ligar_nomes_exatos({comum.chave_nome(n) for _, n in seletor}, lista, tse)
+    totais = {comum.chave_nome(n): (1, Decimal(0)) for _, n in seletor}  # valor só após a busca
+    ligados, sobras = base.ligar_nomes(FONTE, totais, lista, tse)
     codigos = [c for c, n in seletor if comum.chave_nome(n) in ligados]
     if not de_raw:
         arquivos = baixar_verbas(client, pagina, codigos)
