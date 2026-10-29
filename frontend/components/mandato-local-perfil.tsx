@@ -7,6 +7,7 @@ import { AvisoErro } from "@/components/aviso-erro";
 import { FotoVereador } from "@/components/camara-secao";
 import { CarreiraSecao } from "@/components/carreira-secao";
 import { EmendasDoDeputadoEstadual } from "@/components/emendas-estaduais";
+import { SubsidioEstadualSecao } from "@/components/subsidio-estadual";
 import { SancoesSecao, TEXTO_REGISTRO } from "@/components/sancoes-secao";
 import { ServicoFederalSecao } from "@/components/servico-federal-secao";
 import { CandidaturaSecao } from "@/components/candidatura-secao";
@@ -61,6 +62,7 @@ export async function PerfilMandatoLocal({ id, paginaVotos }: { id: string; pagi
       id: "dinheiro",
       rotulo: "Dinheiro",
       secoes: [
+        { id: "salario", titulo: "Salário bruto (subsídio)", conteudo: v.subsidio && <SubsidioEstadualSecao v={v} /> },
         { id: "gastos", titulo: "Gastos do gabinete", conteudo: <GastosLocaisSecao v={v} nomeCasa={nomeCasa} /> },
         {
           id: "emendas-estaduais",
@@ -191,6 +193,14 @@ export async function PerfilMandatoLocal({ id, paginaVotos }: { id: string; pagi
                   }
                 : undefined
             }
+          />
+        )}
+        {v.subsidio && v.subsidio.valor !== null && (
+          <CartaoNumero
+            destino="salario"
+            rotulo="Salário bruto (subsídio) por mês"
+            valor={formatarReais(v.subsidio.valor, true)}
+            apoio={v.uf === "DF" ? "Igual para toda a Câmara Legislativa" : "Igual para toda a Assembleia"}
           />
         )}
         {v.gastos && (
