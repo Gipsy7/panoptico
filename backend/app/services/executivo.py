@@ -268,6 +268,7 @@ def painel(session: Session, c: Candidatura) -> dict:
         "ano_eleicao": c.ano_eleicao,
         "ente": ente,
         "pessoa_id": pessoa_id,
+        "mandato_presidencial": atos_presidenciais.eh_titular_do_mandato(c),
         "contas": _bloco_contas(session, ente),
         "emendas": _bloco_emendas(session, ente, municipio),
         "contratos": _bloco_contratos(session, ente),

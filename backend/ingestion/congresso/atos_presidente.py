@@ -17,7 +17,7 @@ dicionário {"mpv": [...], "veto": [...]}. Recarga integral (uma transação): ~
 
 import argparse
 import time
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 from pathlib import Path
 from typing import Any
 
@@ -32,9 +32,26 @@ FONTE = "congresso_atos_presidente"
 URL = "https://legis.senado.leg.br/dadosabertos/processo"
 URL_MPV = "https://www.congressonacional.leg.br/materias/medidas-provisorias/-/mpv/{codigo}"
 URL_VETO = "https://www.congressonacional.leg.br/materias/vetos/-/veto/detalhe/{codigo}"
-INICIO_MANDATO = date(2023, 1, 1)
+PRIMEIRA_ELEICAO = 2022  # a eleição presidencial mais antiga que a carga cobre
 SIGLAS = {"mpv": "MPV", "veto": "VET"}
 PAUSA = 0.3
+
+
+def posse(ano_eleicao: int) -> date:
+    """Posse do Presidente eleito no ano: 1º de janeiro até 2023; 5 de janeiro a partir de 2027
+    (EC 111/2021, que também estende até lá o mandato eleito em 2022)."""
+    return date(ano_eleicao + 1, 1, 5 if ano_eleicao + 1 >= 2027 else 1)
+
+
+def mandato_em_curso(hoje: date | None = None) -> dict:
+    """Mandato presidencial em curso: a eleição (de 4 em 4 anos desde 2022) mais recente cuja
+    posse já ocorreu. `fim` é o dia anterior à posse seguinte."""
+    hoje = hoje or date.today()
+    ano = PRIMEIRA_ELEICAO
+    while posse(ano + 4) <= hoje:
+        ano += 4
+    proxima = posse(ano + 4)
+    return {"ano_eleicao": ano, "inicio": posse(ano), "fim": proxima - timedelta(days=1)}
 
 
 def _data(valor: str | None) -> date | None:
@@ -53,8 +70,11 @@ def veto_total(ementa: str) -> bool | None:
     return None
 
 
-def normalizar(payload: dict[str, list[dict[str, Any]]]) -> list[dict[str, Any]]:
-    """Itens do bruto -> linhas de `ato_presidencial` (só do mandato; sem repetidos)."""
+def normalizar(
+    payload: dict[str, list[dict[str, Any]]], inicio: date | None = None
+) -> list[dict[str, Any]]:
+    """Itens do bruto -> linhas de `ato_presidencial` (só do mandato em curso; sem repetidos)."""
+    inicio = inicio or mandato_em_curso()["inicio"]
     vistos: set[tuple[str, str]] = set()
     linhas: list[dict[str, Any]] = []
     for tipo, sigla in SIGLAS.items():
@@ -65,7 +85,7 @@ def normalizar(payload: dict[str, list[dict[str, Any]]]) -> list[dict[str, Any]]
                 continue
             data = _data(p.get("dataApresentacao"))
             codigo = str(p.get("codigoMateria") or "")
-            if data is None or data < INICIO_MANDATO or not codigo or (tipo, codigo) in vistos:
+            if data is None or data < inicio or not codigo or (tipo, codigo) in vistos:
                 continue
             vistos.add((tipo, codigo))
             numero, ano = sigla_e_resto[1].split("/")
@@ -97,7 +117,7 @@ def baixar(client: httpx.Client, ate: int | None = None) -> dict[str, list]:
     payload: dict[str, list] = {}
     for tipo, sigla in SIGLAS.items():
         payload[tipo] = []
-        for ano in range(INICIO_MANDATO.year, ate + 1):
+        for ano in range(mandato_em_curso()["inicio"].year, ate + 1):
             lista = comum.get_json(client, URL, params={"sigla": sigla, "ano": ano})
             payload[tipo].extend(lista if isinstance(lista, list) else [])
             time.sleep(PAUSA)

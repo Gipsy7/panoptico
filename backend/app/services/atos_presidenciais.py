@@ -1,7 +1,7 @@
 """Medidas provisórias e vetos do Presidente da República no mandato em curso.
 
-Só o titular do mandato atual (eleito em 2022, de 1º/1/2023 a 31/12/2026): vice, ex-presidentes
-e candidatos de outras eleições não recebem o bloco. Sem nota nem comparação (cargo único): só a
+Só o titular do mandato atual (eleição presidencial mais recente cuja posse já ocorreu): vice,
+ex-presidentes e candidatos de outras eleições não recebem o bloco. Sem nota nem comparação (cargo único): só a
 contagem por situação, literal da fonte, e a lista (docs/DECISOES.md, "Medidas provisórias e
 vetos do Presidente").
 """
@@ -12,11 +12,8 @@ from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from app.models import AtoPresidencial, Candidatura, FonteIngestao
-from ingestion.congresso.atos_presidente import FONTE
+from ingestion.congresso.atos_presidente import FONTE, mandato_em_curso
 
-ANO_ELEICAO_MANDATO = 2022
-INICIO_MANDATO = date(ANO_ELEICAO_MANDATO + 1, 1, 1)
-FIM_MANDATO = date(ANO_ELEICAO_MANDATO + 4, 12, 31)
 POR_PAGINA = 20
 FONTE_NOME = "Congresso Nacional (dados abertos do Senado Federal)"
 FONTE_URL = {
@@ -62,14 +59,15 @@ EXPLICACAO = {
 }
 MOTIVO_NAO_TITULAR = (
     "Medidas provisórias e vetos são atos do Presidente da República; esta página não é do "
-    "presidente do mandato atual (2023 a 2026)."
+    "presidente do mandato atual."
 )
 
 
-def eh_titular_do_mandato(c: Candidatura) -> bool:
+def eh_titular_do_mandato(c: Candidatura, hoje: date | None = None) -> bool:
+    """Presidente eleito na eleição do mandato em curso (a mais recente cuja posse já ocorreu)."""
     return (
         c.cargo == "PRESIDENTE"
-        and c.ano_eleicao == ANO_ELEICAO_MANDATO
+        and c.ano_eleicao == mandato_em_curso(hoje)["ano_eleicao"]
         and (c.situacao_turno or "").upper().startswith("ELEITO")
     )
 
@@ -114,7 +112,8 @@ def _contagem(session: Session, tipo: str) -> dict[str, int]:
 
 
 def _periodo() -> dict:
-    return {"inicio": INICIO_MANDATO, "fim": FIM_MANDATO}
+    m = mandato_em_curso()
+    return {"inicio": m["inicio"], "fim": m["fim"]}
 
 
 def bloco(session: Session, tipo: str) -> dict:

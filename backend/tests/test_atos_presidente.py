@@ -11,6 +11,15 @@ from ingestion.congresso import atos_presidente
 from tests.conftest import carregar_fixture
 
 
+@pytest.fixture(autouse=True)
+def _hoje_fixo(monkeypatch):
+    """Os testes valem para o mandato 2023-2026, independentemente do dia em que rodam."""
+    original = atos_presidente.mandato_em_curso
+    fixo = lambda hoje=None: original(hoje or date(2026, 10, 29))  # noqa: E731
+    monkeypatch.setattr(atos_presidente, "mandato_em_curso", fixo)
+    monkeypatch.setattr(atos_presidenciais, "mandato_em_curso", fixo)
+
+
 @pytest.fixture
 def amostra():
     return carregar_fixture("atos_presidente_amostra.json")
@@ -109,7 +118,7 @@ def test_painel_do_presidente_traz_mpv_e_vetos(client, session, amostra):
     mpv, vetos = corpo["medidas_provisorias"], corpo["vetos"]
     assert mpv["disponivel"] and mpv["atualizado_em"] is not None
     assert mpv["dados"]["total"] == 5
-    assert mpv["dados"]["periodo"] == {"inicio": "2023-01-01", "fim": "2026-12-31"}
+    assert mpv["dados"]["periodo"] == {"inicio": "2023-01-01", "fim": "2027-01-04"}
     por = {g["chave"]: g["quantidade"] for g in mpv["dados"]["grupos"]}
     assert por == {"em_tramitacao": 1, "aprovada": 1, "perdeu_eficacia": 2, "revogada": 1}
     assert mpv["rota"] == f"/executivo/{lula.id}/atos?tipo=mpv"
@@ -151,3 +160,33 @@ def test_sem_carga_diz_que_falta(client, session):
     corpo = client.get(f"/executivo/{lula.id}/painel").json()
     assert corpo["vetos"]["disponivel"] is False
     assert "ainda não foram carregadas" in corpo["vetos"]["motivo"]
+
+
+def test_mandato_em_curso_antes_e_depois_da_posse_de_2027():
+    m = atos_presidente.mandato_em_curso
+    antes = m(date(2027, 1, 4))
+    assert antes == {
+        "ano_eleicao": 2022, "inicio": date(2023, 1, 1), "fim": date(2027, 1, 4),
+    }  # fmt: skip
+    # Posse em 5 de janeiro de 2027 (EC 111/2021): o mandato muda nesse dia, não em 1º/1.
+    assert m(date(2027, 1, 1))["ano_eleicao"] == 2022
+    depois = m(date(2027, 1, 5))
+    assert depois["ano_eleicao"] == 2026 and depois["inicio"] == date(2027, 1, 5)
+    assert depois["fim"] == date(2031, 1, 4)
+    assert m(date(2031, 1, 5))["ano_eleicao"] == 2030
+    assert m(date(2023, 1, 1))["ano_eleicao"] == 2022
+
+
+def test_titular_muda_com_a_posse(session):
+    lula22 = _candidatura(session, "61", "PRESIDENTE", ano=2022)
+    eleito26 = _candidatura(session, "62", "PRESIDENTE", ano=2026)
+    perdeu26 = _candidatura(session, "63", "PRESIDENTE", ano=2026, turno="NÃO ELEITO")
+    antes, depois = date(2027, 1, 4), date(2027, 1, 5)
+    t = atos_presidenciais.eh_titular_do_mandato
+    assert t(lula22, antes) and not t(eleito26, antes)
+    assert not t(lula22, depois) and t(eleito26, depois) and not t(perdeu26, depois)
+
+
+def test_normalizar_corta_pelo_inicio_do_mandato(amostra):
+    # Depois da posse de 2027 só valeriam atos de 5/1/2027 em diante: nada da amostra.
+    assert atos_presidente.normalizar(amostra, inicio=date(2027, 1, 5)) == []

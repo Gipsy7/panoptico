@@ -58,6 +58,7 @@ class PainelExecutivo(BaseModel):
     ano_eleicao: int
     ente: EnteExecutivo
     pessoa_id: int | None  # pessoa pública ligada por vínculo forte (para as rotas /pessoas)
+    mandato_presidencial: bool = False  # Presidente do mandato em curso (MPV e vetos)
     contas: BlocoPainel
     emendas: BlocoPainel
     contratos: BlocoPainel

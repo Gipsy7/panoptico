@@ -1576,6 +1576,7 @@ export type PainelExecutivo = {
   ano_eleicao: number;
   ente: { tipo: "uniao" | "estado" | "municipio"; nome: string; uf: string | null; municipio_ibge: string | null };
   pessoa_id: number | null;
+  mandato_presidencial: boolean;
   contas: BlocoPainel;
   emendas: BlocoPainel;
   contratos: BlocoPainel;

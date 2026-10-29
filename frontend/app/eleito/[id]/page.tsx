@@ -89,6 +89,11 @@ async function DadosEstruturados({ id }: { id: string }) {
 
 const CARGO_EXECUTIVO = /^(vice-)?(presidente|governador|prefeito)/i;
 
+function anoPosse(dados: Record<string, unknown> | null): string {
+  const periodo = dados?.periodo as { inicio?: string } | undefined;
+  return periodo?.inicio?.slice(0, 4) ?? "";
+}
+
 function texto(v: string | string[] | undefined): string | undefined {
   return Array.isArray(v) ? v[0] : v;
 }
@@ -157,7 +162,7 @@ async function Perfil({
   const painel = painelR?.ok ? painelR.dados : null;
   // Medidas provisórias e vetos: só o Presidente do mandato em curso (eleito em 2022); vice,
   // ex-presidentes e candidatos de outras eleições não têm a seção.
-  const comAtos = painel?.ente.tipo === "uniao" && painel.titular && painel.ano_eleicao === 2022;
+  const comAtos = painel?.ente.tipo === "uniao" && painel.mandato_presidencial;
   const [contasEstadoR, agendaR, mpvR, vetoR] = await Promise.all([
     painel?.ente.tipo === "estado" && painel.contas.disponivel && painel.ente.uf ? getContasEstado(painel.ente.uf) : null,
     painel?.ente.tipo === "uniao" && painel.agenda.disponivel
@@ -445,7 +450,7 @@ async function Perfil({
         {comAtos && painel.medidas_provisorias.disponivel && num(painel.medidas_provisorias.dados, "total") != null && (
           <CartaoNumero
             destino="gov-mpv"
-            rotulo="Medidas provisórias editadas desde a posse (2023)"
+            rotulo={`Medidas provisórias editadas desde a posse (${anoPosse(painel.medidas_provisorias.dados)})`}
             valor={String(num(painel.medidas_provisorias.dados, "total"))}
             apoio="Mandato atual, sem média"
           />
@@ -453,7 +458,7 @@ async function Perfil({
         {comAtos && painel.vetos.disponivel && num(painel.vetos.dados, "total") != null && (
           <CartaoNumero
             destino="gov-vetos"
-            rotulo="Vetos desde a posse (2023)"
+            rotulo={`Vetos desde a posse (${anoPosse(painel.vetos.dados)})`}
             valor={String(num(painel.vetos.dados, "total"))}
             apoio="Mandato atual, sem média"
           />
