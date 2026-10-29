@@ -373,7 +373,7 @@ MA,ALMA,deputado estadual,votos,sem_fonte,O site ainda não lê votos nominais d
 MA,ALMA,deputado estadual,presenca,sem_fonte,O site ainda não lê presença em plenário desta Casa.,alema,
 MA,ALMA,deputado estadual,projetos,bloqueado,"O site já lê projetos de lei, mas o site da Casa só responde a acessos feitos do Brasil; por isso só dá para atualizar a partir de um computador no Brasil, e o site no ar não se atualiza sozinho.",alema,
 MA,ALMA,deputado estadual,emendas,parcial,Só o orçamento de 2026 está no Portal da Transparência; pedimos os anos anteriores.,transparencia_ma_emendas,emendas_estaduais_27_ufs.md
-MA,ALMA,deputado estadual,salario,sem_fonte,Subsídio: Lei do subsídio não localizada em fonte oficial nesta consulta.,,
+MA,ALMA,deputado estadual,salario,sem_fonte,Subsídio: Só há notícia (PL 484/2022); a lei sancionada e o valor vigente não foram lidos em fonte oficial.,,
 MA,ALMA,deputado estadual,agenda,sem_fonte,Nenhuma fonte de agenda de deputados estaduais.,,
 MA,ALMA,deputado estadual,atos,sem_fonte,Diários oficiais estaduais não são lidos.,,
 MA,ALMA,deputado estadual,bens_campanha,sim,Bens e campanha declarados ao TSE.,tse_bens; tse_campanha,
@@ -496,7 +496,7 @@ MT,ALMT,deputado estadual,votos,pedido,O sistema da Casa exige senha de forneced
 MT,ALMT,deputado estadual,presenca,pedido,O sistema da Casa exige senha de fornecedor e o arquivo de regras do site (robots.txt) veda a pesquisa; pedimos acesso público.,almt,almt_proposicoes.md
 MT,ALMT,deputado estadual,projetos,pedido,O sistema da Casa exige senha de fornecedor e o arquivo de regras do site (robots.txt) veda a pesquisa; pedimos acesso público.,almt,almt_proposicoes.md
 MT,ALMT,deputado estadual,emendas,pedido,Não achamos emendas estaduais em formato aberto no portal do Estado; pedido de acesso redigido (ADPF 854).,,emendas_estaduais_27_ufs.md
-MT,ALMT,deputado estadual,salario,sem_fonte,Subsídio: Lei do subsídio não localizada em fonte oficial nesta consulta.,,
+MT,ALMT,deputado estadual,salario,sim,"Subsídio mensal fixado em lei estadual, igual para todos os deputados da Casa.",lei_estadual_subsidio,
 MT,ALMT,deputado estadual,agenda,sem_fonte,Nenhuma fonte de agenda de deputados estaduais.,,
 MT,ALMT,deputado estadual,atos,sem_fonte,Diários oficiais estaduais não são lidos.,,
 MT,ALMT,deputado estadual,bens_campanha,sim,Bens e campanha declarados ao TSE.,tse_bens; tse_campanha,
@@ -701,7 +701,7 @@ PR,ALPR,deputado estadual,votos,sim,Carregamos votos nominais do site oficial da
 PR,ALPR,deputado estadual,presenca,sim,Carregamos presença em plenário do site oficial da Casa.,alep,
 PR,ALPR,deputado estadual,projetos,pedido,"Os projetos só estão no sistema de consulta da ALEP, que tem um certificado de segurança sem validade reconhecida e recusa o acesso; não desligamos a verificação nem contornamos. Pedido redigido.",https://webservices.assembleia.pr.leg.br/api/public/,alep_certificado.md
 PR,ALPR,deputado estadual,emendas,pedido,Só há painel (sem arquivo para baixar); pedido de acesso redigido.,,emendas_estaduais_27_ufs.md
-PR,ALPR,deputado estadual,salario,sem_fonte,Subsídio: Lei do subsídio vigente não localizada em fonte oficial nesta consulta.,,
+PR,ALPR,deputado estadual,salario,sim,"Subsídio mensal fixado em lei estadual, igual para todos os deputados da Casa.",lei_estadual_subsidio,
 PR,ALPR,deputado estadual,agenda,sem_fonte,Nenhuma fonte de agenda de deputados estaduais.,,
 PR,ALPR,deputado estadual,atos,sem_fonte,Diários oficiais estaduais não são lidos.,,
 PR,ALPR,deputado estadual,bens_campanha,sim,Bens e campanha declarados ao TSE.,tse_bens; tse_campanha,
@@ -783,7 +783,7 @@ RN,ALRN,deputado estadual,votos,sem_fonte,O site ainda não lê votos nominais d
 RN,ALRN,deputado estadual,presenca,sem_fonte,O site ainda não lê presença em plenário desta Casa.,alrn,
 RN,ALRN,deputado estadual,projetos,sim,Carregamos projetos de lei do site oficial da Casa.,alrn,
 RN,ALRN,deputado estadual,emendas,pedido,Só há painel (sem arquivo para baixar); pedido de acesso redigido.,,emendas_estaduais_27_ufs.md
-RN,ALRN,deputado estadual,salario,sem_fonte,Subsídio: Lei do subsídio não localizada em fonte oficial nesta consulta (o arquivo indicado no site da Casa não abriu).,,
+RN,ALRN,deputado estadual,salario,sem_fonte,Subsídio: Só há notícia de 2022 sobre o reajuste; a lei e o valor vigente não foram lidos em fonte oficial (o arquivo indicado no site da Casa não abriu).,,
 RN,ALRN,deputado estadual,agenda,sem_fonte,Nenhuma fonte de agenda de deputados estaduais.,,
 RN,ALRN,deputado estadual,atos,sem_fonte,Diários oficiais estaduais não são lidos.,,
 RN,ALRN,deputado estadual,bens_campanha,sim,Bens e campanha declarados ao TSE.,tse_bens; tse_campanha,
@@ -824,7 +824,7 @@ RO,ALRO,deputado estadual,votos,bloqueado,"O site já lê votos nominais, mas o 
 RO,ALRO,deputado estadual,presenca,bloqueado,"O site já lê presença em plenário, mas o site da Casa só responde a acessos feitos do Brasil; por isso só dá para atualizar a partir de um computador no Brasil, e o site no ar não se atualiza sozinho.",sapl_assembleias,
 RO,ALRO,deputado estadual,projetos,bloqueado,"O site já lê projetos de lei, mas o site da Casa só responde a acessos feitos do Brasil; por isso só dá para atualizar a partir de um computador no Brasil, e o site no ar não se atualiza sozinho.",sapl_assembleias,
 RO,ALRO,deputado estadual,emendas,pedido,A consulta de emendas do Portal da Transparência traz empenhado e pago zerados de 2023 a 2025 (empenhos emitidos com valor zero); não carregamos e pedimos a correção.,,emendas_estaduais_27_ufs.md
-RO,ALRO,deputado estadual,salario,sem_fonte,Subsídio: Lei do subsídio não localizada em fonte oficial nesta consulta.,,
+RO,ALRO,deputado estadual,salario,sem_fonte,"Subsídio: A Lei estadual nº 5.530/2023 é citada, mas o texto com o valor não foi lido em fonte oficial nesta consulta.",,
 RO,ALRO,deputado estadual,agenda,sem_fonte,Nenhuma fonte de agenda de deputados estaduais.,,
 RO,ALRO,deputado estadual,atos,sem_fonte,Diários oficiais estaduais não são lidos.,,
 RO,ALRO,deputado estadual,bens_campanha,sim,Bens e campanha declarados ao TSE.,tse_bens; tse_campanha,
@@ -865,7 +865,7 @@ RR,ALRR,deputado estadual,votos,bloqueado,"O site já lê votos nominais, mas o 
 RR,ALRR,deputado estadual,presenca,bloqueado,"O site já lê presença em plenário, mas o site da Casa só responde a acessos feitos do Brasil; por isso só dá para atualizar a partir de um computador no Brasil, e o site no ar não se atualiza sozinho.",sapl_assembleias,
 RR,ALRR,deputado estadual,projetos,bloqueado,"O site já lê projetos de lei, mas o site da Casa só responde a acessos feitos do Brasil; por isso só dá para atualizar a partir de um computador no Brasil, e o site no ar não se atualiza sozinho.",sapl_assembleias,
 RR,ALRR,deputado estadual,emendas,pedido,Não achamos emendas estaduais em formato aberto no portal do Estado; pedido de acesso redigido (ADPF 854).,,emendas_estaduais_27_ufs.md
-RR,ALRR,deputado estadual,salario,sem_fonte,Subsídio: Só há notícia com o valor; o ato oficial não foi localizado.,,
+RR,ALRR,deputado estadual,salario,sem_fonte,"Subsídio: A Lei estadual nº 1.789/2023 reajusta o subsídio, mas só notícia traz o valor; o texto oficial não foi lido.",,
 RR,ALRR,deputado estadual,agenda,sem_fonte,Nenhuma fonte de agenda de deputados estaduais.,,
 RR,ALRR,deputado estadual,atos,sem_fonte,Diários oficiais estaduais não são lidos.,,
 RR,ALRR,deputado estadual,bens_campanha,sim,Bens e campanha declarados ao TSE.,tse_bens; tse_campanha,
@@ -906,7 +906,7 @@ RS,ALRS,deputado estadual,votos,bloqueado,"O site já lê votos nominais, mas o 
 RS,ALRS,deputado estadual,presenca,bloqueado,"O site já lê presença em plenário, mas o site da Casa só responde a acessos feitos do Brasil; por isso só dá para atualizar a partir de um computador no Brasil, e o site no ar não se atualiza sozinho.",alrs,
 RS,ALRS,deputado estadual,projetos,bloqueado,"O site já lê projetos de lei, mas o site da Casa só responde a acessos feitos do Brasil; por isso só dá para atualizar a partir de um computador no Brasil, e o site no ar não se atualiza sozinho.",alrs,
 RS,ALRS,deputado estadual,emendas,pedido,Só há painel (sem arquivo para baixar); pedido de acesso redigido.,,emendas_estaduais_27_ufs.md
-RS,ALRS,deputado estadual,salario,sem_fonte,"Subsídio: A Lei estadual nº 11.894/2003 e alterações são citadas, mas o valor vigente não foi lido em texto oficial nesta consulta.",,
+RS,ALRS,deputado estadual,salario,sem_fonte,"Subsídio: A Lei estadual nº 15.939/2023 (sancionada em 02/01/2023) fixa o subsídio, mas o texto com o valor não foi lido em fonte oficial nesta consulta.",,
 RS,ALRS,deputado estadual,agenda,sem_fonte,Nenhuma fonte de agenda de deputados estaduais.,,
 RS,ALRS,deputado estadual,atos,sem_fonte,Diários oficiais estaduais não são lidos.,,
 RS,ALRS,deputado estadual,bens_campanha,sim,Bens e campanha declarados ao TSE.,tse_bens; tse_campanha,
@@ -1070,7 +1070,7 @@ TO,ALTO,deputado estadual,votos,bloqueado,"O site já lê votos nominais, mas o 
 TO,ALTO,deputado estadual,presenca,bloqueado,"O site já lê presença em plenário, mas o site da Casa só responde a acessos feitos do Brasil; por isso só dá para atualizar a partir de um computador no Brasil, e o site no ar não se atualiza sozinho.",sapl_assembleias,
 TO,ALTO,deputado estadual,projetos,bloqueado,"O site já lê projetos de lei, mas o site da Casa só responde a acessos feitos do Brasil; por isso só dá para atualizar a partir de um computador no Brasil, e o site no ar não se atualiza sozinho.",sapl_assembleias,
 TO,ALTO,deputado estadual,emendas,pedido,Não achamos emendas estaduais em formato aberto no portal do Estado; pedido de acesso redigido (ADPF 854).,,emendas_estaduais_27_ufs.md
-TO,ALTO,deputado estadual,salario,sem_fonte,"Subsídio: A Lei nº 4.073/2022 fixa o subsídio, mas o texto com o valor não foi lido em fonte oficial nesta consulta.",,
+TO,ALTO,deputado estadual,salario,sem_fonte,"Subsídio: A Lei nº 4.073/2022 fixa o subsídio (citada em ato da Mesa da Casa), mas o texto com o valor não foi localizado em fonte oficial.",,
 TO,ALTO,deputado estadual,agenda,sem_fonte,Nenhuma fonte de agenda de deputados estaduais.,,
 TO,ALTO,deputado estadual,atos,sem_fonte,Diários oficiais estaduais não são lidos.,,
 TO,ALTO,deputado estadual,bens_campanha,sim,Bens e campanha declarados ao TSE.,tse_bens; tse_campanha,
