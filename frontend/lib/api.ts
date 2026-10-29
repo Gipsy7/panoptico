@@ -1582,6 +1582,7 @@ export type PainelExecutivo = {
   agenda: BlocoPainel;
   viagens_cartao: BlocoPainel;
   medidas_provisorias: BlocoPainel;
+  vetos: BlocoPainel;
 };
 
 export function getPainelExecutivo(candidaturaId: string | number) {
@@ -1656,6 +1657,45 @@ export function getAgenda(candidaturaId: string | number, filtro: { tipo?: strin
   if (filtro.pagina) params.set("pagina", filtro.pagina);
   const q = params.toString();
   return getJson<Agenda>(`/executivo/${encodeURIComponent(String(candidaturaId))}/agenda${q ? `?${q}` : ""}`);
+}
+
+export type AtoPresidencial = {
+  identificacao: string;
+  ementa: string;
+  apelido: string | null;
+  data: string;
+  data_decisao: string | null;
+  grupo: string;
+  rotulo: string;
+  termo_oficial: string;
+  situacao: string | null;
+  veto: "Total" | "Parcial" | null;
+  norma_gerada: string | null;
+  url: string;
+};
+
+export type AtosPresidenciais = {
+  tipo: "mpv" | "veto";
+  grupo: string | null;
+  total: number;
+  pagina: number;
+  por_pagina: number;
+  itens: AtoPresidencial[];
+  periodo: { inicio: string; fim: string };
+  fonte_nome: string;
+  fonte_url: string;
+  atualizado_em: string | null;
+};
+
+/** Medidas provisórias ou vetos do Presidente no mandato em curso (só o titular; 404 para os demais). */
+export function getAtosPresidente(
+  candidaturaId: string | number,
+  filtro: { tipo: "mpv" | "veto"; grupo?: string; pagina?: string },
+) {
+  const params = new URLSearchParams({ tipo: filtro.tipo });
+  if (filtro.grupo) params.set("grupo", filtro.grupo);
+  if (filtro.pagina) params.set("pagina", filtro.pagina);
+  return getJson<AtosPresidenciais>(`/executivo/${encodeURIComponent(String(candidaturaId))}/atos?${params}`);
 }
 
 // --- Cobertura: o que existe e o que falta, por casa e seção ---

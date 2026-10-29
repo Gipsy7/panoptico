@@ -2,6 +2,7 @@
 
 ## Índice
 
+- [2026-10-29: medidas provisórias e vetos do Presidente](#2026-10-29-medidas-provisórias-e-vetos-do-presidente)
 - [2026-10-27: média da Casa quando a fonte é parcial](#2026-10-27-média-da-casa-quando-a-fonte-é-parcial)
 - [2026-10-06: stack inicial](#2026-10-06-stack-inicial)
 - [2026-10-06: ingestão em duas etapas](#2026-10-06-ingestão-em-duas-etapas)
@@ -1520,3 +1521,10 @@ A reserva da VPS é uma **versão congelada** do site, da API e do banco, na Ver
 - **Decisão humana:** `python -m ingestion.revisar --tipo apelido` grava em `data/curadoria/apelidos_revisados.csv` (versionado; escopo, nome na planilha, `id_externo` do deputado na Casa, aceito/recusado). `base.ligar_nomes` reaplica a cada carga, na VPS também; decisão de deputado que saiu da lista é ignorada; recusado sai da fila.
 - **Adoção por outras Casas:** trocar `base.ligar_nomes_exatos` por `base.ligar_nomes(escopo, totais, deputados, tse)`. Usam hoje: ALECE (gastos), ALRN (seletor de verbas; só quem liga é buscado) e ALESC (nomes nos extratos de voto, escopo `alesc_votos`; 8 nomes e 172 votos sem deputado igual, só 1 com candidato). A ALRN não foi medida: a página de verbas (`/portal/verbas`) responde 404 em 27/10/2026 (mudou de endereço, não é bloqueio). Sem migração.
 
+## 2026-10-29: medidas provisórias e vetos do Presidente
+
+- **O que entra:** na página do Presidente da República (a candidatura de 2022 eleita, mandato de 1º/1/2023 a 31/12/2026), as seções "Medidas provisórias" e "Vetos" (aba "Medidas e vetos"): total, contagem por situação e a lista, do mais recente ao mais antigo, 20 por página, com ementa, data, situação como o Congresso registra e link para a página dele. Antes o bloco `medidas_provisorias` do painel dizia que a coleta não cobria MPV; ele agora traz dados e há um bloco `vetos` novo.
+- **Só o titular do mandato:** vice, ex-presidentes e candidatos de outras eleições recebem o bloco como "não é do presidente do mandato atual" e a página não mostra as seções; o período aparece escrito na seção. A regra está em `atos_presidenciais.eh_titular_do_mandato` (cargo PRESIDENTE, eleição de 2022, ELEITO). Na posse de 2027, o ano do mandato e a carga (`INICIO_MANDATO`) precisam mudar junto: não é automático de propósito, para não misturar mandatos.
+- **Fonte:** API de processos do Senado (JSON aberto), a mesma já usada em `senado_proposicoes`; a API de dados abertos da Câmara não traz situação de MPV (o campo vem vazio, a tramitação é do Congresso) e serve só de conferência do total (245 = 245). O serviço antigo de vetos (`/materia/vetos/{ano}`) está descontinuado e não é usado; serviu para checar total/parcial.
+- **Linguagem:** o cartão diz "Perdeu a validade sem ser votada a tempo" com "Perdeu a eficácia (caducou)" em letra menor; "Congresso derrubou o veto" com "Veto rejeitado". Sem nota, sem ranking e sem cor de bom/ruim. Não há comparação com média (cargo único) e a seção diz isso. A situação que a fonte escreve fica literal em cada item; o agrupamento usa o código de decisão e `tramitando`.
+- **Migração `0057_ato_presidencial`:** inevitável (a tabela `proposicao` guarda só proposições de parlamentares, com autoria); só acrescenta tabela. Sem `RECARREGAR_DADOS`: a carga é diária no `run_all` (agenda `diaria.sh` da VPS) e a página mostra "ainda não foram carregadas" até a primeira carga.
