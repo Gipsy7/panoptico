@@ -553,7 +553,17 @@ class GastosLocais(BaseModel):
     atualizado_em: datetime | None = None
 
 
+class SubsidioEstadual(BaseModel):
+    valor: float | None  # None: a Casa ainda não tem o valor conferido em fonte oficial
+    ato_normativo: str | None
+    vigente_desde: date | None
+    fonte_url: str | None
+    consultado_em: date
+    observacao: str | None
+
+
 class VereadorDetalhe(VereadorItem):
+    subsidio: SubsidioEstadual | None = None  # só deputados estaduais
     eleito_2026: EleitoFuturo | None = None
     eleicao_recente: EleicaoRecente | None = None
     presenca: PresencaLocal | None
