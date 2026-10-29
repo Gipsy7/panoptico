@@ -1,5 +1,5 @@
 """Processo Legislativo Eletrônico (PLE, da Nopapercloud): a API pública de dados abertos que
-mais de uma assembleia usa (ALBA e ALES), com o mesmo desenho em `/api/publico/`.
+mais de uma assembleia usa (ALBA, ALES, ALESE e ALEGO), com o mesmo desenho em `/api/publico/`.
 
 - `parlamentar/`: os deputados (nome, nome civil, partido, foto, e-mail, situação) e, para
   cada um, a frequência em plenário por ano (presente, falta, falta justificada, licença...).
@@ -25,13 +25,15 @@ from ingestion.camaras import sapl
 POR_PAGINA = 100
 
 
-def deputados(resposta: dict) -> list[dict[str, Any]]:
+def deputados(resposta: dict, so_ativos: bool = True) -> list[dict[str, Any]]:
     """Os deputados em exercício da legislatura vigente. A situação vem como 'Ativo' (ALBA)
-    ou 'Ativos' (ALES); suplentes que não assumiram e titulares que saíram têm outro texto."""
+    ou 'Ativos' (ALES); suplentes que não assumiram e titulares que saíram têm outro texto.
+    Com `so_ativos=False`, todos os da legislatura vigente (para quem tem a lista de quem está
+    no cargo em outro lugar e só liga por nome)."""
     ativos = [
         p
         for p in resposta.get("parlamentares", [])
-        if comum.chave_nome(p.get("parlamentarSituacao")) in ("ATIVO", "ATIVOS")
+        if not so_ativos or comum.chave_nome(p.get("parlamentarSituacao")) in ("ATIVO", "ATIVOS")
     ]
     legislatura = max((int(p["parlamentarLegislatura"]) for p in ativos), default=None)
     return [p for p in ativos if int(p["parlamentarLegislatura"]) == legislatura]
@@ -49,10 +51,17 @@ def frequencia(deputado: dict, anos: set[int]) -> tuple[int | None, int | None]:
         )
         por_situacao[comum.chave_nome(grupo["frequenciaSituacaoNome"])] = total
     presencas = por_situacao.get("PRESENTE", 0)
-    # A ALBA diz "Falta" e "Falta Justificada"; a ALES, "Ausência" e "Ausência Justificada".
+    # A ALBA diz "Falta" e "Falta Justificada"; a ALES, "Ausência" e "Ausência Justificada";
+    # a ALEGO, "Falta Justificada" e "Falta não Justificada".
     faltas = sum(
         por_situacao.get(s, 0)
-        for s in ("FALTA", "FALTA JUSTIFICADA", "AUSENCIA", "AUSENCIA JUSTIFICADA")
+        for s in (
+            "FALTA",
+            "FALTA JUSTIFICADA",
+            "FALTA NAO JUSTIFICADA",
+            "AUSENCIA",
+            "AUSENCIA JUSTIFICADA",
+        )
     )
     sessoes = presencas + faltas
     return (sessoes, presencas) if sessoes else (None, None)
@@ -63,6 +72,14 @@ def _data(valor: str | None) -> str | None:
         return datetime.strptime((valor or "").strip()[:10], "%d/%m/%Y").date().isoformat()
     except ValueError:
         return None
+
+
+def _arquivo(url: str | None) -> str | None:
+    """O endereço do PDF. A ALESE e a ALEGO repetem o domínio ("https://x/https://x/Arquivo/..."):
+    vale o último endereço completo."""
+    if not url:
+        return None
+    return "https://" + url.rsplit("https://", 1)[-1] if "https://" in url else url
 
 
 def distribuir(
@@ -100,7 +117,7 @@ def distribuir(
                     "data_apresentacao": _data(p.get("data")),
                     "em_tramitacao": situacao == "TRAMITANDO" if situacao else None,
                     "primeiro_autor": True,
-                    "url": p.get("arquivo")
+                    "url": _arquivo(p.get("arquivo"))
                     or f"{api}proposicao/?processo={p.get('processo')}&ano={p['ano']}",
                 }
             )
@@ -126,6 +143,32 @@ def baixar_proposicoes(
         pagina += 1
 
 
+def deputados_e_autoria(
+    client: Any,
+    api: str,
+    anos: set[int],
+    *,
+    pausa: float,
+    projetos: Mapping[str, str],
+    contagem: Mapping[str, str],
+    por_sigla: bool = False,
+    so_ativos: bool = True,
+) -> tuple[list[dict], dict[str, dict]]:
+    """Os deputados em exercício na API (com a frequência) e, por `parlamentarID`, a contagem
+    por tipo e os projetos de autoria nos `anos`. Usado também por quem tem a lista de
+    deputados de outro lugar (ALESE, ALEGO) e só pega na API projetos e presença."""
+    resposta = comum.get_json(client, api + "parlamentar/", {"pag": 1, "qtd": 200})
+    lista = deputados(resposta, so_ativos)
+    props = []
+    for ano in sorted(anos):
+        if por_sigla:
+            for sigla in (*projetos, *contagem):
+                props += baixar_proposicoes(client, api, ano, pausa, sigla)
+        else:
+            props += baixar_proposicoes(client, api, ano, pausa)
+    return lista, distribuir(props, lista, api, projetos, contagem)
+
+
 def coletar(
     hoje: date,
     *,
@@ -140,15 +183,10 @@ def coletar(
     atas e pautas por ano, que não são proposições de deputado)."""
     anos = {hoje.year - 1, hoje.year}
     with comum.criar_cliente() as client:
-        lista = deputados(comum.get_json(client, api + "parlamentar/", {"pag": 1, "qtd": 200}))
-        props = []
-        for ano in sorted(anos):
-            if por_sigla:
-                for sigla in (*projetos, *contagem):
-                    props += baixar_proposicoes(client, api, ano, pausa, sigla)
-            else:
-                props += baixar_proposicoes(client, api, ano, pausa)
-    autoria = distribuir(props, lista, api, projetos, contagem)
+        lista, autoria = deputados_e_autoria(
+            client, api, anos, pausa=pausa, projetos=projetos, contagem=contagem,
+            por_sigla=por_sigla,
+        )  # fmt: skip
     vereadores = []
     for d in lista:
         sessoes, presencas = frequencia(d, anos)

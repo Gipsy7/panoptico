@@ -1,5 +1,6 @@
-"""Assembleia Legislativa de Sergipe (ALESE): deputados em exercício e presença em plenário,
-pelo site da Casa e pelo Processo Legislativo (SPL).
+"""Assembleia Legislativa de Sergipe (ALESE): deputados em exercício, presença em plenário e
+projetos de autoria, pelo site da Casa, pelo Processo Legislativo (SPL) e pela API de dados
+abertos do mesmo sistema (a do PLE, igual à da ALBA e da ALES; ver `ple.py`).
 
 - Deputados: `al.se.leg.br/deputados/` (24 cartões com nome, partido, foto e o código do
   perfil no SPL).
@@ -8,9 +9,14 @@ pelo site da Casa e pelo Processo Legislativo (SPL).
   justificada, licenciado, afastado). Sessões = presenças + faltas (justificadas ou não);
   licença e afastamento não contam, o deputado não era esperado em plenário.
 
-Não entram proposições: a consulta do SPL é uma página ASP.NET que só responde por envio de
-formulário com estado de sessão (`__VIEWSTATE`), sem rota de listagem. Os `robots.txt` do site e
-do SPL liberam tudo. Uma requisição por vez, com pausa. Ver docs/DECISOES.md.
+- Projetos: `aleselegis.al.se.leg.br/api/publico/proposicao/?ano=&sigla=` (a consulta do SPL é
+  uma página ASP.NET por formulário, mas a API de dados abertos lista tudo). O ano tem ~5.800
+  documentos, quase todos requerimentos de voto (pesar, aplauso), por isso pedimos só as siglas
+  que interessam. O código do deputado na API é o mesmo do SPL e do site. A API traz o CPF do
+  autor; não o guardamos.
+
+Sem votos nominais nem verba de gabinete nos dados abertos. Os `robots.txt` do site e do SPL
+liberam tudo. Uma requisição por vez, com pausa. Ver docs/DECISOES.md.
 """
 
 import argparse
@@ -19,12 +25,21 @@ import time
 from datetime import date
 
 from ingestion import comum
-from ingestion.assembleias import base
+from ingestion.assembleias import base, ple
 
 FONTE = "alese"
 SITE = "https://al.se.leg.br/deputados/"
 SPL = "https://aleselegis.al.se.leg.br/spl/"
+API = "https://aleselegis.al.se.leg.br/api/publico/"
 PAUSA = 1.0
+PROJETOS = {
+    "PL": "Projeto de Lei",
+    "PLC": "Projeto de Lei Complementar",
+    "PEC": "Proposta de Emenda à Constituição",
+    "PDL": "Projeto de Decreto Legislativo",
+    "PR": "Projeto de Resolução",
+}
+CONTAGEM = {"IND": "Indicação", "REQ": "Requerimento"}
 CARTAO = re.compile(
     r'<a href="https://aleselegis\.al\.se\.leg\.br/spl/parlamentar\.aspx\?id=(?P<id>\d+)"[^>]*>\s*'
     r'<img[^>]*?\ssrc="(?P<foto>[^"]*)"[^>]*>.*?'
@@ -81,6 +96,14 @@ def coletar(hoje: date) -> dict:
                 print(f"  ficha {d['id']}: {erro.__class__.__name__}", flush=True)
                 sessoes = presencas = None
             registros.append(base.registro(d, sessoes=sessoes, presencas=presencas))
+        _, autoria = ple.deputados_e_autoria(
+            client, API, {hoje.year - 1, hoje.year}, pausa=PAUSA, projetos=PROJETOS,
+            contagem=CONTAGEM, por_sigla=True,
+        )  # fmt: skip
+    for r in registros:
+        dep = autoria.get(r["id_externo"]) or {}
+        r["projetos"] = dep.get("projetos", [])
+        r["proposicoes_por_tipo"] = dep.get("contagem", {})
     return base.casa(SITE, registros)
 
 

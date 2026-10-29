@@ -8,7 +8,7 @@ import httpx
 import pytest
 import respx
 
-from ingestion.assembleias import alece, base
+from ingestion.assembleias import alece, alece_votos, base
 
 
 def _cartao(slug, nome, partido, estado=""):
@@ -221,6 +221,7 @@ def test_coletar_percorre_de_tras_para_frente(monkeypatch, tmp_path):
         return httpx.Response(200, text="")
 
     respx.get(alece.LEGADO + "ano.php").side_effect = listagem
+    respx.get(alece_votos.LISTA).respond(text="LEGISLATURA;MATERIA;URL" + chr(10))
     casa = alece.coletar(date(2026, 10, 9))
     assert chamadas == [None, "3", "2"]  # a página 1 só tem 2023: não pede mais nada
     agenor, landim, granja = casa["vereadores"]

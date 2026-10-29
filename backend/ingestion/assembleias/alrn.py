@@ -17,13 +17,23 @@ autoria, pelo site e pela API do portal de Transparência Legislativa.
   Soma por deputado e mês, do ano anterior em diante. Só os deputados da lista de hoje que casam
   por nome exato com o seletor (24 de 47, o resto é ex-deputado) têm a busca feita.
 
-Sem votos nominais por deputado nesta coleta (a rota `ultimas-votacoes` traz só o resultado).
+- Presença em plenário: `reuniao?situacao=R&tipoReuniao=1|2|12` lista as sessões plenárias
+  realizadas (ordinárias, extraordinárias e extraordinárias de vetos) e `reuniao/presenca/ID` a
+  lista de chamada de cada uma (evento `presenca`, `ausencia-justificada` ou vazio = ausente).
+  Sessões = presenças + ausências (justificadas ou não), no ano atual e no anterior.
+- Votos nominais: `processo/ultimas-votacoes` lista as matérias votadas (com a reunião de cada
+  votação) e `processo/ID/detalhamento-votacao/REUNIAO` o extrato. Só entram votações do
+  Plenário com voto aberto ("A") e lista de votos (0 = não, 1 = sim, 2 = abstenção); as
+  ostensivas e simbólicas não registram o voto de cada um, e as secretas não o publicam.
+
+Bruto de presença e votos: zip em `data/raw/alrn/plenario_*.zip` (`--de-raw-plenario`).
 O `robots.txt` do site libera tudo. Uma requisição por vez, com pausa.
 """
 
 import argparse
 import html
 import io
+import json
 import re
 import time
 import zipfile
@@ -311,7 +321,167 @@ def gastos_ou_anteriores(client, lista, tse, hoje: date, de_raw: Path | None):
         return gastos, [aviso]
 
 
-def coletar(hoje: date, de_raw: Path | None = None) -> tuple[dict, list[str]]:
+TIPOS_SESSAO = (1, 2, 12)  # Sessão Plenária Ordinária, Extraordinária e Extraordinária - Vetos
+VOTO = {0: "Não", 1: "Sim", 2: "Abstenção"}
+RESULTADO = {"A": "Aprovado", "R": "Rejeitado"}
+PAGINA_PROJETO = "https://transparencialegislativa.al.rn.leg.br/projeto/{id}"
+
+
+def chave_parlamentar(nome: str | None) -> str:
+    """'DEPUTADA CRISTIANE DANTAS' -> chave de 'Cristiane Dantas' (nome do site)."""
+    return comum.chave_nome(re.sub(r"^DEPUTAD[OA]\s+", "", (nome or "").strip()))
+
+
+def votacoes_em_plenario(votadas: list[dict], sessoes: set[int]) -> list[tuple[int, int]]:
+    """(processo, reunião) de cada votação feita numa das sessões plenárias."""
+    pares = set()
+    for p in votadas:
+        for etapa in p.get("reuniaoProcesso") or [p.get("resultadoVotacao") or {}]:
+            reuniao = (etapa.get("reuniao") or {}).get("id")
+            if reuniao in sessoes:
+                pares.add((p["id"], reuniao))
+    return sorted(pares)
+
+
+def baixar_plenario(client, desde: int) -> dict[str, bytes]:
+    """O bruto de presença e votos: sessões plenárias realizadas desde `desde`, a lista de
+    chamada de cada uma, as matérias votadas e o extrato das votadas em Plenário."""
+
+    def dados(rota: str, params: dict | None = None) -> Any:
+        time.sleep(PAUSA)
+        return comum.get_json(client, API + rota, params, 4)
+
+    sessoes: list[dict] = []
+    for tipo in TIPOS_SESSAO:
+        pagina = 0
+        while True:
+            params = {"tamanhoPagina": 100, "pagina": pagina, "situacao": "R",
+                      "tipoOrdenacao": "DESC", "tipoReuniao": tipo}  # fmt: skip
+            lote = dados("reuniao", params).get("dados") or []
+            sessoes += [s for s in lote if int(s["dataInicio"][:4]) >= desde]
+            if len(lote) < 100 or int(lote[-1]["dataInicio"][:4]) < desde:
+                break
+            pagina += 1
+    arquivos = {"sessoes.json": json.dumps(sessoes).encode()}
+    for s in sessoes:
+        arquivos[f"presenca/{s['id']}.json"] = json.dumps(
+            dados(f"reuniao/presenca/{s['id']}")
+        ).encode()
+    votadas: list[dict] = []
+    pagina = 0
+    while True:
+        params = {"pagina": pagina, "tamanhoPagina": 100}
+        lote = dados("processo/ultimas-votacoes", params).get("dados") or []
+        votadas += lote
+        if len(lote) < 100:
+            break
+        pagina += 1
+    arquivos["votadas.json"] = json.dumps(votadas).encode()
+    for processo, reuniao in votacoes_em_plenario(votadas, {s["id"] for s in sessoes}):
+        arquivos[f"votacao/{processo}-{reuniao}.json"] = json.dumps(
+            dados(f"processo/{processo}/detalhamento-votacao/{reuniao}")
+        ).encode()
+    return arquivos
+
+
+def presenca(listas: list[list[dict]]) -> dict[str, tuple[int, int]]:
+    """Chave do nome -> (sessões, presenças). Ausência, justificada ou não, conta como sessão;
+    outros eventos (licença) não contam, o deputado não era esperado em plenário."""
+    resultado: dict[str, tuple[int, int]] = {}
+    for chamada in listas:
+        for p in chamada:
+            evento = (p.get("evento") or {}).get("chave")
+            if evento not in (None, "presenca", "ausencia-justificada"):
+                continue
+            chave = chave_parlamentar(p.get("nomeParlamentar"))
+            sessoes, presencas = resultado.get(chave, (0, 0))
+            resultado[chave] = (sessoes + 1, presencas + (evento == "presenca"))
+    return resultado
+
+
+def votacoes(
+    extratos: dict[tuple[int, int], dict],
+    votadas: list[dict],
+    sessoes: dict[int, dict],
+    ids: dict[str, str],
+) -> tuple[list[dict], list[dict]]:
+    """Votações nominais (voto aberto com lista de votos) e o voto de cada deputado da lista de
+    hoje (`ids`: chave do nome -> código no site). Sim, não e abstenções contam todos os
+    votantes, inclusive quem já saiu da Casa."""
+    por_processo = {p["id"]: p for p in votadas}
+    lista_votacoes, lista_votos = [], []
+    for (processo, reuniao), extrato in sorted(extratos.items()):
+        registrados = (extrato.get("votacao") or {}).get("dados") or []
+        if extrato.get("tipoVotacao") != "A" or not registrados:
+            continue
+        p = por_processo.get(processo) or {}
+        prop = p.get("propositura") or {}
+        sigla = ((prop.get("tipo") or {}).get("sigla") or "").strip()
+        etapa = next(
+            (e for e in p.get("reuniaoProcesso") or []
+             if (e.get("reuniao") or {}).get("id") == reuniao),
+            p.get("resultadoVotacao") or {},
+        )  # fmt: skip
+        chave = f"{processo}-{reuniao}"[:20]
+        contagem = dict.fromkeys(VOTO, 0)
+        for v in registrados:
+            if v.get("voto") not in VOTO:
+                continue
+            contagem[v["voto"]] += 1
+            dono = ids.get(chave_parlamentar((v.get("parlamentar") or {}).get("nomeParlamentar")))
+            if dono:
+                lista_votos.append({"votacao": chave, "parlamentar": dono, "voto": VOTO[v["voto"]]})
+        ementa = " ".join((p.get("ementa") or "").split())
+        lista_votacoes.append(
+            {
+                "id_externo": chave,
+                "materia": f"{sigla} {prop.get('numero')}/{prop.get('ano')}: {ementa}",
+                "materia_id_externo": f"{sigla}-{prop.get('numero')}-{prop.get('ano')}"[:20]
+                if sigla
+                else None,
+                "resultado": RESULTADO.get(etapa.get("resultadoVotacao")),
+                "data": ((sessoes.get(reuniao) or {}).get("dataInicio") or "")[:10] or None,
+                "url": PAGINA_PROJETO.format(id=processo),
+                "sim": contagem[1],
+                "nao": contagem[0],
+                "abstencoes": contagem[2],
+            }
+        )
+    return lista_votacoes, lista_votos
+
+
+def plenario(
+    arquivos: dict[str, bytes], ids: dict[str, str]
+) -> tuple[dict[str, tuple[int, int]], list[dict], list[dict]]:
+    """(presença por chave de nome, votações, votos) a partir do bruto."""
+    sessoes = {s["id"]: s for s in json.loads(arquivos["sessoes.json"])}
+    listas = [
+        (json.loads(v) or {}).get("dados") or []
+        for k, v in arquivos.items()
+        if k.startswith("presenca/")
+    ]
+    extratos = {}
+    for nome, conteudo in arquivos.items():
+        if nome.startswith("votacao/"):
+            processo, reuniao = nome.removeprefix("votacao/").removesuffix(".json").split("-")
+            extratos[(int(processo), int(reuniao))] = json.loads(conteudo)
+    votadas = json.loads(arquivos["votadas.json"])
+    return (presenca(listas), *votacoes(extratos, votadas, sessoes, ids))
+
+
+def plenario_bruto(client, desde: int, de_raw: Path | None) -> dict[str, bytes]:
+    if de_raw:
+        with zipfile.ZipFile(de_raw) as z:
+            return {n: z.read(n) for n in z.namelist()}
+    arquivos = baixar_plenario(client, desde)
+    raw = comum.salvar_raw(FONTE, empacotar(arquivos), "plenario_", ".zip")
+    print(f"  bruto de presença e votos: {raw}", flush=True)
+    return arquivos
+
+
+def coletar(
+    hoje: date, de_raw: Path | None = None, de_raw_plenario: Path | None = None
+) -> tuple[dict, list[str]]:
     with comum.criar_cliente() as client:
         lista = deputados(comum._get(client, LISTA, None, 4).content.decode("utf-8", "replace"))
         with SessionLocal() as session:
@@ -330,11 +500,25 @@ def coletar(hoje: date, de_raw: Path | None = None) -> tuple[dict, list[str]]:
             registros.append(
                 base.registro(d, projetos=projetos, por_tipo=tipos, gastos=g, gastos_fora=fora)
             )
-    return base.casa(LISTA, registros), avisos
+        arquivos = plenario_bruto(client, hoje.year - 1, de_raw_plenario)
+    ids = {comum.chave_nome(d["nome"]): str(d["id"]) for d in lista}
+    frequencia, votacoes_, votos_ = plenario(arquivos, ids)
+    for r in registros:
+        sessoes, presencas = frequencia.get(comum.chave_nome(r["nome"]), (0, 0))
+        r["sessoes"], r["presencas"] = (sessoes, presencas) if sessoes else (None, None)
+    casa = base.casa(LISTA, registros)
+    casa["votacoes"], casa["votos"] = votacoes_, votos_
+    com_presenca = sum(1 for r in registros if r["sessoes"])
+    print(
+        f"  plenário: {len(votacoes_)} votações nominais, {len(votos_)} votos; "
+        f"{com_presenca} deputados com presença",
+        flush=True,
+    )
+    return casa, avisos
 
 
-def executar(de_raw: Path | None = None) -> int:
-    casa, avisos = coletar(date.today(), de_raw)
+def executar(de_raw: Path | None = None, de_raw_plenario: Path | None = None) -> int:
+    casa, avisos = coletar(date.today(), de_raw, de_raw_plenario)
     for a in avisos:
         print(f"  AVISO {a}", flush=True)
     # A ALRN tem 24 cadeiras: lista curta é falha da fonte.
@@ -344,4 +528,8 @@ def executar(de_raw: Path | None = None) -> int:
 if __name__ == "__main__":
     ap = argparse.ArgumentParser(description=f"Ingestão: {FONTE}")
     ap.add_argument("--de-raw", type=Path, help="zip de verbas de data/raw/alrn (sem rede)")
-    executar(ap.parse_args().de_raw)
+    ap.add_argument(
+        "--de-raw-plenario", type=Path, help="zip de presença e votos de data/raw/alrn (sem rede)"
+    )
+    args = ap.parse_args()
+    executar(args.de_raw, args.de_raw_plenario)
