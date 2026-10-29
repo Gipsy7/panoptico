@@ -362,6 +362,15 @@ export type VereadorDetalhe = VereadorItem & {
     /** O que a planilha traz mas não entra na soma por mês (ex.: comprovantes sem data). */
     fora_da_soma?: { linhas: number; valor: number; linhas_valor_ilegivel: number; motivo: string } | null;
   } | null;
+  /** Subsídio mensal da Assembleia (só deputado estadual); `valor` nulo = ainda sem fonte oficial conferida. */
+  subsidio?: {
+    valor: number | null;
+    ato_normativo: string | null;
+    vigente_desde: string | null;
+    fonte_url: string | null;
+    consultado_em: string;
+    observacao: string | null;
+  } | null;
   municipio_ibge: string | null;
   nome_completo: string | null;
   email: string | null;

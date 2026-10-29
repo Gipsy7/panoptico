@@ -241,6 +241,16 @@ def _secao_legislativa(uf, secao, fonte, carrega, brasil):
     return "sem_fonte", f"O site ainda não lê {r} desta Casa.", fonte, ""
 
 
+def _subsidio_estadual(uf) -> tuple:
+    """Subsídio fixado em lei estadual, lido de `data/salario_deputados_estaduais.csv`."""
+    with (DADOS / "salario_deputados_estaduais.csv").open(encoding="utf-8", newline="") as f:
+        linha = next(r for r in csv.DictReader(f) if r["uf"] == uf)
+    if linha["valor_mensal_bruto"]:
+        m = "Subsídio mensal fixado em lei estadual, igual para todos os deputados da Casa."
+        return "sim", m, "lei_estadual_subsidio", ""
+    return "sem_fonte", "Subsídio: " + linha["observacao"], "", ""
+
+
 def _assembleia(uf, acessos) -> list[dict]:
     fonte, carrega = ASSEMBLEIAS[uf]
     casa = "CLDF" if uf == "DF" else f"AL{uf}"
@@ -253,7 +263,7 @@ def _assembleia(uf, acessos) -> list[dict]:
         elif secao == "emendas":
             dados = _emendas_estaduais(uf)
         elif secao == "salario":
-            dados = ("sem_fonte", "Subsídio e folha dos deputados estaduais não coletados.", "", "")
+            dados = _subsidio_estadual(uf)
         elif secao == "agenda":
             dados = ("sem_fonte", "Nenhuma fonte de agenda de deputados estaduais.", "", "")
         elif secao == "atos":

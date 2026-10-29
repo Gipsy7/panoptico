@@ -25,6 +25,7 @@ Fontes que bloqueiam o acesso automático ou não publicam o dado em formato abe
 | DOEM e DOSP | Acesso moderado e identificado aos diários de centenas de municípios (DOEM atrás de verificação de robô; DOSP com `/api` vedada no `robots.txt`), ou índice de edições em JSON/CSV | a enviar (redigido em 21/10/2026) | [diario_doem_dosp.md](diario_doem_dosp.md) |
 | Câmaras com sistema Softcam (191, SC/RS/PR/SP/MG) | Liberar no `robots.txt` a leitura identificada das páginas públicas de vereadores, ou dados abertos (LAI) | a enviar (redigido em 27/10/2026) | [softcam_robots.md](softcam_robots.md) |
 | 86 câmaras com robots.txt ou 403/429 ao robô | Liberar a leitura automatizada identificada, ou dados abertos (LAI) | a enviar (redigido em 27/10/2026) | [camaras_bloqueio_robos.md](camaras_bloqueio_robos.md) |
+| 15 assembleias (AC, AM, AP, BA, DF, MA, MS, PA, PB, RN, RO, RR, RS, SE, TO) | Valor vigente do subsídio dos deputados, ato normativo, data de vigência e publicação permanente no portal de transparência (LAI) | a enviar (redigido em 29/10/2026) | [subsidio_deputados_estaduais.md](subsidio_deputados_estaduais.md) |
 | CGU | Chave grátis da API do Portal da Transparência e, se preciso, limite maior (não é LAI: cadastro) | a fazer (redigido em 18/10/2026) | [cgu_chave_api.md](cgu_chave_api.md) |
 
 **Como enviar:**

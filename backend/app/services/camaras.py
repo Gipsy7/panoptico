@@ -20,7 +20,7 @@ from app.models import (
     VotacaoLocal,
     VotoLocal,
 )
-from app.services import eleitos_futuros, media_casa, tse
+from app.services import eleitos_futuros, media_casa, subsidio_estadual, tse
 
 FONTES = {
     "camara": ("sapl_camaras", "Sistema legislativo da câmara (SAPL)"),
@@ -420,6 +420,7 @@ def vereador(session: Session, mandato: MandatoLocal) -> dict:
         "eleicao_recente": tse.eleicao_recente(session, futuro, origem),
         "presenca": presenca(session, mandato),
         "gastos": gastos(session, mandato),
+        "subsidio": subsidio_estadual.da_uf(mandato.uf) if mandato.casa == "assembleia" else None,
         "casa": mandato.casa,
         "uf": mandato.uf,
         "municipio_ibge": mandato.municipio_ibge,

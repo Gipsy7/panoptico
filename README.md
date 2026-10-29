@@ -193,6 +193,9 @@ O porquê de cada escolha: [docs/DECISOES.md](docs/DECISOES.md).
 | Executivo | e-Agendas (CGU): agenda de ministros e do vice · Congresso Nacional: medidas provisórias e vetos do Presidente (mandato 2023-2026) |
 | Apoio | [IBGE](https://servicodados.ibge.gov.br/api/docs/localidades), [ViaCEP](https://viacep.com.br/), base aberta do CNPJ, [Decreto Legislativo 172/2022](https://www2.camara.leg.br/legin/fed/decleg/2022/decretolegislativo-172-21-dezembro-2022-793529-publicacaooriginal-166604-pl.html) (salário) |
 
+| Executivo | e-Agendas (CGU): agenda de ministros e do vice |
+| Apoio | [IBGE](https://servicodados.ibge.gov.br/api/docs/localidades), [ViaCEP](https://viacep.com.br/), base aberta do CNPJ, [Decreto Legislativo 172/2022](https://www2.camara.leg.br/legin/fed/decleg/2022/decretolegislativo-172-21-dezembro-2022-793529-publicacaooriginal-166604-pl.html) (salário federal); salário de deputado estadual: leis estaduais transcritas em `data/salario_deputados_estaduais.csv` (12 UFs até agora) |
+
 Endereço, formato, frequência e armadilhas de cada uma: [docs/FONTES_DE_DADOS.md](docs/FONTES_DE_DADOS.md).
 
 </details>

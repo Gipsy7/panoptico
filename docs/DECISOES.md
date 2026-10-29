@@ -3,6 +3,7 @@
 ## Índice
 
 - [2026-10-29: medidas provisórias e vetos do Presidente](#2026-10-29-medidas-provisórias-e-vetos-do-presidente)
+- [2026-10-29: salário de deputado estadual lido de CSV, só número publicado](#2026-10-29-salário-de-deputado-estadual-lido-de-csv-só-número-publicado)
 - [2026-10-27: média da Casa quando a fonte é parcial](#2026-10-27-média-da-casa-quando-a-fonte-é-parcial)
 - [2026-10-29: exportação aberta das tabelas das ondas recentes](#2026-10-29-exportação-aberta-das-tabelas-das-ondas-recentes)
 - [2026-10-06: stack inicial](#2026-10-06-stack-inicial)
@@ -1537,3 +1538,11 @@ A reserva da VPS é uma **versão congelada** do site, da API e do banco, na Ver
 - **Fonte:** API de processos do Senado (JSON aberto), a mesma já usada em `senado_proposicoes`; a API de dados abertos da Câmara não traz situação de MPV (o campo vem vazio, a tramitação é do Congresso) e serve só de conferência do total (245 = 245). O serviço antigo de vetos (`/materia/vetos/{ano}`) está descontinuado e não é usado; serviu para checar total/parcial.
 - **Linguagem:** o cartão diz "Perdeu a validade sem ser votada a tempo" com "Perdeu a eficácia (caducou)" em letra menor; "Congresso derrubou o veto" com "Veto rejeitado". Sem nota, sem ranking e sem cor de bom/ruim. Não há comparação com média (cargo único) e a seção diz isso. A situação que a fonte escreve fica literal em cada item; o agrupamento usa o código de decisão e `tramitando`.
 - **Migração `0057_ato_presidencial`:** inevitável (a tabela `proposicao` guarda só proposições de parlamentares, com autoria); só acrescenta tabela. Sem `RECARREGAR_DADOS`: a carga é diária no `run_all` (agenda `diaria.sh` da VPS) e a página mostra "ainda não foram carregadas" até a primeira carga.
+
+## 2026-10-29: salário de deputado estadual lido de CSV, só número publicado
+
+- **Problema:** a seção "salário" de deputado estadual estava `sem_fonte` nas 27 UFs. O teto da Constituição (art. 27, §2º) é 75% do subsídio federal, mas cada Casa fixa o valor em lei estadual, e o STF entende que a lei não pode vincular automaticamente ao valor federal.
+- **Decisão:** sem ingestão e sem tabela. `data/salario_deputados_estaduais.csv` (uf, valor mensal bruto, ato normativo, vigência, URL da fonte, data da consulta, observação) é lido por `app/services/subsidio_estadual.py` e vai em `subsidio` no `/vereadores/{id}` (só `casa = assembleia`). A API não leva `data/` na imagem, então há uma cópia em `backend/app/dados/` e um teste confere que as duas são iguais. A régua de cobertura passa a ler o mesmo CSV.
+- **Só número que a fonte oficial publica.** Nunca 75% de R$ 46.366,19 calculado: o decreto legislativo do Pará, por exemplo, diz "75% do federal" sem escrever o número, e a UF ficou sem valor. UF sem o texto oficial lido fica com `valor` vazio e o motivo; o perfil diz que o valor não está no site e não estima.
+- **Em 29/10/2026, 12 UFs com valor** (MT, Lei 12.011/2023, e PR, tabela do portal da Alep, entraram na segunda rodada, com R$ 34.774,64): SP (Lei 18.384/2025, desde 01/01/2026), SC (Lei 18.642/2023), GO (Lei 17.253/2011 com a Lei 21.780/2023), MG (Lei 24.266/2022), ES (Lei 11.766/2022), PE (Lei 18.138/2023), PI (Lei 7.955/2023), AL (Lei 9.056/2023), todas com R$ 34.774,64 desde 01/02/2025; RJ (R$ 34.774,64, informado pelo Portal da Transparência da Alerj, sem citar o ato); CE (R$ 34.776,64 como a Alece publica na Lei 19.113/2024; R$ 2,00 acima do que daria 75%, e o número foi mantido como publicado). As outras 15 UFs não têm bloqueio: falta ler o texto oficial (pesquisa em aberto), então não geram pedido em `docs/pedidos/`.
+- **Sem comparação com a média da Casa:** o valor é igual para todos os deputados; o texto da tela diz isso. Verbas indenizatórias e auxílios (saúde, moradia) são outro dinheiro e não entram.
