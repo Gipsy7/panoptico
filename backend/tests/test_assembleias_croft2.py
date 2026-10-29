@@ -429,6 +429,12 @@ def test_alego_coleta_usa_so_os_meses_que_existem(monkeypatch):
     rota = respx.get(alego.API + "verbas_indenizatorias.json").mock(
         return_value=httpx.Response(200, json=GO_VERBAS[:1])
     )
+    respx.get(alego.PLE + "parlamentar/").mock(
+        return_value=httpx.Response(200, json={"parlamentares": []})
+    )
+    respx.get(alego.PLE + "proposicao/").mock(
+        return_value=httpx.Response(200, json={"Data": [], "Paginacao": {"quantidade": "0"}})
+    )
     casa = alego.coletar(date(2026, 10, 10))
     assert rota.call_count == 2  # 2018 está fora do período; julho e agosto de 2026
     assert [len(d["gastos"]) for d in casa["vereadores"]] == [2, 0]

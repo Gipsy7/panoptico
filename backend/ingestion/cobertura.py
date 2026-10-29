@@ -43,12 +43,15 @@ URL_ALEP_VERBA = (
 SAPL_UFS = ["AC", "AL", "AM", "PB", "PI", "RO", "RR", "TO"]
 ASSEMBLEIAS: dict[str, tuple[str, set[str]]] = {
     **{uf: ("sapl_assembleias", {"projetos", "votos", "presenca"}) for uf in SAPL_UFS},
+    # O SAPL destas Casas não tem votos nem presença da legislatura atual que o conector ligue
+    # (carga do Brasil em 29/10/2026: nenhum); só projetos.
+    **{uf: ("sapl_assembleias", {"projetos"}) for uf in ("AL", "AM", "RR", "TO")},
     "AP": ("alap", {"projetos"}),  # gastos: pedido (robots.txt da Casa responde 403)
     "BA": ("alba", {"projetos", "presenca"}),
-    "CE": ("alece", {"projetos", "gastos"}),
+    "CE": ("alece", {"projetos", "gastos", "votos"}),
     "DF": ("cldf", {"projetos"}),
     "ES": ("ales", {"projetos", "presenca"}),
-    "GO": ("alego", {"gastos"}),
+    "GO": ("alego", {"gastos", "projetos", "presenca"}),
     "MA": ("alema", {"projetos"}),
     "MG": ("almg", {"projetos", "gastos"}),
     "MS": ("alems", {"gastos"}),
@@ -57,10 +60,10 @@ ASSEMBLEIAS: dict[str, tuple[str, set[str]]] = {
     "PE": ("alepe", {"projetos"}),
     "PR": ("alep", {"votos", "presenca"}),  # projetos e gastos: pedido (API travada, reCAPTCHA)
     "RJ": ("alerj", set()),
-    "RN": ("alrn", {"projetos", "gastos"}),
+    "RN": ("alrn", {"projetos", "gastos", "votos", "presenca"}),
     "RS": ("alrs", {"projetos", "votos", "presenca", "gastos"}),
     "SC": ("alesc", {"projetos", "gastos", "presenca", "votos"}),
-    "SE": ("alese", {"presenca"}),
+    "SE": ("alese", {"presenca", "projetos"}),
     "SP": ("alesp", {"projetos", "gastos"}),
 }
 ROTULO = {
@@ -83,7 +86,43 @@ PEDIDO_ASSEMBLEIA = {
     ("PR", "projetos"): "alep_certificado.md",
     ("PR", "gastos"): "alep_certificado.md",
     ("AP", "gastos"): "alap_gastos_ceap.md",
+    **{
+        chave: "assembleias_votos_presenca.md"
+        for chave in [
+            ("BA", "votos"), ("ES", "votos"), ("SE", "votos"), ("GO", "votos"),
+            ("PE", "votos"), ("PE", "presenca"), ("AP", "votos"), ("AP", "presenca"),
+            ("MA", "votos"), ("MA", "presenca"), ("CE", "presenca"), ("MS", "votos"),
+            ("MS", "presenca"), ("RJ", "votos"), ("RJ", "presenca"), ("RJ", "projetos"),
+        ]
+    },
+}  # fmt: skip
+_PLE_SEM_VOTOS = (
+    "A API de dados abertos da Casa traz projetos e presença, mas não o voto de cada deputado; "
+    "pedido de acesso redigido."
+)
+# Motivo de um pedido que cobre só uma seção (prevalece sobre o motivo da Casa).
+MOTIVO_PEDIDO_SECAO = {
+    ("BA", "votos"): _PLE_SEM_VOTOS,
+    ("ES", "votos"): "A API de dados abertos da Casa traz projetos e presença; o voto de cada "
+    "deputado só sai no boletim de votação em PDF. Pedido de acesso redigido.",
+    ("SE", "votos"): _PLE_SEM_VOTOS,
+    ("GO", "votos"): _PLE_SEM_VOTOS,
+    ("PE", "votos"): "A API de dados abertos da Casa não tem votações nem presença; pedido de "
+    "acesso redigido.",
+    ("AP", "votos"): "O portal do processo legislativo (em migração) mostra só a pauta de cada "
+    "sessão, sem chamada nem voto de cada deputado; pedido de acesso redigido.",
+    ("MA", "votos"): "O sistema novo da Casa tem consulta pública de votos e presença, mas só uma "
+    "sessão registrada até agora (07/10/2026), sem votos; pedimos o histórico.",
+    ("CE", "presenca"): "A Casa publica as votações nominais (usamos), mas não a presença em "
+    "plenário de cada deputado; pedido de acesso redigido.",
+    ("MS", "votos"): "O sistema legislativo da Casa barra acesso por programa (verificação "
+    "contra robôs); não contornamos e pedimos os dados em formato aberto.",
+    ("RJ", "votos"): "O processo legislativo roda num sistema antigo que não entrega dados por "
+    "consulta; pedido de acesso redigido.",
 }
+for _uf in ("PE", "AP", "MA", "MS", "RJ"):
+    MOTIVO_PEDIDO_SECAO[(_uf, "presenca")] = MOTIVO_PEDIDO_SECAO[(_uf, "votos")]
+MOTIVO_PEDIDO_SECAO[("RJ", "projetos")] = MOTIVO_PEDIDO_SECAO[("RJ", "votos")]
 # Seções que carregamos mas só em parte; o motivo diz o que fica de fora.
 PARCIAL_ASSEMBLEIA = {
     ("CE", "gastos"): (
@@ -91,6 +130,12 @@ PARCIAL_ASSEMBLEIA = {
         "oficial da Casa. A planilha escreve o nome de alguns deputados com erro de digitação; "
         "esses lançamentos não são atribuídos a ninguém (não ligamos por nome aproximado) e ficam "
         "de fora do total de cada deputado."
+    ),
+    ("CE", "votos"): (
+        "Carregamos as votações nominais que a Casa publica em relatório (PDF), do ano anterior "
+        "e do atual; a maior parte das matérias é votada de forma simbólica, sem voto de cada "
+        "deputado. O voto de quem tem o nome escrito de outro jeito no relatório não é atribuído "
+        "(não ligamos por nome aproximado)."
     ),
     ("RN", "gastos"): (
         "Carregamos as notas da verba de ressarcimento por mês, do site oficial da Casa, sem o "
@@ -228,13 +273,19 @@ def _secao_legislativa(uf, secao, fonte, carrega, brasil):
         )
         return "parcial", m, fonte, pedido
     if pedido:
-        return "pedido", MOTIVO_PEDIDO[uf], fonte, pedido
+        return "pedido", MOTIVO_PEDIDO_SECAO.get((uf, secao)) or MOTIVO_PEDIDO[uf], fonte, pedido
     if uf == "MS" and secao == "projetos":
         m = (
             "O sistema de proposições exige uma verificação que barra acesso por programa; "
             "não contornamos."
         )
         return "bloqueado", m, fonte, ""
+    if uf in ("AL", "AM", "RR", "TO") and secao in ("votos", "presenca"):
+        m = (
+            f"O sistema da Casa (SAPL) não tem {r} da legislatura atual registrados por "
+            "deputado; o site lê o que houver assim que a Casa publicar."
+        )
+        return "sem_fonte", m, fonte, ""
     if uf == "RJ":
         m = "O processo legislativo roda num sistema antigo que não entrega dados por consulta."
         return "sem_fonte", m, fonte, ""

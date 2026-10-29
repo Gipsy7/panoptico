@@ -16,8 +16,8 @@ O CSV não traz CPF do deputado (o CPF e o CNPJ são do fornecedor e nunca são 
 o nome com erros de digitação; liga-se sozinho só por nome exato (site ou TSE); o aproximado vai
 para a fila de revisão humana (`apelidos.py`) e só liga depois de aceito.
 
-Indicações não entram (são milhares de páginas de listagem). Os votos nominais saem em
-planilhas de relatório de impressão (uma por matéria), sem estrutura aproveitável.
+Indicações não entram (são milhares de páginas de listagem). Os votos nominais vêm do CSV e dos
+relatórios em PDF da página "Votações Nominais" do portal da transparência (`alece_votos.py`).
 Uma requisição por vez, com pausa. Grava nas mesmas tabelas das outras casas.
 """
 
@@ -37,7 +37,7 @@ from typing import Any
 from app.db import SessionLocal
 from app.models import FonteIngestao
 from ingestion import comum
-from ingestion.assembleias import base
+from ingestion.assembleias import alece_votos, base
 from ingestion.camaras import sapl
 
 FONTE = "alece"
@@ -391,7 +391,17 @@ def anexar_gastos(session: Any, casa: dict, linhas: list[dict[str, str]]) -> lis
     return sobras
 
 
-def coletar(hoje: date, gastos_raw: Path | None = None) -> dict:
+def votos_brutos(client: Any, ano_minimo: int, votos_raw: Path | None) -> dict[str, bytes]:
+    if votos_raw:  # --votos-de-raw: reprocessa o zip já guardado, sem rede
+        with zipfile.ZipFile(votos_raw) as z:
+            return {n: z.read(n) for n in z.namelist()}
+    arquivos = alece_votos.baixar(client, ano_minimo, PAUSA)
+    raw = comum.salvar_raw(FONTE, empacotar(arquivos), "votos_", ".zip")
+    print(f"  bruto das votações nominais: {raw}", flush=True)
+    return arquivos
+
+
+def coletar(hoje: date, gastos_raw: Path | None = None, votos_raw: Path | None = None) -> dict:
     ano_minimo = hoje.year - 1
     with comum.criar_cliente() as client:
         if gastos_raw:  # --gastos-de-raw: reprocessa o zip já guardado, sem rede
@@ -421,7 +431,11 @@ def coletar(hoje: date, gastos_raw: Path | None = None) -> dict:
             listagem = f"{LEGADO}numero.php?nome={LEGISLATURA}&tabela={tabela}&opcao=T"
             for p in baixar_projetos(client, tabela, ano_minimo):
                 props.append((sigla, tipo, {**p, "url": p["url"] or listagem}))
+        brutos = votos_brutos(client, ano_minimo, votos_raw)
     autoria = distribuir(props, lista)
+    nomes = {comum.chave_nome(d["nome"]): d["slug"] for d in lista}
+    votacoes_, votos_ = alece_votos.votacoes(alece_votos.ler(brutos), nomes, ano_minimo)
+    print(f"  {len(votacoes_)} votações nominais, {len(votos_)} votos ligados", flush=True)
     vereadores = []
     for d in lista:
         projetos = autoria[d["slug"]]
@@ -451,8 +465,8 @@ def coletar(hoje: date, gastos_raw: Path | None = None) -> dict:
         "base": LISTA,
         "legislatura": None,
         "vereadores": vereadores,
-        "votacoes": [],
-        "votos": [],
+        "votacoes": votacoes_,
+        "votos": votos_,
         "linhas_gastos": linhas,
     }
 
@@ -478,8 +492,8 @@ def alerta_sem_deputado(linhas: list[dict[str, str]], sobras: list[str]) -> list
     ]
 
 
-def executar(gastos_raw: Path | None = None) -> int:
-    casa = coletar(date.today(), gastos_raw)
+def executar(gastos_raw: Path | None = None, votos_raw: Path | None = None) -> int:
+    casa = coletar(date.today(), gastos_raw, votos_raw)
     linhas = casa.pop("linhas_gastos")
     exercicio = sum(1 for v in casa["vereadores"] if v["em_exercicio"])
     if exercicio < 40:  # a ALECE tem 46 cadeiras: lista curta é falha da fonte
@@ -503,4 +517,8 @@ def executar(gastos_raw: Path | None = None) -> int:
 if __name__ == "__main__":
     ap = argparse.ArgumentParser(description=f"Ingestão: {FONTE}")
     ap.add_argument("--de-raw", type=Path, help="zip de gastos de data/raw/alece (sem rede)")
-    executar(ap.parse_args().de_raw)
+    ap.add_argument(
+        "--votos-de-raw", type=Path, help="zip de votações de data/raw/alece (sem rede)"
+    )
+    args = ap.parse_args()
+    executar(args.de_raw, args.votos_de_raw)

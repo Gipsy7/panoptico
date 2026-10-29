@@ -486,8 +486,9 @@ modulo = "ingestion.assembleias.sapl"
 uso = "Assembleia legislativa hoje"
 recorte = "legislatura em vigor; projetos do ano atual e anterior"
 frequencia = "semanal"
-# Roraima só responde a IPs do Brasil: no acervo local entra junto com as outras.
-acesso = "brasil"
+# Bloqueava IP de fora do Brasil (GitHub Actions); desde 27/10/2026 roda na VPS de São Paulo
+# (deploy/vps/agenda/camaras.sh); carga conferida do Brasil em 29/10/2026, por isso o degrau é "aberto".
+acesso = "aberto"
 
 [[fonte]]
 nome = "almg"
@@ -495,8 +496,9 @@ modulo = "ingestion.assembleias.almg"
 uso = "Assembleia de Minas Gerais hoje"
 recorte = "deputados em exercício; ano atual e anterior"
 frequencia = "semanal"
-# Bloqueia IP de fora do Brasil (GitHub Actions, 11/10/2026: tempo esgotado nos EUA); roda no acervo local.
-acesso = "brasil"
+# Bloqueava IP de fora do Brasil (GitHub Actions); desde 27/10/2026 roda na VPS de São Paulo
+# (deploy/vps/agenda/camaras.sh); carga conferida do Brasil em 29/10/2026, por isso o degrau é "aberto".
+acesso = "aberto"
 
 [[fonte]]
 nome = "alepe"
@@ -504,8 +506,9 @@ modulo = "ingestion.assembleias.alepe"
 uso = "Assembleia de Pernambuco hoje"
 recorte = "deputados em exercício; proposições do ano atual e anterior"
 frequencia = "semanal"
-# Bloqueia IP de fora do Brasil (GitHub Actions, 11/10/2026: tempo esgotado nos EUA); roda no acervo local.
-acesso = "brasil"
+# Bloqueava IP de fora do Brasil (GitHub Actions); desde 27/10/2026 roda na VPS de São Paulo
+# (deploy/vps/agenda/camaras.sh); carga conferida do Brasil em 29/10/2026, por isso o degrau é "aberto".
+acesso = "aberto"
 
 [[fonte]]
 nome = "cldf"
@@ -513,8 +516,9 @@ modulo = "ingestion.assembleias.cldf"
 uso = "Câmara Legislativa do DF hoje"
 recorte = "deputados distritais ativos; proposições do ano atual e anterior"
 frequencia = "semanal"
-# Bloqueia IP de fora do Brasil (GitHub Actions, 11/10/2026: tempo esgotado nos EUA); roda no acervo local.
-acesso = "brasil"
+# Bloqueava IP de fora do Brasil (GitHub Actions); desde 27/10/2026 roda na VPS de São Paulo
+# (deploy/vps/agenda/camaras.sh); carga conferida do Brasil em 29/10/2026, por isso o degrau é "aberto".
+acesso = "aberto"
 
 [[fonte]]
 nome = "alesc"
@@ -676,8 +680,9 @@ modulo = "ingestion.assembleias.alrs"
 uso = "Assembleia do Rio Grande do Sul hoje"
 recorte = "deputados em exercício; proposições, votos em plenário, presença e cota do ano atual e anterior"
 frequencia = "semanal"
-# Bloqueia IP de fora do Brasil (GitHub Actions, 11/10/2026: tempo esgotado nos EUA); roda no acervo local.
-acesso = "brasil"
+# Bloqueava IP de fora do Brasil (GitHub Actions); desde 27/10/2026 roda na VPS de São Paulo
+# (deploy/vps/agenda/camaras.sh); carga conferida do Brasil em 29/10/2026, por isso o degrau é "aberto".
+acesso = "aberto"
 
 [[fonte]]
 nome = "alba"
@@ -703,7 +708,7 @@ acesso = "aberto"
 nome = "alece"
 modulo = "ingestion.assembleias.alece"
 uso = "Assembleia do Ceará hoje"
-recorte = "deputados em exercício; projetos e gastos do gabinete (CSV mensal de empenhos, líquido de anulações) do ano atual e anterior; nomes da planilha com erro de digitação não são atribuídos (sem indicações, votos e presença)"
+recorte = "deputados em exercício; projetos e gastos do gabinete (CSV mensal de empenhos, líquido de anulações) do ano atual e anterior; nomes da planilha com erro de digitação não são atribuídos; votações nominais do ano anterior e atual (CSV e relatórios em PDF da página Votações Nominais) (sem indicações e presença)"
 frequencia = "semanal"
 
 [[fonte]]
@@ -726,8 +731,9 @@ modulo = "ingestion.assembleias.alema"
 uso = "Assembleia do Maranhão hoje"
 recorte = "deputados em exercício; projetos do ano atual e anterior (sem votos, presença e gastos)"
 frequencia = "semanal"
-# Bloqueia IP de fora do Brasil (GitHub Actions, 11/10/2026: tempo esgotado nos EUA); roda no acervo local.
-acesso = "brasil"
+# Bloqueava IP de fora do Brasil (GitHub Actions); desde 27/10/2026 roda na VPS de São Paulo
+# (deploy/vps/agenda/camaras.sh); carga conferida do Brasil em 29/10/2026, por isso o degrau é "aberto".
+acesso = "aberto"
 
 [[fonte]]
 nome = "alems"
@@ -740,7 +746,7 @@ frequencia = "semanal"
 nome = "alrn"
 modulo = "ingestion.assembleias.alrn"
 uso = "Assembleia do Rio Grande do Norte hoje"
-recorte = "deputados em exercício; projetos e notas da verba de ressarcimento (formulário do site, por mês, sem tipo nem fornecedor) do ano atual e anterior (sem votos nominais e presença)"
+recorte = "deputados em exercício; projetos, presença em plenário, votações nominais abertas do Plenário e notas da verba de ressarcimento (formulário do site, por mês, sem tipo nem fornecedor) do ano atual e anterior"
 frequencia = "semanal"
 # Verbas: o portal novo exige credencial na API (401); ver docs/pedidos/alrn_verbas_portal_novo.md.
 
@@ -748,7 +754,7 @@ frequencia = "semanal"
 nome = "alese"
 modulo = "ingestion.assembleias.alese"
 uso = "Assembleia de Sergipe hoje"
-recorte = "deputados em exercício e presença em plenário do ano corrente (sem proposições, votos e gastos)"
+recorte = "deputados em exercício, presença em plenário do ano corrente e projetos de autoria do ano atual e anterior (API de dados abertos do processo legislativo; o CPF do autor não é guardado; sem votos e gastos)"
 frequencia = "semanal"
 # Bloqueava IP de fora do Brasil (GitHub Actions, 11/10/2026: tempo esgotado nos EUA); desde 27/10/2026 roda
 # na VPS de São Paulo (deploy/vps/agenda/camaras.sh), por isso o degrau é "aberto".
@@ -760,14 +766,15 @@ modulo = "ingestion.assembleias.alap"
 uso = "Assembleia do Amapá hoje"
 recorte = "deputados em exercício; projetos do ano atual e anterior (sem votos e presença; gastos da CEAP: pedido em docs/pedidos/alap_gastos_ceap.md, robots.txt responde 403)"
 frequencia = "semanal"
-# Bloqueia IP de fora do Brasil (GitHub Actions, 11/10/2026: tempo esgotado nos EUA); roda no acervo local.
-acesso = "brasil"
+# Bloqueava IP de fora do Brasil (GitHub Actions); desde 27/10/2026 roda na VPS de São Paulo
+# (deploy/vps/agenda/camaras.sh); carga conferida do Brasil em 29/10/2026, por isso o degrau é "aberto".
+acesso = "aberto"
 
 [[fonte]]
 nome = "alego"
 modulo = "ingestion.assembleias.alego"
 uso = "Assembleia de Goiás hoje"
-recorte = "deputados em exercício; verba indenizatória mensal do ano atual e anterior (sem proposições, votos e presença)"
+recorte = "deputados em exercício; verba indenizatória mensal, projetos de autoria e presença em plenário do ano atual e anterior (API de dados abertos do processo legislativo; o CPF do autor não é guardado; sem votos nominais)"
 frequencia = "semanal"
 
 [[fonte]]
