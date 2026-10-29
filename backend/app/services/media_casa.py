@@ -15,8 +15,17 @@ from decimal import Decimal
 # (casa, UF) cujos gastos do gabinete vêm de fonte que não traz todos os deputados:
 # a planilha de verbas indenizatórias da CLDF não cobre todos os distritais.
 # Valor: (quem, onde aparecem), para o texto.
+# Também as assembleias de gastos em carga própria (ingestion/assembleias/gastos_*.py): o portal
+# escreve alguns nomes diferente da lista da Casa e eles esperam revisão humana (apelidos); até
+# lá esses deputados "não constam", em vez de entrarem com zero.
 GASTOS_PARCIAIS: dict[tuple[str, str], tuple[str, str]] = {
     ("assembleia", "DF"): ("deputados distritais", "na planilha da CLDF"),
+    ("assembleia", "BA"): ("deputados", "nas verbas indenizatórias da ALBA"),
+    ("assembleia", "PE"): ("deputados", "na verba indenizatória da ALEPE"),
+    ("assembleia", "ES"): ("deputados", "nas cotas parlamentares da ALES"),
+    ("assembleia", "AM"): ("deputados", "na cota parlamentar da ALEAM"),
+    ("assembleia", "RO"): ("deputados", "na verba indenizatória da ALERO"),
+    ("assembleia", "PB"): ("deputados", "nas planilhas da VIAP da ALPB"),
 }
 
 

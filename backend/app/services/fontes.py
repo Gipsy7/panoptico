@@ -426,6 +426,42 @@ CATALOGO = [
         "url": "https://transparencia.al.go.leg.br/dados-abertos",
     },
     {
+        "dado": "Deputados estaduais da BA: gastos do gabinete (verbas indenizatórias)",
+        "orgao": "Assembleia Legislativa da Bahia (site oficial, página de verbas indenizatórias)",
+        "fontes": ["alba_gastos"],
+        "url": "https://www.al.ba.gov.br/transparencia/verbas-idenizatorias",
+    },
+    {
+        "dado": "Deputados estaduais de PE: gastos do gabinete (verba indenizatória)",
+        "orgao": "Assembleia Legislativa de Pernambuco (portal da transparência)",
+        "fontes": ["alepe_gastos"],
+        "url": "https://transparencia.alepe.pe.gov.br/financas",
+    },
+    {
+        "dado": "Deputados estaduais do ES: gastos do gabinete (cota parlamentar)",
+        "orgao": "Assembleia Legislativa do Espírito Santo (portal da transparência)",
+        "fontes": ["ales_gastos"],
+        "url": "https://www.al.es.gov.br/Transparencia/CotasParlamentares",
+    },
+    {
+        "dado": "Deputados estaduais do AM: gastos do gabinete (cota parlamentar)",
+        "orgao": "Assembleia Legislativa do Amazonas (portal da transparência)",
+        "fontes": ["aleam_gastos"],
+        "url": "https://www.aleam.gov.br/transparencia/controle-de-cota-parlamentar/",
+    },
+    {
+        "dado": "Deputados estaduais da PB: gastos do gabinete (verba indenizatória, VIAP)",
+        "orgao": "Assembleia Legislativa da Paraíba (portal da transparência)",
+        "fontes": ["alpb_gastos"],
+        "url": "https://www.al.pb.leg.br/transparencia/deputados/viap-v2",
+    },
+    {
+        "dado": "Deputados estaduais de RO: gastos do gabinete (verba indenizatória)",
+        "orgao": "Assembleia Legislativa de Rondônia (portal da transparência)",
+        "fontes": ["alero_gastos"],
+        "url": "https://transparencia.al.ro.leg.br/Deputados/VerbaIndenizatoria/",
+    },
+    {
         "dado": "Sites oficiais das prefeituras e câmaras (catálogo aberto)",
         "orgao": "Varredura do Panóptico nos domínios .gov.br e .leg.br",
         "fontes": ["canais_oficiais"],

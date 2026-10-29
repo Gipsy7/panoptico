@@ -71,21 +71,25 @@ E mais: **modo escuro** (segue o aparelho; um ícone troca), **filtros** com o m
 
 | Casa | Deputados | Projetos | Presença | Votos | Gastos |
 |---|:-:|:-:|:-:|:-:|:-:|
-| SAPL: AC, AL, AM, PB, PI, RO, TO | ✅ | ✅ | ✅ | ✅ ¹ | — |
+| SAPL: AC, AL, PI, TO | ✅ | ✅ | ✅ | ✅ ¹ | — |
+| SAPL: AM, PB, RO | ✅ | ✅ | ✅ | ✅ ¹ | ✅ ⁴ |
 | SP (ALESP) | ✅ | ✅ | — | comissões | ✅ |
 | RS (ALRS) | ✅ | ✅ | ✅ | ✅ | ✅ |
 | MG (ALMG) | ✅ | ✅ | — | — | ✅ |
 | SC (ALESC) | ✅ | ✅ | ✅ | — | ✅ |
 | PR (ALEP) | ✅ | — ² | ✅ | ✅ | — ² |
 | DF (CLDF) | ✅ | ✅ | — | — | ✅ |
-| BA, ES | ✅ | ✅ | ✅ | — | — |
-| PE, CE, MA, RN, AP | ✅ | ✅ | — | — | — |
+| BA, ES | ✅ | ✅ | ✅ | — | ✅ ⁴ |
+| PE | ✅ | ✅ | — | — | ✅ ⁴ |
+| CE, RN | ✅ | ✅ | — | — | ✅ |
+| MA, AP | ✅ | ✅ | — | — | — ⁵ |
 | MS, GO | ✅ | — ³ | — | — | ✅ |
 | SE | ✅ | — ³ | ✅ | — | — |
-| RJ, PA, MT | ✅ | — | — | — | — |
+| RJ | ✅ | — | — | — | — ⁵ |
+| PA, MT | ✅ | — | — | — | — |
 | RR | bloqueia acesso do GitHub Actions | | | | |
 
-¹ onde a Casa registra votação nominal. ² API com certificado autoassinado e 403, verba atrás de reCAPTCHA; pedido em [docs/pedidos/](docs/pedidos/). ³ sistema bloqueia automação; não contornamos.
+¹ onde a Casa registra votação nominal. ² API com certificado autoassinado e 403, verba atrás de reCAPTCHA; pedido em [docs/pedidos/](docs/pedidos/). ³ sistema bloqueia automação; não contornamos. ⁴ do portal de transparência da Casa, carga à parte (`ingestion/assembleias/gastos_*.py`); nomes grafados diferente esperam revisão humana. No ES o valor publicado é o solicitado pelo gabinete, não o pago. ⁵ `robots.txt` veda ou responde 403; pedido em [docs/pedidos/](docs/pedidos/).
 
 Emendas estaduais: nove UFs (MG, BA, PE, SC, MA, ES, AL, SE, AC), por enquanto só na API; levantamento das 27 em [docs/emendas_estaduais_levantamento.md](docs/emendas_estaduais_levantamento.md). O que falta em cada Casa está em [data/pendencias_cobertura.csv](data/pendencias_cobertura.csv).
 
@@ -350,7 +354,7 @@ Atualização diária no Windows: [scripts/acervo_diario.ps1](scripts/acervo_dia
 | `uv run python -m ingestion.diarios.sigpub` e `uv run python -m ingestion.diarios.domsc` | Diários municipais por plataforma (SIGPub das associações de municípios e DOM/SC pelos dados abertos do CIGA): 2.752 municípios lidos, contra 441 do Querido Diário; só no acervo, geram a fila acima. Levantamento: [docs/diarios_plataformas_levantamento.md](docs/diarios_plataformas_levantamento.md) |
 | `uv run python -m ingestion.revisar --tipo dou` | Atos de pessoal do Diário Oficial da União |
 | `uv run python -m ingestion.revisar --tipo cpi` | Pedidos de indiciamento das CPIs |
-| `uv run python -m ingestion.revisar --tipo apelido` | Nomes de gastos de assembleias grafados diferente do deputado (hoje ALECE) |
+| `uv run python -m ingestion.revisar --tipo apelido` | Nomes de gastos de assembleias grafados diferente do deputado (ALECE, ALRN e os portais de BA, PE, ES, AM, RO e PB) |
 
 </details>
 

@@ -361,6 +361,11 @@ export type VereadorDetalhe = VereadorItem & {
     atualizado_em?: string | null;
     /** O que a planilha traz mas não entra na soma por mês (ex.: comprovantes sem data). */
     fora_da_soma?: { linhas: number; valor: number; linhas_valor_ilegivel: number; motivo: string } | null;
+    /** Fonte própria dos gastos (portal de transparência), quando não é a do resto do perfil. */
+    fonte_nome?: string | null;
+    fonte_url?: string | null;
+    /** O que o valor significa, quando a Casa não publica o reembolso (ex.: valor solicitado). */
+    sobre_valor?: string | null;
   } | null;
   /** Subsídio mensal da Assembleia (só deputado estadual); `valor` nulo = ainda sem fonte oficial conferida. */
   subsidio?: {

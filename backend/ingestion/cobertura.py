@@ -38,6 +38,9 @@ URL_ALEP_VERBA = (
     "https://transparencia.assembleia.pr.leg.br/receitas-e-despesas/verbas-de-ressarcimento"
 )
 
+URL_DOCIGP = "https://docigp.alerj.rj.gov.br/"
+URL_ALEMA_TRANSPARENCIA = "https://sistemas.al.ma.leg.br/transparencia/"
+
 # Assembleias: fonte (nome em fontes.toml) e o que o conector carrega. Conferido com o
 # docstring de cada módulo em ingestion/assembleias/. Seção ausente = o conector não carrega.
 SAPL_UFS = ["AC", "AL", "AM", "PB", "PI", "RO", "RR", "TO"]
@@ -66,6 +69,29 @@ ASSEMBLEIAS: dict[str, tuple[str, set[str]]] = {
     "SE": ("alese", {"presenca", "projetos"}),
     "SP": ("alesp", {"projetos", "gastos"}),
 }
+# Assembleias com gastos do gabinete em carga própria (ingestion/assembleias/gastos_*.py), à
+# parte do conector da casa: fonte (nome em fontes.toml) e, se só em parte, o que fica de fora.
+FALTA_REVISAO = (
+    " Deputados cujo nome o portal escreve diferente da lista da Casa ficam sem gastos até "
+    "revisão humana (não ligamos por nome aproximado), e a média sai só de quem consta."
+)
+GASTOS_PROPRIOS: dict[str, tuple[str, str]] = {
+    "BA": ("alba_gastos", "Carregamos as verbas indenizatórias por mês e categoria, do site "
+           "oficial da Casa (sem o fornecedor)." + FALTA_REVISAO),
+    "PE": ("alepe_gastos", "Carregamos a verba indenizatória por mês e rubrica, do portal da "
+           "transparência da Casa (sem o fornecedor)." + FALTA_REVISAO),
+    "ES": ("ales_gastos", "Carregamos a cota parlamentar por mês e produto (diárias, passagens e "
+           "reembolsos), do portal da transparência da Casa. O valor publicado é o solicitado "
+           "(reservado) pelo gabinete, não necessariamente o pago." + FALTA_REVISAO),
+    "AM": ("aleam_gastos", "Carregamos a cota parlamentar (valor líquido, já descontada a glosa) "
+           "por mês e verba, do portal da transparência da Casa (sem o fornecedor)."
+           + FALTA_REVISAO),
+    "PB": ("alpb_gastos", "Carregamos a verba indenizatória (VIAP) por mês e subitem, das "
+           "planilhas mensais do portal da transparência da Casa (sem o fornecedor)."
+           + FALTA_REVISAO),
+    "RO": ("alero_gastos", "Carregamos a verba indenizatória paga por mês e classe, do portal da "
+           "transparência da Casa (sem o prestador)." + FALTA_REVISAO),
+}  # fmt: skip
 ROTULO = {
     "gastos": "gastos do gabinete e da cota",
     "votos": "votos nominais",
@@ -86,6 +112,8 @@ PEDIDO_ASSEMBLEIA = {
     ("PR", "projetos"): "alep_certificado.md",
     ("PR", "gastos"): "alep_certificado.md",
     ("AP", "gastos"): "alap_gastos_ceap.md",
+    ("RJ", "gastos"): "alerj_alema_gastos.md",
+    ("MA", "gastos"): "alerj_alema_gastos.md",
     **{
         chave: "assembleias_votos_presenca.md"
         for chave in [
@@ -266,6 +294,22 @@ def _secao_legislativa(uf, secao, fonte, carrega, brasil):
             "não contornamos. Pedimos os dados em planilha."
         )
         return "pedido", m, URL_ALEP_VERBA, pedido
+    if secao == "gastos" and uf in GASTOS_PROPRIOS:
+        fonte_gastos, motivo = GASTOS_PROPRIOS[uf]
+        return "parcial", motivo, fonte_gastos, ""
+    if uf == "RJ" and secao == "gastos":
+        m = (
+            "O sistema de gastos dos gabinetes (DOCIGP) tem um arquivo de regras (robots.txt) que "
+            "veda a leitura automática de todo o site; não lemos e pedimos os dados em arquivo."
+        )
+        return "pedido", m, URL_DOCIGP, pedido
+    if uf == "MA" and secao == "gastos":
+        m = (
+            "O arquivo de regras do portal da transparência (robots.txt) responde acesso negado, "
+            "então não sabemos se a leitura automática é permitida; não lemos e pedimos "
+            "autorização ou os dados em arquivo."
+        )
+        return "pedido", m, URL_ALEMA_TRANSPARENCIA, pedido
     if uf == "SP" and secao == "votos":
         m = (
             "Só o voto nas comissões permanentes; o voto no Plenário não está nos dados "

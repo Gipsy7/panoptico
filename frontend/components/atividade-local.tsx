@@ -186,7 +186,11 @@ export function GastosLocaisSecao({ v, nomeCasa }: { v: VereadorDetalhe; nomeCas
           <p className="text-sm text-muted-foreground">Verba indenizatória (reembolsos ao gabinete)</p>
         </div>
         {avisoFora}
-        <FonteRodape fonte={v.fonte_nome} url={v.fonte_url} atualizadoEm={g.atualizado_em ?? v.atualizado_em} />
+        <FonteRodape
+          fonte={g.fonte_nome ?? v.fonte_nome}
+          url={g.fonte_url ?? v.fonte_url}
+          atualizadoEm={g.atualizado_em ?? v.atualizado_em}
+        />
       </section>
     );
   }
@@ -230,12 +234,18 @@ export function GastosLocaisSecao({ v, nomeCasa }: { v: VereadorDetalhe; nomeCas
         ))}
       </ul>
       <p className="text-sm text-muted-foreground">
-        Valores reembolsados como a {nomeCasa} publica, por mês de fechamento.{" "}
+        {g.sobre_valor
+          ? `${g.sobre_valor} Por mês de fechamento.`
+          : `Valores reembolsados como a ${nomeCasa} publica, por mês de fechamento.`}{" "}
         {g.media_descricao ??
           "A média inclui quem está no cargo hoje; quem não pediu reembolso entra com zero."}
       </p>
       {avisoFora}
-      <FonteRodape fonte={v.fonte_nome} url={v.fonte_url} atualizadoEm={g.atualizado_em ?? v.atualizado_em} />
+      <FonteRodape
+          fonte={g.fonte_nome ?? v.fonte_nome}
+          url={g.fonte_url ?? v.fonte_url}
+          atualizadoEm={g.atualizado_em ?? v.atualizado_em}
+        />
     </section>
   );
 }
