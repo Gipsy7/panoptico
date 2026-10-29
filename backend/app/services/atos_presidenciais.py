@@ -1,8 +1,8 @@
 """Medidas provisórias e vetos do Presidente da República no mandato em curso.
 
 Só o titular do mandato atual (eleição presidencial mais recente cuja posse já ocorreu): vice,
-ex-presidentes e candidatos de outras eleições não recebem o bloco. Sem nota nem comparação (cargo único): só a
-contagem por situação, literal da fonte, e a lista (docs/DECISOES.md, "Medidas provisórias e
+ex-presidentes e candidatos de outras eleições não recebem o bloco. Sem nota nem comparação
+(cargo único): só a contagem por situação, literal da fonte, e a lista (docs/DECISOES.md, "Medidas provisórias e
 vetos do Presidente").
 """
 
