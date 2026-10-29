@@ -11,6 +11,7 @@ import pyarrow.parquet as pq
 import pytest
 
 from app.models import (
+    AgendaCompromisso,
     Candidatura,
     Caso,
     CasoDocumento,
@@ -20,13 +21,22 @@ from app.models import (
     DespesaFornecedor,
     DiarioAto,
     DouAto,
+    Emenda,
+    EmendaEstadual,
+    EmendaPagamento,
+    EmendaPagamentoSemCodigo,
+    EmendaTransferencia,
+    Empresa,
     Evento,
     FonteIngestao,
+    GastoLocalFora,
+    MandatoLocal,
     Municipio,
     Parlamentar,
     Pessoa,
     PessoaVinculo,
     PncpAnual,
+    ServidorFederal,
 )
 from app.models.pessoa import REGRAS_FORTES
 from exportar.conjuntos import CONJUNTOS, PUBLICAVEL
@@ -47,6 +57,79 @@ def _candidatura(sq: str, nome: str, turno: str, cpf: str, titulo: str) -> Candi
         titulo=titulo, data_nascimento=date(1971, 3, 4), cor_raca="PARDA", estado_civil="CASADO",
         data_eleicao=date(2022, 10, 2),
     )  # fmt: skip
+
+
+def _novos(s, parl, forte, fraca) -> None:
+    """Linhas dos conjuntos de emendas, empresas, agenda e servidores."""
+    mand = MandatoLocal(
+        casa="camara",
+        uf="SP",
+        municipio_ibge="3550308",
+        id_externo="9",
+        nome="Vereador Teste",
+        sapl_url="https://sapl.exemplo",
+    )
+    s.add(mand)
+    s.flush()
+    hoje = date(2026, 1, 5)
+    agora = datetime.now(UTC)
+    s.add_all([
+        GastoLocalFora(mandato_id=mand.id, ano=2025, linhas=3, valor=Decimal("10"),
+                       motivo="Sem data"),
+        Emenda(codigo="20250001", ano=2025, tipo="Individual", individual=True,
+               autor_codigo="1", autor_nome="Fulana Eleita", parlamentar_id=parl.id,
+               localidade="SAO PAULO", municipio_ibge="3550308", uf="SP",
+               valor_empenhado=Decimal("5"), valor_pago=Decimal("4")),
+        EmendaPagamento(emenda_codigo="20250001", ano_emenda=2025, ano_mes=202501,
+                        autor_codigo="1", autor_nome="Fulana Eleita", parlamentar_id=parl.id,
+                        pessoa_id=forte.id, tipo="individual", favorecido="PREFEITURA SA",
+                        favorecido_codigo="12.345.678/0001-90", natureza="Municipal",
+                        grupo="prefeitura", municipio_ibge="3550308", valor=Decimal("3")),
+        EmendaPagamento(emenda_codigo="20250002", ano_emenda=2025, ano_mes=202501,
+                        autor_codigo="2", autor_nome="Autor X", pessoa_id=fraca.id,
+                        favorecido="PF FAVORECIDO EMENDA", favorecido_codigo="***.456.789-**",
+                        natureza="Pessoa", grupo="entidade", municipio_ibge="3550308",
+                        valor=Decimal("1")),
+        EmendaPagamentoSemCodigo(ano_mes=202501, autor_codigo="-", autor_nome="Sem informação",
+                                 favorecido="PF SEM CODIGO NOME", favorecido_codigo="12345678901",
+                                 natureza="Pessoa", grupo="entidade",
+                                 municipio_ibge="3550308", valor=Decimal("1")),
+        EmendaTransferencia(tipo="convenio", emenda_codigo="20250001", ano_emenda=2025,
+                            identificador="900", beneficiario="PF BENEFICIARIO NOME",
+                            beneficiario_cnpj="12345678901", uf="SP",
+                            objeto="Obra, CPF 123.456.789-01", valor_total=Decimal("2")),
+        EmendaTransferencia(tipo="especial", emenda_codigo="20250001", ano_emenda=2025,
+                            identificador="901", beneficiario="ASSOCIACAO LTDA",
+                            beneficiario_cnpj="12345678000190", uf="SP"),
+        EmendaEstadual(uf="SC", ano=2025, codigo="2025EP1", proposta="p1", tipo="individual",
+                       autor_nome="Deputado Estadual", autor_chave="DEPUTADO ESTADUAL",
+                       pessoa_id=fraca.id, municipio_nome="X", favorecido_nome="PF ESTADUAL NOME",
+                       favorecido_cnpj="98765432100", valor_previsto=Decimal("1"),
+                       valor_pago=Decimal("1"), fonte="sctransferencias_emendas"),
+        EmendaEstadual(uf="SC", ano=2025, codigo="2025EP2", proposta="p2", tipo="bancada",
+                       autor_nome="Bancada", autor_chave="BANCADA", pessoa_id=forte.id,
+                       municipio_nome="X", favorecido_nome="ASSOCIACAO ESTADUAL LTDA",
+                       favorecido_cnpj="12345678000190", valor_previsto=Decimal("1"),
+                       valor_pago=Decimal("1"), fonte="sctransferencias_emendas"),
+        Empresa(cnpj="12345678000190", razao_social="EMPRESA REAL LTDA", nome_omitido=False,
+                referencia="2026-10", atualizado_em=agora),
+        Empresa(cnpj="11111111000111", razao_social="MEI SEM NOME 12345678901",
+                nome_omitido=False, referencia="2026-10", atualizado_em=agora),
+        Empresa(cnpj="22222222000122", razao_social=None, nome_omitido=True,
+                referencia="2026-10", atualizado_em=agora),
+        AgendaCompromisso(pessoa_id=forte.id, tipo="reuniao", id_registro=1,
+                          data_inicio=hoje, assunto="Reunião sobre obra",
+                          participantes_publicos=[{"nome": "Servidor Publico", "cargo": "X"}],
+                          entidades_privadas=["Associação Comercial"]),
+        AgendaCompromisso(pessoa_id=forte.id, tipo="presente", id_registro=2,
+                          data_inicio=hoje, detalhes="DETALHE-PRESENTE-OFERTANTE"),
+        AgendaCompromisso(pessoa_id=fraca.id, tipo="reuniao", id_registro=3,
+                          data_inicio=hoje, assunto="AGENDA DA PESSOA FRACA"),
+        ServidorFederal(pessoa_id=forte.id, id_externo="12345678901:FULANA", sigla="CCX",
+                        funcao="Assessora", primeiro_mes=hoje, ultimo_mes=hoje),
+        ServidorFederal(pessoa_id=fraca.id, id_externo="x:FRACA", sigla="CCX",
+                        funcao="CARGO-PESSOA-FRACA", primeiro_mes=hoje, ultimo_mes=hoje),
+    ])  # fmt: skip
 
 
 @pytest.fixture
@@ -135,6 +218,7 @@ def banco(session):
                   fornecedor_nome="PESSOA FISICA COM CPF NO CNPJ", quantidade=1,
                   valor_global=Decimal("9")),
     ])  # fmt: skip
+    _novos(s, parl, forte, fraca)
     s.flush()
     return s
 
@@ -180,6 +264,9 @@ def test_nada_proibido_nos_arquivos(banco, tmp_path):
         "DOC DO CASO OCULTO", "JOAO PESSOA FISICA", "MARIA CPF MASCARADO", "PF DOCUMENTO CPF",
         "PESSOA FISICA COM CPF NO CNPJ", "x@camara.leg.br", "3215-0000",
         "PARDA", "CASADO",
+        "PF FAVORECIDO EMENDA", "PF SEM CODIGO NOME", "PF BENEFICIARIO NOME",
+        "PF ESTADUAL NOME", "DETALHE-PRESENTE-OFERTANTE", "AGENDA DA PESSOA FRACA",
+        "CARGO-PESSOA-FRACA", "12345678901:FULANA",
     ]  # fmt: skip
     for arquivo, texto in textos.items():
         assert not CPF_FORMATADO.search(texto), f"CPF formatado em {arquivo}"
@@ -270,3 +357,51 @@ def test_leitura_em_lotes(banco, tmp_path, monkeypatch):
     r = _gerar(banco, tmp_path)
     assert r["despesas_cota"]["linhas"] == 3
     assert pq.read_table(tmp_path / "despesas_cota.parquet").num_rows == 3
+
+
+def test_conjuntos_novos_saem_sem_dado_pessoal(banco, tmp_path):
+    r = _gerar(banco, tmp_path)
+    csv = _texto_csv(tmp_path)
+    assert r["emendas_federais"]["linhas"] == 1 and "Fulana Eleita" in csv["emendas_federais"]
+    assert r["emendas_pagamentos"]["linhas"] == 2
+    assert "PREFEITURA SA" in csv["emendas_pagamentos"]
+    assert "12345678000190" in csv["emendas_transferencias"]
+    assert r["emendas_pagamentos_sem_codigo"]["linhas"] == 1
+    assert r["emendas_transferencias"]["linhas"] == 2
+    assert "ASSOCIACAO LTDA" in csv["emendas_transferencias"]
+    assert "Obra, CPF [CPF omitido]" in csv["emendas_transferencias"]
+    assert r["emendas_estaduais"]["linhas"] == 2
+    assert "ASSOCIACAO ESTADUAL LTDA" in csv["emendas_estaduais"]
+    assert "EMPRESA REAL LTDA" in csv["empresas"]
+    assert r["empresas"]["linhas"] == 3
+    assert "MEI SEM NOME [CPF omitido]" in csv["empresas"]  # defesa: CPF no nome some
+    assert "22222222000122,,true" in csv["empresas"]  # nome omitido na origem
+    assert r["gastos_locais_fora"]["linhas"] == 1
+    assert "Reunião sobre obra" in csv["agenda_compromissos"]
+    assert "Associação Comercial" in csv["agenda_compromissos"]
+
+
+def test_pessoa_nao_publicavel_fica_de_fora_dos_conjuntos_novos(banco, tmp_path):
+    r = _gerar(banco, tmp_path)
+    # Agenda e servidor: só a pessoa de vínculo forte (a de vínculo fraco não sai).
+    assert r["agenda_compromissos"]["linhas"] == 2
+    assert r["servidores_federais"]["linhas"] == 1
+    publicas = {p["id"] for p in pq.read_table(tmp_path / "pessoas_publicas.parquet").to_pylist()}
+    for nome in ("emendas_pagamentos", "emendas_estaduais"):
+        for linha in pq.read_table(tmp_path / f"{nome}.parquet").to_pylist():
+            assert linha["pessoa_id"] is None or linha["pessoa_id"] in publicas, nome
+    # Favorecido pessoa física: a linha existe, mas sem nome nem número.
+    linhas = pq.read_table(tmp_path / "emendas_pagamentos.parquet").to_pylist()
+    pf = next(x for x in linhas if x["emenda_codigo"] == "20250002")
+    assert pf["favorecido"] is None and pf["favorecido_cnpj"] is None and pf["pessoa_id"] is None
+    # Detalhe de viagem e presente (ofertante) nunca sai.
+    ag = pq.read_table(tmp_path / "agenda_compromissos.parquet").to_pylist()
+    assert all(x["detalhes"] is None for x in ag if x["tipo"] == "presente")
+
+
+def test_nomes_dos_conjuntos_sao_unicos():
+    nomes = [c.nome for c in CONJUNTOS]
+    assert len(nomes) == len(set(nomes))
+    assert {"emendas_estaduais", "empresas", "gastos_locais_fora", "agenda_compromissos"} <= set(
+        nomes
+    )

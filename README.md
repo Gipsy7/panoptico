@@ -356,7 +356,7 @@ Atualização diária no Windows: [scripts/acervo_diario.ps1](scripts/acervo_dia
 
 <br>
 
-Um arquivo por conjunto (parlamentares, vereadores, eleitos, bens e campanha, linha do tempo, processos, CPIs, cota, partidos, PNCP, TCEs), com `LEIAME.md` e `dicionario.json` (colunas, fonte, data da carga, SHA-256).
+Um arquivo por conjunto (parlamentares, vereadores, eleitos, bens e campanha, linha do tempo, processos, CPIs, cota, partidos, PNCP, TCEs, emendas federais e estaduais, empresas e sanções, agenda e cargos de ministros, repasses da União, contas dos municípios e estados, projetos, votações e votos), 50 no total, com `LEIAME.md` e `dicionario.json` (colunas, fonte, data da carga, SHA-256).
 
 ```bash
 cd backend

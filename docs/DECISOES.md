@@ -3,6 +3,7 @@
 ## Índice
 
 - [2026-10-27: média da Casa quando a fonte é parcial](#2026-10-27-média-da-casa-quando-a-fonte-é-parcial)
+- [2026-10-29: exportação aberta das tabelas das ondas recentes](#2026-10-29-exportação-aberta-das-tabelas-das-ondas-recentes)
 - [2026-10-06: stack inicial](#2026-10-06-stack-inicial)
 - [2026-10-06: ingestão em duas etapas](#2026-10-06-ingestão-em-duas-etapas)
 - [2026-10-06: escopo do modelo](#2026-10-06-escopo-do-modelo)
@@ -1519,4 +1520,12 @@ A reserva da VPS é uma **versão congelada** do site, da API e do banco, na Ver
 - **Regra (vale para qualquer Casa, ALECE é o primeiro caso):** só o nome idêntico após `comum.chave_nome` liga sozinho. O parecido vira sugestão (até 3 deputados da lista, por semelhança de letras e de palavras, mínimo 0,62) na fila `backend/data/processed/apelidos_pendentes_<escopo>.csv`, fora do git e que nenhuma rota da API, página ou exportação lê. Ex-deputado ou suplente sem registro na lista fica na fila sem candidato: só dá para recusar (ligar exigiria um deputado para receber o gasto).
 - **Decisão humana:** `python -m ingestion.revisar --tipo apelido` grava em `data/curadoria/apelidos_revisados.csv` (versionado; escopo, nome na planilha, `id_externo` do deputado na Casa, aceito/recusado). `base.ligar_nomes` reaplica a cada carga, na VPS também; decisão de deputado que saiu da lista é ignorada; recusado sai da fila.
 - **Adoção por outras Casas:** trocar `base.ligar_nomes_exatos` por `base.ligar_nomes(escopo, totais, deputados, tse)`. Usam hoje: ALECE (gastos), ALRN (seletor de verbas; só quem liga é buscado) e ALESC (nomes nos extratos de voto, escopo `alesc_votos`; 8 nomes e 172 votos sem deputado igual, só 1 com candidato). A ALRN não foi medida: a página de verbas (`/portal/verbas`) responde 404 em 27/10/2026 (mudou de endereço, não é bloqueio). Sem migração.
+
+## 2026-10-29: exportação aberta das tabelas das ondas recentes
+
+- **O quê:** 28 conjuntos novos em `exportar/conjuntos.py` (22 antes, 50 agora): emendas federais (`emendas_federais`, `emendas_pagamentos`, `emendas_pagamentos_sem_codigo`, `emendas_transferencias`, `emendas_convenios`, `emendas_relator_indicacoes`), `emendas_estaduais`, `empresas`, `sancoes_empresas`, `gastos_locais_fora`, `agenda_compromissos`, `servidores_federais`, `viagens_federais_ano`, `cartao_corporativo_mes`, `transferencias_uniao`, `arrecadacao_uf`, `populacao_ibge`, `contas_municipios`, `contas_estados`, `canais_oficiais`, `proposicoes`, `proposicoes_autorias`, `votacoes`, `votos`, `discursos`, `projetos_locais`, `votacoes_locais`, `votos_locais`. Reverte o "fora desta primeira versão" de 2026-10-10 (votos, projetos e emendas).
+- **Mesmas regras, na consulta SQL:** favorecido ou beneficiário cujo documento não é CNPJ de 14 dígitos sai sem nome e sem número; `pessoa_id` só aparece quando a pessoa tem vínculo forte ou revisado (senão vai nulo, nas emendas) e tabelas que só existem por pessoa (agenda, cargos, viagens, cartão) só saem para pessoa publicável; empresa de MEI com CPF na razão social já vem sem nome (`nome_omitido`), e o filtro de 11 dígitos vale como segunda defesa.
+- **Fora de propósito:** `detalhes` da agenda nos tipos viagem e presente (traz o ofertante, que pode ser pessoa física); `id_externo` dos cargos (chave com CPF parcial e nome); participantes privados da agenda (só a entidade); transcrição dos discursos. Sanção só de CNPJ de 14 dígitos.
+- **Ainda sem conjunto:** tramitações, pauta, votos e orientações em comissões, temas, redes sociais, fotos, resumos por parlamentar e as tabelas de apoio do PNCP (`pncp_soma`, `pncp_dia`, `pncp_suspeito`...), por serem derivadas ou volumosas sem pedido de uso. `socio_pessoa` e `cnpj_consulta` não saem (dado de pessoa física).
+- **Tamanho:** os conjuntos maiores são `transferencias_uniao` (2,3 milhões de linhas, ~14 MB Parquet), `empresas` (496 mil, ~16 MB), `emendas_transferencias` (134 mil, ~11 MB) e `votos_locais` (1,7 milhão, ~1 MB). Os ids valem só dentro de uma geração, como nos demais.
 
