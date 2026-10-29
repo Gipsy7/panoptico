@@ -16,7 +16,7 @@ from ingestion.camara import temas as temas_camara
 from ingestion.camara import tramitacoes as tramitacoes_camara
 from ingestion.camara import votacoes as votacoes_camara
 from ingestion.canais import catalogo as canais
-from ingestion.congresso import emendas_relator
+from ingestion.congresso import atos_presidente, emendas_relator
 from ingestion.ibge import municipios
 from ingestion.senado import despesas as despesas_senado
 from ingestion.senado import discursos as discursos_senado
@@ -63,6 +63,9 @@ def _tarefas() -> list[tuple[str, Callable[[], int]]]:
     tarefas.append((canais.FONTE, canais.executar))  # catálogo versionado; não acessa sites
     tarefas.append((emendas.FONTE, emendas.executar))
     tarefas.append((emendas_relator.FONTE, emendas_relator.executar))  # indicações RP9 (2022)
+    tarefas.append(
+        (atos_presidente.FONTE, atos_presidente.executar)
+    )  # MPV e vetos (2023 em diante)
     # Depois das emendas: o que aconteceu com o dinheiro (convênios e transferências especiais).
     tarefas.append((convenios_emendas.FONTE, convenios_emendas.executar))
     tarefas.append((especiais_emendas.FONTE, especiais_emendas.executar))

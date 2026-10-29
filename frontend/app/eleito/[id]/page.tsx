@@ -21,6 +21,7 @@ import { formatarNumero } from "@/components/painel/barra-comparacao";
 import { CartaoNumero, GradeCartoes } from "@/components/painel/cartao-numero";
 import { ListaPerguntas, Pergunta } from "@/components/painel/pergunta";
 import { AgendaSecao } from "@/components/executivo-agenda";
+import { AtosPresidenciaisSecao } from "@/components/executivo-atos";
 import {
   AvisoDoGoverno,
   BlocoIndisponivel,
@@ -35,6 +36,7 @@ import {
 import {
   type EleitoDetalhe,
   getAgenda,
+  getAtosPresidente,
   getCanais,
   getCarreira,
   getContasEstado,
@@ -87,6 +89,11 @@ async function DadosEstruturados({ id }: { id: string }) {
 
 const CARGO_EXECUTIVO = /^(vice-)?(presidente|governador|prefeito)/i;
 
+function anoPosse(dados: Record<string, unknown> | null): string {
+  const periodo = dados?.periodo as { inicio?: string } | undefined;
+  return periodo?.inicio?.slice(0, 4) ?? "";
+}
+
 function texto(v: string | string[] | undefined): string | undefined {
   return Array.isArray(v) ? v[0] : v;
 }
@@ -102,6 +109,10 @@ export default function EleitoPage({ params, searchParams }: PageProps<"/eleito/
             agendaTipo={texto(sp.agenda_tipo)}
             agendaAno={texto(sp.agenda_ano)}
             agendaPagina={texto(sp.agenda_pagina)}
+            mpvGrupo={texto(sp.mpv_grupo)}
+            mpvPagina={texto(sp.mpv_pagina)}
+            vetoGrupo={texto(sp.veto_grupo)}
+            vetoPagina={texto(sp.veto_pagina)}
           />
         </>
       ))}
@@ -114,11 +125,19 @@ async function Perfil({
   agendaTipo,
   agendaAno,
   agendaPagina,
+  mpvGrupo,
+  mpvPagina,
+  vetoGrupo,
+  vetoPagina,
 }: {
   id: string;
   agendaTipo?: string;
   agendaAno?: string;
   agendaPagina?: string;
+  mpvGrupo?: string;
+  mpvPagina?: string;
+  vetoGrupo?: string;
+  vetoPagina?: string;
 }) {
   const resultado = await getEleito(id);
   if (!resultado.ok) {
@@ -141,10 +160,19 @@ async function Perfil({
   ]);
   // API antiga sem a rota do painel: o perfil cai no comportamento de antes.
   const painel = painelR?.ok ? painelR.dados : null;
-  const [contasEstadoR, agendaR] = await Promise.all([
+  // Medidas provisórias e vetos: só o Presidente do mandato em curso (eleito em 2022); vice,
+  // ex-presidentes e candidatos de outras eleições não têm a seção.
+  const comAtos = painel?.ente.tipo === "uniao" && painel.mandato_presidencial;
+  const [contasEstadoR, agendaR, mpvR, vetoR] = await Promise.all([
     painel?.ente.tipo === "estado" && painel.contas.disponivel && painel.ente.uf ? getContasEstado(painel.ente.uf) : null,
     painel?.ente.tipo === "uniao" && painel.agenda.disponivel
       ? getAgenda(id, { tipo: agendaTipo, ano: agendaAno, pagina: agendaPagina })
+      : null,
+    comAtos && painel.medidas_provisorias.disponivel
+      ? getAtosPresidente(id, { tipo: "mpv", grupo: mpvGrupo, pagina: mpvPagina })
+      : null,
+    comAtos && painel.vetos.disponivel
+      ? getAtosPresidente(id, { tipo: "veto", grupo: vetoGrupo, pagina: vetoPagina })
       : null,
   ]);
   const temSapl = Boolean(canais?.ok && canais.dados.itens.some((c) => c.tipo === "sapl"));
@@ -221,14 +249,47 @@ async function Perfil({
             <BlocoIndisponivel titulo="Viagens e cartão de pagamento" bloco={painel.viagens_cartao} painel={painel} />
           ),
         },
-        {
-          id: "gov-mpv",
-          titulo: "Medidas provisórias",
-          conteudo: <BlocoIndisponivel titulo="Medidas provisórias" bloco={painel.medidas_provisorias} painel={painel} />,
-        },
       );
     }
     abas.push({ id: "governo", rotulo: "Dinheiro do governo", secoes: secoesGoverno });
+    if (comAtos) {
+      abas.push({
+        id: "atos",
+        rotulo: "Medidas e vetos",
+        secoes: [
+          {
+            id: "gov-mpv",
+            titulo: "Medidas provisórias",
+            conteudo: painel.medidas_provisorias.disponivel ? (
+              <AtosPresidenciaisSecao
+                tipo="mpv"
+                bloco={painel.medidas_provisorias}
+                lista={mpvR?.ok ? mpvR.dados : null}
+                candidaturaId={painel.candidatura_id}
+                outroFiltro={{ veto_grupo: vetoGrupo, veto_pagina: vetoPagina }}
+              />
+            ) : (
+              <BlocoIndisponivel titulo="Medidas provisórias" bloco={painel.medidas_provisorias} painel={painel} />
+            ),
+          },
+          {
+            id: "gov-vetos",
+            titulo: "Vetos",
+            conteudo: painel.vetos.disponivel ? (
+              <AtosPresidenciaisSecao
+                tipo="veto"
+                bloco={painel.vetos}
+                lista={vetoR?.ok ? vetoR.dados : null}
+                candidaturaId={painel.candidatura_id}
+                outroFiltro={{ mpv_grupo: mpvGrupo, mpv_pagina: mpvPagina }}
+              />
+            ) : (
+              <BlocoIndisponivel titulo="Vetos" bloco={painel.vetos} painel={painel} />
+            ),
+          },
+        ],
+      });
+    }
     if (d === "uniao") {
       abas.push({
         id: "agenda-aba",
@@ -384,6 +445,22 @@ async function Perfil({
             rotulo={`Emendas recebidas pela cidade ${rotuloPeriodo(painel.emendas.dados)}`}
             valor={formatarReaisCompacto(num(painel.emendas.dados, "total_geral")!)}
             apoio="Todos os tipos de emenda"
+          />
+        )}
+        {comAtos && painel.medidas_provisorias.disponivel && num(painel.medidas_provisorias.dados, "total") != null && (
+          <CartaoNumero
+            destino="gov-mpv"
+            rotulo={`Medidas provisórias editadas desde a posse (${anoPosse(painel.medidas_provisorias.dados)})`}
+            valor={String(num(painel.medidas_provisorias.dados, "total"))}
+            apoio="Mandato atual, sem média"
+          />
+        )}
+        {comAtos && painel.vetos.disponivel && num(painel.vetos.dados, "total") != null && (
+          <CartaoNumero
+            destino="gov-vetos"
+            rotulo={`Vetos desde a posse (${anoPosse(painel.vetos.dados)})`}
+            valor={String(num(painel.vetos.dados, "total"))}
+            apoio="Mandato atual, sem média"
           />
         )}
         {e.votos != null && (

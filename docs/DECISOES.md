@@ -2,6 +2,7 @@
 
 ## Índice
 
+- [2026-10-29: medidas provisórias e vetos do Presidente](#2026-10-29-medidas-provisórias-e-vetos-do-presidente)
 - [2026-10-27: média da Casa quando a fonte é parcial](#2026-10-27-média-da-casa-quando-a-fonte-é-parcial)
 - [2026-10-29: exportação aberta das tabelas das ondas recentes](#2026-10-29-exportação-aberta-das-tabelas-das-ondas-recentes)
 - [2026-10-06: stack inicial](#2026-10-06-stack-inicial)
@@ -1529,3 +1530,10 @@ A reserva da VPS é uma **versão congelada** do site, da API e do banco, na Ver
 - **Ainda sem conjunto:** tramitações, pauta, votos e orientações em comissões, temas, redes sociais, fotos, resumos por parlamentar e as tabelas de apoio do PNCP (`pncp_soma`, `pncp_dia`, `pncp_suspeito`...), por serem derivadas ou volumosas sem pedido de uso. `socio_pessoa` e `cnpj_consulta` não saem (dado de pessoa física).
 - **Tamanho:** os conjuntos maiores são `transferencias_uniao` (2,3 milhões de linhas, ~14 MB Parquet), `empresas` (496 mil, ~16 MB), `emendas_transferencias` (134 mil, ~11 MB) e `votos_locais` (1,7 milhão, ~1 MB). Os ids valem só dentro de uma geração, como nos demais.
 
+## 2026-10-29: medidas provisórias e vetos do Presidente
+
+- **O que entra:** na página do Presidente da República (mandato em curso, hoje 1º/1/2023 a 4/1/2027), as seções "Medidas provisórias" e "Vetos" (aba "Medidas e vetos"): total, contagem por situação e a lista, do mais recente ao mais antigo, 20 por página, com ementa, data, situação como o Congresso registra e link para a página dele. Antes o bloco `medidas_provisorias` do painel dizia que a coleta não cobria MPV; ele agora traz dados e há um bloco `vetos` novo.
+- **Só o titular do mandato:** vice, ex-presidentes e candidatos de outras eleições recebem o bloco como "não é do presidente do mandato atual" e a página não mostra as seções; o período aparece escrito na seção. O mandato em curso é derivado, sem troca manual: `mandato_em_curso()` (em `ingestion/congresso/atos_presidente.py`) pega a eleição presidencial mais recente (de 4 em 4 anos desde 2022) cuja posse já ocorreu; a posse é 1º de janeiro até 2023 e 5 de janeiro a partir de 2027 (EC 111/2021, que estende o mandato de 2022 até 4/1/2027). A ingestão (início e anos baixados), o serviço (`eh_titular_do_mandato`) e a página (campo `mandato_presidencial` do painel) usam a mesma função; em 5/1/2027 a seção passa sozinha ao eleito de 2026 e a carga seguinte troca os atos (recarga integral). Teste cobre 4/1 e 5/1/2027.
+- **Fonte:** API de processos do Senado (JSON aberto), a mesma já usada em `senado_proposicoes`; a API de dados abertos da Câmara não traz situação de MPV (o campo vem vazio, a tramitação é do Congresso) e serve só de conferência do total (245 = 245). O serviço antigo de vetos (`/materia/vetos/{ano}`) está descontinuado e não é usado; serviu para checar total/parcial.
+- **Linguagem:** o cartão diz "Perdeu a validade sem ser votada a tempo" com "Perdeu a eficácia (caducou)" em letra menor; "Congresso derrubou o veto" com "Veto rejeitado". Sem nota, sem ranking e sem cor de bom/ruim. Não há comparação com média (cargo único) e a seção diz isso. A situação que a fonte escreve fica literal em cada item; o agrupamento usa o código de decisão e `tramitando`.
+- **Migração `0057_ato_presidencial`:** inevitável (a tabela `proposicao` guarda só proposições de parlamentares, com autoria); só acrescenta tabela. Sem `RECARREGAR_DADOS`: a carga é diária no `run_all` (agenda `diaria.sh` da VPS) e a página mostra "ainda não foram carregadas" até a primeira carga.

@@ -18,7 +18,7 @@ from app.models import (
     FonteIngestao,
     Municipio,
 )
-from app.services import contas, contratos_pncp, cruzamentos, emendas
+from app.services import atos_presidenciais, contas, contratos_pncp, cruzamentos, emendas
 from app.services import pessoas as svc_pessoas
 from app.services.representantes import UFS
 from ingestion.executivo.eagendas import PAGINA as URL_EAGENDAS
@@ -49,9 +49,8 @@ POR_PAGINA = 30
 FONTE_EAGENDAS = "e-Agendas (Controladoria-Geral da União)"
 FONTE_VIAGENS = "Portal da Transparência (CGU): viagens a serviço e cartão de pagamento"
 FONTE_VIAGENS_URL = "https://portaldatransparencia.gov.br/"
-SEM_MPV = (
-    "Medidas provisórias e vetos ainda não são carregados: a coleta de proposições cobre só "
-    "projetos de lei, de lei complementar, PEC e decretos legislativos de parlamentares."
+MOTIVO_SO_UNIAO = (
+    "Medidas provisórias e vetos desta seção são do Presidente da República (cargo da União)."
 )
 
 
@@ -245,6 +244,18 @@ def _bloco_viagens_cartao(session: Session, ente: dict, pessoa_id: int | None) -
     }
 
 
+def _bloco_ato(session: Session, ente: dict, c: Candidatura, tipo: str) -> dict:
+    """MPV e vetos: só o titular do mandato de presidente em curso (vice e ex-presidentes não)."""
+    if ente["tipo"] != "uniao":
+        return _ausente(MOTIVO_SO_UNIAO)
+    if not atos_presidenciais.eh_titular_do_mandato(c):
+        return _ausente(atos_presidenciais.MOTIVO_NAO_TITULAR)
+    b = atos_presidenciais.bloco(session, tipo)
+    if b["disponivel"]:
+        b["rota"] = f"/executivo/{c.id}/atos?tipo={tipo}"
+    return b
+
+
 def painel(session: Session, c: Candidatura) -> dict:
     municipio = session.get(Municipio, c.municipio_ibge) if c.municipio_ibge else None
     ente = _ente(c, municipio)
@@ -257,12 +268,14 @@ def painel(session: Session, c: Candidatura) -> dict:
         "ano_eleicao": c.ano_eleicao,
         "ente": ente,
         "pessoa_id": pessoa_id,
+        "mandato_presidencial": atos_presidenciais.eh_titular_do_mandato(c),
         "contas": _bloco_contas(session, ente),
         "emendas": _bloco_emendas(session, ente, municipio),
         "contratos": _bloco_contratos(session, ente),
         "agenda": _bloco_agenda(session, ente, pessoa_id, c.id),
         "viagens_cartao": _bloco_viagens_cartao(session, ente, pessoa_id),
-        "medidas_provisorias": _ausente(SEM_MPV),
+        "medidas_provisorias": _bloco_ato(session, ente, c, "mpv"),
+        "vetos": _bloco_ato(session, ente, c, "veto"),
     }
 
 

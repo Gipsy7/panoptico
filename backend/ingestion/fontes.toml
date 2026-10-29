@@ -1086,6 +1086,17 @@ depende = ["pessoas"]
 # A API com token gov.br (eagendas.cgu.gov.br/api/v2) não é necessária. A agenda do presidente
 # da República não consta na base. Recarga integral a cada arquivo.
 
+[[fonte]]
+nome = "congresso_atos_presidente"
+modulo = "ingestion.congresso.atos_presidente"
+uso = "Medidas provisórias editadas e vetos do Presidente da República no mandato atual, com a situação e o que o Congresso decidiu (perfil do presidente)"
+recorte = "só MPV e VET de 2023 em diante (mandato 2023-2026); número, ementa, data, situação e decisão como o Congresso registra; sem texto integral"
+bruto = "completo"
+frequencia = "diaria"
+acesso = "aberto"
+# API de processos do Senado (legis.senado.leg.br/dadosabertos/processo?sigla=MPV|VET&ano=), a
+# mesma de senado_proposicoes; JSON aberto, sem token. ~450 linhas, recarga integral.
+
 # Cadastro de empresas por CNPJ
 [[fonte]]
 nome = "receita_empresas"
