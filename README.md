@@ -191,7 +191,7 @@ O porquê de cada escolha: [docs/DECISOES.md](docs/DECISOES.md).
 | Controle e Justiça | CGU (CEIS, CNEP, CEAF), TCU, DataJud (CNJ), Conselhos de Ética, CPIs |
 | Estados e cidades | Assembleias, câmaras (SAPL e outros), [SICONFI](https://siconfi.tesouro.gov.br/), [TCE-SP](https://transparencia.tce.sp.gov.br/conjunto-de-dados), [TCE-RS](https://dados.tce.rs.gov.br/), [SC Transferências](https://consultas.sctransferencias.cge.sc.gov.br/pesquisa-detalhada/emendas) |
 | Executivo | e-Agendas (CGU): agenda de ministros e do vice |
-| Apoio | [IBGE](https://servicodados.ibge.gov.br/api/docs/localidades), [ViaCEP](https://viacep.com.br/), base aberta do CNPJ, [Decreto Legislativo 172/2022](https://www2.camara.leg.br/legin/fed/decleg/2022/decretolegislativo-172-21-dezembro-2022-793529-publicacaooriginal-166604-pl.html) (salário) |
+| Apoio | [IBGE](https://servicodados.ibge.gov.br/api/docs/localidades), [ViaCEP](https://viacep.com.br/), base aberta do CNPJ, [Decreto Legislativo 172/2022](https://www2.camara.leg.br/legin/fed/decleg/2022/decretolegislativo-172-21-dezembro-2022-793529-publicacaooriginal-166604-pl.html) (salário federal); salário de deputado estadual: leis estaduais transcritas em `data/salario_deputados_estaduais.csv` (10 UFs até agora) |
 
 Endereço, formato, frequência e armadilhas de cada uma: [docs/FONTES_DE_DADOS.md](docs/FONTES_DE_DADOS.md).
 
