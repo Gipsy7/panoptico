@@ -329,7 +329,7 @@ depende = ["tse_candidaturas"]
 [[fonte]]
 nome = "siconfi_contas"
 modulo = "ingestion.siconfi.contas"
-uso = "Contas da sua cidade"
+uso = "Contas da sua cidade e quanto o governo do estado repassou à prefeitura, por tipo"
 recorte = "dois anos anteriores"
 guarda = "somas"
 frequencia = "mensal"

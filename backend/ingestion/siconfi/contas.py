@@ -33,6 +33,20 @@ CONTAS_UNIAO = (
     "RO1.7.1.0.00.0.0",
     "RO2.4.1.0.00.0.0",
 )  # transferências da União: correntes, capital
+# Repasses do governo do estado à prefeitura (receita bruta realizada, Anexo I-C). Total =
+# correntes (1.7.2) + capital (2.4.2); cada tipo soma as contas listadas e "outras" é o resto,
+# para que as partes sempre somem o total.
+ESTADO_TOTAL = ("RO1.7.2.0.00.0.0", "RO2.4.2.0.00.0.0")
+ESTADO_TIPOS = {
+    "icms": ("RO1.7.2.1.50.0.0",),
+    "ipva": ("RO1.7.2.1.51.0.0",),
+    "ipi": ("RO1.7.2.1.52.0.0",),
+    "cide": ("RO1.7.2.1.53.0.0",),
+    "royalties": ("RO1.7.2.2.00.0.0",),
+    "sus": ("RO1.7.2.3.00.0.0", "RO2.4.2.1.00.0.0"),
+    "convenios": ("RO1.7.2.4.00.0.0", "RO2.4.2.2.00.0.0"),
+}
+COLUNA_FUNDEB = "Deduções - FUNDEB"
 FUNCAO = re.compile(r"^(\d{2}) - (.+)$")  # "10 - Saúde" (subfunções têm "10.301 - ...")
 
 
@@ -64,6 +78,35 @@ def _consultar(client: httpx.Client, ibge: str, ano: int, anexo: str) -> list[di
         except ValueError:
             return None
     return None
+
+
+def repasses_estado(receitas: list[dict]) -> dict[str, float] | None:
+    """Repasses do estado por tipo (valores brutos) e a parte retida para o Fundeb.
+    Nulo quando a DCA não traz nenhuma conta de transferência do estado."""
+    brutas = {r["cod_conta"]: r["valor"] for r in receitas if r["coluna"] == COLUNA_BRUTA}
+    totais = [brutas[c] for c in ESTADO_TOTAL if brutas.get(c) is not None]
+    if not totais:
+        return None
+    total = round(sum(float(v) for v in totais), 2)
+    tipos = {
+        tipo: round(sum(float(brutas.get(c) or 0) for c in contas), 2)
+        for tipo, contas in ESTADO_TIPOS.items()
+    }
+    tipos["outras"] = round(total - sum(tipos.values()), 2)
+    fundeb = next(
+        (
+            r["valor"]
+            for r in receitas
+            if r["cod_conta"] == ESTADO_TOTAL[0] and r["coluna"] == COLUNA_FUNDEB
+        ),
+        None,
+    )
+    # A dedução vem negativa em alguns entes e positiva em outros: guardamos o módulo.
+    return {
+        "total": total,
+        **tipos,
+        "fundeb": round(abs(float(fundeb)), 2) if fundeb is not None else None,
+    }
 
 
 def recortar(ibge: str, receitas: list[dict], despesas: list[dict]) -> dict[str, Any] | None:
@@ -100,6 +143,7 @@ def recortar(ibge: str, receitas: list[dict], despesas: list[dict]) -> dict[str,
         "receita_propria": brutas.get(CONTA_PROPRIA),
         "transf_uniao": round(sum(da_uniao), 2) if da_uniao else None,
         "despesa_por_area": por_area,
+        "transf_estado": repasses_estado(receitas),
     }
 
 
@@ -165,6 +209,8 @@ def executar(ano: int, de_raw: Path | None = None) -> int:
                 "receita_propria": _decimal(c.get("receita_propria")),
                 "transf_uniao": _decimal(c.get("transf_uniao")),
                 "despesa_por_area": c["despesa_por_area"],
+                # Bruto antigo (antes de 0057) não tem o recorte: fica nulo.
+                "transf_estado": c.get("transf_estado"),
             }
             for c in payload
         ]

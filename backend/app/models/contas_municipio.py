@@ -26,6 +26,10 @@ class ContasMunicipio(Base):
     transf_uniao: Mapped[Decimal | None] = mapped_column(Numeric(16, 2))
     # {"Saúde": 123.45, "Educação": ...}: despesa paga por função de governo.
     despesa_por_area: Mapped[dict] = mapped_column(JSON)
+    # Repasses do governo do estado (receita bruta, 1.7.2 + 2.4.2), por tipo:
+    # {"total", "icms", "ipva", "ipi", "cide", "royalties", "sus", "convenios", "outras",
+    # "fundeb"}. Nulo se a DCA não traz a conta ou a carga é anterior à migração 0057.
+    transf_estado: Mapped[dict | None] = mapped_column(JSON, nullable=True)
 
 
 class ContasEstado(Base):

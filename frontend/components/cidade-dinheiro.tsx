@@ -10,6 +10,7 @@ import { EsqueletoSecao } from "@/components/esqueleto-secao";
 import { FonteRodape } from "@/components/fonte-rodape";
 import { FornecedoresPncpSecao } from "@/components/fornecedores-pncp-secao";
 import { FornecedoresSecao } from "@/components/fornecedores-secao";
+import { RepassesEstaduaisSecao } from "@/components/repasses-estaduais-secao";
 import { AbasDetalhe, type AbaDetalhe } from "@/components/painel/abas-detalhe";
 import { BarraComparacao } from "@/components/painel/barra-comparacao";
 import { CartaoNumero, GradeCartoes } from "@/components/painel/cartao-numero";
@@ -23,6 +24,7 @@ import {
   getEmendasMunicipio,
   getFornecedores,
   getFornecedoresPncp,
+  getRepassesEstaduais,
   getRepresentantes,
 } from "@/lib/api";
 import { ANO_PADRAO } from "@/components/dinheiro-federal/formatos";
@@ -66,13 +68,16 @@ async function Cidade({ ibge }: { ibge: string }) {
   const { municipio, uf, estado } = rep.dados.localizacao;
   if (!municipio) notFound();
 
-  const [emendasR, contasR, fornecedoresR, pncpR, federalR] = await Promise.all([
+  const [emendasR, contasR, fornecedoresR, pncpR, federalR, estaduaisR] = await Promise.all([
     getEmendasMunicipio(ibge),
     getContas(ibge),
     getFornecedores(ibge),
     getFornecedoresPncp(ibge),
     getDinheiroFederalMunicipio(ibge),
+    getRepassesEstaduais(ibge),
   ]);
+  const repassesEstado = estaduaisR.ok ? estaduaisR.dados : null;
+  const temRepassesEstado = Boolean(repassesEstado?.disponivel && repassesEstado.total != null);
   const federal = federalR.ok ? federalR.dados : null;
   const emendas = emendasR.ok ? emendasR.dados : null;
   const contas = contasR.ok ? contasR.dados : null;
@@ -100,7 +105,7 @@ async function Cidade({ ibge }: { ibge: string }) {
     : "";
   const temEmendas = totalEmendas > 0;
   const gastoInformado = Boolean(contas && contas.despesa_paga && contas.despesa_por_habitante != null);
-  const temCartoes = temEmendas || Boolean(contas) || Boolean(maiorPncp) || totalTce > 0;
+  const temCartoes = temEmendas || temRepassesEstado || Boolean(contas) || Boolean(maiorPncp) || totalTce > 0;
 
   // Cada seção aparece UMA vez, dentro de uma aba; o cartão do topo abre a mesma seção em gaveta.
   const abas: AbaDetalhe[] = [
@@ -115,6 +120,18 @@ async function Cidade({ ibge }: { ibge: string }) {
             <EmendasMunicipioSecao dados={emendas} />
           ) : (
             <SemDado titulo="Dinheiro enviado por emendas" mensagem="Não deu para buscar as emendas desta cidade agora." />
+          ),
+        },
+        {
+          id: "repasses-estado",
+          titulo: "Dinheiro do governo do estado",
+          conteudo: repassesEstado ? (
+            <RepassesEstaduaisSecao dados={repassesEstado} cidade={municipio} estado={estado} />
+          ) : (
+            <SemDado
+              titulo="Dinheiro do governo do estado"
+              mensagem="Não deu para buscar os repasses do estado a esta cidade agora."
+            />
           ),
         },
       ],
@@ -206,6 +223,31 @@ async function Cidade({ ibge }: { ibge: string }) {
                           media: {
                             rotulo: rotuloMedia(emendas.municipios_na_media),
                             valor: mediaEmendas,
+                          },
+                          formato: "reais",
+                        }
+                      : undefined
+                  }
+                />
+              )}
+              {repassesEstado && temRepassesEstado && (
+                <CartaoNumero
+                  destino="repasses-estado"
+                  rotulo={`Governo do estado repassou em ${repassesEstado.ano}`}
+                  valor={formatarReaisCompacto(repassesEstado.total!)}
+                  apoio={
+                    repassesEstado.percentual_por_lei != null
+                      ? `${repassesEstado.percentual_por_lei.toLocaleString("pt-BR", { maximumFractionDigits: 1 })}% é repasse obrigatório por lei`
+                      : undefined
+                  }
+                  largo
+                  comparacao={
+                    repassesEstado.por_habitante != null && repassesEstado.media_uf_por_habitante != null
+                      ? {
+                          pessoa: { rotulo: `${municipio}, por morador`, valor: repassesEstado.por_habitante },
+                          media: {
+                            rotulo: rotuloMedia(repassesEstado.municipios_na_media),
+                            valor: repassesEstado.media_uf_por_habitante,
                           },
                           formato: "reais",
                         }
@@ -349,9 +391,13 @@ async function Cidade({ ibge }: { ibge: string }) {
               ainda não.
             </li>
             <li>Prefeituras que não publicam contratos no PNCP não aparecem na lista de contratos.</li>
+            <li>
+              Os repasses do governo do estado vêm das contas que a própria prefeitura envia ao Tesouro Nacional; quando
+              a prefeitura não enviou as contas do ano, não há como mostrar quanto ela recebeu.
+            </li>
           </ul>
         </Pergunta>
-        {(emendas?.media_uf_descricao || contas?.media_uf_descricao) && (
+        {(emendas?.media_uf_descricao || contas?.media_uf_descricao || temRepassesEstado) && (
           <Pergunta
             id="entender-media"
             pergunta="Como é calculada a média do estado?"
@@ -367,6 +413,12 @@ async function Cidade({ ibge }: { ibge: string }) {
               <p>
                 <span className="font-medium">Contas da prefeitura: </span>
                 {contas.media_uf_descricao}
+              </p>
+            )}
+            {temRepassesEstado && repassesEstado && (
+              <p>
+                <span className="font-medium">Repasses do governo do estado: </span>
+                {repassesEstado.media_uf_descricao}
               </p>
             )}
             <p className="text-muted-foreground">
