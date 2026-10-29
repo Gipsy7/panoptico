@@ -551,6 +551,9 @@ class GastosLocais(BaseModel):
     fora_da_soma: GastoForaDaSoma | None = None
     # Data da última carga que atualizou os gastos (não a da que só os manteve).
     atualizado_em: datetime | None = None
+    # Fonte própria dos gastos, quando não é a do resto do perfil (portal de transparência).
+    fonte_nome: str | None = None
+    fonte_url: str | None = None
 
 
 class VereadorDetalhe(VereadorItem):

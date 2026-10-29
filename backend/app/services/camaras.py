@@ -57,6 +57,42 @@ FONTES_PROPRIAS = {
 }
 
 
+# Assembleias cujos gastos vêm de um portal à parte, com carga própria (ingestion/assembleias/
+# gastos_*.py): fonte em fonte_ingestao, nome e endereço mostrados no rodapé da seção de gastos.
+FONTES_GASTOS = {
+    "BA": (
+        "alba_gastos",
+        "Verbas indenizatórias no site da Assembleia Legislativa da Bahia (ALBA)",
+        "https://www.al.ba.gov.br/transparencia/verbas-idenizatorias",
+    ),
+    "PE": (
+        "alepe_gastos",
+        "Verba indenizatória no portal da transparência da ALEPE",
+        "https://transparencia.alepe.pe.gov.br/financas",
+    ),
+    "ES": (
+        "ales_gastos",
+        "Cotas parlamentares no portal da transparência da ALES",
+        "https://www.al.es.gov.br/Transparencia/CotasParlamentares",
+    ),
+    "AM": (
+        "aleam_gastos",
+        "Controle de cota parlamentar no portal da transparência da ALEAM",
+        "https://www.aleam.gov.br/transparencia/controle-de-cota-parlamentar/",
+    ),
+    "PB": (
+        "alpb_gastos",
+        "Verba indenizatória (VIAP) no portal da transparência da ALPB",
+        "https://www.al.pb.leg.br/transparencia/deputados/viap-v2",
+    ),
+    "RO": (
+        "alero_gastos",
+        "Verba indenizatória no portal da transparência da ALERO",
+        "https://transparencia.al.ro.leg.br/Deputados/VerbaIndenizatoria/",
+    ),
+}
+
+
 # Câmaras que saíram do SAPL e têm conector próprio: o endereço de origem diz qual.
 FONTES_DE_CAMARA = {
     # Leitores de ingestion.camaras.fornecedores_cobertura (pelo endereço-base de cada sistema).
@@ -138,16 +174,27 @@ MARCA_GASTOS_MANTIDOS = "[gastos_mantidos]"
 
 def _gastos_atualizado_em(session: Session, casa: str, uf: str = "") -> datetime | None:
     """Data da última carga `ok` que de fato atualizou os gastos (sem o marcador de gastos
-    mantidos nos alertas). Sem nenhuma, cai na data da última carga ok."""
+    mantidos nos alertas). Sem nenhuma, cai na data da última carga ok. Assembleia com gastos
+    em carga própria (`FONTES_GASTOS`) usa a data dessa carga."""
+    proprio = FONTES_GASTOS.get(uf) if casa == "assembleia" else None
+    fonte = proprio[0] if proprio else _fonte(casa, uf)[0]
     cargas = session.execute(
         select(FonteIngestao.concluido_em, FonteIngestao.alertas)
-        .where(FonteIngestao.fonte == _fonte(casa, uf)[0], FonteIngestao.status == "ok")
+        .where(FonteIngestao.fonte == fonte, FonteIngestao.status == "ok")
         .order_by(FonteIngestao.concluido_em.desc())
     ).all()
     for concluido_em, alertas in cargas:
         if not any(MARCA_GASTOS_MANTIDOS in str(a) for a in (alertas or [])):
             return concluido_em
+    if proprio:
+        return cargas[0][0] if cargas else None
     return _atualizado_em(session, casa, uf)
+
+
+def _fonte_dos_gastos(m: MandatoLocal) -> dict:
+    """Nome e endereço da fonte dos gastos, quando não é a mesma do resto do perfil."""
+    proprio = FONTES_GASTOS.get(m.uf) if m.casa == "assembleia" else None
+    return {"fonte_nome": proprio[1], "fonte_url": proprio[2]} if proprio else {}
 
 
 POR_PAGINA = 20
@@ -223,6 +270,7 @@ def gastos(session: Session, m: MandatoLocal) -> dict | None:
             "por_categoria": [],
             "fora_da_soma": _fora(linhas, valor, ilegiveis, motivo),
             "atualizado_em": atualizado,
+            **_fonte_dos_gastos(m),
         }
     do_ano = next((f for f in fora if f[0] == ano), None)
     categorias = session.execute(
@@ -268,6 +316,7 @@ def gastos(session: Session, m: MandatoLocal) -> dict | None:
         "por_categoria": [{"categoria": c, "valor": v} for c, v in categorias],
         "fora_da_soma": _fora(*do_ano[1:]) if do_ano else None,
         "atualizado_em": atualizado,
+        **_fonte_dos_gastos(m),
     }
 
 

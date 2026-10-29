@@ -777,6 +777,56 @@ uso = "Assembleia de São Paulo hoje"
 recorte = "deputados em exercício; ano atual e anterior"
 frequencia = "semanal"
 
+# Gastos do gabinete de assembleias em portal à parte (ingestion/assembleias/gastos_*.py). Rodam
+# depois da carga da casa (que regrava os mandatos e, com eles, apaga os gastos).
+[[fonte]]
+nome = "alba_gastos"
+modulo = "ingestion.assembleias.gastos_alba"
+uso = "Gastos do gabinete dos deputados da Bahia (verbas indenizatórias)"
+recorte = "deputados em exercício; ano atual e anterior, por mês e categoria; sem fornecedor"
+frequencia = "semanal"
+depende = ["alba"]
+
+[[fonte]]
+nome = "alepe_gastos"
+modulo = "ingestion.assembleias.gastos_alepe"
+uso = "Gastos do gabinete dos deputados de Pernambuco (verba indenizatória)"
+recorte = "deputados em exercício; ano atual e anterior, por mês e rubrica; sem fornecedor"
+frequencia = "semanal"
+depende = ["alepe"]
+
+[[fonte]]
+nome = "ales_gastos"
+modulo = "ingestion.assembleias.gastos_ales"
+uso = "Gastos do gabinete dos deputados do Espírito Santo (cota parlamentar, valor solicitado)"
+recorte = "deputados em exercício; ano atual e anterior, por mês e produto"
+frequencia = "semanal"
+depende = ["ales"]
+
+[[fonte]]
+nome = "aleam_gastos"
+modulo = "ingestion.assembleias.gastos_aleam"
+uso = "Gastos do gabinete dos deputados do Amazonas (cota parlamentar, valor líquido)"
+recorte = "deputados em exercício; ano atual e anterior, por mês e verba; sem beneficiário"
+frequencia = "semanal"
+depende = ["sapl_assembleias"]
+
+[[fonte]]
+nome = "alero_gastos"
+modulo = "ingestion.assembleias.gastos_alero"
+uso = "Gastos do gabinete dos deputados de Rondônia (verba indenizatória paga)"
+recorte = "deputados em exercício; ano atual e anterior, por mês e classe; sem prestador"
+frequencia = "semanal"
+depende = ["sapl_assembleias"]
+
+[[fonte]]
+nome = "alpb_gastos"
+modulo = "ingestion.assembleias.gastos_alpb"
+uso = "Gastos do gabinete dos deputados da Paraíba (verba indenizatória, VIAP)"
+recorte = "deputados em exercício; ano atual e anterior, por mês e subitem; sem fornecedor"
+frequencia = "semanal"
+depende = ["sapl_assembleias"]
+
 # Identidade única (lê o banco; não baixa nada)
 [[fonte]]
 nome = "pessoas"
