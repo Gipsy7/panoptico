@@ -12,6 +12,7 @@ Fontes que bloqueiam o acesso automático ou não publicam o dado em formato abe
 | TCE-MG | Acesso à API de dados abertos (empenhos e pagamentos dos municípios) sem reCAPTCHA, ou arquivo anual em lote como o do TCE-RS (LAI); nenhum canal aberto alternativo existe | a enviar | [tce_mg.md](tce_mg.md) |
 | CMO (Congresso) | Solicitantes das emendas de relator-geral (RP9) de 2020 e 2021 e das emendas de comissão (RP8), no formato da planilha da LOA 2022 (LAI) | a enviar | [cmo_rp9_solicitantes.md](cmo_rp9_solicitantes.md) |
 | ALMG e ALESP | Votos nominais e presença em Plenário em formato aberto (LAI) | a enviar (redigido em 18/10/2026) | [almg_alesp_votos_presenca.md](almg_alesp_votos_presenca.md) |
+| ALBA, ALES, ALESE, ALEGO, ALEPE, ALAP, ALEMA, ALECE, ALEMS e ALERJ | Votos nominais e/ou presença em Plenário em formato aberto (um pedido por Casa, só o que falta a cada uma) (LAI) | a enviar (redigido em 29/10/2026) | [assembleias_votos_presenca.md](assembleias_votos_presenca.md) |
 | Câmara dos Deputados | Justificativas de ausência em votações (LAI) | a enviar (redigido em 18/10/2026) | [camara_justificativas_ausencia.md](camara_justificativas_ausencia.md) |
 | ALEP (PR) | Corrigir o certificado HTTPS autoassinado da API pública, ou fornecer os dados em CSV (LAI) | a enviar (redigido em 18/10/2026) | [alep_certificado.md](alep_certificado.md) |
 | ALMT (MT) | Credencial de acesso público à API (OAuth) para proposições, votos e presença (LAI) | a enviar (redigido em 18/10/2026) | [almt_proposicoes.md](almt_proposicoes.md) |

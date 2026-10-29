@@ -29,13 +29,22 @@ def test_alep_tem_conector_e_pedido_so_no_que_falta():
         assert legislativas[secao]["pedido"] == "alep_certificado.md"
 
 
-def test_geobloqueio_vira_bloqueado():
+def _projetos(linhas, uf):
+    return next(
+        x
+        for x in linhas
+        if x["uf"] == uf and x["secao"] == "projetos" and x["casa"] in (f"AL{uf}", "CLDF")
+    )
+
+
+def test_geobloqueio_vira_bloqueado(monkeypatch):
+    # BA, ES e SE saíram em 27/10/2026 e as demais em 29/10/2026: rodam na VPS de São Paulo
+    # (acesso "aberto"). A regra continua valendo para fonte com acesso "brasil".
+    ufs = ("MG", "PE", "RS", "RR", "AP", "MA", "DF")
+    for uf in ufs:
+        assert _projetos(cobertura.montar(), uf)["situacao"] == "sim", uf
+    real = cobertura._acessos()
+    monkeypatch.setattr(cobertura, "_acessos", lambda: dict.fromkeys(real, "brasil"))
     linhas = cobertura.montar()
-    # BA, ES e SE saíram da lista em 27/10/2026: rodam na VPS de São Paulo (acesso "aberto").
-    for uf in ("MG", "PE", "RS", "RR", "AP", "MA", "DF"):
-        proj = next(
-            x
-            for x in linhas
-            if x["uf"] == uf and x["secao"] == "projetos" and x["casa"] in (f"AL{uf}", "CLDF")
-        )
-        assert proj["situacao"] == "bloqueado", (uf, proj)
+    for uf in ufs:
+        assert _projetos(linhas, uf)["situacao"] == "bloqueado", uf

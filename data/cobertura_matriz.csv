@@ -1,8 +1,8 @@
 uf,casa,cargo,secao,situacao,motivo,fonte,pedido
 AC,ALAC,deputado estadual,gastos,sem_fonte,O site ainda não lê gastos do gabinete e da cota desta Casa.,sapl_assembleias,
-AC,ALAC,deputado estadual,votos,bloqueado,"O site já lê votos nominais, mas o site da Casa só responde a acessos feitos do Brasil; por isso só dá para atualizar a partir de um computador no Brasil, e o site no ar não se atualiza sozinho.",sapl_assembleias,
-AC,ALAC,deputado estadual,presenca,bloqueado,"O site já lê presença em plenário, mas o site da Casa só responde a acessos feitos do Brasil; por isso só dá para atualizar a partir de um computador no Brasil, e o site no ar não se atualiza sozinho.",sapl_assembleias,
-AC,ALAC,deputado estadual,projetos,bloqueado,"O site já lê projetos de lei, mas o site da Casa só responde a acessos feitos do Brasil; por isso só dá para atualizar a partir de um computador no Brasil, e o site no ar não se atualiza sozinho.",sapl_assembleias,
+AC,ALAC,deputado estadual,votos,sim,Carregamos votos nominais do site oficial da Casa.,sapl_assembleias,
+AC,ALAC,deputado estadual,presenca,sim,Carregamos presença em plenário do site oficial da Casa.,sapl_assembleias,
+AC,ALAC,deputado estadual,projetos,sim,Carregamos projetos de lei do site oficial da Casa.,sapl_assembleias,
 AC,ALAC,deputado estadual,emendas,sim,"Emendas desde 2023 da Secretaria de Planejamento: autor, cidade, quem recebeu, previsto, empenhado e pago.",seplan_ac_emendas,
 AC,ALAC,deputado estadual,salario,sem_fonte,Subsídio e folha dos deputados estaduais não coletados.,,
 AC,ALAC,deputado estadual,agenda,sem_fonte,Nenhuma fonte de agenda de deputados estaduais.,,
@@ -41,9 +41,9 @@ AC,Prefeituras de AC,prefeito,agenda,sem_fonte,22 de 22 municípios com canal of
 AC,Prefeituras de AC,prefeito,atos,sem_fonte,Nenhum diário oficial de cidades deste estado é lido ainda.,,
 AC,Prefeituras de AC,prefeito,bens_campanha,sim,22 de 22 municípios com canal oficial achado. Bens e campanha declarados ao TSE.,tse_bens; tse_campanha,
 AL,ALAL,deputado estadual,gastos,sem_fonte,O site ainda não lê gastos do gabinete e da cota desta Casa.,sapl_assembleias,
-AL,ALAL,deputado estadual,votos,bloqueado,"O site já lê votos nominais, mas o site da Casa só responde a acessos feitos do Brasil; por isso só dá para atualizar a partir de um computador no Brasil, e o site no ar não se atualiza sozinho.",sapl_assembleias,
-AL,ALAL,deputado estadual,presenca,bloqueado,"O site já lê presença em plenário, mas o site da Casa só responde a acessos feitos do Brasil; por isso só dá para atualizar a partir de um computador no Brasil, e o site no ar não se atualiza sozinho.",sapl_assembleias,
-AL,ALAL,deputado estadual,projetos,bloqueado,"O site já lê projetos de lei, mas o site da Casa só responde a acessos feitos do Brasil; por isso só dá para atualizar a partir de um computador no Brasil, e o site no ar não se atualiza sozinho.",sapl_assembleias,
+AL,ALAL,deputado estadual,votos,sem_fonte,O sistema da Casa (SAPL) não tem votos nominais da legislatura atual registrados por deputado; o site lê o que houver assim que a Casa publicar.,sapl_assembleias,
+AL,ALAL,deputado estadual,presenca,sem_fonte,O sistema da Casa (SAPL) não tem presença em plenário da legislatura atual registrados por deputado; o site lê o que houver assim que a Casa publicar.,sapl_assembleias,
+AL,ALAL,deputado estadual,projetos,sim,Carregamos projetos de lei do site oficial da Casa.,sapl_assembleias,
 AL,ALAL,deputado estadual,emendas,parcial,"Só o orçamento de 2026 está no Portal da Transparência (autor, cidade, quem recebeu e valores); pedimos os anos anteriores.",transparencia_al_emendas,emendas_estaduais_27_ufs.md
 AL,ALAL,deputado estadual,salario,sem_fonte,Subsídio e folha dos deputados estaduais não coletados.,,
 AL,ALAL,deputado estadual,agenda,sem_fonte,Nenhuma fonte de agenda de deputados estaduais.,,
@@ -82,9 +82,9 @@ AL,Prefeituras de AL,prefeito,agenda,sem_fonte,102 de 102 municípios com canal 
 AL,Prefeituras de AL,prefeito,atos,parcial,Lemos o diário oficial de 100 de 102 cidades; nomeações e exonerações só aparecem depois de conferidas por uma pessoa.,querido_diario_atos; sigpub_atos,
 AL,Prefeituras de AL,prefeito,bens_campanha,sim,102 de 102 municípios com canal oficial achado. Bens e campanha declarados ao TSE.,tse_bens; tse_campanha,
 AM,ALAM,deputado estadual,gastos,sem_fonte,O site ainda não lê gastos do gabinete e da cota desta Casa.,sapl_assembleias,
-AM,ALAM,deputado estadual,votos,bloqueado,"O site já lê votos nominais, mas o site da Casa só responde a acessos feitos do Brasil; por isso só dá para atualizar a partir de um computador no Brasil, e o site no ar não se atualiza sozinho.",sapl_assembleias,
-AM,ALAM,deputado estadual,presenca,bloqueado,"O site já lê presença em plenário, mas o site da Casa só responde a acessos feitos do Brasil; por isso só dá para atualizar a partir de um computador no Brasil, e o site no ar não se atualiza sozinho.",sapl_assembleias,
-AM,ALAM,deputado estadual,projetos,bloqueado,"O site já lê projetos de lei, mas o site da Casa só responde a acessos feitos do Brasil; por isso só dá para atualizar a partir de um computador no Brasil, e o site no ar não se atualiza sozinho.",sapl_assembleias,
+AM,ALAM,deputado estadual,votos,sem_fonte,O sistema da Casa (SAPL) não tem votos nominais da legislatura atual registrados por deputado; o site lê o que houver assim que a Casa publicar.,sapl_assembleias,
+AM,ALAM,deputado estadual,presenca,sem_fonte,O sistema da Casa (SAPL) não tem presença em plenário da legislatura atual registrados por deputado; o site lê o que houver assim que a Casa publicar.,sapl_assembleias,
+AM,ALAM,deputado estadual,projetos,sim,Carregamos projetos de lei do site oficial da Casa.,sapl_assembleias,
 AM,ALAM,deputado estadual,emendas,pedido,Não achamos emendas estaduais em formato aberto no portal do Estado; pedido de acesso redigido (ADPF 854).,,emendas_estaduais_27_ufs.md
 AM,ALAM,deputado estadual,salario,sem_fonte,Subsídio e folha dos deputados estaduais não coletados.,,
 AM,ALAM,deputado estadual,agenda,sem_fonte,Nenhuma fonte de agenda de deputados estaduais.,,
@@ -123,9 +123,9 @@ AM,Prefeituras de AM,prefeito,agenda,sem_fonte,60 de 62 municípios com canal of
 AM,Prefeituras de AM,prefeito,atos,parcial,Lemos o diário oficial de 62 de 62 cidades; nomeações e exonerações só aparecem depois de conferidas por uma pessoa.,querido_diario_atos; sigpub_atos,
 AM,Prefeituras de AM,prefeito,bens_campanha,sim,60 de 62 municípios com canal oficial achado. Bens e campanha declarados ao TSE.,tse_bens; tse_campanha,
 AP,ALAP,deputado estadual,gastos,pedido,"O arquivo de regras do site (robots.txt) responde acesso negado, então não sabemos se a leitura automática é permitida; não lemos e pedimos autorização ou os dados em arquivo.",alap,alap_gastos_ceap.md
-AP,ALAP,deputado estadual,votos,sem_fonte,O site ainda não lê votos nominais desta Casa.,alap,
-AP,ALAP,deputado estadual,presenca,sem_fonte,O site ainda não lê presença em plenário desta Casa.,alap,
-AP,ALAP,deputado estadual,projetos,bloqueado,"O site já lê projetos de lei, mas o site da Casa só responde a acessos feitos do Brasil; por isso só dá para atualizar a partir de um computador no Brasil, e o site no ar não se atualiza sozinho.",alap,
+AP,ALAP,deputado estadual,votos,pedido,"O portal do processo legislativo (em migração) mostra só a pauta de cada sessão, sem chamada nem voto de cada deputado; pedido de acesso redigido.",alap,assembleias_votos_presenca.md
+AP,ALAP,deputado estadual,presenca,pedido,"O portal do processo legislativo (em migração) mostra só a pauta de cada sessão, sem chamada nem voto de cada deputado; pedido de acesso redigido.",alap,assembleias_votos_presenca.md
+AP,ALAP,deputado estadual,projetos,sim,Carregamos projetos de lei do site oficial da Casa.,alap,
 AP,ALAP,deputado estadual,emendas,pedido,Não achamos emendas estaduais em formato aberto no portal do Estado; pedido de acesso redigido (ADPF 854).,,emendas_estaduais_27_ufs.md
 AP,ALAP,deputado estadual,salario,sem_fonte,Subsídio e folha dos deputados estaduais não coletados.,,
 AP,ALAP,deputado estadual,agenda,sem_fonte,Nenhuma fonte de agenda de deputados estaduais.,,
@@ -164,7 +164,7 @@ AP,Prefeituras de AP,prefeito,agenda,sem_fonte,16 de 16 municípios com canal of
 AP,Prefeituras de AP,prefeito,atos,parcial,Lemos o diário oficial de 3 de 16 cidades; nomeações e exonerações só aparecem depois de conferidas por uma pessoa.,querido_diario_atos,
 AP,Prefeituras de AP,prefeito,bens_campanha,sim,16 de 16 municípios com canal oficial achado. Bens e campanha declarados ao TSE.,tse_bens; tse_campanha,
 BA,ALBA,deputado estadual,gastos,sem_fonte,O site ainda não lê gastos do gabinete e da cota desta Casa.,alba,
-BA,ALBA,deputado estadual,votos,sem_fonte,O site ainda não lê votos nominais desta Casa.,alba,
+BA,ALBA,deputado estadual,votos,pedido,"A API de dados abertos da Casa traz projetos e presença, mas não o voto de cada deputado; pedido de acesso redigido.",alba,assembleias_votos_presenca.md
 BA,ALBA,deputado estadual,presenca,sim,Carregamos presença em plenário do site oficial da Casa.,alba,
 BA,ALBA,deputado estadual,projetos,sim,Carregamos projetos de lei do site oficial da Casa.,alba,
 BA,ALBA,deputado estadual,emendas,parcial,"A Fazenda publica autor e valores desde 2017, mas não a cidade nem quem recebeu: aparece só na página do deputado; pedimos o destino.",sefaz_ba_emendas,emendas_estaduais_27_ufs.md
@@ -205,8 +205,8 @@ BA,Prefeituras de BA,prefeito,agenda,sem_fonte,406 de 417 municípios com canal 
 BA,Prefeituras de BA,prefeito,atos,parcial,Lemos o diário oficial de 72 de 417 cidades; nomeações e exonerações só aparecem depois de conferidas por uma pessoa.,querido_diario_atos,
 BA,Prefeituras de BA,prefeito,bens_campanha,sim,406 de 417 municípios com canal oficial achado. Bens e campanha declarados ao TSE.,tse_bens; tse_campanha,
 CE,ALCE,deputado estadual,gastos,parcial,"Carregamos os gastos do gabinete (verba de desempenho parlamentar) por mês, do site oficial da Casa. A planilha escreve o nome de alguns deputados com erro de digitação; esses lançamentos não são atribuídos a ninguém (não ligamos por nome aproximado) e ficam de fora do total de cada deputado.",alece,
-CE,ALCE,deputado estadual,votos,sem_fonte,O site ainda não lê votos nominais desta Casa.,alece,
-CE,ALCE,deputado estadual,presenca,sem_fonte,O site ainda não lê presença em plenário desta Casa.,alece,
+CE,ALCE,deputado estadual,votos,parcial,"Carregamos as votações nominais que a Casa publica em relatório (PDF), do ano anterior e do atual; a maior parte das matérias é votada de forma simbólica, sem voto de cada deputado. O voto de quem tem o nome escrito de outro jeito no relatório não é atribuído (não ligamos por nome aproximado).",alece,
+CE,ALCE,deputado estadual,presenca,pedido,"A Casa publica as votações nominais (usamos), mas não a presença em plenário de cada deputado; pedido de acesso redigido.",alece,assembleias_votos_presenca.md
 CE,ALCE,deputado estadual,projetos,sim,Carregamos projetos de lei do site oficial da Casa.,alece,
 CE,ALCE,deputado estadual,emendas,pedido,"Só há consulta em página, sem arquivo nem API de emendas; pedido de acesso redigido.",,emendas_estaduais_27_ufs.md
 CE,ALCE,deputado estadual,salario,sem_fonte,Subsídio e folha dos deputados estaduais não coletados.,,
@@ -248,7 +248,7 @@ CE,Prefeituras de CE,prefeito,bens_campanha,sim,183 de 184 municípios com canal
 DF,CLDF,deputado distrital,gastos,sem_fonte,O site ainda não lê gastos do gabinete e da cota desta Casa.,cldf,
 DF,CLDF,deputado distrital,votos,sem_fonte,O site ainda não lê votos nominais desta Casa.,cldf,
 DF,CLDF,deputado distrital,presenca,sem_fonte,O site ainda não lê presença em plenário desta Casa.,cldf,
-DF,CLDF,deputado distrital,projetos,bloqueado,"O site já lê projetos de lei, mas o site da Casa só responde a acessos feitos do Brasil; por isso só dá para atualizar a partir de um computador no Brasil, e o site no ar não se atualiza sozinho.",cldf,
+DF,CLDF,deputado distrital,projetos,sim,Carregamos projetos de lei do site oficial da Casa.,cldf,
 DF,CLDF,deputado distrital,emendas,parcial,"Emendas distritais desde 2021 no Portal da Transparência (autor, ação, autorizado, empenhado e pago); a fonte não informa quem recebeu nem a região administrativa em campo próprio, e pedimos.",transparencia_df_emendas,emendas_estaduais_27_ufs.md
 DF,CLDF,deputado distrital,salario,sem_fonte,Subsídio e folha dos deputados estaduais não coletados.,,
 DF,CLDF,deputado distrital,agenda,sem_fonte,Nenhuma fonte de agenda de deputados estaduais.,,
@@ -287,7 +287,7 @@ DF,Prefeituras de DF,prefeito,agenda,sem_fonte,1 de 1 municípios com canal ofic
 DF,Prefeituras de DF,prefeito,atos,parcial,Lemos o diário oficial de 1 de 1 cidades; nomeações e exonerações só aparecem depois de conferidas por uma pessoa.,querido_diario_atos,
 DF,Prefeituras de DF,prefeito,bens_campanha,sim,1 de 1 municípios com canal oficial achado. Bens e campanha declarados ao TSE.,tse_bens; tse_campanha,
 ES,ALES,deputado estadual,gastos,sem_fonte,O site ainda não lê gastos do gabinete e da cota desta Casa.,ales,
-ES,ALES,deputado estadual,votos,sem_fonte,O site ainda não lê votos nominais desta Casa.,ales,
+ES,ALES,deputado estadual,votos,pedido,A API de dados abertos da Casa traz projetos e presença; o voto de cada deputado só sai no boletim de votação em PDF. Pedido de acesso redigido.,ales,assembleias_votos_presenca.md
 ES,ALES,deputado estadual,presenca,sim,Carregamos presença em plenário do site oficial da Casa.,ales,
 ES,ALES,deputado estadual,projetos,sim,Carregamos projetos de lei do site oficial da Casa.,ales,
 ES,ALES,deputado estadual,emendas,sim,"Emendas desde 2021 da Secretaria da Fazenda: autor, cidade, quem recebeu, previsto, empenhado e pago.",sefaz_es_emendas,
@@ -328,9 +328,9 @@ ES,Prefeituras de ES,prefeito,agenda,sem_fonte,59 de 78 municípios com canal of
 ES,Prefeituras de ES,prefeito,atos,parcial,Lemos o diário oficial de 3 de 78 cidades; nomeações e exonerações só aparecem depois de conferidas por uma pessoa.,querido_diario_atos,
 ES,Prefeituras de ES,prefeito,bens_campanha,sim,59 de 78 municípios com canal oficial achado. Bens e campanha declarados ao TSE.,tse_bens; tse_campanha,
 GO,ALGO,deputado estadual,gastos,sim,Carregamos gastos do gabinete e da cota do site oficial da Casa.,alego,
-GO,ALGO,deputado estadual,votos,sem_fonte,O site ainda não lê votos nominais desta Casa.,alego,
-GO,ALGO,deputado estadual,presenca,sem_fonte,O site ainda não lê presença em plenário desta Casa.,alego,
-GO,ALGO,deputado estadual,projetos,sem_fonte,O site ainda não lê projetos de lei desta Casa.,alego,
+GO,ALGO,deputado estadual,votos,pedido,"A API de dados abertos da Casa traz projetos e presença, mas não o voto de cada deputado; pedido de acesso redigido.",alego,assembleias_votos_presenca.md
+GO,ALGO,deputado estadual,presenca,sim,Carregamos presença em plenário do site oficial da Casa.,alego,
+GO,ALGO,deputado estadual,projetos,sim,Carregamos projetos de lei do site oficial da Casa.,alego,
 GO,ALGO,deputado estadual,emendas,parcial,"Só 2023 (autor, cidade, quem recebeu e valores): os arquivos de 2024 e 2025 trazem CNPJ e empenho corrompidos pela planilha, e a consulta completa exige captcha. Pedimos os arquivos corrigidos.",dadosabertos_go_emendas,emendas_estaduais_27_ufs.md
 GO,ALGO,deputado estadual,salario,sem_fonte,Subsídio e folha dos deputados estaduais não coletados.,,
 GO,ALGO,deputado estadual,agenda,sem_fonte,Nenhuma fonte de agenda de deputados estaduais.,,
@@ -369,9 +369,9 @@ GO,Prefeituras de GO,prefeito,agenda,sem_fonte,243 de 246 municípios com canal 
 GO,Prefeituras de GO,prefeito,atos,parcial,Lemos o diário oficial de 151 de 246 cidades; nomeações e exonerações só aparecem depois de conferidas por uma pessoa.,querido_diario_atos; sigpub_atos,
 GO,Prefeituras de GO,prefeito,bens_campanha,sim,243 de 246 municípios com canal oficial achado. Bens e campanha declarados ao TSE.,tse_bens; tse_campanha,
 MA,ALMA,deputado estadual,gastos,sem_fonte,O site ainda não lê gastos do gabinete e da cota desta Casa.,alema,
-MA,ALMA,deputado estadual,votos,sem_fonte,O site ainda não lê votos nominais desta Casa.,alema,
-MA,ALMA,deputado estadual,presenca,sem_fonte,O site ainda não lê presença em plenário desta Casa.,alema,
-MA,ALMA,deputado estadual,projetos,bloqueado,"O site já lê projetos de lei, mas o site da Casa só responde a acessos feitos do Brasil; por isso só dá para atualizar a partir de um computador no Brasil, e o site no ar não se atualiza sozinho.",alema,
+MA,ALMA,deputado estadual,votos,pedido,"O sistema novo da Casa tem consulta pública de votos e presença, mas só uma sessão registrada até agora (07/10/2026), sem votos; pedimos o histórico.",alema,assembleias_votos_presenca.md
+MA,ALMA,deputado estadual,presenca,pedido,"O sistema novo da Casa tem consulta pública de votos e presença, mas só uma sessão registrada até agora (07/10/2026), sem votos; pedimos o histórico.",alema,assembleias_votos_presenca.md
+MA,ALMA,deputado estadual,projetos,sim,Carregamos projetos de lei do site oficial da Casa.,alema,
 MA,ALMA,deputado estadual,emendas,parcial,Só o orçamento de 2026 está no Portal da Transparência; pedimos os anos anteriores.,transparencia_ma_emendas,emendas_estaduais_27_ufs.md
 MA,ALMA,deputado estadual,salario,sem_fonte,Subsídio e folha dos deputados estaduais não coletados.,,
 MA,ALMA,deputado estadual,agenda,sem_fonte,Nenhuma fonte de agenda de deputados estaduais.,,
@@ -409,10 +409,10 @@ MA,Prefeituras de MA,prefeito,salario,sem_fonte,203 de 216 municípios com canal
 MA,Prefeituras de MA,prefeito,agenda,sem_fonte,203 de 216 municípios com canal oficial achado. Nenhuma fonte de agenda coletada.,,
 MA,Prefeituras de MA,prefeito,atos,parcial,Lemos o diário oficial de 28 de 216 cidades; nomeações e exonerações só aparecem depois de conferidas por uma pessoa.,querido_diario_atos,
 MA,Prefeituras de MA,prefeito,bens_campanha,sim,203 de 216 municípios com canal oficial achado. Bens e campanha declarados ao TSE.,tse_bens; tse_campanha,
-MG,ALMG,deputado estadual,gastos,bloqueado,"O site já lê gastos do gabinete e da cota, mas o site da Casa só responde a acessos feitos do Brasil; por isso só dá para atualizar a partir de um computador no Brasil, e o site no ar não se atualiza sozinho.",almg,
+MG,ALMG,deputado estadual,gastos,sim,Carregamos gastos do gabinete e da cota do site oficial da Casa.,almg,
 MG,ALMG,deputado estadual,votos,pedido,A Casa não publica em dados abertos; pedido de acesso redigido.,almg,almg_alesp_votos_presenca.md
 MG,ALMG,deputado estadual,presenca,pedido,A Casa não publica em dados abertos; pedido de acesso redigido.,almg,almg_alesp_votos_presenca.md
-MG,ALMG,deputado estadual,projetos,bloqueado,"O site já lê projetos de lei, mas o site da Casa só responde a acessos feitos do Brasil; por isso só dá para atualizar a partir de um computador no Brasil, e o site no ar não se atualiza sozinho.",almg,
+MG,ALMG,deputado estadual,projetos,sim,Carregamos projetos de lei do site oficial da Casa.,almg,
 MG,ALMG,deputado estadual,emendas,sim,"Indicações de emendas desde 2023 da Secretaria de Governo: autor, cidade, quem recebeu, previsto, empenhado e pago.",segov_mg_emendas,
 MG,ALMG,deputado estadual,salario,sem_fonte,Subsídio e folha dos deputados estaduais não coletados.,,
 MG,ALMG,deputado estadual,agenda,sem_fonte,Nenhuma fonte de agenda de deputados estaduais.,,
@@ -451,8 +451,8 @@ MG,Prefeituras de MG,prefeito,agenda,sem_fonte,774 de 852 municípios com canal 
 MG,Prefeituras de MG,prefeito,atos,parcial,Lemos o diário oficial de 502 de 852 cidades; nomeações e exonerações só aparecem depois de conferidas por uma pessoa.,querido_diario_atos; sigpub_atos,
 MG,Prefeituras de MG,prefeito,bens_campanha,sim,774 de 852 municípios com canal oficial achado. Bens e campanha declarados ao TSE.,tse_bens; tse_campanha,
 MS,ALMS,deputado estadual,gastos,sim,Carregamos gastos do gabinete e da cota do site oficial da Casa.,alems,
-MS,ALMS,deputado estadual,votos,sem_fonte,O site ainda não lê votos nominais desta Casa.,alems,
-MS,ALMS,deputado estadual,presenca,sem_fonte,O site ainda não lê presença em plenário desta Casa.,alems,
+MS,ALMS,deputado estadual,votos,pedido,O sistema legislativo da Casa barra acesso por programa (verificação contra robôs); não contornamos e pedimos os dados em formato aberto.,alems,assembleias_votos_presenca.md
+MS,ALMS,deputado estadual,presenca,pedido,O sistema legislativo da Casa barra acesso por programa (verificação contra robôs); não contornamos e pedimos os dados em formato aberto.,alems,assembleias_votos_presenca.md
 MS,ALMS,deputado estadual,projetos,bloqueado,O sistema de proposições exige uma verificação que barra acesso por programa; não contornamos.,alems,
 MS,ALMS,deputado estadual,emendas,pedido,Não achamos emendas estaduais em formato aberto no portal do Estado; pedido de acesso redigido (ADPF 854).,,emendas_estaduais_27_ufs.md
 MS,ALMS,deputado estadual,salario,sem_fonte,Subsídio e folha dos deputados estaduais não coletados.,,
@@ -574,9 +574,9 @@ PA,Prefeituras de PA,prefeito,agenda,sem_fonte,139 de 144 municípios com canal 
 PA,Prefeituras de PA,prefeito,atos,parcial,Lemos o diário oficial de 104 de 144 cidades; nomeações e exonerações só aparecem depois de conferidas por uma pessoa.,querido_diario_atos; sigpub_atos,
 PA,Prefeituras de PA,prefeito,bens_campanha,sim,139 de 144 municípios com canal oficial achado. Bens e campanha declarados ao TSE.,tse_bens; tse_campanha,
 PB,ALPB,deputado estadual,gastos,sem_fonte,O site ainda não lê gastos do gabinete e da cota desta Casa.,sapl_assembleias,
-PB,ALPB,deputado estadual,votos,bloqueado,"O site já lê votos nominais, mas o site da Casa só responde a acessos feitos do Brasil; por isso só dá para atualizar a partir de um computador no Brasil, e o site no ar não se atualiza sozinho.",sapl_assembleias,
-PB,ALPB,deputado estadual,presenca,bloqueado,"O site já lê presença em plenário, mas o site da Casa só responde a acessos feitos do Brasil; por isso só dá para atualizar a partir de um computador no Brasil, e o site no ar não se atualiza sozinho.",sapl_assembleias,
-PB,ALPB,deputado estadual,projetos,bloqueado,"O site já lê projetos de lei, mas o site da Casa só responde a acessos feitos do Brasil; por isso só dá para atualizar a partir de um computador no Brasil, e o site no ar não se atualiza sozinho.",sapl_assembleias,
+PB,ALPB,deputado estadual,votos,sim,Carregamos votos nominais do site oficial da Casa.,sapl_assembleias,
+PB,ALPB,deputado estadual,presenca,sim,Carregamos presença em plenário do site oficial da Casa.,sapl_assembleias,
+PB,ALPB,deputado estadual,projetos,sim,Carregamos projetos de lei do site oficial da Casa.,sapl_assembleias,
 PB,ALPB,deputado estadual,emendas,parcial,Emendas impositivas desde 2021 na API de dados abertos (autor e valores); a fonte não informa a cidade nem quem recebeu: aparece só na página do deputado; pedimos o destino.,dadospb_emendas,emendas_estaduais_27_ufs.md
 PB,ALPB,deputado estadual,salario,sem_fonte,Subsídio e folha dos deputados estaduais não coletados.,,
 PB,ALPB,deputado estadual,agenda,sem_fonte,Nenhuma fonte de agenda de deputados estaduais.,,
@@ -615,9 +615,9 @@ PB,Prefeituras de PB,prefeito,agenda,sem_fonte,218 de 223 municípios com canal 
 PB,Prefeituras de PB,prefeito,atos,parcial,Lemos o diário oficial de 125 de 223 cidades; nomeações e exonerações só aparecem depois de conferidas por uma pessoa.,querido_diario_atos; sigpub_atos,
 PB,Prefeituras de PB,prefeito,bens_campanha,sim,218 de 223 municípios com canal oficial achado. Bens e campanha declarados ao TSE.,tse_bens; tse_campanha,
 PE,ALPE,deputado estadual,gastos,sem_fonte,O site ainda não lê gastos do gabinete e da cota desta Casa.,alepe,
-PE,ALPE,deputado estadual,votos,sem_fonte,O site ainda não lê votos nominais desta Casa.,alepe,
-PE,ALPE,deputado estadual,presenca,sem_fonte,O site ainda não lê presença em plenário desta Casa.,alepe,
-PE,ALPE,deputado estadual,projetos,bloqueado,"O site já lê projetos de lei, mas o site da Casa só responde a acessos feitos do Brasil; por isso só dá para atualizar a partir de um computador no Brasil, e o site no ar não se atualiza sozinho.",alepe,
+PE,ALPE,deputado estadual,votos,pedido,A API de dados abertos da Casa não tem votações nem presença; pedido de acesso redigido.,alepe,assembleias_votos_presenca.md
+PE,ALPE,deputado estadual,presenca,pedido,A API de dados abertos da Casa não tem votações nem presença; pedido de acesso redigido.,alepe,assembleias_votos_presenca.md
+PE,ALPE,deputado estadual,projetos,sim,Carregamos projetos de lei do site oficial da Casa.,alepe,
 PE,ALPE,deputado estadual,emendas,parcial,"Só o orçamento do ano corrente traz autor e cidade; os arquivos dos anos anteriores não trazem, e pedimos.",seplag_pe_emendas,emendas_estaduais_27_ufs.md
 PE,ALPE,deputado estadual,salario,sem_fonte,Subsídio e folha dos deputados estaduais não coletados.,,
 PE,ALPE,deputado estadual,agenda,sem_fonte,Nenhuma fonte de agenda de deputados estaduais.,,
@@ -656,9 +656,9 @@ PE,Prefeituras de PE,prefeito,agenda,sem_fonte,184 de 185 municípios com canal 
 PE,Prefeituras de PE,prefeito,atos,parcial,Lemos o diário oficial de 182 de 185 cidades; nomeações e exonerações só aparecem depois de conferidas por uma pessoa.,querido_diario_atos; sigpub_atos,
 PE,Prefeituras de PE,prefeito,bens_campanha,sim,184 de 185 municípios com canal oficial achado. Bens e campanha declarados ao TSE.,tse_bens; tse_campanha,
 PI,ALPI,deputado estadual,gastos,sem_fonte,O site ainda não lê gastos do gabinete e da cota desta Casa.,sapl_assembleias,
-PI,ALPI,deputado estadual,votos,bloqueado,"O site já lê votos nominais, mas o site da Casa só responde a acessos feitos do Brasil; por isso só dá para atualizar a partir de um computador no Brasil, e o site no ar não se atualiza sozinho.",sapl_assembleias,
-PI,ALPI,deputado estadual,presenca,bloqueado,"O site já lê presença em plenário, mas o site da Casa só responde a acessos feitos do Brasil; por isso só dá para atualizar a partir de um computador no Brasil, e o site no ar não se atualiza sozinho.",sapl_assembleias,
-PI,ALPI,deputado estadual,projetos,bloqueado,"O site já lê projetos de lei, mas o site da Casa só responde a acessos feitos do Brasil; por isso só dá para atualizar a partir de um computador no Brasil, e o site no ar não se atualiza sozinho.",sapl_assembleias,
+PI,ALPI,deputado estadual,votos,sim,Carregamos votos nominais do site oficial da Casa.,sapl_assembleias,
+PI,ALPI,deputado estadual,presenca,sim,Carregamos presença em plenário do site oficial da Casa.,sapl_assembleias,
+PI,ALPI,deputado estadual,projetos,sim,Carregamos projetos de lei do site oficial da Casa.,sapl_assembleias,
 PI,ALPI,deputado estadual,emendas,pedido,"A API do Portal da Transparência traz 2021 a 2025 só por empenho, sem o valor da emenda, e 2026 com a execução lançada à mão em cada emenda; ainda não carregamos e pedimos uma série única.",,emendas_estaduais_27_ufs.md
 PI,ALPI,deputado estadual,salario,sem_fonte,Subsídio e folha dos deputados estaduais não coletados.,,
 PI,ALPI,deputado estadual,agenda,sem_fonte,Nenhuma fonte de agenda de deputados estaduais.,,
@@ -738,9 +738,9 @@ PR,Prefeituras de PR,prefeito,agenda,sem_fonte,371 de 398 municípios com canal 
 PR,Prefeituras de PR,prefeito,atos,parcial,Lemos o diário oficial de 256 de 398 cidades; nomeações e exonerações só aparecem depois de conferidas por uma pessoa.,querido_diario_atos; sigpub_atos,
 PR,Prefeituras de PR,prefeito,bens_campanha,sim,371 de 398 municípios com canal oficial achado. Bens e campanha declarados ao TSE.,tse_bens; tse_campanha,
 RJ,ALRJ,deputado estadual,gastos,sem_fonte,O processo legislativo roda num sistema antigo que não entrega dados por consulta.,alerj,
-RJ,ALRJ,deputado estadual,votos,sem_fonte,O processo legislativo roda num sistema antigo que não entrega dados por consulta.,alerj,
-RJ,ALRJ,deputado estadual,presenca,sem_fonte,O processo legislativo roda num sistema antigo que não entrega dados por consulta.,alerj,
-RJ,ALRJ,deputado estadual,projetos,sem_fonte,O processo legislativo roda num sistema antigo que não entrega dados por consulta.,alerj,
+RJ,ALRJ,deputado estadual,votos,pedido,O processo legislativo roda num sistema antigo que não entrega dados por consulta; pedido de acesso redigido.,alerj,assembleias_votos_presenca.md
+RJ,ALRJ,deputado estadual,presenca,pedido,O processo legislativo roda num sistema antigo que não entrega dados por consulta; pedido de acesso redigido.,alerj,assembleias_votos_presenca.md
+RJ,ALRJ,deputado estadual,projetos,pedido,O processo legislativo roda num sistema antigo que não entrega dados por consulta; pedido de acesso redigido.,alerj,assembleias_votos_presenca.md
 RJ,ALRJ,deputado estadual,emendas,pedido,Só há painel (sem arquivo para baixar); pedido de acesso redigido.,,emendas_estaduais_27_ufs.md
 RJ,ALRJ,deputado estadual,salario,sem_fonte,Subsídio e folha dos deputados estaduais não coletados.,,
 RJ,ALRJ,deputado estadual,agenda,sem_fonte,Nenhuma fonte de agenda de deputados estaduais.,,
@@ -779,8 +779,8 @@ RJ,Prefeituras de RJ,prefeito,agenda,sem_fonte,83 de 91 municípios com canal of
 RJ,Prefeituras de RJ,prefeito,atos,parcial,Lemos o diário oficial de 45 de 91 cidades; nomeações e exonerações só aparecem depois de conferidas por uma pessoa.,querido_diario_atos; sigpub_atos,
 RJ,Prefeituras de RJ,prefeito,bens_campanha,sim,83 de 91 municípios com canal oficial achado. Bens e campanha declarados ao TSE.,tse_bens; tse_campanha,
 RN,ALRN,deputado estadual,gastos,parcial,"Carregamos as notas da verba de ressarcimento por mês, do site oficial da Casa, sem o tipo de gasto (a Casa não informa) e sem o fornecedor. Só dos deputados em exercício cujo nome é igual ao do seletor da Casa.",alrn,
-RN,ALRN,deputado estadual,votos,sem_fonte,O site ainda não lê votos nominais desta Casa.,alrn,
-RN,ALRN,deputado estadual,presenca,sem_fonte,O site ainda não lê presença em plenário desta Casa.,alrn,
+RN,ALRN,deputado estadual,votos,sim,Carregamos votos nominais do site oficial da Casa.,alrn,
+RN,ALRN,deputado estadual,presenca,sim,Carregamos presença em plenário do site oficial da Casa.,alrn,
 RN,ALRN,deputado estadual,projetos,sim,Carregamos projetos de lei do site oficial da Casa.,alrn,
 RN,ALRN,deputado estadual,emendas,pedido,Só há painel (sem arquivo para baixar); pedido de acesso redigido.,,emendas_estaduais_27_ufs.md
 RN,ALRN,deputado estadual,salario,sem_fonte,Subsídio e folha dos deputados estaduais não coletados.,,
@@ -820,9 +820,9 @@ RN,Prefeituras de RN,prefeito,agenda,sem_fonte,163 de 167 municípios com canal 
 RN,Prefeituras de RN,prefeito,atos,parcial,Lemos o diário oficial de 159 de 167 cidades; nomeações e exonerações só aparecem depois de conferidas por uma pessoa.,querido_diario_atos; sigpub_atos,
 RN,Prefeituras de RN,prefeito,bens_campanha,sim,163 de 167 municípios com canal oficial achado. Bens e campanha declarados ao TSE.,tse_bens; tse_campanha,
 RO,ALRO,deputado estadual,gastos,sem_fonte,O site ainda não lê gastos do gabinete e da cota desta Casa.,sapl_assembleias,
-RO,ALRO,deputado estadual,votos,bloqueado,"O site já lê votos nominais, mas o site da Casa só responde a acessos feitos do Brasil; por isso só dá para atualizar a partir de um computador no Brasil, e o site no ar não se atualiza sozinho.",sapl_assembleias,
-RO,ALRO,deputado estadual,presenca,bloqueado,"O site já lê presença em plenário, mas o site da Casa só responde a acessos feitos do Brasil; por isso só dá para atualizar a partir de um computador no Brasil, e o site no ar não se atualiza sozinho.",sapl_assembleias,
-RO,ALRO,deputado estadual,projetos,bloqueado,"O site já lê projetos de lei, mas o site da Casa só responde a acessos feitos do Brasil; por isso só dá para atualizar a partir de um computador no Brasil, e o site no ar não se atualiza sozinho.",sapl_assembleias,
+RO,ALRO,deputado estadual,votos,sim,Carregamos votos nominais do site oficial da Casa.,sapl_assembleias,
+RO,ALRO,deputado estadual,presenca,sim,Carregamos presença em plenário do site oficial da Casa.,sapl_assembleias,
+RO,ALRO,deputado estadual,projetos,sim,Carregamos projetos de lei do site oficial da Casa.,sapl_assembleias,
 RO,ALRO,deputado estadual,emendas,pedido,A consulta de emendas do Portal da Transparência traz empenhado e pago zerados de 2023 a 2025 (empenhos emitidos com valor zero); não carregamos e pedimos a correção.,,emendas_estaduais_27_ufs.md
 RO,ALRO,deputado estadual,salario,sem_fonte,Subsídio e folha dos deputados estaduais não coletados.,,
 RO,ALRO,deputado estadual,agenda,sem_fonte,Nenhuma fonte de agenda de deputados estaduais.,,
@@ -861,9 +861,9 @@ RO,Prefeituras de RO,prefeito,agenda,sem_fonte,44 de 52 municípios com canal of
 RO,Prefeituras de RO,prefeito,atos,parcial,Lemos o diário oficial de 51 de 52 cidades; nomeações e exonerações só aparecem depois de conferidas por uma pessoa.,querido_diario_atos; sigpub_atos,
 RO,Prefeituras de RO,prefeito,bens_campanha,sim,44 de 52 municípios com canal oficial achado. Bens e campanha declarados ao TSE.,tse_bens; tse_campanha,
 RR,ALRR,deputado estadual,gastos,sem_fonte,O site ainda não lê gastos do gabinete e da cota desta Casa.,sapl_assembleias,
-RR,ALRR,deputado estadual,votos,bloqueado,"O site já lê votos nominais, mas o site da Casa só responde a acessos feitos do Brasil; por isso só dá para atualizar a partir de um computador no Brasil, e o site no ar não se atualiza sozinho.",sapl_assembleias,
-RR,ALRR,deputado estadual,presenca,bloqueado,"O site já lê presença em plenário, mas o site da Casa só responde a acessos feitos do Brasil; por isso só dá para atualizar a partir de um computador no Brasil, e o site no ar não se atualiza sozinho.",sapl_assembleias,
-RR,ALRR,deputado estadual,projetos,bloqueado,"O site já lê projetos de lei, mas o site da Casa só responde a acessos feitos do Brasil; por isso só dá para atualizar a partir de um computador no Brasil, e o site no ar não se atualiza sozinho.",sapl_assembleias,
+RR,ALRR,deputado estadual,votos,sem_fonte,O sistema da Casa (SAPL) não tem votos nominais da legislatura atual registrados por deputado; o site lê o que houver assim que a Casa publicar.,sapl_assembleias,
+RR,ALRR,deputado estadual,presenca,sem_fonte,O sistema da Casa (SAPL) não tem presença em plenário da legislatura atual registrados por deputado; o site lê o que houver assim que a Casa publicar.,sapl_assembleias,
+RR,ALRR,deputado estadual,projetos,sim,Carregamos projetos de lei do site oficial da Casa.,sapl_assembleias,
 RR,ALRR,deputado estadual,emendas,pedido,Não achamos emendas estaduais em formato aberto no portal do Estado; pedido de acesso redigido (ADPF 854).,,emendas_estaduais_27_ufs.md
 RR,ALRR,deputado estadual,salario,sem_fonte,Subsídio e folha dos deputados estaduais não coletados.,,
 RR,ALRR,deputado estadual,agenda,sem_fonte,Nenhuma fonte de agenda de deputados estaduais.,,
@@ -901,10 +901,10 @@ RR,Prefeituras de RR,prefeito,salario,sem_fonte,13 de 15 municípios com canal o
 RR,Prefeituras de RR,prefeito,agenda,sem_fonte,13 de 15 municípios com canal oficial achado. Nenhuma fonte de agenda coletada.,,
 RR,Prefeituras de RR,prefeito,atos,parcial,Lemos o diário oficial de 14 de 15 cidades; nomeações e exonerações só aparecem depois de conferidas por uma pessoa.,querido_diario_atos; sigpub_atos,
 RR,Prefeituras de RR,prefeito,bens_campanha,sim,13 de 15 municípios com canal oficial achado. Bens e campanha declarados ao TSE.,tse_bens; tse_campanha,
-RS,ALRS,deputado estadual,gastos,bloqueado,"O site já lê gastos do gabinete e da cota, mas o site da Casa só responde a acessos feitos do Brasil; por isso só dá para atualizar a partir de um computador no Brasil, e o site no ar não se atualiza sozinho.",alrs,
-RS,ALRS,deputado estadual,votos,bloqueado,"O site já lê votos nominais, mas o site da Casa só responde a acessos feitos do Brasil; por isso só dá para atualizar a partir de um computador no Brasil, e o site no ar não se atualiza sozinho.",alrs,
-RS,ALRS,deputado estadual,presenca,bloqueado,"O site já lê presença em plenário, mas o site da Casa só responde a acessos feitos do Brasil; por isso só dá para atualizar a partir de um computador no Brasil, e o site no ar não se atualiza sozinho.",alrs,
-RS,ALRS,deputado estadual,projetos,bloqueado,"O site já lê projetos de lei, mas o site da Casa só responde a acessos feitos do Brasil; por isso só dá para atualizar a partir de um computador no Brasil, e o site no ar não se atualiza sozinho.",alrs,
+RS,ALRS,deputado estadual,gastos,sim,Carregamos gastos do gabinete e da cota do site oficial da Casa.,alrs,
+RS,ALRS,deputado estadual,votos,sim,Carregamos votos nominais do site oficial da Casa.,alrs,
+RS,ALRS,deputado estadual,presenca,sim,Carregamos presença em plenário do site oficial da Casa.,alrs,
+RS,ALRS,deputado estadual,projetos,sim,Carregamos projetos de lei do site oficial da Casa.,alrs,
 RS,ALRS,deputado estadual,emendas,pedido,Só há painel (sem arquivo para baixar); pedido de acesso redigido.,,emendas_estaduais_27_ufs.md
 RS,ALRS,deputado estadual,salario,sem_fonte,Subsídio e folha dos deputados estaduais não coletados.,,
 RS,ALRS,deputado estadual,agenda,sem_fonte,Nenhuma fonte de agenda de deputados estaduais.,,
@@ -984,9 +984,9 @@ SC,Prefeituras de SC,prefeito,agenda,sem_fonte,250 de 294 municípios com canal 
 SC,Prefeituras de SC,prefeito,atos,parcial,Lemos o diário oficial de 284 de 294 cidades; nomeações e exonerações só aparecem depois de conferidas por uma pessoa.,domsc_ciga_atos; querido_diario_atos,
 SC,Prefeituras de SC,prefeito,bens_campanha,sim,250 de 294 municípios com canal oficial achado. Bens e campanha declarados ao TSE.,tse_bens; tse_campanha,
 SE,ALSE,deputado estadual,gastos,sem_fonte,O site ainda não lê gastos do gabinete e da cota desta Casa.,alese,
-SE,ALSE,deputado estadual,votos,sem_fonte,O site ainda não lê votos nominais desta Casa.,alese,
+SE,ALSE,deputado estadual,votos,pedido,"A API de dados abertos da Casa traz projetos e presença, mas não o voto de cada deputado; pedido de acesso redigido.",alese,assembleias_votos_presenca.md
 SE,ALSE,deputado estadual,presenca,sim,Carregamos presença em plenário do site oficial da Casa.,alese,
-SE,ALSE,deputado estadual,projetos,sem_fonte,O site ainda não lê projetos de lei desta Casa.,alese,
+SE,ALSE,deputado estadual,projetos,sim,Carregamos projetos de lei do site oficial da Casa.,alese,
 SE,ALSE,deputado estadual,emendas,parcial,"Emendas desde 2022 no Portal da Transparência (autor, cidade, indicado e pago); a fonte não publica o empenhado.",transparencia_se_emendas,emendas_estaduais_27_ufs.md
 SE,ALSE,deputado estadual,salario,sem_fonte,Subsídio e folha dos deputados estaduais não coletados.,,
 SE,ALSE,deputado estadual,agenda,sem_fonte,Nenhuma fonte de agenda de deputados estaduais.,,
@@ -1066,9 +1066,9 @@ SP,Prefeituras de SP,prefeito,agenda,sem_fonte,609 de 645 municípios com canal 
 SP,Prefeituras de SP,prefeito,atos,parcial,Lemos o diário oficial de 120 de 645 cidades; nomeações e exonerações só aparecem depois de conferidas por uma pessoa.,querido_diario_atos; sigpub_atos,
 SP,Prefeituras de SP,prefeito,bens_campanha,sim,609 de 645 municípios com canal oficial achado. Bens e campanha declarados ao TSE.,tse_bens; tse_campanha,
 TO,ALTO,deputado estadual,gastos,sem_fonte,O site ainda não lê gastos do gabinete e da cota desta Casa.,sapl_assembleias,
-TO,ALTO,deputado estadual,votos,bloqueado,"O site já lê votos nominais, mas o site da Casa só responde a acessos feitos do Brasil; por isso só dá para atualizar a partir de um computador no Brasil, e o site no ar não se atualiza sozinho.",sapl_assembleias,
-TO,ALTO,deputado estadual,presenca,bloqueado,"O site já lê presença em plenário, mas o site da Casa só responde a acessos feitos do Brasil; por isso só dá para atualizar a partir de um computador no Brasil, e o site no ar não se atualiza sozinho.",sapl_assembleias,
-TO,ALTO,deputado estadual,projetos,bloqueado,"O site já lê projetos de lei, mas o site da Casa só responde a acessos feitos do Brasil; por isso só dá para atualizar a partir de um computador no Brasil, e o site no ar não se atualiza sozinho.",sapl_assembleias,
+TO,ALTO,deputado estadual,votos,sem_fonte,O sistema da Casa (SAPL) não tem votos nominais da legislatura atual registrados por deputado; o site lê o que houver assim que a Casa publicar.,sapl_assembleias,
+TO,ALTO,deputado estadual,presenca,sem_fonte,O sistema da Casa (SAPL) não tem presença em plenário da legislatura atual registrados por deputado; o site lê o que houver assim que a Casa publicar.,sapl_assembleias,
+TO,ALTO,deputado estadual,projetos,sim,Carregamos projetos de lei do site oficial da Casa.,sapl_assembleias,
 TO,ALTO,deputado estadual,emendas,pedido,Não achamos emendas estaduais em formato aberto no portal do Estado; pedido de acesso redigido (ADPF 854).,,emendas_estaduais_27_ufs.md
 TO,ALTO,deputado estadual,salario,sem_fonte,Subsídio e folha dos deputados estaduais não coletados.,,
 TO,ALTO,deputado estadual,agenda,sem_fonte,Nenhuma fonte de agenda de deputados estaduais.,,
