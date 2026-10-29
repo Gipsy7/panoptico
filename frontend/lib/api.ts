@@ -364,6 +364,8 @@ export type VereadorDetalhe = VereadorItem & {
     /** Fonte própria dos gastos (portal de transparência), quando não é a do resto do perfil. */
     fonte_nome?: string | null;
     fonte_url?: string | null;
+    /** O que o valor significa, quando a Casa não publica o reembolso (ex.: valor solicitado). */
+    sobre_valor?: string | null;
   } | null;
   municipio_ibge: string | null;
   nome_completo: string | null;

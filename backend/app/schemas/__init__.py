@@ -554,6 +554,8 @@ class GastosLocais(BaseModel):
     # Fonte própria dos gastos, quando não é a do resto do perfil (portal de transparência).
     fonte_nome: str | None = None
     fonte_url: str | None = None
+    # O que o valor significa, quando não é o reembolso (ex.: ES publica o valor solicitado).
+    sobre_valor: str | None = None
 
 
 class VereadorDetalhe(VereadorItem):

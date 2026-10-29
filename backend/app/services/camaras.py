@@ -191,10 +191,29 @@ def _gastos_atualizado_em(session: Session, casa: str, uf: str = "") -> datetime
     return _atualizado_em(session, casa, uf)
 
 
+# O que o valor publicado significa, quando não é "reembolsado" (o texto padrão do site).
+# Vem da própria página da Casa (ver docs/FONTES_DE_DADOS.md).
+VALOR_DOS_GASTOS = {
+    "ES": (
+        "Valor solicitado (reservado) pelo gabinete à cota, como a ALES publica; "
+        "não é necessariamente o valor pago."
+    ),
+    "AM": "Valor líquido (já descontada a glosa), como a ALEAM publica.",
+    "RO": "Valor pago, como a ALERO publica.",
+}
+
+
 def _fonte_dos_gastos(m: MandatoLocal) -> dict:
-    """Nome e endereço da fonte dos gastos, quando não é a mesma do resto do perfil."""
-    proprio = FONTES_GASTOS.get(m.uf) if m.casa == "assembleia" else None
-    return {"fonte_nome": proprio[1], "fonte_url": proprio[2]} if proprio else {}
+    """Nome e endereço da fonte dos gastos, quando não é a mesma do resto do perfil, e o
+    que o valor significa, quando a Casa publica outra coisa que não o reembolso."""
+    if m.casa != "assembleia":
+        return {}
+    extra: dict = {}
+    if m.uf in FONTES_GASTOS:
+        extra |= {"fonte_nome": FONTES_GASTOS[m.uf][1], "fonte_url": FONTES_GASTOS[m.uf][2]}
+    if m.uf in VALOR_DOS_GASTOS:
+        extra["sobre_valor"] = VALOR_DOS_GASTOS[m.uf]
+    return extra
 
 
 POR_PAGINA = 20

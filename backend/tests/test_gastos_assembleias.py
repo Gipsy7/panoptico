@@ -316,3 +316,14 @@ def test_alpb_planilha_ods_de_2025_e_xlsx_de_2026_conferidas_com_o_total():
     )
     assert {x["nome"] for x in linhas} == {"Adriano Galdino"}  # nome do seletor, não o civil
     assert all(set(x) == {"nome", "ano", "mes", "categoria", "valor"} for x in linhas)
+
+
+def test_secao_de_gastos_diz_o_que_o_valor_significa_quando_nao_e_reembolso(session):
+    es = _mandato(session, "ES", "21", "Janete de Sá")
+    ba = _mandato(session, "BA", "10", "Olivia Santana")
+    for m in (es, ba):
+        session.add(GastoLocal(mandato_id=m.id, ano=2025, mes=1, categoria="X", valor=Decimal("5")))
+    session.flush()
+    assert "solicitado (reservado)" in camaras.gastos(session, es)["sobre_valor"]
+    assert "não é necessariamente o valor pago" in camaras.gastos(session, es)["sobre_valor"]
+    assert "sobre_valor" not in camaras.gastos(session, ba)  # reembolso: texto padrão do site
