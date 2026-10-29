@@ -64,6 +64,7 @@ class PainelExecutivo(BaseModel):
     agenda: BlocoPainel
     viagens_cartao: BlocoPainel
     medidas_provisorias: BlocoPainel
+    vetos: BlocoPainel
 
 
 class AgendaParticipantePublico(BaseModel):
@@ -103,6 +104,34 @@ class AgendaResposta(BaseModel):
     por_pagina: int
     itens: list[AgendaItem]
     nota: str
+    fonte_nome: str
+    fonte_url: str
+    atualizado_em: datetime | None
+
+
+class AtoPresidencialItem(BaseModel):
+    identificacao: str
+    ementa: str
+    apelido: str | None
+    data: date
+    data_decisao: date | None
+    grupo: str
+    rotulo: str
+    termo_oficial: str
+    situacao: str | None
+    veto: str | None  # Total | Parcial (só veto)
+    norma_gerada: str | None
+    url: str
+
+
+class AtosPresidenciaisResposta(BaseModel):
+    tipo: str
+    grupo: str | None
+    total: int
+    pagina: int
+    por_pagina: int
+    itens: list[AtoPresidencialItem]
+    periodo: dict
     fonte_nome: str
     fonte_url: str
     atualizado_em: datetime | None

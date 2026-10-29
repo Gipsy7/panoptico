@@ -125,6 +125,12 @@ CATALOGO = [
         "url": "https://eagendas.cgu.gov.br/",
     },
     {
+        "dado": "Medidas provisórias e vetos do Presidente da República (mandato 2023 a 2026)",
+        "orgao": "Congresso Nacional (dados abertos do Senado Federal)",
+        "fontes": ["congresso_atos_presidente"],
+        "url": "https://www.congressonacional.leg.br/materias/medidas-provisorias",
+    },
+    {
         "dado": "Para quem a prefeitura e a câmara pagaram (São Paulo)",
         "orgao": "Tribunal de Contas do Estado de São Paulo",
         "fontes": ["tce_sp"],

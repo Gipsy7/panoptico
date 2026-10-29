@@ -7,8 +7,13 @@ from fastapi import APIRouter, Depends, HTTPException, Path, Query
 from sqlalchemy.orm import Session
 
 from app.db import get_session
-from app.schemas.executivo import AgendaResposta, ContasEstadoResposta, PainelExecutivo
-from app.services import contas, executivo
+from app.schemas.executivo import (
+    AgendaResposta,
+    AtosPresidenciaisResposta,
+    ContasEstadoResposta,
+    PainelExecutivo,
+)
+from app.services import atos_presidenciais, contas, executivo
 from app.services.representantes import UFS
 
 router = APIRouter()
@@ -57,3 +62,21 @@ def agenda_do_executivo(
     if candidatura is None:
         raise HTTPException(404, "Candidatura do Executivo não encontrada.")
     return executivo.agenda(session, candidatura, tipo, ano, pagina)
+
+
+@router.get("/executivo/{candidatura_id}/atos", response_model=AtosPresidenciaisResposta)
+def atos_do_presidente(
+    candidatura_id: int,
+    session: Annotated[Session, Depends(get_session)],
+    tipo: Literal["mpv", "veto"],
+    grupo: str | None = None,
+    pagina: Annotated[int, Query(ge=1)] = 1,
+) -> dict:
+    """Medidas provisórias ou vetos do Presidente da República no mandato em curso, do mais
+    recente para o mais antigo, 20 por página, com a situação literal do Congresso."""
+    candidatura = executivo.candidatura_executivo(session, candidatura_id)
+    if candidatura is None or not atos_presidenciais.eh_titular_do_mandato(candidatura):
+        raise HTTPException(404, "Esta candidatura não é do Presidente do mandato em curso.")
+    if grupo is not None and grupo not in atos_presidenciais.GRUPOS[tipo]:
+        raise HTTPException(422, "Grupo desconhecido.")
+    return atos_presidenciais.lista(session, tipo, grupo, pagina)
