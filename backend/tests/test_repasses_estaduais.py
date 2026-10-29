@@ -138,3 +138,19 @@ def test_repasses_estaduais_quem_nao_enviou_e_df(client, session):
     sem_carga = client.get("/municipios/3550308/repasses-estaduais").json()
     assert not sem_carga["disponivel"] and "ainda não foram carregados" in sem_carga["motivo"]
     assert client.get("/municipios/0000000/repasses-estaduais").status_code == 404
+
+
+def test_repasses_estaduais_ignora_conta_sem_o_recorte(client, session):
+    # Conta carregada antes do recorte: a coluna JSON fica nula e não entra na média.
+    _municipios(session)
+    session.add_all(
+        [
+            _conta("4202404", 2024, 100, _repasse(1000, icms=600)),
+            _conta("4205407", 2024, 200, None),
+        ]
+    )
+    session.flush()
+    resposta = client.get("/municipios/4202404/repasses-estaduais")
+    assert resposta.status_code == 200
+    corpo = resposta.json()
+    assert (corpo["media_uf_por_habitante"], corpo["municipios_na_media"]) == (10.0, 1)

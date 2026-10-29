@@ -151,6 +151,8 @@ def resumo(session: Session, municipio: Municipio) -> dict:
         .join(Municipio, Municipio.ibge == ContasMunicipio.municipio_ibge)
         .where(Municipio.uf == municipio.uf, ContasMunicipio.transf_estado.is_not(None))
     ).all()
+    # JSON nulo (carga anterior ao recorte) passa pelo IS NOT NULL do SQL: filtra aqui.
+    linhas = [linha for linha in linhas if linha.transf_estado]
     anos = sorted({linha.ano for linha in linhas}, reverse=True)
     if not anos:
         return _vazio(municipio, MOTIVO_SEM_CARGA, atualizado_em)
