@@ -55,7 +55,7 @@ flowchart LR
 | 📜 | **Projetos e votações** | Busca pelo número ("PL 2338/2023") ou por palavra, com ou sem acento, no Congresso, nas assembleias e nas câmaras. Em cada projeto: do que se trata, todas as votações nominais, quem votou Sim e quem votou Não (com filtro do seu estado e placar por estado), o que disseram os parlamentares no dia da votação (resumo oficial e link, agrupado pelo voto de quem falou), o caminho do projeto e a pauta da semana. A lista começa pelos projetos com mais informação publicada (votação nominal, discursos, caminho), e a cidade sem dados diz por quê. |
 | 🧾 | **Eleição (TSE)** | Votos, bens declarados (comparados com a eleição anterior), de onde veio e para onde foi o dinheiro da campanha, todas as eleições que disputou desde 1994 (o TSE não publica o cadastro de candidaturas mais antigo). |
 | 🕰 | **Linha do tempo** | Cassações, sanções da CGU, contas reprovadas no TCU, Conselho de Ética, cargos no governo federal, viagens, cartão corporativo, CPIs. Só com vínculo seguro e link oficial. |
-| 🏙 | **Sua cidade** | Emendas recebidas e quem mandou, contas da prefeitura e da câmara, maiores fornecedores, contratos no PNCP, canais oficiais. |
+| 🏙 | **Sua cidade** | Emendas recebidas e quem mandou, quanto o governo do estado repassou (por tipo, com a média do estado), contas da prefeitura e da câmara, maiores fornecedores, contratos no PNCP, canais oficiais. |
 | 🗺 | **Impostos e repasses** | Quanto a União arrecadou e repassou a cada estado e cidade (2019 a 2026), por habitante, em mapa. |
 | ⚖️ | **Comparadores** | Até 4 parlamentares lado a lado, vereadores da mesma câmara, e os candidatos do 2º turno com os mesmos campos. |
 | 🏛 | **Partidos** | Fundo Partidário, fundo eleitoral, receitas, gastos e repasses (TSE). |

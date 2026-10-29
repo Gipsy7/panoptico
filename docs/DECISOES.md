@@ -133,6 +133,7 @@
 - [2026-10-27: emendas estaduais de GO, PB e DF; RO, PI e SP de fora](#2026-10-27-emendas-estaduais-de-go-pb-e-df-ro-pi-e-sp-de-fora)
 - [2026-10-27: deputados de BA, ES e SE na VPS e suplentes ligados pelo nome civil](#2026-10-27-deputados-de-ba-es-e-se-na-vps-e-suplentes-ligados-pelo-nome-civil)
 - [2026-10-27: apelidos nos gastos das assembleias (fila de revisão)](#2026-10-27-apelidos-nos-gastos-das-assembleias-fila-de-revisão)
+- [2026-10-29: repasses do governo do estado à prefeitura](#2026-10-29-repasses-do-governo-do-estado-à-prefeitura)
 - [2026-10-21: diários municipais por plataforma compartilhada (SIGPub e DOM/SC)](#2026-10-21-diários-municipais-por-plataforma-compartilhada-sigpub-e-domsc)
 - [2026-10-21: câmaras sem canal, atacadas por sistema (e o que veda robô)](#2026-10-21-câmaras-sem-canal-atacadas-por-sistema-e-o-que-veda-robô)
 
@@ -1520,3 +1521,11 @@ A reserva da VPS é uma **versão congelada** do site, da API e do banco, na Ver
 - **Decisão humana:** `python -m ingestion.revisar --tipo apelido` grava em `data/curadoria/apelidos_revisados.csv` (versionado; escopo, nome na planilha, `id_externo` do deputado na Casa, aceito/recusado). `base.ligar_nomes` reaplica a cada carga, na VPS também; decisão de deputado que saiu da lista é ignorada; recusado sai da fila.
 - **Adoção por outras Casas:** trocar `base.ligar_nomes_exatos` por `base.ligar_nomes(escopo, totais, deputados, tse)`. Usam hoje: ALECE (gastos), ALRN (seletor de verbas; só quem liga é buscado) e ALESC (nomes nos extratos de voto, escopo `alesc_votos`; 8 nomes e 172 votos sem deputado igual, só 1 com candidato). A ALRN não foi medida: a página de verbas (`/portal/verbas`) responde 404 em 27/10/2026 (mudou de endereço, não é bloqueio). Sem migração.
 
+## 2026-10-29: repasses do governo do estado à prefeitura
+
+- **Pergunta que responde:** quanto o governo do estado repassou à prefeitura, por tipo, na página da cidade (`/cidade/[ibge]`, aba "Entrou", seção "Dinheiro do governo do estado", e cartão no topo).
+- **Fonte única e nacional:** a Declaração de Contas Anuais (SICONFI) que cada prefeitura envia ao Tesouro, Anexo I-C, já baixado pela carga `siconfi_contas`. Os portais estaduais de transferências têm formatos diferentes e não cobrem todos os estados; a DCA trata os 5.570 municípios pelo mesmo critério. O recorte é guardado na coluna nova `contas_municipio.transf_estado` (migração 0057, só acréscimo, sem `RECARREGAR_DADOS`: a carga mensal da agenda da VPS, `deploy/vps/agenda/mensal.sh`, preenche a coluna). Nenhuma consulta a mais à API.
+- **Valor:** receita bruta realizada declarada pela prefeitura (contas 1.7.2 correntes + 2.4.2 de capital), antes da retenção do Fundeb. A parte separada para o Fundeb aparece numa linha à parte. É o que o município registrou no ano (competência), não o caixa do estado; não se soma ao dinheiro federal.
+- **Tipos:** ICMS, IPVA, IPI-Exportação, CIDE, royalties, SUS, convênios e "outros" (o resto, para as partes somarem o total), com rótulo do dia a dia, termo oficial em letra menor e explicação. Os cinco primeiros são marcados como repasse obrigatório pela Constituição ou pela lei (`por_lei`), e a tela diz a porcentagem do total; SUS, convênios e outros são descritos como programas e acordos entre estado e prefeitura. Sem juízo sobre nenhum dos dois.
+- **Média ao lado:** valor por habitante (população da própria DCA, a mesma das contas da prefeitura) contra a média simples dos municípios do mesmo estado que enviaram a DCA do mesmo ano; tipo que a prefeitura não recebeu entra como zero. Quem não enviou a DCA fica fora da média, e a tela diz quantos.
+- **Ficou de fora:** prefeitura que não enviou a DCA do ano mostra o ano anterior com o aviso; sem nenhum ano, a frase "a prefeitura não enviou as contas ao Tesouro". Brasília (DF) não tem repasse estadual: a tela explica.
