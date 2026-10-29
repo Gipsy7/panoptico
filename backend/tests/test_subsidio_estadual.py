@@ -43,3 +43,9 @@ def test_perfil_do_deputado_estadual_traz_o_subsidio(session, client):
     assert com["valor"] == 34774.64 and com["fonte_url"].startswith("https://")
     sem = client.get(f"/vereadores/{ac}").json()["subsidio"]
     assert sem["valor"] is None and sem["observacao"]
+
+
+def test_copia_empacotada_igual_ao_csv_versionado():
+    """Se falhar: copie data/salario_deputados_estaduais.csv para backend/app/dados/."""
+    original = subsidio_estadual.CSV.parents[3] / "data" / "salario_deputados_estaduais.csv"
+    assert subsidio_estadual.CSV.read_bytes() == original.read_bytes()

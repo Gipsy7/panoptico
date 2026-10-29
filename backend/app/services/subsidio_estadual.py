@@ -2,8 +2,10 @@
 
 Cada Assembleia fixa o valor em lei estadual (art. 27, §2º da Constituição, teto de 75% do
 subsídio do deputado federal). Não há ingestão: o valor, o ato e a fonte de cada UF ficam em
-`data/salario_deputados_estaduais.csv`, versionado, e só entra número que a própria fonte
-oficial publica (nunca 75% calculado). UF sem valor aparece com o motivo.
+`data/salario_deputados_estaduais.csv`, versionado (cópia empacotada em `app/dados/`, porque a
+imagem da API não leva a pasta `data/`; um teste confere que as duas são iguais), e só entra
+número que a própria fonte oficial publica (nunca 75% calculado). UF sem valor aparece com o
+motivo.
 O valor é o mesmo para todos os deputados da Casa, então não há média para comparar.
 """
 
@@ -13,7 +15,7 @@ from decimal import Decimal
 from functools import lru_cache
 from pathlib import Path
 
-CSV = Path(__file__).resolve().parents[3] / "data" / "salario_deputados_estaduais.csv"
+CSV = Path(__file__).resolve().parents[1] / "dados" / "salario_deputados_estaduais.csv"
 
 
 @lru_cache(maxsize=1)
