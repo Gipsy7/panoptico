@@ -462,6 +462,48 @@ export function getContas(ibge: string) {
   return getJson<ContasMunicipio>(`/municipios/${encodeURIComponent(ibge)}/contas`);
 }
 
+export type TipoRepasseEstadual = {
+  chave: string;
+  rotulo: string;
+  termo_oficial: string;
+  explicacao: string;
+  /** Parte de imposto ou royalty que a Constituição ou a lei manda o estado repassar. */
+  por_lei: boolean;
+  valor: number;
+  percentual: number;
+  por_habitante: number | null;
+  media_uf_por_habitante: number | null;
+};
+
+/** Quanto o governo do estado repassou à prefeitura (SICONFI, DCA). */
+export type RepassesEstaduais = {
+  disponivel: boolean;
+  /** Por que não há dado (DF, prefeitura que não enviou as contas, carga ainda não feita). */
+  motivo: string | null;
+  uf: string;
+  ano: number | null;
+  populacao: number | null;
+  total: number | null;
+  por_habitante: number | null;
+  media_uf_por_habitante: number | null;
+  municipios_na_media: number;
+  municipios_uf: number;
+  media_uf_descricao: string;
+  parte_por_lei: number | null;
+  percentual_por_lei: number | null;
+  fundeb: number | null;
+  tipos: TipoRepasseEstadual[];
+  anterior: { ano: number; total: number } | null;
+  anos_sem_contas: number[];
+  fonte_nome: string;
+  fonte_url: string;
+  atualizado_em: string | null;
+};
+
+export function getRepassesEstaduais(ibge: string) {
+  return getJson<RepassesEstaduais>(`/municipios/${encodeURIComponent(ibge)}/repasses-estaduais`);
+}
+
 export type Canal = { tipo: string; url: string; sistema: string | null; verificado_em: string | null };
 
 export function getCanais(ibge: string) {
