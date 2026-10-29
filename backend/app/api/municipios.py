@@ -14,7 +14,8 @@ from app.schemas import (
     MunicipioInfo,
 )
 from app.schemas.emendas_municipio import EmendasMunicipioCompleta
-from app.services import contas, contratos_pncp, emendas, fornecedores
+from app.schemas.repasses_estaduais import RepassesEstaduaisResposta
+from app.services import contas, contratos_pncp, emendas, fornecedores, repasses_estaduais
 
 router = APIRouter()
 
@@ -37,6 +38,17 @@ def contas_do_municipio(ibge: str, session: Annotated[Session, Depends(get_sessi
     if resultado is None:
         raise HTTPException(404, "Sem contas entregues ao Tesouro para este município.")
     return resultado
+
+
+@router.get("/municipios/{ibge}/repasses-estaduais", response_model=RepassesEstaduaisResposta)
+def repasses_estaduais_do_municipio(
+    ibge: str, session: Annotated[Session, Depends(get_session)]
+) -> dict:
+    """Quanto o governo do estado repassou à prefeitura, por tipo (SICONFI, DCA)."""
+    municipio = session.get(Municipio, ibge)
+    if municipio is None:
+        raise HTTPException(404, "Município não encontrado.")
+    return repasses_estaduais.resumo(session, municipio)
 
 
 @router.get("/municipios/{ibge}/fornecedores", response_model=FornecedoresResposta)

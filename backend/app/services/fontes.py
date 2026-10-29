@@ -107,7 +107,7 @@ CATALOGO = [
         "url": "https://dadosabertos.tse.jus.br/dataset/prestacao-de-contas-partidarias-2024",
     },
     {
-        "dado": "Contas anuais das prefeituras (receita, despesa e áreas)",
+        "dado": "Contas anuais das prefeituras (receita, despesa, áreas e repasses do estado)",
         "orgao": "Tesouro Nacional (SICONFI)",
         "fontes": ["siconfi_contas"],
         "url": "https://siconfi.tesouro.gov.br/",
