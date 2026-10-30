@@ -5,14 +5,13 @@ nunca deve quebrar por causa do registro). O limite de pedidos por IP vive só n
 processo: o IP não é gravado em lugar nenhum.
 """
 
-import time
-from collections import defaultdict, deque
 from typing import Annotated, Literal
 
-from fastapi import APIRouter, Depends, HTTPException, Request, Response
+from fastapi import APIRouter, Depends, Response
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 
+from app.api.limite import LimitePorOrigem
 from app.config import settings
 from app.db import get_session
 from app.services import argos as servico
@@ -20,7 +19,8 @@ from app.services import argos as servico
 router = APIRouter(prefix="/argos")
 
 LIMITE_POR_MINUTO = 20
-_pedidos: dict[str, deque[float]] = defaultdict(deque)
+limitar = LimitePorOrigem(LIMITE_POR_MINUTO)
+_pedidos = limitar.pedidos
 
 
 class NaoEntendida(BaseModel):
@@ -37,28 +37,6 @@ class Avaliacao(BaseModel):
     assunto: str = Field(min_length=1, max_length=40, pattern=r"^[a-z_]+$")
     # Só vai quando a pessoa respondeu "Pode guardar".
     conversa: list[Mensagem] | None = Field(default=None, max_length=servico.MAX_MENSAGENS)
-
-
-def _origem(request: Request) -> str:
-    """IP de quem pediu (atrás do Cloudflare vem no cabeçalho), só para contar na memória."""
-    return (
-        request.headers.get("cf-connecting-ip")
-        or (request.headers.get("x-forwarded-for") or "").split(",")[0].strip()
-        or (request.client.host if request.client else "?")
-    )
-
-
-def limitar(request: Request) -> None:
-    agora = time.monotonic()
-    fila = _pedidos[_origem(request)]
-    while fila and agora - fila[0] > 60:
-        fila.popleft()
-    if len(fila) >= LIMITE_POR_MINUTO:
-        raise HTTPException(429, "Muitos pedidos. Tente de novo em instantes.")
-    fila.append(agora)
-    if len(_pedidos) > 5000:  # não cresce sem limite
-        for chave in [k for k, f in _pedidos.items() if not f or agora - f[-1] > 60]:
-            del _pedidos[chave]
 
 
 def _sem_cache(resposta: Response) -> None:

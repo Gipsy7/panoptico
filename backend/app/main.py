@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.api import (
     argos,
+    avisos,
     busca,
     cobertura,
     comparar,
@@ -31,7 +32,7 @@ app = FastAPI(
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.cors_origins,
-    # POST só existe em /argos (registro do chat); o resto da API é de leitura.
+    # POST só existe em /argos (registro do chat) e /avisos; o resto da API é de leitura.
     allow_methods=["GET", "POST"],
     allow_headers=["*"],
 )
@@ -74,6 +75,7 @@ app.include_router(eleitos.router)
 app.include_router(executivo.router)
 app.include_router(busca.router)
 app.include_router(argos.router)
+app.include_router(avisos.router)
 app.include_router(pessoas.router)
 app.include_router(partidos.router)
 app.include_router(segundo_turno.router)

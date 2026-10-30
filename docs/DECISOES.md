@@ -2,6 +2,7 @@
 
 ## Índice
 
+- [2026-10-30: Web Push, avisos no celular sem telefone nem e-mail](#2026-10-30-web-push-avisos-no-celular-sem-telefone-nem-e-mail)
 - [2026-10-30: Neon parado enquanto a reserva não é usada](#2026-10-30-neon-parado-enquanto-a-reserva-não-é-usada)
 - [2026-10-30: teto de tempo nos discursos da Câmara](#2026-10-30-teto-de-tempo-nos-discursos-da-câmara)
 - [2026-10-30: ambiente de release antes da produção](#2026-10-30-ambiente-de-release-antes-da-produção)
@@ -1027,6 +1028,7 @@ Em 15/10 (`ibge_municipios`, ConnectTimeout) e 16/10 (`senado_votacoes`, 503 num
 - **Decisão:** quem quiser acompanhar um representante usa um feed Atom (leitor de feeds ou ferramenta de avisos). O site não coleta e-mail nem telefone para avisos.
 - **Por quê:** coleta mínima (LGPD): o feed não exige dado do cidadão nem lista de contatos para guardar e proteger.
 - **Pendente:** aviso por e-mail ou WhatsApp só entra depois de uma decisão própria de LGPD (base legal, prazo de guarda, descadastro).
+- **Atualização:** o aviso por Web Push entrou com decisão própria ([2026-10-30](#2026-10-30-web-push-avisos-no-celular-sem-telefone-nem-e-mail)). E-mail e WhatsApp seguem pendentes; o feed Atom continua.
 
 ## 2026-10-18: CPF no nome de fornecedor
 
@@ -1523,6 +1525,26 @@ A reserva da VPS é uma **versão congelada** do site, da API e do banco, na Ver
 - **Regra (vale para qualquer Casa, ALECE é o primeiro caso):** só o nome idêntico após `comum.chave_nome` liga sozinho. O parecido vira sugestão (até 3 deputados da lista, por semelhança de letras e de palavras, mínimo 0,62) na fila `backend/data/processed/apelidos_pendentes_<escopo>.csv`, fora do git e que nenhuma rota da API, página ou exportação lê. Ex-deputado ou suplente sem registro na lista fica na fila sem candidato: só dá para recusar (ligar exigiria um deputado para receber o gasto).
 - **Decisão humana:** `python -m ingestion.revisar --tipo apelido` grava em `data/curadoria/apelidos_revisados.csv` (versionado; escopo, nome na planilha, `id_externo` do deputado na Casa, aceito/recusado). `base.ligar_nomes` reaplica a cada carga, na VPS também; decisão de deputado que saiu da lista é ignorada; recusado sai da fila.
 - **Adoção por outras Casas:** trocar `base.ligar_nomes_exatos` por `base.ligar_nomes(escopo, totais, deputados, tse)`. Usam hoje: ALECE (gastos), ALRN (seletor de verbas; só quem liga é buscado) e ALESC (nomes nos extratos de voto, escopo `alesc_votos`; 8 nomes e 172 votos sem deputado igual, só 1 com candidato). A ALRN não foi medida: a página de verbas (`/portal/verbas`) responde 404 em 27/10/2026 (mudou de endereço, não é bloqueio). Sem migração.
+
+## 2026-10-30: Web Push, avisos no celular sem telefone nem e-mail
+
+Atualiza a decisão de 2026-10-18 ("só por feed Atom"). Primeiro no release; ir à produção é decisão só do dono.
+
+- **Alcance:** votos em plenário e eventos oficiais de deputados federais e senadores, e tramitação de projetos federais. Ficam de fora cidade, vereador, deputado estadual, projeto local, despesas e emendas (sem chave estável ou só agregados). A tela diz isso.
+- **Entrega:** resumo diário, no máximo 1 notificação por aparelho, com TTL de 24 h. Título factual ("Fulano votou Sim na PEC 12/2026"), com fonte e data literais.
+- **Base legal (LGPD):** consentimento. Quem ativa clica no botão e aceita a permissão do navegador. O botão diz antes o que é guardado, a frequência e o que fica de fora.
+- **Dado guardado:** por aparelho, o endereço de envio do serviço de push (`endpoint`), as chaves do navegador (`p256dh`, `auth`), as datas e a lista de alvos. Sem nome, e-mail, telefone, IP ou user-agent. Nada disso vai para log, API de leitura ou exportação aberta.
+- **Prazos:** inscrição sem entrega há 180 dias é apagada; `aviso_evento`, sem dado de cidadão, dura 90 dias. O serviço de push dizer que o aparelho saiu (404 ou 410) apaga na hora.
+- **Descadastro:** "Cancelar todos" apaga inscrição e alvos de verdade, e cancelar exige `endpoint` e `auth`. Conhecer só o endereço não cancela, não consulta e não troca as chaves de uma inscrição existente.
+- **Fora do backup:** `aviso_inscricao` e `aviso_alvo` entram só com a estrutura (`--exclude-table-data`), no `backup.sh` e no dump da reserva. Perder a base significa os aparelhos ativarem de novo; é o preço de não espalhar o dado.
+- **Detector com tabela própria:** as cargas apagam e reinserem, então nada no banco diz o que é novo. Todo dia a varredura dos últimos 30 dias grava cada fato uma vez pela chave natural (`ON CONFLICT DO NOTHING`), sem cursor em `fonte_ingestao`: fonte que falhou é vista no dia seguinte. Fato com data fora da janela nunca gera aviso, o que cobre vínculo revisado depois e pessoa nova ligando evento antigo. Só evento com vínculo que passa em `publicavel()`; sugestão não revisada nunca entra.
+- **Ausência não gera aviso:** só voto efetivo (Sim, Não, Abstenção, Obstrução) em votação aberta. A Câmara só publica quem votou e o Senado publica todos com código de ausência; avisar só a do Senado trataria as Casas de forma diferente.
+- **Semente obrigatória:** sem `--semear` no ambiente, o envio recusa, para não mandar 30 dias de fatos antigos de uma vez.
+- **Falha de envio:** 401/403 é chave errada do nosso lado, e não apaga ninguém. 429, 5xx e rede tentam no dia seguinte. Como o cursor do ambiente avança ao fim da rodada, cada inscrição tem `ultimo_evento_id` próprio: fixa o ponto de partida na falha e, gravado por lote na entrega, evita repetir o resumo se a rodada cair no meio.
+- **Tempo:** 20 envios em paralelo, 5 s por requisição e prazo de 12 min. Com 10 mil aparelhos a 300 ms são cerca de 3 min; com tudo em tempo limite, quem passar do prazo fica para o dia seguinte. Cabe nos 15 min do passo da diária.
+- **Separação por ambiente:** release e produção dividem o banco, então `AMBIENTE` entra em toda consulta de inscrição, e cada ambiente tem seu cursor. `aviso_evento` é único: são fatos públicos.
+- **Sem SSRF:** o servidor faz POST no endereço informado, então só aceita `https` em host de serviço conhecido (FCM, Mozilla, Apple, Windows), sem redirecionamento.
+- **Desligado por padrão:** sem `AVISOS_ATIVOS`, `VAPID_PRIVADA` e `VAPID_CONTATO`, as rotas respondem 503 sem tocar no banco e a diária não faz nada. É o que mantém produção e reserva fora.
 
 ## 2026-10-30: Neon parado enquanto a reserva não é usada
 

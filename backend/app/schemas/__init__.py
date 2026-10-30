@@ -22,6 +22,7 @@ class Remuneracao(BaseModel):
 
 
 class ParlamentarDetalhe(ParlamentarResumo):
+    id_externo: str  # com `casa`, forma a chave estável (alvo dos avisos)
     nome_civil: str | None
     email: str | None
     telefone: str | None

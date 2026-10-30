@@ -1,6 +1,7 @@
 from app.models import busca_indices as _busca_indices  # noqa: F401  (índices da busca)
 from app.models.agenda import AgendaCompromisso
 from app.models.argos import ArgosAvaliacao, ArgosConversa, ArgosFraseNaoEntendida
+from app.models.avisos import AvisoAlvo, AvisoCursor, AvisoEvento, AvisoInscricao
 from app.models.base import Base
 from app.models.camara_municipal import (
     GastoLocal,
@@ -69,6 +70,10 @@ __all__ = [
     "ArgosConversa",
     "ArgosFraseNaoEntendida",
     "Autoria",
+    "AvisoAlvo",
+    "AvisoCursor",
+    "AvisoEvento",
+    "AvisoInscricao",
     "Base",
     "BemDeclarado",
     "CanalOficial",
