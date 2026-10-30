@@ -23,4 +23,6 @@ Ao gravar, `ativo` deve refletir o DNS real.
 ## Ler o estado
 `https://<worker>.workers.dev/estado?chave=<CHAVE_PAINEL>`, ou `npx wrangler tail` para o log.
 
+Release (`release.panoptico.social.br`, `api-release.`): nunca entra na troca. O Worker não testa nem troca endereço de release; se algum aparecer em `wrangler.toml`, o cron não faz nada e `/preparar` recusa (`enderecosDeRelease`).
+
 Testes: `npm test`; tipos: `npm run tipos`.

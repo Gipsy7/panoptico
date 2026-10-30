@@ -1,5 +1,8 @@
 import type { NextConfig } from "next";
 
+// Release (homologação em release.panoptico.social.br): build com NEXT_PUBLIC_AMBIENTE=release.
+const EH_RELEASE = process.env.NEXT_PUBLIC_AMBIENTE?.trim().toLowerCase() === "release";
+
 const nextConfig: NextConfig = {
   // O Dockerfile define NEXT_OUTPUT=standalone para gerar um servidor enxuto.
   output: process.env.NEXT_OUTPUT === "standalone" ? "standalone" : undefined,
@@ -13,11 +16,14 @@ const nextConfig: NextConfig = {
   async headers() {
     return [
       // O mesmo site responde em outros endereços (teste, reserva, api-*): só o principal vai ao Google.
-      {
-        source: "/:path*",
-        has: [{ type: "host", value: "(?!panoptico\\.social\\.br$).*" }],
-        headers: [{ key: "X-Robots-Tag", value: "noindex" }],
-      },
+      // O build de release não entra em índice nenhum, seja qual for o endereço.
+      EH_RELEASE
+        ? { source: "/:path*", headers: [{ key: "X-Robots-Tag", value: "noindex, nofollow" }] }
+        : {
+            source: "/:path*",
+            has: [{ type: "host" as const, value: "(?!panoptico\\.social\\.br$).*" }],
+            headers: [{ key: "X-Robots-Tag", value: "noindex" }],
+          },
       {
         source: "/:path*",
         headers: [

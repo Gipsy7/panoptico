@@ -2,10 +2,11 @@ import type { Metadata, Viewport } from "next";
 import { Geist, Newsreader } from "next/font/google";
 import Link from "next/link";
 
+import { FaixaRelease } from "@/components/faixa-release";
 import { Logo, Marca } from "@/components/logo";
 import { MenuPrincipal } from "@/components/menu-principal";
 import { Revelar } from "@/components/revelar";
-import { CONTATO_EMAIL, SITE_URL } from "@/lib/site";
+import { CONTATO_EMAIL, EH_RELEASE, SITE_URL_CANONICO } from "@/lib/site";
 
 import "./globals.css";
 
@@ -21,9 +22,12 @@ const newsreader = Newsreader({
   axes: ["opsz"],
 });
 
+// No release (homologação), a base é o site oficial: canônicas e Open Graph apontam para a produção,
+// e nenhuma página entra no índice (docs/DECISOES.md, 2026-10-30, ambiente de release).
 export const metadata: Metadata = {
-  metadataBase: new URL(SITE_URL),
+  metadataBase: new URL(SITE_URL_CANONICO),
   alternates: { canonical: "./" },
+  ...(EH_RELEASE ? { robots: { index: false, follow: false } } : {}),
   title: { default: "Panóptico: quem te representa, às claras", template: "%s · Panóptico" },
   description:
     "Digite seu CEP e veja quem te representa no Congresso, com dados oficiais e link para a fonte.",
@@ -77,6 +81,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
             </a>
           ))}
         </div>
+        <FaixaRelease />
         <header
           style={{ viewTransitionName: "site-header" }}
           className="sticky top-0 z-40 border-b border-border/70 bg-background/85 backdrop-blur-md"

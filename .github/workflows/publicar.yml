@@ -1,27 +1,22 @@
 name: Publicar
 
-# Publica o que está no branch `dev` sem deixar o site sem dados:
+# Publica o que está no branch `dev` no RELEASE (homologação):
 #   1. roda os testes;
-#   2. aplica as migrações no banco de produção (rápido);
-#   3. só se uma migração pedir (RECARREGAR_DADOS = True) ou se pedido à mão, recarrega
-#      os dados federais; tabelas novas com carga própria não precisam disso;
-#   4. só então avança o `main`, que é o branch que a Vercel publica.
-# Assim o código novo nunca chega ao ar antes do banco estar pronto para ele.
-# Regra para isso funcionar: migrações só ACRESCENTAM (tabelas, colunas opcionais),
-# para o código antigo continuar funcionando com o banco novo enquanto a carga roda.
+#   2. avança o branch `release`, que a VPS publica em https://release.panoptico.social.br.
+# Sem banco aqui: a API do release aplica as migrações no banco da VPS ao subir (mesmo banco da
+# produção). Migração que declara RECARREGAR_DADOS = True: o atualizar.sh avisa no log, e a recarga
+# é manual na VPS (sudo systemctl start panoptico-diaria). A produção (`main`) só avança pelo
+# workflow manual "Promover para produção" (ou pela "Correção urgente"). Como o banco da VPS fica à
+# frente do main até a promoção, as migrações só ACRESCENTAM.
 
 on:
   push:
     branches: [dev]
   workflow_dispatch:
-    inputs:
-      recarregar:
-        description: "Recarregar todos os dados antes de publicar, mesmo sem migração nova"
-        type: boolean
-        default: false
 
+# Mesmo grupo da "Promover para produção" e da "Correção urgente": nunca rodam juntos.
 concurrency:
-  group: publicar
+  group: publicacao
   cancel-in-progress: false
 
 permissions:
@@ -31,85 +26,25 @@ jobs:
   testes:
     uses: ./.github/workflows/ci.yml
 
-  migracoes:
+  release:
     needs: testes
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-    outputs:
-      recarregar: ${{ steps.decidir.outputs.recarregar }}
-    defaults:
-      run:
-        working-directory: backend
-    env:
-      DATABASE_URL: ${{ secrets.DATABASE_URL }}
-    steps:
-      - uses: actions/checkout@v7
-
-      - uses: astral-sh/setup-uv@v10.2.0
-        with:
-          version: "0.12.23"
-
-      - name: Instalar dependências
-        run: uv sync --locked --no-dev
-
-      # O Alembic trava no próprio Postgres: se uma carga estiver migrando ao mesmo tempo,
-      # este passo espera e depois não tem nada a fazer.
-      - name: Migrações do banco
-        id: decidir
-        env:
-          RECARREGAR: ${{ inputs.recarregar }}
-        run: |
-          antes="$(uv run alembic current 2>/dev/null | tail -n 1 | awk '{print $1}')"
-          uv run alembic upgrade head
-          depois="$(uv run alembic current 2>/dev/null | tail -n 1 | awk '{print $1}')"
-          echo "Versão do banco: '$antes' -> '$depois'"
-          recarregar=false
-          if [ "$RECARREGAR" = "true" ]; then
-            recarregar=true
-          elif [ "$antes" != "$depois" ]; then
-            recarregar="$(uv run python -m ingestion.precisa_recarga "$antes" "$depois")"
-          fi
-          echo "Recarregar os dados federais: $recarregar"
-          echo "recarregar=$recarregar" >> "$GITHUB_OUTPUT"
-
-  recarga:
-    needs: migracoes
-    if: needs.migracoes.outputs.recarregar == 'true'
-    runs-on: ubuntu-latest
-    timeout-minutes: 90
-    # Não roda junto com a ingestão diária: as duas escrevem nas mesmas tabelas federais.
-    concurrency:
-      group: ingestao-federal
-      cancel-in-progress: false
-    defaults:
-      run:
-        working-directory: backend
-    env:
-      DATABASE_URL: ${{ secrets.DATABASE_URL }}
-    steps:
-      - uses: actions/checkout@v7
-
-      - uses: astral-sh/setup-uv@v10.2.0
-        with:
-          version: "0.12.23"
-
-      - name: Instalar dependências
-        run: uv sync --locked --no-dev
-
-      - name: Recarregar os dados federais
-        run: uv run python -m ingestion.run_all
-
-  promover:
-    needs: [migracoes, recarga]
-    # Avança quando a recarga deu certo ou não foi necessária.
-    if: always() && needs.migracoes.result == 'success' && (needs.recarga.result == 'success' || needs.recarga.result == 'skipped')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
-      # Só avança o main se for um "fast-forward": se alguém tiver mexido direto no main,
-      # o push falha em vez de apagar o trabalho.
-      - name: Avançar o main (a Vercel publica a partir dele)
-        run: git push origin HEAD:main
+      # Só avança o release se for um "fast-forward": se alguém tiver mexido direto nele, o push
+      # falha em vez de apagar o trabalho.
+      - name: Avançar o release (a VPS publica em release.panoptico.social.br)
+        run: |
+          git fetch --quiet origin release || true
+          antes="$(git rev-parse --verify --quiet origin/release || echo nenhum)"
+          git push origin HEAD:release
+          {
+            echo "## Release avançado"
+            echo ""
+            echo "- De \`${antes:0:7}\` para \`$(git rev-parse --short HEAD)\`: $(git log -1 --format=%s HEAD)"
+            echo "- A VPS publica em https://release.panoptico.social.br em até 10 min."
+            echo "- Produção só com o workflow **Promover para produção**."
+          } >> "$GITHUB_STEP_SUMMARY"

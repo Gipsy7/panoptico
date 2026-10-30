@@ -87,3 +87,21 @@ export function decidir(
   e.sucessos = 0;
   return { estado: e, trocarPara: alvo, observou: null };
 }
+
+/**
+ * Endereços de release (homologação: release.panoptico.social.br, api-release...) nunca entram na
+ * troca: nem como registro que o Worker muda, nem como teste de saúde. O release roda na mesma VPS,
+ * com o mesmo banco, e não tem reserva. Recebe hostnames ou URLs; devolve os que são de release.
+ */
+export function enderecosDeRelease(valores: (string | undefined)[]): string[] {
+  return valores.filter((v): v is string => {
+    if (!v) return false;
+    let host = v.trim().toLowerCase();
+    try {
+      if (host.includes("://")) host = new URL(host).hostname;
+    } catch {
+      return false;
+    }
+    return /(^|[.-])release[.-]/.test(host);
+  });
+}

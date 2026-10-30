@@ -65,9 +65,11 @@ Para subir tudo, tirar screenshot de 360px e destravar portas, use a skill `roda
 
 ## Git e publicação
 
-- Trabalhe no `dev` (ou em branch de worktree a partir dele). Nunca push direto no `main`, nunca `--force`.
-- `git push origin dev` dispara o workflow **Publicar**: testa, migra a produção, recarrega dados federais só se uma migração declarar `RECARREGAR_DADOS = True`, e então avança o `main`.
-- Fluxo: push no `dev` → **Publicar** (testa, migra, avança o `main`) → a VPS atualiza sozinha em até 10 min (`atualizar.sh`, a partir do `main`). O limite de 100 deploys por dia vale só para a Vercel, hoje reserva do site; não restringe mais os pushes, mas não precisa publicar um por ajuste.
+- Trabalhe no `dev` (ou em branch de worktree a partir dele). Nunca push direto no `main` nem no `release`, nunca `--force`.
+- Fluxo: push no `dev` → **Publicar** (só testa e avança o branch `release`; não usa banco) → a VPS publica o release em https://release.panoptico.social.br (API em `api-release.`) em até 10 min. Release usa o mesmo banco da produção, não tem ingestão e fica fora dos buscadores. As migrações entram no banco da VPS pela API do release, ao subir; na correção urgente, pela API de produção, ao subir. Migração com `RECARREGAR_DADOS = True` vira aviso no log do `atualizar.sh`, e a recarga é manual na VPS (`sudo systemctl start panoptico-diaria`).
+- **Produção só quando o dono decide:** workflow manual **Promover para produção** (`gh workflow run promover-producao.yml`) faz fast-forward do `main` até o `release`; a VPS publica o `main` em até 10 min (`atualizar.sh`). Agente nunca dispara o Promover sem o ok explícito do dono.
+- **Correção urgente** (produção com problema e o release ainda não pode subir): `git switch -c correcao/<nome> origin/main`, corrige, `git push origin correcao/<nome>`, `gh workflow run correcao-urgente.yml --ref correcao/<nome>`: testa, avança o `main` e faz o merge do `main` no `dev` (com conflito, abre issue). Detalhes em `deploy/vps/LEIAME.md`, seção 8.
+- Como o banco da VPS é migrado no release, antes do `main` receber o código, migração que só acrescenta é obrigatória: o `main` roda com o banco do `dev`. O limite de 100 deploys por dia vale só para a Vercel, hoje reserva do site; não precisa publicar um por ajuste.
 - Commits em pt-BR, mensagem curta e factual. No `dev` o CI roda dentro do Publicar; em outros branches e PRs roda o `ci.yml`.
 - `ACOMPANHAMENTO.md` é arquivo local de acompanhamento, **nunca vai para o git** (não use `git add -A` às cegas). Atualize ao fim de cada tarefa.
 - Atualize o `README.md` a cada entrega relevante.

@@ -30,10 +30,14 @@ services:
     build: ../../backend
     restart: unless-stopped
     # Este é o banco principal: aplica as migrações ao subir (a imagem traz --root-path /api,
-    # que aqui não vale, porque a API tem endereço próprio).
+    # que aqui não vale, porque a API tem endereço próprio). Desde o release (30/10/2026) a api-release
+    # migra o banco ANTES do main receber o código: se a API reiniciar nesse intervalo, o banco está
+    # numa versão que este código não conhece e o alembic falha. Como as migrações só acrescentam,
+    # o código anterior funciona com o banco novo; a API sobe assim mesmo e deixa o aviso no log.
     command: >
-      sh -c "alembic upgrade head &&
-      uvicorn app.main:app --host 0.0.0.0 --port 8000 --workers ${API_WORKERS:-3}
+      sh -c "alembic upgrade head ||
+      echo 'aviso: alembic falhou (banco a frente deste codigo? o release migra antes do main); subindo a API assim mesmo';
+      exec uvicorn app.main:app --host 0.0.0.0 --port 8000 --workers ${API_WORKERS:-3}
       --proxy-headers --forwarded-allow-ips='*'"
     environment: &backend_env
       DATABASE_URL: postgresql+psycopg://panoptico:${POSTGRES_PASSWORD}@db:5432/panoptico
@@ -63,11 +67,60 @@ services:
     depends_on:
       - api
 
+  # Release (homologação): o código do branch `release`, num checkout separado em
+  # /opt/panoptico-release (criado pelo atualizar.sh), servido em release.panoptico.social.br e
+  # api-release.panoptico.social.br. Usa o MESMO banco da produção; a api-release aplica as migrações
+  # ao subir (é por ela que entram no banco da VPS). A definição fica aqui, no compose do main: o release troca o código, não a infra.
+  # Só existe no perfil "release" e sobe sem mexer nos outros serviços:
+  #   docker compose --profile release up -d --no-deps --no-build api-release web-release
+  api-release:
+    build: ${RELEASE_DIR:-/opt/panoptico-release}/backend
+    profiles: ["release"]
+    restart: unless-stopped
+    # Um worker só (a VPS tem 2 vCPU e 4 GB). Aplica as migrações ao subir: é aqui que elas entram
+    # no banco da VPS (o Publicar só testa; não toca em banco nenhum).
+    # Mesmo padrão da API de produção: se o alembic falhar, avisa no log e sobe assim mesmo.
+    command: >
+      sh -c "alembic upgrade head ||
+      echo 'aviso: alembic falhou no release; subindo a API assim mesmo';
+      exec uvicorn app.main:app --host 0.0.0.0 --port 8000 --workers 1
+      --proxy-headers --forwarded-allow-ips='*'"
+    environment:
+      DATABASE_URL: postgresql+psycopg://panoptico:${POSTGRES_PASSWORD}@db:5432/panoptico
+      CORS_ORIGINS: '["https://release.panoptico.social.br"]'
+    mem_limit: 512m
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request as u; u.urlopen('http://localhost:8000/saude', timeout=4)"]
+      interval: 60s
+      timeout: 6s
+      retries: 3
+      start_period: 60s
+
+  web-release:
+    build:
+      context: ${RELEASE_DIR:-/opt/panoptico-release}/frontend
+      args:
+        NEXT_PUBLIC_API_URL: https://api-release.panoptico.social.br
+        NEXT_PUBLIC_SITE_URL: https://release.panoptico.social.br
+        NEXT_PUBLIC_CONTATO_EMAIL: contato@panoptico.social.br
+        NEXT_PUBLIC_AMBIENTE: release
+    profiles: ["release"]
+    restart: unless-stopped
+    environment:
+      API_URL_INTERNA: http://api-release:8000
+    mem_limit: 512m
+    depends_on:
+      - api-release
+
   cloudflared:
     image: cloudflare/cloudflared:latest
     restart: unless-stopped
     # Túnel nomeado com config.yml e credenciais em /opt/cloudflared (fora do git): cada hostname
-    # vai para um serviço (site -> web:3000, api -> api:8000). Ver LEIAME.md.
+    # vai para um serviço (site -> web:3000, api -> api:8000; release -> web-release:3000,
+    # api-release -> api-release:8000). Ver LEIAME.md.
     command: tunnel --no-autoupdate --config /etc/cloudflared/config.yml run
     volumes:
       - /opt/cloudflared:/etc/cloudflared:ro

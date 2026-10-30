@@ -1,0 +1,62 @@
+name: Promover para produção
+
+# Manual: leva à produção (branch `main`, que a VPS publica em panoptico.social.br) o que já está no
+# release (release.panoptico.social.br). Só fast-forward, nunca --force: falha se o main tiver um
+# commit que o release não tem (em geral uma "Correção urgente" cujo merge no dev ainda não chegou
+# ao release). O banco já está migrado: a API do release aplicou as migrações ao subir.
+
+on:
+  workflow_dispatch:
+    inputs:
+      commit:
+        description: "Commit do release a promover (vazio = a ponta do release)"
+        type: string
+        default: ""
+
+# Mesmo grupo do Publicar e da Correção urgente: nunca rodam juntos.
+concurrency:
+  group: publicacao
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  promover:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Avançar o main para o release
+        env:
+          COMMIT: ${{ inputs.commit }}
+        run: |
+          falhar() { echo "::error::$1"; { echo "## Nada promovido"; echo ""; echo "$1"; } >> "$GITHUB_STEP_SUMMARY"; exit 1; }
+          git fetch --quiet origin main release || falhar "Não achei os branches main e release no GitHub."
+          alvo="${COMMIT:-origin/release}"
+          sha="$(git rev-parse --verify --quiet "${alvo}^{commit}")" || falhar "Commit '$alvo' não encontrado."
+          git merge-base --is-ancestor "$sha" origin/release \
+            || falhar "O commit ${sha:0:7} não está no release: só se promove o que já passou pelo release."
+          git merge-base --is-ancestor origin/main "$sha" \
+            || falhar "O main tem commits que o release não tem (provavelmente uma Correção urgente cujo merge no dev ainda não chegou ao release). Faça o merge do main no dev (git switch dev && git merge origin/main && git push origin dev), espere o Publicar avançar o release e rode este workflow de novo."
+          if [ "$(git rev-parse origin/main)" = "$sha" ]; then
+            { echo "## Nada a promover"; echo ""; echo "O main já está em \`${sha:0:7}\`."; } >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          lista="$(git log --format='- `%h` %s' "origin/main..$sha")"
+          de="$(git rev-parse --short origin/main)"
+          # Sem --force: se o main mudou nesse meio-tempo e deixou de ser fast-forward, o push falha.
+          git push origin "$sha:refs/heads/main"
+          {
+            echo "## Promovido para produção: \`${sha:0:7}\`"
+            echo ""
+            echo "$(git log -1 --format='%s (%an, %ad)' --date=format:'%d/%m/%Y %H:%M' "$sha")"
+            echo ""
+            echo "O main foi de \`$de\` para \`${sha:0:7}\`. A VPS publica em https://panoptico.social.br em até 10 min."
+            echo ""
+            echo "### Commits promovidos"
+            echo ""
+            echo "$lista"
+          } >> "$GITHUB_STEP_SUMMARY"

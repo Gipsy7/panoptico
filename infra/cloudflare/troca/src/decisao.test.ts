@@ -1,5 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { FALHAS_PARA_RESERVA, decidir, estadoInicial, respostaSaudavel, type EstadoServico } from "./decisao";
+import {
+  FALHAS_PARA_RESERVA,
+  decidir,
+  enderecosDeRelease,
+  estadoInicial,
+  respostaSaudavel,
+  type EstadoServico,
+} from "./decisao";
 
 const base = (p: Partial<EstadoServico> = {}): EstadoServico => ({ ...estadoInicial(), ...p });
 
@@ -76,5 +83,32 @@ describe("teto dos contadores", () => {
     for (let i = 0; i < 30; i++) e = decidir(e, true, true).estado;
     const congelado = JSON.stringify(e);
     expect(JSON.stringify(decidir(e, true, true).estado)).toBe(congelado);
+  });
+});
+
+describe("enderecosDeRelease", () => {
+  it("acha o release em hostname e em URL", () => {
+    expect(
+      enderecosDeRelease([
+        "release.panoptico.social.br",
+        "https://api-release.panoptico.social.br/saude",
+        "https://RELEASE.panoptico.social.br/",
+      ]),
+    ).toHaveLength(3);
+  });
+  it("produção, teste direto e reserva passam", () => {
+    expect(
+      enderecosDeRelease([
+        "panoptico.social.br",
+        "api.panoptico.social.br",
+        "https://vps.panoptico.social.br/",
+        "https://api-vps.panoptico.social.br/saude",
+        "https://api-reserva.panoptico.social.br/saude",
+        "https://panoptico.netlify.app/",
+        "781d882f-d05b-49f6-b059-638092923fc5.cfargotunnel.com",
+        undefined,
+        "",
+      ]),
+    ).toEqual([]);
   });
 });
