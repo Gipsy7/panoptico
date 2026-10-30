@@ -297,6 +297,7 @@ async function Perfil({
             {!p.em_exercicio && <p className="text-sm font-medium">Fora de exercício no momento.</p>}
           </div>
         </header>
+        <BotaoAviso alvoTipo="parlamentar" alvoChave={chaveAlvo(p.casa, p.id_externo)} destino={p.nome_parlamentar} />
 
         {candidatura.ok && candidatura.dados.eleito_2026 && (
           <SeloEleitoFuturo eleito={candidatura.dados.eleito_2026} atualizadoEm={candidatura.dados.atualizado_em} />
@@ -320,7 +321,6 @@ async function Perfil({
             Comparar com outro parlamentar
           </Link>
         </div>
-        <BotaoAviso alvoTipo="parlamentar" alvoChave={chaveAlvo(p.casa, p.id_externo)} destino={p.nome_parlamentar} />
         <div className="flex flex-col gap-1">
           {p.uf && (
             <Link href={`/representantes?uf=${p.uf}`} className="alvo-link self-start text-sm text-muted-foreground underline underline-offset-4">

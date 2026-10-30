@@ -118,6 +118,7 @@ async function Projeto({ casa, id, ufInicial }: { casa: string; id: string; ufIn
             <p className="text-muted-foreground">A fonte não traz o resumo (ementa) deste projeto.</p>
           )}
         </div>
+        <BotaoAviso alvoTipo="projeto" alvoChave={chaveAlvo(d.casa, d.id_externo)} destino={d.rotulo} />
 
         <GradeCartoes rotulo="Números deste projeto">
           {situacao && (
@@ -183,7 +184,6 @@ async function Projeto({ casa, id, ufInicial }: { casa: string; id: string; ufIn
             placar: placar && ultima ? { sim: placar.sim, nao: placar.nao, data: formatarData(ultima.data) } : null,
           })}
         />
-        <BotaoAviso alvoTipo="projeto" alvoChave={chaveAlvo(d.casa, d.id_externo)} destino={d.rotulo} />
       </div>
 
       <ListaPerguntas titulo="Para entender">

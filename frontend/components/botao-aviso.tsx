@@ -28,6 +28,7 @@ export function BotaoAviso({ alvoTipo, alvoChave, destino }: { alvoTipo: AlvoTip
   const [estado, setEstado] = useState<EstadoAviso>("pronto");
   const [mensagem, setMensagem] = useState("");
   const [indisponivel, setIndisponivel] = useState(false);
+  const [instrucaoAberta, setInstrucaoAberta] = useState(false);
 
   useEffect(() => {
     if (!AVISOS_LIGADOS || !alvoChave) return;
@@ -56,7 +57,10 @@ export function BotaoAviso({ alvoTipo, alvoChave, destino }: { alvoTipo: AlvoTip
     };
   }, [alvoTipo, alvoChave]);
 
-  if (!AVISOS_LIGADOS || !alvoChave || !pronto || indisponivel) return null;
+  if (!AVISOS_LIGADOS || !alvoChave) return null;
+  // Reserva a altura do botão até a hidratação, para o conteúdo abaixo não saltar.
+  if (!pronto) return <div aria-hidden className="min-h-11" />;
+  if (indisponivel) return null;
 
   async function alternar() {
     if (!alvoChave) return;
@@ -89,9 +93,23 @@ export function BotaoAviso({ alvoTipo, alvoChave, destino }: { alvoTipo: AlvoTip
 
   if (estado === "sem-suporte" && suporte !== "suportado") {
     return (
-      <div className="flex flex-col gap-1 text-sm text-muted-foreground">
-        <p className="font-medium text-foreground">Avisos no celular</p>
-        <p>{instrucaoSemSuporte(suporte)}</p>
+      <div className="flex flex-col gap-2">
+        <button
+          type="button"
+          onClick={() => setInstrucaoAberta((v) => !v)}
+          aria-expanded={instrucaoAberta}
+          aria-controls="aviso-instrucao"
+          aria-label={`Avisar sobre novidades de ${destino}`}
+          className="botao !h-auto min-h-11 self-start py-2"
+        >
+          <Sino />
+          Receber avisos
+        </button>
+        {instrucaoAberta && (
+          <p id="aviso-instrucao" role="status" className="max-w-prose text-sm text-muted-foreground">
+            {instrucaoSemSuporte(suporte)}
+          </p>
+        )}
       </div>
     );
   }
@@ -104,17 +122,24 @@ export function BotaoAviso({ alvoTipo, alvoChave, destino }: { alvoTipo: AlvoTip
   return (
     <div className="flex flex-col gap-2">
       {estado !== "negado" && (
-        <button
-          type="button"
-          onClick={alternar}
-          disabled={ocupado}
-          aria-busy={ocupado}
-          className="botao-linha !h-auto min-h-11 self-start py-2 text-center disabled:opacity-60"
-        >
-          {ocupado ? "Aguarde…" : nome}
-        </button>
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+          <button
+            type="button"
+            onClick={alternar}
+            disabled={ocupado}
+            aria-busy={ocupado}
+            aria-label={ocupado ? undefined : nome}
+            className={`${
+              ativoAgora ? "botao-linha !border-foreground !border-2" : "botao"
+            } !h-auto min-h-11 py-2 disabled:opacity-60`}
+          >
+            <Sino cheio={ativoAgora} />
+            {ocupado ? "Aguarde…" : ativoAgora ? "Avisos ligados" : "Receber avisos"}
+          </button>
+          <span className="text-sm text-muted-foreground">No máximo 1 aviso por dia</span>
+        </div>
       )}
-      <p role="status" className="text-sm font-medium">
+      <p role="status" className={mensagem ? "text-sm font-medium" : "sr-only"}>
         {mensagem}
       </p>
       {estado === "negado" && (
@@ -125,7 +150,6 @@ export function BotaoAviso({ alvoTipo, alvoChave, destino }: { alvoTipo: AlvoTip
       )}
       {ativoAgora ? (
         <p className="max-w-prose text-sm text-muted-foreground">
-          Você recebe no máximo 1 aviso por dia.{" "}
           <Link href="/avisos" className="underline underline-offset-4">
             Ver o que este aparelho acompanha
           </Link>
@@ -133,15 +157,37 @@ export function BotaoAviso({ alvoTipo, alvoChave, destino }: { alvoTipo: AlvoTip
         </p>
       ) : (
         estado !== "negado" && (
-          <p className="max-w-prose text-sm text-muted-foreground">
-            {TEXTO_O_QUE_AVISA} {TEXTO_O_QUE_GUARDA}{" "}
-            <Link href="/privacidade#avisos" className="underline underline-offset-4">
-              Ler a página de privacidade
-            </Link>
-            .
-          </p>
+          <details className="max-w-prose text-sm text-muted-foreground">
+            <summary className="alvo-44 inline-flex cursor-pointer items-center underline underline-offset-4">O que é isto?</summary>
+            <p className="pb-2">
+              {TEXTO_O_QUE_AVISA} {TEXTO_O_QUE_GUARDA}{" "}
+              <Link href="/privacidade#avisos" className="underline underline-offset-4">
+                Ler a página de privacidade
+              </Link>
+              .
+            </p>
+          </details>
         )
       )}
     </div>
+  );
+}
+
+function Sino({ cheio = false }: { cheio?: boolean }) {
+  return (
+    <svg
+      aria-hidden
+      viewBox="0 0 24 24"
+      width="20"
+      height="20"
+      fill={cheio ? "currentColor" : "none"}
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" />
+      <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" />
+    </svg>
   );
 }
