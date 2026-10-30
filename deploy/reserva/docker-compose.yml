@@ -11,7 +11,8 @@ services:
       - "127.0.0.1:8000:8000"
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "python", "-c", "import urllib.request as u; u.urlopen('http://localhost:8000/saude', timeout=4)"]
+      # Só a porta: o /saude consulta o banco, e a cada 30 s manteria o Neon sempre acordado.
+      test: ["CMD", "python", "-c", "import socket; socket.create_connection(('localhost', 8000), 4).close()"]
       interval: 30s
       timeout: 6s
       retries: 3

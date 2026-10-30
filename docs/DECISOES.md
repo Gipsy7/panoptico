@@ -2,6 +2,7 @@
 
 ## Índice
 
+- [2026-10-30: Neon parado enquanto a reserva não é usada](#2026-10-30-neon-parado-enquanto-a-reserva-não-é-usada)
 - [2026-10-30: teto de tempo nos discursos da Câmara](#2026-10-30-teto-de-tempo-nos-discursos-da-câmara)
 - [2026-10-30: ambiente de release antes da produção](#2026-10-30-ambiente-de-release-antes-da-produção)
 - [2026-10-30: Argos, chat de respostas prontas sem IA](#2026-10-30-argos-chat-de-respostas-prontas-sem-ia)
@@ -1522,6 +1523,12 @@ A reserva da VPS é uma **versão congelada** do site, da API e do banco, na Ver
 - **Regra (vale para qualquer Casa, ALECE é o primeiro caso):** só o nome idêntico após `comum.chave_nome` liga sozinho. O parecido vira sugestão (até 3 deputados da lista, por semelhança de letras e de palavras, mínimo 0,62) na fila `backend/data/processed/apelidos_pendentes_<escopo>.csv`, fora do git e que nenhuma rota da API, página ou exportação lê. Ex-deputado ou suplente sem registro na lista fica na fila sem candidato: só dá para recusar (ligar exigiria um deputado para receber o gasto).
 - **Decisão humana:** `python -m ingestion.revisar --tipo apelido` grava em `data/curadoria/apelidos_revisados.csv` (versionado; escopo, nome na planilha, `id_externo` do deputado na Casa, aceito/recusado). `base.ligar_nomes` reaplica a cada carga, na VPS também; decisão de deputado que saiu da lista é ignorada; recusado sai da fila.
 - **Adoção por outras Casas:** trocar `base.ligar_nomes_exatos` por `base.ligar_nomes(escopo, totais, deputados, tse)`. Usam hoje: ALECE (gastos), ALRN (seletor de verbas; só quem liga é buscado) e ALESC (nomes nos extratos de voto, escopo `alesc_votos`; 8 nomes e 172 votos sem deputado igual, só 1 com candidato). A ALRN não foi medida: a página de verbas (`/portal/verbas`) responde 404 em 27/10/2026 (mudou de endereço, não é bloqueio). Sem migração.
+
+## 2026-10-30: Neon parado enquanto a reserva não é usada
+
+- **Contexto:** depois da virada para a VPS, o Neon seguia ligado: ingestões do Actions, o Worker testando o `/saude` da reserva a cada minuto e o healthcheck da VM Oracle a cada 30 s. O `/saude` consulta o banco.
+- **Decisão:** ingestões do Actions desativadas; o Worker só testa a reserva na rodada em que a principal falha, com a mesma checagem do banco antes de trocar; o healthcheck da VM testa só a porta da API.
+- **Consequência:** o painel do Worker não mostra mais a saúde da reserva com a VPS no ar (log: `reserva=nao testada`). Um Neon lento para acordar pode atrasar a troca em um ou dois minutos: o teste tem 8 s e se repete a cada minuto.
 
 ## 2026-10-30: teto de tempo nos discursos da Câmara
 

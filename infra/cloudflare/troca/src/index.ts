@@ -132,13 +132,17 @@ export default {
     }
     const estados = await lerEstado(env);
     const antes = JSON.stringify(estados);
-    const [sP, sR, aP, aR] = await Promise.all([
+    const [sP, aP] = await Promise.all([
       testar(env.TESTE_SITE_PRINCIPAL, false),
-      testar(env.TESTE_SITE_RESERVA, false),
       testar(env.TESTE_API_PRINCIPAL, true),
-      testar(env.TESTE_API_RESERVA, true),
     ]);
-    const testes: Record<Servico, [boolean, boolean]> = { site: [sP, sR], api: [aP, aR] };
+    // A reserva só importa com a principal falhando. Testar a cada minuto mantinha o Neon, pago
+    // por tempo ligado, sempre acordado: o /saude da reserva consulta o banco.
+    const [sR, aR] = await Promise.all([
+      sP ? null : testar(env.TESTE_SITE_RESERVA, false),
+      aP ? null : testar(env.TESTE_API_RESERVA, true),
+    ]);
+    const testes: Record<Servico, [boolean, boolean | null]> = { site: [sP, sR], api: [aP, aR] };
     const alvos: Record<Servico, { registro: string; destinos: Record<Destino, string> }> = {
       site: { registro: env.REGISTRO_SITE, destinos: { principal: env.SITE_PRINCIPAL, reserva: env.SITE_RESERVA } },
       api: { registro: env.REGISTRO_API, destinos: { principal: env.API_PRINCIPAL, reserva: env.API_RESERVA } },
@@ -146,7 +150,7 @@ export default {
 
     for (const s of ["site", "api"] as Servico[]) {
       const [principalOk, reservaOk] = testes[s];
-      const d = decidir(estados[s], principalOk, reservaOk);
+      const d = decidir(estados[s], principalOk, reservaOk === true);
       estados[s] = d.estado;
       if (d.observou) console.log(`${s}: [observar] trocaria para ${d.observou}`);
       if (d.trocarPara) {
@@ -160,7 +164,7 @@ export default {
         }
       }
       const x = estados[s];
-      console.log(`${s}: ativo=${x.ativo} modo=${x.modo} falhas=${x.falhas} sucessos=${x.sucessos} principal=${principalOk} reserva=${reservaOk}`);
+      console.log(`${s}: ativo=${x.ativo} modo=${x.modo} falhas=${x.falhas} sucessos=${x.sucessos} principal=${principalOk} reserva=${reservaOk ?? "nao testada"}`);
     }
     // Só grava quando algo mudou (limite diário de gravações do KV no plano grátis).
     const depois = JSON.stringify(estados);

@@ -44,6 +44,11 @@ describe("decidir", () => {
     expect(d.trocarPara).toBe("reserva");
     expect(d.estado.ativo).toBe("reserva");
   });
+  it("com a principal no ar, a reserva nao testada nao muda nada", () => {
+    const d = decidir(base({ falhas: FALHAS_PARA_RESERVA - 1 }), true, false);
+    expect(d.trocarPara).toBeNull();
+    expect(d.estado.falhas).toBe(0);
+  });
   it("nao vai se a reserva estiver doente", () => {
     const b = decidir(base({ falhas: 1 }), false, false);
     expect(b.trocarPara).toBeNull();
