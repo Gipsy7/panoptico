@@ -6,6 +6,7 @@ import { ArgosMensagem } from "@/components/argos/argos-mensagem";
 import {
   getBusca,
   getGastos,
+  getMunicipios,
   getParlamentar,
   getPresenca,
   getProjetos,
@@ -15,13 +16,24 @@ import { type ApiArgos, conversar } from "@/lib/argos/conversar";
 import { erroDeRede, saudacao } from "@/lib/argos/responder";
 import type { Acao, Contexto, Mensagem } from "@/lib/argos/tipos";
 
+// Lista de cidades por estado: guardada só na memória desta tela, para achar uma cidade sem estado.
+const CIDADES = new Map<string, ReturnType<typeof getMunicipios>>();
+
 const API: ApiArgos = {
   busca: (q) => getBusca(q),
-  representantes: (cep) => getRepresentantes({ cep }),
+  representantes: (consulta) => getRepresentantes(consulta),
   parlamentar: (id) => getParlamentar(id),
-  gastos: (id) => getGastos(id),
-  presenca: (id) => getPresenca(id),
+  gastos: (id, ano) => getGastos(id, ano),
+  presenca: (id, ano) => getPresenca(id, ano),
   projetos: (id) => getProjetos(id),
+  municipios: (uf) => {
+    let lista = CIDADES.get(uf);
+    if (!lista) {
+      lista = getMunicipios(uf);
+      CIDADES.set(uf, lista);
+    }
+    return lista;
+  },
 };
 
 type Item = { id: number; autor: "voce" | "argos"; texto?: string; mensagem?: Mensagem };

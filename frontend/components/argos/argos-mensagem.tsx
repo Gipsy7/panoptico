@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { FonteRodape } from "@/components/fonte-rodape";
+import { LinkExterno } from "@/components/link-externo";
 import type { Acao, Mensagem } from "@/lib/argos/tipos";
 
 const BOTAO =
@@ -30,13 +31,19 @@ export function ArgosMensagem({
         <ul className="flex flex-col">
           {mensagem.links.map((l) => (
             <li key={l.href}>
-              <Link
-                href={l.href}
-                onClick={aoNavegar}
-                className="alvo-link font-medium underline underline-offset-2 hover:text-foreground"
-              >
-                {l.rotulo}
-              </Link>
+              {l.href.startsWith("http") ? (
+                <LinkExterno href={l.href} className="alvo-link font-medium underline underline-offset-2 hover:text-foreground">
+                  {l.rotulo}
+                </LinkExterno>
+              ) : (
+                <Link
+                  href={l.href}
+                  onClick={aoNavegar}
+                  className="alvo-link font-medium underline underline-offset-2 hover:text-foreground"
+                >
+                  {l.rotulo}
+                </Link>
+              )}
             </li>
           ))}
         </ul>

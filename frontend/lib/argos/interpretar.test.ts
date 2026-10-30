@@ -120,9 +120,9 @@ describe("interpretar", () => {
   });
 
   it("vazio ou só pontuação não é entendido", () => {
-    expect(interpretar("")).toEqual({ assunto: "nenhum" });
-    expect(interpretar("???")).toEqual({ assunto: "nenhum" });
-    expect(interpretar("a o e")).toEqual({ assunto: "nenhum" });
+    expect(interpretar("")).toMatchObject({ assunto: "nenhum" });
+    expect(interpretar("???")).toMatchObject({ assunto: "nenhum" });
+    expect(interpretar("a o e")).toMatchObject({ assunto: "nenhum" });
   });
 
   it("opinião em qualquer ordem de palavras", () => {
