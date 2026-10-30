@@ -766,6 +766,7 @@ def test_detalhe_do_parlamentar_devolve_casa_e_id_externo(client, session):
 def test_endpoint_fora_da_lista_e_recusado(client, session, endpoint):
     r = client.post("/avisos/inscrever", json={**INSCRICAO, "endpoint": endpoint})
     assert r.status_code == 422
+    assert r.headers["cache-control"] == "no-store"
     assert _contar(session, AvisoInscricao) == 0
 
 

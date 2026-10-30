@@ -47,6 +47,9 @@ CACHE_CDN = "public, max-age=300, s-maxage=3600, stale-while-revalidate=86400"
 @app.middleware("http")
 async def cache_na_cdn(request: Request, call_next):
     resposta = await call_next(request)
+    # Inclui o 422 de validação, que devolve o endpoint enviado e não passa pelas rotas.
+    if request.url.path.startswith("/avisos"):
+        resposta.headers["Cache-Control"] = "no-store"
     if (
         request.method == "GET"
         and resposta.status_code == 200
