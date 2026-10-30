@@ -149,6 +149,8 @@ para campos que dependem um do outro). Regras:
   números do maior para o menor).
 - Filtros que rodam no navegador (quem votou, como votou cada parlamentar) usam as mesmas pílulas e o mesmo estado vazio.
 
+**Argos (botão fixo e painel).** `components/argos/`. Botão "Pergunte ao Argos" fixo no canto inferior direito (`fixed right-4 bottom-4 z-30`, `inset` em rem, sem largura em px, 44 px de altura, tinta sólida com ícone de olho, `print:hidden`); o rodapé tem `pb-20` para o botão não cobrir o fim da página. Esconde-se em `/pergunte` por CSS (`body:has([data-argos-pagina])`). Abre um diálogo (`role="dialog"`, `aria-modal`, resto da página inerte, rolagem do fundo travada, Esc fecha e o foco volta ao botão): tela cheia no celular, painel lateral de 28 rem (no máximo a tela) a partir de 768 px. Animação de entrada `folha-sobe` (220 ms, só com movimento permitido). Dentro: lista `role="log"` com `aria-live="polite"`, mensagem do Argos em cartão (`bg-card`, fio) e a da pessoa em `bg-secondary`; botões de sugestão de 44 px com quebra de linha; toda resposta com número traz `FonteRodape`; campo com `label` visível e texto de 16 px. Só tokens do tema.
+
 **Índice de seções (perfil).** No celular: fileira horizontal fixa sob o cabeçalho, com pílulas de 44 px de altura
 (Gastos, Presença, Votos, Projetos, Emendas...), `scroll-snap-type: x proximity`, destaca a seção visível (peso 600 e fio
 de bronze embaixo). No desktop: lista vertical `sticky top-20` numa coluna lateral de 200 px. Links são âncoras `#id`

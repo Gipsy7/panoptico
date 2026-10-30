@@ -60,6 +60,7 @@ flowchart LR
 | ⚖️ | **Comparadores** | Até 4 parlamentares lado a lado, vereadores da mesma câmara, e os candidatos do 2º turno com os mesmos campos. |
 | 🏛 | **Partidos** | Fundo Partidário, fundo eleitoral, receitas, gastos e repasses (TSE). |
 | 🔍 | **Busca por nome** | Todos os níveis e partidos, sem diferença de acento. |
+| 🤖 | **Pergunte ao Argos** | Chat de respostas prontas (não é IA): botão fixo em todas as telas e a página [/pergunte](https://panoptico.social.br/pergunte) (`?q=` já abre respondendo). Entende CEP, nome de deputado federal ou senador, gastos, presença e projetos, e dúvidas sobre o site; sempre com fonte, data e média da Casa. Não dá opinião nem nota e não grava nada. Para ensinar palavras novas: `frontend/lib/argos/vocabulario.ts`. |
 | 💡 | **A ideia e as dúvidas** | [O que é o Panóptico](https://panoptico.social.br/o-panoptico) (história ao rolar: de Bentham e Foucault à inversão que dá nome ao projeto), [Perguntas frequentes](https://panoptico.social.br/perguntas) e [Apoiadores](https://panoptico.social.br/apoiadores) (a torre da marca no centro e um olho por pessoa, observando; só quem autorizou o nome, lista em `frontend/lib/apoiadores.ts`). Ficam no rodapé; "Fontes" saiu do menu do topo. |
 
 E mais: **modo escuro** (segue o aparelho; um ícone troca), **filtros** com o mesmo padrão em todo o site (painel no celular, filtros ativos removíveis, link compartilhável), **cartões de prévia** com botão de WhatsApp e telas em três camadas (número → pergunta que explica → detalhe completo).
@@ -374,7 +375,7 @@ Nunca saem CPF, título, data de nascimento, pessoa sem vínculo publicável, su
 
 <br>
 
-- **Hoje (desde 26/10/2026):** uma VPS Locaweb em São Paulo (2 vCPU, 4 GB, 70 GB) com banco, API, site e ingestão, atrás do Cloudflare por túnel, sem portas abertas além do SSH. Push no `dev` → Publicar → `main` → a VPS se atualiza em até 10 min. Backup diário em bucket Oracle. Detalhes em [deploy/vps/LEIAME.md](deploy/vps/LEIAME.md).
+- **Hoje (desde 26/10/2026):** uma VPS Locaweb em São Paulo (2 vCPU, 4 GB, 70 GB) com banco, API, site e ingestão, atrás do Cloudflare por túnel, sem portas abertas além do SSH. Push no `dev` → Publicar → branch `release` → a VPS publica o release (homologação, mesmo banco, fora dos buscadores) em [release.panoptico.social.br](https://release.panoptico.social.br) em até 10 min; a produção só muda quando o dono roda **Promover para produção** (`release` → `main`). Correção urgente: branch `correcao/*` a partir do `main` e workflow **Correção urgente**. Backup diário em bucket Oracle. Detalhes em [deploy/vps/LEIAME.md](deploy/vps/LEIAME.md).
 - **Ingestões:** agenda systemd na VPS (diária, PNCP, justiça, câmaras, mensal).
 - **Reserva congelada:** uma versão fixa do site, da API e do banco na Vercel e no Neon, que entra no ar sozinha se a VPS cair (o Worker `panoptico-troca` troca o DNS com 3 falhas seguidas e volta com 10 sucessos). Ela só é atualizada de propósito ([deploy/vps/LEIAME.md](deploy/vps/LEIAME.md), "Reserva congelada"). Backup diário do banco no Oracle Cloud (grátis). Histórico em [docs/DEPLOY_GRATUITO.md](docs/DEPLOY_GRATUITO.md).
 - **Cloudflare:** DNS, proxy e cache (API por `s-maxage`, páginas 30 min); o firewall bloqueia só coletores em massa e robôs de SEO e libera os robôs de pesquisa e de treino das grandes IAs.
@@ -388,7 +389,7 @@ Nunca saem CPF, título, data de nascimento, pessoa sem vínculo publicável, su
 ## 🧑‍💻 Como contribuir
 
 1. Abra uma [issue](https://github.com/Gipsy7/panoptico/issues) antes de algo grande.
-2. Fork → branch a partir de `dev` → pull request para o `dev`. O `main` é só o que está no ar (avança pelo workflow **Publicar**).
+2. Fork → branch a partir de `dev` → pull request para o `dev`. O `main` é só o que está no ar (avança pelo workflow **Promover para produção**, a partir do `release`, que o **Publicar** atualiza a cada push no `dev`).
 3. Rode os [testes](#-rodar-localmente) antes de enviar; o CI precisa passar.
 
 **Combinados:** fonte oficial com link e data · sem juízo de valor · linguagem do dia a dia · bruto separado do tratado (`--de-raw`) · decisão de metodologia vai para [docs/DECISOES.md](docs/DECISOES.md) · testes com amostras reais · tudo em português.

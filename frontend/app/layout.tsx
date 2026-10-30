@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Geist, Newsreader } from "next/font/google";
 import Link from "next/link";
 
+import { ArgosBotao } from "@/components/argos/argos-botao";
 import { FaixaRelease } from "@/components/faixa-release";
 import { Logo, Marca } from "@/components/logo";
 import { MenuPrincipal } from "@/components/menu-principal";
@@ -102,7 +103,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         </main>
         <Revelar />
         <footer className="mt-8 border-t border-border/70">
-          <div className="mx-auto flex w-full max-w-5xl flex-col gap-4 px-4 py-8 text-sm text-muted-foreground">
+          <div className="mx-auto flex w-full max-w-5xl flex-col gap-4 px-4 pt-8 pb-20 text-sm text-muted-foreground">
             <div className="flex items-start gap-3">
               <Marca tamanho={28} traco={2.4} className="shrink-0 text-bronze" />
               <p className="max-w-prose text-sm leading-relaxed">
@@ -123,6 +124,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
               </Link>
               <Link href="/perguntas" className={LINK}>
                 Perguntas frequentes
+              </Link>
+              <Link href="/pergunte" className={LINK}>
+                Pergunte ao Argos
               </Link>
               <Link href="/sobre-as-fontes" className={LINK}>
                 Sobre as fontes
@@ -152,6 +156,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
             </p>
           </div>
         </footer>
+        <ArgosBotao />
       </body>
     </html>
   );

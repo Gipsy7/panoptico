@@ -663,3 +663,14 @@ html[data-js] [data-aba][data-ativa="false"]:not([hidden]) {
     opacity: 1;
   }
 }
+
+/* ---------- Argos (chat de respostas prontas) ----------
+   O botão fixo some em /pergunte, onde o chat já está na página (a página traz data-argos-pagina). */
+body:has([data-argos-pagina]) .argos-botao {
+  display: none;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .argos-painel {
+    animation: folha-sobe var(--duracao-entrada) var(--curva-suave);
+  }
+}

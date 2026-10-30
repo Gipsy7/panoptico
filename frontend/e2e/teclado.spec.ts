@@ -265,3 +265,18 @@ test("atalhos do eMAG: links com accesskey 1, 2 e 3 existem e ativá-los move o 
   await page.keyboard.press("Enter");
   await expect(page).toHaveURL(/\/#cep$/);
 });
+
+test("Argos: Tab chega ao botão, Enter abre o painel, Esc fecha e o foco volta", async ({ page }) => {
+  await page.goto("/");
+  const botao = page.getByRole("button", { name: "Pergunte ao Argos" });
+  // Repete até a hidratação ligar o botão.
+  await expect(async () => {
+    await botao.focus({ timeout: 1000 });
+    await page.keyboard.press("Enter");
+    await expect(page.getByRole("dialog", { name: /Argos/ })).toBeVisible({ timeout: 1000 });
+  }).toPass({ timeout: 15_000 });
+  await expect(page.getByLabel("Escreva sua pergunta")).toBeVisible();
+  await page.keyboard.press("Escape");
+  await expect(page.getByRole("dialog")).toBeHidden();
+  await expect(botao).toBeFocused();
+});
