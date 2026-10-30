@@ -399,9 +399,40 @@ def test_camara_baixa_em_paralelo_na_ordem_dos_ids(monkeypatch):
     monkeypatch.setattr(
         camara,
         "baixar_deputado",
-        lambda client, id_deputado, inicio, fim, falhas: (
+        lambda client, id_deputado, inicio, fim, falhas, limite: (
             [{"id": id_deputado}] if id_deputado != "3" else []
         ),
     )
     payload = camara.baixar(None, ["1", "2", "3", "4"], date(2026, 9, 1), date(2026, 9, 30), False)
     assert list(payload["deputados"]) == ["1", "2", "4"]
+
+
+def test_camara_para_no_prazo_com_a_api_fora(monkeypatch):
+    """Em 30/10/2026 o 504 geral fez a divisão por dia consumir os 90 min da diária."""
+    import httpx
+
+    from ingestion.camara import discursos as camara
+
+    pedidos = []
+    relogio = iter(range(0, 1000, 10))
+
+    def falso(client, id_deputado, inicio, fim, tentativas=1):
+        pedidos.append(id_deputado)
+        resposta = httpx.Response(504, request=httpx.Request("GET", "https://x"))
+        raise httpx.HTTPStatusError("504", request=resposta.request, response=resposta)
+
+    monkeypatch.setattr(camara, "_baixar_paginas", falso)
+    monkeypatch.setattr(camara.time, "sleep", lambda s: None)
+    monkeypatch.setattr(camara.time, "monotonic", lambda: next(relogio))
+    with pytest.raises(camara.PrazoEsgotado):
+        camara.baixar(None, ["1"], date(2026, 10, 1), date(2026, 10, 30), False, prazo=50)
+    assert len(pedidos) < 10  # sem o prazo seriam 59: os 30 dias e as divisões
+
+
+def test_camara_historico_sem_prazo(monkeypatch):
+    from ingestion.camara import discursos as camara
+
+    monkeypatch.setattr(camara, "_baixar_paginas", lambda *a, **k: [])
+    monkeypatch.setattr(camara.time, "sleep", lambda s: None)
+    monkeypatch.setattr(camara.time, "monotonic", lambda: 1 / 0)  # sem prazo, nem olha o relógio
+    camara.baixar(None, ["1"], date(2026, 10, 1), date(2026, 10, 30), False)

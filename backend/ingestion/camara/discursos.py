@@ -39,7 +39,15 @@ PARALELO = 4
 # para a primeira carga não estourar o tempo do job diário (docs/DECISOES.md, 2026-10-21).
 PRIMEIRA_CARGA_DIAS = 45
 TENTATIVAS_MES = 2  # o pedido do mês inteiro ainda tenta de novo (falha passageira de rede)
+# Teto da carga incremental (normal: ~3 min). Com a API instável, todo deputado cai na divisão por
+# dia e a etapa consumia o limite de 90 min da diária, matando as fontes seguintes (30/10/2026).
+# O --desde não tem teto: o histórico leva horas de propósito.
+PRAZO_INCREMENTAL = 20 * 60  # segundos
 CAMPOS = ("dataHoraInicio", "tipoDiscurso", "urlTexto", "urlVideo", "keywords", "sumario")
+
+
+class PrazoEsgotado(RuntimeError):
+    """A coleta passou do teto: a carga falha inteira e a janela seguinte recupera os dias."""
 
 
 def _enxuto(d: dict[str, Any]) -> dict[str, Any]:
@@ -62,14 +70,19 @@ def _meses(inicio: date, fim: date) -> list[tuple[date, date]]:
 
 
 def baixar_deputado(
-    client: httpx.Client, id_deputado: str, inicio: date, fim: date, falhas: list | None = None
+    client: httpx.Client,
+    id_deputado: str,
+    inicio: date,
+    fim: date,
+    falhas: list | None = None,
+    limite: float | None = None,
 ) -> list:
     """Discursos do deputado na janela, mês a mês. Se a API der erro de servidor num período
     (registro defeituoso na fonte), divide o período ao meio até isolar o dia; o dia que continua
     falhando fica de fora e vai para `falhas` (deputado, dia), em vez de abortar a carga inteira."""
     discursos = []
     for de, ate in _meses(inicio, fim):
-        discursos += _baixar_periodo(client, id_deputado, de, ate, falhas, TENTATIVAS_MES)
+        discursos += _baixar_periodo(client, id_deputado, de, ate, falhas, TENTATIVAS_MES, limite)
         time.sleep(PAUSA)
     return discursos
 
@@ -81,7 +94,10 @@ def _baixar_periodo(
     fim: date,
     falhas: list | None,
     tentativas: int = 1,
+    limite: float | None = None,
 ) -> list:
+    if limite is not None and time.monotonic() > limite:
+        raise PrazoEsgotado(f"{FONTE}: coleta passou de {PRAZO_INCREMENTAL} s")
     # Na divisão, uma tentativa só: o 500 de registro defeituoso não passa tentando de novo, e
     # cada nova tentativa custa até 30 s de espera (antes, ~3 min por deputado afetado).
     try:
@@ -95,8 +111,8 @@ def _baixar_periodo(
         print(f"  {FONTE}: deputado {id_deputado}, {inicio}: erro da fonte, dia fica de fora")
         return []
     meio = inicio + (fim - inicio) // 2
-    return _baixar_periodo(client, id_deputado, inicio, meio, falhas) + _baixar_periodo(
-        client, id_deputado, meio + timedelta(days=1), fim, falhas
+    return _baixar_periodo(client, id_deputado, inicio, meio, falhas, limite=limite) + (
+        _baixar_periodo(client, id_deputado, meio + timedelta(days=1), fim, falhas, limite=limite)
     )
 
 
@@ -126,12 +142,18 @@ def _baixar_paginas(
 
 
 def baixar(
-    client: httpx.Client, ids: list[str], inicio: date, fim: date, completa: bool
+    client: httpx.Client,
+    ids: list[str],
+    inicio: date,
+    fim: date,
+    completa: bool,
+    prazo: float | None = None,
 ) -> dict[str, Any]:
     falhas: list = []
+    limite = None if prazo is None else time.monotonic() + prazo
 
     def um(id_deputado: str) -> tuple[str, list]:
-        discursos = baixar_deputado(client, id_deputado, inicio, fim, falhas)
+        discursos = baixar_deputado(client, id_deputado, inicio, fim, falhas, limite)
         time.sleep(PAUSA)
         return id_deputado, discursos
 
@@ -213,7 +235,8 @@ def executar(de_raw: Path | None = None, desde: date | None = None) -> int:
             }
 
     def baixar_janela(client: httpx.Client) -> dict[str, Any]:
-        return baixar(client, estado["ids"], estado["inicio"], hoje, estado["completa"])
+        prazo = None if desde is not None else PRAZO_INCREMENTAL
+        return baixar(client, estado["ids"], estado["inicio"], hoje, estado["completa"], prazo)
 
     return comum.executar_ingestao(
         FONTE, URL, baixar_janela, carregar, de_raw=de_raw, extensao_raw=".json"

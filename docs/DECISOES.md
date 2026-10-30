@@ -2,6 +2,7 @@
 
 ## Índice
 
+- [2026-10-30: teto de tempo nos discursos da Câmara](#2026-10-30-teto-de-tempo-nos-discursos-da-câmara)
 - [2026-10-30: ambiente de release antes da produção](#2026-10-30-ambiente-de-release-antes-da-produção)
 - [2026-10-30: Argos, chat de respostas prontas sem IA](#2026-10-30-argos-chat-de-respostas-prontas-sem-ia)
 - [2026-10-27: média da Casa quando a fonte é parcial](#2026-10-27-média-da-casa-quando-a-fonte-é-parcial)
@@ -1521,6 +1522,12 @@ A reserva da VPS é uma **versão congelada** do site, da API e do banco, na Ver
 - **Regra (vale para qualquer Casa, ALECE é o primeiro caso):** só o nome idêntico após `comum.chave_nome` liga sozinho. O parecido vira sugestão (até 3 deputados da lista, por semelhança de letras e de palavras, mínimo 0,62) na fila `backend/data/processed/apelidos_pendentes_<escopo>.csv`, fora do git e que nenhuma rota da API, página ou exportação lê. Ex-deputado ou suplente sem registro na lista fica na fila sem candidato: só dá para recusar (ligar exigiria um deputado para receber o gasto).
 - **Decisão humana:** `python -m ingestion.revisar --tipo apelido` grava em `data/curadoria/apelidos_revisados.csv` (versionado; escopo, nome na planilha, `id_externo` do deputado na Casa, aceito/recusado). `base.ligar_nomes` reaplica a cada carga, na VPS também; decisão de deputado que saiu da lista é ignorada; recusado sai da fila.
 - **Adoção por outras Casas:** trocar `base.ligar_nomes_exatos` por `base.ligar_nomes(escopo, totais, deputados, tse)`. Usam hoje: ALECE (gastos), ALRN (seletor de verbas; só quem liga é buscado) e ALESC (nomes nos extratos de voto, escopo `alesc_votos`; 8 nomes e 172 votos sem deputado igual, só 1 com candidato). A ALRN não foi medida: a página de verbas (`/portal/verbas`) responde 404 em 27/10/2026 (mudou de endereço, não é bloqueio). Sem migração.
+
+## 2026-10-30: teto de tempo nos discursos da Câmara
+
+- **Contexto:** em 30/10 a API da Câmara respondeu 504 de manhã. Com erro geral, a divisão por dia (feita para isolar registro defeituoso) trata todo deputado como defeituoso e multiplica os pedidos. A etapa, que leva ~3 min, passou de 1h10; o limite de 90 min da diária matou a carga antes de pauta, tramitações, emendas e resumos.
+- **Decisão:** a carga incremental tem teto de 20 min (`PRAZO_INCREMENTAL`). Passou disso, a carga falha inteira e a diária segue para as próximas fontes; a 2ª passada tenta de novo. O `--desde` (histórico) não tem teto.
+- **Por que falhar inteira:** gravar o parcial marcaria carga `ok` com buracos, que só seriam recuperados se coubessem na margem de 7 dias. Falhando, a próxima janela parte da última carga boa.
 
 ## 2026-10-30: Argos, chat de respostas prontas sem IA
 
