@@ -54,10 +54,13 @@ import {
   respostaSite,
   saudacao,
   semGenericos,
+  sobreArgos,
   semRanking,
 } from "./responder";
 import { normalizar, contem } from "./texto";
-import type { Acao, AssuntoPessoa, Contexto, Interpretacao, Mensagem, PessoaLembrada } from "./tipos";
+import type { Acao, AssuntoPessoa, Contexto, Interpretacao, Mensagem, PessoaLembrada, Volta } from "./tipos";
+
+export type { Volta };
 
 /** O que o Argos precisa da API; no site vem de `lib/api.ts`. */
 export type ApiArgos = {
@@ -72,7 +75,7 @@ export type ApiArgos = {
 
 export type Entrada = { frase: string; acao?: Acao };
 
-export type Volta = { mensagens: Mensagem[]; contexto: Contexto };
+type Parcial = { mensagens: Mensagem[]; contexto: Contexto; naoEntendeu?: boolean };
 
 type DadoDePessoa = "gastos" | "presenca" | "projetos";
 
@@ -101,7 +104,7 @@ async function dadosDaPessoa(pessoa: PessoaLembrada, acao: Acao, api: ApiArgos):
 }
 
 /** Responde sobre uma pessoa já escolhida. */
-async function sobrePessoa(acao: Acao, api: ApiArgos): Promise<Volta> {
+async function sobrePessoa(acao: Acao, api: ApiArgos): Promise<Parcial> {
   const contexto: Contexto = { pessoa: acao.pessoa };
   if (!idFederal(acao.pessoa.caminho)) return { mensagens: [mensagemSoPerfil(acao.pessoa)], contexto };
   if (acao.assunto === "pessoa") return { mensagens: [mensagemAssuntos(acao.pessoa)], contexto };
@@ -156,17 +159,26 @@ async function acharLugar(
 // ---------- Conversa ----------
 
 export async function conversar(entrada: Entrada, contexto: Contexto, api: ApiArgos, agora: Date = new Date()): Promise<Volta> {
-  if (entrada.acao) return sobrePessoa(entrada.acao, api);
+  if (entrada.acao) {
+    const v = await sobrePessoa(entrada.acao, api);
+    return { ...v, assunto: entrada.acao.assunto };
+  }
+  const i = interpretar(entrada.frase, agora);
+  const v = await despachar(i, entrada.frase, contexto, api);
+  return { ...v, assunto: i.assunto, naoEntendeu: i.assunto === "nenhum" || v.naoEntendeu };
+}
 
-  const frase = entrada.frase;
-  const i = interpretar(frase, agora);
-  const so = (m: Mensagem): Volta => ({ mensagens: [m], contexto });
+async function despachar(i: Interpretacao, frase: string, contexto: Contexto, api: ApiArgos): Promise<Parcial> {
+
+  const so = (m: Mensagem): Parcial => ({ mensagens: [m], contexto });
 
   switch (i.assunto) {
     case "opiniao":
       return so(opiniao());
     case "saudacao":
       return so(saudacao());
+    case "sobre_argos":
+      return so(sobreArgos());
     case "site":
       return so(respostaSite(i.perguntaId));
     case "nenhum":
@@ -203,8 +215,8 @@ export async function conversar(entrada: Entrada, contexto: Contexto, api: ApiAr
   }
 }
 
-async function representantes(i: Interpretacao, frase: string, contexto: Contexto, api: ApiArgos): Promise<Volta> {
-  const so = (m: Mensagem): Volta => ({ mensagens: [m], contexto });
+async function representantes(i: Interpretacao, frase: string, contexto: Contexto, api: ApiArgos): Promise<Parcial> {
+  const so = (m: Mensagem): Parcial => ({ mensagens: [m], contexto });
   const consultar = async (consulta: { cep?: string; uf?: string; municipio?: string }) => {
     const r = await api.representantes(consulta);
     return so(r.ok ? respostaRepresentantes(consulta.cep ?? null, r.dados, i.casa, consulta) : erroDaApi(r.status, r.mensagem));
@@ -223,8 +235,8 @@ async function representantes(i: Interpretacao, frase: string, contexto: Context
   return i.assunto === "lista" ? so(respostaLista({ casa: i.casa })) : so(pedirCep());
 }
 
-async function lugar(i: Interpretacao, frase: string, contexto: Contexto, api: ApiArgos): Promise<Volta> {
-  const so = (m: Mensagem): Volta => ({ mensagens: [m], contexto });
+async function lugar(i: Interpretacao, frase: string, contexto: Contexto, api: ApiArgos): Promise<Parcial> {
+  const so = (m: Mensagem): Parcial => ({ mensagens: [m], contexto });
   const l = await acharLugar(frase, i, api);
   if ("mensagem" in l) return so(l.mensagem);
   const onde: Lugar = "lugar" in l ? l.lugar : {};
@@ -241,8 +253,8 @@ async function lugar(i: Interpretacao, frase: string, contexto: Contexto, api: A
   }
 }
 
-async function comparar(i: Interpretacao, contexto: Contexto, api: ApiArgos): Promise<Volta> {
-  const so = (m: Mensagem): Volta => ({ mensagens: [m], contexto });
+async function comparar(i: Interpretacao, contexto: Contexto, api: ApiArgos): Promise<Parcial> {
+  const so = (m: Mensagem): Parcial => ({ mensagens: [m], contexto });
   const nomes = (i.nomes ?? []).slice(0, 4);
   if (nomes.length === 0) return so(compararSemNomes(contexto.pessoa));
   const achados: PessoaLembrada[] = [];
@@ -262,8 +274,8 @@ async function comparar(i: Interpretacao, contexto: Contexto, api: ApiArgos): Pr
   return so(compararNaoAchou(faltou, achados));
 }
 
-async function pessoa(i: Interpretacao, frase: string, contexto: Contexto, api: ApiArgos): Promise<Volta> {
-  const so = (m: Mensagem): Volta => ({ mensagens: [m], contexto });
+async function pessoa(i: Interpretacao, frase: string, contexto: Contexto, api: ApiArgos): Promise<Parcial> {
+  const so = (m: Mensagem): Parcial => ({ mensagens: [m], contexto });
   const assunto = i.assunto as AssuntoPessoa;
   const acaoCom = (p: PessoaLembrada): Acao => ({ assunto, pessoa: p, secao: i.secao, ano: i.ano, mes: i.mes });
 
@@ -279,7 +291,7 @@ async function pessoa(i: Interpretacao, frase: string, contexto: Contexto, api: 
     const cidade = await acharCidade(frase, i.uf, api);
     if (cidade.tipo === "um") return so(respostaCidade(cidade.m));
     if (cidade.tipo === "varios") return so(escolherCidade(cidade.itens, frase));
-    return so(mensagemSemNome(b.dados.partidos));
+    return { mensagens: [mensagemSemNome(b.dados.partidos)], contexto, naoEntendeu: true };
   }
   if (c.tipo === "varios") {
     const escolha = mensagemEscolha(c.itens, c.total, assunto);

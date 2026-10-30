@@ -21,6 +21,7 @@ export type Assunto =
   | "pessoa"
   | "ranking"
   | "site"
+  | "sobre_argos"
   | "opiniao"
   | "saudacao"
   | "nenhum";
@@ -97,3 +98,13 @@ export type Mensagem = {
 };
 
 export type Contexto = { pessoa?: PessoaLembrada };
+
+/** Uma volta da conversa, com o que a avaliação e o registro precisam saber. */
+export type Volta = {
+  mensagens: Mensagem[];
+  contexto: Contexto;
+  /** Assunto da resposta (para a avaliação). */
+  assunto: string;
+  /** O Argos não entendeu a frase (vai, limpa, para a lista de frases a ensinar). */
+  naoEntendeu?: boolean;
+};

@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Suspense } from "react";
 
 import { ArgosChat } from "@/components/argos/argos-chat";
+import { ArgosRestaurar } from "@/components/argos/argos-restaurar";
 
 export const metadata: Metadata = {
   title: "Pergunte ao Argos",
@@ -19,16 +20,16 @@ function primeiro(valor: string | string[] | undefined) {
 export default function PerguntePage({ searchParams }: PageProps<"/pergunte">) {
   return (
     <article className="pagina-secoes">
-      {/* Esconde o botão fixo do Argos: aqui o chat já está na página (regra em globals.css). */}
-      <div data-argos-pagina hidden />
+      {/* Esconde o botão fixo do Argos (aqui o chat já está na página) e o traz de volta ao sair. */}
+      <ArgosRestaurar />
       <header className="flex flex-col gap-2">
         <p className="sobretitulo">Assistente</p>
         <h1 className="titulo-pagina">Pergunte ao Argos</h1>
         <p className="text-muted-foreground">
-          O Argos é um assistente de respostas prontas, não é uma inteligência artificial. Ele reconhece as
-          palavras da sua pergunta, busca nos dados oficiais do site e responde com a fonte e a data. Não dá
-          opinião nem nota. Os números são os de deputados federais e senadores; para os outros cargos, ele
-          mostra o link do perfil.
+          O Argos é o assistente do Panóptico: reconhece as palavras da sua pergunta, busca nos dados
+          oficiais do site e responde com a fonte e a data. Não dá opinião nem nota. Os números são os
+          de deputados federais e senadores; para os outros cargos, ele mostra o link do perfil. Quer
+          saber como ele funciona? Pergunte a ele.
         </p>
         <p className="text-sm text-muted-foreground">
           O nome vem de Argos Panoptes, o gigante de cem olhos da mitologia grega, que deu origem à palavra

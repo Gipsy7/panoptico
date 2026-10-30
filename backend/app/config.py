@@ -24,6 +24,9 @@ class Settings(BaseSettings):
         "postgresql+psycopg://panoptico:panoptico@localhost:5432/panoptico_test"
     )
     cors_origins: list[str] = ["http://localhost:3000"]
+    # Registro do chat Argos (frases não entendidas, avaliação, conversa consentida). Desligue com
+    # ARGOS_REGISTRO=0: as rotas continuam respondendo 204, mas nada é gravado.
+    argos_registro: bool = True
     viacep_url: str = "https://viacep.com.br/ws/{cep}/json/"
     # Onde ficam os arquivos brutos. No acervo local pode apontar para um HD externo.
     raw_dir: Path = BACKEND_DIR / "data" / "raw"

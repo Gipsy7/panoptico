@@ -1,9 +1,41 @@
 "use client";
 
-import { useEffect, useId, useRef, useState } from "react";
+import { type PointerEvent, useEffect, useId, useRef, useState } from "react";
 
 import { ArgosChat } from "@/components/argos/argos-chat";
 import { tornarFundoInerte } from "@/lib/fundo-inerte";
+
+/** Preferência de tela (lado e altura do botão): localStorage, não é dado pessoal. */
+const CHAVE_POSICAO = "argos-posicao";
+/** Botão escondido até fechar a aba. */
+export const CHAVE_OCULTO = "argos-oculto";
+/** Evento que traz o botão de volta (o link do rodapé e /pergunte o disparam). */
+export const EVENTO_RESTAURAR = "argos:restaurar";
+
+const MARGEM = 8;
+/** Altura do cabeçalho (3,5 rem = 56 px) mais a margem: o botão nunca o cobre. */
+const TOPO = 64;
+/** Movimento mínimo, em px, para o gesto virar arrastar (abaixo disso é um toque). */
+const LIMIAR = 6;
+
+type Lado = "esquerda" | "direita";
+type Posicao = { lado: Lado; y: number };
+
+function limitarY(y: number, altura: number) {
+  return Math.min(Math.max(y, TOPO), Math.max(TOPO, window.innerHeight - altura - MARGEM));
+}
+
+function lerPosicao(): Posicao | null {
+  try {
+    const bruto = JSON.parse(localStorage.getItem(CHAVE_POSICAO) ?? "null");
+    if ((bruto?.lado === "esquerda" || bruto?.lado === "direita") && Number.isFinite(bruto.y)) {
+      return { lado: bruto.lado, y: bruto.y };
+    }
+  } catch {
+    // Armazenamento bloqueado ou valor estragado: usa a posição padrão.
+  }
+  return null;
+}
 
 function Olho({ className }: { className?: string }) {
   return (
@@ -15,18 +47,27 @@ function Olho({ className }: { className?: string }) {
 }
 
 /**
- * Botão fixo "Pergunte ao Argos" em todas as telas (escondido em /pergunte por CSS: a página traz
- * `data-argos-pagina`). Abre o chat por cima: tela cheia no celular, painel lateral no computador.
- * O chat só é carregado na primeira abertura e, depois, fica na memória (fechado) para a conversa
- * continuar ao mudar de página; nada é gravado. Esc fecha e o foco volta ao botão.
+ * Botão do Argos em todas as telas (escondido em /pergunte por CSS: a página marca o <html> com
+ * `data-argos-pagina`). Dá para arrastá-lo (toque ou mouse): ao soltar, encaixa na borda esquerda
+ * ou direita mais próxima e nunca sai da tela nem cobre o cabeçalho. Um "×" o esconde até fechar
+ * a aba. No celular só o olho; no computador, o olho e o texto. Abre o chat por cima: tela cheia
+ * no celular, painel lateral no computador. O chat só é carregado na primeira abertura e, depois,
+ * fica na memória (fechado) para a conversa continuar ao mudar de página. Esc fecha e o foco
+ * volta ao botão.
  */
 export function ArgosBotao() {
   const idTitulo = useId();
   const [aberto, setAberto] = useState(false);
   const [jaAbriu, setJaAbriu] = useState(false);
+  const [oculto, setOculto] = useState(false);
+  const [posicao, setPosicao] = useState<Posicao | null>(null);
+  const [arrastando, setArrastando] = useState<{ x: number; y: number } | null>(null);
   const botao = useRef<HTMLButtonElement>(null);
+  const caixa = useRef<HTMLDivElement>(null);
   const painel = useRef<HTMLDivElement>(null);
   const devolverFoco = useRef(false);
+  const gesto = useRef<{ id: number; x: number; y: number; esquerda: number; topo: number; moveu: boolean } | null>(null);
+  const ignorarClique = useRef(false);
 
   function abrir() {
     setJaAbriu(true);
@@ -36,6 +77,100 @@ export function ArgosBotao() {
   function fechar(comFoco: boolean) {
     devolverFoco.current = comFoco;
     setAberto(false);
+  }
+
+  function esconder() {
+    try {
+      sessionStorage.setItem(CHAVE_OCULTO, "1");
+    } catch {
+      // Sem armazenamento da aba: esconde só nesta página.
+    }
+    setOculto(true);
+  }
+
+  // Preferências guardadas e pedido de volta.
+  useEffect(() => {
+    // Só pode ler o armazenamento depois da hidratação (o servidor não o tem).
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setPosicao(lerPosicao());
+    try {
+      setOculto(sessionStorage.getItem(CHAVE_OCULTO) === "1");
+    } catch {
+      // Sem armazenamento da aba: o botão fica visível.
+    }
+    const voltar = () => setOculto(false);
+    window.addEventListener(EVENTO_RESTAURAR, voltar);
+    return () => window.removeEventListener(EVENTO_RESTAURAR, voltar);
+  }, []);
+
+  // Girar o celular ou redimensionar: mantém o botão dentro da tela.
+  useEffect(() => {
+    const ajustar = () => {
+      const altura = caixa.current?.offsetHeight ?? 44;
+      setPosicao((p) => (p ? { ...p, y: limitarY(p.y, altura) } : p));
+    };
+    window.addEventListener("resize", ajustar);
+    window.addEventListener("orientationchange", ajustar);
+    return () => {
+      window.removeEventListener("resize", ajustar);
+      window.removeEventListener("orientationchange", ajustar);
+    };
+  }, []);
+
+  function aoPressionar(e: PointerEvent<HTMLButtonElement>) {
+    if (e.pointerType === "mouse" && e.button !== 0) return;
+    const r = caixa.current?.getBoundingClientRect();
+    if (!r) return;
+    gesto.current = { id: e.pointerId, x: e.clientX, y: e.clientY, esquerda: r.left, topo: r.top, moveu: false };
+    e.currentTarget.setPointerCapture(e.pointerId);
+  }
+
+  function aoMover(e: PointerEvent<HTMLButtonElement>) {
+    const g = gesto.current;
+    const c = caixa.current;
+    if (!g || g.id !== e.pointerId || !c) return;
+    const dx = e.clientX - g.x;
+    const dy = e.clientY - g.y;
+    if (!g.moveu && Math.hypot(dx, dy) < LIMIAR) return;
+    g.moveu = true;
+    setArrastando({
+      x: Math.min(Math.max(g.esquerda + dx, 0), window.innerWidth - c.offsetWidth),
+      y: limitarY(g.topo + dy, c.offsetHeight),
+    });
+  }
+
+  function aoSoltar(e: PointerEvent<HTMLButtonElement>) {
+    const g = gesto.current;
+    const c = caixa.current;
+    gesto.current = null;
+    if (!g || g.id !== e.pointerId || !c) return;
+    if (!g.moveu) return; // toque curto: o clique abre
+    ignorarClique.current = true;
+    setTimeout(() => (ignorarClique.current = false), 0);
+    const dx = e.clientX - g.x;
+    const dy = e.clientY - g.y;
+    const centro = Math.min(Math.max(g.esquerda + dx, 0), window.innerWidth - c.offsetWidth) + c.offsetWidth / 2;
+    const nova: Posicao = {
+      lado: centro < window.innerWidth / 2 ? "esquerda" : "direita",
+      y: limitarY(g.topo + dy, c.offsetHeight),
+    };
+    setArrastando(null);
+    setPosicao(nova);
+    try {
+      localStorage.setItem(CHAVE_POSICAO, JSON.stringify(nova));
+    } catch {
+      // Sem armazenamento: vale até recarregar.
+    }
+  }
+
+  function aoCancelar() {
+    gesto.current = null;
+    setArrastando(null);
+  }
+
+  function aoClicar() {
+    if (ignorarClique.current) return;
+    abrir();
   }
 
   // Aberto: trava a rolagem do fundo, deixa o resto da página inerte (o TalkBack ignora
@@ -64,18 +199,54 @@ export function ArgosBotao() {
     };
   }, [aberto]);
 
+  const estilo = arrastando
+    ? { left: arrastando.x, top: arrastando.y, right: "auto", bottom: "auto" }
+    : posicao
+      ? {
+          top: posicao.y,
+          bottom: "auto",
+          ...(posicao.lado === "direita" ? { right: MARGEM, left: "auto" } : { left: MARGEM, right: "auto" }),
+        }
+      : undefined;
+  const invertido = (arrastando ? false : posicao?.lado === "esquerda") ? "flex-row-reverse" : "flex-row";
+
   return (
     <>
-      <button
-        ref={botao}
-        type="button"
-        onClick={abrir}
-        aria-haspopup="dialog"
-        className="argos-botao fixed right-4 bottom-4 z-30 inline-flex min-h-11 items-center gap-2 rounded-[2px] bg-foreground px-4 text-sm font-medium text-background hover:bg-foreground/85 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-bronze print:hidden"
-      >
-        <Olho className="size-5 shrink-0" />
-        Pergunte ao Argos
-      </button>
+      {!oculto && (
+        <div
+          ref={caixa}
+          style={estilo}
+          className={`argos-botao fixed z-30 flex items-center ${invertido} print:hidden ${posicao || arrastando ? "" : "right-2 bottom-4"}`}
+        >
+          <button
+            type="button"
+            onClick={esconder}
+            aria-label="Esconder o Argos"
+            className="flex size-11 shrink-0 items-center justify-center focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-bronze-texto"
+          >
+            <span className="flex size-6 items-center justify-center rounded-[2px] bg-secondary text-foreground ring-1 ring-foreground/25">
+              <svg aria-hidden viewBox="0 0 24 24" className="size-3.5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                <path d="M6 6l12 12M18 6L6 18" />
+              </svg>
+            </span>
+          </button>
+          <button
+            ref={botao}
+            type="button"
+            aria-label="Pergunte ao Argos"
+            aria-haspopup="dialog"
+            onClick={aoClicar}
+            onPointerDown={aoPressionar}
+            onPointerMove={aoMover}
+            onPointerUp={aoSoltar}
+            onPointerCancel={aoCancelar}
+            className="inline-flex size-11 shrink-0 cursor-grab touch-none items-center justify-center gap-2 rounded-[2px] bg-foreground text-sm font-medium text-background select-none hover:bg-foreground/85 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-bronze active:cursor-grabbing sm:w-auto sm:px-4"
+          >
+            <Olho className="size-5 shrink-0" />
+            <span className="hidden sm:inline">Pergunte ao Argos</span>
+          </button>
+        </div>
+      )}
 
       {jaAbriu && (
         <div
@@ -93,14 +264,10 @@ export function ArgosBotao() {
                 Argos
               </h2>
               <p className="text-sm text-muted-foreground">
-                Respostas prontas com os dados do site. Não sou uma inteligência artificial e não dou opinião.
+                Respostas com os dados oficiais do site. Não dou opinião nem nota.
               </p>
             </div>
-            <button
-              type="button"
-              onClick={() => fechar(true)}
-              className="botao-linha shrink-0 px-3"
-            >
+            <button type="button" onClick={() => fechar(true)} className="botao-linha shrink-0 px-3">
               Fechar
               <span className="sr-only"> o chat com o Argos</span>
             </button>

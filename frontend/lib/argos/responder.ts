@@ -37,6 +37,21 @@ export function saudacao(): Mensagem {
   };
 }
 
+export function sobreArgos(): Mensagem {
+  return {
+    texto: TEXTOS.sobreArgos,
+    detalhes: [
+      "Os dados vêm de fontes oficiais (Câmara, Senado, TSE, IBGE, Portal da Transparência e outras), listadas em Sobre as fontes. As frases que não entendo ficam guardadas, sem identificar você, para eu aprender.",
+    ],
+    links: [
+      { rotulo: "Sobre as fontes", href: "/sobre-as-fontes" },
+      { rotulo: "O que é guardado (privacidade)", href: "/privacidade#argos" },
+      { rotulo: "O que é o Panóptico", href: "/o-panoptico" },
+    ],
+    botoes: SEM_BOTOES,
+  };
+}
+
 export function opiniao(): Mensagem {
   return { texto: TEXTOS.opiniao, links: [], botoes: botoesExemplo() };
 }

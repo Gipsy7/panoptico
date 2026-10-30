@@ -108,12 +108,19 @@ export const PALAVRAS_ASSUNTO: Record<string, string[]> = {
   ],
   "pagina:fontes": ["sobre as fontes", "metodologia", "como calcula", "como e calculado", "calculo"],
   "pagina:privacidade": ["privacidade", "politica de privacidade", "lgpd"],
+  sobre_argos: [
+    "voce e uma ia", "voce e ia", "voce e um robo", "voce e robo", "voce e um bot", "chatgpt", "chat gpt",
+    "inteligencia artificial", "voce e humano", "voce e uma pessoa", "voce e gente", "pessoa de verdade",
+    "quem te fez", "quem te criou", "quem te programou", "como voce funciona", "voce e real",
+    "como funciona o argos", "quem e o argos", "o que e o argos", "quem e voce", "voce e o que",
+    "e um robo", "e uma ia", "voce pensa", "voce aprende", "argos",
+  ],
   "pagina:codigo": ["codigo aberto", "github", "codigo fonte", "repositorio", "licenca do codigo"],
 };
 
 /** Ordem de desempate entre assuntos com a mesma pontuação (vence quem vem primeiro). */
 export const ORDEM_ASSUNTO = [
-  "comparar", "secao:votos", "pagina:projetos", "dinheiro_federal", "salario", "gastos", "presenca",
+  "sobre_argos", "comparar", "secao:votos", "pagina:projetos", "dinheiro_federal", "salario", "gastos", "presenca",
   "projetos", "emendas", "representantes", "cidade", "partidos", "eleicao", "executivo", "lista",
   "secao:candidatura", "secao:comissoes", "secao:contato", "secao:sancoes", "pagina:apoie",
   "pagina:apoiadores", "pagina:acessibilidade", "pagina:status", "pagina:cobertura", "pagina:fontes",
@@ -312,7 +319,9 @@ export const SUGESTOES_POR_PALAVRA: { palavras: string[]; botao: Botao }[] = [
 
 export const TEXTOS = {
   apresentacao:
-    "Eu sou o Argos. Não sou uma inteligência artificial: sou um assistente de respostas prontas. Procuro nos dados oficiais do site o que você perguntar sobre quem te representa, gastos, presença, projetos, dinheiro federal, partidos e como o site funciona, e respondo sempre com a fonte e a data. Não dou opinião nem nota.",
+    "Sou o Argos, assistente do Panóptico. Respondo com os dados oficiais do site: quem te representa, gastos, presença, projetos, dinheiro federal, partidos e como o site funciona, sempre com a fonte e a data. Não dou opinião nem nota.",
+  sobreArgos:
+    "Sou o Argos, o assistente do Panóptico. Não sou uma inteligência artificial nem uma pessoa: sou um assistente de respostas prontas. Reconheço palavras da sua pergunta, busco nos dados oficiais do site e respondo com a fonte e a data. Não dou opinião nem nota.",
   opiniao: "Eu não dou opinião nem nota. Mostro o dado oficial para você tirar suas conclusões.",
   naoEntendi: "Não entendi. Tente assim:",
   pedirCep:

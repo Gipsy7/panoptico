@@ -1,8 +1,9 @@
 "use client";
 
+import Link from "next/link";
 import { type FormEvent, useEffect, useId, useRef, useState } from "react";
 
-import { ArgosMensagem } from "@/components/argos/argos-mensagem";
+import { ARGOS_BOTAO, ArgosMensagem } from "@/components/argos/argos-mensagem";
 import {
   getBusca,
   getGastos,
@@ -11,8 +12,11 @@ import {
   getPresenca,
   getProjetos,
   getRepresentantes,
+  postArgosAvaliacao,
+  postArgosNaoEntendida,
 } from "@/lib/api";
 import { type ApiArgos, conversar } from "@/lib/argos/conversar";
+import { limpar, prepararConversa, soMarca } from "@/lib/argos/limpar";
 import { erroDeRede, saudacao } from "@/lib/argos/responder";
 import type { Acao, Contexto, Mensagem } from "@/lib/argos/tipos";
 
@@ -36,11 +40,27 @@ const API: ApiArgos = {
   },
 };
 
-type Item = { id: number; autor: "voce" | "argos"; texto?: string; mensagem?: Mensagem };
+type Item = {
+  id: number;
+  autor: "voce" | "argos";
+  texto?: string;
+  mensagem?: Mensagem;
+  /** Pergunta de consentimento para guardar a conversa (com os botões). */
+  consentimento?: boolean;
+};
+
+/** Assuntos cuja resposta não conta para "isso ajudou?" (não trazem dado nem link de dado). */
+const SEM_AVALIACAO = new Set(["saudacao", "nenhum", "opiniao"]);
+
+type Avaliacao = "nao-perguntada" | "perguntando" | "consentimento" | "feita";
+
+const textoDaMensagem = (m: Mensagem) => [m.texto, ...(m.detalhes ?? [])].join(" ");
 
 /**
  * Chat do Argos: respostas prontas, sem IA. A conversa e a última pessoa citada ficam só na
- * memória desta tela (nada vai para o servidor, o localStorage ou análise de uso).
+ * memória desta tela. O que sai daqui (docs/DECISOES.md, 30/10/2026): a frase que o Argos não
+ * entendeu (limpa de CEP, CPF, telefone, e-mail, URL e números longos), a avaliação "isso
+ * ajudou?" e, só com "Pode guardar", a conversa limpa. Sem identificar quem escreveu.
  * `inicial` já abre respondendo a essa pergunta (usado por /pergunte?q=...).
  */
 export function ArgosChat({
@@ -59,18 +79,26 @@ export function ArgosChat({
   const [contexto, setContexto] = useState<Contexto>({});
   const [ocupado, setOcupado] = useState(Boolean(inicial));
   const [texto, setTexto] = useState("");
+  const [avaliacao, setAvaliacao] = useState<Avaliacao>("nao-perguntada");
   const proximoId = useRef(2);
   const iniciou = useRef(false);
   const registro = useRef<HTMLDivElement>(null);
+  const assuntoAvaliado = useRef("nenhum");
 
   /** Pede a resposta; a frase da pessoa já deve estar na lista e `ocupado` ligado. */
   async function responder(frase: string, acao: Acao | undefined, contextoAtual: Contexto) {
     let mensagens: Mensagem[];
     let novoContexto = contextoAtual;
+    let assunto = "nenhum";
     try {
       const volta = await conversar({ frase, acao }, contextoAtual, API);
       mensagens = volta.mensagens;
       novoContexto = volta.contexto;
+      assunto = volta.assunto;
+      if (volta.naoEntendeu && !acao) {
+        const limpa = limpar(frase);
+        if (limpa && !soMarca(limpa)) void postArgosNaoEntendida(limpa);
+      }
     } catch {
       mensagens = [erroDeRede()];
     }
@@ -79,6 +107,13 @@ export function ArgosChat({
       ...atual,
       ...mensagens.map((mensagem) => ({ id: proximoId.current++, autor: "argos" as const, mensagem })),
     ]);
+    const temDado = mensagens.some((m) => !m.erro && (m.links.length > 0 || m.fonte));
+    if (temDado && !SEM_AVALIACAO.has(assunto)) {
+      if (avaliacao === "nao-perguntada") {
+        assuntoAvaliado.current = assunto;
+        setAvaliacao("perguntando");
+      }
+    }
     setOcupado(false);
   }
 
@@ -94,6 +129,57 @@ export function ArgosChat({
   function aoEnviar(e: FormEvent) {
     e.preventDefault();
     enviar(texto);
+  }
+
+  function acrescentar(mensagem: Mensagem, consentimento = false) {
+    setItens((atual) => [...atual, { id: proximoId.current++, autor: "argos", mensagem, consentimento }]);
+  }
+
+  function avaliar(util: boolean) {
+    if (util) {
+      void postArgosAvaliacao(true, assuntoAvaliado.current);
+      setAvaliacao("feita");
+      acrescentar({ texto: "Obrigado pela resposta.", links: [], botoes: [] });
+      return;
+    }
+    setAvaliacao("consentimento");
+    acrescentar(
+      {
+        texto: "Posso guardar esta conversa, sem identificar você, para a equipe melhorar o assistente?",
+        links: [],
+        botoes: [],
+      },
+      true,
+    );
+  }
+
+  function consentir(guardar: boolean) {
+    let conversa;
+    if (guardar) {
+      conversa = prepararConversa(
+        itens
+          .filter((i) => !i.consentimento)
+          .map((i) =>
+            i.autor === "voce"
+              ? { autor: "cidadao" as const, texto: i.texto ?? "" }
+              : { autor: "argos" as const, texto: i.mensagem ? textoDaMensagem(i.mensagem) : "" },
+          ),
+      );
+    }
+    void postArgosAvaliacao(false, assuntoAvaliado.current, conversa);
+    setAvaliacao("feita");
+    // A pergunta deixa de ter botões; o agradecimento oferece caminhos.
+    setItens((atual) => atual.map((i) => (i.consentimento ? { ...i, consentimento: false } : i)));
+    acrescentar({
+      texto: guardar
+        ? "Obrigado, a conversa foi guardada sem identificar você."
+        : "Tudo bem, nada foi guardado além da sua avaliação. Obrigado.",
+      links: [
+        { rotulo: "Busca de parlamentares por nome", href: "/parlamentares" },
+        { rotulo: "Perguntas frequentes", href: "/perguntas" },
+      ],
+      botoes: [],
+    });
   }
 
   useEffect(() => {
@@ -135,6 +221,20 @@ export function ArgosChat({
               {item.mensagem && (
                 <ArgosMensagem mensagem={item.mensagem} aoEscolher={enviar} aoNavegar={aoNavegar} ocupado={ocupado} />
               )}
+              {item.consentimento && (
+                <ul className="flex flex-wrap gap-2">
+                  <li>
+                    <button type="button" onClick={() => consentir(true)} className={ARGOS_BOTAO}>
+                      Pode guardar
+                    </button>
+                  </li>
+                  <li>
+                    <button type="button" onClick={() => consentir(false)} className={ARGOS_BOTAO}>
+                      Não
+                    </button>
+                  </li>
+                </ul>
+              )}
             </div>
           ),
         )}
@@ -149,6 +249,18 @@ export function ArgosChat({
       <p role="status" className="sr-only">
         {ocupado ? "O Argos está buscando a resposta." : ""}
       </p>
+
+      {avaliacao === "perguntando" && (
+        <div role="group" aria-label="Avaliação da resposta" className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
+          <span>Isso ajudou?</span>
+          <button type="button" onClick={() => avaliar(true)} className={ARGOS_BOTAO}>
+            Sim
+          </button>
+          <button type="button" onClick={() => avaliar(false)} className={ARGOS_BOTAO}>
+            Não
+          </button>
+        </div>
+      )}
 
       <form onSubmit={aoEnviar} className="flex flex-col gap-1 border-t border-border pt-3">
         <label htmlFor={idCampo} className="text-sm font-medium">
@@ -170,7 +282,12 @@ export function ArgosChat({
             Enviar
           </button>
         </div>
-        <p className="text-sm text-muted-foreground">O site não grava o que você escreve.</p>
+        <p className="text-sm text-muted-foreground">
+          Frases que eu não entendo ficam guardadas, sem identificar você, para eu aprender.{" "}
+          <Link href="/privacidade#argos" onClick={aoNavegar} className="underline underline-offset-2">
+            Saiba mais
+          </Link>
+        </p>
       </form>
     </div>
   );

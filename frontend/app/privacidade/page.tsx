@@ -46,6 +46,26 @@ export default function PrivacidadePage() {
         periodicamente.
       </Secao>
 
+      <Secao id="argos" titulo="O Argos, o assistente de perguntas">
+        O Argos é um assistente de respostas prontas; não é uma inteligência artificial e não opina.
+        O que ele guarda, sem identificar você: (1) as frases que ele não entendeu, para a equipe
+        ensiná-lo a entender mais; (2) a sua resposta a &ldquo;Isso ajudou?&rdquo; (sim ou não), com o
+        assunto da pergunta e o dia; (3) se você responder &ldquo;Não&rdquo; e depois &ldquo;Pode
+        guardar&rdquo;, a conversa daquela tela (até 30 mensagens, as suas e as do Argos).
+        Antes de sair do seu aparelho, e de novo no servidor, o texto é limpo: CEP, CPF, telefone,
+        e-mail, endereços de internet e qualquer número com 5 ou mais dígitos são apagados. O que
+        ele não guarda: endereço IP, identificador de conversa ou de navegador, hora exata (só o dia),
+        nome, cadastro ou localização. Os registros servem só para melhorar o assistente, são lidos
+        apenas pela equipe, nunca são publicados nem entram nos dados abertos, e são apagados depois
+        de 180 dias. Como não há identificação, não dá para saber quais registros são seus: se você
+        escreveu algo que não queria ter escrito, mande a frase por e-mail para{" "}
+        <a href={`mailto:${CONTATO_EMAIL}`} className="underline underline-offset-2">
+          {CONTATO_EMAIL}
+        </a>{" "}
+        e ela será apagada. A posição do botão do Argos na tela fica só no seu navegador, como
+        preferência, e não é enviada a ninguém.
+      </Secao>
+
       <Secao titulo="Dados dos parlamentares">
         Os dados dos parlamentares são informações públicas, publicadas pelos próprios órgãos
         oficiais em cumprimento à Lei de Acesso à Informação (Lei nº 12.527/2011). Cada dado tem
@@ -67,9 +87,9 @@ export default function PrivacidadePage() {
   );
 }
 
-function Secao({ titulo, children }: { titulo: string; children: React.ReactNode }) {
+function Secao({ titulo, children, id }: { titulo: string; children: React.ReactNode; id?: string }) {
   return (
-    <section className="flex flex-col gap-1">
+    <section id={id} className="flex scroll-mt-20 flex-col gap-1">
       <h2 className="text-lg font-semibold">{titulo}</h2>
       <p className="text-muted-foreground">{children}</p>
     </section>

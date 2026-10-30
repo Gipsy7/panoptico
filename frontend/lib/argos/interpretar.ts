@@ -237,6 +237,8 @@ export function interpretar(texto: string, agora: Date = new Date()): Interpreta
   if (chave === "comparar") return { ...base, assunto: "comparar", nomes };
   if (separador && nomes.length >= 2) return { ...base, assunto: "comparar", nomes };
 
+  if (chave === "sobre_argos") return { ...base, assunto: "sobre_argos" };
+
   if (chave) {
     const [tipo, id] = chave.split(":");
     if (tipo === "secao") return { ...base, assunto: "secao", secao: id, nome };

@@ -2046,3 +2046,30 @@ export function getPauta(dias = 14, casa?: Casa) {
   if (casa) params.set("casa", casa);
   return getJson<Pauta>(`/pauta?${params}`);
 }
+
+// ---------- Registro do Argos (só POST; nunca lança erro) ----------
+
+type MensagemArgos = { autor: "cidadao" | "argos"; texto: string };
+
+async function postarArgos(caminho: string, corpo: unknown): Promise<void> {
+  try {
+    await fetch(`${API_URL}${caminho}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(corpo),
+      keepalive: true,
+    });
+  } catch {
+    // O chat nunca quebra por causa do registro (reserva sem a rota, rede, limite de pedidos).
+  }
+}
+
+/** Frase que o Argos não entendeu. O texto já deve ter passado por `limpar` (lib/argos/limpar.ts). */
+export function postArgosNaoEntendida(texto: string): Promise<void> {
+  return postarArgos("/argos/nao-entendida", { texto });
+}
+
+/** Avaliação "isso ajudou?"; `conversa` só vai se a pessoa deixou guardar (já limpa). */
+export function postArgosAvaliacao(util: boolean, assunto: string, conversa?: MensagemArgos[]): Promise<void> {
+  return postarArgos("/argos/avaliacao", { util, assunto, ...(conversa?.length ? { conversa } : {}) });
+}

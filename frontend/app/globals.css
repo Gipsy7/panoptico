@@ -665,8 +665,8 @@ html[data-js] [data-aba][data-ativa="false"]:not([hidden]) {
 }
 
 /* ---------- Argos (chat de respostas prontas) ----------
-   O botão fixo some em /pergunte, onde o chat já está na página (a página traz data-argos-pagina). */
-body:has([data-argos-pagina]) .argos-botao {
+   O botão fixo some em /pergunte, onde o chat já está na página (a página marca o <html> com data-argos-pagina; :has não serve porque o Next guarda a página anterior escondida no DOM). */
+html[data-argos-pagina] .argos-botao {
   display: none;
 }
 @media (prefers-reduced-motion: no-preference) {

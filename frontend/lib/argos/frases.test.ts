@@ -242,6 +242,19 @@ const GRUPOS: Record<string, Caso[]> = {
     ["gastos dos deputados de SC", { assunto: "ranking", uf: "SC", casa: "camara", ordem: { criterio: "gastos", desc: true } }],
     ["quanto gastam os senadores", { assunto: "ranking", casa: "senado" }],
   ],
+  "sobre o Argos (é IA? quem fez? como funciona?)": [
+    ["você é uma IA?", { assunto: "sobre_argos" }],
+    ["voce e um robo", { assunto: "sobre_argos" }],
+    ["vc é o chatgpt?", { assunto: "sobre_argos" }],
+    ["isso é inteligência artificial?", { assunto: "sobre_argos" }],
+    ["você é humano?", { assunto: "sobre_argos" }],
+    ["tem uma pessoa de verdade aí?", { assunto: "sobre_argos" }],
+    ["quem te fez", { assunto: "sobre_argos" }],
+    ["quem te criou?", { assunto: "sobre_argos" }],
+    ["como você funciona", { assunto: "sobre_argos" }],
+    ["quem é você", { assunto: "sobre_argos" }],
+    ["o que é o argos", { assunto: "sobre_argos" }],
+  ],
   "saudação e ajuda": [
     ["oi", { assunto: "saudacao" }],
     ["bom dia", { assunto: "saudacao" }],
@@ -290,7 +303,7 @@ describe("o corpus", () => {
     for (const a of [
       "gastos", "presenca", "projetos", "emendas", "representantes", "comparar", "dinheiro_federal", "partidos",
       "lista", "cidade", "eleicao", "salario", "executivo", "projetos_busca", "governo_gasto", "secao", "pagina",
-      "pessoa", "ranking", "site", "opiniao", "saudacao", "nenhum",
+      "pessoa", "ranking", "site", "sobre_argos", "opiniao", "saudacao", "nenhum",
     ]) {
       expect(vistos.has(a as Interpretacao["assunto"]), a).toBe(true);
     }

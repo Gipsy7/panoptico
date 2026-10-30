@@ -145,7 +145,7 @@ describe("conversar", () => {
     const textos = [];
     for (const frase of frases) textos.push((await conversar({ frase }, VAZIO, a)).mensagens[0].texto);
     expect(textos[0]).toContain("não dou opinião nem nota");
-    expect(textos[1]).toContain("Não sou uma inteligência artificial");
+    expect(textos[1]).toContain("Sou o Argos, assistente do Panóptico");
     expect(textos[2]).toContain("média entre os parlamentares em exercício");
     expect(textos[3]).toBe("Não entendi. Tente assim:");
     expect(a.busca).not.toHaveBeenCalled();
@@ -324,5 +324,23 @@ describe("conversar", () => {
     const v = await conversar({ frase: "dinheiro que Gaspar recebeu" }, VAZIO, a);
     expect(v.mensagens[0].botoes).toHaveLength(2);
     expect(v.mensagens[0].links.map((l) => l.href)).toContain("/cidade/4205902");
+  });
+
+  it("'você é uma IA?' explica o que é o Argos", async () => {
+    const v = await conversar({ frase: "você é uma IA?" }, VAZIO, api());
+    expect(v.assunto).toBe("sobre_argos");
+    expect(v.mensagens[0].texto).toContain("Não sou uma inteligência artificial");
+    expect(v.mensagens[0].links.map((l) => l.href)).toContain("/privacidade#argos");
+  });
+
+  it("a volta diz o assunto e se não entendeu (para a avaliação e o registro)", async () => {
+    const a = api();
+    expect((await conversar({ frase: "quanto o fulano gastou" }, VAZIO, a)).assunto).toBe("gastos");
+    const nada = await conversar({ frase: "???" }, VAZIO, a);
+    expect(nada.assunto).toBe("nenhum");
+    expect(nada.naoEntendeu).toBe(true);
+    const semNome = api({ busca: vi.fn(async () => ok({ itens: [], partidos: [], pessoas: [], eleitos_2026: [] })) });
+    expect((await conversar({ frase: "gastos do xyzzy" }, VAZIO, semNome)).naoEntendeu).toBe(true);
+    expect((await conversar({ frase: "oi" }, VAZIO, a)).naoEntendeu).toBeFalsy();
   });
 });
