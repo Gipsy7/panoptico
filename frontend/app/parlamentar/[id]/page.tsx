@@ -9,7 +9,9 @@ import { AbasDetalhe, type AbaDetalhe } from "@/components/painel/abas-detalhe";
 import { BarraComparacao } from "@/components/painel/barra-comparacao";
 import { ListaPerguntas, Pergunta } from "@/components/painel/pergunta";
 import { Migalhas } from "@/components/ui/migalhas";
+import { BotaoAviso } from "@/components/botao-aviso";
 import { CompartilharWhatsApp } from "@/components/compartilhar";
+import { chaveAlvo } from "@/lib/avisos";
 import { FonteRodape } from "@/components/fonte-rodape";
 import { SeloEleitoFuturo } from "@/components/eleito-futuro";
 import { CarreiraSecao } from "@/components/carreira-secao";
@@ -318,6 +320,7 @@ async function Perfil({
             Comparar com outro parlamentar
           </Link>
         </div>
+        <BotaoAviso alvoTipo="parlamentar" alvoChave={chaveAlvo(p.casa, p.id_externo)} destino={p.nome_parlamentar} />
         <div className="flex flex-col gap-1">
           {p.uf && (
             <Link href={`/representantes?uf=${p.uf}`} className="alvo-link self-start text-sm text-muted-foreground underline underline-offset-4">

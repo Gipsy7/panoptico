@@ -24,6 +24,8 @@ const nextConfig: NextConfig = {
             has: [{ type: "host" as const, value: "(?!panoptico\\.social\\.br$).*" }],
             headers: [{ key: "X-Robots-Tag", value: "noindex" }],
           },
+      // O navegador precisa rever o service worker a cada visita; cache longo travaria correções.
+      { source: "/sw.js", headers: [{ key: "Cache-Control", value: "no-cache, max-age=0, must-revalidate" }] },
       {
         source: "/:path*",
         headers: [

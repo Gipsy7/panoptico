@@ -14,7 +14,9 @@ export default function PrivacidadePage() {
         <p className="sobretitulo">Seus dados</p>
         <h1 className="titulo-pagina">Privacidade</h1>
         <p className="text-muted-foreground">
-          Resumo: o Panóptico funciona sem cadastro e não guarda quem você é nem onde você mora.
+          Resumo: o Panóptico funciona sem cadastro e não guarda quem você é nem onde você mora. A
+          única exceção é opcional: se você ativar avisos no celular (nos ambientes em que existirem),
+          guardamos um endereço técnico do aparelho, descrito abaixo.
         </p>
       </header>
 
@@ -66,6 +68,23 @@ export default function PrivacidadePage() {
         preferência, e não é enviada a ninguém.
       </Secao>
 
+      <Secao id="avisos" titulo="Avisos no celular (quando disponíveis)">
+        Alguns ambientes do site podem oferecer avisos no celular. Eles só existem se você tocar em
+        &ldquo;Avisar sobre novidades&rdquo; e permitir as notificações no navegador; quem não ativa
+        não tem nada guardado. Se você ativar, guardamos (1) o endereço técnico que o seu navegador
+        fornece para receber o aviso, com as duas chaves que o acompanham, e (2) a lista do que o
+        aparelho acompanha (parlamentares e projetos federais). Não guardamos nome, telefone,
+        e-mail, CEP nem localização. O fundamento é o seu consentimento (Lei nº 13.709/2018, art.
+        7º, inciso I), que você retira quando quiser. O aviso passa pelo serviço de notificações do
+        seu navegador (por exemplo, o do Google, da Mozilla, da Apple ou da Microsoft), que o entrega
+        ao aparelho. Enviamos no máximo 1 aviso por dia, com votos, andamento de projetos e
+        registros oficiais; gastos, emendas e dados da cidade ficam de fora. Para cancelar, use o
+        botão do próprio perfil ou a página &ldquo;Avisos neste aparelho&rdquo; (que só existe onde
+        os avisos estão ligados): o cancelamento apaga na hora o endereço e a
+        lista, sem cópia. Uma inscrição que fica 180 dias sem receber nenhum aviso é apagada, e esses
+        dados ficam fora das cópias de segurança (backups).
+      </Secao>
+
       <Secao titulo="Dados dos parlamentares">
         Os dados dos parlamentares são informações públicas, publicadas pelos próprios órgãos
         oficiais em cumprimento à Lei de Acesso à Informação (Lei nº 12.527/2011). Cada dado tem
@@ -73,8 +92,9 @@ export default function PrivacidadePage() {
       </Secao>
 
       <Secao titulo="Seus direitos">
-        Como não coletamos dados pessoais de quem usa o site, não há dados seus para consultar,
-        corrigir ou apagar. Em caso de dúvida sobre a Lei Geral de Proteção de Dados (Lei nº
+        Quem não ativa os avisos não tem dados pessoais guardados pelo site, então não há dados seus
+        para consultar, corrigir ou apagar. Quem ativa pode ver o que o aparelho acompanha e apagar
+        tudo a qualquer momento, pelo cancelamento descrito acima. Em caso de dúvida sobre a Lei Geral de Proteção de Dados (Lei nº
         13.709/2018), escreva para{" "}
         <a href={`mailto:${CONTATO_EMAIL}`} className="underline underline-offset-2">
           {CONTATO_EMAIL}

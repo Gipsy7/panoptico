@@ -152,7 +152,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
             </nav>
             <p>
               Dados públicos e oficiais da Câmara dos Deputados, do Senado Federal, do Portal da
-              Transparência e do IBGE. O Panóptico não guarda o seu CEP.
+              Transparência e do IBGE. O Panóptico não guarda o seu CEP; só guarda um endereço técnico do aparelho se você ativar, por opção, os avisos no celular.
             </p>
           </div>
         </footer>

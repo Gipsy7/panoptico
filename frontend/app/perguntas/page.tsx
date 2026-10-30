@@ -54,8 +54,10 @@ const RESPOSTAS: Record<string, ReactNode> = {
     <>
       Não. O CEP é usado só para descobrir a cidade e o estado e não é gravado em banco de
       dados. A localização, se você escolher usá-la, é processada no seu aparelho e não é enviada
-      a nenhum servidor. Não há cadastro nem cookies de rastreamento ou publicidade. Os detalhes
-      estão na página de{" "}
+      a nenhum servidor. Não há cadastro nem cookies de rastreamento ou publicidade. A única
+      exceção é opcional: se você ativar avisos no celular (nos ambientes em que existirem),
+      guardamos um endereço técnico do aparelho e o que ele acompanha, e você pode apagar tudo ao
+      cancelar. Os detalhes estão na página de{" "}
       <Link href="/privacidade" className={LINK}>
         privacidade
       </Link>
