@@ -40,6 +40,8 @@ export type ParlamentarResumo = {
 };
 
 export type ParlamentarDetalhe = ParlamentarResumo & {
+  /** Id do parlamentar na Casa; com `casa` forma a chave do alvo dos avisos. Ainda opcional: o backend vai expô-lo. */
+  id_externo?: string | null;
   nome_civil: string | null;
   email: string | null;
   telefone: string | null;

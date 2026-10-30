@@ -196,7 +196,7 @@ export const PAGINAS: Record<string, { href: string; rotulo: string; texto: stri
   privacidade: {
     href: "/privacidade",
     rotulo: "Privacidade",
-    texto: "O CEP é usado só para achar a cidade e o estado e não é gravado. Não há cadastro nem cookies de rastreamento. Os detalhes estão na página de privacidade.",
+    texto: "O CEP é usado só para achar a cidade e o estado e não é gravado. Não há cadastro nem cookies de rastreamento. Só quem ativar avisos no celular (opcional, onde existirem) tem um endereço técnico do aparelho guardado, apagado ao cancelar. Os detalhes estão na página de privacidade.",
   },
   codigo: {
     href: "https://github.com/Gipsy7/panoptico",
