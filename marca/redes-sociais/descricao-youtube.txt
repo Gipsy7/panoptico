@@ -1,0 +1,11 @@
+Quem te representa, às claras.
+
+O Panóptico mostra quem te representa, do presidente ao vereador: o que cada um faz, gasta, vota e recebe. Tudo com dado oficial, link da fonte e data da atualização.
+
+Aqui no canal, a gente explica esses números em linguagem do dia a dia: o que é cota parlamentar, emenda, votação nominal, doação de campanha e por onde passa o dinheiro público. Sem opinião sobre partido ou político: o número, a fonte e o contexto, comparados com a média da Casa.
+
+Os dados vêm de órgãos oficiais, como Câmara dos Deputados, Senado Federal, TSE, Portal da Transparência, assembleias e câmaras municipais. O código é aberto e os dados podem ser baixados e reutilizados.
+
+Digite o seu CEP no site e veja quem te representa: https://panoptico.social.br
+De onde vem cada dado: https://panoptico.social.br/sobre-as-fontes
+Apoie o projeto: https://panoptico.social.br/apoie
