@@ -42,6 +42,9 @@ services:
     environment: &backend_env
       DATABASE_URL: postgresql+psycopg://panoptico:${POSTGRES_PASSWORD}@db:5432/panoptico
       CORS_ORIGINS: '["https://panoptico.social.br","https://www.panoptico.social.br"]'
+      # Avisos por Web Push: desligados na produção até o dono promover.
+      AMBIENTE: producao
+      AVISOS_ATIVOS: "false"
     volumes:
       - raw:/app/data
     depends_on:
@@ -61,6 +64,7 @@ services:
         NEXT_PUBLIC_API_URL: https://api.panoptico.social.br
         NEXT_PUBLIC_SITE_URL: https://panoptico.social.br
         NEXT_PUBLIC_CONTATO_EMAIL: contato@panoptico.social.br
+        NEXT_PUBLIC_VAPID_PUBLICA: ""
     restart: unless-stopped
     environment:
       API_URL_INTERNA: http://api:8000
@@ -88,6 +92,12 @@ services:
     environment:
       DATABASE_URL: postgresql+psycopg://panoptico:${POSTGRES_PASSWORD}@db:5432/panoptico
       CORS_ORIGINS: '["https://release.panoptico.social.br"]'
+      # Avisos por Web Push: quem liga é o ligar-avisos-release.sh. Sem ":?": a falta da
+      # variável não pode derrubar o compose. O booleano precisa de "false", vazio não vale.
+      AMBIENTE: release
+      AVISOS_ATIVOS: ${AVISOS_ATIVOS_RELEASE:-false}
+      VAPID_PRIVADA: ${VAPID_PRIVADA_RELEASE:-}
+      VAPID_CONTATO: mailto:contato@panoptico.social.br
     mem_limit: 512m
     depends_on:
       db:
@@ -107,6 +117,7 @@ services:
         NEXT_PUBLIC_SITE_URL: https://release.panoptico.social.br
         NEXT_PUBLIC_CONTATO_EMAIL: contato@panoptico.social.br
         NEXT_PUBLIC_AMBIENTE: release
+        NEXT_PUBLIC_VAPID_PUBLICA: ${VAPID_PUBLICA_RELEASE:-}
     profiles: ["release"]
     restart: unless-stopped
     environment:

@@ -2,6 +2,8 @@
 # Backup diário do banco: pg_dump em formato custom para /opt/backups (7 dias locais) e, se
 # BACKUP_PAR_URL estiver preenchida no .env, envio por URL de upload pré-autenticada (PUT).
 # O pg_dump usa um retrato consistente: pode rodar durante uma ingestão. A URL nunca é impressa.
+# Quem se inscreveu nos avisos fica de fora (dado pessoal, cancelar apaga de verdade); as tabelas
+# continuam no dump, vazias, para a restauração combinar com a versão do alembic.
 set -euo pipefail
 
 DESTINO=/opt/backups
@@ -11,7 +13,8 @@ mkdir -p "$DESTINO"
 
 nome="panoptico_$(date -u +%F_%H%M).dump"
 echo "[$(date -u +%FT%TZ)] backup: $nome"
-docker compose exec -T db pg_dump -U panoptico -d panoptico --format=custom >"$DESTINO/$nome.parcial"
+docker compose exec -T db pg_dump -U panoptico -d panoptico --format=custom \
+  --exclude-table-data=aviso_inscricao --exclude-table-data=aviso_alvo >"$DESTINO/$nome.parcial"
 mv "$DESTINO/$nome.parcial" "$DESTINO/$nome"
 echo "tamanho: $(du -h "$DESTINO/$nome" | cut -f1)"
 

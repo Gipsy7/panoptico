@@ -113,7 +113,7 @@ A reserva é uma versão fixa do site, da API e do banco na Vercel e no Neon. El
 
 **Atualizar a reserva** (manual, quando o dono quiser):
 1. Escolha o commit do `main` que vai para a reserva (em geral o atual) e confira que a VPS está nele (`git -C /opt/panoptico log -1`).
-2. Na VPS, faça o dump do banco: `docker compose exec -T db pg_dump -U panoptico -d panoptico --format=custom > /opt/backups/para_reserva.dump`.
+2. Na VPS, faça o dump do banco: `docker compose exec -T db pg_dump -U panoptico -d panoptico --format=custom --exclude-table-data=aviso_inscricao --exclude-table-data=aviso_alvo > /opt/backups/para_reserva.dump`.
 3. Restaure no Neon, com a string **direta** (sem `-pooler`) gravada pelo dono em `/root/.neon_url` (nunca impressa): `docker compose exec -T db pg_restore --clean --if-exists --no-owner --no-acl -d "$(cat /root/.neon_url)" < /opt/backups/para_reserva.dump`. Confira a contagem de linhas das tabelas nos dois lados.
 4. Na Vercel, publique os projetos `panoptico` e `panoptico-api` a partir desse commit (deploy manual pela API, ver skill `operar-producao`). Os deploys automáticos continuam desligados.
 5. Teste `https://panoptico.vercel.app/` e `https://panoptico-api.vercel.app/saude` antes de considerar concluído.

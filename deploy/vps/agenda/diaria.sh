@@ -11,4 +11,7 @@ if [ "${CARGA_INICIAL:-}" = "1" ]; then
 fi
 LIMITE=90m passo "Ingestão de todas as fontes" py ingestion.run_all
 indexnow --padrao '^https://[^/]+/?$' --padrao '/parlamentar/'
+# Resumo diário dos avisos. Roda o código do release; na promoção, troca para a api.
+passo_tolerante "Avisos (release)" timeout 15m \
+  docker compose --profile release exec -T api-release python -m app.avisos_diario
 fim
