@@ -1,0 +1,135 @@
+name: Correção urgente
+
+# Leva uma correção direto à produção quando o release tem coisas que ainda não podem subir.
+#   git fetch origin && git switch -c correcao/<nome> origin/main
+#   ... corrige, commita ...
+#   git push origin correcao/<nome>                      # o ci.yml testa (push fora do dev)
+#   gh workflow run correcao-urgente.yml --ref correcao/<nome>
+# O branch é o próprio "Use workflow from" (--ref): o commit testado aqui é o mesmo que migra e vai
+# ao main (github.sha), sem chance de testar um e publicar outro.
+#   1. confere que o branch é correcao/* e saiu do main atual (fast-forward);
+#   2. roda os testes (ci.yml);
+#   3. avança o main (a VPS publica em até 10 min; a API de produção aplica as migrações ao subir, e
+#      migração com RECARREGAR_DADOS = True vira aviso no log do atualizar.sh, recarga manual);
+#   4. traz a correção de volta: merge do main no dev (commit de merge, sem --force), push do dev e
+#      dispara o Publicar (push com GITHUB_TOKEN não dispara workflows; workflow_dispatch dispara),
+#      que leva a correção ao release. Com conflito, não força: falha e abre uma issue.
+
+on:
+  workflow_dispatch:
+
+# Mesmo grupo do Publicar e da Promover para produção: nunca rodam juntos.
+concurrency:
+  group: publicacao
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  issues: write
+  actions: write
+
+jobs:
+  conferir:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Branch correcao/* saído do main atual
+        env:
+          REF: ${{ github.ref }}
+        run: |
+          case "$REF" in
+            refs/heads/correcao/*) ;;
+            *) echo "::error::Rode a partir de um branch correcao/<nome> (gh workflow run correcao-urgente.yml --ref correcao/<nome>), não de '$REF'."; exit 1 ;;
+          esac
+          git fetch --quiet origin main
+          if ! git merge-base --is-ancestor origin/main HEAD; then
+            echo "::error::O branch não saiu do main atual (o main tem commits que ele não tem). Refaça a partir do main: git fetch origin && git rebase origin/main (ou git switch -c correcao/<nome> origin/main) e envie de novo."
+            exit 1
+          fi
+          if [ "$(git rev-parse origin/main)" = "$(git rev-parse HEAD)" ]; then
+            echo "::error::O branch não tem nenhum commit além do main: nada a corrigir."
+            exit 1
+          fi
+          echo "Commits que vão à produção:"
+          git log --oneline origin/main..HEAD
+
+  testes:
+    needs: conferir
+    uses: ./.github/workflows/ci.yml
+
+  producao:
+    needs: testes
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      # Sem --force: se o main mudou desde a conferência e deixou de ser fast-forward, o push falha.
+      - name: Avançar o main (a VPS publica em até 10 min)
+        run: |
+          de="$(git rev-parse --short origin/main)"
+          lista="$(git log --format='- `%h` %s' origin/main..HEAD)"
+          git push origin HEAD:refs/heads/main
+          {
+            echo "## Correção urgente na produção: \`$(git rev-parse --short HEAD)\`"
+            echo ""
+            echo "Branch \`${GITHUB_REF_NAME}\`. O main foi de \`$de\` para \`$(git rev-parse --short HEAD)\`. A VPS publica em https://panoptico.social.br em até 10 min."
+            echo ""
+            echo "$lista"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  trazer-para-o-dev:
+    needs: producao
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: dev
+          fetch-depth: 0
+
+      - name: Merge do main no dev e Publicar (leva a correção ao release)
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git fetch --quiet origin main dev
+          git reset --quiet --hard origin/dev
+          avisar() {
+            echo "::error::$1"
+            { echo "## A correção está na produção, mas não voltou ao dev"; echo ""; echo "$1"; } >> "$GITHUB_STEP_SUMMARY"
+            gh issue create \
+              --title "Correção urgente ${GITHUB_REF_NAME}: fazer o merge do main no dev à mão" \
+              --body "$(printf '%s\n\n%s\n\n%s\n' \
+                "A correção \`${GITHUB_REF_NAME}\` já está na produção (main), mas o merge automático do main no dev falhou: $1" \
+                "Enquanto isso, o workflow **Promover para produção** recusa promover (o release não contém o main). Faça à mão:" \
+                "\`\`\`
+          git fetch origin
+          git switch dev && git pull --ff-only
+          git merge origin/main      # resolva os conflitos, git add, git commit
+          git push origin dev        # dispara o Publicar, que leva a correção ao release
+          \`\`\`
+          Execução: ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}")" \
+              || echo "::warning::Não consegui abrir a issue."
+            exit 1
+          }
+          if git merge-base --is-ancestor origin/main HEAD; then
+            echo "O dev já contém o main; só dispara o Publicar."
+          else
+            if ! git merge --no-ff --no-edit -m "Merge da correção urgente ${GITHUB_REF_NAME} (main) no dev" origin/main; then
+              git merge --abort || true
+              avisar "conflito entre o main e o dev."
+            fi
+            # Sem --force: se o dev andou nesse meio-tempo, o push falha e vira issue.
+            git push origin HEAD:dev || avisar "o dev mudou durante o merge (push recusado)."
+          fi
+          gh workflow run publicar.yml --ref dev || avisar "o merge foi para o dev, mas não consegui disparar o Publicar (rode-o à mão: gh workflow run publicar.yml --ref dev)."
+          {
+            echo "## Correção trazida para o dev"
+            echo ""
+            echo "Dev em \`$(git rev-parse --short HEAD)\`. O Publicar foi disparado: ele espera esta execução terminar e então leva a correção ao release."
+          } >> "$GITHUB_STEP_SUMMARY"

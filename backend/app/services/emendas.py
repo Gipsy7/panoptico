@@ -172,6 +172,8 @@ def _media_uf(
 
     Sem filtro (todos os tipos), soma também os pagamentos sem código de emenda, como o
     `total_geral` de cada município."""
+    # Em dois passos: numa consulta só, a estimativa errada do Postgres (1 cidade em vez de 144 no
+    # Pará) virava laço aninhado que refazia a soma de todo o país por cidade, sem terminar.
     ultimo = (
         select(
             ContasMunicipio.municipio_ibge.label("ibge"),
@@ -181,38 +183,37 @@ def _media_uf(
         .group_by(ContasMunicipio.municipio_ibge)
         .subquery()
     )
-    linhas_q = select(
-        EmendaPagamento.municipio_ibge.label("ibge"), EmendaPagamento.valor.label("valor")
-    )
-    if filtro is not None:
-        linhas_q = linhas_q.where(filtro)
-    else:
-        linhas_q = linhas_q.union_all(
-            select(
-                EmendaPagamentoSemCodigo.municipio_ibge.label("ibge"),
-                EmendaPagamentoSemCodigo.valor.label("valor"),
+    populacoes = dict(
+        session.execute(
+            select(Municipio.ibge, ContasMunicipio.populacao)
+            .join(ultimo, ultimo.c.ibge == Municipio.ibge)
+            .join(
+                ContasMunicipio,
+                (ContasMunicipio.municipio_ibge == ultimo.c.ibge)
+                & (ContasMunicipio.ano == ultimo.c.ano),
             )
-        )
-    linhas = linhas_q.subquery()
-    pago = (
-        select(linhas.c.ibge.label("ibge"), func.sum(linhas.c.valor).label("total"))
-        .group_by(linhas.c.ibge)
-        .subquery()
+            .where(Municipio.uf == municipio.uf)
+        ).all()
     )
-    razao = func.coalesce(pago.c.total, 0) / ContasMunicipio.populacao
-    media, n = session.execute(
-        select(func.avg(razao), func.count())
-        .select_from(Municipio)
-        .join(ultimo, ultimo.c.ibge == Municipio.ibge)
-        .join(
-            ContasMunicipio,
-            (ContasMunicipio.municipio_ibge == ultimo.c.ibge)
-            & (ContasMunicipio.ano == ultimo.c.ano),
+    if not populacoes:
+        return None, 0
+
+    def somas(modelo: type) -> list[tuple[str, Decimal]]:
+        consulta = select(modelo.municipio_ibge, func.sum(modelo.valor)).where(
+            modelo.municipio_ibge.in_(list(populacoes))
         )
-        .outerjoin(pago, pago.c.ibge == Municipio.ibge)
-        .where(Municipio.uf == municipio.uf)
-    ).one()
-    return (round(float(media), 2) if media is not None else None), n
+        if filtro is not None:
+            consulta = consulta.where(filtro)
+        return session.execute(consulta.group_by(modelo.municipio_ibge)).all()
+
+    pago: dict[str, Decimal] = {}
+    for ibge, total in somas(EmendaPagamento):
+        pago[ibge] = pago.get(ibge, Decimal(0)) + total
+    if filtro is None:
+        for ibge, total in somas(EmendaPagamentoSemCodigo):
+            pago[ibge] = pago.get(ibge, Decimal(0)) + total
+    razoes = [pago.get(ibge, Decimal(0)) / pop for ibge, pop in populacoes.items()]
+    return round(float(sum(razoes) / len(razoes)), 2), len(razoes)
 
 
 def _autores_das_emendas(session: Session, codigos: set[str]) -> dict[str, tuple[str, int | None]]:

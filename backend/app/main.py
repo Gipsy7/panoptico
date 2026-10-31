@@ -2,6 +2,8 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.api import (
+    argos,
+    avisos,
     busca,
     cobertura,
     comparar,
@@ -30,7 +32,8 @@ app = FastAPI(
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.cors_origins,
-    allow_methods=["GET"],
+    # POST só existe em /argos (registro do chat) e /avisos; o resto da API é de leitura.
+    allow_methods=["GET", "POST"],
     allow_headers=["*"],
 )
 
@@ -44,6 +47,9 @@ CACHE_CDN = "public, max-age=300, s-maxage=3600, stale-while-revalidate=86400"
 @app.middleware("http")
 async def cache_na_cdn(request: Request, call_next):
     resposta = await call_next(request)
+    # Inclui o 422 de validação, que devolve o endpoint enviado e não passa pelas rotas.
+    if request.url.path.startswith("/avisos"):
+        resposta.headers["Cache-Control"] = "no-store"
     if (
         request.method == "GET"
         and resposta.status_code == 200
@@ -71,6 +77,8 @@ app.include_router(comparar.router)
 app.include_router(eleitos.router)
 app.include_router(executivo.router)
 app.include_router(busca.router)
+app.include_router(argos.router)
+app.include_router(avisos.router)
 app.include_router(pessoas.router)
 app.include_router(partidos.router)
 app.include_router(segundo_turno.router)

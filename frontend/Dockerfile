@@ -10,9 +10,15 @@ WORKDIR /app
 ARG NEXT_PUBLIC_API_URL
 ARG NEXT_PUBLIC_SITE_URL
 ARG NEXT_PUBLIC_CONTATO_EMAIL=""
+# "release" no build da homologação (faixa de aviso, noindex, robots.txt fechado); vazio = produção.
+ARG NEXT_PUBLIC_AMBIENTE=""
+# Chave pública dos avisos por Web Push; vazia = botão e página de avisos não aparecem.
+ARG NEXT_PUBLIC_VAPID_PUBLICA=""
 ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL \
     NEXT_PUBLIC_SITE_URL=$NEXT_PUBLIC_SITE_URL \
     NEXT_PUBLIC_CONTATO_EMAIL=$NEXT_PUBLIC_CONTATO_EMAIL \
+    NEXT_PUBLIC_AMBIENTE=$NEXT_PUBLIC_AMBIENTE \
+    NEXT_PUBLIC_VAPID_PUBLICA=$NEXT_PUBLIC_VAPID_PUBLICA \
     NEXT_OUTPUT=standalone \
     NEXT_TELEMETRY_DISABLED=1
 COPY --from=deps /app/node_modules ./node_modules

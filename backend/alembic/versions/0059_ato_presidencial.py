@@ -1,10 +1,10 @@
 """Medidas provisórias e vetos do Presidente da República (tabela nova)
 
 Só aditiva: `ato_presidencial`, carga própria (`congresso_atos_presidente`); sem
-RECARREGAR_DADOS. Nota para o coordenador: se outra branch também criou a 0057, renumere.
+RECARREGAR_DADOS.
 
-Revision ID: 0057_ato_presidencial
-Revises: 0056_emenda_estadual_chaves
+Revision ID: 0059_ato_presidencial
+Revises: 0058_avisos_web_push
 Create Date: 2026-10-29
 """
 
@@ -14,8 +14,8 @@ import sqlalchemy as sa
 
 from alembic import op
 
-revision: str = "0057_ato_presidencial"
-down_revision: str | None = "0056_emenda_estadual_chaves"
+revision: str = "0059_ato_presidencial"
+down_revision: str | None = "0058_avisos_web_push"
 branch_labels: str | Sequence[str] | None = None
 depends_on: str | Sequence[str] | None = None
 

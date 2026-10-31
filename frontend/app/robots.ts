@@ -1,7 +1,7 @@
 import type { MetadataRoute } from "next";
 
 import { CAMINHOS_FORA_DO_ROBOTS, ROBOS_BLOQUEADOS, ROBOS_DE_IA_LIBERADOS } from "@/lib/seo";
-import { SITE_URL } from "@/lib/site";
+import { EH_RELEASE, SITE_URL } from "@/lib/site";
 
 // Robôs de IA de pesquisa e de treino das grandes IAs ficam liberados: é assim que o Panóptico pode
 // ser citado nas respostas. Ficam bloqueados só os coletores que gastam CPU ou revendem dados (em
@@ -9,6 +9,8 @@ import { SITE_URL } from "@/lib/site";
 // panoptico-troca, rota /configurar) aplica a mesma política no firewall, antes de o pedido chegar.
 // Tudo mais é liberado, menos as rotas de imagem para compartilhamento (não são páginas para ler).
 export default function robots(): MetadataRoute.Robots {
+  // Release (homologação): o link é aberto, mas nenhum robô entra, e não há mapa do site.
+  if (EH_RELEASE) return { rules: { userAgent: "*", disallow: "/" } };
   return {
     rules: [
       { userAgent: ROBOS_BLOQUEADOS, disallow: "/" },

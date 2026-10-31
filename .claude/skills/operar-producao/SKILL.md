@@ -13,7 +13,8 @@ Desde 26/10/2026 a produção é uma VPS Locaweb. Vercel e Neon deixaram de ser 
 |---|---|---|
 | Produção (Postgres 18, API, site, túnel, ingestão) | VPS Locaweb, São Paulo, Ubuntu 24.04, 2 vCPU, 4 GB, 70 GB; `deploy/vps/` em `/opt/panoptico/deploy/vps`; túnel Cloudflare `panoptico-vps`, sem portas abertas além do SSH | https://panoptico.social.br · https://api.panoptico.social.br (teste direto: `vps.` e `api-vps.`) |
 | Agenda das cargas | timers systemd em `deploy/vps/agenda/` (diária, PNCP, justiça, câmaras, mensal); trava `federal` no flock | `systemctl list-timers 'panoptico-*'` |
-| Atualização | `atualizar.sh` a cada 10 min, a partir do `main` | — |
+| Atualização | `atualizar.sh` a cada 10 min: produção a partir do `main`, depois o release a partir do `release` (checkout em `/opt/panoptico-release`) | — |
+| Release (homologação) | serviços `api-release` e `web-release` (perfil `release` do compose), mesmo banco (a `api-release` aplica as migrações ao subir), sem ingestão, fora dos buscadores e da troca | https://release.panoptico.social.br · https://api-release.panoptico.social.br |
 | Backup | `backup.sh` diário para o bucket Oracle `panoptico-backups`, nomes que se repetem (dia da semana e mês) | — |
 | Cloudflare | DNS e proxy; cache da API (respeita `s-maxage`) e das páginas (30 min), em camadas; firewall só contra coletores em massa e robôs de SEO (robôs de pesquisa e de treino de IA liberados) | painel Cloudflare |
 | Worker `panoptico-troca` | `infra/cloudflare/troca`: VPS principal; vai para a reserva com 3 falhas seguidas e volta com 10 sucessos; grava no KV só quando o estado muda; `/configurar` e `/trafego` | https://panoptico-troca.mikael-dev.workers.dev |
@@ -22,17 +23,21 @@ Desde 26/10/2026 a produção é uma VPS Locaweb. Vercel e Neon deixaram de ser 
 | Neon | Banco da **reserva congelada**: sem ingestão automática; atualizado só pelo procedimento manual (`deploy/vps/LEIAME.md`, "Reserva congelada") | — |
 | Vercel | Site e API da **reserva congelada** (pausada até 1º/11/2026; depois, deploys automáticos desligados) | panoptico.vercel.app |
 | Oracle | Backup diário (bucket `panoptico-backups`); ARM grátis parada (meta futura: reserva com réplica lógica); orçamento `panoptico-gasto-zero` com alerta, trava de cotas `panoptico-so-gratis` | — |
-| CI e Publicar | `.github/workflows/ci.yml`, `publicar.yml` | Actions do repo `Gipsy7/panoptico` |
+| CI e publicação | `.github/workflows/ci.yml`, `publicar.yml` (dev → release), `promover-producao.yml` (release → main, manual), `correcao-urgente.yml` (correcao/* → main → dev); nenhum deles usa banco | Actions do repo `Gipsy7/panoptico` |
 
 As travas de custo do Neon/Vercel caíram. Recarga completa e dados do acervo são possíveis na VPS, respeitando disco (70 GB) e RAM (4 GB): cargas pesadas de madrugada e em sequência. Fontes só-Brasil podem rodar lá. Bloqueio deliberado nunca é contornado.
 
 ## Publicar código: sempre pelo branch `dev`
 
-Nunca push direto no `main`, nunca `--force`. `git push origin dev` dispara o **Publicar**: testa, migra e avança o `main`; a VPS puxa o `main` sozinha em até 10 min (`atualizar.sh`). O limite de 100 deploys/dia vale só para a Vercel, hoje reserva.
+Nunca push direto no `main` nem no `release`, nunca `--force`. `git push origin dev` dispara o **Publicar**: testa e avança o `release` (sem banco); a VPS publica o release em até 10 min. Guia completo: `deploy/vps/LEIAME.md`, seção 8.
 
 - Acompanhe: `gh run list --workflow publicar.yml --limit 1` e `gh run watch <id> --exit-status` em background.
-- Migrações só acrescentam (tabela nova, coluna opcional); remoção em duas publicações. A API aplica as migrações ao subir na VPS.
-- Se "Avançar o main" falhar, o `main` tem commits que o `dev` não tem: traga-os para o `dev` e envie de novo.
+- **Ver o release:** `curl -s https://api-release.panoptico.social.br/saude`; abra https://release.panoptico.social.br (faixa "Versão de teste" no topo). Na VPS: `cat /var/lib/panoptico/release-publicado`, `docker compose --profile release ps api-release web-release`, `docker compose --profile release logs --tail 100 api-release web-release`, `journalctl -u panoptico-atualizar -n 50`. Um commit que falhou no build fica em `/var/lib/panoptico/release-falhou` e só é tentado de novo quando o release mudar.
+- **Promover para produção** (só com o ok explícito do dono): `gh workflow run promover-producao.yml` (opcional `-f commit=<sha>` do release). Fast-forward do `main` até o release; o resumo da execução mostra o commit promovido e a lista. Acompanhe com `gh run list --workflow promover-producao.yml --limit 1`. Falha se o `main` tiver commit que o release não tem: faça o merge do `main` no `dev`, espere o Publicar e rode de novo.
+- **Correção urgente:** `git fetch origin && git switch -c correcao/<nome> origin/main`; corrija; `git push origin correcao/<nome>`; `gh workflow run correcao-urgente.yml --ref correcao/<nome>`. Testa, avança o `main`, faz o merge do `main` no `dev` e dispara o Publicar. Com conflito, falha e abre uma issue com os comandos.
+- Publicar, Promover e Correção urgente estão no grupo de concorrência `publicacao`: um espera o outro; com dois na fila, o mais antigo é cancelado (rode de novo).
+- Migrações só acrescentam (tabela nova, coluna opcional); remoção em duas publicações. As migrações entram no banco da VPS na etapa de release (a `api-release` roda `alembic upgrade head` ao subir) e, na correção urgente, pela API de produção ao subir. Migração com `RECARREGAR_DADOS = True` vira aviso no log do `atualizar.sh`, e a recarga é manual na VPS (`sudo systemctl start panoptico-diaria`): procure `AVISO` em `journalctl -u panoptico-atualizar`. Com o banco à frente do código, a API de produção avisa no log que o alembic falhou e sobe assim mesmo.
+- Se "Avançar o release" falhar, o `release` tem commits que o `dev` não tem (ninguém deveria mexer nele): traga-os para o `dev` e envie de novo.
 - Enquanto a semana de teste durar, o Publicar ainda migra o Neon; confira o workflow antes de contar com ele para o banco da VPS.
 
 ## Segredos: nunca passe por eles

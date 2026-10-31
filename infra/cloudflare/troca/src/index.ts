@@ -1,6 +1,7 @@
 import {
   TIMEOUT_MS,
   decidir,
+  enderecosDeRelease,
   estadoInicial,
   respostaSaudavel,
   type Destino,
@@ -22,6 +23,14 @@ export interface Env {
   TESTE_SITE_RESERVA: string;
   TESTE_API_PRINCIPAL: string;
   TESTE_API_RESERVA: string;
+}
+
+/** Registros, destinos e testes que a troca usa (nenhum pode ser de release). */
+function enderecosDaTroca(env: Env): string[] {
+  return [
+    env.REGISTRO_SITE, env.REGISTRO_API, env.SITE_PRINCIPAL, env.SITE_RESERVA, env.API_PRINCIPAL, env.API_RESERVA,
+    env.TESTE_SITE_PRINCIPAL, env.TESTE_SITE_RESERVA, env.TESTE_API_PRINCIPAL, env.TESTE_API_RESERVA,
+  ];
 }
 
 type Servico = "site" | "api";
@@ -114,15 +123,26 @@ async function lerEstado(env: Env): Promise<Estados> {
 
 export default {
   async scheduled(_evento: ScheduledController, env: Env): Promise<void> {
+    // O release (homologação) não tem reserva e nunca entra na troca: configuração com endereço de
+    // release é erro, e o Worker não testa nem troca nada até ser corrigida.
+    const proibidos = enderecosDeRelease(enderecosDaTroca(env));
+    if (proibidos.length) {
+      console.log(`configuracao invalida: endereco de release na troca (${proibidos.join(", ")}); nada feito`);
+      return;
+    }
     const estados = await lerEstado(env);
     const antes = JSON.stringify(estados);
-    const [sP, sR, aP, aR] = await Promise.all([
+    const [sP, aP] = await Promise.all([
       testar(env.TESTE_SITE_PRINCIPAL, false),
-      testar(env.TESTE_SITE_RESERVA, false),
       testar(env.TESTE_API_PRINCIPAL, true),
-      testar(env.TESTE_API_RESERVA, true),
     ]);
-    const testes: Record<Servico, [boolean, boolean]> = { site: [sP, sR], api: [aP, aR] };
+    // A reserva só importa com a principal falhando. Testar a cada minuto mantinha o Neon, pago
+    // por tempo ligado, sempre acordado: o /saude da reserva consulta o banco.
+    const [sR, aR] = await Promise.all([
+      sP ? null : testar(env.TESTE_SITE_RESERVA, false),
+      aP ? null : testar(env.TESTE_API_RESERVA, true),
+    ]);
+    const testes: Record<Servico, [boolean, boolean | null]> = { site: [sP, sR], api: [aP, aR] };
     const alvos: Record<Servico, { registro: string; destinos: Record<Destino, string> }> = {
       site: { registro: env.REGISTRO_SITE, destinos: { principal: env.SITE_PRINCIPAL, reserva: env.SITE_RESERVA } },
       api: { registro: env.REGISTRO_API, destinos: { principal: env.API_PRINCIPAL, reserva: env.API_RESERVA } },
@@ -130,7 +150,7 @@ export default {
 
     for (const s of ["site", "api"] as Servico[]) {
       const [principalOk, reservaOk] = testes[s];
-      const d = decidir(estados[s], principalOk, reservaOk);
+      const d = decidir(estados[s], principalOk, reservaOk === true);
       estados[s] = d.estado;
       if (d.observou) console.log(`${s}: [observar] trocaria para ${d.observou}`);
       if (d.trocarPara) {
@@ -144,7 +164,7 @@ export default {
         }
       }
       const x = estados[s];
-      console.log(`${s}: ativo=${x.ativo} modo=${x.modo} falhas=${x.falhas} sucessos=${x.sucessos} principal=${principalOk} reserva=${reservaOk}`);
+      console.log(`${s}: ativo=${x.ativo} modo=${x.modo} falhas=${x.falhas} sucessos=${x.sucessos} principal=${principalOk} reserva=${reservaOk ?? "nao testada"}`);
     }
     // Só grava quando algo mudou (limite diário de gravações do KV no plano grátis).
     const depois = JSON.stringify(estados);
@@ -328,6 +348,8 @@ async function configurar(env: Env): Promise<Record<string, string>> {
 /** Deixa a zona no formato que a troca espera: raiz, www e api como CNAME com proxy, apontando
  * para o destino ativo segundo o estado (a reserva, enquanto a Vercel estiver pausada). */
 async function preparar(env: Env): Promise<{ feito: string[]; dns: Awaited<ReturnType<typeof listarDns>> }> {
+  const proibidos = enderecosDeRelease(enderecosDaTroca(env));
+  if (proibidos.length) throw new Error(`endereco de release na troca: ${proibidos.join(", ")}`);
   const estados = await lerEstado(env);
   const site = estados.site.ativo === "reserva" ? env.SITE_RESERVA : env.SITE_PRINCIPAL;
   const api = estados.api.ativo === "reserva" ? env.API_RESERVA : env.API_PRINCIPAL;

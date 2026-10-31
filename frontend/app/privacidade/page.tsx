@@ -14,7 +14,9 @@ export default function PrivacidadePage() {
         <p className="sobretitulo">Seus dados</p>
         <h1 className="titulo-pagina">Privacidade</h1>
         <p className="text-muted-foreground">
-          Resumo: o Panóptico funciona sem cadastro e não guarda quem você é nem onde você mora.
+          Resumo: o Panóptico funciona sem cadastro e não guarda quem você é nem onde você mora. A
+          única exceção é opcional: se você ativar avisos no celular (nos ambientes em que existirem),
+          guardamos um endereço técnico do aparelho, descrito abaixo.
         </p>
       </header>
 
@@ -46,6 +48,43 @@ export default function PrivacidadePage() {
         periodicamente.
       </Secao>
 
+      <Secao id="argos" titulo="O Argos, o assistente de perguntas">
+        O Argos é um assistente de respostas prontas; não é uma inteligência artificial e não opina.
+        O que ele guarda, sem identificar você: (1) as frases que ele não entendeu, para a equipe
+        ensiná-lo a entender mais; (2) a sua resposta a &ldquo;Isso ajudou?&rdquo; (sim ou não), com o
+        assunto da pergunta e o dia; (3) se você responder &ldquo;Não&rdquo; e depois &ldquo;Pode
+        guardar&rdquo;, a conversa daquela tela (até 30 mensagens, as suas e as do Argos).
+        Antes de sair do seu aparelho, e de novo no servidor, o texto é limpo: CEP, CPF, telefone,
+        e-mail, endereços de internet e qualquer número com 5 ou mais dígitos são apagados. O que
+        ele não guarda: endereço IP, identificador de conversa ou de navegador, hora exata (só o dia),
+        nome, cadastro ou localização. Os registros servem só para melhorar o assistente, são lidos
+        apenas pela equipe, nunca são publicados nem entram nos dados abertos, e são apagados depois
+        de 180 dias. Como não há identificação, não dá para saber quais registros são seus: se você
+        escreveu algo que não queria ter escrito, mande a frase por e-mail para{" "}
+        <a href={`mailto:${CONTATO_EMAIL}`} className="underline underline-offset-2">
+          {CONTATO_EMAIL}
+        </a>{" "}
+        e ela será apagada. A posição do botão do Argos na tela fica só no seu navegador, como
+        preferência, e não é enviada a ninguém.
+      </Secao>
+
+      <Secao id="avisos" titulo="Avisos no celular (quando disponíveis)">
+        Alguns ambientes do site podem oferecer avisos no celular. Eles só existem se você tocar em
+        &ldquo;Avisar sobre novidades&rdquo; e permitir as notificações no navegador; quem não ativa
+        não tem nada guardado. Se você ativar, guardamos (1) o endereço técnico que o seu navegador
+        fornece para receber o aviso, com as duas chaves que o acompanham, e (2) a lista do que o
+        aparelho acompanha (parlamentares e projetos federais). Não guardamos nome, telefone,
+        e-mail, CEP nem localização. O fundamento é o seu consentimento (Lei nº 13.709/2018, art.
+        7º, inciso I), que você retira quando quiser. O aviso passa pelo serviço de notificações do
+        seu navegador (por exemplo, o do Google, da Mozilla, da Apple ou da Microsoft), que o entrega
+        ao aparelho. Enviamos no máximo 1 aviso por dia, com votos, andamento de projetos e
+        registros oficiais; gastos, emendas e dados da cidade ficam de fora. Para cancelar, use o
+        botão do próprio perfil ou a página &ldquo;Avisos neste aparelho&rdquo; (que só existe onde
+        os avisos estão ligados): o cancelamento apaga na hora o endereço e a
+        lista, sem cópia. Uma inscrição que fica 180 dias sem receber nenhum aviso é apagada, e esses
+        dados ficam fora das cópias de segurança (backups).
+      </Secao>
+
       <Secao titulo="Dados dos parlamentares">
         Os dados dos parlamentares são informações públicas, publicadas pelos próprios órgãos
         oficiais em cumprimento à Lei de Acesso à Informação (Lei nº 12.527/2011). Cada dado tem
@@ -53,8 +92,9 @@ export default function PrivacidadePage() {
       </Secao>
 
       <Secao titulo="Seus direitos">
-        Como não coletamos dados pessoais de quem usa o site, não há dados seus para consultar,
-        corrigir ou apagar. Em caso de dúvida sobre a Lei Geral de Proteção de Dados (Lei nº
+        Quem não ativa os avisos não tem dados pessoais guardados pelo site, então não há dados seus
+        para consultar, corrigir ou apagar. Quem ativa pode ver o que o aparelho acompanha e apagar
+        tudo a qualquer momento, pelo cancelamento descrito acima. Em caso de dúvida sobre a Lei Geral de Proteção de Dados (Lei nº
         13.709/2018), escreva para{" "}
         <a href={`mailto:${CONTATO_EMAIL}`} className="underline underline-offset-2">
           {CONTATO_EMAIL}
@@ -67,9 +107,9 @@ export default function PrivacidadePage() {
   );
 }
 
-function Secao({ titulo, children }: { titulo: string; children: React.ReactNode }) {
+function Secao({ titulo, children, id }: { titulo: string; children: React.ReactNode; id?: string }) {
   return (
-    <section className="flex flex-col gap-1">
+    <section id={id} className="flex scroll-mt-20 flex-col gap-1">
       <h2 className="text-lg font-semibold">{titulo}</h2>
       <p className="text-muted-foreground">{children}</p>
     </section>

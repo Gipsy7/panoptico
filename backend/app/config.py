@@ -24,6 +24,17 @@ class Settings(BaseSettings):
         "postgresql+psycopg://panoptico:panoptico@localhost:5432/panoptico_test"
     )
     cors_origins: list[str] = ["http://localhost:3000"]
+    # Registro do chat Argos (frases não entendidas, avaliação, conversa consentida). Desligue com
+    # ARGOS_REGISTRO=0: as rotas continuam respondendo 204, mas nada é gravado.
+    argos_registro: bool = True
+    # Avisos por Web Push. Release e produção dividem o banco: AMBIENTE separa as inscrições.
+    # Sem AVISOS_ATIVOS, VAPID_PRIVADA e VAPID_CONTATO (mailto: ou https:), as rotas respondem
+    # 503 e a diária não faz nada.
+    ambiente: str = "desenvolvimento"
+    avisos_ativos: bool = False
+    vapid_privada: str = ""
+    vapid_contato: str = ""
+    avisos_max_inscricoes: int = 10000
     viacep_url: str = "https://viacep.com.br/ws/{cep}/json/"
     # Onde ficam os arquivos brutos. No acervo local pode apontar para um HD externo.
     raw_dir: Path = BACKEND_DIR / "data" / "raw"

@@ -5,8 +5,8 @@ cota-parte do ICMS, do IPVA, do IPI, da CIDE, royalties, SUS, convênios, outras
 retida para o Fundeb). Só acréscimo; nada é removido. Sem RECARREGAR_DADOS: a carga mensal de
 `siconfi_contas` preenche a coluna na próxima execução.
 
-Revision ID: 0058_repasse_estado_municipio
-Revises: 0057_ato_presidencial
+Revision ID: 0060_repasse_estado_municipio
+Revises: 0059_ato_presidencial
 Create Date: 2026-10-29
 """
 
@@ -16,8 +16,8 @@ import sqlalchemy as sa
 
 from alembic import op
 
-revision: str = "0058_repasse_estado_municipio"
-down_revision: str | None = "0057_ato_presidencial"
+revision: str = "0060_repasse_estado_municipio"
+down_revision: str | None = "0059_ato_presidencial"
 branch_labels: str | Sequence[str] | None = None
 depends_on: str | Sequence[str] | None = None
 

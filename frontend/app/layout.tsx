@@ -2,10 +2,12 @@ import type { Metadata, Viewport } from "next";
 import { Geist, Newsreader } from "next/font/google";
 import Link from "next/link";
 
+import { ArgosBotao } from "@/components/argos/argos-botao";
+import { FaixaRelease } from "@/components/faixa-release";
 import { Logo, Marca } from "@/components/logo";
 import { MenuPrincipal } from "@/components/menu-principal";
 import { Revelar } from "@/components/revelar";
-import { CONTATO_EMAIL, SITE_URL } from "@/lib/site";
+import { CONTATO_EMAIL, EH_RELEASE, SITE_URL_CANONICO } from "@/lib/site";
 
 import "./globals.css";
 
@@ -21,9 +23,12 @@ const newsreader = Newsreader({
   axes: ["opsz"],
 });
 
+// No release (homologação), a base é o site oficial: canônicas e Open Graph apontam para a produção,
+// e nenhuma página entra no índice (docs/DECISOES.md, 2026-10-30, ambiente de release).
 export const metadata: Metadata = {
-  metadataBase: new URL(SITE_URL),
+  metadataBase: new URL(SITE_URL_CANONICO),
   alternates: { canonical: "./" },
+  ...(EH_RELEASE ? { robots: { index: false, follow: false } } : {}),
   title: { default: "Panóptico: quem te representa, às claras", template: "%s · Panóptico" },
   description:
     "Digite seu CEP e veja quem te representa no Congresso, com dados oficiais e link para a fonte.",
@@ -77,6 +82,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
             </a>
           ))}
         </div>
+        <FaixaRelease />
         <header
           style={{ viewTransitionName: "site-header" }}
           className="sticky top-0 z-40 border-b border-border/70 bg-background/85 backdrop-blur-md"
@@ -97,7 +103,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         </main>
         <Revelar />
         <footer className="mt-8 border-t border-border/70">
-          <div className="mx-auto flex w-full max-w-5xl flex-col gap-4 px-4 py-8 text-sm text-muted-foreground">
+          <div className="mx-auto flex w-full max-w-5xl flex-col gap-4 px-4 pt-8 pb-20 text-sm text-muted-foreground">
             <div className="flex items-start gap-3">
               <Marca tamanho={28} traco={2.4} className="shrink-0 text-bronze" />
               <p className="max-w-prose text-sm leading-relaxed">
@@ -118,6 +124,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
               </Link>
               <Link href="/perguntas" className={LINK}>
                 Perguntas frequentes
+              </Link>
+              <Link href="/pergunte" className={LINK}>
+                Pergunte ao Argos
               </Link>
               <Link href="/sobre-as-fontes" className={LINK}>
                 Sobre as fontes
@@ -143,10 +152,11 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
             </nav>
             <p>
               Dados públicos e oficiais da Câmara dos Deputados, do Senado Federal, do Portal da
-              Transparência e do IBGE. O Panóptico não guarda o seu CEP.
+              Transparência e do IBGE. O Panóptico não guarda o seu CEP; só guarda um endereço técnico do aparelho se você ativar, por opção, os avisos no celular.
             </p>
           </div>
         </footer>
+        <ArgosBotao />
       </body>
     </html>
   );
