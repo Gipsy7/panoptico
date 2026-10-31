@@ -409,6 +409,7 @@ Leitura útil: [docs/DESIGN.md](docs/DESIGN.md) (padrões visuais), [docs/USABIL
 - [ ] Conectores para as 27 câmaras que saíram do SAPL e ainda não têm
 - [ ] Proposições e gastos da ALEP, presença nas comissões da ALESP, tela das emendas estaduais de SC
 - [ ] Fornecedores de outros Tribunais de Contas (MG exige reCAPTCHA; falta pedir acesso)
+- [ ] Avisos no celular (Web Push) para deputados, senadores e projetos federais: resumo de no máximo 1 aviso por dia, sem telefone nem e-mail; em teste no release, desligado na produção
 - [ ] Teste com pessoas reais e auditoria de acessibilidade
 
 O plano completo está em [docs/DECISOES.md](docs/DECISOES.md) ("acervo local e regras para Justiça e controle").
