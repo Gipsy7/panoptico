@@ -136,7 +136,6 @@ export function BotaoAviso({ alvoTipo, alvoChave, destino }: { alvoTipo: AlvoTip
             <Sino cheio={ativoAgora} />
             {ocupado ? "Aguarde…" : ativoAgora ? "Avisos ligados" : "Receber avisos"}
           </button>
-          <span className="text-sm text-muted-foreground">No máximo 1 aviso por dia</span>
         </div>
       )}
       <p role="status" className={mensagem ? "text-sm font-medium" : "sr-only"}>
