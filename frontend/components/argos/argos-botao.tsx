@@ -4,6 +4,7 @@ import { type PointerEvent, useEffect, useId, useRef, useState } from "react";
 
 import { ArgosChat } from "@/components/argos/argos-chat";
 import { EVENTO_PERGUNTAR, type PedidoArgos } from "@/lib/argos/eventos";
+import { registrarRecurso } from "@/components/contagem-acessos";
 import { tornarFundoInerte } from "@/lib/fundo-inerte";
 
 /** Preferência de tela (lado e altura do botão): localStorage, não é dado pessoal. */
@@ -99,6 +100,7 @@ export function ArgosBotao() {
   const ignorarClique = useRef(false);
 
   function abrir() {
+    registrarRecurso("argos");
     setJaAbriu(true);
     setAberto(true);
   }

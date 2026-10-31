@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useId, useRef, useState, useSyncExternalStore } from "react";
 
 import { BuscaCidade } from "@/components/busca-cidade";
+import { registrarRecurso } from "@/components/contagem-acessos";
 import { useCidadeAchada } from "@/components/localizacao-home";
 import { useLugar } from "@/components/lugar-escolhido";
 import { MaoToque, useMovimentoReduzido } from "@/components/mao-toque";
@@ -117,6 +118,7 @@ export function CepForm({ semCepInicial = false }: { semCepInicial?: boolean } =
 
   // As coordenadas só existem dentro desta função: não vão a servidor, URL nem armazenamento.
   function usarLocalizacao() {
+    registrarRecurso("localizacao");
     setLoc({ estado: "procurando" });
     navigator.geolocation.getCurrentPosition(
       async (pos) => {
@@ -236,7 +238,9 @@ export function CepForm({ semCepInicial = false }: { semCepInicial?: boolean } =
       e.preventDefault();
       setErroCep("Digite os 8 números do CEP, por exemplo 01310-100.");
       campoCep.current?.focus();
+      return;
     }
+    registrarRecurso("cep");
   }
 
   const formCep = (

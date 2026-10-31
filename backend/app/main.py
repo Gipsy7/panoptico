@@ -15,7 +15,9 @@ from app.api import (
     estado_temas,
     executivo,
     fontes,
+    metricas,
     municipios,
+    painel,
     parlamentares,
     partidos,
     pessoas,
@@ -40,7 +42,7 @@ app = FastAPI(
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.cors_origins,
-    # POST só existe em /argos (registro do chat), /avisos e /sugestoes; o resto é de leitura.
+    # POST só existe em /argos, /avisos, /sugestoes, /metricas e /painel/entrar; o resto é de leitura.
     allow_methods=["GET", "POST"],
     allow_headers=["*"],
 )
@@ -52,12 +54,22 @@ app.add_middleware(
 CACHE_CDN = "public, max-age=300, s-maxage=3600, stale-while-revalidate=86400"
 
 
+CAMINHOS_PRIVADOS = ("/painel", "/metricas")
+
+
 @app.middleware("http")
 async def cache_na_cdn(request: Request, call_next):
     resposta = await call_next(request)
     # Inclui o 422 de validação, que devolve o endpoint enviado e não passa pelas rotas.
     if request.url.path.startswith(("/avisos", "/sugestoes")):
         resposta.headers["Cache-Control"] = "no-store"
+    if request.url.path.startswith(CAMINHOS_PRIVADOS):
+        # Painel de acessos e contagem: nunca vão para a CDN nem para o cache do navegador, em
+        # nenhuma resposta (inclusive erro e preflight), e nunca com CORS aberto a qualquer origem.
+        resposta.headers["Cache-Control"] = "no-store"
+        if resposta.headers.get("access-control-allow-origin") == "*":
+            del resposta.headers["access-control-allow-origin"]
+        return resposta
     if (
         request.method == "GET"
         and resposta.status_code == 200
@@ -93,6 +105,8 @@ app.include_router(argos.router)
 app.include_router(avisos.router)
 # Antes de pessoas: /pessoas/de/respostas.
 app.include_router(sugestoes.router)
+app.include_router(metricas.router)
+app.include_router(painel.router)
 app.include_router(pessoas.router)
 app.include_router(partidos.router)
 app.include_router(segundo_turno.router)

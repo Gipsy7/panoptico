@@ -36,7 +36,7 @@ export default function PrivacidadePage() {
       </Secao>
 
       <Secao titulo="Cadastro e cookies">
-        Não há cadastro, login nem cookies de rastreamento ou publicidade. O endereço da página
+        Quem visita não precisa de cadastro nem de login, e não há cookies de rastreamento ou publicidade. O endereço da página
         (por exemplo, com o CEP buscado) fica no histórico do seu próprio navegador, como em
         qualquer site.
       </Secao>
@@ -107,6 +107,21 @@ export default function PrivacidadePage() {
         sem essa conferência. Cada correção feita aparece em &ldquo;Sobre as fontes&rdquo;, sem
         dizer quem avisou. A resposta de quem é citado só é publicada depois de revisão e de
         confirmar a identidade, sem edição além de tirar dados pessoais.
+      </Secao>
+
+      <Secao id="contagem" titulo="Contagem de acessos">
+        Para saber se o site está sendo útil, contamos acessos de forma agregada: só totais por dia.
+        Contamos (1) quantas visitas houve, (2) quais páginas foram abertas, só o endereço da
+        página, nunca o que vem depois do ponto de interrogação, como o CEP, (3) de que tipo de
+        lugar a pessoa veio (WhatsApp, Google, outros buscadores, redes sociais, outro site ou
+        direto), (4) se o aparelho é de toque (celular ou tablet) ou computador, e (5) quantas vezes
+        alguns recursos foram usados (busca por CEP, uso da localização, abrir o Argos, compartilhar
+        no WhatsApp, copiar o Pix), só o nome do recurso. Não guardamos o CEP, o endereço IP, o
+        navegador, a hora, nem qualquer identificador seu; a &ldquo;visita&rdquo; é marcada só na
+        memória da aba do navegador, sem cookie, e some quando você fecha a aba. Por isso uma visita
+        não equivale a uma pessoa. Não contamos robôs, quem pede &ldquo;Não rastrear&rdquo; ao navegador
+        (ou usa o Global Privacy Control) nem quem bloqueia scripts. Os totais são lidos apenas pelo
+        dono do site, numa área protegida por senha, e não são publicados.
       </Secao>
 
       <Secao titulo="Dados dos parlamentares">

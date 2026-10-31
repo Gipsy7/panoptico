@@ -8,6 +8,7 @@ export function CompartilharWhatsApp({ caminho, texto }: { caminho: string; text
   return (
     <LinkExterno
       href={href}
+      data-metrica="compartilhar"
       className="botao-linha self-start"
     >
       <svg aria-hidden viewBox="0 0 24 24" className="size-5" fill="currentColor">

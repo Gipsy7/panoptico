@@ -26,6 +26,7 @@
 - [2026-10-29: medidas provisórias e vetos do Presidente](#2026-10-29-medidas-provisórias-e-vetos-do-presidente)
 - [2026-11-07: teto do salário de vereador e deputado estadual (Frente 6)](#2026-11-07-teto-do-salário-de-vereador-e-deputado-estadual-frente-6)
 - [2026-10-29: salário de deputado estadual lido de CSV, só número publicado](#2026-10-29-salário-de-deputado-estadual-lido-de-csv-só-número-publicado)
+- [2026-10-31: contagem anônima de acessos e painel privado](#2026-10-31-contagem-anônima-de-acessos-e-painel-privado)
 - [2026-10-30: Web Push, avisos no celular sem telefone nem e-mail](#2026-10-30-web-push-avisos-no-celular-sem-telefone-nem-e-mail)
 - [2026-10-30: Neon parado enquanto a reserva não é usada](#2026-10-30-neon-parado-enquanto-a-reserva-não-é-usada)
 - [2026-10-30: teto de tempo nos discursos da Câmara](#2026-10-30-teto-de-tempo-nos-discursos-da-câmara)
@@ -1613,6 +1614,20 @@ A reserva da VPS é uma **versão congelada** do site, da API e do banco, na Ver
 - **Rótulos honestos:** ES publica o valor **solicitado (reservado)** pelo gabinete, não o pago (dito na régua). AM usa o valor líquido (depois da glosa); RO, o pago.
 - **Não lidos (bloqueio deliberado, pedido redigido):** ALERJ (DOCIGP, `robots.txt` com `Disallow: /`) e ALEMA (`robots.txt` responde 403): `docs/pedidos/alerj_alema_gastos.md`. PI, AL, SE, TO, RR, PA, AC e MT ficam para depois (ver `FONTES_DE_DADOS.md`).
 - **Fornecedor:** nunca guardado (as páginas trazem nome e, às vezes, CPF mascarado). Os recortes de teste têm fornecedor e beneficiário trocados por "(omitido)".
+## 2026-10-31: contagem anônima de acessos e painel privado
+
+**Problema.** O dono quer saber quantas pessoas visitam, que páginas e recursos se usam. O Analytics da Cloudflare é quase todo robô, e o site promete não guardar quem você é nem usar cookies de rastreamento.
+
+**Decisão.** Contagem agregada e anônima, feita por um beacon no navegador (as páginas ficam 30 min em cache na borda, então o servidor de páginas não vê cada acesso). A tabela `metrica_diaria(dia, tipo, chave, total)` (migração `0059_metrica_diaria`, só acrescenta) guarda totais por dia: `pagina`, `visita`, `origem`, `dispositivo`, `recurso`. Sem IP, user-agent, identificador de pessoa, navegador ou sessão, sem hora.
+
+- **Visita sem cookie:** o `sessionStorage` da aba guarda só "1"; a primeira página de uma aba conta a visita (e a origem e o aparelho). Visita não é pessoa única.
+- **Só o caminho:** nunca `searchParams` (a URL pode ter CEP). O servidor só aceita caminhos de rotas que existem. Ids ficam só onde são públicos e curtos (`/parlamentar/<até 7 dígitos>`, `/cidade/<7 dígitos IBGE>`, `/partidos/<sigla>`); `/eleito`, `/vereador`, `/deputado-estadual`, `/projeto`, `/votacao` e `/impostos-e-repasses/*` viram modelo (`/eleito/[id]`). Um CEP (8 dígitos) nunca passa. Qualquer outro caminho é descartado, e a tabela não cresce com endereço inventado.
+- **Listas fechadas:** origem (direto, whatsapp, google, buscadores, redes, outro_site; categorizada no navegador, só a categoria sai), aparelho (celular, computador) e recurso (cep, localizacao, argos, compartilhar, pix; só o nome, nunca o valor). O comparador não tem recurso próprio: aparece como página `/comparar`.
+- **Fora da contagem:** robôs (user-agent com bot, crawler, spider, headless ou vazio), `navigator.webdriver`, "Não rastrear" e Global Privacy Control, `/painel`, e o aparelho do dono (flag no `localStorage`, ligada ao entrar no painel). Limite de 120 pedidos por minuto por IP, só em memória.
+- **Ambientes:** `METRICAS_ATIVAS` (padrão desligado) e `AMBIENTE == "producao"`. O release usa o mesmo banco da produção e nunca grava, mesmo ligado. Testar localmente: `METRICAS_ATIVAS=true` e `AMBIENTE=producao` (o padrão local é `desenvolvimento`, que não grava).
+- **Painel:** `POST /painel/entrar` (usuário e senha em scrypt, comparação em tempo constante, token HMAC de 12 h, 5 erros por IP em 15 min, erro genérico, 503 sem configuração) e `GET /painel/resumo` (só totais). O middleware põe `Cache-Control: no-store` em tudo sob `/painel` e `/metricas`, inclusive erros, e nunca `Access-Control-Allow-Origin: *`. O token fica no `sessionStorage`, não em cookie. A página `/painel` é só cliente, `noindex`, sem link e fora do sitemap.
+- **Limite honesto:** quem bloqueia scripts ou pede para não ser rastreado não entra; os números são um piso.
+- **Texto público:** `/privacidade` ganhou a seção "Contagem de acessos" e "Registros técnicos" passou a dizer que a contagem não usa esses registros.
 
 ## 2026-10-30: Web Push, avisos no celular sem telefone nem e-mail
 

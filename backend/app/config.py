@@ -35,6 +35,14 @@ class Settings(BaseSettings):
     vapid_privada: str = ""
     vapid_contato: str = ""
     avisos_max_inscricoes: int = 10000
+    # Contagem anônima de acessos e painel privado. Só grava com AMBIENTE=producao: o release usa
+    # o mesmo banco e não pode somar ao total (docs/DECISOES.md, 2026-10-31). Desligados: as rotas
+    # de contagem respondem 204 sem tocar no banco e o painel responde 503.
+    metricas_ativas: bool = False
+    painel_usuario: str = ""
+    # "scrypt:N:r:p:sal:hash" (de `python -m app.painel_senha`); sem "$", que o compose interpreta.
+    painel_senha_hash: str = ""
+    painel_segredo: str = ""
     viacep_url: str = "https://viacep.com.br/ws/{cep}/json/"
     # Onde ficam os arquivos brutos. No acervo local pode apontar para um HD externo.
     raw_dir: Path = BACKEND_DIR / "data" / "raw"

@@ -27,6 +27,7 @@ from app.models.emenda_relator import EmendaRelatorIndicacao
 from app.models.emenda_transferencia import EmendaConvenio, EmendaTransferencia
 from app.models.empresa import Empresa
 from app.models.fonte_ingestao import DownloadCache, FonteIngestao
+from app.models.metrica import MetricaDiaria
 from app.models.municipio import Municipio
 from app.models.norma import Norma, NormaProposicao
 from app.models.obra import (
@@ -88,6 +89,7 @@ __all__ = [
     "AgendaCompromisso",
     "AgroLavoura",
     "AgroPecuaria",
+    "MetricaDiaria",
     "ArgosAvaliacao",
     "ArgosConversa",
     "ArgosFraseNaoEntendida",

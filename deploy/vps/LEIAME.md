@@ -170,3 +170,21 @@ Publicar, Promover e Correção urgente estão no mesmo grupo de concorrência (
 ## Registros do Argos (chat)
 
 A API grava, sem identificar ninguém, frases que o Argos não entendeu, avaliações e conversas consentidas (migração `0057_argos_registros`; ver `docs/DECISOES.md`, 30/10/2026). Não precisa de variável nova: `ARGOS_REGISTRO=0` no ambiente da API desliga a gravação (as rotas seguem em 204). Os POSTs em `/argos/*` dependem de `CORS_ORIGINS` (produção e release já estão no `docker-compose.yml`) e passam pelo Cloudflare sem cache. O prazo de 180 dias é aplicado pela própria API ao gravar; não há tarefa na agenda. Para ler: `docker compose exec api python -m app.argos_relatorio` (ou `--exportar PASTA`, `--apagar-antigos`).
+
+## Contagem de acessos e painel privado
+
+Contagem anônima (totais por dia, sem IP nem identificador; ver `docs/DECISOES.md`, 31/10/2026) e o painel em `/painel`. Migração `0059_metrica_diaria` (só acrescenta; entra no banco pela API do release). Tudo vem **desligado** no `docker-compose.yml`.
+
+Variáveis no `.env` da VPS (nunca no git; o compose só repassa, com padrão vazio ou `false`):
+
+- `METRICAS_ATIVAS`: `true` liga a contagem. Só grava onde `AMBIENTE=producao`.
+- `PAINEL_USUARIO`, `PAINEL_SENHA_HASH`, `PAINEL_SEGREDO`: o dono roda `python -m app.painel_senha` no próprio computador (dentro de `backend`), digita a senha (não aparece) e copia as linhas que ele imprime. O hash não tem `$`, então o compose não o interpreta.
+
+Como ligar sem somar ao total, nesta ordem:
+
+1. Publique o release e confirme que a migração entrou (`docker compose exec api-release alembic current`).
+2. Ponha as variáveis do painel no `.env` e recrie `api-release`: `docker compose --profile release up -d --no-deps api-release`. Acesse `https://release.panoptico.social.br/painel` e confira o login. O release **nunca grava**, mesmo com `METRICAS_ATIVAS=true`, porque a API dele roda com `AMBIENTE=release`; o painel lê o mesmo banco da produção.
+3. Só depois que o `main` tiver o código (o dono promoveu), recrie a `api` com `METRICAS_ATIVAS=true`. A contagem começa daí; a data do início aparece no painel.
+4. Para desligar: `METRICAS_ATIVAS=false` e recriar a `api`. Os totais já gravados ficam.
+
+Teste local: `METRICAS_ATIVAS=true`, `AMBIENTE=producao` e as três variáveis do painel no `backend/.env`; sem `AMBIENTE=producao` nada grava (o padrão local é `desenvolvimento`).

@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 
+import { registrarRecurso } from "@/components/contagem-acessos";
+
 /** Botão que copia um texto do Pix (chave ou código copia e cola) com um toque. */
 export function CopiarPix({ texto, rotulo }: { texto: string; rotulo: string }) {
   const [copiado, setCopiado] = useState(false);
@@ -10,6 +12,7 @@ export function CopiarPix({ texto, rotulo }: { texto: string; rotulo: string }) 
     try {
       await navigator.clipboard.writeText(texto);
       setCopiado(true);
+      registrarRecurso("pix");
       setTimeout(() => setCopiado(false), 2500);
     } catch {
       // Navegador sem permissão de área de transferência: o texto está visível para copiar à mão.

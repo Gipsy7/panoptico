@@ -1,8 +1,10 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Newsreader } from "next/font/google";
 import Link from "next/link";
+import { Suspense } from "react";
 
 import { ArgosBotao } from "@/components/argos/argos-botao";
+import { ContagemAcessos } from "@/components/contagem-acessos";
 import { FaixaRelease } from "@/components/faixa-release";
 import { AoVivoFaixa } from "@/components/ao-vivo";
 import { Logo, Marca } from "@/components/logo";
@@ -162,6 +164,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           </div>
         </footer>
         <ArgosBotao />
+        <Suspense fallback={null}>
+          <ContagemAcessos />
+        </Suspense>
       </body>
     </html>
   );

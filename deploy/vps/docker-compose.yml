@@ -45,6 +45,12 @@ services:
       # Avisos por Web Push: desligados na produção até o dono promover.
       AMBIENTE: producao
       AVISOS_ATIVOS: "false"
+      # Contagem anônima de acessos e painel privado (docs/DECISOES.md, 2026-10-31): desligados
+      # por padrão. Só a produção grava; o release lê o mesmo banco mas nunca soma.
+      METRICAS_ATIVAS: ${METRICAS_ATIVAS:-false}
+      PAINEL_USUARIO: ${PAINEL_USUARIO:-}
+      PAINEL_SENHA_HASH: ${PAINEL_SENHA_HASH:-}
+      PAINEL_SEGREDO: ${PAINEL_SEGREDO:-}
     volumes:
       - raw:/app/data
     depends_on:
@@ -96,6 +102,12 @@ services:
       # variável não pode derrubar o compose. O booleano precisa de "false", vazio não vale.
       AMBIENTE: release
       AVISOS_ATIVOS: ${AVISOS_ATIVOS_RELEASE:-false}
+      # Contagem de acessos: no release nunca grava (AMBIENTE != producao), mesmo ligada. O painel
+      # lê o mesmo banco; as credenciais são as mesmas da produção.
+      METRICAS_ATIVAS: ${METRICAS_ATIVAS:-false}
+      PAINEL_USUARIO: ${PAINEL_USUARIO:-}
+      PAINEL_SENHA_HASH: ${PAINEL_SENHA_HASH:-}
+      PAINEL_SEGREDO: ${PAINEL_SEGREDO:-}
       VAPID_PRIVADA: ${VAPID_PRIVADA_RELEASE:-}
       VAPID_CONTATO: mailto:contato@panoptico.social.br
     mem_limit: 512m
