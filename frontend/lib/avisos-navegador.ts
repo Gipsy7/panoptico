@@ -69,7 +69,13 @@ export type ResultadoAtivar = { ok: true } | { ok: false; motivo: "negado" | "er
 export async function ativar(alvoTipo: AlvoTipo, alvoChave: string): Promise<ResultadoAtivar> {
   const permissao = await Notification.requestPermission();
   if (permissao !== "granted") {
-    return { ok: false, motivo: permissao === "denied" ? "negado" : "erro", mensagem: "A permissão para avisos não foi dada." };
+    // "default": o pedido foi fechado ou o navegador o escondeu (no Chrome, vira um ícone na barra de endereço).
+    return {
+      ok: false,
+      motivo: permissao === "denied" ? "negado" : "erro",
+      mensagem:
+        "O pedido de permissão foi fechado ou não apareceu. Toque de novo. Se nada surgir, toque no ícone ao lado do endereço do site e permita as notificações.",
+    };
   }
 
   let criou = false;
