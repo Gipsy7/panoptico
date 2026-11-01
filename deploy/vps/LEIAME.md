@@ -173,7 +173,7 @@ A API grava, sem identificar ninguém, frases que o Argos não entendeu, avalia�
 
 ## Contagem de acessos e painel privado
 
-Contagem anônima (totais por dia, sem IP nem identificador; ver `docs/DECISOES.md`, 31/10/2026) e o painel em `/painel`. Migração `0059_metrica_diaria` (só acrescenta; entra no banco pela API do release). Tudo vem **desligado** no `docker-compose.yml`.
+Contagem anônima (totais por dia, aparelho e origem, sem IP nem identificador; ver `docs/DECISOES.md`, 31/10/2026) e o painel em `/painel`. Migração `0059_metrica_diaria` (só acrescenta; entra no banco pela API do release). Tudo vem **desligado** no `docker-compose.yml`.
 
 Variáveis no `.env` da VPS (nunca no git; o compose só repassa, com padrão vazio ou `false`):
 
@@ -188,3 +188,5 @@ Como ligar sem somar ao total, nesta ordem:
 4. Para desligar: `METRICAS_ATIVAS=false` e recriar a `api`. Os totais já gravados ficam.
 
 Teste local: `METRICAS_ATIVAS=true`, `AMBIENTE=producao` e as três variáveis do painel no `backend/.env`; sem `AMBIENTE=producao` nada grava (o padrão local é `desenvolvimento`).
+
+O painel lê a tabela `metrica_diaria` (índice `(tipo, dia)`) com agregação no banco; a consulta é leve para 4 GB de RAM. Enquanto a contagem não registrar nada, o `/painel` só diz que ainda não há acesso.

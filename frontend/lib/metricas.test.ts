@@ -1,6 +1,15 @@
 import { describe, expect, it } from "vitest";
 
-import { caminhoContavel, categorizarOrigem, deveIgnorar, montarVisita, tipoDeAparelho } from "@/lib/metricas";
+import {
+  caminhoContavel,
+  categorizarOrigem,
+  deveIgnorar,
+  montarBusca,
+  montarVisita,
+  origemGuardada,
+  secaoDoId,
+  tipoDeAparelho,
+} from "@/lib/metricas";
 
 const SITE = "panoptico.social.br";
 
@@ -46,17 +55,53 @@ describe("deveIgnorar", () => {
 });
 
 describe("montarVisita", () => {
-  it("origem e aparelho só na primeira página da visita", () => {
+  it("origem e aparelho vão em todo beacon", () => {
     expect(montarVisita("/", true, "direto", "celular")).toEqual({
       caminho: "/",
       nova: true,
       origem: "direto",
-      dispositivo: "celular",
+      aparelho: "celular",
     });
-    expect(montarVisita("/projetos", false, "google", "computador")).toEqual({ caminho: "/projetos", nova: false });
+    expect(montarVisita("/projetos", false, "google", "computador")).toEqual({
+      caminho: "/projetos",
+      nova: false,
+      origem: "google",
+      aparelho: "computador",
+    });
   });
   it("tipo de aparelho", () => {
     expect(tipoDeAparelho(true)).toBe("celular");
     expect(tipoDeAparelho(false)).toBe("computador");
+  });
+});
+
+describe("origemGuardada", () => {
+  it("só aceita categorias da lista", () => {
+    expect(origemGuardada("google")).toBe("google");
+    expect(origemGuardada("1")).toBeNull();
+    expect(origemGuardada(null)).toBeNull();
+    expect(origemGuardada("https://x.com")).toBeNull();
+  });
+});
+
+describe("secaoDoId", () => {
+  it("reconhece o id do título ou a âncora", () => {
+    expect(secaoDoId("gastos-titulo")).toBe("gastos");
+    expect(secaoDoId("#votos-tema-titulo")).toBe("votos-tema");
+    expect(secaoDoId("partido-cotas")).toBeNull();
+    expect(secaoDoId(undefined)).toBeNull();
+  });
+});
+
+describe("montarBusca", () => {
+  const dims = { origem: "direto", aparelho: "celular" } as const;
+  it("leva UF e cidade só quando houve resultado e no formato certo", () => {
+    expect(montarBusca(dims, "cep", true, "SC", "4205407")).toEqual({ ...dims, forma: "cep", resultado: true, uf: "SC", ibge: "4205407" });
+    expect(montarBusca(dims, "cep", false, "SC", "4205407")).toEqual({ ...dims, forma: "cep", resultado: false });
+    expect(montarBusca(dims, "estado", true, "SC", null)).toEqual({ ...dims, forma: "estado", resultado: true, uf: "SC" });
+  });
+  it("nunca deixa passar um CEP no lugar da UF ou do IBGE", () => {
+    const c = montarBusca(dims, "cep", true, "01310100", "01310100");
+    expect(JSON.stringify(c)).not.toContain("01310100");
   });
 });

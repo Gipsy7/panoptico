@@ -85,3 +85,21 @@ async def visita(request: Request, session: Annotated[Session, Depends(get_sessi
 async def recurso(request: Request, session: Annotated[Session, Depends(get_session)]) -> Response:
     await _tratar(request, session, servico.registrar_recurso)
     return Response(status_code=204)
+
+
+@router.post("/saida", status_code=204)
+async def saida(request: Request, session: Annotated[Session, Depends(get_session)]) -> Response:
+    await _tratar(request, session, servico.registrar_saida)
+    return Response(status_code=204)
+
+
+@router.post("/secao", status_code=204)
+async def secao(request: Request, session: Annotated[Session, Depends(get_session)]) -> Response:
+    await _tratar(request, session, servico.registrar_secao)
+    return Response(status_code=204)
+
+
+@router.post("/busca", status_code=204)
+async def busca(request: Request, session: Annotated[Session, Depends(get_session)]) -> Response:
+    await _tratar(request, session, servico.registrar_busca)
+    return Response(status_code=204)

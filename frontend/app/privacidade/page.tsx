@@ -110,18 +110,25 @@ export default function PrivacidadePage() {
       </Secao>
 
       <Secao id="contagem" titulo="Contagem de acessos">
-        Para saber se o site está sendo útil, contamos acessos de forma agregada: só totais por dia.
-        Contamos (1) quantas visitas houve, (2) quais páginas foram abertas, só o endereço da
-        página, nunca o que vem depois do ponto de interrogação, como o CEP, (3) de que tipo de
-        lugar a pessoa veio (WhatsApp, Google, outros buscadores, redes sociais, outro site ou
-        direto), (4) se o aparelho é de toque (celular ou tablet) ou computador, e (5) quantas vezes
-        alguns recursos foram usados (busca por CEP, uso da localização, abrir o Argos, compartilhar
-        no WhatsApp, copiar o Pix), só o nome do recurso. Não guardamos o CEP, o endereço IP, o
-        navegador, a hora, nem qualquer identificador seu; a &ldquo;visita&rdquo; é marcada só na
-        memória da aba do navegador, sem cookie, e some quando você fecha a aba. Por isso uma visita
-        não equivale a uma pessoa. Não contamos robôs, quem pede &ldquo;Não rastrear&rdquo; ao navegador
-        (ou usa o Global Privacy Control) nem quem bloqueia scripts. Os totais são lidos apenas pelo
-        dono do site, numa área protegida por senha, e não são publicados.
+        Para saber se o site está sendo útil, contamos acessos de forma agregada: só totais por dia,
+        junto do tipo de aparelho (toque, como celular e tablet, ou computador) e de onde a pessoa
+        veio (WhatsApp, Google, outros buscadores, redes sociais, outro site ou direto). Contamos:
+        (1) quantas visitas houve; (2) quais páginas foram abertas, só o endereço da página, nunca o
+        que vem depois do ponto de interrogação, como o CEP; (3) qual foi a primeira e qual foi a
+        última página de cada visita; (4) quantos perfis de deputados, senadores, vereadores e
+        outros eleitos, e quantos projetos, foram abertos, pelo número do perfil no Panóptico,
+        sem ligar a ninguém; (5) quais seções de um perfil foram abertas; (6) quantas vezes alguns
+        recursos foram usados (busca por CEP, uso da localização, abrir o Argos, compartilhar no
+        WhatsApp, copiar o Pix), só o nome do recurso; (7) se a busca por CEP achou ou não o CEP; e
+        (8) o estado e a cidade que o resultado de uma busca devolveu, nunca o CEP em si. A cidade
+        só aparece no painel a partir de 5 buscas no período, para não expor poucas pessoas; o
+        estado e a região são mostrados em totais. Não guardamos o CEP, o endereço IP, o navegador,
+        a hora, nem qualquer identificador seu. A &ldquo;visita&rdquo; é marcada só na memória da
+        aba do navegador (a categoria de origem, sem cookie), e some quando você fecha a aba; por
+        isso uma visita não equivale a uma pessoa. Não contamos robôs, quem pede &ldquo;Não
+        rastrear&rdquo; ao navegador (ou usa o Global Privacy Control) nem quem bloqueia scripts.
+        Os totais são lidos apenas pelo dono do site, numa área protegida por senha, e não são
+        publicados. Nessa área há rankings; o site público não ordena políticos.
       </Secao>
 
       <Secao titulo="Dados dos parlamentares">

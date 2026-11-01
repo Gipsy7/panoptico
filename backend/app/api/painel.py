@@ -8,9 +8,9 @@ mesmo, e as tentativas erradas por IP são contadas só na memória.
 import hmac
 import time
 from collections import defaultdict, deque
-from typing import Annotated
+from typing import Annotated, Literal
 
-from fastapi import APIRouter, Depends, Header, HTTPException, Request
+from fastapi import APIRouter, Depends, Header, HTTPException, Query, Request
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 
@@ -84,5 +84,15 @@ def exigir_token(authorization: Annotated[str | None, Header()] = None) -> None:
 
 
 @router.get("/resumo", dependencies=[Depends(exigir_token)])
-def resumo(session: Annotated[Session, Depends(get_session)], dias: int = 30) -> dict:
-    return servico.resumo(session, dias)
+def resumo(
+    session: Annotated[Session, Depends(get_session)],
+    dias: Annotated[int, Query(ge=1, le=90)] = 7,
+    aparelho: Literal["celular", "computador"] | None = None,
+    origem: Literal["direto", "whatsapp", "google", "buscadores", "redes", "outro_site"]
+    | None = None,
+    uf: Annotated[str | None, Query(pattern=r"^[A-Z]{2}$")] = None,
+    item: Annotated[str | None, Query(max_length=130)] = None,
+) -> dict:
+    if uf is not None and uf not in servico.UFS:
+        raise HTTPException(422, "UF desconhecida.")
+    return servico.resumo(session, dias, aparelho, origem, uf, item)

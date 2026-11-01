@@ -5,6 +5,7 @@ import { EsqueletoSecao } from "@/components/esqueleto-secao";
 import { AvisoErro } from "@/components/aviso-erro";
 import { AvisoSegundoTurno } from "@/components/aviso-segundo-turno";
 import { CepForm } from "@/components/cep-form";
+import { RegistrarBusca } from "@/components/registrar-busca";
 import { Revelacao } from "@/components/revelacao";
 import { CompartilharWhatsApp } from "@/components/compartilhar";
 import { CompartilharCartao } from "@/components/compartilhar-cartao";
@@ -117,6 +118,7 @@ async function Lista({ cep, uf, municipio }: Busca) {
     const geral = cep.replace(/\D/g, "").endsWith("000");
     return (
       <div className="flex flex-col gap-6">
+        <RegistrarBusca forma="cep" resultado={false} />
         <AvisoErro
           titulo="Não encontramos esse CEP"
           mensagem={
@@ -140,7 +142,12 @@ async function Lista({ cep, uf, municipio }: Busca) {
         : resultado.status === 422
           ? "CEP inválido"
           : "Não deu para buscar agora";
-    return <AvisoErro titulo={titulo} mensagem={resultado.mensagem} />;
+    return (
+      <>
+        {resultado.status === 404 && <RegistrarBusca forma={cep ? "cep" : "cidade"} resultado={false} />}
+        <AvisoErro titulo={titulo} mensagem={resultado.mensagem} />
+      </>
+    );
   }
 
   const { localizacao, deputados, senadores, atualizado_em } = resultado.dados;
@@ -363,6 +370,12 @@ async function Lista({ cep, uf, municipio }: Busca) {
   return (
     <article data-largura="larga" className="pagina-secoes">
       {ibge && cidade && <LembrarLugar ibge={ibge} nome={cidade} uf={localizacao.uf} />}
+      <RegistrarBusca
+        forma={cep ? "cep" : municipio ? "cidade" : "estado"}
+        resultado
+        uf={localizacao.uf}
+        ibge={localizacao.codigo_ibge}
+      />
       <div className="flex flex-col gap-4">
         <div className="flex flex-col gap-1">
           <p className="sobretitulo">
