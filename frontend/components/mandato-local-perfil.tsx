@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import { GastosLocaisSecao, PresencaLocalSecao, VotacoesLocaisSecao, casaNaMatriz } from "@/components/atividade-local";
 import { AvisoErro } from "@/components/aviso-erro";
 import { FotoVereador } from "@/components/camara-secao";
+import { SobreOCargo } from "@/components/cargo/sobre-o-cargo";
 import { CabecalhoConfianca } from "@/components/perfil/cabecalho-confianca";
 import { CarreiraSecao } from "@/components/carreira-secao";
 import { EmendasDoDeputadoEstadual } from "@/components/emendas-estaduais";
@@ -253,6 +254,7 @@ export async function PerfilMandatoLocal({ id, paginaVotos }: { id: string; pagi
             </p>
           )}
           <CabecalhoConfianca tipo={camara ? "vereador" : "deputado_estadual"} id={String(v.id)} />
+          <SobreOCargo cargo={camara ? "vereador" : "deputado-estadual"} df={v.uf === "DF"} />
         </div>
       </header>
 

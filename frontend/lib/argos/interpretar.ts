@@ -14,9 +14,12 @@ import {
   EXEMPLOS,
   ORDEM_ASSUNTO,
   PALAVRAS_ASSUNTO,
+  PALAVRAS_CARGO,
+  PALAVRAS_DEPUTADO_GENERICO,
   PALAVRAS_OPINIAO,
   PALAVRAS_SAUDACAO,
   PALAVRAS_SITE,
+  PALAVRAS_TOPICO_CARGO,
   PALAVRAS_VAZIAS,
   SUGESTOES_POR_PALAVRA,
 } from "./vocabulario";
@@ -38,6 +41,10 @@ export const PALAVRAS_DO_VOCABULARIO = new Set<string>([
   ...PALAVRAS_SAUDACAO.flatMap((f) => f.split(" ")),
   ...Object.values(PALAVRAS_ASSUNTO).flatMap((l) => l.flatMap((f) => f.split(" "))),
   ...PALAVRAS_SITE.flatMap((s) => s.frases.flatMap((f) => f.split(" "))),
+  ...Object.values(PALAVRAS_CARGO).flatMap((l) => l.flatMap((f) => f.split(" "))),
+  ...PALAVRAS_DEPUTADO_GENERICO,
+  ...Object.values(PALAVRAS_TOPICO_CARGO).flatMap((l) => l.flatMap((f) => f.split(" "))),
+  "faz", "fazem", "fazer", "pode", "podem",
 ]);
 
 /** Quantas palavras no máximo um nome tem; acima disso é frase solta, não nome. */
@@ -117,6 +124,37 @@ function pedeRanking(normalizado: string): Interpretacao | null {
   const faltas = melhor.criterio === "presenca" && palavras.some((p) => ["faltou", "faltas", "falta", "ausente", "ausencia"].includes(p));
   const desc = faltas ? !mais : mais;
   return { assunto: "ranking", ordem: { criterio: melhor.criterio, desc } };
+}
+
+/** O cargo dito na frase ("vereador", "deputado federal"); a frase mais longa vence. */
+function acharCargo(normalizado: string): { id: string; ambiguo: boolean } | null {
+  let melhor: { id: string; tamanho: number } | null = null;
+  for (const [id, frases] of Object.entries(PALAVRAS_CARGO)) {
+    for (const f of frases) {
+      if (contem(normalizado, f) && (!melhor || f.length > melhor.tamanho)) melhor = { id, tamanho: f.length };
+    }
+  }
+  if (melhor) return { id: melhor.id, ambiguo: false };
+  if (PALAVRAS_DEPUTADO_GENERICO.some((p) => contem(normalizado, p))) return { id: "deputado-federal", ambiguo: true };
+  return null;
+}
+
+/**
+ * "O que faz um vereador?", "o que um deputado pode fazer", "quanto ganha um senador": pergunta
+ * sobre a regra do cargo, não sobre uma pessoa. Salário com nome de pessoa ("quanto ganha o
+ * senador Fulano") continua sendo `salario`.
+ */
+function pedeCargo(normalizado: string, temNome: boolean): Interpretacao | null {
+  const cargo = acharCargo(normalizado);
+  if (!cargo) return null;
+  const pode = pontuar(normalizado, PALAVRAS_TOPICO_CARGO.pode) > 0;
+  const ganha = pontuar(normalizado, PALAVRAS_TOPICO_CARGO.ganha) > 0;
+  const faz =
+    pontuar(normalizado, PALAVRAS_TOPICO_CARGO.faz) > 0 || /o que (um|uma|o|a|os|as).*(faz|fazem|fazer)/.test(normalizado);
+  if (!pode && !ganha && !faz) return null;
+  if (ganha && !pode && !faz && temNome) return null;
+  const topico = pode && !faz && !ganha ? "pode" : ganha && !faz && !pode ? "ganha" : faz && !pode && !ganha ? "faz" : undefined;
+  return { assunto: "cargo", cargoId: cargo.id, topico, cargoAmbiguo: cargo.ambiguo || undefined };
 }
 
 function melhorAssunto(normalizado: string): { chave: string; pontos: number } | null {
@@ -217,6 +255,8 @@ export function interpretar(texto: string, agora: Date = new Date()): Interpreta
 
   const nome = extrairNome(texto, usadas);
   const nomes = extrairNomes(texto, usadas);
+  const cargo = pedeCargo(normalizado, !!nome);
+  if (cargo) return { ...base, ...cargo };
   let assunto = melhorAssunto(normalizado);
   // "como o Fulano votou na reforma": votos, mesmo com palavras no meio.
   if ((!assunto || assunto.chave === "presenca") && /\bcomo\b.*\b(votou|votaram|vota|votam)\b/.test(normalizado)) {

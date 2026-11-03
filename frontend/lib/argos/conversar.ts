@@ -34,6 +34,7 @@ import {
   pedirCidade,
   pedirNome,
   pessoaDe,
+  respostaCargo,
   respostaCidade,
   respostaComparar,
   respostaDinheiroFederal,
@@ -187,6 +188,8 @@ async function despachar(i: Interpretacao, frase: string, contexto: Contexto, ap
       return so(semRanking(i.ordem, { uf: i.uf, casa: i.casa }));
     case "pagina":
       return so(respostaPagina(i.secao ?? ""));
+    case "cargo":
+      return so(respostaCargo(i.cargoId, i.topico, i.cargoAmbiguo));
     case "partidos":
       return so(respostaPartidos(i.partido, i.ano));
     case "eleicao":

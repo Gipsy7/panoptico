@@ -179,10 +179,27 @@ const GRUPOS: Record<string, Caso[]> = {
     ["eleitos 2026", { assunto: "eleicao", ano: 2026 }],
   ],
   "salário": [
-    ["quanto ganha um deputado", { assunto: "salario" }],
+    ["quanto ganha um deputado", { assunto: "cargo", cargoId: "deputado-federal", topico: "ganha", cargoAmbiguo: true }],
     ["salário do Fulano", { assunto: "salario", nome: "fulano" }],
     ["quanto o senador Fulano recebe", { assunto: "salario", nome: "fulano" }],
-    ["remuneração do deputado", { assunto: "salario" }],
+    ["remuneração do deputado", { assunto: "cargo", cargoId: "deputado-federal", topico: "ganha" }],
+    ["quanto ganha o vereador Fulano", { assunto: "salario", nome: "fulano" }],
+  ],
+  "cargos (a regra, não a pessoa)": [
+    ["o que faz um vereador?", { assunto: "cargo", cargoId: "vereador", topico: "faz" }],
+    ["o que é um vereador", { assunto: "cargo", cargoId: "vereador", topico: "faz" }],
+    ["o que faz um deputado estadual", { assunto: "cargo", cargoId: "deputado-estadual", topico: "faz" }],
+    ["o que um deputado federal pode fazer", { assunto: "cargo", cargoId: "deputado-federal", topico: "pode" }],
+    ["o que um deputado pode fazer", { assunto: "cargo", cargoId: "deputado-federal", topico: "pode", cargoAmbiguo: true }],
+    ["o que o prefeito não pode fazer", { assunto: "cargo", cargoId: "prefeito", topico: "pode" }],
+    ["quanto ganha um senador", { assunto: "cargo", cargoId: "senador", topico: "ganha" }],
+    ["quanto ganha o presidente", { assunto: "cargo", cargoId: "presidente", topico: "ganha" }],
+    ["qual o salário de um vereador", { assunto: "cargo", cargoId: "vereador", topico: "ganha" }],
+    ["o que faz o vice-presidente", { assunto: "cargo", cargoId: "vice-presidente", topico: "faz" }],
+    ["para que serve um governador", { assunto: "cargo", cargoId: "governador", topico: "faz" }],
+    ["o que faz uma deputada distrital", { assunto: "cargo", cargoId: "deputado-estadual", topico: "faz" }],
+    ["quem é o prefeito de Gaspar", { assunto: "executivo", cargo: "prefeito", nome: "gaspar" }],
+    ["vereadores de Gaspar", { assunto: "cidade", nome: "gaspar" }],
   ],
   "seções do perfil": [
     ["como votou o Fulano", { assunto: "secao", secao: "votos", nome: "fulano" }],
@@ -302,7 +319,7 @@ describe("o corpus", () => {
     const vistos = new Set(Object.values(GRUPOS).flatMap((l) => l.map(([, e]) => e.assunto)));
     for (const a of [
       "gastos", "presenca", "projetos", "emendas", "representantes", "comparar", "dinheiro_federal", "partidos",
-      "lista", "cidade", "eleicao", "salario", "executivo", "projetos_busca", "governo_gasto", "secao", "pagina",
+      "lista", "cidade", "eleicao", "salario", "cargo", "executivo", "projetos_busca", "governo_gasto", "secao", "pagina",
       "pessoa", "ranking", "site", "sobre_argos", "opiniao", "saudacao", "nenhum",
     ]) {
       expect(vistos.has(a as Interpretacao["assunto"]), a).toBe(true);

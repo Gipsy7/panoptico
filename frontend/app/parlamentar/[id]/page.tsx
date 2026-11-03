@@ -1,3 +1,4 @@
+import { SobreOCargo } from "@/components/cargo/sobre-o-cargo";
 import { CabecalhoConfianca } from "@/components/perfil/cabecalho-confianca";
 import type { Metadata } from "next";
 import Link from "next/link";
@@ -367,6 +368,7 @@ async function Perfil({
             </p>
             {!p.em_exercicio && <p className="text-sm font-medium">Fora de exercício no momento.</p>}
             <CabecalhoConfianca tipo="parlamentar" id={String(p.id)} />
+            <SobreOCargo cargo={p.casa === "senado" ? "senador" : "deputado-federal"} />
           </div>
         </header>
         <BotaoAviso alvoTipo="parlamentar" alvoChave={chaveAlvo(p.casa, p.id_externo)} destino={p.nome_parlamentar} />

@@ -4,6 +4,7 @@
  * vem ao lado do número. Linguagem factual: sem adjetivo, sem juízo.
  */
 import type { Casa, Gastos, Municipio, ParlamentarDetalhe, Presenca, Projetos, Representantes, RespostaBusca, ResultadoBusca } from "@/lib/api";
+import { CARGOS, CF_CONFERIDA_EM, CF_NOME, CF_URL, type CargoId } from "@/lib/cargos";
 import { CASA_DA, FONTE_CASA, MESES, formatarData, formatarReais } from "@/lib/formato";
 import { PERGUNTAS_FREQUENTES } from "@/lib/perguntas";
 
@@ -529,6 +530,36 @@ export function respostaExecutivo(cargo: Interpretacao["cargo"], lugar: Lugar): 
     texto: `${inicio} de ${nomeLugar(lugar)} aparece em Seus representantes, com o que faz, gasta e recebe e a fonte de cada dado.`,
     links: [{ rotulo: `Quem representa ${nomeLugar(lugar)}`, href }],
     botoes: SEM_BOTOES,
+  };
+}
+
+/**
+ * "O que faz um vereador?": os três blocos (o que faz, pode e não pode, quanto ganha) em resumo,
+ * com o artigo da Constituição, e o link para quem ocupa o cargo. `topico` decide o que vem
+ * primeiro; os outros blocos seguem como apoio. Descreve a regra do cargo, não uma pessoa.
+ */
+export function respostaCargo(cargoId: string | undefined, topico?: "faz" | "pode" | "ganha", ambiguo = false): Mensagem {
+  const c = cargoId ? CARGOS[cargoId as CargoId] : undefined;
+  if (!c) return naoEntendi();
+  const resumo = (itens: { texto: string; artigo: string }[]) =>
+    itens
+      .slice(0, 3)
+      .map((i) => `${i.texto} (${i.artigo})`)
+      .join("; ");
+  const faz = `${c.nome}: ${c.faz}`;
+  const pode = `O que pode: ${resumo(c.pode)}.`;
+  const naoPode = `O que não pode: ${resumo(c.naoPode)}.`;
+  const fonteDoValor = c.ganha.fonte.url !== CF_URL ? ` Valor conforme: ${c.ganha.fonte.nome}.` : "";
+  const ganha = `Quanto ganha: ${c.ganha.texto} (${c.ganha.artigo})${fonteDoValor}`;
+  const [texto, ...detalhes] =
+    topico === "ganha" ? [ganha, faz, pode, naoPode] : topico === "pode" ? [pode, naoPode, faz, ganha] : [faz, pode, naoPode, ganha];
+  const botoes: Botao[] = ambiguo ? [{ rotulo: "E o deputado estadual?", frase: "o que faz um deputado estadual" }] : [];
+  return {
+    texto,
+    detalhes,
+    links: [{ rotulo: "Ver quem ocupa o cargo (pelo CEP)", href: "/representantes" }],
+    botoes,
+    fonte: { nome: CF_NOME, url: CF_URL, atualizadoEm: CF_CONFERIDA_EM },
   };
 }
 

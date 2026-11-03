@@ -7,6 +7,7 @@ import {
   escolherCandidatos,
   idFederal,
   mensagemEscolha,
+  respostaCargo,
   respostaEmendas,
   respostaGastos,
   respostaPresenca,
@@ -246,5 +247,35 @@ describe("erros e dúvidas do site", () => {
 
   it("id desconhecido cai na apresentação do site", () => {
     expect(respostaSite("sobre").links.map((l) => l.href)).toContain("/o-panoptico");
+  });
+});
+
+describe("respostaCargo", () => {
+  it("vereador: três blocos, artigo da CF, fonte e data, link para os representantes", () => {
+    const m = respostaCargo("vereador", "faz");
+    expect(m.texto).toContain("votam as leis da cidade");
+    const todo = [m.texto, ...(m.detalhes ?? [])].join(" ");
+    expect(todo).toContain("O que pode:");
+    expect(todo).toContain("O que não pode:");
+    expect(todo).toContain("Quanto ganha:");
+    expect(todo).toContain("CF art. 29");
+    expect(m.fonte?.url).toContain("planalto.gov.br");
+    expect(m.fonte?.atualizadoEm).toBeTruthy();
+    expect(m.links[0].href).toBe("/representantes");
+  });
+
+  it("'quanto ganha' abre com o salário; senador traz o valor e de onde vem", () => {
+    const m = respostaCargo("senador", "ganha");
+    expect(m.texto).toMatch(/^Quanto ganha: R\$\s46\.366,19/);
+    expect((m.detalhes ?? []).join(" ") + m.texto).toContain("Decreto Legislativo");
+  });
+
+  it("deputado sem dizer qual oferece o estadual", () => {
+    const m = respostaCargo("deputado-federal", "pode", true);
+    expect(m.botoes.map((b) => b.rotulo)).toContain("E o deputado estadual?");
+  });
+
+  it("cargo desconhecido cai no 'não entendi'", () => {
+    expect(respostaCargo("x").links[0].href).toBe("/parlamentares");
   });
 });
