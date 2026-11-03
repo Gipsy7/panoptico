@@ -1,3 +1,4 @@
+import { CabecalhoConfianca } from "@/components/perfil/cabecalho-confianca";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { EsqueletoSecao } from "@/components/esqueleto-secao";
@@ -293,6 +294,7 @@ async function Perfil({
               {NOME_CASA[p.casa]} · {[p.partido, p.uf].filter(Boolean).join(" · ")}
             </p>
             {!p.em_exercicio && <p className="text-sm font-medium">Fora de exercício no momento.</p>}
+            <CabecalhoConfianca tipo="parlamentar" id={String(p.id)} />
           </div>
         </header>
 

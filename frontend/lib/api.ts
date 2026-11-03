@@ -1115,6 +1115,19 @@ export async function getLinhaDoTempo(tipo: TipoDePerfil, id: string): Promise<R
   return getJson<LinhaDoTempo>(`/pessoas/${pessoa.dados.pessoa_id}/eventos`);
 }
 
+export type ConfiancaDoPerfil = {
+  conferido_em: string | null;
+  fonte: string;
+  ultimo_registro: { tipo: string; data: string } | null;
+  parecidos: { nome: string; cargo: string; lugar: string; href: string }[];
+};
+
+/** Linhas de confiança do cabeçalho: conferência do cadastro com a fonte oficial, último
+ * registro oficial e pessoas públicas com nome muito parecido. */
+export function getConfiancaDoPerfil(tipo: TipoDePerfil, id: string) {
+  return getJson<ConfiancaDoPerfil>(`/pessoas/de/confianca?tipo=${tipo}&id=${encodeURIComponent(id)}`);
+}
+
 export type PartidoNaLista = {
   sigla: string;
   cota_fundo_partidario: number;
