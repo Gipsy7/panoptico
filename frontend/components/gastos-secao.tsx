@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { FonteRodape } from "@/components/fonte-rodape";
+import { CobrarLinha } from "@/components/perfil/cobrar-linha";
 import type { Casa, Gastos } from "@/lib/api";
 import { CASA_DA, MESES, formatarData, formatarGastos, formatarReais } from "@/lib/formato";
 import { LinkExterno } from "@/components/link-externo";
@@ -142,6 +143,7 @@ export function GastosSecao({
         </details>
       )}
 
+      <CobrarLinha tema="gastos" esfera="federal" casa={casa} />
       <FonteRodape
         fonte={casa === "camara" ? "Câmara dos Deputados" : "Senado Federal"}
         url={gastos.fonte_url}

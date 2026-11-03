@@ -1,7 +1,9 @@
 import Link from "next/link";
 
 import { FonteRodape } from "@/components/fonte-rodape";
+import { CobrarLinha } from "@/components/perfil/cobrar-linha";
 import { PorQueFalta } from "@/components/por-que-falta";
+import type { Esfera } from "@/lib/como-cobrar";
 import type { VereadorDetalhe, VotacoesLocais } from "@/lib/api";
 import { MESES, formatarData, formatarReais } from "@/lib/formato";
 import { LinkExterno } from "@/components/link-externo";
@@ -13,6 +15,11 @@ export function casaNaMatriz(v: {
 }): string | undefined {
   if (v.casa !== "assembleia") return undefined;
   return v.uf === "DF" ? "CLDF" : `AL${v.uf}`;
+}
+
+/** Câmara de vereadores é esfera municipal; assembleia (ou Câmara Legislativa do DF), estadual. */
+function esferaLocal(v: { casa: string }): Esfera {
+  return v.casa === "assembleia" ? "estadual" : "municipal";
 }
 
 function PorQueFaltaLocal({ v }: { v: VereadorDetalhe }) {
@@ -88,6 +95,7 @@ export function PresencaLocalSecao({
           </p>
         </>
       )}
+      <CobrarLinha tema="presenca" esfera={esferaLocal(v)} uf={v.uf} />
       <FonteRodape
         fonte={v.fonte_nome}
         url={v.fonte_url}
@@ -207,6 +215,7 @@ export function VotacoesLocaisSecao({
           </p>
         </>
       )}
+      {v && <CobrarLinha tema="votos" esfera={esferaLocal(v)} uf={v.uf} />}
       <FonteRodape
         fonte={dados.fonte_nome}
         url={dados.fonte_url}
@@ -333,6 +342,7 @@ export function GastosLocaisSecao({
           "A média inclui quem está no cargo hoje; quem não pediu reembolso entra com zero."}
       </p>
       {avisoFora}
+      <CobrarLinha tema="gastos" esfera={esferaLocal(v)} uf={v.uf} />
       <FonteRodape
         fonte={g.fonte_nome ?? v.fonte_nome}
         url={g.fonte_url ?? v.fonte_url}

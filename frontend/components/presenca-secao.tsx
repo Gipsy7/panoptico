@@ -1,4 +1,5 @@
 import { FonteRodape } from "@/components/fonte-rodape";
+import { CobrarLinha } from "@/components/perfil/cobrar-linha";
 import type { Casa, Presenca } from "@/lib/api";
 import { CASA_DA, formatarData } from "@/lib/formato";
 
@@ -87,6 +88,7 @@ export function PresencaSecao({ presenca, casa }: { presenca: Presenca; casa: Ca
         </>
       )}
 
+      <CobrarLinha tema="presenca" esfera="federal" casa={casa} />
       <FonteRodape fonte={p.fonte_nome} url={p.fonte_url} atualizadoEm={p.atualizado_em} />
     </section>
   );
