@@ -57,6 +57,8 @@ flowchart LR
 | 🕰 | **Linha do tempo** | Cassações, sanções da CGU, contas reprovadas no TCU, Conselho de Ética, cargos no governo federal, viagens, cartão corporativo, CPIs. Só com vínculo seguro e link oficial. |
 | 🏙 | **Sua cidade** | Emendas recebidas e quem mandou, quanto o governo do estado repassou (por tipo, com a média do estado), contas da prefeitura e da câmara, maiores fornecedores, contratos no PNCP, canais oficiais. |
 | 🗺 | **Impostos e repasses** | Quanto a União arrecadou e repassou a cada estado e cidade (2019 a 2026), por habitante, em mapa. |
+| ✅ | **Perfil que se explica** | "Em poucas palavras" (frases com a média da Casa, para copiar no WhatsApp), o que mudou desde a sua última visita (guardado só no aparelho), "conferido com a fonte oficial em…", "não confundir com…", a lista do que está e do que não está no perfil e "Como cobrar" (canais oficiais por esfera, também no fim de cada seção). |
+| 🏛 | **Casas e cargos** | No desenho dos prédios: o que cada cargo pode, não pode e quanto ganha (com o artigo da Constituição), a bancada por partido de cada casa, o Congresso em cadeiras (hoje e a partir de fev/2027) e as ligações entre os cargos (quem elege, fiscaliza, julga e sanciona). Cadeiras também no topo de `/parlamentares` e, pelo voto, em cada votação. |
 | ⚖️ | **Comparadores** | Até 4 parlamentares lado a lado, vereadores da mesma câmara, e os candidatos do 2º turno com os mesmos campos. |
 | 🏛 | **Partidos** | Fundo Partidário, fundo eleitoral, receitas, gastos e repasses (TSE). |
 | 🔍 | **Busca por nome** | Todos os níveis e partidos, sem diferença de acento. |

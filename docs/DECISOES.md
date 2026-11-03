@@ -2,6 +2,7 @@
 
 ## Índice
 
+- [2026-11-03: perfil confiável, bancadas, cargos e ligações (Frentes 1 e 2)](#2026-11-03-perfil-confiável-bancadas-cargos-e-ligações-frentes-1-e-2)
 - [2026-10-29: medidas provisórias e vetos do Presidente](#2026-10-29-medidas-provisórias-e-vetos-do-presidente)
 - [2026-10-29: salário de deputado estadual lido de CSV, só número publicado](#2026-10-29-salário-de-deputado-estadual-lido-de-csv-só-número-publicado)
 - [2026-10-30: Web Push, avisos no celular sem telefone nem e-mail](#2026-10-30-web-push-avisos-no-celular-sem-telefone-nem-e-mail)
@@ -1661,3 +1662,15 @@ Atualiza a decisão de 2026-10-18 ("só por feed Atom"). Primeiro no release; ir
 - **Leitura:** só pela linha de comando, `python -m app.argos_relatorio` (frases mais frequentes, taxa de útil por assunto, conversas guardadas) e `--exportar PASTA` (CSV).
 - **Apresentação:** o Argos se apresenta como "assistente do Panóptico"; só explica que é de respostas prontas e não uma IA quando perguntam ("você é uma IA?", "quem te fez", "como você funciona": assunto `sobre_argos`).
 - **Botão:** arrastável (toque e mouse), encaixa na borda esquerda ou direita mais próxima, nunca sai da tela nem cobre o cabeçalho; a posição fica no `localStorage` (preferência de tela, não é dado pessoal). O "×" o esconde até fechar a aba (`sessionStorage`); abrir `/pergunte` (ou o link do rodapé) o traz de volta. No celular só o olho.
+
+## 2026-11-03: perfil confiável, bancadas, cargos e ligações (Frentes 1 e 2)
+
+Ideias absorvidas da comparação com o politicometro.org (03/11), adaptadas ao que já existe; cada etapa visível passou por 3 protótipos antes do código.
+
+- **Conferido em:** `GET /pessoas/de/confianca?tipo=&id=` devolve a última carga `ok` da fonte de cadastro da casa (Câmara, Senado, assembleia/SAPL ou TSE), o fato oficial mais recente da pessoa (voto, discurso ou evento publicável) e até 2 nomes parecidos (pg_trgm ≥ 0,8, só `publicavel()`, outro cargo ou lugar).
+- **Resumo em frases:** gerado dos mesmos números e médias dos cartões, sem número novo. "O que mudou desde a última visita" fica só no `localStorage` do aparelho; nada vai ao servidor (dito em `/privacidade`).
+- **Como cobrar:** canais oficiais por esfera, só com URL conferida; sem confirmação o canal aparece sem link ("endereço oficial não conferido ainda"). Bloqueio (403) não é contornado.
+- **Bancadas e cadeiras:** contagem literal por partido de quem está no cargo (Parlamentar, MandatoLocal; sem conector, eleitos do TSE com a origem dita). Partido só em texto, barra e cadeiras em tom neutro, nunca cor de partido. Composição a partir de fev/2027 vem dos eleitos de 2026 (Senado: eleitos de 2026 + os de 2022 que seguem). Siglas ainda não normalizadas entre fontes.
+- **Cargos:** pode, não pode e quanto ganha em `frontend/lib/cargos.ts`, cada item com artigo conferido no texto consolidado da CF. Salário só onde há fonte; vereador mostra a faixa do art. 29, VI; o que depende de constituição estadual ou lei orgânica é dito assim.
+- **Ligações entre os cargos:** curvas atrás dos prédios, filtro de uma linha (Elege, Fiscaliza, Julga, Sanciona), estado inicial sem linhas, sem animação com `prefers-reduced-motion`.
+
