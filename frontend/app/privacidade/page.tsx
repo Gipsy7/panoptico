@@ -39,6 +39,13 @@ export default function PrivacidadePage() {
         qualquer site.
       </Secao>
 
+      <Secao titulo="O que fica guardado no seu aparelho">
+        Em cada perfil de parlamentar, o seu navegador guarda a data da sua última visita e os
+        números que apareciam na tela, só para marcar o que mudou quando você voltar. Isso fica
+        apenas no seu aparelho (armazenamento local do navegador): não é enviado ao Panóptico nem a
+        terceiros. Para apagar, limpe os dados do site no navegador.
+      </Secao>
+
       <Secao titulo="Registros técnicos">
         Como qualquer servidor na internet, o nosso pode registrar temporariamente dados técnicos
         de acesso (endereço IP, data e hora, página acessada) para segurança e para corrigir
