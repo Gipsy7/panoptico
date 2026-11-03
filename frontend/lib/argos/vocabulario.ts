@@ -118,6 +118,42 @@ export const PALAVRAS_ASSUNTO: Record<string, string[]> = {
   "pagina:codigo": ["codigo aberto", "github", "codigo fonte", "repositorio", "licenca do codigo"],
 };
 
+/**
+ * Cargos que o Argos reconhece em "o que faz um vereador?". A chave é o id de `lib/cargos.ts`;
+ * a frase mais longa vence ("vice presidente" antes de "presidente").
+ */
+export const PALAVRAS_CARGO: Record<string, string[]> = {
+  presidente: ["presidente", "presidenta", "presidente da republica"],
+  "vice-presidente": ["vice presidente", "vice presidenta", "vice presidente da republica"],
+  senador: ["senador", "senadora", "senadores", "senadoras"],
+  "deputado-federal": ["deputado federal", "deputada federal", "deputados federais", "deputadas federais"],
+  governador: ["governador", "governadora", "governadores"],
+  "vice-governador": ["vice governador", "vice governadora"],
+  "deputado-estadual": [
+    "deputado estadual", "deputada estadual", "deputados estaduais", "deputado distrital", "deputada distrital",
+    "deputados distritais",
+  ],
+  prefeito: ["prefeito", "prefeita", "prefeitos"],
+  "vice-prefeito": ["vice prefeito", "vice prefeita"],
+  vereador: ["vereador", "vereadora", "vereadores", "vereadoras"],
+};
+
+/** "Deputado" sem dizer qual: o Argos responde pelo federal e oferece o estadual. */
+export const PALAVRAS_DEPUTADO_GENERICO = ["deputado", "deputada", "deputados", "deputadas"];
+
+/** O que se pergunta de um cargo (a regra, não uma pessoa). */
+export const PALAVRAS_TOPICO_CARGO: Record<"faz" | "pode" | "ganha", string[]> = {
+  faz: [
+    "o que faz", "o que fazem", "o que fazer", "o que e", "o que sao", "o que significa", "para que serve",
+    "para que servem", "qual a funcao", "qual e a funcao", "funcao do", "funcao da", "atribuicoes", "o que cuida",
+  ],
+  pode: [
+    "pode", "podem", "nao pode", "nao podem", "o que pode", "o que nao pode", "proibido", "proibicoes", "limites do",
+    "limites da", "permitido", "poderes",
+  ],
+  ganha: ["quanto ganha", "quanto ganham", "quanto recebe", "quanto recebem", "salario", "salarios", "subsidio", "remuneracao"],
+};
+
 /** Ordem de desempate entre assuntos com a mesma pontuação (vence quem vem primeiro). */
 export const ORDEM_ASSUNTO = [
   "sobre_argos", "comparar", "secao:votos", "pagina:projetos", "dinheiro_federal", "salario", "gastos", "presenca",

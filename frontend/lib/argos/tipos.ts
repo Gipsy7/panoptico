@@ -13,6 +13,7 @@ export type Assunto =
   | "cidade"
   | "eleicao"
   | "salario"
+  | "cargo"
   | "executivo"
   | "projetos_busca"
   | "governo_gasto"
@@ -57,6 +58,11 @@ export type Interpretacao = {
   /** Para `governo_gasto` e `executivo`. */
   instituicao?: "federal" | "estadual" | "municipal";
   cargo?: "presidente" | "governador" | "prefeito";
+  /** Para `cargo`: qual cargo (id de `lib/cargos.ts`) e o que se quer saber dele. */
+  cargoId?: string;
+  topico?: "faz" | "pode" | "ganha";
+  /** Para `cargo`: disse só "deputado", sem dizer se é federal ou estadual. */
+  cargoAmbiguo?: boolean;
   /** Para `nenhum`: botões ligados às palavras que o Argos reconheceu em parte. */
   sugestoes?: Botao[];
 };

@@ -1,4 +1,6 @@
+import { SobreOCargo } from "@/components/cargo/sobre-o-cargo";
 import { CabecalhoConfianca } from "@/components/perfil/cabecalho-confianca";
+import { cargoDoRotulo } from "@/lib/cargos";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { EsqueletoSecao } from "@/components/esqueleto-secao";
@@ -409,6 +411,7 @@ async function Perfil({
           </p>
           {e.situacao && <p className="text-sm text-muted-foreground">{e.situacao}</p>}
           <CabecalhoConfianca tipo="candidatura" id={String(e.id)} />
+          {cargoDoRotulo(e.cargo) && <SobreOCargo cargo={cargoDoRotulo(e.cargo)!} df={e.uf === "DF"} />}
         </div>
       </header>
 
