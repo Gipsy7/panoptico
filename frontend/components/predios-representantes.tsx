@@ -15,11 +15,10 @@ import { type KeyboardEvent, type ReactNode, useEffect, useId, useRef, useState 
 import { FonteRodape } from "@/components/fonte-rodape";
 import { MaoToque, useMovimentoReduzido } from "@/components/mao-toque";
 import {
-  type NoLigacao,
   type Verbo,
   TRACO_VERBO,
   VERBOS,
-  caminhoCurvo,
+  tracoLigacao,
   chaveLigacao,
   ligacoesVisiveis,
 } from "@/lib/ligacoes";
@@ -314,9 +313,8 @@ export function PrediosRepresentantes({
   const ligacoes = ligacoesVisiveis(verbo, ids);
   const ligacaoAberta = ligacoes.find((l) => chaveLigacao(l) === aberta) ?? null;
 
-  function ponto2(n: NoLigacao): [number, number] {
-    return n === "voce" ? [180, med.yVoce] : ponto(ENCAIXE[n], ...CENTROS[n]);
-  }
+  const idSvg = base.replace(/[^a-zA-Z0-9]/g, "");
+  const tracos = ligacoes.map((l, k) => ({ l, k, t: tracoLigacao(l, med.yVoce) })).flatMap((x) => (x.t ? [{ ...x, t: x.t }] : []));
   function escolherVerbo(v: Verbo | null) {
     setVerbo(v);
     setAberta(null);
@@ -377,30 +375,33 @@ export function PrediosRepresentantes({
         ref={desenho}
         className="mx-auto w-full max-w-[30rem] scroll-mt-[calc(var(--altura-cabecalho)+0.75rem)] min-[900px]:sticky min-[900px]:top-[calc(var(--altura-cabecalho)+1rem)]"
       >
-        <div className="mb-2 flex flex-wrap items-baseline gap-x-1 text-sm text-muted-foreground" role="group" aria-label="Ligações entre os cargos">
-          <span>Ver:</span>
-          {VERBOS.map((v, i) => (
-            <span key={v.id} className="inline-flex items-baseline">
-              {i > 0 && <span aria-hidden className="px-0.5">·</span>}
-              <button
-                type="button"
-                aria-pressed={verbo === v.id}
-                onClick={() => escolherVerbo(verbo === v.id ? null : v.id)}
-                className={`inline-flex min-h-11 items-center px-1.5 underline-offset-4 hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-bronze ${
-                  verbo === v.id ? "font-semibold text-foreground underline decoration-bronze decoration-2" : ""
-                }`}
-              >
-                {v.rotulo}
-              </button>
-            </span>
+        <div className="mb-1 flex items-center text-[0.8125rem] text-muted-foreground" role="group" aria-label="Ligações entre os cargos">
+          <span className="pr-0.5">Ver:</span>
+          {VERBOS.map((v) => (
+            <button
+              key={v.id}
+              type="button"
+              aria-pressed={verbo === v.id}
+              onClick={() => escolherVerbo(verbo === v.id ? null : v.id)}
+              className={`inline-flex min-h-11 items-center gap-1 px-1 underline-offset-4 hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-bronze min-[400px]:px-1.5 ${
+                verbo === v.id ? "font-semibold text-foreground underline decoration-bronze decoration-2" : ""
+              }`}
+            >
+              <svg viewBox="0 0 20 8" aria-hidden focusable="false" className={`lig-amostra h-2 w-3.5 shrink-0 overflow-visible ${verbo === v.id ? "lig-amostra-ativa text-bronze-texto" : ""}`}>
+                <path d="M1 4 H19" stroke="currentColor" strokeWidth={2} fill="none" strokeLinecap="round" strokeDasharray={TRACO_VERBO[v.id]} />
+              </svg>
+              {v.rotulo}
+            </button>
           ))}
           {verbo && (
             <button
               type="button"
               onClick={() => escolherVerbo(null)}
-              className="ml-auto inline-flex min-h-11 items-center px-1.5 underline underline-offset-4 hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-bronze"
+              aria-label="Ocultar ligações"
+              className="ml-auto inline-flex min-h-11 min-w-8 items-center justify-center px-1 text-base leading-none hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-bronze min-[400px]:underline min-[400px]:underline-offset-4 min-[400px]:text-[0.8125rem]"
             >
-              ocultar
+              <span aria-hidden className="min-[400px]:hidden">×</span>
+              <span aria-hidden className="max-[399px]:hidden">ocultar</span>
             </button>
           )}
         </div>
@@ -421,6 +422,42 @@ export function PrediosRepresentantes({
           </g>
           <Faixa y={222} texto={faixaEstado} />
           {faixaCidade && <Faixa y={430} texto={faixaCidade} />}
+
+          {/* Ligações (por trás dos prédios): curvas finas com seta, desenhadas com leve atraso. */}
+          {verbo && (
+            <g key={verbo} aria-hidden className="lig-linhas">
+              {tracos.map(({ l, k, t }) => {
+                const ch = chaveLigacao(l);
+                const ativa = aberta === ch;
+                const atraso = { "--at": `${(k * 0.18).toFixed(2)}s`, "--dur": `${Math.min(1.5, Math.max(0.6, t.comprimento / 380)).toFixed(2)}s` } as React.CSSProperties;
+                const dash = TRACO_VERBO[l.verbo];
+                const mid = `${idSvg}-m-${ch}`;
+                return (
+                  <g key={ch}>
+                    {dash ? (
+                      <>
+                        <mask id={mid} maskUnits="userSpaceOnUse" x={-20} y={-20} width={400} height={med.altura + 40}>
+                          <path d={t.d} pathLength={1} className="lig-dr fill-none stroke-white" strokeWidth={12} style={atraso} />
+                        </mask>
+                        <path d={t.d} mask={`url(#${mid})`} strokeDasharray={dash} className="fill-none stroke-bronze-texto" strokeOpacity={ativa ? 1 : 0.8} strokeWidth={ativa ? 3 : 1.5} strokeLinecap="round" />
+                      </>
+                    ) : (
+                      <path d={t.d} pathLength={1} className="lig-dr fill-none stroke-bronze-texto" strokeOpacity={ativa ? 1 : 0.8} strokeWidth={ativa ? 3 : 1.5} strokeLinecap="round" style={atraso} />
+                    )}
+                    <path
+                      d="M-6 -4.5 L0 0 L-6 4.5"
+                      transform={`translate(${t.fim[0]} ${t.fim[1]}) rotate(${t.ang})`}
+                      className="lig-pt fill-none stroke-bronze-texto"
+                      strokeWidth={ativa ? 2.6 : 1.5}
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      style={{ "--at": `${(k * 0.18 + 0.9).toFixed(2)}s` } as React.CSSProperties}
+                    />
+                  </g>
+                );
+              })}
+            </g>
+          )}
 
           {predios.map((p) => {
             const eSel = p.id === escolhido;
@@ -482,47 +519,31 @@ export function PrediosRepresentantes({
             {voce}
           </text>
 
-          {verbo && (
-            <g className={TRACO_FIXO} aria-label={`Ligações: ${verbo}`}>
-              <defs>
-                <marker id={`${base}-seta`} viewBox="0 0 10 10" refX={8} refY={5} markerWidth={7} markerHeight={7} orient="auto">
-                  <path d="M0 0 L10 5 L0 10 Z" className="fill-bronze-texto" />
-                </marker>
-              </defs>
-              {ligacoes.map((l, i) => {
-                const d = caminhoCurvo(ponto2(l.de), ponto2(l.para), l.de === "voce" ? (i % 2 ? 1 : -1) * 0.6 : 1);
-                const k = chaveLigacao(l);
-                const ativa = aberta === k;
-                return (
-                  <g
-                    key={k}
-                    role="button"
-                    tabIndex={0}
-                    aria-pressed={ativa}
-                    aria-label={`${l.frase} ${l.artigo}`}
-                    className="group/l cursor-pointer outline-none"
-                    onClick={() => setAberta(ativa ? null : k)}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter" || e.key === " ") {
-                        e.preventDefault();
-                        setAberta(ativa ? null : k);
-                      }
-                    }}
-                  >
-                    <path d={d} className="fill-none stroke-transparent [pointer-events:stroke] group-focus-visible/l:stroke-bronze/30" strokeWidth={16} />
-                    <path
-                      d={d}
-                      className="fill-none stroke-bronze-texto [pointer-events:none]"
-                      strokeWidth={ativa ? 3.5 : 2}
-                      strokeDasharray={TRACO_VERBO[l.verbo]}
-                      strokeLinecap="round"
-                      markerEnd={`url(#${base}-seta)`}
-                    />
-                  </g>
-                );
-              })}
-            </g>
-          )}
+          {/* Alvos de toque das ligações, por cima: só o traço (16 de largura) recebe o toque. */}
+          {verbo &&
+            tracos.map(({ l, t }) => {
+              const ch = chaveLigacao(l);
+              const ativa = aberta === ch;
+              return (
+                <g
+                  key={ch}
+                  role="button"
+                  tabIndex={0}
+                  aria-pressed={ativa}
+                  aria-label={`${l.frase} ${l.artigo}`}
+                  className="group/l cursor-pointer outline-none"
+                  onClick={() => setAberta(ativa ? null : ch)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      setAberta(ativa ? null : ch);
+                    }
+                  }}
+                >
+                  <path d={t.d} className="fill-none stroke-transparent [pointer-events:stroke] group-hover/l:stroke-bronze/15 group-focus-visible/l:stroke-bronze/35" strokeWidth={16} strokeLinecap="round" />
+                </g>
+              );
+            })}
 
           {/* Fim do passeio: a mão para de pulsar também (WCAG 2.2.2). */}
           <MaoToque x={mx} y={my} oculta={tocou} reduzido={reduzido || terminou} etiquetaEsquerda={mx > 240} />
@@ -539,7 +560,7 @@ export function PrediosRepresentantes({
                 </button>
               </div>
             ) : (
-              <p className="text-muted-foreground">Toque numa linha para ver o que ela quer dizer. Esc ou &ldquo;ocultar&rdquo; tira as linhas.</p>
+              <p className="text-muted-foreground">Toque numa linha para ver o que ela quer dizer. Esc ou o × tira as linhas.</p>
             )}
             <ul className="sr-only">
               {ligacoes.map((l) => (

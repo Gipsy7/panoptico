@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { LIGACOES, VERBOS, caminhoCurvo, chaveLigacao, ligacoesVisiveis } from "./ligacoes";
+import { LIGACOES, VERBOS, chaveLigacao, ligacoesVisiveis, tracoLigacao } from "./ligacoes";
 
 const TODOS = ["planalto", "senado", "camara", "governo", "assembleia", "prefeitura", "camaramun"] as const;
 
@@ -32,10 +32,28 @@ describe("ligacoes", () => {
     const p = LIGACOES.find((l) => l.de === "prefeitura" && l.verbo === "sanciona")!;
     expect(p.artigo).toMatch(/lei orgânica/);
   });
-  it("caminho curvo termina antes do destino", () => {
-    const d = caminhoCurvo([0, 0], [100, 0], 1, 20);
-    expect(d).toMatch(/^M0 0 Q/);
-    const fim = Number(d.split(" ").at(-2));
-    expect(fim).toBeLessThan(100);
+  it("toda ligação tem traço, com seta no fim", () => {
+    for (const l of LIGACOES) {
+      const t = tracoLigacao(l, 660);
+      expect(t, chaveLigacao(l)).not.toBeNull();
+      expect(t!.d).toMatch(/^M/);
+      expect(t!.comprimento).toBeGreaterThan(20);
+    }
+  });
+  it("a seta do Elege entra de lado, na altura da base do prédio", () => {
+    const esq = tracoLigacao(LIGACOES.find((l) => l.para === "prefeitura" && l.verbo === "elege")!, 660)!;
+    const dir = tracoLigacao(LIGACOES.find((l) => l.para === "camaramun" && l.verbo === "elege")!, 660)!;
+    expect(esq.ang).toBe(0);
+    expect(dir.ang).toBe(180);
+    expect(esq.fim[1]).toBe(574);
+  });
+  it("o fio do Elege sai de Você, onde quer que o desenho termine", () => {
+    const l = LIGACOES.find((x) => x.para === "governo" && x.verbo === "elege")!;
+    expect(tracoLigacao(l, 466)!.d).toMatch(/^M180 446 /);
+  });
+  it("a ligação inversa (esquerda para direita) troca o sentido", () => {
+    const a = tracoLigacao(LIGACOES.find((l) => l.de === "senado" && l.para === "planalto" && l.verbo === "julga")!, 660)!;
+    const b = tracoLigacao(LIGACOES.find((l) => l.de === "planalto" && l.para === "senado")!, 660)!;
+    expect(a.fim[0]).toBeLessThan(b.fim[0]);
   });
 });
