@@ -2185,3 +2185,48 @@ export function postArgosNaoEntendida(texto: string): Promise<void> {
 export function postArgosAvaliacao(util: boolean, assunto: string, conversa?: MensagemArgos[]): Promise<void> {
   return postarArgos("/argos/avaliacao", { util, assunto, ...(conversa?.length ? { conversa } : {}) });
 }
+
+export type ItemBancada = { partido: string; n: number };
+
+export type Bancada = {
+  itens: ItemBancada[];
+  total: number;
+  fonte_nome: string;
+  fonte_url: string;
+  atualizado_em: string | null;
+  /** De onde vêm os nomes: a própria casa ("assembleia", "camara", "senado") ou o TSE ("tse"). */
+  origem: "assembleia" | "camara" | "senado" | "tse";
+};
+
+export type BancadasEstado = {
+  uf: string;
+  assembleia: Bancada;
+  camara_uf: Bancada;
+  senado_uf: Bancada;
+};
+
+export type ComposicaoCongresso = {
+  casa: "camara" | "senado";
+  hoje: ItemBancada[];
+  a_partir_2027: ItemBancada[] | null;
+  total: number;
+  total_2027: number | null;
+  fonte_nome: string;
+  fonte_url: string;
+  atualizado_em: string | null;
+  fonte_2027_nome: string | null;
+  fonte_2027_url: string | null;
+  atualizado_2027_em: string | null;
+};
+
+export function getBancadasEstado(uf: string) {
+  return getJson<BancadasEstado>(`/estados/${encodeURIComponent(uf)}/bancadas`);
+}
+
+export function getBancadaMunicipio(ibge: string) {
+  return getJson<Bancada>(`/municipios/${encodeURIComponent(ibge)}/bancada`);
+}
+
+export function getComposicaoCongresso(casa: "camara" | "senado") {
+  return getJson<ComposicaoCongresso>(`/congresso/composicao?casa=${casa}`);
+}

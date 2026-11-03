@@ -4,6 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.api import (
     argos,
     avisos,
+    bancadas,
     busca,
     cobertura,
     comparar,
@@ -75,6 +76,7 @@ app.include_router(dinheiro_federal.router)
 app.include_router(fontes.router)
 app.include_router(comparar.router)
 app.include_router(eleitos.router)
+app.include_router(bancadas.router)
 app.include_router(executivo.router)
 app.include_router(busca.router)
 app.include_router(argos.router)

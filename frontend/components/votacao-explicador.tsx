@@ -10,6 +10,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 
 import { AvisoErro } from "@/components/aviso-erro";
+import { Cadeiras } from "@/components/casa/cadeiras";
 import { CompartilharWhatsApp } from "@/components/compartilhar";
 import { AvisoDiscursos, GruposDeDiscursos } from "@/components/discursos-secao";
 import { EsqueletoSecao } from "@/components/esqueleto-secao";
@@ -218,6 +219,28 @@ async function Votacao({ casa, id, ufInicial }: { casa: string; id: string; ufIn
           texto={`${d.proposicao ?? "Votação"} no ${casaCurta}: ${d.resultado ? `${RESULTADO[d.resultado].toLowerCase()}, ` : ""}Sim ${n(p.sim)} x Não ${n(p.nao)}. Veja como votou cada partido e cada parlamentar:`}
         />
       </div>
+
+      {d.cadeiras > 0 && p.sim + p.nao > 0 && (
+        <section aria-labelledby="cadeiras-titulo" className="flex flex-col gap-3">
+          <h2 id="cadeiras-titulo" className="text-2xl">
+            O plenário na hora de votar
+          </h2>
+          <Cadeiras
+            nome={`Plenário ${CASA_DA[d.casa]}`}
+            porVoto={{
+              sim: p.sim,
+              nao: p.nao,
+              outros: Math.max(0, d.cadeiras - p.sim - p.nao),
+              rotuloOutros: "Abstenção, obstrução, ausência ou sem registro",
+            }}
+            fonte={{ nome: d.fonte_nome, url: d.fonte_url, atualizadoEm: d.atualizado_em }}
+          />
+          <p className="text-sm text-muted-foreground">
+            Cada bolinha é uma cadeira ({n(d.cadeiras)} no total). Sim e Não seguem o placar{" "}
+            {p.daFonte ? `publicado ${CASA_DA[d.casa]}` : "da lista nominal"}.
+          </p>
+        </section>
+      )}
 
       <ListaPerguntas titulo="Para entender">
         <Pergunta

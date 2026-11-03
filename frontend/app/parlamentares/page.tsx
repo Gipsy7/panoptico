@@ -12,11 +12,13 @@ import { CampoSelect, CampoTexto, type FiltroAtivo, PilulasAtivas, SemResultados
 import { CamposOrdenacao } from "@/components/ui/campos-filtro-cliente";
 import { PainelFiltros } from "@/components/ui/painel-filtros";
 import { Resumo2x2 } from "@/components/ui/resumo-2x2";
+import { CadeirasCongresso } from "@/components/casa/cadeiras-congresso";
 import {
   type CriterioId,
   type FiltrosLista,
   type ListaParlamentares,
   type ParlamentarNaLista,
+  getComposicaoCongresso,
   getParlamentares,
 } from "@/lib/api";
 import { CASA_CURTA, formatarGastos, formatarReais, formatarReaisCompacto } from "@/lib/formato";
@@ -56,7 +58,8 @@ export default function ParlamentaresPage({ searchParams }: PageProps<"/parlamen
 }
 
 async function Lista({ filtros }: { filtros: FiltrosLista }) {
-  const resultado = await getParlamentares(filtros);
+  const casaCadeiras = filtros.casa === "senado" ? "senado" : "camara";
+  const [resultado, composicao] = await Promise.all([getParlamentares(filtros), getComposicaoCongresso(casaCadeiras)]);
   if (!resultado.ok) {
     return <AvisoErro titulo="Não deu para carregar a lista" mensagem={resultado.mensagem} />;
   }
@@ -83,6 +86,25 @@ async function Lista({ filtros }: { filtros: FiltrosLista }) {
           },
         ]}
       />
+      {composicao.ok && composicao.dados.total > 0 && (
+        <section aria-label="Cadeiras por partido" className="revelar flex flex-col gap-3">
+          <CadeirasCongresso
+            composicao={composicao.dados}
+            partidoAtivo={filtros.partido ?? null}
+            enderecos={Object.fromEntries([
+              ["", enderecoLista(filtros, { partido: "" })],
+              ...[...composicao.dados.hoje, ...(composicao.dados.a_partir_2027 ?? [])].map(
+                (i) => [i.partido, enderecoLista(filtros, { partido: i.partido })] as [string, string],
+              ),
+            ])}
+          />
+          {!filtros.casa && (
+            <p className="text-sm text-muted-foreground">
+              Aqui, a Câmara. Para ver as cadeiras do Senado, escolha &quot;Senado&quot; em Casa nos filtros.
+            </p>
+          )}
+        </section>
+      )}
       <FiltrosDaLista dados={dados} filtros={filtros} ativos={ativos} />
 
       <section aria-labelledby="lista-titulo" className="revelar flex flex-col gap-3">
