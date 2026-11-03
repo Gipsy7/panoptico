@@ -35,6 +35,15 @@ Fontes: Newsreader (títulos) e Geist (texto), ambas do Google Fonts. Detalhes e
 | `story.png` | 1080×1920 | Story e status do WhatsApp |
 | `logo-claro.svg`, `logo-escuro.svg`, `marca-sol.svg` | vetor | Logo para impressão e apresentações |
 
+## Assinatura de e-mail (`assinatura/`)
+
+`assinatura.html` é a assinatura da Equipe Panóptico: abra no navegador, copie a tabela e cole no
+campo de assinatura do webmail. O sol animado (`panoptico-assinatura.gif`, 192×192 exibido a 72 px; o
+primeiro quadro é a marca completa, que é o que o Outlook do Windows mostra) e o PNG estático ficam
+também em `frontend/public/assinatura/`, servidos em `https://panoptico.social.br/assinatura/`. Para
+refazer: `python scripts/gerar-assinatura.py marca/assinatura` e copie os dois arquivos para
+`frontend/public/assinatura/`.
+
 ## Regerar
 
 As imagens saem de `scripts/gerar-pack-redes.mjs`, que lê a logo de `frontend/lib/logo-caminhos.ts`
