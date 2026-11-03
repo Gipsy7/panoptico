@@ -17,6 +17,7 @@
 import type { ReactNode } from "react";
 
 import { BarraComparacao, type FormatoNumero } from "@/components/painel/barra-comparacao";
+import { PontinhoNovo } from "@/components/perfil/novidades-perfil";
 
 export type Comparacao = {
   pessoa: { rotulo: string; valor: number };
@@ -63,6 +64,7 @@ export function CartaoNumero({
         href={href ?? `#ver-${destino}`}
         className="flex h-full min-h-11 min-w-0 flex-col gap-2 rounded-[var(--radius)] border border-border bg-card p-3 transition-colors duration-200 hover:border-foreground/40 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-bronze sm:p-4"
       >
+        <PontinhoNovo destino={destino} />
         <span className="text-sm leading-snug text-muted-foreground">{rotulo}</span>
         <span className="numero text-[1.375rem] leading-none break-words sm:text-[1.625rem]">
           {valor}
