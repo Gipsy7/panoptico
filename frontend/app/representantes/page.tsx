@@ -14,6 +14,8 @@ import { EleitosSecao } from "@/components/eleitos-secao";
 import { EleitosFuturosSecao } from "@/components/eleito-futuro";
 import { ExecutivoSecao } from "@/components/executivo-secao";
 import { ParlamentarCard } from "@/components/parlamentar-card";
+import { Suspense } from "react";
+import { BancadaDoPredio, CadeirasDoPredio } from "@/components/casa/blocos-predio";
 import { PrediosRepresentantes, type PredioDados, type PessoaPredio } from "@/components/predios-representantes";
 import { AbasDetalhe, type AbaDetalhe } from "@/components/painel/abas-detalhe";
 import { CartaoNumero, GradeCartoes } from "@/components/painel/cartao-numero";
@@ -191,6 +193,35 @@ async function Lista({ cep, uf, municipio }: Busca) {
     vereadores,
   });
 
+  const espera = <p className="text-sm text-muted-foreground">Carregando…</p>;
+  const ibge = localizacao.codigo_ibge;
+  const bancada = (predio: "senado" | "camara" | "assembleia" | "camaramun") => (
+    <Suspense fallback={espera}>
+      <BancadaDoPredio predio={predio} uf={localizacao.uf} ibge={ibge} nomeEstado={nomeEstado} />
+    </Suspense>
+  );
+  const cadeiras = (casa: "camara" | "senado") => (
+    <Suspense fallback={espera}>
+      <CadeirasDoPredio casa={casa} />
+    </Suspense>
+  );
+  const blocosDosPredios = {
+    senado: (
+      <>
+        {bancada("senado")}
+        {cadeiras("senado")}
+      </>
+    ),
+    camara: (
+      <>
+        {bancada("camara")}
+        {cadeiras("camara")}
+      </>
+    ),
+    assembleia: bancada("assembleia"),
+    ...(temCidade ? { camaramun: bancada("camaramun") } : {}),
+  };
+
   // Cada lista aparece UMA vez, dentro de uma aba; o cartão do topo abre a mesma lista em gaveta.
   const abas: AbaDetalhe[] = [
     {
@@ -337,6 +368,7 @@ async function Lista({ cep, uf, municipio }: Busca) {
 
         <PrediosRepresentantes
           predios={predios}
+          blocos={blocosDosPredios}
           faixaEstado={faixaEstado(localizacao.uf, nomeEstado)}
           faixaCidade={temCidade && cidade ? cidade.toUpperCase() : null}
           voce={`Você, em ${temCidade && cidade ? cidade : nomeEstado}`}

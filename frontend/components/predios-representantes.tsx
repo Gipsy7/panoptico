@@ -23,6 +23,7 @@ import {
   chaveLigacao,
   ligacoesVisiveis,
 } from "@/lib/ligacoes";
+import { type CargoId, CARGOS, FAIXAS_VEREADOR } from "@/lib/cargos";
 import { type PredioId, larguraFaixa, medidasDoDesenho, predioInicial, roteiroDaMao } from "@/lib/predios";
 
 export type PessoaPredio = {
@@ -217,14 +218,78 @@ function Faixa({ y, texto }: { y: number; texto: string }) {
   );
 }
 
+/** Cargo do prédio, para o "Pode / Não pode / Quanto ganha" do painel. */
+const CARGO_DO_PREDIO: Record<PredioId, CargoId> = {
+  planalto: "presidente",
+  senado: "senador",
+  camara: "deputado-federal",
+  governo: "governador",
+  assembleia: "deputado-estadual",
+  prefeitura: "prefeito",
+  camaramun: "vereador",
+};
+
+function Artigo({ texto }: { texto: string }) {
+  return <span className="block text-xs text-muted-foreground">{texto}</span>;
+}
+
+/** O que o cargo pode e não pode fazer e quanto ganha, com artigo da CF e fonte. */
+function BlocoCargo({ predio }: { predio: PredioId }) {
+  const cargo = CARGOS[CARGO_DO_PREDIO[predio]];
+  const lista = (itens: { texto: string; artigo: string }[]) => (
+    <ul className="mt-1 flex flex-col gap-2 text-sm">
+      {itens.map((i) => (
+        <li key={i.texto}>
+          {i.texto}
+          <Artigo texto={i.artigo} />
+        </li>
+      ))}
+    </ul>
+  );
+  return (
+    <section aria-label={`O que ${cargo.um} pode, não pode e quanto ganha`} className="mt-5 flex flex-col gap-3 border-t border-border pt-4">
+      <details>
+        <summary className="min-h-11 cursor-pointer py-2 text-base font-semibold focus-visible:outline-2 focus-visible:outline-bronze">
+          Pode
+        </summary>
+        {lista(cargo.pode)}
+      </details>
+      <details>
+        <summary className="min-h-11 cursor-pointer py-2 text-base font-semibold focus-visible:outline-2 focus-visible:outline-bronze">
+          Não pode
+        </summary>
+        {lista(cargo.naoPode)}
+      </details>
+      <div>
+        <h3 className="text-base font-semibold">Quanto ganha</h3>
+        <p className="mt-1 text-sm">{cargo.ganha.texto}</p>
+        {predio === "camaramun" && (
+          <ul className="mt-1 text-sm tabular-nums text-muted-foreground">
+            {FAIXAS_VEREADOR.map((f) => (
+              <li key={f.rotulo}>
+                {f.rotulo}: até {f.percentual}%
+              </li>
+            ))}
+          </ul>
+        )}
+        <Artigo texto={cargo.ganha.artigo} />
+        <FonteRodape fonte={cargo.ganha.fonte.nome} url={cargo.ganha.fonte.url} />
+      </div>
+    </section>
+  );
+}
+
 export function PrediosRepresentantes({
   predios,
+  blocos,
   faixaBrasil = "BRASIL · BRASÍLIA",
   faixaEstado,
   faixaCidade,
   voce,
 }: {
   predios: PredioDados[];
+  /** Blocos de servidor (bancada, cadeiras) por prédio, já dentro de <Suspense>. */
+  blocos?: Partial<Record<PredioId, ReactNode>>;
   faixaBrasil?: string;
   faixaEstado: string;
   /** Nulo quando a busca foi só por estado (ou no DF): o desenho termina no estado. */
@@ -527,12 +592,8 @@ export function PrediosRepresentantes({
           </p>
         )}
 
-        {/*
-          PONTO DE ENCAIXE (aguarda outro agente): aqui entram, nesta ordem, "Bancada", "Cadeiras" e
-          "Pode / não pode / quanto ganha" do prédio escolhido. Ainda não implementados; o slot fica
-          vazio e não ocupa espaço.
-        */}
-        <div id="slot-painel-predio" data-predio={sel.id} data-slot="bancada-cadeiras-pode" />
+        <BlocoCargo predio={sel.id} />
+        {blocos?.[sel.id] && <div id="slot-painel-predio" className="mt-5 flex flex-col gap-5 border-t border-border pt-4">{blocos[sel.id]}</div>}
 
         <div className="mt-4 flex flex-wrap gap-2">
           {sel.destino && (
