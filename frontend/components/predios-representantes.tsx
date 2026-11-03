@@ -14,6 +14,15 @@ import { type KeyboardEvent, type ReactNode, useEffect, useId, useRef, useState 
 
 import { FonteRodape } from "@/components/fonte-rodape";
 import { MaoToque, useMovimentoReduzido } from "@/components/mao-toque";
+import {
+  type NoLigacao,
+  type Verbo,
+  TRACO_VERBO,
+  VERBOS,
+  caminhoCurvo,
+  chaveLigacao,
+  ligacoesVisiveis,
+} from "@/lib/ligacoes";
 import { type PredioId, larguraFaixa, medidasDoDesenho, predioInicial, roteiroDaMao } from "@/lib/predios";
 
 export type PessoaPredio = {
@@ -235,6 +244,31 @@ export function PrediosRepresentantes({
   const painel = useRef<HTMLElement>(null);
   const desenho = useRef<HTMLDivElement>(null);
   const med = medidasDoDesenho(faixaCidade != null);
+  const [verbo, setVerbo] = useState<Verbo | null>(null);
+  const [aberta, setAberta] = useState<string | null>(null);
+  const ligacoes = ligacoesVisiveis(verbo, ids);
+  const ligacaoAberta = ligacoes.find((l) => chaveLigacao(l) === aberta) ?? null;
+
+  function ponto2(n: NoLigacao): [number, number] {
+    return n === "voce" ? [180, med.yVoce] : ponto(ENCAIXE[n], ...CENTROS[n]);
+  }
+  function escolherVerbo(v: Verbo | null) {
+    setVerbo(v);
+    setAberta(null);
+  }
+  // Esc fecha o balão aberto; com o balão fechado, tira as linhas.
+  useEffect(() => {
+    if (!verbo) return;
+    function aoTeclar(e: globalThis.KeyboardEvent) {
+      if (e.key !== "Escape") return;
+      if (aberta) setAberta(null);
+      else {
+        setVerbo(null);
+      }
+    }
+    window.addEventListener("keydown", aoTeclar);
+    return () => window.removeEventListener("keydown", aoTeclar);
+  }, [verbo, aberta]);
 
   // A mão troca de prédio a cada 2,6 s até o primeiro toque, por no máximo 3 voltas pelo roteiro
   // (WCAG 2.2.2): depois fica parada no último prédio. Com movimento reduzido, fica parada.
@@ -278,6 +312,34 @@ export function PrediosRepresentantes({
         ref={desenho}
         className="mx-auto w-full max-w-[30rem] scroll-mt-[calc(var(--altura-cabecalho)+0.75rem)] min-[900px]:sticky min-[900px]:top-[calc(var(--altura-cabecalho)+1rem)]"
       >
+        <div className="mb-2 flex flex-wrap items-baseline gap-x-1 text-sm text-muted-foreground" role="group" aria-label="Ligações entre os cargos">
+          <span>Ver:</span>
+          {VERBOS.map((v, i) => (
+            <span key={v.id} className="inline-flex items-baseline">
+              {i > 0 && <span aria-hidden className="px-0.5">·</span>}
+              <button
+                type="button"
+                aria-pressed={verbo === v.id}
+                onClick={() => escolherVerbo(verbo === v.id ? null : v.id)}
+                className={`inline-flex min-h-11 items-center px-1.5 underline-offset-4 hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-bronze ${
+                  verbo === v.id ? "font-semibold text-foreground underline decoration-bronze decoration-2" : ""
+                }`}
+              >
+                {v.rotulo}
+              </button>
+            </span>
+          ))}
+          {verbo && (
+            <button
+              type="button"
+              onClick={() => escolherVerbo(null)}
+              className="ml-auto inline-flex min-h-11 items-center px-1.5 underline underline-offset-4 hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-bronze"
+            >
+              ocultar
+            </button>
+          )}
+        </div>
+        <div>
         <svg
           viewBox={`0 0 360 ${med.altura}`}
           role="group"
@@ -355,9 +417,74 @@ export function PrediosRepresentantes({
             {voce}
           </text>
 
+          {verbo && (
+            <g className={TRACO_FIXO} aria-label={`Ligações: ${verbo}`}>
+              <defs>
+                <marker id={`${base}-seta`} viewBox="0 0 10 10" refX={8} refY={5} markerWidth={7} markerHeight={7} orient="auto">
+                  <path d="M0 0 L10 5 L0 10 Z" className="fill-bronze-texto" />
+                </marker>
+              </defs>
+              {ligacoes.map((l, i) => {
+                const d = caminhoCurvo(ponto2(l.de), ponto2(l.para), l.de === "voce" ? (i % 2 ? 1 : -1) * 0.6 : 1);
+                const k = chaveLigacao(l);
+                const ativa = aberta === k;
+                return (
+                  <g
+                    key={k}
+                    role="button"
+                    tabIndex={0}
+                    aria-pressed={ativa}
+                    aria-label={`${l.frase} ${l.artigo}`}
+                    className="group/l cursor-pointer outline-none"
+                    onClick={() => setAberta(ativa ? null : k)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        setAberta(ativa ? null : k);
+                      }
+                    }}
+                  >
+                    <path d={d} className="fill-none stroke-transparent [pointer-events:stroke] group-focus-visible/l:stroke-bronze/30" strokeWidth={16} />
+                    <path
+                      d={d}
+                      className="fill-none stroke-bronze-texto [pointer-events:none]"
+                      strokeWidth={ativa ? 3.5 : 2}
+                      strokeDasharray={TRACO_VERBO[l.verbo]}
+                      strokeLinecap="round"
+                      markerEnd={`url(#${base}-seta)`}
+                    />
+                  </g>
+                );
+              })}
+            </g>
+          )}
+
           {/* Fim do passeio: a mão para de pulsar também (WCAG 2.2.2). */}
           <MaoToque x={mx} y={my} oculta={tocou} reduzido={reduzido || terminou} etiquetaEsquerda={mx > 240} />
         </svg>
+        </div>
+        {verbo && (
+          <div className="mt-2 text-sm">
+            {ligacaoAberta ? (
+              <div className="rounded-[var(--radius)] border border-border bg-card p-3">
+                <p>{ligacaoAberta.frase}</p>
+                <p className="text-xs text-muted-foreground">{ligacaoAberta.artigo}</p>
+                <button type="button" onClick={() => setAberta(null)} className="botao-linha mt-2">
+                  Fechar
+                </button>
+              </div>
+            ) : (
+              <p className="text-muted-foreground">Toque numa linha para ver o que ela quer dizer. Esc ou &ldquo;ocultar&rdquo; tira as linhas.</p>
+            )}
+            <ul className="sr-only">
+              {ligacoes.map((l) => (
+                <li key={chaveLigacao(l)}>
+                  {l.frase} {l.artigo}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
         <p className="mt-2 text-center text-sm text-muted-foreground">
           {tocou ? "Toque ou clique em outro prédio para comparar." : "Toque ou clique num prédio para ver quem trabalha lá."}
         </p>
@@ -399,6 +526,13 @@ export function PrediosRepresentantes({
             Mostrando {sel.pessoas.length} de {sel.total.toLocaleString("pt-BR")}.
           </p>
         )}
+
+        {/*
+          PONTO DE ENCAIXE (aguarda outro agente): aqui entram, nesta ordem, "Bancada", "Cadeiras" e
+          "Pode / não pode / quanto ganha" do prédio escolhido. Ainda não implementados; o slot fica
+          vazio e não ocupa espaço.
+        */}
+        <div id="slot-painel-predio" data-predio={sel.id} data-slot="bancada-cadeiras-pode" />
 
         <div className="mt-4 flex flex-wrap gap-2">
           {sel.destino && (
