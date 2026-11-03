@@ -1000,6 +1000,25 @@ class PessoaDoPerfil(BaseModel):
     pessoa_id: int
 
 
+class ParecidoDoPerfil(BaseModel):
+    nome: str
+    cargo: str
+    lugar: str
+    href: str
+
+
+class UltimoRegistro(BaseModel):
+    tipo: str
+    data: date
+
+
+class ConfiancaDoPerfil(BaseModel):
+    conferido_em: date | None
+    fonte: str
+    ultimo_registro: UltimoRegistro | None
+    parecidos: list[ParecidoDoPerfil]
+
+
 class PessoaResposta(BaseModel):
     id: int
     nome: str

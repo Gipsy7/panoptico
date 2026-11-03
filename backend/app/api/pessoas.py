@@ -11,6 +11,7 @@ from app.schemas import (
     CarreiraDaPessoa,
     CasoResposta,
     CasoResumo,
+    ConfiancaDoPerfil,
     ContratosDaPessoa,
     LinhaDoTempo,
     PessoaDoPerfil,
@@ -18,6 +19,7 @@ from app.schemas import (
     SancoesDaPessoa,
     ServicoFederalDaPessoa,
 )
+from app.services import confianca as confianca_servico
 from app.services import contratos_pncp, cruzamentos, pessoas
 
 router = APIRouter()
@@ -39,6 +41,21 @@ def pessoa_de(
     if pessoa_id is None:
         raise HTTPException(404, "Pessoa não encontrada para este perfil.")
     return {"pessoa_id": pessoa_id}
+
+
+@router.get("/pessoas/de/confianca", response_model=ConfiancaDoPerfil)
+def confianca(
+    tipo: TipoDePerfil,
+    id: Annotated[int, Query(ge=1)],
+    session: Annotated[Session, Depends(get_session)],
+) -> dict:
+    """Cabeçalho do perfil: quando o cadastro foi conferido com a fonte oficial, o fato
+    oficial mais recente que temos e pessoas públicas com nome muito parecido. Funciona
+    também para perfis sem pessoa ligada (aí não há fatos da linha do tempo)."""
+    resultado = confianca_servico.do_perfil(session, tipo, id)
+    if resultado is None:
+        raise HTTPException(404, "Perfil não encontrado.")
+    return resultado
 
 
 @router.get("/pessoas/{pessoa_id}", response_model=PessoaResposta)

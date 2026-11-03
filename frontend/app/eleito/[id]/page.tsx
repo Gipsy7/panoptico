@@ -1,3 +1,4 @@
+import { CabecalhoConfianca } from "@/components/perfil/cabecalho-confianca";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { EsqueletoSecao } from "@/components/esqueleto-secao";
@@ -407,6 +408,7 @@ async function Perfil({
             <span className="pilula">Eleição de {e.ano_eleicao}</span>
           </p>
           {e.situacao && <p className="text-sm text-muted-foreground">{e.situacao}</p>}
+          <CabecalhoConfianca tipo="candidatura" id={String(e.id)} />
         </div>
       </header>
 
