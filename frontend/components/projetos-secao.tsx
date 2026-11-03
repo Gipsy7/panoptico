@@ -1,6 +1,7 @@
 import { TextoLongo } from "@/components/ui/texto-longo";
 import { TabelaRolavel } from "@/components/ui/tabela-rolavel";
 import { FonteRodape } from "@/components/fonte-rodape";
+import { CobrarLinha } from "@/components/perfil/cobrar-linha";
 import type { Casa, ProjetoItem, Projetos } from "@/lib/api";
 import { CASA_DA, formatarData } from "@/lib/formato";
 import { LinkExterno } from "@/components/link-externo";
@@ -84,6 +85,7 @@ export function ProjetosSecao({ projetos, casa }: { projetos: Projetos; casa: Ca
         <p className="text-muted-foreground">Nenhum projeto como autor principal neste período.</p>
       )}
 
+      <CobrarLinha tema="projetos" esfera="federal" casa={casa} />
       <FonteRodape
         fonte={projetos.fonte_nome}
         url={projetos.fonte_url}

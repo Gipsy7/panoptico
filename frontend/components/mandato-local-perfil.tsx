@@ -21,7 +21,10 @@ import { AbasDetalhe, type AbaDetalhe } from "@/components/painel/abas-detalhe";
 import { formatarNumero } from "@/components/painel/barra-comparacao";
 import { CartaoNumero, GradeCartoes } from "@/components/painel/cartao-numero";
 import { ListaPerguntas, Pergunta } from "@/components/painel/pergunta";
-import { getEleito, getEmendasDeputadoEstadual, getLinhaDoTempo, getSancoes, getVereador, getVotacoesLocais, type VereadorDetalhe } from "@/lib/api";
+import { getCanais, getEleito, getEmendasDeputadoEstadual, getLinhaDoTempo, getSancoes, getVereador, getVotacoesLocais, type VereadorDetalhe } from "@/lib/api";
+import { CartaoChecklist, ChecklistPerfil, DESTINO_CHECKLIST } from "@/components/perfil/checklist-perfil";
+import { ComoCobrar } from "@/components/perfil/como-cobrar";
+import { montarChecklist } from "@/lib/checklist-perfil";
 import { formatarData, formatarGastos, formatarReais, formatarReaisCompacto } from "@/lib/formato";
 import { LinkExterno } from "@/components/link-externo";
 
@@ -37,13 +40,16 @@ export async function PerfilMandatoLocal({ id, paginaVotos }: { id: string; pagi
   const cargo = camara ? "Vereador" : v.uf === "DF" ? "Deputado distrital" : "Deputado estadual";
   const nomeCasa = camara ? "câmara" : "assembleia";
   const rota = `/${camara ? "vereador" : "deputado-estadual"}/${v.id}`;
-  const [eleicao, votacoes, linha, emendasEstaduaisR] = await Promise.all([
+  const [eleicao, votacoes, linha, emendasEstaduaisR, canaisR] = await Promise.all([
     v.candidatura_id ? getEleito(String(v.candidatura_id)) : null,
     getVotacoesLocais(String(v.id), paginaVotos),
     getLinhaDoTempo(camara ? "vereador" : "deputado_estadual", String(v.id)),
     // Só onde a API tem a fonte (hoje SC); nas outras UFs devolve 404 e nada novo aparece.
     camara ? null : getEmendasDeputadoEstadual(v.id),
+    // Sites da câmara e da prefeitura, para "Como cobrar" (só vereador).
+    camara && v.municipio_ibge ? getCanais(v.municipio_ibge) : null,
   ]);
+  const canaisCidade = canaisR?.ok ? canaisR.dados.itens : undefined;
   const emendasEstaduais = emendasEstaduaisR?.ok ? emendasEstaduaisR.dados : null;
   const pessoaId = linha.ok ? linha.dados.pessoa_id : null;
   const sancoes = pessoaId !== null ? await getSancoes(pessoaId) : null;
@@ -55,6 +61,61 @@ export async function PerfilMandatoLocal({ id, paginaVotos }: { id: string; pagi
     !v.presenca && "presença nas sessões",
     votacoes.ok && !votacoes.dados.casa_registra && "o voto de cada parlamentar",
   ].filter(Boolean) as string[];
+
+  const bens = dEleicao?.bens ?? v.eleicao_recente?.bens ?? null;
+  const campanha = dEleicao?.campanha ?? v.eleicao_recente?.campanha ?? null;
+  const destinoTse = dEleicao ? "candidatura" : "candidatura-recente";
+  const fonteTse = dEleicao?.fonte_nome ?? v.eleicao_recente?.fonte_nome ?? null;
+  const checklist = montarChecklist([
+    {
+      id: "gastos",
+      rotulo: "Gastos do gabinete",
+      destino: "gastos",
+      tem: v.gastos !== null,
+      fonte: v.fonte_nome,
+      motivo: `A ${nomeCasa} não publica os gastos em dados abertos.`,
+    },
+    {
+      id: "presenca",
+      rotulo: "Presença nas sessões",
+      destino: "presenca",
+      tem: v.presenca !== null,
+      fonte: v.fonte_nome,
+      motivo: `A ${nomeCasa} não publica a lista de presença em dados abertos.`,
+    },
+    {
+      id: "votos",
+      rotulo: "Como votou",
+      destino: "votos",
+      tem: comRegistroDeVoto,
+      fonte: v.fonte_nome,
+      motivo: `A ${nomeCasa} não publica o voto de cada parlamentar.`,
+    },
+    {
+      id: "projetos",
+      rotulo: "Projetos e proposições",
+      destino: "proposicoes",
+      tem: v.projetos > 0 || v.proposicoes_por_tipo.length > 0 || v.lista_projetos.length > 0,
+      fonte: v.fonte_nome,
+      motivo: `Nenhuma proposição de autoria encontrada nos dados da ${nomeCasa}.`,
+    },
+    {
+      id: "bens",
+      rotulo: "Bens declarados",
+      destino: destinoTse,
+      tem: bens !== null,
+      fonte: fonteTse,
+      motivo: "O TSE não tem declaração de bens ligada a este perfil.",
+    },
+    {
+      id: "campanha",
+      rotulo: "Contas da campanha",
+      destino: destinoTse,
+      tem: campanha !== null,
+      fonte: fonteTse,
+      motivo: "O TSE não tem prestação de contas de campanha ligada a este perfil.",
+    },
+  ]);
 
   const abas: AbaDetalhe[] = [
     {
@@ -134,6 +195,26 @@ export async function PerfilMandatoLocal({ id, paginaVotos }: { id: string; pagi
           conteudo: pessoaId !== null && <ServicoFederalSecao pessoaId={pessoaId} />,
         },
         { id: "contato", titulo: "Contato", conteudo: <ContatoLocal v={v} /> },
+        {
+          id: "como-cobrar",
+          titulo: "Como cobrar",
+          conteudo: (
+            <ComoCobrar
+              esfera={camara ? "municipal" : "estadual"}
+              uf={v.uf}
+              canaisCidade={canaisCidade}
+              email={v.email}
+              telefone={v.telefone}
+            />
+          ),
+        },
+        {
+          id: DESTINO_CHECKLIST,
+          titulo: "O que está e o que não está neste perfil",
+          conteudo: (
+            <ChecklistPerfil checklist={checklist} uf={v.uf} casa={casaNaMatriz(v)} atualizadoEm={v.atualizado_em} />
+          ),
+        },
       ],
     },
     {
@@ -273,6 +354,7 @@ export async function PerfilMandatoLocal({ id, paginaVotos }: { id: string; pagi
           />
         )}
       </GradeCartoes>
+      <CartaoChecklist checklist={checklist} />
       <p className="text-sm text-muted-foreground">Toque ou clique num número para ver o detalhe, com a fonte e a data.</p>
 
       <Link href={`/comparar/local?a=${v.id}`} className="botao-linha self-start">

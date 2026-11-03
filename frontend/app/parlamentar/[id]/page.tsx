@@ -53,6 +53,9 @@ import {
 import { CASA_CURTA, FONTE_CASA, NOME_CASA, formatarReais } from "@/lib/formato";
 import { JsonLdPerfil, montarDescricao, nomeComSigla } from "@/components/json-ld";
 import { LinkExterno } from "@/components/link-externo";
+import { CartaoChecklist, ChecklistPerfil, DESTINO_CHECKLIST } from "@/components/perfil/checklist-perfil";
+import { ComoCobrar } from "@/components/perfil/como-cobrar";
+import { montarChecklist } from "@/lib/checklist-perfil";
 
 export async function generateMetadata({
   params,
@@ -140,6 +143,63 @@ async function Perfil({
   }
   const p = resultado.dados;
   const pessoaId = linha.ok ? linha.dados.pessoa_id : null;
+  const nomeCasaMatriz = p.casa === "senado" ? "Senado Federal" : "Câmara dos Deputados";
+  const bensTse = candidatura.ok ? candidatura.dados.bens : null;
+  const campanhaTse = candidatura.ok ? candidatura.dados.campanha : null;
+  const checklist = montarChecklist([
+    {
+      id: "salario",
+      rotulo: "Salário",
+      destino: "remuneracao",
+      tem: true,
+      fonte: p.remuneracao.fonte_nome,
+    },
+    {
+      id: "presenca",
+      rotulo: "Presença em votações",
+      destino: "presenca",
+      tem: presenca.ok && presenca.dados.total_votacoes > 0,
+      fonte: presenca.ok ? presenca.dados.fonte_nome : null,
+      motivo: "Não há votação nominal registrada no período.",
+    },
+    {
+      id: "votos",
+      rotulo: "Como votou",
+      destino: "votos",
+      tem: votos.ok && (votos.dados.total > 0 || votos.dados.anos_disponiveis.length > 0),
+      fonte: votos.ok ? votos.dados.fonte_nome : null,
+    },
+    {
+      id: "projetos",
+      rotulo: "Projetos de lei",
+      destino: "projetos",
+      tem: projetos.ok,
+      fonte: projetos.ok ? projetos.dados.fonte_nome : null,
+    },
+    {
+      id: "gastos",
+      rotulo: "Gastos do gabinete",
+      destino: "gastos",
+      tem: gastos.ok,
+      fonte: gastos.ok ? gastos.dados.fonte_nome : null,
+    },
+    {
+      id: "bens",
+      rotulo: "Bens declarados",
+      destino: "candidatura",
+      tem: bensTse !== null,
+      fonte: candidatura.ok ? candidatura.dados.fonte_nome : null,
+      motivo: "O TSE não tem declaração de bens ligada a este perfil.",
+    },
+    {
+      id: "campanha",
+      rotulo: "Contas da campanha",
+      destino: "candidatura",
+      tem: campanhaTse !== null,
+      fonte: candidatura.ok ? candidatura.dados.fonte_nome : null,
+      motivo: "O TSE não tem prestação de contas de campanha ligada a este perfil.",
+    },
+  ]);
 
   // Cada seção aparece UMA vez, dentro de uma aba; o cartão do topo abre a mesma seção em gaveta.
   const abas: AbaDetalhe[] = [
@@ -246,6 +306,16 @@ async function Perfil({
           conteudo: pessoaId !== null && <ServicoFederalSecao pessoaId={pessoaId} />,
         },
         { id: "contato", titulo: "Contato do gabinete", conteudo: <Contato p={p} /> },
+        {
+          id: "como-cobrar",
+          titulo: "Como cobrar",
+          conteudo: <ComoCobrar esfera="federal" uf={p.uf} casa={p.casa} email={p.email} telefone={p.telefone} />,
+        },
+        {
+          id: DESTINO_CHECKLIST,
+          titulo: "O que está e o que não está neste perfil",
+          conteudo: <ChecklistPerfil checklist={checklist} uf={p.uf} casa={nomeCasaMatriz} atualizadoEm={p.atualizado_em} />,
+        },
       ],
     },
     {
@@ -311,6 +381,7 @@ async function Perfil({
           sancoes={sancoes?.ok ? sancoes.dados : undefined}
           subsidio={p.remuneracao.subsidio_mensal}
         />
+        <CartaoChecklist checklist={checklist} />
         <p className="text-sm text-muted-foreground">Toque ou clique num número para ver o detalhe, com a fonte e a data.</p>
 
         <div className="flex flex-wrap gap-2">

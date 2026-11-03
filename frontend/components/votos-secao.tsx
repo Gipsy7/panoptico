@@ -4,6 +4,7 @@ import { CampoSelect, PilulasAtivas } from "@/components/ui/campos-filtro";
 import { PainelFiltros } from "@/components/ui/painel-filtros";
 import { TextoLongo } from "@/components/ui/texto-longo";
 import { FonteRodape } from "@/components/fonte-rodape";
+import { CobrarLinha } from "@/components/perfil/cobrar-linha";
 import type { Casa, Placar, Votos } from "@/lib/api";
 import { CASA_CURTA, formatarData } from "@/lib/formato";
 import { LinkExterno } from "@/components/link-externo";
@@ -164,6 +165,7 @@ export function VotosSecao({
         )}
       </div>
 
+      <CobrarLinha tema="votos" esfera="federal" casa={casa} />
       <FonteRodape fonte={dados.fonte_nome} url={dados.fonte_url} atualizadoEm={dados.atualizado_em} />
     </section>
   );
