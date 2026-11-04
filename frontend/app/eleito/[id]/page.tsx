@@ -19,6 +19,7 @@ import { FotoOuIniciais } from "@/components/eleitos-secao";
 import { ContratosSocioSecao } from "@/components/contratos-socio-secao";
 import { LinhaDoTempoSecao } from "@/components/linha-do-tempo-secao";
 import { Revelacao } from "@/components/revelacao";
+import { LeituraFacil } from "@/components/leitura-facil";
 import { FonteRodape } from "@/components/fonte-rodape";
 import { AbasDetalhe, type AbaDetalhe } from "@/components/painel/abas-detalhe";
 import { formatarNumero } from "@/components/painel/barra-comparacao";
@@ -396,7 +397,7 @@ async function Perfil({
   );
 
   return (
-    <article data-largura="larga" className="pagina-secoes">
+    <article data-largura="larga" data-perfil className="pagina-secoes">
       <header className="flex items-start gap-4">
         <FotoOuIniciais eleito={e} tamanho={72} legenda />
         <div className="flex min-w-0 flex-col gap-1">
@@ -429,6 +430,8 @@ async function Perfil({
       )}
 
       {painel && <AvisoDoGoverno painel={painel} />}
+
+      <LeituraFacil />
 
       <GradeCartoes rotulo="Números principais">
         {painel?.contas.disponivel && painel.ente.tipo !== "uniao" && (
@@ -529,6 +532,9 @@ async function Perfil({
           />
         )}
       </GradeCartoes>
+      <div data-so-facil>
+        <FonteRodape fonte={e.fonte_nome} url={e.fonte_url} atualizadoEm={e.atualizado_em} />
+      </div>
       <p className="text-sm text-muted-foreground">Toque ou clique num número para ver o detalhe, com a fonte e a data.</p>
 
       <CompartilharCartao
