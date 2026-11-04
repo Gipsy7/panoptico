@@ -13,6 +13,7 @@ import { SancoesSecao, TEXTO_REGISTRO } from "@/components/sancoes-secao";
 import { ServicoFederalSecao } from "@/components/servico-federal-secao";
 import { CandidaturaSecao } from "@/components/candidatura-secao";
 import { CompartilharWhatsApp } from "@/components/compartilhar";
+import { CompartilharCartao } from "@/components/compartilhar-cartao";
 import { QuemESecao } from "@/components/dados-pessoais";
 import { FotoOuIniciais } from "@/components/eleitos-secao";
 import { ContratosSocioSecao } from "@/components/contratos-socio-secao";
@@ -530,7 +531,14 @@ async function Perfil({
       </GradeCartoes>
       <p className="text-sm text-muted-foreground">Toque ou clique num número para ver o detalhe, com a fonte e a data.</p>
 
-      <CompartilharWhatsApp caminho={`/eleito/${e.id}`} texto={textoWhatsApp(e)} />
+      <CompartilharCartao
+        caminho={`/eleito/${e.id}`}
+        cartao={`/eleito/${e.id}/cartao`}
+        nomeArquivo={e.nome_urna}
+        texto={textoWhatsApp(e)}
+      >
+        <CompartilharWhatsApp caminho={`/eleito/${e.id}`} texto={textoWhatsApp(e)} />
+      </CompartilharCartao>
 
       <ListaPerguntas titulo="Para entender os números">
         {!emCargoFuturo && (
