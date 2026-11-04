@@ -10,6 +10,7 @@ export const DESTINO_CHECKLIST = "checklist";
 export function CartaoChecklist({ checklist }: { checklist: Checklist }) {
   if (checklist.total === 0) return null;
   return (
+    <div data-detalhe>
     <GradeCartoes rotulo="Dados que este perfil tem">
       <CartaoNumero
         destino={DESTINO_CHECKLIST}
@@ -20,6 +21,7 @@ export function CartaoChecklist({ checklist }: { checklist: Checklist }) {
         largo
       />
     </GradeCartoes>
+    </div>
   );
 }
 

@@ -839,4 +839,35 @@ html[data-argos-pagina] .argos-botao {
   .gaveta-termo {
     animation: folha-sobe var(--duracao-entrada) var(--curva-suave);
   }
+/* Leitura fácil ("Ler em linguagem simples", components/leitura-facil.tsx): a mesma página, com
+   a letra maior e o detalhe (data-detalhe) escondido dentro do perfil ([data-perfil]). O resumo,
+   os números principais com a média da Casa e a fonte com a data nunca levam data-detalhe.
+   Sem JavaScript a chave não aparece e nada muda. */
+html:not([data-js]) .leitura-facil {
+  display: none;
+}
+html[data-leitura="facil"] {
+  font-size: 118.75%; /* 19 px */
+}
+html[data-leitura="facil"] [data-perfil] {
+  line-height: 1.6;
+}
+html[data-leitura="facil"] [data-perfil] [data-detalhe]:not(:has([role="dialog"])) {
+  display: none;
+}
+/* Cartão do topo tocado: a seção abre em gaveta, mas sem as abas e o título de trás. */
+html[data-leitura="facil"] [data-perfil] [data-detalhe]:has([role="dialog"]) > :is(h2, [role="tablist"]),
+html[data-leitura="facil"] [data-perfil] [data-aba]:not(:has([role="dialog"])) {
+  display: none;
+}
+html[data-leitura="facil"] [data-perfil] :is(h1, h2, h3) {
+  line-height: 1.2;
+}
+
+/* Fonte e data do perfil que só aparecem na leitura fácil (no modo completo ficam nas seções). */
+[data-so-facil] {
+  display: none;
+}
+html[data-leitura="facil"] [data-perfil] [data-so-facil] {
+  display: block;
 }
