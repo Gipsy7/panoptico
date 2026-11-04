@@ -3,6 +3,7 @@
 ## Índice
 
 - [2026-11-03: perfil confiável, bancadas, cargos e ligações (Frentes 1 e 2)](#2026-11-03-perfil-confiável-bancadas-cargos-e-ligações-frentes-1-e-2)
+- [2026-11-03: compartilhar em imagem (Frente 8)](#2026-11-03-compartilhar-em-imagem-frente-8)
 - [2026-10-29: medidas provisórias e vetos do Presidente](#2026-10-29-medidas-provisórias-e-vetos-do-presidente)
 - [2026-10-29: salário de deputado estadual lido de CSV, só número publicado](#2026-10-29-salário-de-deputado-estadual-lido-de-csv-só-número-publicado)
 - [2026-10-30: Web Push, avisos no celular sem telefone nem e-mail](#2026-10-30-web-push-avisos-no-celular-sem-telefone-nem-e-mail)
@@ -1674,3 +1675,12 @@ Ideias absorvidas da comparação com o politicometro.org (03/11), adaptadas ao 
 - **Cargos:** pode, não pode e quanto ganha em `frontend/lib/cargos.ts`, cada item com artigo conferido no texto consolidado da CF. Salário só onde há fonte; vereador mostra a faixa do art. 29, VI; o que depende de constituição estadual ou lei orgânica é dito assim.
 - **Ligações entre os cargos:** curvas atrás dos prédios, filtro de uma linha (Elege, Fiscaliza, Julga, Sanciona), estado inicial sem linhas, sem animação com `prefers-reduced-motion`.
 
+## 2026-11-03: compartilhar em imagem (Frente 8)
+
+Escolhas do dono entre 3 protótipos de cada etapa: cartão do perfil em pôster escuro com a foto (A), "Quem decide por [cidade]" em mosaico de rostos (A) e botão pelo compartilhamento nativo do celular (C).
+
+- **Cartões são imagens geradas no servidor** (`next/og`), em rotas próprias (`/<perfil>/{id}/cartao`, `/cidade/{ibge}/cartao`, `?formato=feed|stories`), separadas das `opengraph-image` (que seguem 1200×630 para a prévia de link). Visual fixo, igual nos dois temas, só com as cores da marca (tinta, bronze, papel).
+- **Um número grande, sempre com a média da Casa** quando o perfil mostra média para ele. Sem número com média, entra o primeiro número que não seja zero; um zero sem média nunca vira manchete (costuma ser dado que a fonte não publica). Sem número, só nome, cargo e lugar.
+- **Cidade:** o total é a soma literal das pessoas eleitas que decidem por ela (presidente, senadores, deputados federais, governador, deputados estaduais, prefeito, vereadores), com as mesmas rotas de "Quem te representa". Cargo sem dado não entra no total e o rodapé diz o que ficou de fora. As fotos do mosaico seguem a ordem dos cargos, sem ordem que sugira juízo.
+- **Botão:** sem JavaScript, continua o link do WhatsApp. Com `navigator.share` e arquivos, compartilha a imagem do Feed, a frase e o link; sem isso (computador), baixa a imagem. Nada vai ao servidor além do pedido da imagem.
+- **Fontes Geist em TTF** em `frontend/assets/fonts` (o gerador não lê woff2), incluídas no build por `outputFileTracingIncludes`. A foto em tom bronze usa `sharp` quando ele existe; sem ele, a foto sai natural.
