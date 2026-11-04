@@ -1,4 +1,5 @@
 import { SobreOCargo } from "@/components/cargo/sobre-o-cargo";
+import { DicaPagina } from "@/components/dica-pagina";
 import { CabecalhoConfianca } from "@/components/perfil/cabecalho-confianca";
 import type { Metadata } from "next";
 import Link from "next/link";
@@ -94,6 +95,8 @@ export default function ParlamentarPage({
   searchParams,
 }: PageProps<"/parlamentar/[id]">) {
   return (
+    <>
+      <DicaPagina chave="perfil" />
     <Revelacao fallback={<Carregando />}>
       {Promise.all([params, searchParams]).then(([{ id }, sp]) => {
         const texto = (v: string | string[] | undefined) => (typeof v === "string" ? v : undefined);
@@ -108,6 +111,7 @@ export default function ParlamentarPage({
         );
       })}
     </Revelacao>
+    </>
   );
 }
 
