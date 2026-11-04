@@ -114,6 +114,10 @@
   --sidebar-border: #d9d3c7;
   --sidebar-ring: #9c6a2a;
   --sombra-menu: 0 16px 24px -20px rgb(0 0 0 / 0.25);
+  /* Véu atrás da gaveta do dicionário (TermoOficial) e realce do exemplo: tokens próprios. */
+  --veu: rgb(20 20 20 / 0.5);
+  --realce: color-mix(in oklab, var(--bronze) 12%, var(--card));
+  --realce-forte: color-mix(in oklab, var(--bronze) 22%, var(--background));
   color-scheme: light;
 }
 
@@ -157,6 +161,7 @@
     --sidebar-border: #3a362f;
     --sidebar-ring: #c9954a;
     --sombra-menu: 0 16px 24px -20px rgb(0 0 0 / 0.7);
+    --veu: rgb(0 0 0 / 0.65);
   }
 }
 :root[data-theme="dark"] {
@@ -196,6 +201,7 @@
   --sidebar-border: #3a362f;
   --sidebar-ring: #c9954a;
   --sombra-menu: 0 16px 24px -20px rgb(0 0 0 / 0.7);
+  --veu: rgb(0 0 0 / 0.65);
 }
 
 @layer base {
@@ -713,5 +719,124 @@ html[data-argos-pagina] .argos-botao {
 @keyframes lig-marcha {
   to {
     stroke-dashoffset: -30;
+  }
+}
+
+/* ---------- Dicionário: <TermoOficial> e a gaveta que sobe de baixo ----------
+   O termo fica sublinhado em pontinhos bronze, com um "?" ao lado. O alvo de toque cresce para
+   44 px de altura por um pseudo-elemento, sem mudar o desenho da linha. */
+.termo-oficial {
+  position: relative;
+  display: inline;
+  padding: 0 1px;
+  margin: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: inherit;
+  cursor: pointer;
+  text-decoration: underline dotted var(--bronze);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 4px;
+  border-radius: 2px;
+}
+.termo-oficial::after {
+  content: "";
+  position: absolute;
+  inset: -0.75rem -0.25rem;
+}
+.termo-oficial:hover {
+  color: var(--foreground);
+}
+.termo-oficial[aria-expanded="true"] {
+  color: var(--foreground);
+  background: var(--realce-forte);
+  text-decoration-style: solid;
+}
+.termo-oficial:focus-visible {
+  outline: 2px solid var(--bronze-texto);
+  outline-offset: 2px;
+}
+.termo-oficial-icone {
+  display: inline-grid;
+  place-items: center;
+  width: 0.95rem;
+  height: 0.95rem;
+  margin-left: 0.2rem;
+  border-radius: 50%;
+  border: 1px solid var(--bronze);
+  color: var(--bronze-texto);
+  font-size: 0.625rem;
+  font-weight: 700;
+  line-height: 1;
+  vertical-align: 0.1em;
+  text-decoration: none;
+}
+.gaveta-termo-caixa {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+.gaveta-termo-veu {
+  position: absolute;
+  inset: 0;
+  background: var(--veu);
+}
+.gaveta-termo {
+  position: relative;
+  width: 100%;
+  max-width: 40rem;
+  max-height: 88dvh;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  background: var(--card);
+  color: var(--card-foreground);
+  border-top: 3px solid var(--bronze);
+  border-radius: 14px 14px 0 0;
+  padding: 1.25rem var(--esp-4) calc(var(--esp-6) + env(safe-area-inset-bottom));
+  box-shadow: 0 -10px 30px rgb(0 0 0 / 0.35);
+  outline: none;
+}
+.gaveta-termo::before {
+  content: "";
+  position: absolute;
+  top: 7px;
+  left: 50%;
+  width: 40px;
+  height: 4px;
+  margin-left: -20px;
+  border-radius: 2px;
+  background: var(--borda-controle);
+}
+.gaveta-termo-fechar {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  display: flex;
+  width: 2.75rem;
+  height: 2.75rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 2px;
+  color: var(--foreground);
+}
+.gaveta-termo-fechar:focus-visible {
+  outline: 2px solid var(--bronze-texto);
+  outline-offset: -2px;
+}
+.explicacao-termo-exemplo {
+  margin-top: var(--esp-3);
+  background: var(--realce);
+  border-left: 3px solid var(--bronze);
+  padding: var(--esp-2) var(--esp-3);
+  font-size: 0.9375rem;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .gaveta-termo {
+    animation: folha-sobe var(--duracao-entrada) var(--curva-suave);
   }
 }

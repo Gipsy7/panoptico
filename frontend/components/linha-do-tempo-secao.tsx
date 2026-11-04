@@ -4,6 +4,7 @@ import { FonteRodape } from "@/components/fonte-rodape";
 import type { EventoItem, LinhaDoTempo, ProcessoSituacao } from "@/lib/api";
 import { formatarData } from "@/lib/formato";
 import { LinkExterno } from "@/components/link-externo";
+import { TermoOficial } from "@/components/termo-oficial";
 
 /** Grupos da linha do tempo, na ordem em que aparecem. Tipos novos caem em "Outros
  * registros" até ganharem um grupo aqui. */
@@ -115,8 +116,8 @@ export function LinhaDoTempoSecao({ dados }: { dados: LinhaDoTempo }) {
 
       {dados.itens.some((i) => i.tipo === "cpi_indiciamento") && (
         <p className="text-sm text-muted-foreground">
-          Pedido de indiciamento em relatório de CPI é uma proposta da comissão: não é acusação
-          formal nem condenação, e cabe ao Ministério Público decidir se denuncia.
+          <TermoOficial id="indiciamento">Pedido de indiciamento</TermoOficial> em relatório de <TermoOficial id="cpi">CPI</TermoOficial> é uma proposta da comissão: não é
+          acusação formal nem condenação, e cabe ao <TermoOficial id="ministerio-publico">Ministério Público</TermoOficial> decidir se denuncia.
         </p>
       )}
 

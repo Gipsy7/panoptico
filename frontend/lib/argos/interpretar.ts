@@ -3,9 +3,11 @@
  * extração de entidades (estado, partido, tempo, nomes). Funções puras (testadas no Vitest).
  * O vocabulário fica em `vocabulario.ts` e as entidades em `entidades.ts`.
  *
- * Prioridade: opinião, CEP, tema de projetos, ranking, assunto (ou dúvida sobre o site; vence
+ * Prioridade: opinião, CEP, palavra do dicionário ("o que é PEC?"), tema de projetos, ranking, assunto (ou dúvida sobre o site; vence
  * quem tem mais pontos e, em empate, o assunto), saudação, e por fim só um nome.
  */
+import { acharTermoComForma } from "@/lib/dicionario";
+
 import { extrairCasa, extrairPartido, extrairTempo, extrairUf } from "./entidades";
 import { contem, normalizar, pontuar, tirar } from "./texto";
 import type { Botao, CriterioLista, Interpretacao } from "./tipos";
@@ -21,6 +23,8 @@ import {
   PALAVRAS_SITE,
   PALAVRAS_TOPICO_CARGO,
   PALAVRAS_VAZIAS,
+  PERGUNTAS_TERMO,
+  SOBRAS_TERMO,
   SUGESTOES_POR_PALAVRA,
 } from "./vocabulario";
 
@@ -157,6 +161,22 @@ function pedeCargo(normalizado: string, temNome: boolean): Interpretacao | null 
   return { assunto: "cargo", cargoId: cargo.id, topico, cargoAmbiguo: cargo.ambiguo || undefined };
 }
 
+/**
+ * "O que é PEC?", "o que significa quórum": pergunta pelo sentido de uma palavra do dicionário.
+ * Só vale quando, tirando a pergunta e o termo, sobram palavras de ligação ("o que é cota do
+ * Fulano" é sobre os gastos de alguém, não sobre a palavra).
+ */
+function pedeTermo(normalizado: string): Interpretacao | null {
+  if (!PERGUNTAS_TERMO.some((p) => contem(normalizado, p))) return null;
+  let resto = normalizado;
+  for (const p of [...PERGUNTAS_TERMO].sort((a, b) => b.length - a.length)) resto = tirar(resto, p);
+  const achado = acharTermoComForma(resto);
+  if (!achado) return null;
+  const sobra = tirar(resto, achado.forma).split(" ").filter(Boolean);
+  if (sobra.some((w) => !SOBRAS_TERMO.has(w))) return null;
+  return { assunto: "termo", termoId: achado.termo.id };
+}
+
 function melhorAssunto(normalizado: string): { chave: string; pontos: number } | null {
   let melhor: { chave: string; pontos: number } | null = null;
   const ordem = (c: string) => {
@@ -230,6 +250,9 @@ export function interpretar(texto: string, agora: Date = new Date()): Interpreta
 
   if (pedeOpiniao(normalizado)) return { assunto: "opiniao", cep };
   if (cep) return { assunto: "representantes", cep };
+
+  const termo = pedeTermo(normalizado);
+  if (termo) return termo;
 
   // Entidades: o que for reconhecido aqui não vira nome de pessoa.
   const uf = extrairUf(texto);

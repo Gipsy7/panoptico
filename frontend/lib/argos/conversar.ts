@@ -53,6 +53,7 @@ import {
   respostaSalario,
   respostaSecao,
   respostaSite,
+  respostaTermo,
   saudacao,
   semGenericos,
   sobreArgos,
@@ -182,6 +183,8 @@ async function despachar(i: Interpretacao, frase: string, contexto: Contexto, ap
       return so(sobreArgos());
     case "site":
       return so(respostaSite(i.perguntaId));
+    case "termo":
+      return so(respostaTermo(i.termoId));
     case "nenhum":
       return so(naoEntendi(i.sugestoes));
     case "ranking":

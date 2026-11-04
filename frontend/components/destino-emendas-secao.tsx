@@ -3,6 +3,7 @@ import { FonteRodape } from "@/components/fonte-rodape";
 import type { DestinoEmendaItem, DestinoEmendas } from "@/lib/api";
 import { formatarData, formatarReais } from "@/lib/formato";
 import { LinkExterno } from "@/components/link-externo";
+import { TermoOficial } from "@/components/termo-oficial";
 
 const TIPO: Record<string, string> = {
   convenio: "Convênio",
@@ -20,7 +21,8 @@ export function DestinoEmendasSecao({ dados }: { dados: DestinoEmendas }) {
           O que aconteceu com o dinheiro das emendas
         </h2>
         <p className="text-sm text-muted-foreground">
-          Convênios e transferências especiais ligados às emendas individuais deste parlamentar, de{" "}
+          Convênios e <TermoOficial id="transferencia-especial">transferências especiais</TermoOficial> ligados às{" "}
+          <TermoOficial id="emenda-individual">emendas individuais</TermoOficial> deste parlamentar, de{" "}
           {dados.desde} em diante
         </p>
       </div>

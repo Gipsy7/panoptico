@@ -5,6 +5,7 @@
  */
 import type { Casa, Gastos, Municipio, ParlamentarDetalhe, Presenca, Projetos, Representantes, RespostaBusca, ResultadoBusca } from "@/lib/api";
 import { CARGOS, CF_CONFERIDA_EM, CF_NOME, CF_URL, type CargoId } from "@/lib/cargos";
+import { DICIONARIO_CONFERIDO_EM, termoPorId } from "@/lib/dicionario";
 import { CASA_DA, FONTE_CASA, MESES, formatarData, formatarReais } from "@/lib/formato";
 import { PERGUNTAS_FREQUENTES } from "@/lib/perguntas";
 
@@ -134,6 +135,26 @@ export function respostaSite(perguntaId: string | undefined): Mensagem {
     texto: p.texto,
     links: [{ rotulo: "Ver em Perguntas frequentes", href: `/perguntas#${p.id}` }],
     botoes: SEM_BOTOES,
+  };
+}
+
+// ---------- Dicionário ----------
+
+/**
+ * "O que é PEC?": o mesmo texto da gaveta do termo e de /dicionario, com o nome oficial, a fonte
+ * (artigo da lei) e o link para o dicionário.
+ */
+export function respostaTermo(termoId: string | undefined): Mensagem {
+  const t = termoId ? termoPorId(termoId) : undefined;
+  if (!t) return naoEntendi();
+  const links = [{ rotulo: `Ver "${t.termo}" no dicionário`, href: `/dicionario#${t.id}` }];
+  if (t.exemplo) links.push({ rotulo: `No Panóptico: ${t.exemplo.rotulo}`, href: t.exemplo.href });
+  return {
+    texto: `${t.termo}: ${t.explicacao}`,
+    detalhes: [`Termo oficial: ${t.oficial}.`],
+    links,
+    botoes: SEM_BOTOES,
+    fonte: { nome: t.fonte.rotulo, url: t.fonte.url, atualizadoEm: DICIONARIO_CONFERIDO_EM },
   };
 }
 

@@ -61,14 +61,17 @@ const textoDaMensagem = (m: Mensagem) => [m.texto, ...(m.detalhes ?? [])].join("
  * memória desta tela. O que sai daqui (docs/DECISOES.md, 30/10/2026): a frase que o Argos não
  * entendeu (limpa de CEP, CPF, telefone, e-mail, URL e números longos), a avaliação "isso
  * ajudou?" e, só com "Pode guardar", a conversa limpa. Sem identificar quem escreveu.
- * `inicial` já abre respondendo a essa pergunta (usado por /pergunte?q=...).
+ * `inicial` já abre respondendo a essa pergunta (usado por /pergunte?q=...). `pedido` manda uma
+ * pergunta de fora a qualquer momento (o número muda a cada pedido).
  */
 export function ArgosChat({
   inicial,
+  pedido,
   modo = "pagina",
   aoNavegar,
 }: {
   inicial?: string;
+  pedido?: { n: number; frase: string } | null;
   modo?: "pagina" | "painel";
   aoNavegar?: () => void;
 }) {
@@ -189,6 +192,16 @@ export function ArgosChat({
     // Só na primeira exibição.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Pergunta pedida de fora (gaveta do dicionário): entra como se a pessoa tivesse escrito.
+  const ultimoPedido = useRef(0);
+  useEffect(() => {
+    if (!pedido || pedido.n === ultimoPedido.current) return;
+    ultimoPedido.current = pedido.n;
+    enviar(pedido.frase);
+    // Só quando chega um pedido novo.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pedido]);
 
   // Mostra o começo da última mensagem (uma resposta longa não "foge" para o fim).
   useEffect(() => {

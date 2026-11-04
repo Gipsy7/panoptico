@@ -125,6 +125,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
               <Link href="/perguntas" className={LINK}>
                 Perguntas frequentes
               </Link>
+              <Link href="/dicionario" className={LINK}>
+                Dicionário da política
+              </Link>
               <Link href="/pergunte" className={LINK}>
                 Pergunte ao Argos
               </Link>

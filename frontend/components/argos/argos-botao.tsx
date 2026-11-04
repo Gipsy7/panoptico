@@ -3,6 +3,7 @@
 import { type PointerEvent, useEffect, useId, useRef, useState } from "react";
 
 import { ArgosChat } from "@/components/argos/argos-chat";
+import { EVENTO_PERGUNTAR, type PedidoArgos } from "@/lib/argos/eventos";
 import { tornarFundoInerte } from "@/lib/fundo-inerte";
 
 /** Preferência de tela (lado e altura do botão): localStorage, não é dado pessoal. */
@@ -60,6 +61,8 @@ export function ArgosBotao() {
   const [aberto, setAberto] = useState(false);
   const [jaAbriu, setJaAbriu] = useState(false);
   const [oculto, setOculto] = useState(false);
+  /** Pergunta pedida de fora (ex.: "Perguntar ao Argos" na gaveta do dicionário). */
+  const [pedido, setPedido] = useState<{ n: number; frase: string } | null>(null);
   const [posicao, setPosicao] = useState<Posicao | null>(null);
   const [arrastando, setArrastando] = useState<{ x: number; y: number } | null>(null);
   const botao = useRef<HTMLButtonElement>(null);
@@ -99,8 +102,21 @@ export function ArgosBotao() {
       // Sem armazenamento da aba: o botão fica visível.
     }
     const voltar = () => setOculto(false);
+    // Pedido de fora: abre o chat já respondendo; cancelar o evento avisa que foi atendido.
+    const perguntar = (e: Event) => {
+      const frase = (e as CustomEvent<PedidoArgos>).detail?.frase;
+      if (!frase) return;
+      e.preventDefault();
+      setPedido((p) => ({ n: (p?.n ?? 0) + 1, frase }));
+      setJaAbriu(true);
+      setAberto(true);
+    };
     window.addEventListener(EVENTO_RESTAURAR, voltar);
-    return () => window.removeEventListener(EVENTO_RESTAURAR, voltar);
+    window.addEventListener(EVENTO_PERGUNTAR, perguntar);
+    return () => {
+      window.removeEventListener(EVENTO_RESTAURAR, voltar);
+      window.removeEventListener(EVENTO_PERGUNTAR, perguntar);
+    };
   }, []);
 
   // Girar o celular ou redimensionar: mantém o botão dentro da tela.
@@ -272,7 +288,7 @@ export function ArgosBotao() {
               <span className="sr-only"> o chat com o Argos</span>
             </button>
           </div>
-          <ArgosChat modo="painel" aoNavegar={() => fechar(false)} />
+          <ArgosChat modo="painel" pedido={pedido} aoNavegar={() => fechar(false)} />
         </div>
       )}
     </>

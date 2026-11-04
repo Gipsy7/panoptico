@@ -7,6 +7,7 @@ import type { Esfera } from "@/lib/como-cobrar";
 import type { VereadorDetalhe, VotacoesLocais } from "@/lib/api";
 import { MESES, formatarData, formatarReais } from "@/lib/formato";
 import { LinkExterno } from "@/components/link-externo";
+import { TermoOficial } from "@/components/termo-oficial";
 
 /** Nome da assembleia na matriz de cobertura ("ALPR", "CLDF"); câmaras de vereadores não estão nela. */
 export function casaNaMatriz(v: {
@@ -130,7 +131,7 @@ export function VotacoesLocaisSecao({
           Como votou
         </h2>
         <p className="text-sm text-muted-foreground">
-          Votações nominais da {nomeCasa}, ano atual e anterior
+          <TermoOficial id="votacao-nominal">Votações nominais</TermoOficial> da {nomeCasa}, ano atual e anterior
         </p>
       </div>
       {!dados.casa_registra ? (
@@ -210,7 +211,7 @@ export function VotacoesLocaisSecao({
             </nav>
           )}
           <p className="text-sm text-muted-foreground">
-            Votações simbólicas, em que não se anota o voto de cada um, não
+            <TermoOficial id="votacao-simbolica">Votações simbólicas</TermoOficial>, em que não se anota o voto de cada um, não
             aparecem.
           </p>
         </>

@@ -5,6 +5,7 @@ import { FonteRodape } from "@/components/fonte-rodape";
 import type { VotosComissoes } from "@/lib/api";
 import { formatarData } from "@/lib/formato";
 import { LinkExterno } from "@/components/link-externo";
+import { TermoOficial } from "@/components/termo-oficial";
 
 /** Votos nas votações nominais das comissões: só a lista, sem percentual (ver DECISOES). */
 export function ComissoesSecao({ dados, parlamentarId }: { dados: VotosComissoes; parlamentarId: number }) {
@@ -19,7 +20,7 @@ export function ComissoesSecao({ dados, parlamentarId }: { dados: VotosComissoes
           Votos nas comissões
         </h2>
         <p className="text-sm text-muted-foreground">
-          Votações nominais nas comissões, onde os projetos são discutidos antes do Plenário
+          Votações nominais nas <TermoOficial id="comissao">comissões</TermoOficial>, onde os projetos são discutidos antes do Plenário
         </p>
       </div>
       <p className="text-sm">

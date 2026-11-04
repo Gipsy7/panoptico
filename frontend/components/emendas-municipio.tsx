@@ -4,6 +4,7 @@ import { EmendasEstaduaisCidade } from "@/components/emendas-estaduais";
 import { FonteRodape } from "@/components/fonte-rodape";
 import type { EmendasMunicipio } from "@/lib/api";
 import { formatarReais, MESES } from "@/lib/formato";
+import { TermoOficial } from "@/components/termo-oficial";
 
 const LIMITE = 5;
 
@@ -232,7 +233,7 @@ export function EmendasMunicipioSecao({ dados }: { dados: EmendasMunicipio }) {
                   <p className="text-sm text-muted-foreground">
                     {previsto.planos_sem_pagamento}{" "}
                     {previsto.planos_sem_pagamento === 1 ? "plano de trabalho" : "planos de trabalho"} de
-                    transferência especial (&quot;emenda Pix&quot;). Este valor não está somado ao total pago acima.
+                    <TermoOficial id="transferencia-especial">transferência especial</TermoOficial> (&quot;emenda Pix&quot;). Este valor não está somado ao total pago acima.
                   </p>
                 </>
               ) : (

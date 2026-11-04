@@ -8,6 +8,7 @@ import { CobrarLinha } from "@/components/perfil/cobrar-linha";
 import type { Casa, Placar, Votos } from "@/lib/api";
 import { CASA_CURTA, formatarData } from "@/lib/formato";
 import { LinkExterno } from "@/components/link-externo";
+import { TermoOficial } from "@/components/termo-oficial";
 
 const PCT = new Intl.NumberFormat("pt-BR", { maximumFractionDigits: 1 });
 
@@ -34,7 +35,7 @@ export function VotosSecao({
           Como votou
         </h2>
         <p className="text-sm text-muted-foreground">
-          Votações nominais do Plenário em {dados.ano}
+          <TermoOficial id="votacao-nominal">Votações nominais</TermoOficial> do Plenário em {dados.ano}
         </p>
       </div>
 

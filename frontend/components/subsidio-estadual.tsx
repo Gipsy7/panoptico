@@ -2,6 +2,7 @@ import { FonteRodape } from "@/components/fonte-rodape";
 import { PorQueFalta } from "@/components/por-que-falta";
 import type { VereadorDetalhe } from "@/lib/api";
 import { formatarData, formatarReais } from "@/lib/formato";
+import { TermoOficial } from "@/components/termo-oficial";
 
 /** Salário bruto (subsídio) de deputado estadual: o mesmo para toda a Assembleia, fixado em lei estadual. */
 export function SubsidioEstadualSecao({ v }: { v: VereadorDetalhe }) {
@@ -15,7 +16,9 @@ export function SubsidioEstadualSecao({ v }: { v: VereadorDetalhe }) {
         <h2 id="salario-titulo" className="text-2xl">
           Salário bruto (subsídio)
         </h2>
-        <p className="text-sm text-muted-foreground">Subsídio mensal, valor fixado em lei</p>
+        <p className="text-sm text-muted-foreground">
+          <TermoOficial id="subsidio">Subsídio</TermoOficial> mensal, valor fixado em lei
+        </p>
       </div>
       {s.valor !== null ? (
         <>

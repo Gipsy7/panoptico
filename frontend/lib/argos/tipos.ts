@@ -25,6 +25,7 @@ export type Assunto =
   | "sobre_argos"
   | "opiniao"
   | "saudacao"
+  | "termo"
   | "nenhum";
 
 /** Assuntos que se perguntam sobre uma pessoa. */
@@ -63,6 +64,8 @@ export type Interpretacao = {
   topico?: "faz" | "pode" | "ganha";
   /** Para `cargo`: disse só "deputado", sem dizer se é federal ou estadual. */
   cargoAmbiguo?: boolean;
+  /** Para `termo`: id do termo em lib/dicionario.ts ("o que é PEC?"). */
+  termoId?: string;
   /** Para `nenhum`: botões ligados às palavras que o Argos reconheceu em parte. */
   sugestoes?: Botao[];
 };

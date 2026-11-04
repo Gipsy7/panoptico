@@ -25,6 +25,7 @@ const FIXAS = [
   "/apoiadores",
   "/o-panoptico",
   "/perguntas",
+  "/dicionario",
 ];
 
 const url = (caminho: string) => `${SITE_URL}${caminho === "/" ? "" : caminho}`;

@@ -31,6 +31,7 @@ import { ComoCobrar } from "@/components/perfil/como-cobrar";
 import { montarChecklist } from "@/lib/checklist-perfil";
 import { formatarData, formatarGastos, formatarReais, formatarReaisCompacto } from "@/lib/formato";
 import { LinkExterno } from "@/components/link-externo";
+import { TermoOficial } from "@/components/termo-oficial";
 
 /** Perfil de quem está no cargo numa câmara ou assembleia, com os dados da própria casa. */
 export async function PerfilMandatoLocal({ id, paginaVotos }: { id: string; paginaVotos?: string }) {
@@ -438,7 +439,9 @@ export async function PerfilMandatoLocal({ id, paginaVotos }: { id: string; pagi
           >
             <p>
               A Controladoria-Geral da União (CGU) mantém os cadastros de quem foi punido por órgãos públicos{" "}
-              <span className="text-muted-foreground">(CEIS, CNEP e CEAF)</span>. O Tribunal de Contas da União (TCU)
+              <span className="text-muted-foreground">
+                (<TermoOficial id="cadastros-cgu">CEIS, CNEP e CEAF</TermoOficial>)
+              </span>. O Tribunal de Contas da União (TCU)
               publica quem teve as contas julgadas irregulares ou foi proibido de exercer cargo público.
             </p>
             <p>{TEXTO_REGISTRO}</p>

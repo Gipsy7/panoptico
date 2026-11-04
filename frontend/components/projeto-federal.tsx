@@ -26,6 +26,7 @@ import { type ProjetoFederal, getProjetoFederal } from "@/lib/api";
 import { CASA_CURTA, CASA_DA, NOME_CASA, formatarData, textoResultado } from "@/lib/formato";
 import { caminhoInterno, lerUf, placarDaVotacao, placarMaiorQueALista, recortar, situacaoSimples, textoCompartilharProjeto } from "@/lib/projetos";
 import { LinkExterno } from "@/components/link-externo";
+import { TermoOficial } from "@/components/termo-oficial";
 
 const INTEIRO = new Intl.NumberFormat("pt-BR");
 const n = (v: number) => INTEIRO.format(v);
@@ -303,7 +304,9 @@ function DoQueSeTrata({ d, sit }: { d: ProjetoFederal; sit: ReturnType<typeof si
 
       {f.relator && (
         <div className="flex flex-col gap-0.5">
-          <p className="text-sm text-muted-foreground">Relator</p>
+          <p className="text-sm text-muted-foreground">
+            <TermoOficial id="relator">Relator</TermoOficial>
+          </p>
           {f.relator_parlamentar_id ? (
             <Link href={`/parlamentar/${f.relator_parlamentar_id}`} className="alvo-link font-medium underline underline-offset-2">
               {f.relator}

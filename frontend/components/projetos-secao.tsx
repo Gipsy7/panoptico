@@ -5,6 +5,7 @@ import { CobrarLinha } from "@/components/perfil/cobrar-linha";
 import type { Casa, ProjetoItem, Projetos } from "@/lib/api";
 import { CASA_DA, formatarData } from "@/lib/formato";
 import { LinkExterno } from "@/components/link-externo";
+import { TermoOficial } from "@/components/termo-oficial";
 
 const NUMERO = new Intl.NumberFormat("pt-BR", { maximumFractionDigits: 1 });
 
@@ -18,7 +19,7 @@ export function ProjetosSecao({ projetos, casa }: { projetos: Projetos; casa: Ca
           Projetos de lei
         </h2>
         <p className="text-sm text-muted-foreground">
-          Proposições legislativas apresentadas desde fevereiro de {desde} (legislatura atual)
+          <TermoOficial id="proposicao">Proposições legislativas</TermoOficial> apresentadas desde fevereiro de {desde} (<TermoOficial id="legislatura">legislatura atual</TermoOficial>)
         </p>
       </div>
 

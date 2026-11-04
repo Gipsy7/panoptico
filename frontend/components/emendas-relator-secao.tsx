@@ -3,6 +3,7 @@ import { FonteRodape } from "@/components/fonte-rodape";
 import type { EmendasRelator } from "@/lib/api";
 import { formatarData, formatarReais } from "@/lib/formato";
 import { LinkExterno } from "@/components/link-externo";
+import { TermoOficial } from "@/components/termo-oficial";
 
 export function EmendasRelatorSecao({ dados }: { dados: EmendasRelator }) {
   return (
@@ -48,7 +49,7 @@ export function EmendasRelatorSecao({ dados }: { dados: EmendasRelator }) {
       </TabelaRolavel>
 
       <p className="text-sm text-muted-foreground">
-        Emenda de relator-geral (RP9) foi uma modalidade de emenda ao orçamento federal usada de
+        <TermoOficial id="emenda-relator">Emenda de relator-geral (RP9)</TermoOficial> foi uma modalidade de emenda ao orçamento federal usada de
         2020 a 2022, conhecida como “orçamento secreto”. No orçamento, o autor aparece como “relator
         geral”, e não como o parlamentar que pediu o dinheiro. A planilha acima é o registro que o
         Congresso publicou depois da decisão do Supremo Tribunal Federal (ADPF 850, 851 e 854), e

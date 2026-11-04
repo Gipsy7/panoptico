@@ -5,6 +5,7 @@ import { BarraComparacao } from "@/components/painel/barra-comparacao";
 import { ListaResumida } from "@/components/painel/lista-resumida";
 import type { Casa, VotosPorTema } from "@/lib/api";
 import { formatarData } from "@/lib/formato";
+import { TermoOficial } from "@/components/termo-oficial";
 
 const LIMITE = 6;
 const DA_CASA: Record<Casa, string> = { camara: "da Câmara", senado: "do Senado" };
@@ -60,7 +61,7 @@ export function VotosTemaSecao({
           Votações por tema
         </h2>
         <p className="text-sm text-muted-foreground">
-          Votações nominais do Plenário em {dados.ano}, a partir de {formatarData(dados.periodo_inicio)}
+          <TermoOficial id="votacao-nominal">Votações nominais</TermoOficial> do Plenário em {dados.ano}, a partir de {formatarData(dados.periodo_inicio)}
         </p>
       </div>
 

@@ -4,6 +4,7 @@ import { FonteRodape } from "@/components/fonte-rodape";
 import { getSancoes, type SancaoItem } from "@/lib/api";
 import { formatarData } from "@/lib/formato";
 import { LinkExterno } from "@/components/link-externo";
+import { TermoOficial } from "@/components/termo-oficial";
 
 const ROTULO_TIPO: Record<string, string> = {
   sancao: "Sanção em cadastro da CGU",
@@ -36,7 +37,7 @@ export async function SancoesSecao({
           Punições e contas reprovadas
         </h2>
         <p className="text-sm text-muted-foreground">
-          Sanções (CEIS/CNEP/CEAF) e contas julgadas irregulares pelo TCU
+          Sanções <TermoOficial id="cadastros-cgu">(CEIS/CNEP/CEAF)</TermoOficial> e <TermoOficial id="contas-irregulares">contas julgadas irregulares</TermoOficial> pelo TCU
         </p>
       </div>
 

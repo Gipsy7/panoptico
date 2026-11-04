@@ -94,6 +94,7 @@ function Blocos({ t }: { t: DinheiroFederalTotais }) {
         itens={BLOCOS.filter((b) => t.blocos[b.chave] != null && t.blocos[b.chave] !== 0).map((b) => ({
           nome: b.nome,
           oficial: b.oficial,
+          termo: b.termo,
           valor: t.blocos[b.chave],
           extra: reais(t.blocos[b.chave]),
         }))}
@@ -432,6 +433,7 @@ export function CorpoCidade({
                 {
                   nome: "Fundo das prefeituras",
                   oficial: "FPM, Fundo de Participação dos Municípios",
+                  termo: "fpm",
                   valor: s.fpm,
                   extra: reais(s.fpm),
                 },

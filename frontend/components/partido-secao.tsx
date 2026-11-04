@@ -5,6 +5,7 @@ import { TabelaRolavel } from "@/components/ui/tabela-rolavel";
 import { FonteRodape } from "@/components/fonte-rodape";
 import type { GrupoFefc, PartidoDetalhe } from "@/lib/api";
 import { MESES, formatarReais } from "@/lib/formato";
+import { TermoOficial } from "@/components/termo-oficial";
 
 const CATEGORIAS_VISIVEIS = 10;
 
@@ -146,7 +147,8 @@ export function PartidoSecao({ dados }: { dados: PartidoDetalhe }) {
               Cotas recebidas mês a mês
             </h2>
             <p className="text-sm text-muted-foreground">
-              Fundo Partidário e Fundo Especial de Financiamento de Campanha (FEFC), pagos pelo TSE
+              <TermoOficial id="fundo-partidario">Fundo Partidário</TermoOficial> e{" "}
+              <TermoOficial id="fundo-eleitoral">Fundo Especial de Financiamento de Campanha (FEFC)</TermoOficial>, pagos pelo TSE
               ao diretório nacional
             </p>
           </div>

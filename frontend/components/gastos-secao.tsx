@@ -5,6 +5,7 @@ import { CobrarLinha } from "@/components/perfil/cobrar-linha";
 import type { Casa, Gastos } from "@/lib/api";
 import { CASA_DA, MESES, formatarData, formatarGastos, formatarReais } from "@/lib/formato";
 import { LinkExterno } from "@/components/link-externo";
+import { TermoOficial } from "@/components/termo-oficial";
 
 export function GastosSecao({
   gastos,
@@ -26,7 +27,9 @@ export function GastosSecao({
           <h2 id="gastos-titulo" className="text-2xl">
             Gastos do gabinete
           </h2>
-          <p className="text-sm text-muted-foreground">{gastos.fonte_nome}</p>
+          <p className="text-sm text-muted-foreground">
+            <TermoOficial id="cota">{gastos.fonte_nome}</TermoOficial>
+          </p>
         </div>
         {gastos.anos_disponiveis.length > 1 && (
           <nav aria-label="Escolher ano" className="flex gap-1">

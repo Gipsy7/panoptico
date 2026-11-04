@@ -29,6 +29,7 @@ import {
 } from "@/lib/api";
 import { ANO_PADRAO } from "@/components/dinheiro-federal/formatos";
 import { formatarReais, formatarReaisCompacto } from "@/lib/formato";
+import { TermoOficial } from "@/components/termo-oficial";
 
 // Estados com o Tribunal de Contas carregado (ver backend/ingestion/fontes.toml).
 const UF_COM_TCE = ["SP", "RS"];
@@ -380,7 +381,7 @@ async function Cidade({ ibge }: { ibge: string }) {
             ) : (
               <>
                 <li>
-                  As transferências especiais (&quot;emendas Pix&quot;) e os convênios não trazem o município na
+                  As <TermoOficial id="transferencia-especial">transferências especiais</TermoOficial> (&quot;emendas Pix&quot;) e os convênios não trazem o município na
                   fonte, então não aparecem nas emendas desta página.
                 </li>
                 <li>Emendas de bancada, de comissão e de relator não estão somadas, e só entra o valor já pago.</li>

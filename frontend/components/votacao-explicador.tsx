@@ -24,6 +24,7 @@ import { type VotacaoDetalhe, getVotacao } from "@/lib/api";
 import { CASA_CURTA, CASA_DA, formatarData } from "@/lib/formato";
 import { idDaProposicao, lerUf } from "@/lib/projetos";
 import { LinkExterno } from "@/components/link-externo";
+import { TermoOficial } from "@/components/termo-oficial";
 
 const INTEIRO = new Intl.NumberFormat("pt-BR");
 const n = (v: number) => INTEIRO.format(v);
@@ -262,7 +263,7 @@ async function Votacao({ casa, id, ufInicial }: { casa: string; id: string; ufIn
         <Pergunta id="entender-obstrucao" pergunta="O que é obstrução?" resposta="Uma forma de tentar adiar a votação">
           <p>
             Quem está em obstrução se recusa a votar Sim ou Não para tentar impedir que se chegue ao número mínimo de
-            presentes (quórum) e, assim, adiar a decisão. No registro, aparece como &quot;Obstrução&quot;. É um recurso
+            presentes (<TermoOficial id="quorum">quórum</TermoOficial>) e, assim, adiar a decisão. No registro, aparece como &quot;Obstrução&quot;. É um recurso
             previsto no regimento.
           </p>
         </Pergunta>

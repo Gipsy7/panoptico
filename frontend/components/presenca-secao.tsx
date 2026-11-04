@@ -2,6 +2,7 @@ import { FonteRodape } from "@/components/fonte-rodape";
 import { CobrarLinha } from "@/components/perfil/cobrar-linha";
 import type { Casa, Presenca } from "@/lib/api";
 import { CASA_DA, formatarData } from "@/lib/formato";
+import { TermoOficial } from "@/components/termo-oficial";
 
 const PCT = new Intl.NumberFormat("pt-BR", { maximumFractionDigits: 1 });
 
@@ -16,7 +17,7 @@ export function PresencaSecao({ presenca, casa }: { presenca: Presenca; casa: Ca
           Presença em votações
         </h2>
         <p className="text-sm text-muted-foreground">
-          Votações nominais no Plenário em {p.ano}
+          <TermoOficial id="votacao-nominal">Votações nominais</TermoOficial> no Plenário em {p.ano}
           {!inicioDoAno && `, desde ${formatarData(p.periodo_inicio)} (início do exercício atual)`}
         </p>
       </div>

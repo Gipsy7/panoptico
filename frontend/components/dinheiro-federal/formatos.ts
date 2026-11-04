@@ -4,17 +4,20 @@ import { formatarReais, formatarReaisCompacto } from "@/lib/formato";
 export const ANO_PADRAO = 2025;
 
 /** Blocos de repasse: nome do dia a dia e termo oficial em letra menor. */
-export const BLOCOS: { chave: string; nome: string; oficial: string; nomeCidade?: string; oficialCidade?: string }[] = [
-  { chave: "FPE", nome: "Fundo dos estados", oficial: "FPE, Fundo de Participação dos Estados" },
+/** `termo`: id em lib/dicionario.ts; o nome oficial vira <TermoOficial>. */
+export const BLOCOS: { chave: string; nome: string; oficial: string; termo?: string; nomeCidade?: string; oficialCidade?: string }[] = [
+  { chave: "FPE", nome: "Fundo dos estados", oficial: "FPE, Fundo de Participação dos Estados", termo: "fpe" },
   {
     chave: "FPM",
     nome: "Fundo das prefeituras",
     oficial: "FPM, Fundo de Participação dos Municípios",
+    termo: "fpm",
   },
   {
     chave: "FUNDEB_UNIAO",
     nome: "Escolas (parte da União)",
     oficial: "Complementação da União ao Fundeb",
+    termo: "fundeb",
   },
   {
     chave: "LEGAIS_VOLUNTARIAS",

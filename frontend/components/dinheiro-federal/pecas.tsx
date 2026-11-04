@@ -3,6 +3,7 @@
 // Peças de apresentação do painel: seção recolhida, figura com apoio, barras de decomposição.
 
 import { type ReactNode, useState } from "react";
+import { TermoOficial } from "@/components/termo-oficial";
 
 export function Secao({
   titulo,
@@ -45,7 +46,8 @@ export function Figura({ rotulo, valor, apoio }: { rotulo: string; valor: string
   );
 }
 
-export type ItemBarra = { nome: string; oficial?: string; valor: number | null; destaque?: boolean; extra?: string };
+/** `termo`: id em lib/dicionario.ts; com ele, o nome oficial se explica ao toque. */
+export type ItemBarra = { nome: string; oficial?: string; termo?: string; valor: number | null; destaque?: boolean; extra?: string };
 
 /** Lista de barras na mesma escala; o valor sempre escrito ao lado. */
 export function Barras({ itens, rotulo }: { itens: ItemBarra[]; rotulo: string }) {
@@ -58,7 +60,11 @@ export function Barras({ itens, rotulo }: { itens: ItemBarra[]; rotulo: string }
             <span className={i.destaque ? "font-medium" : undefined}>
               {i.nome}
               {i.destaque && <span className="sr-only"> (em destaque)</span>}
-              {i.oficial && <span className="block text-sm text-muted-foreground">{i.oficial}</span>}
+              {i.oficial && (
+                <span className="block text-sm text-muted-foreground">
+                  {i.termo ? <TermoOficial id={i.termo}>{i.oficial}</TermoOficial> : i.oficial}
+                </span>
+              )}
             </span>
             <span className="shrink-0 tabular-nums">{i.extra ?? ""}</span>
           </div>

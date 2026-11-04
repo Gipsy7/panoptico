@@ -284,6 +284,25 @@ export const PALAVRAS_SITE: FraseSite[] = [
   },
 ];
 
+/**
+ * "O que é PEC?", "o que significa quórum", "significado de emenda Pix": pergunta pelo sentido de
+ * uma palavra do dicionário (lib/dicionario.ts). A mais longa é tirada primeiro.
+ */
+export const PERGUNTAS_TERMO = [
+  "o que significa", "o que quer dizer", "o que vem a ser", "o que seria", "o que sao", "o que e",
+  "oque e", "oq e", "oq significa", "que significa", "que e", "qual o significado de", "significado de",
+  "significado do", "significado da", "definicao de", "me explica", "explica", "explique", "significa o que",
+  "e o que", "quer dizer o que",
+];
+
+/** Palavras que podem sobrar na pergunta pelo termo sem mudar o assunto ("o que é uma PEC na Câmara"). */
+export const SOBRAS_TERMO = new Set([
+  "a", "o", "as", "os", "um", "uma", "de", "do", "da", "dos", "das", "no", "na", "nos", "nas", "e", "eh",
+  "isso", "esse", "essa", "tal", "ai", "mesmo", "exatamente", "afinal", "camara", "senado", "congresso",
+  "politica", "brasil", "federal", "palavra", "termo", "sigla", "significa", "quer", "dizer", "sao", "que",
+  "por", "favor", "pf", "pfv", "me", "pra", "para", "mim",
+]);
+
 /** Quem pede opinião ou nota. Vem antes de tudo: o Argos nunca opina. */
 export const PALAVRAS_OPINIAO = [
   "em quem votar", "em quem voto", "em quem eu voto", "em quem devo votar", "em quem vou votar",
