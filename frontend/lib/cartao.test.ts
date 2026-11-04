@@ -107,3 +107,16 @@ describe("cartão do perfil", () => {
     expect(quebrarNome("Maria da Silva Souza")).toEqual(["Maria da", "Silva Souza"]);
   });
 });
+
+describe("escolherNumeros sem média", () => {
+  it("não põe zero como número principal", () => {
+    const r = escolherNumeros([
+      { rotulo: "Projetos", valor: "0" },
+      { rotulo: "Salário", valor: "R$ 12 mil" },
+    ]);
+    expect(r.principal?.rotulo).toBe("Salário");
+  });
+  it("só zeros: sem principal", () => {
+    expect(escolherNumeros([{ rotulo: "Projetos", valor: "0" }]).principal).toBeNull();
+  });
+});
