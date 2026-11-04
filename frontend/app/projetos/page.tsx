@@ -5,6 +5,7 @@ import Link from "next/link";
 
 import { AvisoErro } from "@/components/aviso-erro";
 import { PlacarCompacto } from "@/components/barra-placar";
+import { DicaPagina } from "@/components/dica-pagina";
 import { EsqueletoSecao } from "@/components/esqueleto-secao";
 import { FonteRodape } from "@/components/fonte-rodape";
 import { Revelacao } from "@/components/revelacao";
@@ -50,6 +51,7 @@ const DIAS_PAUTA = 14;
 export default function ProjetosPage({ searchParams }: PageProps<"/projetos">) {
   return (
     <div className="pagina-secoes">
+      <DicaPagina chave="projetos" />
       <CabecalhoPagina
         sobretitulo="Projetos e votações"
         titulo="O que está sendo votado"

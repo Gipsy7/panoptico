@@ -1,9 +1,11 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Newsreader } from "next/font/google";
 import Link from "next/link";
+import { Suspense } from "react";
 
 import { ArgosBotao } from "@/components/argos/argos-botao";
 import { FaixaRelease } from "@/components/faixa-release";
+import { GuiaVisita } from "@/components/guia-visita";
 import { Logo, Marca } from "@/components/logo";
 import { MenuPrincipal } from "@/components/menu-principal";
 import { Revelar } from "@/components/revelar";
@@ -97,6 +99,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
             </Link>
             <MenuPrincipal />
           </div>
+          <Suspense fallback={null}>
+            <GuiaVisita />
+          </Suspense>
         </header>
         <main id="conteudo" tabIndex={-1} className="outline-none mx-auto w-full max-w-3xl flex-1 px-4 py-8 has-[[data-largura=larga]]:max-w-5xl">
           {children}
