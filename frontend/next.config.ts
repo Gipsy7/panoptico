@@ -7,6 +7,8 @@ const nextConfig: NextConfig = {
   // O Dockerfile define NEXT_OUTPUT=standalone para gerar um servidor enxuto.
   output: process.env.NEXT_OUTPUT === "standalone" ? "standalone" : undefined,
   cacheComponents: true,
+  // Os cartões de compartilhar leem as fontes .ttf de assets/fonts em tempo de execução.
+  outputFileTracingIncludes: { "/**/cartao": ["./assets/fonts/**"] },
   async redirects() {
     return [
       { source: "/dinheiro-federal", destination: "/impostos-e-repasses", permanent: true },
