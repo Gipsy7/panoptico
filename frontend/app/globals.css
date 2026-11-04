@@ -839,6 +839,8 @@ html[data-argos-pagina] .argos-botao {
   .gaveta-termo {
     animation: folha-sobe var(--duracao-entrada) var(--curva-suave);
   }
+}
+
 /* Leitura fácil ("Ler em linguagem simples", components/leitura-facil.tsx): a mesma página, com
    a letra maior e o detalhe (data-detalhe) escondido dentro do perfil ([data-perfil]). O resumo,
    os números principais com a média da Casa e a fonte com a data nunca levam data-detalhe.
