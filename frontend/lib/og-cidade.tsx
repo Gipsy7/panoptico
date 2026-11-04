@@ -142,13 +142,13 @@ function fonteNome(nome: string, base: number, largura: number): number {
   return Math.max(54, Math.floor(largura / (0.66 * nome.length)));
 }
 
-// Geist (a fonte do site) em TTF: o gerador de imagem não lê woff2. Licença em lib/fontes/OFL.txt.
+// Geist (a fonte do site) em TTF: o gerador de imagem não lê woff2. Licença em assets/fonts/OFL.txt.
 let fontes: Promise<{ name: string; data: ArrayBuffer; weight: 400 | 700; style: "normal" }[]> | null = null;
 function carregarFontes() {
   fontes ??= Promise.all(
     ([["Geist-Regular.ttf", 400], ["Geist-Bold.ttf", 700]] as const).map(async ([arquivo, weight]) => ({
       name: "Geist",
-      data: await readFile(join(process.cwd(), "lib", "fontes", arquivo)).then((b) => b.buffer.slice(b.byteOffset, b.byteOffset + b.byteLength) as ArrayBuffer),
+      data: await readFile(join(process.cwd(), "assets", "fonts", arquivo)).then((b) => b.buffer.slice(b.byteOffset, b.byteOffset + b.byteLength) as ArrayBuffer),
       weight,
       style: "normal" as const,
     })),
