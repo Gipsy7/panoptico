@@ -13,6 +13,7 @@ import { ListaPerguntas, Pergunta } from "@/components/painel/pergunta";
 import { Migalhas } from "@/components/ui/migalhas";
 import { BotaoAviso } from "@/components/botao-aviso";
 import { CompartilharWhatsApp } from "@/components/compartilhar";
+import { CompartilharCartao } from "@/components/compartilhar-cartao";
 import { chaveAlvo } from "@/lib/avisos";
 import { FonteRodape } from "@/components/fonte-rodape";
 import { SeloEleitoFuturo } from "@/components/eleito-futuro";
@@ -419,10 +420,17 @@ async function Perfil({
             {p.uf} no mapa de impostos e repasses
           </Link>
         )}
-        <CompartilharWhatsApp
+        <CompartilharCartao
           caminho={`/parlamentar/${p.id}`}
+          cartao={`/parlamentar/${p.id}/cartao`}
+          nomeArquivo={p.nome_parlamentar}
           texto={`Veja os gastos, a presença e os projetos de ${p.nome_parlamentar} (${NOME_CASA[p.casa]}), com dados oficiais:`}
-        />
+        >
+          <CompartilharWhatsApp
+            caminho={`/parlamentar/${p.id}`}
+            texto={`Veja os gastos, a presença e os projetos de ${p.nome_parlamentar} (${NOME_CASA[p.casa]}), com dados oficiais:`}
+          />
+        </CompartilharCartao>
       </div>
 
       <PerguntasPerfil

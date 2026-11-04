@@ -7,6 +7,7 @@ import { AvisoSegundoTurno } from "@/components/aviso-segundo-turno";
 import { CepForm } from "@/components/cep-form";
 import { Revelacao } from "@/components/revelacao";
 import { CompartilharWhatsApp } from "@/components/compartilhar";
+import { CompartilharCartao } from "@/components/compartilhar-cartao";
 import { FonteRodape } from "@/components/fonte-rodape";
 import { CamaraSecao } from "@/components/camara-secao";
 import { CanaisSecao } from "@/components/canais-secao";
@@ -389,14 +390,26 @@ async function Lista({ cep, uf, municipio }: Busca) {
           </a>
         )}
 
-        <CompartilharWhatsApp
-          caminho={
-            localizacao.codigo_ibge
-              ? `/representantes?municipio=${localizacao.codigo_ibge}`
-              : `/representantes?uf=${localizacao.uf}`
-          }
-          texto={`Veja quem representa ${lugar} no Congresso e para onde foi o dinheiro da cidade:`}
-        />
+        {(() => {
+          const caminhoCompartilhar = localizacao.codigo_ibge
+            ? `/representantes?municipio=${localizacao.codigo_ibge}`
+            : `/representantes?uf=${localizacao.uf}`;
+          const textoCompartilhar = `Veja quem representa ${lugar} no Congresso e para onde foi o dinheiro da cidade:`;
+          const whatsapp = <CompartilharWhatsApp caminho={caminhoCompartilhar} texto={textoCompartilhar} />;
+          // O cartão "Quem decide por [cidade]" existe só para município; estado fica com o link.
+          return localizacao.codigo_ibge ? (
+            <CompartilharCartao
+              caminho={caminhoCompartilhar}
+              cartao={`/cidade/${localizacao.codigo_ibge}/cartao`}
+              nomeArquivo={cidade ?? lugar}
+              texto={textoCompartilhar}
+            >
+              {whatsapp}
+            </CompartilharCartao>
+          ) : (
+            whatsapp
+          );
+        })()}
 
         <AvisoSegundoTurno
           uf={localizacao.uf}

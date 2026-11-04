@@ -14,6 +14,7 @@ import { SancoesSecao, TEXTO_REGISTRO } from "@/components/sancoes-secao";
 import { ServicoFederalSecao } from "@/components/servico-federal-secao";
 import { CandidaturaSecao } from "@/components/candidatura-secao";
 import { CompartilharWhatsApp } from "@/components/compartilhar";
+import { CompartilharCartao } from "@/components/compartilhar-cartao";
 import { QuemESecao } from "@/components/dados-pessoais";
 import { SeloEleitoFuturo } from "@/components/eleito-futuro";
 import { FonteRodape } from "@/components/fonte-rodape";
@@ -43,6 +44,9 @@ export async function PerfilMandatoLocal({ id, paginaVotos }: { id: string; pagi
   const cargo = camara ? "Vereador" : v.uf === "DF" ? "Deputado distrital" : "Deputado estadual";
   const nomeCasa = camara ? "câmara" : "assembleia";
   const rota = `/${camara ? "vereador" : "deputado-estadual"}/${v.id}`;
+  const textoCompartilhar = v.gastos
+    ? `${v.nome} (${cargo.toLowerCase()}) gastou ${formatarReais(v.gastos.total, true)} do gabinete em ${v.gastos.ano}, segundo a ${nomeCasa}. Veja o perfil com dados oficiais:`
+    : `${v.nome} (${cargo.toLowerCase()}) tem ${v.projetos} projetos no ano atual e no anterior, segundo a ${nomeCasa}. Veja o perfil com dados oficiais:`;
   const [eleicao, votacoes, linha, emendasEstaduaisR, canaisR] = await Promise.all([
     v.candidatura_id ? getEleito(String(v.candidatura_id)) : null,
     getVotacoesLocais(String(v.id), paginaVotos),
@@ -375,14 +379,9 @@ export async function PerfilMandatoLocal({ id, paginaVotos }: { id: string; pagi
         Comparar com outro {camara ? "vereador desta câmara" : "deputado desta assembleia"}
       </Link>
 
-      <CompartilharWhatsApp
-        caminho={rota}
-        texto={
-          v.gastos
-            ? `${v.nome} (${cargo.toLowerCase()}) gastou ${formatarReais(v.gastos.total, true)} do gabinete em ${v.gastos.ano}, segundo a ${nomeCasa}. Veja o perfil com dados oficiais:`
-            : `${v.nome} (${cargo.toLowerCase()}) tem ${v.projetos} projetos no ano atual e no anterior, segundo a ${nomeCasa}. Veja o perfil com dados oficiais:`
-        }
-      />
+      <CompartilharCartao caminho={rota} cartao={`${rota}/cartao`} nomeArquivo={v.nome} texto={textoCompartilhar}>
+        <CompartilharWhatsApp caminho={rota} texto={textoCompartilhar} />
+      </CompartilharCartao>
 
       <ListaPerguntas titulo="Para entender os números">
         <Pergunta
