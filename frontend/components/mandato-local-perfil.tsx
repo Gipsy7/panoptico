@@ -18,6 +18,9 @@ import { CompartilharCartao } from "@/components/compartilhar-cartao";
 import { QuemESecao } from "@/components/dados-pessoais";
 import { SeloEleitoFuturo } from "@/components/eleito-futuro";
 import { LeituraFacil } from "@/components/leitura-facil";
+import { FimDoPerfil } from "@/components/avisar-erro/entradas";
+import { LinkCorrecao } from "@/components/avisar-erro/link-correcao";
+import { AvisosDoPerfil, RespostasCitado } from "@/components/avisar-erro/respostas-citado";
 import { FonteRodape } from "@/components/fonte-rodape";
 import { PorQueFalta } from "@/components/por-que-falta";
 import { ContratosSocioSecao } from "@/components/contratos-socio-secao";
@@ -240,6 +243,7 @@ export async function PerfilMandatoLocal({ id, paginaVotos }: { id: string; pagi
     },
   ];
   return (
+    <AvisosDoPerfil tipo={camara ? "vereador" : "deputado-estadual"} id={String(v.id)} nome={v.nome}>
     <article data-largura="larga" data-perfil className="pagina-secoes">
       <header className="flex items-start gap-4">
         <FotoVereador vereador={v} tamanho={72} decorativa />
@@ -263,6 +267,8 @@ export async function PerfilMandatoLocal({ id, paginaVotos }: { id: string; pagi
           <SobreOCargo cargo={camara ? "vereador" : "deputado-estadual"} df={v.uf === "DF"} />
         </div>
       </header>
+
+      <LinkCorrecao tipo={camara ? "vereador" : "deputado-estadual"} id={String(v.id)} />
 
       {v.eleito_2026 && <SeloEleitoFuturo eleito={v.eleito_2026} atualizadoEm={v.atualizado_em} />}
 
@@ -462,6 +468,9 @@ export async function PerfilMandatoLocal({ id, paginaVotos }: { id: string; pagi
 
       <AbasDetalhe titulo="Tudo em detalhe" abas={abas} />
 
+      <RespostasCitado tipo={camara ? "vereador" : "deputado-estadual"} id={String(v.id)} nome={v.nome} />
+      <FimDoPerfil />
+
       <Link
         href={v.municipio_ibge ? `/representantes?municipio=${v.municipio_ibge}` : `/representantes?uf=${v.uf}`}
         className="self-start text-sm underline underline-offset-4"
@@ -469,6 +478,7 @@ export async function PerfilMandatoLocal({ id, paginaVotos }: { id: string; pagi
         {camara ? "Ver a câmara e os outros representantes da cidade" : "Ver a assembleia e os outros representantes do estado"}
       </Link>
     </article>
+    </AvisosDoPerfil>
   );
 }
 

@@ -1,3 +1,6 @@
+import { FimDoPerfil } from "@/components/avisar-erro/entradas";
+import { LinkCorrecao } from "@/components/avisar-erro/link-correcao";
+import { AvisosDoPerfil, RespostasCitado } from "@/components/avisar-erro/respostas-citado";
 import { SobreOCargo } from "@/components/cargo/sobre-o-cargo";
 import { DicaPagina } from "@/components/dica-pagina";
 import { CabecalhoConfianca } from "@/components/perfil/cabecalho-confianca";
@@ -401,6 +404,7 @@ async function Perfil({
   );
 
   return (
+    <AvisosDoPerfil tipo="eleito" id={String(e.id)} nome={e.nome_urna}>
     <article data-largura="larga" data-perfil className="pagina-secoes">
       <header className="flex items-start gap-4">
         <FotoOuIniciais eleito={e} tamanho={72} legenda />
@@ -420,6 +424,8 @@ async function Perfil({
           {cargoDoRotulo(e.cargo) && <SobreOCargo cargo={cargoDoRotulo(e.cargo)!} df={e.uf === "DF"} />}
         </div>
       </header>
+
+      <LinkCorrecao tipo="eleito" id={String(e.id)} />
 
       {e.eleito_2026 && <SeloEleitoFuturo eleito={e.eleito_2026} atualizadoEm={e.atualizado_em} />}
 
@@ -622,10 +628,14 @@ async function Perfil({
 
       <AbasDetalhe titulo="Tudo em detalhe" abas={abas} />
 
+      <RespostasCitado tipo="eleito" id={String(e.id)} nome={e.nome_urna} />
+      <FimDoPerfil />
+
       <Link href={voltar} className="self-start text-sm underline underline-offset-4">
         {e.uf === "BR" ? "Voltar ao início" : `Ver os outros eleitos de ${e.unidade}`}
       </Link>
     </article>
+    </AvisosDoPerfil>
   );
 }
 

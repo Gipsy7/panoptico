@@ -92,6 +92,20 @@ export default function PrivacidadePage() {
         dados ficam fora das cópias de segurança (backups).
       </Secao>
 
+      <Secao id="avisar-erro" titulo="Avisar um erro e pedir direito de resposta">
+        Em cada perfil há o botão &ldquo;Achou um erro neste número?&rdquo; e o pedido de resposta
+        de quem é citado. O que guardamos: o texto que você escreve, a página e a seção a que ele
+        se refere, o tipo de erro e a data. O e-mail ou telefone é opcional no aviso de erro e serve
+        só para responder; no pedido de resposta serve para confirmar a identidade pelo canal
+        oficial. Esse contato é apagado em 180 dias, fica fora das cópias de segurança (backups) e
+        nunca é publicado. Não guardamos o seu IP (o limite de 5 avisos por hora usa apenas uma
+        contagem temporária, que não identifica ninguém). Não escreva CPF, endereço ou dados de
+        terceiros. Uma pessoa lê cada aviso e confere com a fonte oficial; nada muda no site
+        sem essa conferência. Cada correção feita aparece em &ldquo;Sobre as fontes&rdquo;, sem
+        dizer quem avisou. A resposta de quem é citado só é publicada depois de revisão e de
+        confirmar a identidade, sem edição além de tirar dados pessoais.
+      </Secao>
+
       <Secao titulo="Dados dos parlamentares">
         Os dados dos parlamentares são informações públicas, publicadas pelos próprios órgãos
         oficiais em cumprimento à Lei de Acesso à Informação (Lei nº 12.527/2011). Cada dado tem
@@ -109,7 +123,7 @@ export default function PrivacidadePage() {
         .
       </Secao>
 
-      <p className="text-sm text-muted-foreground">Última atualização: outubro de 2026.</p>
+      <p className="text-sm text-muted-foreground">Última atualização: novembro de 2026.</p>
     </article>
   );
 }

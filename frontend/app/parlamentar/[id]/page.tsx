@@ -1,3 +1,6 @@
+import { FimDoPerfil } from "@/components/avisar-erro/entradas";
+import { LinkCorrecao } from "@/components/avisar-erro/link-correcao";
+import { AvisosDoPerfil, RespostasCitado } from "@/components/avisar-erro/respostas-citado";
 import { SobreOCargo } from "@/components/cargo/sobre-o-cargo";
 import { DicaPagina } from "@/components/dica-pagina";
 import { CabecalhoConfianca } from "@/components/perfil/cabecalho-confianca";
@@ -342,6 +345,7 @@ async function Perfil({
   ];
 
   return (
+    <AvisosDoPerfil tipo="parlamentar" id={String(p.id)} nome={p.nome_parlamentar}>
     <article data-largura="larga" data-perfil className="pagina-secoes">
       <JsonLdPerfil
         caminho={`/parlamentar/${p.id}`}
@@ -377,6 +381,7 @@ async function Perfil({
             <SobreOCargo cargo={p.casa === "senado" ? "senador" : "deputado-federal"} />
           </div>
         </header>
+        <LinkCorrecao tipo="parlamentar" id={String(p.id)} />
         <BotaoAviso alvoTipo="parlamentar" alvoChave={chaveAlvo(p.casa, p.id_externo)} destino={p.nome_parlamentar} />
 
         {candidatura.ok && candidatura.dados.eleito_2026 && (
@@ -450,8 +455,11 @@ async function Perfil({
 
       <AbasDetalhe titulo="Tudo em detalhe" abas={abas} />
 
+      <RespostasCitado tipo="parlamentar" id={String(p.id)} nome={p.nome_parlamentar} />
+      <FimDoPerfil />
       <FonteRodape fonte={FONTE_CASA[p.casa]} url={p.fonte_url} atualizadoEm={p.atualizado_em} />
     </article>
+    </AvisosDoPerfil>
   );
 }
 
