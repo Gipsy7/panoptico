@@ -470,6 +470,11 @@ export type ContasMunicipio = {
   municipios_na_media?: number | null;
   media_uf_descricao?: string | null;
   camara: number | null;
+  camara_por_habitante?: number | null;
+  media_uf_camara_por_habitante?: number | null;
+  municipios_na_media_camara?: number | null;
+  municipios_sem_camara?: number | null;
+  media_uf_camara_descricao?: string | null;
   por_area: { nome: string; valor: number; percentual: number }[];
   anterior: { ano: number; despesa_paga: number | null; receita_total: number | null } | null;
   fonte_nome: string;
