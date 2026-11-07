@@ -35,6 +35,40 @@ def _media_uf(session: Session, ibge: str, ano: int) -> tuple[float | None, int]
     return (round(float(media), 2) if media is not None else None), n
 
 
+MEDIA_UF_CAMARA_DESCRICAO = (
+    "Média simples, entre os municípios do estado que entregaram as contas do mesmo ano, do gasto "
+    "da câmara (função Legislativa) dividido pela população de cada um, a mesma população do "
+    "gasto da prefeitura por morador. Cada cidade conta um, grande ou pequena. Ficam de fora os "
+    "municípios que não separaram o gasto da câmara nas contas."
+)
+
+
+def _media_uf_camara(session: Session, ibge: str, ano: int) -> tuple[float | None, int, int]:
+    """Média simples do gasto da câmara por morador na UF: (média, com dado, sem dado).
+
+    Mesmo universo da média da prefeitura (população e despesa informadas); quem não traz a
+    função Legislativa (ou traz zero) não entra na média e é contado em "sem dado".
+    """
+    linhas = session.execute(
+        select(ContasMunicipio.populacao, ContasMunicipio.despesa_por_area)
+        .join(Municipio, Municipio.ibge == ContasMunicipio.municipio_ibge)
+        .where(
+            Municipio.uf == select(Municipio.uf).where(Municipio.ibge == ibge).scalar_subquery(),
+            ContasMunicipio.ano == ano,
+            ContasMunicipio.populacao > 0,
+            ContasMunicipio.despesa_paga.is_not(None),
+        )
+    ).all()
+    razoes = [
+        float(areas["Legislativa"]) / pop
+        for pop, areas in linhas
+        if areas and areas.get("Legislativa")
+    ]
+    sem = len(linhas) - len(razoes)
+    media = round(sum(razoes) / len(razoes), 2) if razoes else None
+    return media, len(razoes), sem
+
+
 MEDIA_ESTADOS_DESCRICAO = (
     "Média simples, entre os estados e o Distrito Federal que entregaram as contas do mesmo "
     "ano, do valor dividido pela população de cada um. Estado sem população ou sem o valor "
@@ -140,6 +174,8 @@ def resumo(session: Session, ibge: str) -> dict | None:
         )
     )
     media_uf, n_media = _media_uf(session, ibge, atual.ano)
+    media_camara, n_camara, sem_camara = _media_uf_camara(session, ibge, atual.ano)
+    camara = atual.despesa_por_area.get("Legislativa")
     return {
         "ano": atual.ano,
         "populacao": atual.populacao,
@@ -151,7 +187,14 @@ def resumo(session: Session, ibge: str) -> dict | None:
         "media_uf_despesa_por_habitante": media_uf,
         "municipios_na_media": n_media,
         "media_uf_descricao": MEDIA_UF_DESCRICAO,
-        "camara": atual.despesa_por_area.get("Legislativa"),
+        "camara": camara,
+        "camara_por_habitante": round(camara / atual.populacao, 2)
+        if camara and atual.populacao
+        else None,
+        "media_uf_camara_por_habitante": media_camara,
+        "municipios_na_media_camara": n_camara,
+        "municipios_sem_camara": sem_camara,
+        "media_uf_camara_descricao": MEDIA_UF_CAMARA_DESCRICAO,
         "por_area": [
             {
                 "nome": nome,

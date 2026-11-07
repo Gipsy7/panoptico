@@ -1,8 +1,69 @@
 import { FonteRodape } from "@/components/fonte-rodape";
+import { BarraComparacao } from "@/components/painel/barra-comparacao";
 import type { ContasMunicipio } from "@/lib/api";
 import { formatarReais } from "@/lib/formato";
 
 const VISIVEIS = 4;
+
+/** Quanto a câmara municipal custou por morador, ao lado da média simples do estado. */
+function CamaraPorMorador({ dados, cidade }: { dados: ContasMunicipio; cidade: string }) {
+  const porMorador = dados.camara_por_habitante;
+  const media = dados.media_uf_camara_por_habitante;
+  const naMedia = dados.municipios_na_media_camara ?? 0;
+  const sem = dados.municipios_sem_camara ?? 0;
+  if (media == null && porMorador == null) return null;
+  const rotuloMedia = `Média dos ${naMedia.toLocaleString("pt-BR")} municípios do estado`;
+  return (
+    <div className="flex flex-col gap-2 rounded-xl bg-card p-4 ring-1 ring-foreground/10">
+      <h3 className="font-medium">Quanto a câmara custou por morador</h3>
+      <p className="text-sm text-muted-foreground">
+        Gasto da câmara municipal (função <span lang="pt-BR">Legislativa</span>) em {dados.ano}, dividido pela população
+      </p>
+      {porMorador != null && media != null ? (
+        <>
+          <BarraComparacao
+            pessoa={{ rotulo: cidade, valor: porMorador }}
+            media={{ rotulo: rotuloMedia, valor: media }}
+            formato="reais"
+          />
+          <p className="text-sm tabular-nums">
+            Conta: {formatarReais(dados.camara!)} ÷ {dados.populacao!.toLocaleString("pt-BR")} moradores ={" "}
+            {formatarReais(porMorador)} por morador.
+          </p>
+        </>
+      ) : porMorador == null ? (
+        <>
+          <p className="numero text-xl">Não informado</p>
+          <p className="text-sm">
+            A prefeitura entregou as contas de {dados.ano} sem separar o gasto da câmara, por isso não há o valor por
+            morador.
+          </p>
+          {media != null && (
+            <p className="text-sm text-muted-foreground">
+              {rotuloMedia}: <span className="tabular-nums">{formatarReais(media, true)}</span> por morador.
+            </p>
+          )}
+        </>
+      ) : null}
+      <details className="painel">
+        <summary className="cursor-pointer text-sm font-medium">Como é calculada a média</summary>
+        <div className="mt-2 flex flex-col gap-2 text-sm text-muted-foreground">
+          <p>
+            Média simples: para cada município do estado, o gasto da câmara dividido pela população; depois, a média
+            desses {naMedia.toLocaleString("pt-BR")} valores. Cada cidade conta um, grande ou pequena. É a mesma
+            conta e a mesma população do gasto da prefeitura por morador, acima.
+          </p>
+          {sem > 0 && (
+            <p>
+              Ficam de fora {sem.toLocaleString("pt-BR")} {sem === 1 ? "município" : "municípios"} que entregaram as
+              contas de {dados.ano} sem separar o gasto da câmara.
+            </p>
+          )}
+        </div>
+      </details>
+    </div>
+  );
+}
 
 function AreasLista({ lista, maior }: { lista: ContasMunicipio["por_area"]; maior: number }) {
   return (
@@ -86,6 +147,7 @@ export function ContasSecao({ dados, cidade }: { dados: ContasMunicipio; cidade:
           </span>
         </p>
       ) : null}
+      <CamaraPorMorador dados={dados} cidade={cidade} />
       {dados.por_area.length > 0 && (
         <div className="flex flex-col gap-2">
           <h3 className="font-medium">Em que áreas gastou</h3>

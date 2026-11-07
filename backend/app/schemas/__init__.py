@@ -702,6 +702,11 @@ class ContasMunicipioResposta(BaseModel):
     municipios_na_media: int | None = None
     media_uf_descricao: str | None = None
     camara: float | None
+    camara_por_habitante: float | None = None
+    media_uf_camara_por_habitante: float | None = None
+    municipios_na_media_camara: int | None = None
+    municipios_sem_camara: int | None = None
+    media_uf_camara_descricao: str | None = None
     por_area: list[AreaDespesa]
     anterior: ContasAnterior | None
     fonte_nome: str

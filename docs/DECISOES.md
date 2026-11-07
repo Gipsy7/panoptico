@@ -10,6 +10,7 @@
 - [2026-11-07: votação de mérito e de procedimento, calendário (Frente 4)](#2026-11-07-votação-de-mérito-e-de-procedimento-calendário-frente-4)
 - [2026-11-07: Plenário agora, selo "Ao vivo" no cabeçalho (Frente 4)](#2026-11-07-plenário-agora-selo-ao-vivo-no-cabeçalho-frente-4)
 - [2026-11-07: quanto custa o mandato (Frente 6)](#2026-11-07-quanto-custa-o-mandato-frente-6)
+- [2026-11-07: custo da câmara por morador e a média do estado (Frente 6)](#2026-11-07-custo-da-câmara-por-morador-e-a-média-do-estado-frente-6)
 - [2026-10-29: medidas provisórias e vetos do Presidente](#2026-10-29-medidas-provisórias-e-vetos-do-presidente)
 - [2026-11-07: teto do salário de vereador e deputado estadual (Frente 6)](#2026-11-07-teto-do-salário-de-vereador-e-deputado-estadual-frente-6)
 - [2026-10-29: salário de deputado estadual lido de CSV, só número publicado](#2026-10-29-salário-de-deputado-estadual-lido-de-csv-só-número-publicado)
@@ -1708,6 +1709,15 @@ Escolhas do dono entre 3 protótipos: dicionário em gaveta de baixo (A), guia e
 - **Sem JavaScript, nada se perde:** o termo vira link para `/dicionario#id`, a chave de leitura fácil não aparece e a página fica completa.
 - **Guia e dica aparecem uma vez** (localStorage `panoptico.guia` e `panoptico.dica.<página>`), nunca juntos, e não empurram o conteúdo. A dica fica acima do botão do Argos.
 - **Leitura fácil** (`panoptico:leitura-facil`) vale só nos perfis: esconde o que é marcado `data-detalhe` e nunca o resumo, os números com a média da Casa, a fonte e a data. Aplicada por script no `<head>` para não piscar.
+
+## 2026-11-07: custo da câmara por morador e a média do estado (Frente 6)
+
+Escolha do dono: barra comparada à média do estado (versão B), com o desenho do cartão "Prefeitura gastou por morador", dentro das contas da cidade.
+
+- **Dado:** despesa paga na função "Legislativa" (SICONFI, DCA) dividida pela mesma população do cartão da prefeitura (`contas_municipio.populacao`). Sem migração; campos novos em `GET /municipios/{ibge}/contas`.
+- **Média do estado: média simples**, igual à do cartão da prefeitura (cada município conta um). Entram os municípios da UF e do ano com população e despesa informadas **e** gasto da câmara maior que zero. Quem não separou a câmara fica fora e a tela diz quantos ("Ficam de fora N municípios..."). Blumenau 2025: R$ 42.495.525,78 ÷ 363.340 = R$ 116,96; média de SC R$ 242,34 (283 municípios com o dado e 8 sem, dos 291 do cartão da prefeitura).
+- **Não adotada:** soma de todas as câmaras ÷ soma das populações (R$ 140,40 em SC). Seria uma média de outra natureza que a do cartão ao lado e a cidade grande puxaria o valor.
+- Cidade sem a câmara separada: "Não informado" e o motivo, com a média ao lado. Sem selo, nota nem cor de "bom/ruim": bronze é a cidade, cinza é a média.
 
 ## 2026-11-07: avisar erro, direito de resposta e correções públicas (Frente 7)
 

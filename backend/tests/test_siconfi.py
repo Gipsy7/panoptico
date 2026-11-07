@@ -94,6 +94,44 @@ def test_contas_media_do_estado_por_habitante(client, session):
     assert "sem população" in corpo["media_uf_descricao"].lower()
 
 
+def test_contas_camara_por_morador_e_media_do_estado(client, session):
+    session.add_all(
+        [
+            Municipio(ibge="4202404", nome="Blumenau", uf="SC", nome_chave="BLUMENAU"),
+            Municipio(ibge="4205407", nome="Florianópolis", uf="SC", nome_chave="FLORIANOPOLIS"),
+            Municipio(ibge="4200051", nome="Sem câmara", uf="SC", nome_chave="SEMCAMARA"),
+            Municipio(ibge="4200101", nome="Outro ano", uf="SC", nome_chave="OUTRO"),
+            Municipio(ibge="3550308", nome="São Paulo", uf="SP", nome_chave="SAO PAULO"),
+        ]
+    )
+    session.flush()
+
+    def conta(ibge, ano, populacao, areas):
+        return ContasMunicipio(municipio_ibge=ibge, ano=ano, populacao=populacao,
+                               receita_total=Decimal("1"), despesa_paga=Decimal("100"),
+                               despesa_por_area=areas)  # fmt: skip
+
+    session.add_all(
+        [
+            conta("4202404", 2024, 1000, {"Legislativa": 10.0}),  # 0,01 por morador
+            conta("4205407", 2024, 100, {"Legislativa": 3.0}),  # 0,03
+            conta("4200051", 2024, 500, {"Saúde": 50.0}),  # não separa a câmara: sem dado
+            conta("4200101", 2023, 10, {"Legislativa": 999.0}),  # outro ano: fora
+            conta("3550308", 2024, 10, {"Legislativa": 999.0}),  # outra UF: fora
+        ]
+    )
+    session.flush()
+    corpo = client.get("/municipios/4202404/contas").json()
+    assert corpo["camara_por_habitante"] == 0.01
+    assert corpo["media_uf_camara_por_habitante"] == 0.02  # (0,01 + 0,03) / 2
+    assert corpo["municipios_na_media_camara"] == 2
+    assert corpo["municipios_sem_camara"] == 1
+    assert "não separaram" in corpo["media_uf_camara_descricao"]
+    sem = client.get("/municipios/4200051/contas").json()
+    assert sem["camara"] is None and sem["camara_por_habitante"] is None
+    assert sem["media_uf_camara_por_habitante"] == 0.02
+
+
 def test_contas_despesa_nula_nao_vira_zero(client, session):
     session.add(Municipio(ibge="3550308", nome="São Paulo", uf="SP", nome_chave="SAO PAULO"))
     session.flush()
