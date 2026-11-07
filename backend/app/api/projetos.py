@@ -35,16 +35,23 @@ def buscar_projetos(
     votacao: Literal["com", "sem"] | None = None,
     pagina: Annotated[int, Query(ge=1, le=10000)] = 1,
     ordem: Literal["informacao", "recentes"] = "informacao",
+    virou_lei: Literal["sim"] | None = None,
+    ano_lei: Annotated[int | None, Query(ge=1900, le=2100)] = None,
 ) -> dict:
     """Busca de projetos e votações. `q` aceita o número ("PL 2338/2023", "2338/2023") ou
     palavras da ementa (sem acento). Ordem `informacao` (padrão): primeiro o que tem mais
     informação publicada (votação nominal, discursos, caminho, situação, tema), depois a data da
     última votação e da última movimentação. Ordem `recentes`: na pauta primeiro, depois a data
     da última votação ou movimentação. 20 por página. `cobertura` vem com filtro de estado ou
-    cidade e diz se há dado da câmara e da assembleia."""
+    cidade e diz se há dado da câmara e da assembleia.
+
+    `virou_lei=sim` troca a lista pelas leis federais (lei, lei complementar e emenda
+    constitucional, desde 1985) contadas por ano da lei, em `leis`; as normas vêm só do ano
+    `ano_lei`, 20 por página. Nesse modo só `q` (palavras da ementa ou o número da lei) filtra."""
     return projetos_busca.buscar(
-        session, q, esfera, casa, uf, municipio, tema, ano, votacao, pagina, ordem=ordem
-    )
+        session, q, esfera, casa, uf, municipio, tema, ano, votacao, pagina, ordem=ordem,
+        virou_lei=virou_lei, ano_lei=ano_lei,
+    )  # fmt: skip
 
 
 @router.get("/projetos/temas", response_model=TemasProjetos)

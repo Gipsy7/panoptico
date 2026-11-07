@@ -69,6 +69,54 @@ class CoberturaBusca(BaseModel):
     assembleia: CoberturaAssembleia | None
 
 
+# ---- Projetos que viraram lei (app/services/normas.py) ----
+
+
+class ProjetoDaNorma(BaseModel):
+    casa: str
+    id_externo: str
+    identificacao: str | None  # como a Casa numera ("PLS 559/2013")
+    link: str | None  # página do projeto no site, quando ele está carregado
+
+
+class NormaItem(BaseModel):
+    tipo: str  # LEI | LCP | EMC
+    numero: int
+    ano: int
+    nome: str  # "Lei 14.133/2021"
+    nome_oficial: str  # "Lei nº 14.133, de 1º de abril de 2021"
+    data: date  # data da norma (assinatura)
+    data_publicacao: date | None  # Diário Oficial, quando a Câmara registra
+    ementa: str
+    url: str  # texto oficial (normas.leg.br)
+    projetos: list[ProjetoDaNorma] = []
+
+
+class AnoDeLeis(BaseModel):
+    ano: int
+    total: int
+    leis: int
+    leis_complementares: int
+    emendas_constitucionais: int
+
+
+class BlocoLeis(FonteBloco):
+    """Filtro "Virou lei": contagem por ano e as normas do ano aberto (`ano`)."""
+
+    total: int
+    desde: int | None
+    anos: list[AnoDeLeis]
+    ano: int | None
+    total_ano: int
+    pagina: int
+    por_pagina: int
+    itens: list[NormaItem]
+
+
+class NormaDoProjeto(NormaItem, FonteBloco):
+    pass
+
+
 class BuscaProjetos(BaseModel):
     q: str | None
     total: int
@@ -78,6 +126,7 @@ class BuscaProjetos(BaseModel):
     fontes: list[FonteBloco]
     ordem: str = "informacao"  # informacao | recentes
     cobertura: CoberturaBusca | None = None
+    leis: BlocoLeis | None = None  # só com virou_lei=sim (a lista vira a contagem por ano)
 
 
 # ---- Projeto federal ----
@@ -216,6 +265,7 @@ class ProjetoDetalhe(BaseModel):
     discursos_do_dia: DiscursosDoDia
     caminho: BlocoCaminho
     pauta: BlocoPauta
+    norma: NormaDoProjeto | None = None  # a lei que o projeto virou
 
 
 # ---- Local ----

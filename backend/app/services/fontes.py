@@ -131,6 +131,13 @@ CATALOGO = [
         "url": "https://www.congressonacional.leg.br/materias/medidas-provisorias",
     },
     {
+        "dado": "Leis, leis complementares e emendas à Constituição desde 1985, e o projeto que"
+        " virou cada uma",
+        "orgao": "Senado Federal (base de legislação e processos); texto em normas.leg.br",
+        "fontes": ["congresso_normas"],
+        "url": "https://legis.senado.leg.br/dadosabertos/docs/",
+    },
+    {
         "dado": "Para quem a prefeitura e a câmara pagaram (São Paulo)",
         "orgao": "Tribunal de Contas do Estado de São Paulo",
         "fontes": ["tce_sp"],

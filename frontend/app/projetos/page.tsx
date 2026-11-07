@@ -36,6 +36,7 @@ import {
 } from "@/lib/projetos";
 import { UFS } from "@/lib/ufs";
 import { LinkExterno } from "@/components/link-externo";
+import { LeisPorAno } from "@/components/leis-por-ano";
 
 export async function generateMetadata({ searchParams }: PageProps<"/projetos">): Promise<Metadata> {
   return {
@@ -83,12 +84,16 @@ async function Conteudo({ filtros }: { filtros: FiltrosProjetos }) {
   const ativos = filtrosAtivos(filtros, cidades);
   // A pauta só aparece na lista sem busca nem filtro: com filtro, o resultado vem logo abaixo.
   const semFiltro = ativos.length === 0 && !filtros.q;
+  // Filtro "Virou lei": a lista dá lugar à contagem de leis por ano (components/leis-por-ano.tsx).
+  const leis = filtros.virou_lei === "sim" && resultado.ok ? resultado.dados.leis : null;
 
   return (
     <>
       <BarraDeBusca filtros={filtros} cidades={cidades} temas={temas} ativos={ativos} />
       {primeiraPagina && semFiltro && <NaPauta />}
-      {resultado.ok ? (
+      {leis ? (
+        <LeisPorAno leis={leis} filtros={filtros} />
+      ) : resultado.ok ? (
         <Lista filtros={filtros} dados={resultado.dados} />
       ) : (
         <AvisoErro titulo="Não deu para carregar a lista" mensagem={resultado.mensagem} />
@@ -129,6 +134,7 @@ function filtrosAtivos(filtros: FiltrosProjetos, cidades: Municipio[]): FiltroAt
       ? { rotulo: filtros.votacao === "com" ? "Teve votação nominal" : "Não teve votação nominal", href: sem({ votacao: "" }) }
       : null,
     filtros.ordem === "recentes" ? { rotulo: "Ordem: mais recentes primeiro", href: sem({ ordem: "" }) } : null,
+    filtros.virou_lei === "sim" ? { rotulo: "Virou lei", href: sem({ virou_lei: "", ano_lei: "" }) } : null,
   ];
   return ativos.filter((a): a is FiltroAtivo => a !== null);
 }
@@ -170,7 +176,7 @@ function BarraDeBusca({
           />
         </label>
         {/* Os demais filtros acompanham a busca em campos ocultos; o painel abaixo os muda. */}
-        {(["esfera", "casa", "uf", "municipio", "tema", "ano", "votacao", "ordem"] as const).map(
+        {(["esfera", "casa", "uf", "municipio", "tema", "ano", "votacao", "ordem", "virou_lei"] as const).map(
           (c) => filtros[c] && <input key={c} type="hidden" name={c} value={filtros[c]} />,
         )}
         <button type="submit" className="botao sm:w-auto">
@@ -222,6 +228,16 @@ function BarraDeBusca({
             { valor: "", rotulo: "Com ou sem votação" },
             { valor: "com", rotulo: "Teve votação nominal" },
             { valor: "sem", rotulo: "Não teve votação nominal" },
+          ]}
+        />
+        <CampoSelect
+          rotulo="O que mostrar"
+          name="virou_lei"
+          defaultValue={filtros.virou_lei}
+          ajuda="Virou lei: as leis do Congresso contadas por ano, com o projeto de origem."
+          opcoes={[
+            { valor: "", rotulo: "Todos os projetos" },
+            { valor: "sim", rotulo: "Virou lei" },
           ]}
         />
         <CampoSelect

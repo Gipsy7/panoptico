@@ -12,7 +12,7 @@ import { AvisoErro } from "@/components/aviso-erro";
 import { BotaoAviso } from "@/components/botao-aviso";
 import { chaveAlvo } from "@/lib/avisos";
 import { PlacarCompacto, CartaoPlacarLink } from "@/components/barra-placar";
-import { CaminhoLinha } from "@/components/caminho-secao";
+import { CaminhoLinha, ResultadoLei } from "@/components/caminho-secao";
 import { CompartilharWhatsApp } from "@/components/compartilhar";
 import { AvisoDiscursos, DiaDeDiscursosBloco } from "@/components/discursos-secao";
 import { EsqueletoSecao } from "@/components/esqueleto-secao";
@@ -99,7 +99,7 @@ async function Projeto({ casa, id, ufInicial }: { casa: string; id: string; ufIn
     ...(temDiscursos
       ? [{ id: "disseram", rotulo: "O que disseram", secoes: [{ id: "discursos", titulo: "O que disseram", conteudo: <Discursos d={d} /> }] }]
       : []),
-    ...(passos > 0
+    ...(passos > 0 || d.norma
       ? [{ id: "caminho", rotulo: "Caminho", secoes: [{ id: "caminho", titulo: "Caminho do projeto", conteudo: <Caminho d={d} /> }] }]
       : []),
   ];
@@ -452,6 +452,7 @@ function Caminho({ d }: { d: ProjetoFederal }) {
   const b = d.caminho;
   return (
     <section aria-labelledby="caminho-titulo" className="flex flex-col gap-4">
+      {d.norma && <ResultadoLei norma={d.norma} />}
       <h3 id="caminho-titulo" className="text-2xl">
         Caminho do projeto
       </h3>

@@ -29,6 +29,8 @@ const CAMPOS_PROJETOS: (keyof FiltrosProjetos)[] = [
   "votacao",
   "ordem",
   "pagina",
+  "virou_lei",
+  "ano_lei",
 ];
 
 /** Código IBGE de cada estado: os dois primeiros dígitos do código das cidades dele. */
@@ -63,6 +65,9 @@ export function lerFiltrosProjetos(sp: Record<string, string | string[] | undefi
   if (f.municipio && f.uf && f.municipio.slice(0, 2) !== CODIGO_IBGE_UF[f.uf]) delete f.municipio;
   if (f.ano && !/^\d{4}$/.test(f.ano)) delete f.ano;
   if (f.pagina && !/^[1-9]\d{0,3}$/.test(f.pagina)) delete f.pagina;
+  // Filtro "Virou lei": a lista vira a contagem de leis por ano; `ano_lei` é o ano aberto.
+  if (f.virou_lei && f.virou_lei !== "sim") delete f.virou_lei;
+  if (f.ano_lei && (!f.virou_lei || !/^\d{4}$/.test(f.ano_lei))) delete f.ano_lei;
   if (f.q) f.q = f.q.slice(0, 200);
   return f;
 }

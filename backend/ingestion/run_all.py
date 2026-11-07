@@ -16,7 +16,7 @@ from ingestion.camara import temas as temas_camara
 from ingestion.camara import tramitacoes as tramitacoes_camara
 from ingestion.camara import votacoes as votacoes_camara
 from ingestion.canais import catalogo as canais
-from ingestion.congresso import atos_presidente, emendas_relator
+from ingestion.congresso import atos_presidente, emendas_relator, normas
 from ingestion.ibge import municipios
 from ingestion.senado import despesas as despesas_senado
 from ingestion.senado import discursos as discursos_senado
@@ -59,6 +59,8 @@ def _tarefas() -> list[tuple[str, Callable[[], int]]]:
     tarefas.append((pauta_senado.FONTE, pauta_senado.executar))
     tarefas.append((tramitacoes_camara.FONTE, tramitacoes_camara.executar))
     tarefas.append((tramitacoes_senado.FONTE, tramitacoes_senado.executar))
+    # Leis do ano anterior e do atual e o projeto de origem (usa a tramitação da Câmara).
+    tarefas.append((normas.FONTE, normas.executar))
     tarefas.append((municipios.FONTE, municipios.executar))
     tarefas.append((canais.FONTE, canais.executar))  # catálogo versionado; não acessa sites
     tarefas.append((emendas.FONTE, emendas.executar))

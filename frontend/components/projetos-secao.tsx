@@ -2,7 +2,8 @@ import { TextoLongo } from "@/components/ui/texto-longo";
 import { TabelaRolavel } from "@/components/ui/tabela-rolavel";
 import { FonteRodape } from "@/components/fonte-rodape";
 import { CobrarLinha } from "@/components/perfil/cobrar-linha";
-import type { Casa, ProjetoItem, Projetos } from "@/lib/api";
+import Link from "next/link";
+import type { Casa, ProjetoItem, Projetos, ViraramLei } from "@/lib/api";
 import { CASA_DA, formatarData } from "@/lib/formato";
 import { LinkExterno } from "@/components/link-externo";
 import { TermoOficial } from "@/components/termo-oficial";
@@ -30,6 +31,13 @@ export function ProjetosSecao({ projetos, casa }: { projetos: Projetos; casa: Ca
           valor={projetos.media_casa_primeiro_autor}
         />
         <Numero rotulo="Assinou como coautor" valor={projetos.coautor} />
+        {projetos.viraram_lei && (
+          <Numero
+            rotulo="Viraram lei (como autor ou coautor)"
+            valor={projetos.viraram_lei.total}
+            apoio={`Média ${CASA_DA[casa]}: ${NUMERO.format(projetos.viraram_lei.media_casa)}`}
+          />
+        )}
       </dl>
       <p className="text-sm text-muted-foreground">
         Autor principal é quem propõe o projeto. Coautor é quem assina junto, o que é comum em
@@ -62,7 +70,9 @@ export function ProjetosSecao({ projetos, casa }: { projetos: Projetos; casa: Ca
         </TabelaRolavel>
       )}
 
-      {projetos.viraram_norma_lista.length > 0 && (
+      {projetos.viraram_lei ? (
+        <ViraramLeiBloco v={projetos.viraram_lei} />
+      ) : projetos.viraram_norma_lista.length > 0 && (
         <div className="flex flex-col gap-2">
           <h3 className="font-medium">
             Viraram lei ou norma ({projetos.viraram_norma}){" "}
@@ -96,11 +106,60 @@ export function ProjetosSecao({ projetos, casa }: { projetos: Projetos; casa: Ca
   );
 }
 
-function Numero({ rotulo, valor }: { rotulo: string; valor: number }) {
+function Numero({ rotulo, valor, apoio }: { rotulo: string; valor: number; apoio?: string }) {
   return (
     <div className="figura min-w-0">
       <dt className="text-sm text-muted-foreground">{rotulo}</dt>
       <dd className="numero text-2xl break-words sm:text-3xl">{NUMERO.format(valor)}</dd>
+      {apoio && <dd className="text-sm text-muted-foreground">{apoio}</dd>}
+    </div>
+  );
+}
+
+/** "Viraram lei" (versão B aprovada): lista recolhida, cada projeto com a lei, a data e o texto oficial. */
+function ViraramLeiBloco({ v }: { v: ViraramLei }) {
+  if (v.total === 0) {
+    return (
+      <div className="flex flex-col gap-2">
+        <p className="text-sm text-muted-foreground">
+          Nenhum projeto desta legislatura com a assinatura desta pessoa virou lei, lei complementar ou emenda à
+          Constituição até agora.
+        </p>
+        <FonteRodape fonte={v.fonte_nome} url={v.fonte_url} atualizadoEm={v.atualizado_em} />
+      </div>
+    );
+  }
+  return (
+    <div className="flex flex-col gap-2">
+      <details className="painel">
+        <summary className="flex min-h-11 cursor-pointer items-center font-medium">
+          {v.total === 1 ? "Ver o projeto que virou lei" : `Ver os ${v.total} projetos que viraram lei`}
+        </summary>
+        <ul className="lista-fios mt-3">
+          {v.itens.map((i) => (
+            <li key={i.projeto} className="flex flex-col gap-1 py-3">
+              <p className="text-sm text-muted-foreground">
+                <Link href={i.projeto_link} className="underline underline-offset-4">
+                  {i.projeto}
+                </Link>{" "}
+                · {i.primeiro_autor ? "autor principal" : "coautor"}
+              </p>
+              <p className="font-semibold">
+                {i.norma.nome} · <span className="tabular-nums">{formatarData(i.norma.data)}</span>
+              </p>
+              <TextoLongo linhas={3}>{i.norma.ementa}</TextoLongo>
+              <LinkExterno href={i.norma.url} className="alvo-link self-start text-sm font-medium underline underline-offset-4">
+                Ler o texto da lei
+              </LinkExterno>
+            </li>
+          ))}
+        </ul>
+      </details>
+      <p className="text-sm text-muted-foreground">
+        Conta leis, leis complementares e emendas à Constituição; decretos legislativos ficam de fora.{" "}
+        {v.primeiro_autor > 0 && `${NUMERO.format(v.primeiro_autor)} como autor principal.`}
+      </p>
+      <FonteRodape fonte={v.fonte_nome} url={v.fonte_url} atualizadoEm={v.atualizado_em} />
     </div>
   );
 }

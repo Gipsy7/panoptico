@@ -3,7 +3,10 @@
  * dia em destaque, o texto oficial em letra menor, a data e o órgão. Legível em 360 px: o fio
  * fica à esquerda e o texto quebra livremente.
  */
-import type { PassoDoCaminho } from "@/lib/api";
+import { FonteRodape } from "@/components/fonte-rodape";
+import { LinkExterno } from "@/components/link-externo";
+import { TermoOficial } from "@/components/termo-oficial";
+import type { FonteBloco, NormaItem, PassoDoCaminho } from "@/lib/api";
 import { formatarData } from "@/lib/formato";
 
 const ETAPA_GENERICA = "Outro andamento";
@@ -57,6 +60,47 @@ export function CaminhoLinha({ itens }: { itens: PassoDoCaminho[] }) {
         <Fio passos={antigos} />
       </details>
       <Fio passos={recentes} />
+    </div>
+  );
+}
+
+/**
+ * "Resultado" no alto do Caminho (versão B aprovada): a lei que o projeto virou, com a data, a
+ * publicação no Diário Oficial (quando a Câmara a registra) e o botão para o texto oficial.
+ */
+export function ResultadoLei({ norma: n }: { norma: NormaItem & FonteBloco }) {
+  const emenda = n.tipo === "EMC";
+  return (
+    <div className="flex flex-col gap-3">
+      <div className="flex flex-col gap-3 border border-bronze bg-[var(--realce)] p-[var(--esp-4)]">
+        <p className="sobretitulo">Resultado</p>
+        <p className="font-heading text-2xl leading-tight">Virou a {n.nome}</p>
+        <p className="text-sm leading-relaxed">{n.ementa}</p>
+        <dl className="grid grid-cols-2 gap-3 text-sm">
+          <div className="min-w-0">
+            <dt className="text-muted-foreground">
+              {emenda ? (
+                <TermoOficial id="promulgacao">Promulgada</TermoOficial>
+              ) : (
+                <TermoOficial id="sancao">Data da lei</TermoOficial>
+              )}
+            </dt>
+            <dd className="font-semibold tabular-nums">{formatarData(n.data)}</dd>
+          </div>
+          {n.data_publicacao && (
+            <div className="min-w-0">
+              <dt className="text-muted-foreground">Publicada em</dt>
+              <dd className="font-semibold tabular-nums">{formatarData(n.data_publicacao)}</dd>
+              <dd className="text-sm text-muted-foreground">Diário Oficial da União</dd>
+            </div>
+          )}
+        </dl>
+        <p className="text-sm text-muted-foreground">Texto oficial: {n.nome_oficial}</p>
+        <LinkExterno href={n.url} className="botao w-full justify-center sm:w-auto sm:self-start">
+          Ler o texto oficial da lei
+        </LinkExterno>
+      </div>
+      <FonteRodape fonte={n.fonte_nome} url={n.fonte_url} atualizadoEm={n.atualizado_em} />
     </div>
   );
 }

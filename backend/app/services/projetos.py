@@ -7,6 +7,7 @@ from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from app.models import Autoria, FonteIngestao, Parlamentar, Proposicao
+from app.services import normas as servico_normas
 from ingestion.proposicoes_comum import INICIO_LEGISLATURA
 
 NOMES_TIPO = {
@@ -118,4 +119,5 @@ def resumo(session: Session, parlamentar: Parlamentar, limite: int = 10) -> dict
         "fonte_nome": fonte["nome"],
         "fonte_url": fonte["url"],
         "atualizado_em": atualizado_em,
+        "viraram_lei": servico_normas.do_parlamentar(session, parlamentar),
     }

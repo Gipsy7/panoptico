@@ -1154,6 +1154,19 @@ acesso = "aberto"
 # API de processos do Senado (legis.senado.leg.br/dadosabertos/processo?sigla=MPV|VET&ano=), a
 # mesma de senado_proposicoes; JSON aberto, sem token. ~450 linhas, recarga integral.
 
+[[fonte]]
+nome = "congresso_normas"
+modulo = "ingestion.congresso.normas"
+uso = "Projetos que viraram lei: filtro Virou lei em /projetos (contagem por ano), Viraram lei no perfil e o Resultado no Caminho do projeto"
+recorte = "leis ordinárias, leis complementares e emendas constitucionais federais desde 1985: número, data, ementa e link do texto oficial; o projeto de origem (processo do Senado, mesmo número na Câmara desde 2019 e despacho da Câmara); sem o texto integral"
+frequencia = "diaria"
+acesso = "aberto"
+depende = ["senado_proposicoes", "camara_tramitacoes"]
+# Base de legislação do Senado (legis.senado.leg.br/dadosabertos/legislacao/lista?tipo=LEI|LCP|EMC&ano=)
+# e processos com a norma gerada (/dadosabertos/processo?tipoNorma=&anoNorma=); JSON aberto, sem
+# token. Diária: ano anterior e atual (12 pedidos). Carga inicial: --desde 1985 (~250 pedidos,
+# ~8.600 normas, bruto de ~13 MB).
+
 # Cadastro de empresas por CNPJ
 [[fonte]]
 nome = "receita_empresas"

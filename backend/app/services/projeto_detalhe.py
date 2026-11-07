@@ -28,7 +28,13 @@ from app.models import (
     Votacao,
     Voto,
 )
-from app.services import discursos_projeto, projeto_fontes, texto_busca, votacao_detalhe
+from app.services import (
+    discursos_projeto,
+    normas,
+    projeto_fontes,
+    texto_busca,
+    votacao_detalhe,
+)
 from app.services.projeto_etapas import etapa_do_passo
 from app.services.votos import VOTO_EFETIVO, url_votacao
 from ingestion.proposicoes_comum import SEM_CLASSIFICACAO
@@ -313,4 +319,5 @@ def detalhe(session: Session, casa: str, id_externo: str, hoje: date | None = No
             else None,
             **projeto_fontes.fonte_do_bloco(session, "pauta", casa),
         },
+        "norma": normas.da_proposicao(session, casa, id_externo),
     }

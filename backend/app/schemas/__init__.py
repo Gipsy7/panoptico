@@ -2,6 +2,8 @@ from datetime import date, datetime
 
 from pydantic import BaseModel, ConfigDict
 
+from app.schemas.projeto import NormaItem
+
 
 class ParlamentarResumo(BaseModel):
     model_config = ConfigDict(from_attributes=True)
@@ -377,6 +379,23 @@ class EmendasRelatorResposta(BaseModel):
     atualizado_em: datetime | None
 
 
+class LeiDoParlamentar(BaseModel):
+    projeto: str  # "PL 1087/2025"
+    projeto_link: str
+    primeiro_autor: bool
+    norma: NormaItem
+
+
+class ViraramLei(BaseModel):
+    total: int
+    primeiro_autor: int
+    media_casa: float
+    itens: list[LeiDoParlamentar]
+    fonte_nome: str
+    fonte_url: str
+    atualizado_em: datetime | None
+
+
 class ProjetosResposta(BaseModel):
     desde: date
     primeiro_autor: int
@@ -389,6 +408,7 @@ class ProjetosResposta(BaseModel):
     fonte_nome: str
     fonte_url: str
     atualizado_em: datetime | None
+    viraram_lei: ViraramLei | None = None  # leis, leis complementares e emendas constitucionais
 
 
 class Justificativa(BaseModel):

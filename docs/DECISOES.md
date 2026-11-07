@@ -6,6 +6,7 @@
 - [2026-11-03: compartilhar em imagem (Frente 8)](#2026-11-03-compartilhar-em-imagem-frente-8)
 - [2026-11-07: entender a política (Frente 3)](#2026-11-07-entender-a-política-frente-3)
 - [2026-11-07: avisar erro, direito de resposta e correções públicas (Frente 7)](#2026-11-07-avisar-erro-direito-de-resposta-e-correções-públicas-frente-7)
+- [2026-11-07: projetos que viraram lei (Frente 4)](#2026-11-07-projetos-que-viraram-lei-frente-4)
 - [2026-10-29: medidas provisórias e vetos do Presidente](#2026-10-29-medidas-provisórias-e-vetos-do-presidente)
 - [2026-10-29: salário de deputado estadual lido de CSV, só número publicado](#2026-10-29-salário-de-deputado-estadual-lido-de-csv-só-número-publicado)
 - [2026-10-30: Web Push, avisos no celular sem telefone nem e-mail](#2026-10-30-web-push-avisos-no-celular-sem-telefone-nem-e-mail)
@@ -1703,3 +1704,15 @@ Escolhas do dono: avisar erro em gaveta de 3 passos (A), respostas num bloco no 
 - **Avisar erro:** tipo, texto e a página/seção já preenchidas; contato opcional, só para responder. Sem IP guardado; limite de 5 avisos por hora por origem. O contato fica fora do backup e é apagado em 180 dias. Nada muda no site sem uma pessoa conferir com a fonte oficial (fila `python -m ingestion.revisar --tipo sugestao`).
 - **Direito de resposta:** a pessoa do perfil (ou a assessoria) envia o texto. Só é publicado depois de revisão humana e de confirmar a identidade pelo canal oficial (e-mail funcional da Casa ou ofício). Sem edição além de tirar dados pessoais e sem comentário do site, que não endossa nem refuta. Aparece no bloco "Respostas de quem é citado", no fim do perfil, com "recebida em DD/MM" e a seção a que se refere.
 - **Correções públicas:** cada correção feita a partir de aviso entra numa tabela em `/sobre-as-fontes#correcoes` (dado, antes, depois, data, fonte conferida, motivo), sem identificar quem avisou; o perfil corrigido ganha um link discreto para a sua linha.
+
+## 2026-11-07: projetos que viraram lei (Frente 4)
+
+Escolha do dono: "Virou lei: B" (cartões por ano com a contagem, fechados de início; no Caminho, o cartão "Resultado" no alto com o botão para o texto oficial).
+
+- **Fonte:** a base de legislação do Senado (`/dadosabertos/legislacao/lista`, por tipo e ano) é a lista oficial mais estável e completa de leis desde 1985, aberta e sem token, com o código, número, data e ementa. A Câmara não tem campo nem rota de "norma gerada" (`urnFinal` vem nulo mesmo no PLP 68/2024); o portal do Planalto não tem dados abertos (só páginas HTML, com padrão de endereço que muda por época); o LexML só resolve URN. Por isso o Senado é a fonte única da norma, e o texto oficial é o endereço de normas.leg.br pela URN do LexML (o mesmo `urlDocumento` que o Senado devolve no detalhe).
+- **O que entra:** lei ordinária, lei complementar e emenda constitucional federais, desde 1985 (inclui as EC 25 a 27 de 1985, à Constituição de 1967). Ficam de fora decretos legislativos, resoluções, medidas provisórias não convertidas e leis estaduais e municipais (assembleias e câmaras ainda não dizem quando um projeto vira lei). O site diz isso ao lado da contagem.
+- **Data:** `data` é a da norma (assinatura), a que vai no nome oficial. A data do Diário Oficial só aparece quando a Câmara a registra no despacho "Transformado na Lei..." (tabela `tramitacao`); não pedimos o detalhe de cada norma ao Senado (até 1 MB cada, 8.600 pedidos).
+- **Projeto de origem:** `processo?tipoNorma=&anoNorma=` do Senado traz o `codigoMateria` de cada processo com `normaGerada`; vetos, mensagens e substitutivos/emendas da Câmara não são origem. Na Câmara, liga pelo mesmo número só quando é seguro: PL e PLP desde 2019 (numeração única nas duas Casas; o PL 4932/2024 que o Senado criou para o PL 104/2015 não existe na Câmara) e PEC só quando o Senado foi revisor; e pelo despacho "Transformado na Lei..." da tramitação da Câmara. Projeto anterior a 2019 iniciado na Câmara fica ligado só pelo número do Senado (ex.: Lei 15.100/2025 aparece como "veio do PL 4932/2024", não do PL 104/2015).
+- **Perfil:** "Viraram lei" conta os projetos da legislatura atual em que a pessoa é autora ou coautora (como no protótipo), com a média por parlamentar em exercício da Casa (zeros incluídos) e quantos como autor principal. O antigo "Viraram lei ou norma" (que incluía decreto legislativo e usava a situação da proposição, às vezes desatualizada) sai da tela; a API mantém o campo.
+- **Lista:** a ordem é só cronológica; a barra mede quantidade e o número está escrito ao lado. Sem JavaScript, abrir um ano que não foi carregado leva ao endereço com `ano_lei` (20 por página), para não mandar 8.600 leis numa página só.
+

@@ -28,6 +28,7 @@ from app.models.emenda_transferencia import EmendaConvenio, EmendaTransferencia
 from app.models.empresa import Empresa
 from app.models.fonte_ingestao import DownloadCache, FonteIngestao
 from app.models.municipio import Municipio
+from app.models.norma import Norma, NormaProposicao
 from app.models.parlamentar import Parlamentar
 from app.models.partido_conta import (
     PartidoContaSoma,
@@ -121,6 +122,8 @@ __all__ = [
     "VotacaoLocal",
     "VotoLocal",
     "Municipio",
+    "Norma",
+    "NormaProposicao",
     "Orientacao",
     "Parlamentar",
     "PautaItem",

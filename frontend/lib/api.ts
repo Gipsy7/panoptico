@@ -156,6 +156,43 @@ export type Projetos = {
   fonte_nome: string;
   fonte_url: string;
   atualizado_em: string | null;
+  /** Projetos da pessoa (autor ou coautor) que viraram lei, lei complementar ou emenda constitucional. */
+  viraram_lei?: ViraramLei | null;
+};
+
+/** Lei, lei complementar ou emenda constitucional federal (GET /projetos?virou_lei=sim e outras). */
+export type NormaItem = {
+  tipo: "LEI" | "LCP" | "EMC";
+  numero: number;
+  ano: number;
+  nome: string;
+  nome_oficial: string;
+  data: string;
+  data_publicacao: string | null;
+  ementa: string;
+  url: string;
+  projetos: { casa: string; id_externo: string; identificacao: string | null; link: string | null }[];
+};
+
+export type ViraramLei = FonteBloco & {
+  total: number;
+  primeiro_autor: number;
+  media_casa: number;
+  itens: { projeto: string; projeto_link: string; primeiro_autor: boolean; norma: NormaItem }[];
+};
+
+export type AnoDeLeis = { ano: number; total: number; leis: number; leis_complementares: number; emendas_constitucionais: number };
+
+/** Filtro "Virou lei": contagem por ano e as normas do ano aberto. */
+export type BlocoLeis = FonteBloco & {
+  total: number;
+  desde: number | null;
+  anos: AnoDeLeis[];
+  ano: number | null;
+  total_ano: number;
+  pagina: number;
+  por_pagina: number;
+  itens: NormaItem[];
 };
 
 type CandidaturaItem = {
@@ -1956,6 +1993,7 @@ export type BuscaProjetos = {
   fontes: FonteBloco[];
   ordem?: "informacao" | "recentes";
   cobertura?: CoberturaBusca | null;
+  leis?: BlocoLeis | null;
 };
 
 export type FiltrosProjetos = {
@@ -1969,6 +2007,8 @@ export type FiltrosProjetos = {
   votacao?: string;
   ordem?: string;
   pagina?: string;
+  virou_lei?: string;
+  ano_lei?: string;
 };
 
 export function buscarProjetos(filtros: FiltrosProjetos) {
@@ -2074,6 +2114,8 @@ export type ProjetoFederal = {
   discursos_do_dia: FonteBloco & { quantidade_nao_atribuida: number; itens: unknown[]; aviso: string };
   caminho: FonteBloco & { itens: PassoDoCaminho[] };
   pauta: FonteBloco & { proxima: { data: string; sessao: string; url: string | null } | null };
+  /** A lei que o projeto virou, quando virou. */
+  norma?: (NormaItem & FonteBloco) | null;
 };
 
 export function getProjetoFederal(casa: string, id: string) {

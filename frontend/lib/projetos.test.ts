@@ -42,6 +42,15 @@ describe("lerFiltrosProjetos", () => {
   });
 });
 
+describe("filtro Virou lei", () => {
+  it("só aceita virou_lei=sim e o ano da lei com ele", () => {
+    expect(lerFiltrosProjetos({ virou_lei: "sim", ano_lei: "2025" })).toEqual({ virou_lei: "sim", ano_lei: "2025" });
+    expect(lerFiltrosProjetos({ virou_lei: "talvez", ano_lei: "2025" })).toEqual({});
+    expect(lerFiltrosProjetos({ virou_lei: "sim", ano_lei: "25" })).toEqual({ virou_lei: "sim" });
+    expect(enderecoProjetos({ virou_lei: "sim" }, { ano_lei: "2024" })).toBe("/projetos?virou_lei=sim&ano_lei=2024");
+  });
+});
+
 describe("ordem da lista", () => {
   it("só guarda 'recentes' (a ordem por informação é a padrão)", () => {
     expect(lerFiltrosProjetos({ ordem: "recentes" }).ordem).toBe("recentes");

@@ -40,7 +40,7 @@ from app.models import (
     Votacao,
     VotacaoLocal,
 )
-from app.services import discursos_projeto, projeto_fontes, texto_busca
+from app.services import discursos_projeto, normas, projeto_fontes, texto_busca
 from app.services.projeto_detalhe import _contagens, escolher_principal
 from ingestion.proposicoes_comum import SEM_CLASSIFICACAO
 
@@ -543,8 +543,12 @@ def buscar(
     pagina: int = 1,
     hoje: date | None = None,
     ordem: str = "informacao",
+    virou_lei: str | None = None,
+    ano_lei: int | None = None,
 ) -> dict:
     hoje = hoje or date.today()
+    if virou_lei == "sim":
+        return _virou_lei(session, q, ano_lei, pagina, ordem)
     f = _filtros(q, esfera, casa, uf, municipio, tema, ano, votacao)
     consultas = []
     if f["federal"]:
@@ -631,6 +635,22 @@ def buscar(
         "fontes": _fontes(session),
         "ordem": ordem,
         "cobertura": _cobertura(session, f) if f["uf"] or f["municipio"] else None,
+    }
+
+
+def _virou_lei(session: Session, q: str | None, ano: int | None, pagina: int, ordem: str) -> dict:
+    """Filtro "Virou lei": a lista de projetos dá lugar às leis contadas por ano (normas.py)."""
+    leis = normas.por_ano(session, q, ano, pagina)
+    return {
+        "q": (q or "").strip() or None,
+        "total": leis["total"],
+        "pagina": leis["pagina"],
+        "por_pagina": leis["por_pagina"],
+        "itens": [],
+        "fontes": [normas.fonte(session)],
+        "ordem": ordem,
+        "cobertura": None,
+        "leis": leis,
     }
 
 

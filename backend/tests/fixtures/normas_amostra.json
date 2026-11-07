@@ -1,0 +1,331 @@
+{
+ "anos": [
+  1985,
+  2021,
+  2023,
+  2025
+ ],
+ "normas": {
+  "LEI": {
+   "2021": {
+    "ListaDocumento": {
+     "noNamespaceSchemaLocation": "https://legis.senado.leg.br/dadosabertos/dados/ListaDocumentov3.xsd",
+     "Metadados": {
+      "Versao": "07/11/2026 11:51:26",
+      "VersaoServico": "3",
+      "DataVersaoServico": "2017-02-01",
+      "DescricaoDataSet": "Obtém a lista de Legislação Federal com base nos parâmetros informados."
+     },
+     "documentos": {
+      "documento": [
+       {
+        "id": "33382036",
+        "tipo": "LEI-n",
+        "descricao": "Lei Numerada",
+        "numero": "14133",
+        "norma": "LEI-14133-2021-04-01",
+        "normaNome": "Lei nº 14.133 de 01/04/2021",
+        "ementa": "Lei de Licitações e Contratos Administrativos.",
+        "dataassinatura": "01/04/2021",
+        "anoassinatura": "2021",
+        "apelido": "LEI-14133-2021-04-01 , Lei de Licitações e Contratos (2021)"
+       }
+      ]
+     }
+    }
+   },
+   "2025": {
+    "ListaDocumento": {
+     "noNamespaceSchemaLocation": "https://legis.senado.leg.br/dadosabertos/dados/ListaDocumentov3.xsd",
+     "Metadados": {
+      "Versao": "07/11/2026 11:08:00",
+      "VersaoServico": "3",
+      "DataVersaoServico": "2017-02-01",
+      "DescricaoDataSet": "Obtém a lista de Legislação Federal com base nos parâmetros informados."
+     },
+     "documentos": {
+      "documento": [
+       {
+        "id": "41758136",
+        "tipo": "LEI-n",
+        "descricao": "Lei Numerada",
+        "numero": "15270",
+        "norma": "LEI-15270-2025-11-26",
+        "normaNome": "Lei nº 15.270 de 26/11/2025",
+        "ementa": "Altera a Lei nº 9.250, de 26 de dezembro de 1995, e a Lei nº 9.249, de 26 de dezembro de 1995, para instituir a redução do imposto sobre a renda devido nas bases de cálculo mensal e anual e a tributação mínima para as pessoas físicas que auferem altas rendas; e dá outras providências.",
+        "dataassinatura": "26/11/2025",
+        "anoassinatura": "2025",
+        "apelido": "LEI-15270-2025-11-26"
+       },
+       {
+        "id": "40157066",
+        "tipo": "LEI-n",
+        "descricao": "Lei Numerada",
+        "numero": "15100",
+        "norma": "LEI-15100-2025-01-13",
+        "normaNome": "Lei nº 15.100 de 13/01/2025",
+        "ementa": "Dispõe sobre a utilização, por estudantes, de aparelhos eletrônicos portáteis pessoais nos estabelecimentos públicos e privados de ensino da educação básica.",
+        "dataassinatura": "13/01/2025",
+        "anoassinatura": "2025",
+        "apelido": "LEI-15100-2025-01-13"
+       }
+      ]
+     }
+    }
+   }
+  },
+  "LCP": {
+   "2025": {
+    "ListaDocumento": {
+     "noNamespaceSchemaLocation": "https://legis.senado.leg.br/dadosabertos/dados/ListaDocumentov3.xsd",
+     "Metadados": {
+      "Versao": "07/11/2026 11:13:37",
+      "VersaoServico": "3",
+      "DataVersaoServico": "2017-02-01",
+      "DescricaoDataSet": "Obtém a lista de Legislação Federal com base nos parâmetros informados."
+     },
+     "documentos": {
+      "documento": {
+       "id": "40180341",
+       "tipo": "LCP",
+       "descricao": "Lei Complementar",
+       "numero": "214",
+       "norma": "LCP-214-2025-01-16",
+       "normaNome": "Lei Complementar nº 214 de 16/01/2025",
+       "ementa": "Institui o Imposto sobre Bens e Serviços (IBS), a Contribuição Social sobre Bens e Serviços (CBS) e o Imposto Seletivo (IS); cria o Comitê Gestor do IBS e altera a legislação tributária.",
+       "dataassinatura": "16/01/2025",
+       "anoassinatura": "2025",
+       "apelido": "LCP-214-2025-01-16"
+      }
+     }
+    }
+   }
+  },
+  "EMC": {
+   "1985": {
+    "ListaDocumento": {
+     "noNamespaceSchemaLocation": "https://legis.senado.leg.br/dadosabertos/dados/ListaDocumentov3.xsd",
+     "Metadados": {
+      "Versao": "07/11/2026 11:43:40",
+      "VersaoServico": "3",
+      "DataVersaoServico": "2017-02-01",
+      "DescricaoDataSet": "Obtém a lista de Legislação Federal com base nos parâmetros informados."
+     },
+     "documentos": {
+      "documento": [
+       {
+        "id": "540625",
+        "tipo": "EMC-n",
+        "descricao": "Emenda Constitucional Numerada",
+        "numero": "25",
+        "norma": "EMC-25-1985-05-15",
+        "normaNome": "Emenda Constitucional nº 25 de 15/05/1985",
+        "ementa": "Altera dispositivos da Constituição Federal e estabelece outras normas constitucionais de caráter transitório.",
+        "dataassinatura": "15/05/1985",
+        "anoassinatura": "1985",
+        "apelido": "EMC-25-1985-05-15"
+       }
+      ]
+     }
+    }
+   },
+   "2023": {
+    "ListaDocumento": {
+     "noNamespaceSchemaLocation": "https://legis.senado.leg.br/dadosabertos/dados/ListaDocumentov3.xsd",
+     "Metadados": {
+      "Versao": "07/11/2026 11:44:52",
+      "VersaoServico": "3",
+      "DataVersaoServico": "2017-02-01",
+      "DescricaoDataSet": "Obtém a lista de Legislação Federal com base nos parâmetros informados."
+     },
+     "documentos": {
+      "documento": [
+       {
+        "id": "37959796",
+        "tipo": "EMC-n",
+        "descricao": "Emenda Constitucional Numerada",
+        "numero": "132",
+        "norma": "EMC-132-2023-12-20",
+        "normaNome": "Emenda Constitucional nº 132 de 20/12/2023",
+        "ementa": "Altera o Sistema Tributário Nacional.",
+        "dataassinatura": "20/12/2023",
+        "anoassinatura": "2023",
+        "apelido": "EMC-132-2023-12-20"
+       }
+      ]
+     }
+    }
+   },
+   "2021": {
+    "ListaDocumento": {
+     "Metadados": {}
+    }
+   }
+  }
+ },
+ "processos": [
+  {
+   "apelido": "AGENDA BRASIL 2015\nNova Lei das Licitações",
+   "autoria": "CT - Modernização da Lei de Licitações e Contratos  (Lei nº 8.666/1993)",
+   "casaIdentificadora": "SF",
+   "codigoMateria": 115926,
+   "dataApresentacao": "2013-12-23",
+   "dataDeliberacao": "2016-12-13",
+   "dataSituacaoAtual": "2017-02-03",
+   "ementa": "Institui normas para licitações e contratos da Administração Pública e dá outras providências.",
+   "enteIdentificador": "SF",
+   "id": 2928129,
+   "identificacao": "PLS 559/2013",
+   "normaGerada": "Lei nº 14.133 de 01/04/2021",
+   "objetivo": "Iniciadora",
+   "siglaTipoDeliberacao": "APROVADA_NO_PLENARIO",
+   "situacaoAtual": "REMETIDA À CÂMARA DOS DEPUTADOS",
+   "tipoConteudo": "Norma Geral",
+   "tipoDocumento": "Projeto de Lei Ordinária",
+   "tramitando": "Não"
+  },
+  {
+   "apelido": "Nova Lei das Licitações",
+   "autoria": "Câmara dos Deputados",
+   "casaIdentificadora": "SF",
+   "codigoMateria": 145636,
+   "dataApresentacao": "2019-10-10",
+   "dataDeliberacao": "2021-03-10",
+   "dataSituacaoAtual": "2021-04-01",
+   "ementa": "Estabelece normas gerais de licitação e contratação para as administrações públicas diretas, autárquicas e fundacionais da União, dos Estados, do Distrito Federal e dos Municípios; altera as Leis nºs 13.105, de 16 de março de 2015 (Código de Processo Civil), 8.987, de 13 de fevereiro de 1995, e 11.079, de 30 de dezembro de 2004, e o Decreto-Lei nº 2.848, de 7 de dezembro de 1940 (Código Penal); e revoga dispositivos da Lei nº 12.462, de 4 de agosto de 2011, e as Leis nºs 8.666, de 21 de junho de 1993, e 10.520, de 17 de julho de 2002.",
+   "enteIdentificador": "SF",
+   "id": 7823403,
+   "identificacao": "PL 4253/2020 (Substitutivo-CD)",
+   "normaGerada": "Lei nº 14.133 de 01/04/2021",
+   "objetivo": "Substitutivo",
+   "siglaTipoDeliberacao": "APROVADA_NO_PLENARIO",
+   "situacaoAtual": "TRANSFORMADA EM NORMA JURÍDICA COM VETO PARCIAL",
+   "tipoConteudo": "Norma Jurídica",
+   "tipoDocumento": "Emenda",
+   "tramitando": "Não",
+   "urlDocumento": "https://legis.senado.gov.br/sdleg-getter/dadosabertos/documento/2697fe2a-90ba-4db7-ae8b-01bf990c73bf"
+  },
+  {
+   "autoria": "Presidência da República",
+   "casaIdentificadora": "CN",
+   "codigoMateria": 147931,
+   "dataApresentacao": "2021-04-02",
+   "dataDeliberacao": "2021-06-01",
+   "dataUltimaAtualizacao": "2026-04-14T16:57:21.678",
+   "ementa": "Veto Parcial aposto ao Projeto de Lei do Senado nº 559 de 2013 (nº 6.814/2017, na Câmara dos Deputados, e devolvido ao Senado como PL nº 4.253/2020), que institui a \"Lei de Licitações e Contratos Administrativos\".",
+   "enteIdentificador": "PLEN",
+   "id": 8056914,
+   "identificacao": "VET 13/2021",
+   "normaGerada": "Lei nº 14.133 de 01/04/2021",
+   "siglaTipoDeliberacao": "MANTIDO_PARCIALMENTE",
+   "tipoConteudo": "Veto Constitucional",
+   "tipoDocumento": "Mensagem",
+   "tramitando": "Não",
+   "ultimaInformacaoAtualizada": "DOCUMENTO",
+   "urlDocumento": "https://legis.senado.gov.br/sdleg-getter/dadosabertos/documento/a3bc814e-e680-47ee-8dfa-a48ee9f0b452"
+  },
+  {
+   "autoria": "Câmara dos Deputados",
+   "casaIdentificadora": "SF",
+   "codigoMateria": 166801,
+   "dataApresentacao": "2024-12-17",
+   "dataDeliberacao": "2024-12-18",
+   "dataSituacaoAtual": "2025-01-14",
+   "ementa": "Dispõe sobre a utilização, por estudantes, de aparelhos eletrônicos portáteis pessoais nos estabelecimentos públicos e privados de ensino da educação básica.",
+   "enteIdentificador": "SF",
+   "id": 8777254,
+   "identificacao": "PL 4932/2024",
+   "normaGerada": "Lei nº 15.100 de 13/01/2025",
+   "objetivo": "Revisora",
+   "siglaTipoDeliberacao": "APROVADA_NO_PLENARIO",
+   "situacaoAtual": "TRANSFORMADA EM NORMA JURÍDICA",
+   "tipoConteudo": "Norma Geral",
+   "tipoDocumento": "Projeto de Lei Ordinária",
+   "tramitando": "Não",
+   "urlDocumento": "https://legis.senado.gov.br/sdleg-getter/dadosabertos/documento/5352a1db-8842-493e-af54-9649cfc53684"
+  },
+  {
+   "autoria": "Câmara dos Deputados",
+   "casaIdentificadora": "SF",
+   "codigoMateria": 170775,
+   "dataApresentacao": "2025-10-07",
+   "dataDeliberacao": "2025-11-05",
+   "dataSituacaoAtual": "2025-11-27",
+   "ementa": "Altera as Leis nºs 9.250, de 26 de dezembro de 1995, e 9.249, de 26 de dezembro de 1995, para instituir a redução do imposto sobre a renda devido nas bases de cálculo mensal e anual e a tributação mínima para as pessoas físicas que auferem altas rendas; e dá outras providências.",
+   "enteIdentificador": "SF",
+   "id": 8926350,
+   "identificacao": "PL 1087/2025",
+   "normaGerada": "Lei nº 15.270 de 26/11/2025",
+   "objetivo": "Revisora",
+   "siglaTipoDeliberacao": "APROVADA_NO_PLENARIO",
+   "situacaoAtual": "TRANSFORMADA EM NORMA JURÍDICA",
+   "tipoConteudo": "Norma Geral",
+   "tipoDocumento": "Projeto de Lei Ordinária",
+   "tramitando": "Não",
+   "urlDocumento": "https://legis.senado.gov.br/sdleg-getter/dadosabertos/documento/be1b0046-67aa-45a9-b228-8bc07160f9ae"
+  },
+  {
+   "apelido": "Regulamentação da reforma tributária",
+   "autoria": "Câmara dos Deputados",
+   "casaIdentificadora": "SF",
+   "codigoMateria": 164914,
+   "dataApresentacao": "2024-07-22",
+   "dataDeliberacao": "2024-12-12",
+   "dataUltimaAtualizacao": "2026-10-28T16:54:14.87",
+   "ementa": "Institui o Imposto sobre Bens e Serviços (IBS), a Contribuição Social sobre Bens e Serviços (CBS) e o Imposto Seletivo (IS); e dá outras providências.",
+   "enteIdentificador": "PLEN",
+   "id": 8701679,
+   "identificacao": "PLP 68/2024",
+   "normaGerada": "Lei Complementar nº 214 de 16/01/2025",
+   "objetivo": "Revisora",
+   "siglaTipoDeliberacao": "APROVADA_NO_PLENARIO",
+   "tipoConteudo": "Norma Geral",
+   "tipoDocumento": "Projeto de Lei Complementar",
+   "tramitando": "Não",
+   "ultimaInformacaoAtualizada": "ASSUNTO",
+   "urlDocumento": "https://legis.senado.gov.br/sdleg-getter/dadosabertos/documento/4c755ecc-5762-4ec4-a298-87c6e6d09811"
+  },
+  {
+   "autoria": "Presidência da República",
+   "casaIdentificadora": "CN",
+   "codigoMateria": 166984,
+   "dataApresentacao": "2025-01-16",
+   "dataSituacaoAtual": "2026-06-18",
+   "dataUltimaAtualizacao": "2026-10-21T13:54:57.304",
+   "ementa": "Veto parcial aposto ao Projeto de Lei Complementar nº 68 de 2024, que \"Institui o Imposto sobre Bens e Serviços (IBS), a Contribuição Social sobre Bens e Serviços (CBS) e o Imposto Seletivo (IS); cria o Comitê Gestor do IBS e altera a legislação tributária\".",
+   "enteIdentificador": "PLEN",
+   "id": 8785123,
+   "identificacao": "VET 7/2025",
+   "normaGerada": "Lei Complementar nº 214 de 16/01/2025",
+   "situacaoAtual": "PRONTO PARA DELIBERAÇÃO DO PLENÁRIO",
+   "tipoConteudo": "Veto Constitucional",
+   "tipoDocumento": "Mensagem",
+   "tramitando": "Sim",
+   "ultimaInformacaoAtualizada": "PUBLICACAO_OFICIAL",
+   "urlDocumento": "https://legis.senado.gov.br/sdleg-getter/dadosabertos/documento/e53a1172-a8c5-4bcc-9d45-9909a25874d3"
+  },
+  {
+   "apelido": "Reforma tributária",
+   "autoria": "Câmara dos Deputados",
+   "casaIdentificadora": "SF",
+   "codigoMateria": 158930,
+   "dataApresentacao": "2023-08-03",
+   "dataDeliberacao": "2023-11-08",
+   "dataSituacaoAtual": "2023-12-21",
+   "dataUltimaAtualizacao": "2026-10-28T16:48:47.665",
+   "ementa": "Altera o Sistema Tributário Nacional.",
+   "enteIdentificador": "SF",
+   "id": 8503515,
+   "identificacao": "PEC 45/2019",
+   "normaGerada": "Emenda Constitucional nº 132 de 20/12/2023",
+   "objetivo": "Revisora",
+   "siglaTipoDeliberacao": "APROVADA_NO_PLENARIO",
+   "situacaoAtual": "TRANSFORMADA EM NORMA JURÍDICA",
+   "tipoConteudo": "Norma Geral",
+   "tipoDocumento": "Proposta de Emenda à Constituição",
+   "tramitando": "Não",
+   "ultimaInformacaoAtualizada": "ASSUNTO",
+   "urlDocumento": "https://legis.senado.gov.br/sdleg-getter/dadosabertos/documento/9ef50764-55a6-4561-a03e-79a7ebfe577d"
+  }
+ ]
+}
