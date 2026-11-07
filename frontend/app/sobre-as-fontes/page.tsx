@@ -210,6 +210,14 @@ export default function SobreAsFontesPage() {
           a média da Casa. Não há nota geral nem posição: juntar critérios exigiria escolher pesos,
           e isso seria uma opinião. A ordem padrão é alfabética.
         </Item>
+        <Item titulo="Plenário agora (selo “Ao vivo”)">
+          O selo no topo do site e a gaveta que ele abre consultam, a cada poucos minutos, a
+          agenda do Plenário nos Dados Abertos da Câmara e do Senado: a sessão em andamento, a
+          pauta dela e a próxima sessão. O vídeo não é nosso nem fica no site: o botão leva ao
+          site oficial (TV Câmara, TV Senado). A fonte não diz qual item está em votação em cada
+          minuto, então mostramos a pauta da sessão e a hora da última conferência. Se a fonte
+          estiver fora do ar, o selo some ou mostra a última resposta, com a hora dela.
+        </Item>
         <Item titulo="Salário">
           O subsídio é o mesmo para todos os deputados federais e senadores e é fixado por decreto
           legislativo. Os gastos do gabinete são uma verba separada.

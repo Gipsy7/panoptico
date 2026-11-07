@@ -2282,3 +2282,13 @@ export async function postSugestao(corpo: CorpoSugestao): Promise<ResultadoSuges
   }
   return { ok: true, protocolo: typeof json?.protocolo === "string" ? json.protocolo : "" };
 }
+
+/** O Plenário agora (Câmara e Senado); chamado no navegador, sem travar a página. Nunca lança erro. */
+export async function getAoVivo(): Promise<import("@/lib/ao-vivo").AoVivo | null> {
+  try {
+    const resposta = await fetch(`${API_URL}/ao-vivo`);
+    return resposta.ok ? await resposta.json() : null;
+  } catch {
+    return null;
+  }
+}

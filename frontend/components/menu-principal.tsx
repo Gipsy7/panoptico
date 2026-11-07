@@ -72,9 +72,9 @@ export function MenuPrincipal() {
         <div className="hidden sm:block">
           <AlternarTema />
         </div>
-        <Link href="/#cep" onClick={() => setAberto(false)} aria-label="Buscar seus representantes" className="botao-linha px-3 whitespace-nowrap max-[22rem]:w-11 max-[22rem]:px-0">
-          <span className="max-[22rem]:sr-only">Buscar</span>
-          <svg aria-hidden viewBox="0 0 24 24" className="hidden size-5 max-[22rem]:block" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round">
+        <Link href="/#cep" onClick={() => setAberto(false)} aria-label="Buscar seus representantes" className="botao-linha px-3 whitespace-nowrap max-[22rem]:w-11 max-[22rem]:px-0 group-has-[[data-ao-vivo]]/cab:max-sm:w-11 group-has-[[data-ao-vivo]]/cab:max-sm:px-0">
+          <span className="max-[22rem]:sr-only group-has-[[data-ao-vivo]]/cab:max-sm:sr-only">Buscar</span>
+          <svg aria-hidden viewBox="0 0 24 24" className="hidden size-5 max-[22rem]:block group-has-[[data-ao-vivo]]/cab:max-sm:block" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round">
             <circle cx="11" cy="11" r="6" />
             <path d="M16 16l4 4" />
           </svg>

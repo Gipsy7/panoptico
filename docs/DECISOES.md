@@ -6,6 +6,7 @@
 - [2026-11-03: compartilhar em imagem (Frente 8)](#2026-11-03-compartilhar-em-imagem-frente-8)
 - [2026-11-07: entender a política (Frente 3)](#2026-11-07-entender-a-política-frente-3)
 - [2026-11-07: avisar erro, direito de resposta e correções públicas (Frente 7)](#2026-11-07-avisar-erro-direito-de-resposta-e-correções-públicas-frente-7)
+- [2026-11-07: Plenário agora, selo "Ao vivo" no cabeçalho (Frente 4)](#2026-11-07-plenário-agora-selo-ao-vivo-no-cabeçalho-frente-4)
 - [2026-10-29: medidas provisórias e vetos do Presidente](#2026-10-29-medidas-provisórias-e-vetos-do-presidente)
 - [2026-10-29: salário de deputado estadual lido de CSV, só número publicado](#2026-10-29-salário-de-deputado-estadual-lido-de-csv-só-número-publicado)
 - [2026-10-30: Web Push, avisos no celular sem telefone nem e-mail](#2026-10-30-web-push-avisos-no-celular-sem-telefone-nem-e-mail)
@@ -1703,3 +1704,12 @@ Escolhas do dono: avisar erro em gaveta de 3 passos (A), respostas num bloco no 
 - **Avisar erro:** tipo, texto e a página/seção já preenchidas; contato opcional, só para responder. Sem IP guardado; limite de 5 avisos por hora por origem. O contato fica fora do backup e é apagado em 180 dias. Nada muda no site sem uma pessoa conferir com a fonte oficial (fila `python -m ingestion.revisar --tipo sugestao`).
 - **Direito de resposta:** a pessoa do perfil (ou a assessoria) envia o texto. Só é publicado depois de revisão humana e de confirmar a identidade pelo canal oficial (e-mail funcional da Casa ou ofício). Sem edição além de tirar dados pessoais e sem comentário do site, que não endossa nem refuta. Aparece no bloco "Respostas de quem é citado", no fim do perfil, com "recebida em DD/MM" e a seção a que se refere.
 - **Correções públicas:** cada correção feita a partir de aviso entra numa tabela em `/sobre-as-fontes#correcoes` (dado, antes, depois, data, fonte conferida, motivo), sem identificar quem avisou; o perfil corrigido ganha um link discreto para a sua linha.
+
+## 2026-11-07: Plenário agora, selo "Ao vivo" no cabeçalho (Frente 4)
+
+Escolha do dono: selo pequeno no cabeçalho que abre uma gaveta (versão C do protótipo), em vez de faixa ou cartão no topo de /projetos.
+
+- **Sem tabela e sem ingestão:** `GET /ao-vivo` (`app/services/ao_vivo.py`) consulta direto a Câmara (`/eventos` do Plenário, `idOrgao=180`, situação "Em Andamento", tipo "Sessão...") e o Senado (`/plenario/agenda/mes/{AAAAMMDD}`; "agora" = situação "em andamento/aberta/iniciada"). Cache de 3 min por Casa; se a fonte falhar, vale a última resposta boa (com a hora dela) e, sem nenhuma, a Casa fica `sem` e `indisponivel`. Cliente HTTP só IPv4, timeout curto (6 s).
+- **Vídeo:** só o link oficial, sem incorporar: a Câmara usa `urlRegistro` do evento (ou a página do evento); o Senado, a página da TV Senado do Plenário.
+- **Limite da fonte:** nenhuma das duas diz qual item está em votação no minuto; o site mostra a pauta da sessão (até 8 itens, "mostrando N de M") e avisa disso.
+- **Celular:** abaixo de 400 px o selo vira só o ponto (nome completo para leitor de tela) e o "Buscar" vira ícone, para o cabeçalho continuar numa linha em 360 px. Em 320 px o cabeçalho quebra em duas linhas, sem rolagem lateral.
