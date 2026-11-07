@@ -33,7 +33,6 @@ from app.services import (
     discursos_projeto,
     normas,
     projeto_fontes,
-    texto_busca,
     tipo_votacao,
     votacao_detalhe,
 )
