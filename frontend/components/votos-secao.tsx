@@ -6,9 +6,12 @@ import { TextoLongo } from "@/components/ui/texto-longo";
 import { FonteRodape } from "@/components/fonte-rodape";
 import { CobrarLinha } from "@/components/perfil/cobrar-linha";
 import type { Casa, Placar, Votos } from "@/lib/api";
-import { CASA_CURTA, formatarData } from "@/lib/formato";
+import { CASA_DA, formatarData } from "@/lib/formato";
 import { LinkExterno } from "@/components/link-externo";
 import { TermoOficial } from "@/components/termo-oficial";
+import { ChaveSoTexto } from "@/components/chave-so-texto";
+import { ComoSeparamos } from "@/components/como-separamos-votacoes";
+import { PARAM_RECORTE, ROTULO_TIPO, avisoRecorte, rotuloRecorte } from "@/lib/recorte-votacoes";
 
 const PCT = new Intl.NumberFormat("pt-BR", { maximumFractionDigits: 1 });
 
@@ -22,11 +25,16 @@ export function VotosSecao({
   parlamentarId: number;
 }) {
   const paginas = Math.max(1, Math.ceil(dados.total / dados.por_pagina));
-  const link = (pagina: number) => {
-    const params = new URLSearchParams({ ano: String(dados.ano), pagina_votos: String(pagina) });
+  const tipo = dados.tipo ?? "todas";
+  // Endereço da seção com a chave no estado `recorte` (padrão: ligada, só sobre o texto).
+  const endereco = (extra: Record<string, string>, recorte = tipo) => {
+    const params = new URLSearchParams({ ano: String(dados.ano), ...extra });
     if (dados.tema) params.set("tema", dados.tema);
+    if (recorte === "todas") params.set(PARAM_RECORTE, "todas");
     return `/parlamentar/${parlamentarId}?${params}#ver-votos`;
   };
+  const link = (pagina: number) => endereco({ pagina_votos: String(pagina) });
+  const recorte = rotuloRecorte(tipo);
 
   return (
     <section aria-labelledby="votos-titulo" className="revelar flex flex-col gap-4">
@@ -39,6 +47,15 @@ export function VotosSecao({
         </p>
       </div>
 
+      {dados.contagem_tipos && (
+        <div className="flex flex-col gap-2">
+          <ChaveSoTexto ligada={tipo === "merito"} href={endereco({}, tipo === "merito" ? "todas" : "merito")} />
+          <p role="status" className="text-sm">
+            {avisoRecorte(dados.contagem_tipos, tipo)}
+          </p>
+        </div>
+      )}
+
       <dl className="grid grid-cols-2 gap-3">
         {dados.governo && (
           <Bloco
@@ -46,6 +63,7 @@ export function VotosSecao({
             placar={dados.governo}
             media={dados.media_governo}
             casa={casa}
+            recorte={dados.contagem_tipos ? recorte : undefined}
           />
         )}
         <Bloco
@@ -53,8 +71,10 @@ export function VotosSecao({
           placar={dados.partido}
           media={dados.media_partido}
           casa={casa}
+          recorte={dados.contagem_tipos ? recorte : undefined}
         />
       </dl>
+      {dados.contagem_tipos && <ComoSeparamos />}
       <p className="text-sm">
         <a href="#entender-governo" className="alvo-link underline underline-offset-2">
           Como contamos estes votos
@@ -68,8 +88,8 @@ export function VotosSecao({
             action={`/parlamentar/${parlamentarId}`}
             ancora="ver-votos"
             ativos={dados.tema ? 1 : 0}
-            limparHref={`/parlamentar/${parlamentarId}?ano=${dados.ano}#ver-votos`}
-            ocultos={{ ano: String(dados.ano) }}
+            limparHref={`/parlamentar/${parlamentarId}?ano=${dados.ano}${tipo === "todas" ? `&${PARAM_RECORTE}=todas` : ""}#ver-votos`}
+            ocultos={tipo === "todas" ? { ano: String(dados.ano), [PARAM_RECORTE]: "todas" } : { ano: String(dados.ano) }}
             titulo="Filtrar as votações por tema"
             sempreVisivel
             rotuloAplicar="Filtrar"
@@ -83,7 +103,12 @@ export function VotosSecao({
           </PainelFiltros>
           {dados.tema && (
             <PilulasAtivas
-              itens={[{ rotulo: `Tema: ${dados.tema}`, href: `/parlamentar/${parlamentarId}?ano=${dados.ano}#ver-votos` }]}
+              itens={[
+                {
+                  rotulo: `Tema: ${dados.tema}`,
+                  href: `/parlamentar/${parlamentarId}?ano=${dados.ano}${tipo === "todas" ? `&${PARAM_RECORTE}=todas` : ""}#ver-votos`,
+                },
+              ]}
             />
           )}
         </div>
@@ -92,13 +117,22 @@ export function VotosSecao({
       <div className="flex flex-col gap-1">
         <p className="text-sm font-medium">
           {dados.total} {dados.total === 1 ? "votação" : "votações"}
-          {dados.tema && ` sobre ${dados.tema}`}
+          {tipo === "merito" && " sobre o texto"}
+          {tipo === "procedimento" && " de procedimento"}
+          {dados.tema && ` do tema ${dados.tema}`}
         </p>
         <ul className="lista-fios flex flex-col">
           {dados.itens.map((v, i) => (
             <li key={`${v.data}-${i}`} className="flex flex-col gap-2 p-4">
               <div className="flex flex-col gap-0.5">
-                <span className="text-sm text-muted-foreground">{formatarData(v.data)}</span>
+                <span className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
+                  {formatarData(v.data)}
+                  {v.tipo && (
+                    <span className="rounded-sm border border-border px-1.5 text-xs font-medium text-foreground">
+                      {ROTULO_TIPO[v.tipo]}
+                    </span>
+                  )}
+                </span>
                 {v.proposicao &&
                   (v.id_externo ? (
                     <Link
@@ -177,11 +211,14 @@ function Bloco({
   placar,
   media,
   casa,
+  recorte,
 }: {
   rotulo: string;
   placar: Placar;
   media: number | null;
   casa: Casa;
+  /** Em que votações a conta foi feita (o número e a média seguem o mesmo recorte). */
+  recorte?: string;
 }) {
   return (
     <div className="figura flex flex-col gap-0.5">
@@ -192,9 +229,10 @@ function Bloco({
       {placar.percentual !== null && (
         <dd className="text-sm text-muted-foreground tabular-nums">
           {PCT.format(placar.percentual)}%
-          {media !== null && ` · média do ${CASA_CURTA[casa]} ${PCT.format(media)}%`}
+          {media !== null && ` · média ${CASA_DA[casa]} ${PCT.format(media)}%`}
         </dd>
       )}
+      {recorte && <dd className="text-xs text-muted-foreground">Recorte: {recorte}</dd>}
     </div>
   );
 }

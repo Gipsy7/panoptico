@@ -138,3 +138,66 @@ class VotacaoDetalhe(BaseModel):
     # Campos opcionais acrescentados em 2026-10-21; o formato antigo não muda.
     por_uf: list[PorUf] | None = None
     discursos: DiscursosDaVotacao | None = None
+
+
+# --- Calendário das votações (GET /votacoes/calendario) ---
+
+
+class ContagemDia(BaseModel):
+    todas: int
+    merito: int
+    procedimento: int
+
+
+class DiaCalendario(ContagemDia):
+    data: date
+
+
+class MesRef(BaseModel):
+    ano: int
+    mes: int
+
+
+class PlacarItem(BaseModel):
+    sim: int | None
+    nao: int | None
+    abstencao: int | None
+
+
+class VotacaoDoCalendario(BaseModel):
+    id_externo: str
+    data: date
+    descricao: str
+    tipo: str  # merito | procedimento
+    proposicao: str | None
+    proposicao_id_externo: str | None
+    proposicao_ementa: str | None
+    resultado: str | None
+    secreta: bool
+    placar: PlacarItem
+    link: str
+
+
+class ListaCalendario(BaseModel):
+    total: int  # no recorte pedido
+    contagem_tipos: ContagemDia  # do mês ou do dia, sem o recorte
+    pagina: int
+    por_pagina: int
+    itens: list[VotacaoDoCalendario]
+
+
+class CalendarioVotacoes(BaseModel):
+    casa: str
+    ano: int
+    mes: int
+    mes_anterior: MesRef | None
+    mes_seguinte: MesRef | None
+    dias: list[DiaCalendario]  # só os dias com votação
+    totais: ContagemDia
+    por_casa: dict[str, int]  # votações no mês em cada Casa
+    dia: date | None
+    tipo: str
+    lista: ListaCalendario
+    fonte_nome: str
+    fonte_url: str
+    atualizado_em: datetime | None

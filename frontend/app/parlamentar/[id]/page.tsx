@@ -40,6 +40,7 @@ import { RemuneracaoSecao } from "@/components/remuneracao-secao";
 import { ResumoPerfil } from "@/components/resumo-perfil";
 import { TemasSecao } from "@/components/temas-secao";
 import { VotosSecao } from "@/components/votos-secao";
+import { PARAM_RECORTE, comNumerosDeTodas, recorteDoEndereco } from "@/lib/recorte-votacoes";
 import { VotosTemaSecao } from "@/components/votos-tema-secao";
 import {
   getDestinoEmendas,
@@ -58,6 +59,7 @@ import {
   type Casa,
   type ParlamentarDetalhe,
   type Presenca,
+  type RecorteVotacoes,
   type Votos,
 } from "@/lib/api";
 import { CASA_CURTA, FONTE_CASA, NOME_CASA, formatarReais } from "@/lib/formato";
@@ -110,6 +112,7 @@ export default function ParlamentarPage({
             ano={texto(sp.ano)}
             tema={texto(sp.tema)}
             paginaVotos={texto(sp.pagina_votos)}
+            recorteVotos={recorteDoEndereco(sp[PARAM_RECORTE])}
             paginaComissoes={texto(sp.pagina_comissoes)}
           />
         );
@@ -125,12 +128,15 @@ async function Perfil({
   tema,
   paginaVotos,
   paginaComissoes,
+  recorteVotos,
 }: {
   id: string;
   ano?: string;
   tema?: string;
   paginaVotos?: string;
   paginaComissoes?: string;
+  /** Chave "Só o que muda leis" da seção "Como votou" (padrão: ligada). */
+  recorteVotos: RecorteVotacoes;
 }) {
   const [resultado, gastos, projetos, presenca, temas, votos, votosTema, candidatura, comissoes, [linha, sancoes], destino, relator] =
     await Promise.all([
@@ -139,7 +145,7 @@ async function Perfil({
       getProjetos(id),
       getPresenca(id, ano),
       getTemas(id),
-      getVotos(id, { ano, tema, pagina: paginaVotos }),
+      getVotos(id, { ano, tema, pagina: paginaVotos, tipo: recorteVotos }),
       getVotosPorTema(id, ano),
       getCandidatura(id),
       getVotosComissoes(id, paginaComissoes),
@@ -395,7 +401,7 @@ async function Perfil({
           gastos={gastos.ok ? gastos.dados : undefined}
           presenca={presenca.ok ? presenca.dados : undefined}
           projetos={projetos.ok ? projetos.dados : undefined}
-          votos={votos.ok ? votos.dados : undefined}
+          votos={votos.ok ? comNumerosDeTodas(votos.dados) : undefined}
           bens={candidatura.ok ? candidatura.dados.bens : undefined}
           sancoes={sancoes?.ok ? sancoes.dados : undefined}
           subsidio={p.remuneracao.subsidio_mensal}
@@ -449,7 +455,7 @@ async function Perfil({
         casa={p.casa}
         nome={p.nome_parlamentar}
         presenca={presenca.ok ? presenca.dados : undefined}
-        votos={votos.ok ? votos.dados : undefined}
+        votos={votos.ok ? comNumerosDeTodas(votos.dados) : undefined}
         temSancoes={pessoaId !== null}
       />
 
@@ -563,6 +569,10 @@ function PerguntasPerfil({
             Contamos quantas vezes o voto foi igual a essa orientação. Contam só as votações em que deu voto (Sim,
             Não, Abstenção ou Obstrução), e só quando a liderança do Governo orientou Sim, Não ou Obstrução;
             votações liberadas ficam de fora.
+          </p>
+          <p>
+            Aqui contam todas as votações nominais, sobre o texto e de procedimento. Na seção “Como votou”, a chave
+            “Só o que muda leis” refaz a conta só com as votações sobre o texto, e a média no mesmo recorte.
           </p>
           {governo && governo.percentual !== null && votos.media_governo !== null && (
             <BarraComparacao

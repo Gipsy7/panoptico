@@ -174,10 +174,12 @@ def temas_do_parlamentar(
     return temas.projetos_por_tema(session, _buscar(session, parlamentar_id))
 
 
-def _com_links(session: Session, p: Parlamentar, ano: int, tema: str | None, pagina: int) -> dict:
+def _com_links(
+    session: Session, p: Parlamentar, ano: int, tema: str | None, pagina: int, tipo: str | None
+) -> dict:
     """Lista de votos com o id de cada votação, para o link ao explicador de votação."""
-    lista = votos.lista_votos(session, p, ano, tema, pagina)
-    ids = votacao_detalhe.ids_da_pagina(session, p, ano, tema, pagina, lista["por_pagina"])
+    lista = votos.lista_votos(session, p, ano, tema, pagina, tipo)
+    ids = votacao_detalhe.ids_da_pagina(session, p, ano, tema, pagina, lista["por_pagina"], tipo)
     return lista | {"itens": votacao_detalhe.com_ids(lista["itens"], ids)}
 
 
@@ -188,6 +190,13 @@ def votos_do_parlamentar(
     ano: Annotated[int | None, Query(description="Padrão: ano mais recente com dados")] = None,
     tema: Annotated[str | None, Query(description="Tema oficial da proposição votada")] = None,
     pagina: Annotated[int, Query(ge=1)] = 1,
+    tipo: Annotated[
+        Literal["todas", "merito", "procedimento"],
+        Query(
+            description="Recorte: todas as votações, só as sobre o texto (mérito) ou só as de "
+            "procedimento. Os números de cima e a média da Casa seguem o mesmo recorte."
+        ),
+    ] = "todas",
 ) -> dict:
     p = _buscar(session, parlamentar_id)
     anos = presenca.anos_disponiveis(session, p.casa)
@@ -205,18 +214,34 @@ def votos_do_parlamentar(
     def placar(iguais: int, total: int) -> dict:
         return {"iguais": iguais, "total": total, "percentual": ranking._pct(iguais, total)}
 
-    return {
-        "ano": ano,
-        "anos_disponiveis": anos,
+    todas = {
         "governo": placar(resumo["governo_iguais"], resumo["governo_total"]) if resumo else None,
         "partido": placar(resumo["partido_iguais"], resumo["partido_total"])
         if resumo
         else placar(0, 0),
         "media_governo": lista["medias"][p.casa]["governo"],
         "media_partido": ranking.media_partido(session, p.casa, ano),
+    }
+    numeros = todas
+    if tipo != "todas":
+        r = votos.media_no_recorte(session, p.casa, ano, tipo, p.id)
+        numeros = {
+            "governo": placar(r["governo"].iguais, r["governo"].total) if resumo else None,
+            "partido": placar(r["partido"].iguais, r["partido"].total),
+            "media_governo": r["media_governo"],
+            "media_partido": r["media_partido"],
+        }
+
+    return {
+        "ano": ano,
+        "anos_disponiveis": anos,
+        "tipo": tipo,
+        "contagem_tipos": votos.contagem_por_tipo(session, p, ano, tema),
+        **numeros,
+        "todas": todas,
         "temas_disponiveis": votos.temas_disponiveis(session, p, ano),
         "tema": tema,
-        **_com_links(session, p, ano, tema, pagina),
+        **_com_links(session, p, ano, tema, pagina, None if tipo == "todas" else tipo),
         "fonte_nome": fonte["nome"],
         "fonte_url": fonte["url"],
         "atualizado_em": lista["atualizado_em"],

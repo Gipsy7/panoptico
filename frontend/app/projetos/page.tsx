@@ -4,6 +4,7 @@ import Form from "next/form";
 import Link from "next/link";
 
 import { AvisoErro } from "@/components/aviso-erro";
+import { SecaoCalendarioVotacoes } from "@/components/calendario-votacoes";
 import { PlacarCompacto } from "@/components/barra-placar";
 import { DicaPagina } from "@/components/dica-pagina";
 import { EsqueletoSecao } from "@/components/esqueleto-secao";
@@ -35,6 +36,7 @@ import {
   situacaoSimples,
 } from "@/lib/projetos";
 import { UFS } from "@/lib/ufs";
+import { type EstadoCalendario, lerCalendario } from "@/lib/calendario-votacoes";
 import { LinkExterno } from "@/components/link-externo";
 
 export async function generateMetadata({ searchParams }: PageProps<"/projetos">): Promise<Metadata> {
@@ -59,14 +61,14 @@ export default function ProjetosPage({ searchParams }: PageProps<"/projetos">) {
       />
       <Revelacao fallback={<EsqueletoSecao rotulo="Carregando projetos…" secoes={2} />}>
         {searchParams.then((sp) => (
-          <Conteudo filtros={lerFiltrosProjetos(sp)} />
+          <Conteudo filtros={lerFiltrosProjetos(sp)} calendario={lerCalendario(sp)} />
         ))}
       </Revelacao>
     </div>
   );
 }
 
-async function Conteudo({ filtros }: { filtros: FiltrosProjetos }) {
+async function Conteudo({ filtros, calendario }: { filtros: FiltrosProjetos; calendario: EstadoCalendario }) {
   // Cidades do estado escolhido, para o seletor de cidade (sem JavaScript: aparece depois de filtrar por estado).
   // No Congresso o estado não filtra a lista (vale para o país todo); fica no endereço dos cartões, para
   // a página do projeto abrir já com "quem votou" do estado.
@@ -88,6 +90,7 @@ async function Conteudo({ filtros }: { filtros: FiltrosProjetos }) {
     <>
       <BarraDeBusca filtros={filtros} cidades={cidades} temas={temas} ativos={ativos} />
       {primeiraPagina && semFiltro && <NaPauta />}
+      {primeiraPagina && semFiltro && <SecaoCalendarioVotacoes estado={calendario} />}
       {resultado.ok ? (
         <Lista filtros={filtros} dados={resultado.dados} />
       ) : (

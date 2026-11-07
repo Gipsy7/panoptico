@@ -124,6 +124,7 @@ class VotacaoDoProjeto(BaseModel):
     descricao: str
     resultado: str | None
     secreta: bool
+    tipo: str  # merito | procedimento (app/services/tipo_votacao.py)
     placar_publicado: PlacarPublicado | None
     placar_contado: PlacarContado
     link: str

@@ -9,7 +9,12 @@ Decisão e regras em docs/DECISOES.md (2026-10-21)."""
 import re
 import unicodedata
 
+from app.services.tipo_votacao import eh_procedimento
+
 OUTRO = "Outro andamento"
+# Votação de procedimento (urgência, requerimento, recurso...) não é "Votado no Plenário": a regra
+# é a mesma das votações (app/services/tipo_votacao.py), aplicada em `etapa_do_passo`.
+VOTADO = "Votado no Plenário"
 
 # (regex sobre "tipo | descrição" normalizado, etapa). Ordem importa: do mais específico
 # (virou lei, veto, sanção, arquivo) para o mais geral (apresentado).
@@ -30,11 +35,11 @@ REGRAS: list[tuple[re.Pattern, str]] = [
     ),
     (
         re.compile(
-            r"^(?!.*(urgencia|requerimento)).*(\b(aprovacao|rejeicao) de proposicao \(plenario\)"
+            r"\b(aprovacao|rejeicao) de proposicao \(plenario\)"
             r"|votacao \(plenario\)|plenario.{0,60}\b(aprov|rejeit)"
-            r"|\b(aprov|rejeit)\w*.{0,60}plenario)"
+            r"|\b(aprov|rejeit)\w*.{0,60}plenario"
         ),
-        "Votado no Plenário",
+        VOTADO,
     ),
     (
         re.compile(
@@ -79,11 +84,15 @@ def etapa_do_passo(tipo: str | None, descricao: str | None, situacao: str | None
     """Etapa do passo. Primeiro pelo tipo e pelo texto; se nada casar, pela situação."""
     texto = _normalizar(f"{tipo or ''} | {descricao or ''}")
     for regra, etapa in REGRAS:
-        if regra.search(texto):
+        if regra.search(texto) and not (etapa == VOTADO and eh_procedimento(texto)):
             return etapa
     if situacao:
         sit = _normalizar(situacao)
         for regra, etapa in REGRAS:
-            if etapa != "Apresentado" and regra.search(sit):
+            if (
+                etapa != "Apresentado"
+                and regra.search(sit)
+                and not (etapa == VOTADO and eh_procedimento(sit))
+            ):
                 return etapa
     return OUTRO

@@ -752,6 +752,7 @@ class PlacarResposta(BaseModel):
 class VotoItem(BaseModel):
     data: date
     descricao: str
+    tipo: str = "procedimento"  # merito | procedimento (app/services/tipo_votacao.py)
     proposicao: str | None
     proposicao_ementa: str | None
     temas: list[str]
@@ -794,13 +795,33 @@ class VotosComissoesResposta(BaseModel):
     atualizado_em: datetime | None
 
 
-class VotosResposta(BaseModel):
-    ano: int
-    anos_disponiveis: list[int]
+class ContagemTipos(BaseModel):
+    """Quantas votações há em cada tipo (mesmo ano e tema da lista)."""
+
+    todas: int
+    merito: int
+    procedimento: int
+
+
+class AlinhamentoRecorte(BaseModel):
     governo: PlacarResposta | None
     partido: PlacarResposta
     media_governo: float | None
     media_partido: float | None
+
+
+class VotosResposta(BaseModel):
+    ano: int
+    anos_disponiveis: list[int]
+    # Recorte da lista e dos números de cima: "todas", "merito" ou "procedimento".
+    tipo: str = "todas"
+    contagem_tipos: ContagemTipos | None = None
+    governo: PlacarResposta | None
+    partido: PlacarResposta
+    media_governo: float | None
+    media_partido: float | None
+    # Os mesmos números em todas as votações (o resumo do topo do perfil usa estes).
+    todas: AlinhamentoRecorte | None = None
     temas_disponiveis: list[str]
     tema: str | None
     total: int

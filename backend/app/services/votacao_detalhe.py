@@ -21,7 +21,7 @@ from sqlalchemy.orm import Session
 
 from app.models import FonteIngestao, Orientacao, Parlamentar, ProposicaoTema, Votacao, Voto
 from app.services import discursos_projeto, presenca, projeto_fontes
-from app.services.votos import ORIENTACAO_VALIDA, VOTO_EFETIVO, url_votacao
+from app.services.votos import ORIENTACAO_VALIDA, VOTO_EFETIVO, filtro_tipo, url_votacao
 from ingestion.proposicoes_comum import SEM_CLASSIFICACAO
 
 LIDERANCAS = ("Governo", "Maioria", "Minoria", "Oposição")
@@ -280,7 +280,7 @@ def _orientacao_do_partido(
 
 def ids_da_pagina(
     session: Session, parlamentar: Parlamentar, ano: int, tema: str | None, pagina: int,
-    por_pagina: int,
+    por_pagina: int, tipo: str | None = None,
 ) -> list[str]:  # fmt: skip
     """Ids externos das votações de uma página da lista de votos do perfil, no mesmo filtro e
     na mesma ordem de `votos.lista_votos` (para o link de cada item ao explicador)."""
@@ -288,6 +288,7 @@ def ids_da_pagina(
         Voto.parlamentar_id == parlamentar.id,
         Votacao.casa == parlamentar.casa,
         func.extract("year", Votacao.data) == ano,
+        *filtro_tipo(tipo),
     ]
     if tema:
         filtro.append(
