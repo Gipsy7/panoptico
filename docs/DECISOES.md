@@ -8,6 +8,7 @@
 - [2026-11-07: avisar erro, direito de resposta e correções públicas (Frente 7)](#2026-11-07-avisar-erro-direito-de-resposta-e-correções-públicas-frente-7)
 - [2026-11-07: projetos que viraram lei (Frente 4)](#2026-11-07-projetos-que-viraram-lei-frente-4)
 - [2026-11-07: votação de mérito e de procedimento, calendário (Frente 4)](#2026-11-07-votação-de-mérito-e-de-procedimento-calendário-frente-4)
+- [2026-11-07: Plenário agora, selo "Ao vivo" no cabeçalho (Frente 4)](#2026-11-07-plenário-agora-selo-ao-vivo-no-cabeçalho-frente-4)
 - [2026-10-29: medidas provisórias e vetos do Presidente](#2026-10-29-medidas-provisórias-e-vetos-do-presidente)
 - [2026-10-29: salário de deputado estadual lido de CSV, só número publicado](#2026-10-29-salário-de-deputado-estadual-lido-de-csv-só-número-publicado)
 - [2026-10-30: Web Push, avisos no celular sem telefone nem e-mail](#2026-10-30-web-push-avisos-no-celular-sem-telefone-nem-e-mail)
@@ -1725,3 +1726,11 @@ Escolhas do dono: chave liga/desliga "Só o que muda leis" (A) e calendário em 
 - **Votação principal do projeto** passa a usar a mesma regra: a última de mérito que é do texto inteiro (não é emenda, destaque nem trecho). Corrige dois casos da regra antiga: "Proposta de Emenda à Constituição" e "ressalvados os destaques" não tiram mais a votação do texto-base. A etapa "Votado no Plenário" da tramitação também deixa de fora o que a regra chama de procedimento.
 - **Recorte no perfil:** a chave vem ligada (só sobre o texto) e diz quantas ficaram de fora. "Votou como o Governo orientou" e "maioria do partido" são recalculados no recorte, com a média da Casa no mesmo recorte (percentual médio entre os parlamentares em exercício com base de comparação, como no resumo guardado). O resumo do topo do perfil e a presença continuam em todas as votações, e dizem isso.
 - **Calendário** (`GET /votacoes/calendario`): número de votações nominais do Plenário por dia de um mês, por Casa, só com o que está em `votacao`. Dia sem número pode ter tido sessão sem votação nominal, votação simbólica ou comissão. Um tom só (bronze), cinco degraus fixos (0, 1-3, 4-6, 7-9, 10+) com legenda; o número está sempre escrito e a cor só o repete. No tema escuro o degrau mais forte é o bronze cheio com número escuro, para não se confundir com o anterior. Os números do calendário seguem a chave.
+## 2026-11-07: Plenário agora, selo "Ao vivo" no cabeçalho (Frente 4)
+
+Escolha do dono: selo pequeno no cabeçalho que abre uma gaveta (versão C do protótipo), em vez de faixa ou cartão no topo de /projetos.
+
+- **Sem tabela e sem ingestão:** `GET /ao-vivo` (`app/services/ao_vivo.py`) consulta direto a Câmara (`/eventos` do Plenário, `idOrgao=180`, situação "Em Andamento", tipo "Sessão...") e o Senado (`/plenario/agenda/mes/{AAAAMMDD}`; "agora" = situação "em andamento/aberta/iniciada"). Cache de 3 min por Casa; se a fonte falhar, vale a última resposta boa (com a hora dela) e, sem nenhuma, a Casa fica `sem` e `indisponivel`. Cliente HTTP só IPv4, timeout curto (6 s).
+- **Vídeo:** só o link oficial, sem incorporar: a Câmara usa `urlRegistro` do evento (ou a página do evento); o Senado, a página da TV Senado do Plenário.
+- **Limite da fonte:** nenhuma das duas diz qual item está em votação no minuto; o site mostra a pauta da sessão (até 8 itens, "mostrando N de M") e avisa disso.
+- **Celular:** abaixo de 400 px o selo vira só o ponto (nome completo para leitor de tela) e o "Buscar" vira ícone, para o cabeçalho continuar numa linha em 360 px. Em 320 px o cabeçalho quebra em duas linhas, sem rolagem lateral.

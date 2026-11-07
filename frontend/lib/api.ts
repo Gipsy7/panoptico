@@ -2399,3 +2399,12 @@ export function getCalendarioVotacoes(opcoes: {
   return getJson<CalendarioVotacoes>(`/votacoes/calendario?${params}`);
 }
 
+/** O Plenário agora (Câmara e Senado); chamado no navegador, sem travar a página. Nunca lança erro. */
+export async function getAoVivo(): Promise<import("@/lib/ao-vivo").AoVivo | null> {
+  try {
+    const resposta = await fetch(`${API_URL}/ao-vivo`);
+    return resposta.ok ? await resposta.json() : null;
+  } catch {
+    return null;
+  }
+}

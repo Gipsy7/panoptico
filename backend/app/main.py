@@ -2,6 +2,7 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.api import (
+    ao_vivo,
     argos,
     avisos,
     bancadas,
@@ -69,6 +70,7 @@ async def cache_na_cdn(request: Request, call_next):
 
 
 app.include_router(saude.router)
+app.include_router(ao_vivo.router)
 app.include_router(cobertura.router)
 app.include_router(representantes.router)
 app.include_router(parlamentares.router)

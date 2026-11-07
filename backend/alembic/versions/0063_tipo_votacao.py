@@ -5,7 +5,7 @@ e preenche as votações já gravadas com a regra de app/services/tipo_votacao.p
 carga aplica daqui em diante. Sem RECARREGAR_DADOS: o preenchimento é feito aqui, em lotes.
 
 Revision ID: 0063_tipo_votacao
-Revises: 0061_sugestoes_correcoes
+Revises: 0062_normas
 Create Date: 2026-11-07
 """
 
