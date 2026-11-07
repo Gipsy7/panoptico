@@ -11,6 +11,7 @@
 - [2026-11-07: Plenário agora, selo "Ao vivo" no cabeçalho (Frente 4)](#2026-11-07-plenário-agora-selo-ao-vivo-no-cabeçalho-frente-4)
 - [2026-11-07: quanto custa o mandato (Frente 6)](#2026-11-07-quanto-custa-o-mandato-frente-6)
 - [2026-10-29: medidas provisórias e vetos do Presidente](#2026-10-29-medidas-provisórias-e-vetos-do-presidente)
+- [2026-11-07: teto do salário de vereador e deputado estadual (Frente 6)](#2026-11-07-teto-do-salário-de-vereador-e-deputado-estadual-frente-6)
 - [2026-10-29: salário de deputado estadual lido de CSV, só número publicado](#2026-10-29-salário-de-deputado-estadual-lido-de-csv-só-número-publicado)
 - [2026-10-30: Web Push, avisos no celular sem telefone nem e-mail](#2026-10-30-web-push-avisos-no-celular-sem-telefone-nem-e-mail)
 - [2026-10-30: Neon parado enquanto a reserva não é usada](#2026-10-30-neon-parado-enquanto-a-reserva-não-é-usada)
@@ -1555,6 +1556,14 @@ A reserva da VPS é uma **versão congelada** do site, da API e do banco, na Ver
 - **Fonte:** API de processos do Senado (JSON aberto), a mesma já usada em `senado_proposicoes`; a API de dados abertos da Câmara não traz situação de MPV (o campo vem vazio, a tramitação é do Congresso) e serve só de conferência do total (245 = 245). O serviço antigo de vetos (`/materia/vetos/{ano}`) está descontinuado e não é usado; serviu para checar total/parcial.
 - **Linguagem:** o cartão diz "Perdeu a validade sem ser votada a tempo" com "Perdeu a eficácia (caducou)" em letra menor; "Congresso derrubou o veto" com "Veto rejeitado". Sem nota, sem ranking e sem cor de bom/ruim. Não há comparação com média (cargo único) e a seção diz isso. A situação que a fonte escreve fica literal em cada item; o agrupamento usa o código de decisão e `tramitando`.
 - **Migração `0059_ato_presidencial`:** inevitável (a tabela `proposicao` guarda só proposições de parlamentares, com autoria); só acrescenta tabela. Sem `RECARREGAR_DADOS`: a carga é diária no `run_all` (agenda `diaria.sh` da VPS) e a página mostra "ainda não foram carregadas" até a primeira carga.
+
+## 2026-11-07: teto do salário de vereador e deputado estadual (Frente 6)
+
+- **Escolha do dono:** versão C, "valor pago × teto". Duas barras (pago e teto) com a conta guardada num "por que"; quando o valor pago não está publicado, diz isso e mostra só o teto.
+- **Regras (texto conferido no Planalto em 07/11/2026):** deputado estadual, art. 27, § 2º, até 75% do deputado federal (R$ 34.774,64, de R$ 46.366,19 do Decreto Legislativo 172/2022). Vereador, art. 29, VI, alíneas a a f: 20% (até 10 mil habitantes), 30% (10.001 a 50 mil), 40% (50.001 a 100 mil), 50% (100.001 a 300 mil), 60% (300.001 a 500 mil), 75% (mais de 500 mil) do subsídio do deputado estadual.
+- **Cálculo no frontend** (`lib/cargos.ts`: `tetoVereador`, `percentualDe`, `faixaDoVereador`, centavos exatos); a API só entrega os insumos: `populacao` (a mais recente de `populacao_ibge` da cidade, estimativa ou Censo, com ano, fonte e data da carga `ibge_populacao`) em `/municipios/{ibge}/camara` e `/vereadores/{id}`; `subsidio` em `/estados/{uf}/assembleia`; `subsidio_uf` e `municipio_nome` em `/vereadores/{id}`. Sem migração.
+- **Valor pago:** deputado estadual, o do CSV de 29/10 (só número publicado, 12 UFs). Vereador, nenhum: não há fonte carregada com o subsídio de cada câmara; a tela diz "o valor pago não está publicado aqui". Se o subsídio do deputado estadual do estado não está publicado, o teto do vereador aparece só em percentual: não se estima o valor em reais.
+- **Onde:** seção "Salário bruto (subsídio)" do perfil de vereador e de deputado estadual; "Quanto ganha" do painel dos prédios em /representantes (câmara municipal e assembleia), com a cidade e o estado escolhidos.
 
 ## 2026-10-29: salário de deputado estadual lido de CSV, só número publicado
 

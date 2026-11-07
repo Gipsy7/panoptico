@@ -377,6 +377,20 @@ async function Lista({ cep, uf, municipio }: Busca) {
           faixaEstado={faixaEstado(localizacao.uf, nomeEstado)}
           faixaCidade={temCidade && cidade ? cidade.toUpperCase() : null}
           voce={`Você, em ${temCidade && cidade ? cidade : nomeEstado}`}
+          teto={{
+            cidade:
+              temCidade && cidade && camara?.populacao
+                ? {
+                    nome: cidade,
+                    uf: localizacao.uf,
+                    populacao: camara.populacao,
+                    subsidioUf: assembleia?.subsidio ?? null,
+                  }
+                : undefined,
+            estado: assembleia
+              ? { uf: localizacao.uf, subsidio: assembleia.subsidio ?? null, nomeCasa: eDF ? "Câmara Legislativa" : "Assembleia Legislativa" }
+              : undefined,
+          }}
         />
         {nEleitos2026 > 0 && eleitos2026 && (
           <a

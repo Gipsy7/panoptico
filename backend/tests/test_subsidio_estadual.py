@@ -49,3 +49,52 @@ def test_copia_empacotada_igual_ao_csv_versionado():
     """Se falhar: copie data/salario_deputados_estaduais.csv para backend/app/dados/."""
     original = subsidio_estadual.CSV.parents[3] / "data" / "salario_deputados_estaduais.csv"
     assert subsidio_estadual.CSV.read_bytes() == original.read_bytes()
+
+
+def test_camara_traz_populacao_mais_recente_e_assembleia_traz_o_subsidio(session, client):
+    """Base do teto do salário: população da cidade (faixa do vereador) e subsídio do estado."""
+    from datetime import datetime
+
+    from app.models import FonteIngestao, Municipio, PopulacaoIbge
+
+    def mandato(casa, uf, ibge, id_externo):
+        session.add(
+            MandatoLocal(
+                casa=casa, uf=uf, municipio_ibge=ibge, id_externo=id_externo, nome="Fulana",
+                titular=True, em_exercicio=True, proposicoes_por_tipo={},
+                sapl_url="https://exemplo.leg.br/",
+            )
+        )  # fmt: skip
+
+    session.add(Municipio(ibge="4202404", nome="Blumenau", uf="SC", nome_chave="BLUMENAU"))
+    session.flush()
+    mandato("camara", "SC", "4202404", "1")
+    mandato("assembleia", "SC", None, "2")
+    session.add_all(
+        [
+            PopulacaoIbge(codigo="4202404", ano=2022, valor=361261, origem="censo"),
+            PopulacaoIbge(codigo="4202404", ano=2026, valor=390371, origem="estimativa"),
+            FonteIngestao(
+                fonte="ibge_populacao",
+                url="https://apisidra.ibge.gov.br",
+                arquivo_raw="x.json",
+                status="ok",
+                iniciado_em=datetime(2026, 10, 20),
+                concluido_em=datetime(2026, 10, 20, 8),
+            ),
+        ]
+    )  # fmt: skip
+    session.flush()
+    camara = client.get("/municipios/4202404/camara").json()
+    pop = camara["populacao"]
+    assert (pop["valor"], pop["ano"], pop["origem"]) == (390371, 2026, "estimativa")
+    assert pop["fonte_url"].startswith("https://sidra.ibge.gov.br/")
+    assert pop["atualizado_em"].startswith("2026-10-20")
+    assert camara["subsidio"] is None
+    assembleia = client.get("/estados/SC/assembleia").json()
+    assert assembleia["subsidio"]["valor"] == 34774.64
+    assert assembleia["populacao"] is None
+    vereador_id = camara["itens"][0]["id"]
+    detalhe = client.get(f"/vereadores/{vereador_id}").json()
+    assert detalhe["populacao"]["valor"] == 390371 and detalhe["municipio_nome"] == "Blumenau"
+    assert detalhe["subsidio_uf"]["valor"] == 34774.64 and detalhe["subsidio"] is None

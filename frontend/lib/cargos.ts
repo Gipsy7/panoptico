@@ -92,10 +92,39 @@ export const FAIXAS_VEREADOR: { ate: number; percentual: number; rotulo: string 
   { ate: Infinity, percentual: 75, rotulo: "mais de 500 mil habitantes" },
 ];
 
+/** Faixa de população de uma cidade (e a posição dela em `FAIXAS_VEREADOR`). */
+export function faixaDoVereador(habitantes: number): { faixa: (typeof FAIXAS_VEREADOR)[number]; indice: number } {
+  const i = FAIXAS_VEREADOR.findIndex((f) => habitantes <= f.ate);
+  const indice = i === -1 ? FAIXAS_VEREADOR.length - 1 : i;
+  return { faixa: FAIXAS_VEREADOR[indice], indice };
+}
+
 /** Percentual máximo do subsídio de deputado estadual que o vereador pode receber, pela população. */
 export function tetoVereadorPercentual(habitantes: number): number {
-  const faixa = FAIXAS_VEREADOR.find((f) => habitantes <= f.ate);
-  return faixa ? faixa.percentual : 75;
+  return faixaDoVereador(habitantes).faixa.percentual;
+}
+
+/** `percentual`% de `base` reais, em centavos exatos (a conta mostrada na tela). */
+export function percentualDe(base: number, percentual: number): number {
+  return Math.round((Math.round(base * 100) * percentual) / 100) / 100;
+}
+
+/**
+ * Teto do salário do vereador de uma cidade (CF art. 29, VI): o percentual da faixa de população
+ * aplicado ao subsídio do deputado estadual do estado. Sem o subsídio publicado (`null`), só o
+ * percentual: o valor em reais não se estima.
+ */
+export function tetoVereador(
+  habitantes: number,
+  deputadoEstadual: number | null,
+): { percentual: number; faixa: string; indice: number; valor: number | null } {
+  const { faixa, indice } = faixaDoVereador(habitantes);
+  return {
+    percentual: faixa.percentual,
+    faixa: faixa.rotulo,
+    indice,
+    valor: deputadoEstadual === null ? null : percentualDe(deputadoEstadual, faixa.percentual),
+  };
 }
 
 const CF = (art: string) => `CF art. ${art}`;
@@ -415,7 +444,7 @@ export function textoDoCargo(cargo: Cargo, df = false): { nome: string; faz: str
  * ganha um valor diferente em cada estado.
  */
 export function ganhaVereador(habitantes: number): { percentual: number; faixa: string; texto: string } {
-  const faixa = FAIXAS_VEREADOR.find((f) => habitantes <= f.ate) ?? FAIXAS_VEREADOR[FAIXAS_VEREADOR.length - 1];
+  const { faixa } = faixaDoVereador(habitantes);
   return {
     percentual: faixa.percentual,
     faixa: faixa.rotulo,

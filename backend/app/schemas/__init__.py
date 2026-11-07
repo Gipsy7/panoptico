@@ -527,12 +527,32 @@ class VereadorItem(BaseModel):
     projetos: int
 
 
+class SubsidioEstadual(BaseModel):
+    valor: float | None  # None: a Casa ainda não tem o valor conferido em fonte oficial
+    ato_normativo: str | None
+    vigente_desde: date | None
+    fonte_url: str | None
+    consultado_em: date
+    observacao: str | None
+
+
+class PopulacaoCidade(BaseModel):
+    valor: int
+    ano: int
+    origem: str  # "estimativa" ou "censo"
+    fonte_nome: str
+    fonte_url: str
+    atualizado_em: datetime | None
+
+
 class CamaraResposta(BaseModel):
     sapl_url: str
     itens: list[VereadorItem]
     fonte_nome: str
     fonte_url: str
     atualizado_em: datetime | None
+    populacao: PopulacaoCidade | None = None  # só câmara municipal (faixa do teto do vereador)
+    subsidio: SubsidioEstadual | None = None  # só assembleia (base do teto do vereador)
 
 
 class ContagemTipo(BaseModel):
@@ -613,17 +633,10 @@ class GastosLocais(BaseModel):
     sobre_valor: str | None = None
 
 
-class SubsidioEstadual(BaseModel):
-    valor: float | None  # None: a Casa ainda não tem o valor conferido em fonte oficial
-    ato_normativo: str | None
-    vigente_desde: date | None
-    fonte_url: str | None
-    consultado_em: date
-    observacao: str | None
-
-
 class VereadorDetalhe(VereadorItem):
     subsidio: SubsidioEstadual | None = None  # só deputados estaduais
+    populacao: PopulacaoCidade | None = None  # só vereadores
+    subsidio_uf: SubsidioEstadual | None = None  # só vereadores: deputado estadual do estado
     eleito_2026: EleitoFuturo | None = None
     eleicao_recente: EleicaoRecente | None = None
     presenca: PresencaLocal | None
@@ -631,6 +644,7 @@ class VereadorDetalhe(VereadorItem):
     casa: str  # "camara" (vereador) ou "assembleia" (deputado estadual)
     uf: str
     municipio_ibge: str | None
+    municipio_nome: str | None = None
     nome_completo: str | None
     email: str | None
     telefone: str | None
