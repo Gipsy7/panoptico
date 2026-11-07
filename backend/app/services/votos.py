@@ -9,6 +9,8 @@ Definições (registradas em docs/DECISOES.md):
   "Liberado" e orientação em branco ficam fora.
 - Maioria do partido: o voto mais comum entre os OUTROS deputados do mesmo partido
   (no dia) que deram voto efetivo, desde que sejam pelo menos 2; empate fica fora.
+- Recorte por tipo: `tipo` "merito" ou "procedimento" restringe as votações ao tipo
+  (app/services/tipo_votacao.py); sem `tipo`, todas. A média da Casa usa o mesmo recorte.
 """
 
 from collections import Counter, defaultdict
@@ -18,12 +20,23 @@ from sqlalchemy import and_, func, select
 from sqlalchemy.orm import Session, aliased
 
 from app.models import Orientacao, Parlamentar, ProposicaoTema, Votacao, Voto
+from app.services.tipo_votacao import MERITO, PROCEDIMENTO
 from ingestion.proposicoes_comum import SEM_CLASSIFICACAO
 
 VOTO_EFETIVO = ("Sim", "Não", "Abstenção", "Obstrução")
 ORIENTACAO_VALIDA = ("Sim", "Não", "Obstrução")
 MINIMO_OUTROS_DO_PARTIDO = 2
 POR_PAGINA = 20
+
+
+def filtro_tipo(tipo: str | None) -> list:
+    """Condição SQL do recorte por tipo de votação. Votação sem tipo gravado conta como
+    procedimento, como a regra manda para o que não se classifica."""
+    if tipo == MERITO:
+        return [Votacao.tipo_votacao == MERITO]
+    if tipo == PROCEDIMENTO:
+        return [func.coalesce(Votacao.tipo_votacao, PROCEDIMENTO) == PROCEDIMENTO]
+    return []
 
 
 @dataclass
@@ -50,7 +63,7 @@ def maioria_dos_outros(contagem: Counter, voto_proprio: str) -> str | None:
     return primeiro
 
 
-def _votos_do_ano(session: Session, casa: str, ano: int):
+def _votos_do_ano(session: Session, casa: str, ano: int, tipo: str | None = None):
     return session.execute(
         select(Voto.votacao_id, Voto.parlamentar_id, Voto.partido, Voto.voto)
         .join(Votacao, Votacao.id == Voto.votacao_id)
@@ -59,11 +72,14 @@ def _votos_do_ano(session: Session, casa: str, ano: int):
             func.extract("year", Votacao.data) == ano,
             Votacao.secreta.is_(False),
             Voto.voto.in_(VOTO_EFETIVO),
+            *filtro_tipo(tipo),
         )
     ).all()
 
 
-def _orientacoes_governo(session: Session, casa: str, ano: int) -> dict[int, str]:
+def _orientacoes_governo(
+    session: Session, casa: str, ano: int, tipo: str | None = None
+) -> dict[int, str]:
     linhas = session.execute(
         select(Orientacao.votacao_id, Orientacao.orientacao)
         .join(Votacao, Votacao.id == Orientacao.votacao_id)
@@ -72,15 +88,19 @@ def _orientacoes_governo(session: Session, casa: str, ano: int) -> dict[int, str
             func.extract("year", Votacao.data) == ano,
             Orientacao.bancada == "Governo",
             Orientacao.orientacao.in_(ORIENTACAO_VALIDA),
+            *filtro_tipo(tipo),
         )
     )
     return {votacao_id: orientacao for votacao_id, orientacao in linhas}
 
 
-def alinhamentos(session: Session, casa: str, ano: int) -> dict[int, dict[str, Placar]]:
-    """Placar de alinhamento (Governo e partido) de todos os parlamentares da casa no ano."""
-    votos = _votos_do_ano(session, casa, ano)
-    governo = _orientacoes_governo(session, casa, ano)
+def alinhamentos(
+    session: Session, casa: str, ano: int, tipo: str | None = None
+) -> dict[int, dict[str, Placar]]:
+    """Placar de alinhamento (Governo e partido) de todos os parlamentares da casa no ano,
+    em todas as votações ou só nas do `tipo`."""
+    votos = _votos_do_ano(session, casa, ano, tipo)
+    governo = _orientacoes_governo(session, casa, ano, tipo)
     por_partido: dict[tuple[int, str], Counter] = defaultdict(Counter)
     for votacao_id, _, partido, voto in votos:
         if partido:
@@ -119,8 +139,73 @@ def _temas_por_proposicao(session: Session, casa: str, ids: set[str]) -> dict[st
     return dict(temas)
 
 
+def media_no_recorte(session: Session, casa: str, ano: int, tipo: str, parlamentar_id: int) -> dict:
+    """Placar do parlamentar e médias da Casa (Governo e partido) só nas votações do `tipo`.
+    A média segue a do resumo guardado: percentual médio entre os parlamentares em exercício
+    da Casa que têm base de comparação no recorte."""
+    placares = alinhamentos(session, casa, ano, tipo)
+    em_exercicio = set(
+        session.scalars(
+            select(Parlamentar.id).where(Parlamentar.casa == casa, Parlamentar.em_exercicio)
+        )
+    )
+
+    def media(chave: str) -> float | None:
+        valores = [
+            pl[chave].percentual
+            for pid, pl in placares.items()
+            if pid in em_exercicio and pl[chave].total
+        ]
+        return round(sum(valores) / len(valores), 1) if valores else None
+
+    deste = placares.get(parlamentar_id) or {"governo": Placar(), "partido": Placar()}
+    return {
+        "governo": deste["governo"],
+        "partido": deste["partido"],
+        "media_governo": media("governo"),
+        "media_partido": media("partido"),
+    }
+
+
+def _filtro_tema(casa: str, tema: str | None) -> list:
+    if not tema:
+        return []
+    return [
+        Votacao.proposicao_id_externo.in_(
+            select(ProposicaoTema.proposicao_id_externo).where(
+                ProposicaoTema.casa == casa, ProposicaoTema.tema == tema
+            )
+        )
+    ]
+
+
+def contagem_por_tipo(
+    session: Session, parlamentar: Parlamentar, ano: int, tema: str | None
+) -> dict[str, int]:
+    """Quantas votações da lista do perfil (mesmo ano e tema) são de cada tipo."""
+    tipo = func.coalesce(Votacao.tipo_votacao, PROCEDIMENTO)
+    linhas = session.execute(
+        select(tipo, func.count())
+        .join(Voto, Voto.votacao_id == Votacao.id)
+        .where(
+            Voto.parlamentar_id == parlamentar.id,
+            Votacao.casa == parlamentar.casa,
+            func.extract("year", Votacao.data) == ano,
+            *_filtro_tema(parlamentar.casa, tema),
+        )
+        .group_by(tipo)
+    ).all()
+    contagem = {MERITO: 0, PROCEDIMENTO: 0} | {t: n for t, n in linhas}
+    return {"todas": sum(contagem.values()), **contagem}
+
+
 def lista_votos(
-    session: Session, parlamentar: Parlamentar, ano: int, tema: str | None, pagina: int
+    session: Session,
+    parlamentar: Parlamentar,
+    ano: int,
+    tema: str | None,
+    pagina: int,
+    tipo: str | None = None,
 ) -> dict:
     """Votações nominais em que o parlamentar votou, com a orientação do Governo e a
     maioria do partido em cada uma. Mais recentes primeiro."""
@@ -129,15 +214,9 @@ def lista_votos(
         Voto.parlamentar_id == parlamentar.id,
         Votacao.casa == casa,
         func.extract("year", Votacao.data) == ano,
+        *filtro_tipo(tipo),
     ]
-    if tema:
-        filtro.append(
-            Votacao.proposicao_id_externo.in_(
-                select(ProposicaoTema.proposicao_id_externo).where(
-                    ProposicaoTema.casa == casa, ProposicaoTema.tema == tema
-                )
-            )
-        )
+    filtro += _filtro_tema(casa, tema)
     base = select(Votacao, Voto.voto, Voto.partido).join(Voto, Voto.votacao_id == Votacao.id)
     total = session.scalar(select(func.count()).select_from(base.where(*filtro).subquery()))
     linhas = session.execute(
@@ -180,6 +259,7 @@ def lista_votos(
             {
                 "data": votacao.data,
                 "descricao": votacao.descricao,
+                "tipo": votacao.tipo_votacao or PROCEDIMENTO,
                 "proposicao": votacao.proposicao,
                 "proposicao_ementa": votacao.proposicao_ementa,
                 "temas": temas.get(votacao.proposicao_id_externo or "", []),

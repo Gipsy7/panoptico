@@ -978,9 +978,16 @@ export function getTemas(id: string) {
 
 export type Placar = { iguais: number; total: number; percentual: number | null };
 
+/** Tipo da votação: "merito" (sobre o texto) ou "procedimento" (como e quando votar). */
+export type TipoVotacao = "merito" | "procedimento";
+/** Recorte pedido: todas as votações ou só um tipo. */
+export type RecorteVotacoes = "todas" | TipoVotacao;
+export type ContagemTipos = { todas: number; merito: number; procedimento: number };
+
 export type VotoItem = {
   data: string;
   descricao: string;
+  tipo?: TipoVotacao;
   proposicao: string | null;
   proposicao_ementa: string | null;
   temas: string[];
@@ -998,10 +1005,20 @@ export type VotoItem = {
 export type Votos = {
   ano: number;
   anos_disponiveis: number[];
+  /** Recorte dos números de cima e da lista (a média da Casa usa o mesmo). */
+  tipo?: RecorteVotacoes;
+  contagem_tipos?: ContagemTipos | null;
   governo: Placar | null;
   partido: Placar;
   media_governo: number | null;
   media_partido: number | null;
+  /** Os mesmos números em todas as votações (o resumo do topo usa estes). */
+  todas?: {
+    governo: Placar | null;
+    partido: Placar;
+    media_governo: number | null;
+    media_partido: number | null;
+  } | null;
   temas_disponiveis: string[];
   tema: string | null;
   total: number;
@@ -1013,7 +1030,10 @@ export type Votos = {
   atualizado_em: string | null;
 };
 
-export function getVotos(id: string, opcoes: { ano?: string; tema?: string; pagina?: string }) {
+export function getVotos(
+  id: string,
+  opcoes: { ano?: string; tema?: string; pagina?: string; tipo?: RecorteVotacoes },
+) {
   const params = new URLSearchParams();
   for (const [chave, valor] of Object.entries(opcoes)) if (valor) params.set(chave, valor);
   return getJson<Votos>(`/parlamentares/${encodeURIComponent(id)}/votos?${params}`);
@@ -2324,3 +2344,58 @@ export async function postSugestao(corpo: CorpoSugestao): Promise<ResultadoSuges
   }
   return { ok: true, protocolo: typeof json?.protocolo === "string" ? json.protocolo : "" };
 }
+
+// --- Calendário das votações do Plenário (GET /votacoes/calendario) ---
+
+export type DiaCalendario = ContagemTipos & { data: string };
+
+export type VotacaoDoCalendario = {
+  id_externo: string;
+  data: string;
+  descricao: string;
+  tipo: TipoVotacao;
+  proposicao: string | null;
+  proposicao_id_externo: string | null;
+  proposicao_ementa: string | null;
+  resultado: string | null;
+  secreta: boolean;
+  placar: { sim: number | null; nao: number | null; abstencao: number | null };
+  link: string;
+};
+
+export type CalendarioVotacoes = {
+  casa: Casa;
+  ano: number;
+  mes: number;
+  mes_anterior: { ano: number; mes: number } | null;
+  mes_seguinte: { ano: number; mes: number } | null;
+  dias: DiaCalendario[];
+  totais: ContagemTipos;
+  por_casa: Record<Casa, number>;
+  dia: string | null;
+  tipo: RecorteVotacoes;
+  lista: {
+    total: number;
+    contagem_tipos: ContagemTipos;
+    pagina: number;
+    por_pagina: number;
+    itens: VotacaoDoCalendario[];
+  };
+  fonte_nome: string;
+  fonte_url: string;
+  atualizado_em: string | null;
+};
+
+export function getCalendarioVotacoes(opcoes: {
+  casa?: string;
+  ano?: string;
+  mes?: string;
+  dia?: string;
+  tipo?: RecorteVotacoes;
+  pagina?: string;
+}) {
+  const params = new URLSearchParams();
+  for (const [chave, valor] of Object.entries(opcoes)) if (valor) params.set(chave, valor);
+  return getJson<CalendarioVotacoes>(`/votacoes/calendario?${params}`);
+}
+

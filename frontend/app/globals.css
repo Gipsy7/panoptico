@@ -17,6 +17,11 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-calor-1: var(--calor-1);
+  --color-calor-2: var(--calor-2);
+  --color-calor-3: var(--calor-3);
+  --color-calor-4: var(--calor-4);
+  --color-calor-texto-4: var(--calor-texto-4);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
   --font-heading: var(--font-newsreader);
@@ -118,6 +123,13 @@
   --veu: rgb(20 20 20 / 0.5);
   --realce: color-mix(in oklab, var(--bronze) 12%, var(--card));
   --realce-forte: color-mix(in oklab, var(--bronze) 22%, var(--background));
+  /* Mapa de calor do calendário de votações: um tom só (bronze misturado ao cartão em OKLab),
+     4 degraus com o número sempre escrito. Número sobre cada degrau: 14,4 / 11,7 / 9,0 / 6,7:1. */
+  --calor-1: #ebe2d4;
+  --calor-2: #ddcbb5;
+  --calor-3: #ccb192;
+  --calor-4: #ba966c;
+  --calor-texto-4: #141414;
   color-scheme: light;
 }
 
@@ -162,6 +174,13 @@
     --sidebar-ring: #c9954a;
     --sombra-menu: 0 16px 24px -20px rgb(0 0 0 / 0.7);
     --veu: rgb(0 0 0 / 0.65);
+    /* Calor no escuro: o degrau mais forte é o bronze cheio com número escuro, para não se
+       confundir com o anterior. Número: 10,2 / 7,3 / 4,8 / 6,5:1. */
+    --calor-1: #3b3225;
+    --calor-2: #57462e;
+    --calor-3: #7b5f38;
+    --calor-4: #c9954a;
+    --calor-texto-4: #1c1a17;
   }
 }
 :root[data-theme="dark"] {
@@ -202,6 +221,11 @@
   --sidebar-ring: #c9954a;
   --sombra-menu: 0 16px 24px -20px rgb(0 0 0 / 0.7);
   --veu: rgb(0 0 0 / 0.65);
+  --calor-1: #3b3225;
+  --calor-2: #57462e;
+  --calor-3: #7b5f38;
+  --calor-4: #c9954a;
+  --calor-texto-4: #1c1a17;
 }
 
 @layer base {

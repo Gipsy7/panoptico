@@ -7,6 +7,7 @@ from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.orm import Session
 
 from app.models import FonteIngestao, Orientacao, Votacao, VotacaoComissao, Voto, VotoComissao
+from app.services.tipo_votacao import classificar
 
 # Lideranças com nome estável. Partidos, blocos e federações também são guardados, com
 # `tipo`; o nome do bloco fica como a fonte publica (a Câmara trunca: "Bl UniPpPsd...").
@@ -46,7 +47,13 @@ def recarregar_votacoes(
     mapa: dict[str, int] = {}
     for inicio in range(0, len(votacoes), 2000):
         lote = [
-            OPCIONAIS_VOTACAO | v | {"casa": casa, "ingestao_id": ingestao.id}
+            OPCIONAIS_VOTACAO
+            | v
+            | {
+                "casa": casa,
+                "ingestao_id": ingestao.id,
+                "tipo_votacao": classificar(v["descricao"]),
+            }
             for v in votacoes[inicio : inicio + 2000]
         ]
         resultado = session.execute(

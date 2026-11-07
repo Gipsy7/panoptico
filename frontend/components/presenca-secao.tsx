@@ -35,6 +35,7 @@ export function PresencaSecao({ presenca, casa }: { presenca: Presenca; casa: Ca
               <dd className="text-sm text-muted-foreground tabular-nums">
                 {PCT.format(p.percentual ?? 0)}%
               </dd>
+              <dd className="text-xs text-muted-foreground">Recorte: todas as votações, sobre o texto e de procedimento</dd>
             </div>
             <div className="figura min-w-0">
               <dt className="text-sm text-muted-foreground">

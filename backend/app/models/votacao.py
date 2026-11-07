@@ -4,6 +4,11 @@ from sqlalchemy import Boolean, Date, ForeignKey, Index, Integer, String, Text, 
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.models.base import Base
+from app.services.tipo_votacao import classificar
+
+
+def _tipo_pela_descricao(contexto) -> str:
+    return classificar(contexto.get_current_parameters().get("descricao"))
 
 
 class Votacao(Base):
@@ -13,6 +18,7 @@ class Votacao(Base):
     __table_args__ = (
         UniqueConstraint("casa", "id_externo", name="uq_votacao_casa_id_externo"),
         Index("ix_votacao_casa_data", "casa", "data"),
+        Index("ix_votacao_casa_tipo_data", "casa", "tipo_votacao", "data"),
     )
 
     id: Mapped[int] = mapped_column(primary_key=True)
@@ -31,6 +37,9 @@ class Votacao(Base):
     placar_sim: Mapped[int | None] = mapped_column(Integer)
     placar_nao: Mapped[int | None] = mapped_column(Integer)
     placar_abstencao: Mapped[int | None] = mapped_column(Integer)
+    # "merito" (decide o conteúdo) ou "procedimento" (como e quando votar), calculado na carga
+    # pela descrição oficial (app/services/tipo_votacao.py; docs/DECISOES.md, 2026-11-07).
+    tipo_votacao: Mapped[str | None] = mapped_column(String(12), default=_tipo_pela_descricao)
     ingestao_id: Mapped[int | None] = mapped_column(ForeignKey("fonte_ingestao.id"))
 
 

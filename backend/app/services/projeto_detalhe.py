@@ -2,8 +2,9 @@
 quem votou, discursos, caminho da tramitação e pauta, cada bloco com fonte e data.
 
 Regras (docs/DECISOES.md, 2026-10-21):
-- Votação principal: a última votação nominal do texto, isto é, a mais recente cuja descrição
-  não fala em "Requerimento", "Destaque", "Emenda" ou "Recurso"; se todas falam, a última de todas.
+- Votação principal: a última votação nominal do texto inteiro, isto é, a mais recente de mérito
+  que não é emenda, destaque nem trecho (app/services/tipo_votacao.py); se não houver, a última
+  de todas.
 - Grupos de quem votou sempre na ordem Sim, Não, outros registros; pessoas em ordem
   alfabética; partidos e estados do maior para o menor número, depois alfabética.
 - Discursos: ligados ao projeto e ao dia, agrupados pelo voto do orador na última votação
@@ -33,6 +34,7 @@ from app.services import (
     normas,
     projeto_fontes,
     texto_busca,
+    tipo_votacao,
     votacao_detalhe,
 )
 from app.services.projeto_etapas import etapa_do_passo
@@ -40,7 +42,6 @@ from app.services.votos import VOTO_EFETIVO, url_votacao
 from ingestion.proposicoes_comum import SEM_CLASSIFICACAO
 
 ROTULO_RE = re.compile(r"^\s*([A-Za-z]+)\s+0*(\d+)\s*/\s*(\d{4})")
-NAO_PRINCIPAL = re.compile(r"\b(requerimento|destaque|emenda|recurso)")
 
 AVISO_SEM_VOTACAO = (
     "Ainda não teve votação nominal no Plenário. Pode ter sido votado de forma simbólica, "
@@ -63,8 +64,9 @@ AVISO_DO_DIA = (
     "atribuídos a este projeto."
 )
 REGRA_PRINCIPAL = (
-    "Última votação nominal do texto: a mais recente cuja descrição não fala em requerimento, "
-    "destaque, emenda ou recurso; se todas falam, a última de todas."
+    "Última votação nominal do texto inteiro: a mais recente sobre o texto que não é pedido "
+    "(requerimento, recurso, preferência), emenda, destaque nem trecho; se não houver, a última "
+    "de todas."
 )
 
 
@@ -100,6 +102,7 @@ def _item_votacao(v: Votacao, contagem: Counter) -> dict:
         "descricao": v.descricao,
         "resultado": v.resultado,
         "secreta": v.secreta,
+        "tipo": v.tipo_votacao or tipo_votacao.classificar(v.descricao),
         "placar_publicado": publicado,
         "placar_contado": {
             "sim": sim,
@@ -116,7 +119,7 @@ def escolher_principal(votacoes: list[Votacao]) -> Votacao | None:
     """`votacoes` em ordem cronológica. Ver a regra no topo do módulo."""
     if not votacoes:
         return None
-    textos = [v for v in votacoes if not NAO_PRINCIPAL.search(texto_busca.normalizar(v.descricao))]
+    textos = [v for v in votacoes if tipo_votacao.eh_texto_inteiro(v.descricao)]
     return (textos or votacoes)[-1]
 
 
