@@ -20,6 +20,11 @@ Uso:
     python -m ingestion.revisar --tipo dou         # atos de pessoal do DOU (Seção 2)
     python -m ingestion.revisar --tipo cpi         # indiciamentos sugeridos pelas CPIs
     python -m ingestion.revisar --tipo apelido     # nomes de gastos grafados diferente do deputado
+    python -m ingestion.revisar --tipo sugestao    # avisos de erro e respostas de quem é citado
+
+Os avisos de erro e as respostas (tabela sugestao) ficam no banco, não em CSV: a decisão é
+gravada direto (aceitar, recusar, publicar resposta, registrar correção). O --exportar dessa
+fila sai sem o contato de quem avisou.
 """
 
 import argparse
@@ -43,6 +48,8 @@ from ingestion.dou.revisao import DOU_REVISADOS
 from ingestion.dou.revisao import gravar_decisao as gravar_dou
 from ingestion.dou.revisao import pendentes as pendentes_dou
 from ingestion.pessoas import COLUNAS_REVISAO, REVISOES, revisoes
+from ingestion.sugestoes_revisao import exportar as exportar_sugestoes
+from ingestion.sugestoes_revisao import revisar as revisar_sugestoes
 
 
 def pendentes(session) -> list[dict]:
@@ -219,15 +226,21 @@ def _revisar_apelidos(fila: list[dict], revisor: str) -> None:
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Revisão humana de vínculos e de atos")
     parser.add_argument(
-        "--tipo", choices=["vinculo", "diario", "dou", "cpi", "apelido"], default="vinculo",
+        "--tipo", choices=["vinculo", "diario", "dou", "cpi", "apelido", "sugestao"],
+        default="vinculo",
         help="vinculo: nomes aproximados (padrão); diario: atos de nomeação/exoneração "
         "sugeridos pelos diários oficiais; dou: atos de pessoal sugeridos pelo Diário Oficial "
         "da União (Seção 2); cpi: pedidos de indiciamento dos relatórios de CPI; apelido: nomes de "
-        "gastos de assembleias grafados diferente do deputado",
+        "gastos de assembleias grafados diferente do deputado; sugestao: avisos de erro e "
+        "respostas de quem é citado",
     )  # fmt: skip
     parser.add_argument("--exportar", type=Path, help="Grava a fila num CSV, sem perguntar")
     parser.add_argument("--revisor", default="", help="Quem está revisando (vai no CSV)")
     args = parser.parse_args(argv)
+    if args.tipo == "sugestao":
+        if args.exportar:
+            return exportar_sugestoes(args.exportar)
+        return revisar_sugestoes()
     diario, cpi, dou = args.tipo == "diario", args.tipo == "cpi", args.tipo == "dou"
     apelido = args.tipo == "apelido"
     busca = (

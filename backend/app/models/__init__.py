@@ -64,6 +64,7 @@ from app.models.proposicao import Autoria, Proposicao
 from app.models.proposicao_tema import ProposicaoTema
 from app.models.resumo_parlamentar import ResumoParlamentar
 from app.models.servidor_federal import CpgfPortadorMes, ServidorFederal, ViagemFederalAno
+from app.models.sugestao import Correcao, Sugestao, SugestaoContato
 from app.models.votacao import Orientacao, Votacao, VotacaoComissao, Voto, VotoComissao
 
 __all__ = [
@@ -79,6 +80,9 @@ __all__ = [
     "BemDeclarado",
     "CanalOficial",
     "CnpjConsulta",
+    "Correcao",
+    "Sugestao",
+    "SugestaoContato",
     "Cpi",
     "CpiIndiciamentoSugestao",
     "CpiParticipacao",

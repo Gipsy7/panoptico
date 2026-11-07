@@ -113,6 +113,20 @@ def _resumo(primeira: list[str], recuperadas: list[str], persistentes: list[str]
         arquivo.write("\n".join(linhas) + "\n")
 
 
+def _expurgar_contatos() -> None:
+    """Apaga o contato de quem avisou erro ou mandou resposta depois de 180 dias. Passo leve e
+    isolado: se falhar, só avisa no log e não muda o resultado da ingestão."""
+    try:
+        from app.db import SessionLocal
+        from app.services.sugestoes import apagar_contatos_antigos
+
+        with SessionLocal() as session:
+            print(f"[ok]   contatos de avisos apagados: {apagar_contatos_antigos(session)}")
+    except Exception:
+        print("[aviso] expurgo dos contatos de avisos falhou", flush=True)
+        traceback.print_exc()
+
+
 def main() -> int:
     tarefas = _tarefas()
     falharam = _passada(tarefas)
@@ -132,6 +146,7 @@ def main() -> int:
                     _passada([(nome, tarefa)])
         _resumo(primeira, recuperadas, persistentes)
     print(f"[ok]   brutos antigos apagados: {len(limpar_raw.limpar())}", flush=True)
+    _expurgar_contatos()
     return 1 if persistentes else 0
 
 

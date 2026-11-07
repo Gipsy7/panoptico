@@ -20,6 +20,7 @@ from app.api import (
     representantes,
     saude,
     segundo_turno,
+    sugestoes,
     votacoes,
 )
 from app.config import settings
@@ -33,7 +34,7 @@ app = FastAPI(
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.cors_origins,
-    # POST só existe em /argos (registro do chat) e /avisos; o resto da API é de leitura.
+    # POST só existe em /argos (registro do chat), /avisos e /sugestoes; o resto é de leitura.
     allow_methods=["GET", "POST"],
     allow_headers=["*"],
 )
@@ -49,7 +50,7 @@ CACHE_CDN = "public, max-age=300, s-maxage=3600, stale-while-revalidate=86400"
 async def cache_na_cdn(request: Request, call_next):
     resposta = await call_next(request)
     # Inclui o 422 de validação, que devolve o endpoint enviado e não passa pelas rotas.
-    if request.url.path.startswith("/avisos"):
+    if request.url.path.startswith(("/avisos", "/sugestoes")):
         resposta.headers["Cache-Control"] = "no-store"
     if (
         request.method == "GET"
@@ -81,6 +82,8 @@ app.include_router(executivo.router)
 app.include_router(busca.router)
 app.include_router(argos.router)
 app.include_router(avisos.router)
+# Antes de pessoas: /pessoas/de/respostas.
+app.include_router(sugestoes.router)
 app.include_router(pessoas.router)
 app.include_router(partidos.router)
 app.include_router(segundo_turno.router)
