@@ -14,11 +14,45 @@ class ParlamentarResumo(BaseModel):
     foto_url: str | None
 
 
+class ItemCustoMandato(BaseModel):
+    item: str  # subsidio | verba_gabinete | cota | auxilio_moradia
+    nome: str
+    oficial: str
+    valor: float | None  # None: a Casa não publica o valor
+    ato: str | None
+    ato_data: date | None
+    ato_url: str | None
+    valor_url: str | None
+    vigente_desde: date | None
+    consultado_em: date
+    observacao: str | None
+    usou: float | None
+    media_casa: float | None
+    # fixo | carregado | na_pagina_da_casa | nao_carregado | nao_publicado
+    usou_situacao: str
+    usou_url: str | None
+
+
+class CustoMandato(BaseModel):
+    itens: list[ItemCustoMandato]
+    total_se_usar_tudo: float
+    faltando: list[str]  # itens sem valor publicado (fora do total)
+    usou_total: float  # só os itens de `medidos`
+    media_total: float
+    medidos: list[str]
+    ano: int | None
+    ultimo_mes: int | None
+    gastos_fonte_nome: str | None
+    gastos_fonte_url: str | None
+    gastos_atualizado_em: datetime | None
+
+
 class Remuneracao(BaseModel):
     subsidio_mensal: float
     vigente_desde: date
     fonte_nome: str
     fonte_url: str
+    custo: CustoMandato | None = None
 
 
 class ParlamentarDetalhe(ParlamentarResumo):

@@ -45,6 +45,10 @@ const L12846_URL = "https://www.planalto.gov.br/ccivil_03/_ato2011-2014/2013/lei
 const L14133_URL = "https://www.planalto.gov.br/ccivil_03/_ato2019-2022/2021/lei/l14133.htm";
 const LC95_URL = "https://www.planalto.gov.br/ccivil_03/leis/lcp/lcp95.htm";
 const ATO_CEAP_URL = "https://www2.camara.leg.br/legin/int/atomes/2009/atodamesa-43-21-maio-2009-588364-norma-cd-mesa.html";
+const ATO_VERBA_GABINETE_URL =
+  "https://www2.camara.leg.br/legin/int/atomes/2026/atodamesa-243-20-fevereiro-2026-798719-publicacaooriginal-178156-cd-mesa.html";
+const ATO_MORADIA_URL =
+  "https://www2.camara.leg.br/legin/int/atomes/2015/atodamesa-3-25-fevereiro-2015-780187-publicacaooriginal-146196-cd-mesa.html";
 const STF_ADPF854_URL = "https://portal.stf.jus.br/processos/detalhe.asp?incidente=6199750";
 const GLOSSARIO_ORCAMENTO_URL = "https://www.congressonacional.leg.br/legislacao-e-publicacoes/glossario-orcamentario";
 
@@ -424,9 +428,29 @@ export const TERMOS: Termo[] = [
     exemplo: { rotulo: "Parlamentares por gasto da cota", href: "/parlamentares?ordenar=gastos" },
     fonte: { rotulo: "Câmara dos Deputados, Ato da Mesa nº 43/2009", url: ATO_CEAP_URL },
     sinonimos: [
-      "cota", "cota parlamentar", "ceap", "ceaps", "verba de gabinete", "verba do gabinete", "gastos do gabinete",
+      "cota", "cota parlamentar", "ceap", "ceaps", "gastos do gabinete",
       "cota para o exercicio da atividade parlamentar",
     ],
+  },
+  {
+    id: "verba-gabinete",
+    termo: "Verba para pagar assessores",
+    oficial: "Verba de gabinete",
+    resumo: "Dinheiro por mês para pagar a equipe do gabinete. Não é salário nem cota.",
+    explicacao:
+      "Valor máximo que a Casa paga por mês em salários da equipe que o parlamentar escolhe para trabalhar com ele, em Brasília ou no estado. Na Câmara, paga de 5 a 25 secretários parlamentares, que são servidores comissionados e recebem da própria Câmara. É separada da cota parlamentar e do salário.",
+    fonte: { rotulo: "Câmara dos Deputados, Ato da Mesa nº 243/2026", url: ATO_VERBA_GABINETE_URL },
+    sinonimos: ["verba de gabinete", "verba do gabinete", "assessores", "secretario parlamentar", "secretarios parlamentares"],
+  },
+  {
+    id: "auxilio-moradia",
+    termo: "Moradia em Brasília",
+    oficial: "Auxílio-moradia ou imóvel funcional",
+    resumo: "Ajuda para morar em Brasília, para quem não usa apartamento da Casa.",
+    explicacao:
+      "Quem tem mandato no Congresso pode morar num apartamento funcional, que é da Câmara ou do Senado, ou receber o auxílio-moradia, um valor máximo por mês para aluguel ou hotel em Brasília. Não dá para ter os dois. Na Câmara o limite é fixado por ato da Mesa; no Senado, a página de transparência publica o valor.",
+    fonte: { rotulo: "Câmara dos Deputados, Ato da Mesa nº 3/2015", url: ATO_MORADIA_URL },
+    sinonimos: ["auxilio moradia", "apartamento funcional", "imovel funcional"],
   },
 
   // ---------- Orçamento e emendas ----------

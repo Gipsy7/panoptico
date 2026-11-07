@@ -6,6 +6,7 @@
 - [2026-11-03: compartilhar em imagem (Frente 8)](#2026-11-03-compartilhar-em-imagem-frente-8)
 - [2026-11-07: entender a política (Frente 3)](#2026-11-07-entender-a-política-frente-3)
 - [2026-11-07: avisar erro, direito de resposta e correções públicas (Frente 7)](#2026-11-07-avisar-erro-direito-de-resposta-e-correções-públicas-frente-7)
+- [2026-11-07: quanto custa o mandato (Frente 6)](#2026-11-07-quanto-custa-o-mandato-frente-6)
 - [2026-10-29: medidas provisórias e vetos do Presidente](#2026-10-29-medidas-provisórias-e-vetos-do-presidente)
 - [2026-10-29: salário de deputado estadual lido de CSV, só número publicado](#2026-10-29-salário-de-deputado-estadual-lido-de-csv-só-número-publicado)
 - [2026-10-30: Web Push, avisos no celular sem telefone nem e-mail](#2026-10-30-web-push-avisos-no-celular-sem-telefone-nem-e-mail)
@@ -1703,3 +1704,13 @@ Escolhas do dono: avisar erro em gaveta de 3 passos (A), respostas num bloco no 
 - **Avisar erro:** tipo, texto e a página/seção já preenchidas; contato opcional, só para responder. Sem IP guardado; limite de 5 avisos por hora por origem. O contato fica fora do backup e é apagado em 180 dias. Nada muda no site sem uma pessoa conferir com a fonte oficial (fila `python -m ingestion.revisar --tipo sugestao`).
 - **Direito de resposta:** a pessoa do perfil (ou a assessoria) envia o texto. Só é publicado depois de revisão humana e de confirmar a identidade pelo canal oficial (e-mail funcional da Casa ou ofício). Sem edição além de tirar dados pessoais e sem comentário do site, que não endossa nem refuta. Aparece no bloco "Respostas de quem é citado", no fim do perfil, com "recebida em DD/MM" e a seção a que se refere.
 - **Correções públicas:** cada correção feita a partir de aviso entra numa tabela em `/sobre-as-fontes#correcoes` (dado, antes, depois, data, fonte conferida, motivo), sem identificar quem avisou; o perfil corrigido ganha um link discreto para a sua linha.
+
+## 2026-11-07: quanto custa o mandato (Frente 6)
+
+Escolha do dono: "Custo do mandato: A" (soma empilhada). A seção "Salário" do perfil federal vira "Quanto custa o mandato": total "se usar tudo" por mês, três barras na mesma escala (se usar tudo, usou, média da Casa), legenda com o valor escrito de cada parcela e a folha "De onde vem cada valor" com o ato, a data e o link.
+
+- **Tabela versionada, não ingestão:** os valores são fixados por ato e mudam poucas vezes por legislatura; ficam em `data/custo_mandato_congresso.csv` (cópia em `app/dados/`), como o subsídio estadual. Sem migração. O subsídio federal passou a ser lido do mesmo CSV.
+- **Só número publicado pela Casa:** quando o ato só manda corrigir pelo IPCA (Atos da Mesa 243 e 244/2026), entra o número que a Câmara publica citando o ato, nunca uma conta nossa. A verba de gabinete do Senado não tem valor publicado: aparece "não publicado", fica fora do total (a tela diz isso) e há pedido LAI.
+- **"Usou" só com dado carregado:** salário e cota. Verba de gabinete e moradia mostram onde a Casa publica o uso (link), sem número. A barra "usou" e a média somam só os mesmos itens, para comparar igual com igual; a média segue a regra fixa (em exercício, quem não gastou entra com zero), por mês no ano corrente.
+- **Fora da conta, dito na tela:** 13º, ajuda de custo e encargos dos assessores. O imóvel funcional não tem valor em dinheiro; aparece como alternativa ao auxílio.
+

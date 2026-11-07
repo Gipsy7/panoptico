@@ -51,6 +51,27 @@ frequencia = "diaria"
 anos = "padrao"
 depende = ["senado_senadores"]
 
+# Custo do mandato (perfil federal): valores fixados por ato ficam na tabela versionada
+# data/custo_mandato_congresso.csv, sem coleta. As duas abaixo são o que falta: o Senado não
+# publica a verba dos gabinetes em reais (pedido em docs/pedidos/senado_verba_gabinete.md), e a
+# Câmara mostra a verba usada e o auxílio-moradia só na página HTML de cada deputado, sem
+# arquivo aberto (catalogada até a coleta ter módulo próprio).
+[[fonte]]
+nome = "senado_verba_gabinete"
+modulo = "ingestion.senado.verba_gabinete"
+situacao = "catalogada"
+uso = "Quanto custa o mandato: verba para pagar assessores do senador"
+frequencia = "manual"
+acesso = "lai"
+
+[[fonte]]
+nome = "camara_verba_gabinete_usada"
+modulo = "ingestion.camara.verba_gabinete"
+situacao = "catalogada"
+uso = "Quanto custa o mandato: verba de gabinete usada e auxílio-moradia por deputado"
+frequencia = "manual"
+acesso = "aberto"
+
 [[fonte]]
 nome = "camara_votacoes"
 modulo = "ingestion.camara.votacoes"
