@@ -337,12 +337,36 @@ export type VereadorItem = {
   votacoes: number;
 };
 
+/** Subsídio mensal da Assembleia; `valor` nulo = ainda sem fonte oficial conferida. */
+export type SubsidioEstadual = {
+  valor: number | null;
+  ato_normativo: string | null;
+  vigente_desde: string | null;
+  fonte_url: string | null;
+  consultado_em: string;
+  observacao: string | null;
+};
+
+/** População mais recente da cidade (IBGE), para a faixa do teto do vereador. */
+export type PopulacaoCidade = {
+  valor: number;
+  ano: number;
+  origem: "estimativa" | "censo";
+  fonte_nome: string;
+  fonte_url: string;
+  atualizado_em: string | null;
+};
+
 export type Camara = {
   sapl_url: string;
   itens: VereadorItem[];
   fonte_nome: string;
   fonte_url: string;
   atualizado_em: string | null;
+  /** Só câmara municipal. Ausente em API antiga. */
+  populacao?: PopulacaoCidade | null;
+  /** Só assembleia. Ausente em API antiga. */
+  subsidio?: SubsidioEstadual | null;
 };
 
 export type VereadorDetalhe = VereadorItem & {
@@ -373,15 +397,12 @@ export type VereadorDetalhe = VereadorItem & {
     sobre_valor?: string | null;
   } | null;
   /** Subsídio mensal da Assembleia (só deputado estadual); `valor` nulo = ainda sem fonte oficial conferida. */
-  subsidio?: {
-    valor: number | null;
-    ato_normativo: string | null;
-    vigente_desde: string | null;
-    fonte_url: string | null;
-    consultado_em: string;
-    observacao: string | null;
-  } | null;
+  subsidio?: SubsidioEstadual | null;
+  /** Só vereador: população da cidade e subsídio do deputado estadual do estado, base do teto. */
+  populacao?: PopulacaoCidade | null;
+  subsidio_uf?: SubsidioEstadual | null;
   municipio_ibge: string | null;
+  municipio_nome?: string | null;
   nome_completo: string | null;
   email: string | null;
   telefone: string | null;

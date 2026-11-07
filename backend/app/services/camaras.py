@@ -16,6 +16,8 @@ from app.models import (
     GastoLocal,
     GastoLocalFora,
     MandatoLocal,
+    Municipio,
+    PopulacaoIbge,
     ProjetoLocal,
     VotacaoLocal,
     VotoLocal,
@@ -157,6 +159,48 @@ def _fonte(casa: str, uf: str, url: str = "") -> tuple[str, str]:
             if dominio in url:
                 return fonte
     return FONTES[casa]
+
+
+POPULACAO_FONTES = {
+    "estimativa": (
+        "IBGE, estimativas da população residente (SIDRA, tabela 6579)",
+        "https://sidra.ibge.gov.br/tabela/6579",
+    ),
+    "censo": (
+        "IBGE, Censo Demográfico 2022 (SIDRA, tabela 9514)",
+        "https://sidra.ibge.gov.br/tabela/9514",
+    ),
+}
+
+
+def populacao_cidade(session: Session, ibge: str | None) -> dict | None:
+    """População mais recente da cidade em `populacao_ibge` (estimativa ou Censo), para a faixa
+    do teto do vereador (CF art. 29, VI). None quando a cidade não tem população carregada."""
+    if not ibge:
+        return None
+    linha = session.execute(
+        select(PopulacaoIbge.valor, PopulacaoIbge.ano, PopulacaoIbge.origem)
+        .where(PopulacaoIbge.codigo == ibge)
+        .order_by(PopulacaoIbge.ano.desc())
+        .limit(1)
+    ).first()
+    if linha is None:
+        return None
+    valor, ano, origem = linha
+    nome, url = POPULACAO_FONTES.get(origem, POPULACAO_FONTES["estimativa"])
+    atualizado = session.scalar(
+        select(func.max(FonteIngestao.concluido_em)).where(
+            FonteIngestao.fonte == "ibge_populacao", FonteIngestao.status == "ok"
+        )
+    )
+    return {
+        "valor": valor,
+        "ano": ano,
+        "origem": origem,
+        "fonte_nome": nome,
+        "fonte_url": url,
+        "atualizado_em": atualizado,
+    }
 
 
 def _atualizado_em(session: Session, casa: str, uf: str = "") -> datetime | None:
@@ -446,6 +490,12 @@ def _casa(session: Session, casa: str, filtro: Any) -> dict | None:
         "fonte_nome": _fonte(casa, mandatos[0].uf, mandatos[0].sapl_url)[1],
         "fonte_url": mandatos[0].sapl_url,
         "atualizado_em": _atualizado_em(session, casa, mandatos[0].uf),
+        # Teto do salário (CF art. 29, VI e art. 27, § 2º): a cidade tem população; a Assembleia,
+        # o subsídio do estado. O que não se aplica à casa fica de fora.
+        "populacao": populacao_cidade(session, mandatos[0].municipio_ibge)
+        if casa == "camara"
+        else None,
+        "subsidio": subsidio_estadual.da_uf(mandatos[0].uf) if casa == "assembleia" else None,
     }
 
 
@@ -489,9 +539,19 @@ def vereador(session: Session, mandato: MandatoLocal) -> dict:
         "presenca": presenca(session, mandato),
         "gastos": gastos(session, mandato),
         "subsidio": subsidio_estadual.da_uf(mandato.uf) if mandato.casa == "assembleia" else None,
+        "populacao": populacao_cidade(session, mandato.municipio_ibge)
+        if mandato.casa == "camara"
+        else None,
+        # Base do teto do vereador: o subsídio do deputado estadual do mesmo estado.
+        "subsidio_uf": subsidio_estadual.da_uf(mandato.uf) if mandato.casa == "camara" else None,
         "casa": mandato.casa,
         "uf": mandato.uf,
         "municipio_ibge": mandato.municipio_ibge,
+        "municipio_nome": session.scalar(
+            select(Municipio.nome).where(Municipio.ibge == mandato.municipio_ibge)
+        )
+        if mandato.municipio_ibge
+        else None,
         "nome_completo": mandato.nome_completo,
         "email": mandato.email,
         "telefone": mandato.telefone,

@@ -22,7 +22,9 @@ import {
   chaveLigacao,
   ligacoesVisiveis,
 } from "@/lib/ligacoes";
-import { type CargoId, CARGOS, FAIXAS_VEREADOR } from "@/lib/cargos";
+import { TetoDeputadoEstadual, TetoVereador } from "@/components/teto-salarial";
+import type { PopulacaoCidade, SubsidioEstadual } from "@/lib/api";
+import { type CargoId, CARGOS, faixaDoVereador, FAIXAS_VEREADOR } from "@/lib/cargos";
 import { type PredioId, larguraFaixa, medidasDoDesenho, predioInicial, roteiroDaMao } from "@/lib/predios";
 
 export type PessoaPredio = {
@@ -232,8 +234,14 @@ function Artigo({ texto }: { texto: string }) {
   return <span className="block text-xs text-muted-foreground">{texto}</span>;
 }
 
+/** Dados da cidade e do estado escolhidos para a conta do teto do salário (CF art. 29, VI e 27, § 2º). */
+export type TetoDosPredios = {
+  cidade?: { nome: string; uf: string; populacao: PopulacaoCidade; subsidioUf: SubsidioEstadual | null };
+  estado?: { uf: string; subsidio: SubsidioEstadual | null; nomeCasa: string };
+};
+
 /** O que o cargo pode e não pode fazer e quanto ganha, com artigo da CF e fonte. */
-function BlocoCargo({ predio }: { predio: PredioId }) {
+function BlocoCargo({ predio, teto }: { predio: PredioId; teto?: TetoDosPredios }) {
   const cargo = CARGOS[CARGO_DO_PREDIO[predio]];
   const lista = (itens: { texto: string; artigo: string }[]) => (
     <ul className="mt-1 flex flex-col gap-2 text-sm">
@@ -262,14 +270,39 @@ function BlocoCargo({ predio }: { predio: PredioId }) {
       <div>
         <h3 className="text-base font-semibold">Quanto ganha</h3>
         <p className="mt-1 text-sm">{cargo.ganha.texto}</p>
+        {predio === "camaramun" && teto?.cidade && (
+          <div className="mt-3">
+            <TetoVereador
+              cidade={teto.cidade.nome}
+              uf={teto.cidade.uf}
+              populacao={teto.cidade.populacao}
+              subsidioUf={teto.cidade.subsidioUf}
+              nomeCasa={`Câmara de ${teto.cidade.nome}`}
+              compacto
+            />
+          </div>
+        )}
+        {predio === "assembleia" && teto?.estado && (
+          <div className="mt-3">
+            <TetoDeputadoEstadual uf={teto.estado.uf} subsidio={teto.estado.subsidio} nomeCasa={teto.estado.nomeCasa} />
+          </div>
+        )}
         {predio === "camaramun" && (
-          <ul className="mt-1 text-sm tabular-nums text-muted-foreground">
-            {FAIXAS_VEREADOR.map((f) => (
-              <li key={f.rotulo}>
-                {f.rotulo}: até {f.percentual}%
-              </li>
-            ))}
-          </ul>
+          <details className="mt-2">
+            <summary className="min-h-11 cursor-pointer py-2 text-sm font-medium focus-visible:outline-2 focus-visible:outline-bronze">
+              {teto?.cidade ? "Todas as faixas de população" : "Faixas de população"}
+            </summary>
+            <ul className="text-sm tabular-nums text-muted-foreground">
+              {FAIXAS_VEREADOR.map((f, i) => (
+                <li key={f.rotulo}>
+                  {f.rotulo}: até {f.percentual}%
+                  {teto?.cidade && faixaDoVereador(teto.cidade.populacao.valor).indice === i && (
+                    <strong className="font-semibold text-foreground"> (faixa de {teto.cidade.nome})</strong>
+                  )}
+                </li>
+              ))}
+            </ul>
+          </details>
         )}
         <Artigo texto={cargo.ganha.artigo} />
         <FonteRodape fonte={cargo.ganha.fonte.nome} url={cargo.ganha.fonte.url} />
@@ -285,8 +318,11 @@ export function PrediosRepresentantes({
   faixaEstado,
   faixaCidade,
   voce,
+  teto,
 }: {
   predios: PredioDados[];
+  /** Cidade e estado escolhidos, para o teto do salário em reais no "Quanto ganha". */
+  teto?: TetoDosPredios;
   /** Blocos de servidor (bancada, cadeiras) por prédio, já dentro de <Suspense>. */
   blocos?: Partial<Record<PredioId, ReactNode>>;
   faixaBrasil?: string;
@@ -613,7 +649,7 @@ export function PrediosRepresentantes({
           </p>
         )}
 
-        <BlocoCargo predio={sel.id} />
+        <BlocoCargo predio={sel.id} teto={teto} />
         {blocos?.[sel.id] && <div id="slot-painel-predio" className="mt-5 flex flex-col gap-5 border-t border-border pt-4">{blocos[sel.id]}</div>}
 
         <div className="mt-4 flex flex-wrap gap-2">

@@ -11,6 +11,8 @@ import {
   TETO_DEPUTADO_ESTADUAL,
   cargoDoRotulo,
   ganhaVereador,
+  percentualDe,
+  tetoVereador,
   tetoVereadorPercentual,
   textoDoCargo,
   type CargoId,
@@ -128,6 +130,22 @@ describe("teto do vereador pela população (CF art. 29, VI)", () => {
     expect(FAIXAS_VEREADOR).toHaveLength(6);
     const pcts = FAIXAS_VEREADOR.map((f) => f.percentual);
     expect(pcts).toEqual([...pcts].sort((a, b) => a - b));
+  });
+});
+
+describe("teto em reais do vereador e do deputado estadual", () => {
+  it("Blumenau (390.371 hab.) em SC: 60% de R$ 34.774,64 = R$ 20.864,78", () => {
+    const t = tetoVereador(390_371, 34774.64);
+    expect(t).toMatchObject({ percentual: 60, indice: 4, valor: 20864.78 });
+  });
+
+  it("sem o subsídio do deputado estadual publicado, só o percentual", () => {
+    expect(tetoVereador(1_388_791, null)).toMatchObject({ percentual: 75, valor: null });
+  });
+
+  it("percentualDe arredonda em centavos", () => {
+    expect(percentualDe(34774.64, 75)).toBe(26080.98);
+    expect(percentualDe(46366.19, 75)).toBe(TETO_DEPUTADO_ESTADUAL);
   });
 });
 

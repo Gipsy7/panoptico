@@ -3,6 +3,7 @@ import { PorQueFalta } from "@/components/por-que-falta";
 import type { VereadorDetalhe } from "@/lib/api";
 import { formatarData, formatarReais } from "@/lib/formato";
 import { TermoOficial } from "@/components/termo-oficial";
+import { TetoDeputadoEstadual } from "@/components/teto-salarial";
 
 /** Salário bruto (subsídio) de deputado estadual: o mesmo para toda a Assembleia, fixado em lei estadual. */
 export function SubsidioEstadualSecao({ v }: { v: VereadorDetalhe }) {
@@ -40,6 +41,8 @@ export function SubsidioEstadualSecao({ v }: { v: VereadorDetalhe }) {
           )}
           {s.observacao && <p className="text-sm text-muted-foreground">{s.observacao}</p>}
           <FonteRodape fonte={s.ato_normativo ?? casa} url={s.fonte_url ?? undefined} atualizadoEm={s.consultado_em} />
+          <h3 className="text-base font-semibold">Valor pago e teto da Constituição</h3>
+          <TetoDeputadoEstadual uf={v.uf} subsidio={s} nomeCasa={casa} />
         </>
       ) : (
         <>
@@ -49,6 +52,8 @@ export function SubsidioEstadualSecao({ v }: { v: VereadorDetalhe }) {
           </p>
           {s.observacao && <p className="text-sm text-muted-foreground">{s.observacao}</p>}
           <PorQueFalta uf={v.uf} />
+          <h3 className="text-base font-semibold">Teto da Constituição</h3>
+          <TetoDeputadoEstadual uf={v.uf} subsidio={s} nomeCasa={casa} />
         </>
       )}
     </section>

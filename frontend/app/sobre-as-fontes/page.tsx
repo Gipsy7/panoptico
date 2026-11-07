@@ -212,7 +212,10 @@ export default function SobreAsFontesPage() {
         </Item>
         <Item titulo="Salário">
           O subsídio é o mesmo para todos os deputados federais e senadores e é fixado por decreto
-          legislativo. Os gastos do gabinete são uma verba separada.
+          legislativo. Os gastos do gabinete são uma verba separada. Para o deputado estadual e o
+          vereador, a Constituição só fixa o teto (75% do deputado federal; de 20% a 75% do deputado
+          estadual, pela população da cidade, segundo o IBGE). O site mostra a conta do teto e, ao
+          lado, o valor pago quando há fonte oficial; para vereador ainda não há, e o site diz isso.
         </Item>
       </section>
 

@@ -10,6 +10,7 @@ import { CabecalhoConfianca } from "@/components/perfil/cabecalho-confianca";
 import { CarreiraSecao } from "@/components/carreira-secao";
 import { EmendasDoDeputadoEstadual } from "@/components/emendas-estaduais";
 import { SubsidioEstadualSecao } from "@/components/subsidio-estadual";
+import { TetoVereadorSecao } from "@/components/teto-vereador-secao";
 import { SancoesSecao, TEXTO_REGISTRO } from "@/components/sancoes-secao";
 import { ServicoFederalSecao } from "@/components/servico-federal-secao";
 import { CandidaturaSecao } from "@/components/candidatura-secao";
@@ -134,7 +135,7 @@ export async function PerfilMandatoLocal({ id, paginaVotos }: { id: string; pagi
       id: "dinheiro",
       rotulo: "Dinheiro",
       secoes: [
-        { id: "salario", titulo: "Salário bruto (subsídio)", conteudo: v.subsidio && <SubsidioEstadualSecao v={v} /> },
+        { id: "salario", titulo: "Salário bruto (subsídio)", conteudo: v.subsidio ? <SubsidioEstadualSecao v={v} /> : v.populacao && <TetoVereadorSecao v={v} nomeCasa={nomeCasa} /> },
         { id: "gastos", titulo: "Gastos do gabinete", conteudo: <GastosLocaisSecao v={v} nomeCasa={nomeCasa} /> },
         {
           id: "emendas-estaduais",
