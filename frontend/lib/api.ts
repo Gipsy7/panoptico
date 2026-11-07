@@ -57,7 +57,44 @@ export type ParlamentarDetalhe = ParlamentarResumo & {
     vigente_desde: string;
     fonte_nome: string;
     fonte_url: string;
+    /** Quanto custa o mandato (salário e verbas, com o ato de cada valor). Opcional: API antiga. */
+    custo?: CustoMandato | null;
   };
+};
+
+export type ItemCustoMandato = {
+  item: "subsidio" | "verba_gabinete" | "cota" | "auxilio_moradia";
+  nome: string;
+  oficial: string;
+  /** null: a Casa não publica o valor. */
+  valor: number | null;
+  ato: string | null;
+  ato_data: string | null;
+  ato_url: string | null;
+  valor_url: string | null;
+  vigente_desde: string | null;
+  consultado_em: string;
+  observacao: string | null;
+  usou: number | null;
+  media_casa: number | null;
+  usou_situacao: "fixo" | "carregado" | "na_pagina_da_casa" | "nao_carregado" | "nao_publicado";
+  usou_url: string | null;
+};
+
+export type CustoMandato = {
+  itens: ItemCustoMandato[];
+  total_se_usar_tudo: number;
+  /** Nomes dos itens sem valor publicado (fora do total). */
+  faltando: string[];
+  /** Soma só dos itens em `medidos`. */
+  usou_total: number;
+  media_total: number;
+  medidos: string[];
+  ano: number | null;
+  ultimo_mes: number | null;
+  gastos_fonte_nome: string | null;
+  gastos_fonte_url: string | null;
+  gastos_atualizado_em: string | null;
 };
 
 export type Representantes = {

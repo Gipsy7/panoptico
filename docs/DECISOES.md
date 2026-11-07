@@ -9,6 +9,7 @@
 - [2026-11-07: projetos que viraram lei (Frente 4)](#2026-11-07-projetos-que-viraram-lei-frente-4)
 - [2026-11-07: votação de mérito e de procedimento, calendário (Frente 4)](#2026-11-07-votação-de-mérito-e-de-procedimento-calendário-frente-4)
 - [2026-11-07: Plenário agora, selo "Ao vivo" no cabeçalho (Frente 4)](#2026-11-07-plenário-agora-selo-ao-vivo-no-cabeçalho-frente-4)
+- [2026-11-07: quanto custa o mandato (Frente 6)](#2026-11-07-quanto-custa-o-mandato-frente-6)
 - [2026-10-29: medidas provisórias e vetos do Presidente](#2026-10-29-medidas-provisórias-e-vetos-do-presidente)
 - [2026-10-29: salário de deputado estadual lido de CSV, só número publicado](#2026-10-29-salário-de-deputado-estadual-lido-de-csv-só-número-publicado)
 - [2026-10-30: Web Push, avisos no celular sem telefone nem e-mail](#2026-10-30-web-push-avisos-no-celular-sem-telefone-nem-e-mail)
@@ -1734,3 +1735,12 @@ Escolha do dono: selo pequeno no cabeçalho que abre uma gaveta (versão C do pr
 - **Vídeo:** só o link oficial, sem incorporar: a Câmara usa `urlRegistro` do evento (ou a página do evento); o Senado, a página da TV Senado do Plenário.
 - **Limite da fonte:** nenhuma das duas diz qual item está em votação no minuto; o site mostra a pauta da sessão (até 8 itens, "mostrando N de M") e avisa disso.
 - **Celular:** abaixo de 400 px o selo vira só o ponto (nome completo para leitor de tela) e o "Buscar" vira ícone, para o cabeçalho continuar numa linha em 360 px. Em 320 px o cabeçalho quebra em duas linhas, sem rolagem lateral.
+## 2026-11-07: quanto custa o mandato (Frente 6)
+
+Escolha do dono: "Custo do mandato: A" (soma empilhada). A seção "Salário" do perfil federal vira "Quanto custa o mandato": total "se usar tudo" por mês, três barras na mesma escala (se usar tudo, usou, média da Casa), legenda com o valor escrito de cada parcela e a folha "De onde vem cada valor" com o ato, a data e o link.
+
+- **Tabela versionada, não ingestão:** os valores são fixados por ato e mudam poucas vezes por legislatura; ficam em `data/custo_mandato_congresso.csv` (cópia em `app/dados/`), como o subsídio estadual. Sem migração. O subsídio federal passou a ser lido do mesmo CSV.
+- **Só número publicado pela Casa:** quando o ato só manda corrigir pelo IPCA (Atos da Mesa 243 e 244/2026), entra o número que a Câmara publica citando o ato, nunca uma conta nossa. A verba de gabinete do Senado não tem valor publicado: aparece "não publicado", fica fora do total (a tela diz isso) e há pedido LAI.
+- **"Usou" só com dado carregado:** salário e cota. Verba de gabinete e moradia mostram onde a Casa publica o uso (link), sem número. A barra "usou" e a média somam só os mesmos itens, para comparar igual com igual; a média segue a regra fixa (em exercício, quem não gastou entra com zero), por mês no ano corrente.
+- **Fora da conta, dito na tela:** 13º, ajuda de custo e encargos dos assessores. O imóvel funcional não tem valor em dinheiro; aparece como alternativa ao auxílio.
+

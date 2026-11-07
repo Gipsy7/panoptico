@@ -168,7 +168,7 @@ async function Perfil({
   const checklist = montarChecklist([
     {
       id: "salario",
-      rotulo: "Salário",
+      rotulo: "Salário e verbas",
       destino: "remuneracao",
       tem: true,
       fonte: p.remuneracao.fonte_nome,
@@ -235,7 +235,11 @@ async function Perfil({
             <p className="text-sm text-muted-foreground">Gastos do gabinete: {gastos.mensagem}</p>
           ),
         },
-        { id: "remuneracao", titulo: "Salário", conteudo: <RemuneracaoSecao remuneracao={p.remuneracao} /> },
+        {
+          id: "remuneracao",
+          titulo: "Quanto custa o mandato",
+          conteudo: <RemuneracaoSecao remuneracao={p.remuneracao} casa={p.casa} nome={p.nome_parlamentar} />,
+        },
         {
           id: "destino-emendas",
           titulo: "Emendas",

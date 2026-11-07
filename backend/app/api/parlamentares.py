@@ -21,6 +21,7 @@ from app.schemas import (
 )
 from app.services import (
     comissoes,
+    custo_mandato,
     destino_emendas,
     emendas_relator,
     gastos,
@@ -78,7 +79,8 @@ def parlamentar(
 ) -> ParlamentarDetalhe:
     p = _buscar(session, parlamentar_id)
     colunas = {c.key: getattr(p, c.key) for c in Parlamentar.__table__.columns}
-    return ParlamentarDetalhe.model_validate({**colunas, "remuneracao": remuneracao.vigente()})
+    salario = {**remuneracao.vigente(), "custo": custo_mandato.resumo(session, p)}
+    return ParlamentarDetalhe.model_validate({**colunas, "remuneracao": salario})
 
 
 @router.get("/parlamentares/{parlamentar_id}/gastos", response_model=GastosResposta)

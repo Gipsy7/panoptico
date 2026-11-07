@@ -76,9 +76,13 @@ describe("registro de cargos", () => {
 
 describe("salário", () => {
   it("deputado federal e senador ganham o mesmo, o da tabela do backend", () => {
-    const py = readFileSync(path.resolve(__dirname, "../../backend/app/services/remuneracao.py"), "utf8");
-    const valores = [...py.matchAll(/Decimal\("([\d.]+)"\)/g)].map((m) => Number(m[1]));
-    expect(SUBSIDIO_FEDERAL).toBe(valores[valores.length - 1]);
+    // Tabela do backend: linhas `subsidio` de data/custo_mandato_congresso.csv; a vigente não tem fim.
+    const csv = readFileSync(path.resolve(__dirname, "../../data/custo_mandato_congresso.csv"), "utf8");
+    const vigente = csv
+      .split("\n")
+      .map((l) => l.split(","))
+      .find((c) => c[0] === "deputado_federal" && c[1] === "subsidio" && c[9] === "");
+    expect(SUBSIDIO_FEDERAL).toBe(Number(vigente?.[3]));
     expect(CARGOS.senador.ganha.valor).toBe(SUBSIDIO_FEDERAL);
     expect(CARGOS["deputado-federal"].ganha.valor).toBe(SUBSIDIO_FEDERAL);
   });
