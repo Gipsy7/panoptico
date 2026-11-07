@@ -4,6 +4,8 @@
 
 - [2026-11-03: perfil confiável, bancadas, cargos e ligações (Frentes 1 e 2)](#2026-11-03-perfil-confiável-bancadas-cargos-e-ligações-frentes-1-e-2)
 - [2026-11-03: compartilhar em imagem (Frente 8)](#2026-11-03-compartilhar-em-imagem-frente-8)
+- [2026-11-07: entender a política (Frente 3)](#2026-11-07-entender-a-política-frente-3)
+- [2026-11-07: avisar erro, direito de resposta e correções públicas (Frente 7)](#2026-11-07-avisar-erro-direito-de-resposta-e-correções-públicas-frente-7)
 - [2026-10-29: medidas provisórias e vetos do Presidente](#2026-10-29-medidas-provisórias-e-vetos-do-presidente)
 - [2026-10-29: salário de deputado estadual lido de CSV, só número publicado](#2026-10-29-salário-de-deputado-estadual-lido-de-csv-só-número-publicado)
 - [2026-10-30: Web Push, avisos no celular sem telefone nem e-mail](#2026-10-30-web-push-avisos-no-celular-sem-telefone-nem-e-mail)
@@ -1684,3 +1686,20 @@ Escolhas do dono entre 3 protótipos de cada etapa: cartão do perfil em pôster
 - **Cidade:** o total é a soma literal das pessoas eleitas que decidem por ela (presidente, senadores, deputados federais, governador, deputados estaduais, prefeito, vereadores), com as mesmas rotas de "Quem te representa". Cargo sem dado não entra no total e o rodapé diz o que ficou de fora. As fotos do mosaico seguem a ordem dos cargos, sem ordem que sugira juízo.
 - **Botão:** sem JavaScript, continua o link do WhatsApp. Com `navigator.share` e arquivos, compartilha a imagem do Feed, a frase e o link; sem isso (computador), baixa a imagem. Nada vai ao servidor além do pedido da imagem.
 - **Fontes Geist em TTF** em `frontend/assets/fonts` (o gerador não lê woff2), incluídas no build por `outputFileTracingIncludes`. A foto em tom bronze usa `sharp` quando ele existe; sem ele, a foto sai natural.
+
+## 2026-11-07: entender a política (Frente 3)
+
+Escolhas do dono entre 3 protótipos: dicionário em gaveta de baixo (A), guia em linha do tempo no topo (C), dica fixa no pé (C) e leitura fácil que mantém a página e esconde o detalhe (B).
+
+- **Um texto por termo** em `frontend/lib/dicionario.ts`, com termo oficial, explicação simples, fonte com artigo (Constituição, Regimento) e data de conferência. O mesmo texto serve ao `<TermoOficial>`, ao índice `/dicionario` e ao Argos. Exemplo só com rota real do site; sem exemplo quando a listagem não filtra pelo tipo (PEC, MP, PLP, PDL), para não apontar para uma lista enganosa.
+- **Sem JavaScript, nada se perde:** o termo vira link para `/dicionario#id`, a chave de leitura fácil não aparece e a página fica completa.
+- **Guia e dica aparecem uma vez** (localStorage `panoptico.guia` e `panoptico.dica.<página>`), nunca juntos, e não empurram o conteúdo. A dica fica acima do botão do Argos.
+- **Leitura fácil** (`panoptico:leitura-facil`) vale só nos perfis: esconde o que é marcado `data-detalhe` e nunca o resumo, os números com a média da Casa, a fonte e a data. Aplicada por script no `<head>` para não piscar.
+
+## 2026-11-07: avisar erro, direito de resposta e correções públicas (Frente 7)
+
+Escolhas do dono: avisar erro em gaveta de 3 passos (A), respostas num bloco no fim do perfil (A) e correções numa tabela por data (A). Regra editorial aprovada pelo dono antes do código:
+
+- **Avisar erro:** tipo, texto e a página/seção já preenchidas; contato opcional, só para responder. Sem IP guardado; limite de 5 avisos por hora por origem. O contato fica fora do backup e é apagado em 180 dias. Nada muda no site sem uma pessoa conferir com a fonte oficial (fila `python -m ingestion.revisar --tipo sugestao`).
+- **Direito de resposta:** a pessoa do perfil (ou a assessoria) envia o texto. Só é publicado depois de revisão humana e de confirmar a identidade pelo canal oficial (e-mail funcional da Casa ou ofício). Sem edição além de tirar dados pessoais e sem comentário do site, que não endossa nem refuta. Aparece no bloco "Respostas de quem é citado", no fim do perfil, com "recebida em DD/MM" e a seção a que se refere.
+- **Correções públicas:** cada correção feita a partir de aviso entra numa tabela em `/sobre-as-fontes#correcoes` (dado, antes, depois, data, fonte conferida, motivo), sem identificar quem avisou; o perfil corrigido ganha um link discreto para a sua linha.
