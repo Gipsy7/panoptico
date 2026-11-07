@@ -1,3 +1,6 @@
+import { type CorpoSugestao, type PerfilTipo, mensagemDeFalha } from "@/lib/avisar-erro";
+import type { Correcoes } from "@/lib/correcoes";
+
 // No navegador, a API pública; no servidor (renderização), o endereço interno quando houver
 // (em produção, a rede do docker compose), para não sair e voltar pela internet.
 const API_URL =
@@ -2229,4 +2232,53 @@ export function getBancadaMunicipio(ibge: string) {
 
 export function getComposicaoCongresso(casa: "camara" | "senado") {
   return getJson<ComposicaoCongresso>(`/congresso/composicao?casa=${casa}`);
+}
+
+// ---------- Avisar erro, direito de resposta e correções (Frente 7) ----------
+
+export type RespostaCitado = {
+  id: number;
+  texto: string;
+  secao: string | null;
+  recebida_em: string;
+  publicada_em: string | null;
+};
+
+/** Respostas publicadas de quem é citado no perfil. Rota ausente ou erro: o bloco some. */
+export function getRespostas(tipo: PerfilTipo, id: string) {
+  const params = new URLSearchParams({ tipo, id });
+  return getJson<RespostaCitado[]>(`/pessoas/de/respostas?${params}`);
+}
+
+/** Correções públicas; sem filtro, todas (tabela de /sobre-as-fontes). */
+export function getCorrecoes(filtro?: { tipo: PerfilTipo; id: string }) {
+  const params = new URLSearchParams();
+  if (filtro) {
+    params.set("tipo", filtro.tipo);
+    params.set("id", filtro.id);
+  }
+  const query = params.toString();
+  return getJson<Correcoes>(`/correcoes${query ? `?${query}` : ""}`);
+}
+
+export type ResultadoSugestao = { ok: true; protocolo: string } | { ok: false; status: number; mensagem: string };
+
+/** Envia o aviso (chamado no navegador). Nunca lança erro. */
+export async function postSugestao(corpo: CorpoSugestao): Promise<ResultadoSugestao> {
+  let resposta: Response;
+  try {
+    resposta = await fetch(`${API_URL}/sugestoes`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(corpo),
+    });
+  } catch {
+    return { ok: false, status: 0, mensagem: mensagemDeFalha(0) };
+  }
+  const json = await resposta.json().catch(() => null);
+  if (!resposta.ok) {
+    const detalhe = typeof json?.detail === "string" ? json.detail : undefined;
+    return { ok: false, status: resposta.status, mensagem: mensagemDeFalha(resposta.status, detalhe) };
+  }
+  return { ok: true, protocolo: typeof json?.protocolo === "string" ? json.protocolo : "" };
 }

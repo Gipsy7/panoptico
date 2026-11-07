@@ -3,6 +3,7 @@ import Link from "next/link";
 
 import { JsonLdDataset } from "@/components/json-ld";
 import { EsqueletoSecao } from "@/components/esqueleto-secao";
+import { TabelaCorrecoes } from "@/components/avisar-erro/tabela-correcoes";
 import { Revelacao } from "@/components/revelacao";
 import { getFontes } from "@/lib/api";
 import { formatarData } from "@/lib/formato";
@@ -224,6 +225,31 @@ export default function SobreAsFontesPage() {
           fonte, confira a data de atualização: as fontes corrigem dados com frequência e o
           Panóptico atualiza tudo diariamente.
         </p>
+        <p className="text-muted-foreground">
+          Se ainda assim não bater, use o botão &ldquo;Achou um erro neste número?&rdquo; que aparece
+          junto da fonte de cada seção do perfil. Uma pessoa confere com a fonte oficial; nada muda
+          sem essa conferência. Quem é citado em um perfil também pode pedir que uma resposta fique
+          publicada ali (veja{" "}
+          <Link href="/privacidade#avisar-erro" className="underline underline-offset-2">
+            o que guardamos
+          </Link>
+          ).
+        </p>
+      </section>
+
+      <section id="correcoes" aria-labelledby="correcoes-titulo" className="revelar flex scroll-mt-20 flex-col gap-3">
+        <div>
+          <h2 id="correcoes-titulo" className="text-2xl">
+            Correções já feitas
+          </h2>
+          <p className="text-sm text-muted-foreground">
+            Cada correção feita a partir de um aviso fica aqui, com o dado, como estava, como ficou, a data e a fonte
+            conferida. Quem avisou não aparece.
+          </p>
+        </div>
+        <Revelacao fallback={<EsqueletoSecao rotulo="Carregando…" secoes={1} />}>
+          <TabelaCorrecoes />
+        </Revelacao>
       </section>
     </article>
   );

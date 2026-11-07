@@ -1,3 +1,4 @@
+import { EntradaItem } from "@/components/avisar-erro/entradas";
 import { CartaoNumero, GradeCartoes } from "@/components/painel/cartao-numero";
 import { FonteRodape } from "@/components/fonte-rodape";
 import { PorQueFalta } from "@/components/por-que-falta";
@@ -75,11 +76,12 @@ export function ChecklistPerfil({
                 {i.tem ? `Fonte: ${i.fonte ?? "órgão oficial"}` : i.motivo}
               </span>
             </span>
+            <EntradaItem rotulo={i.rotulo} />
           </li>
         ))}
       </ul>
       {faltam && <PorQueFalta uf={uf} casa={casa} />}
-      <FonteRodape fonte="a fonte de cada dado está na lista acima" atualizadoEm={atualizadoEm} />
+      <FonteRodape fonte="a fonte de cada dado está na lista acima" atualizadoEm={atualizadoEm} semAviso />
     </section>
   );
 }
