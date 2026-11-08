@@ -10,6 +10,7 @@ from app.api import (
     cobertura,
     comparar,
     dinheiro_federal,
+    eleicoes,
     eleitos,
     executivo,
     fontes,
@@ -71,6 +72,7 @@ async def cache_na_cdn(request: Request, call_next):
 
 app.include_router(saude.router)
 app.include_router(ao_vivo.router)
+app.include_router(eleicoes.router)
 app.include_router(cobertura.router)
 app.include_router(representantes.router)
 app.include_router(parlamentares.router)

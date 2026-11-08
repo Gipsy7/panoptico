@@ -63,6 +63,7 @@ from app.models.pncp import (
 )
 from app.models.proposicao import Autoria, Proposicao
 from app.models.proposicao_tema import ProposicaoTema
+from app.models.resultado import ResultadoCandidato, ResultadoTotais
 from app.models.resumo_parlamentar import ResumoParlamentar
 from app.models.servidor_federal import CpgfPortadorMes, ServidorFederal, ViagemFederalAno
 from app.models.sugestao import Correcao, Sugestao, SugestaoContato
@@ -124,6 +125,8 @@ __all__ = [
     "Municipio",
     "Norma",
     "NormaProposicao",
+    "ResultadoCandidato",
+    "ResultadoTotais",
     "Orientacao",
     "Parlamentar",
     "PautaItem",
