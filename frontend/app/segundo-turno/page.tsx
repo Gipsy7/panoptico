@@ -179,7 +179,7 @@ async function Conteudo(busca: Busca) {
   return (
     <>
       <Resultado dados={r.dados} />
-      <div className="pagina-secoes">
+      <div className="pagina-secoes mt-10 border-t border-border pt-8">
         <ResultadosSeletor
           acao="/segundo-turno#resultados-titulo"
           escondidos={escondidos}
