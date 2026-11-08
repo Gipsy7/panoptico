@@ -228,6 +228,20 @@ Endpoints conferidos em 2026-10-06.
 - **Situação da candidatura em 2024:** `DS_SITUACAO_CANDIDATURA` vem `#NE` (não existe) em todas as linhas, e não há coluna de detalhe da situação. A cassação e o indeferimento vêm do arquivo de motivos (abaixo).
 - **Data da eleição:** `DT_ELEICAO` é a data do turno da linha. Como fica a linha do último turno, é a data do turno que definiu o resultado (`candidatura.data_eleicao`).
 
+## TSE: resultado completo das eleições e comparecimento (Frente 5)
+
+- **Arquivos:** `votacao_candidato_munzona_<ano>.zip` (votos de cada candidato por município e zona; 580 MB em 2022, 467 MB em 2026, 48 MB em 2024) e `detalhe_votacao_munzona_<ano>.zip` (aptos, comparecimento, abstenções, brancos, nulos e válidos por cargo, município e zona; ~5 MB), em `https://cdn.tse.jus.br/estatistica/sead/odsele/`. Um CSV por UF (`;`, latin-1) e um `_BRASIL` que repete os estados (fica de fora). 2022 por município continua no CDN de dados abertos, embora não esteja mais em resultados.tse.jus.br.
+- **Cargas:** `tse_comparecimento` (`ingestion/tse/comparecimento.py` → `resultado_totais`) e depois `tse_resultados` (`ingestion/tse/resultados.py` → `resultado_candidato` e `resultado_totais.votos_em_eleitos`). Anos carregados: 2016 a 2026.
+- **Armadilhas:**
+  - `DS_CARGO` vem em caixa mista ("Vereador"); normalizamos para maiúsculas, como em `candidatura.cargo`.
+  - O arquivo de uma UF traz linhas de presidente de outras UFs (voto em trânsito), fora de ordem: o recorte por município é somado entre arquivos, nunca agrupado por `SG_UF` em sequência.
+  - Exterior (`SG_UF = "ZZ"`): conta na disputa de presidente; nos totais, uma linha só, município `0000000`.
+  - O código de município do TSE (`CD_MUNICIPIO`) não é o do IBGE: ligação por nome + UF (`candidaturas.mapa_municipios`).
+  - Deputados por município: guardamos só os 10 mais votados (o arquivo inteiro teria milhões de linhas) e, por município, quantos votos foram para quem se elegeu.
+  - Eleitores = soma de `QT_APTOS` das zonas na eleição (269.370 em Blumenau, 2026); o número do cadastro do eleitorado (estatísticas do eleitorado) é outra medida e pode diferir.
+- **Conferido:** Blumenau 2024 prefeito (265.491 aptos, 197.630 votaram, 5.254 brancos, 7.389 nulos, Delegado Egidio 95.075 votos, 51,40%); presidente 2022, 2º turno (Lula 60.345.999, 50,90%); Blumenau 2026, deputado federal (106.737 de 193.458 votos para eleitos, 55,17%).
+- **Frequência:** manual, depois de cada eleição (e quando o TSE regera os arquivos).
+
 ## TSE: cassações e julgamentos de candidatura (motivo_cassacao)
 
 - **URL (lote, sem chave):** `https://cdn.tse.jus.br/estatistica/sead/odsele/motivo_cassacao/motivo_cassacao_{ano}.zip`. É pequeno: 160–760 KB por eleição. Existe para 2018, 2020, 2022 e 2024 e é regenerado com frequência (`DT_GERACAO`; o de 2024 foi gerado em 08/10/2026).

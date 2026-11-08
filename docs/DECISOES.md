@@ -9,6 +9,7 @@
 - [2026-11-07: projetos que viraram lei (Frente 4)](#2026-11-07-projetos-que-viraram-lei-frente-4)
 - [2026-11-07: votação de mérito e de procedimento, calendário (Frente 4)](#2026-11-07-votação-de-mérito-e-de-procedimento-calendário-frente-4)
 - [2026-11-07: Plenário agora, selo "Ao vivo" no cabeçalho (Frente 4)](#2026-11-07-plenário-agora-selo-ao-vivo-no-cabeçalho-frente-4)
+- [2026-11-07: eleições completas (Frente 5)](#2026-11-07-eleições-completas-frente-5)
 - [2026-11-07: quanto custa o mandato (Frente 6)](#2026-11-07-quanto-custa-o-mandato-frente-6)
 - [2026-11-07: custo da câmara por morador e a média do estado (Frente 6)](#2026-11-07-custo-da-câmara-por-morador-e-a-média-do-estado-frente-6)
 - [2026-10-29: medidas provisórias e vetos do Presidente](#2026-10-29-medidas-provisórias-e-vetos-do-presidente)
@@ -1763,3 +1764,15 @@ Escolha do dono: "Custo do mandato: A" (soma empilhada). A seção "Salário" do
 - **"Usou" só com dado carregado:** salário e cota. Verba de gabinete e moradia mostram onde a Casa publica o uso (link), sem número. A barra "usou" e a média somam só os mesmos itens, para comparar igual com igual; a média segue a regra fixa (em exercício, quem não gastou entra com zero), por mês no ano corrente.
 - **Fora da conta, dito na tela:** 13º, ajuda de custo e encargos dos assessores. O imóvel funcional não tem valor em dinheiro; aparece como alternativa ao auxílio.
 
+## 2026-11-07: eleições completas (Frente 5)
+
+Escolhas do dono entre 3 protótipos: resultado em tabela densa com barras (A), mais votados em lista com abas federal e estadual (A), carreira que abre o resultado numa gaveta (A), moradores, eleitores e quem votou em três barras (C) e quem teve o cargo antes em linha do tempo (B).
+
+- **Duas tabelas novas** (`resultado_candidato`, `resultado_totais`, migração 0064, só acrescenta): o resultado vem dos arquivos de votação e de detalhe do TSE, não das candidaturas (que nas eleições gerais guardam só eleitos). Anos 2016 a 2026.
+- **Percentuais:** candidato sobre os válidos da disputa (como o TSE divulga); brancos e nulos sobre quem compareceu. Nos mais votados da cidade, sobre os votos nominais dados ali. Sem cor de partido: a barra tem um tom só e "Eleito" vem escrito.
+- **Mais votados:** só deputados (federal, estadual, distrital), os 10 primeiros por município, e a frase literal "X% dos votos daqui foram para quem se elegeu" (votos nominais em eleitos ÷ votos nominais). "Eleito" vale para o estado inteiro, e a tela diz isso.
+- **Recorte por município** só para presidente, governador e senador (todos os candidatos) e para os 10 deputados; a tabela completa de deputados é a do estado.
+- **Quem teve o cargo antes:** pelo resultado do TSE (situação de eleito), só nome, partido e período; mandato de 4 anos (senador, 8). Não aparecem renúncia, cassação nem posse do vice; a tela avisa.
+- **Eleitores:** soma dos aptos das zonas na eleição mais recente carregada, ao lado da população do IBGE. Não é o cadastro do eleitorado.
+- **`/segundo-turno` generalizada:** no mesmo endereço, abaixo do comparador, a seção "Resultado das eleições" com ano, cargo, turno e "onde" (formulário GET, funciona sem JavaScript).
+- **Nome de urna igual ao de outra pessoa** (ex.: "Jair Bolsonaro" para Jair Renan em 2026): a tabela mostra o nome de urna do TSE e liga ao perfil pela candidatura, nunca pelo nome.

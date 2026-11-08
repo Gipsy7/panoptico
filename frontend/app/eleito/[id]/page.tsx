@@ -13,6 +13,8 @@ import { notFound, redirect } from "next/navigation";
 import { AvisoErro } from "@/components/aviso-erro";
 import { SeloEleitoFuturo } from "@/components/eleito-futuro";
 import { CarreiraSecao } from "@/components/carreira-secao";
+import { TabelaResultado } from "@/components/eleicao/tabela-resultado";
+import { AntecessoresLinha } from "@/components/eleicao/antecessores-linha";
 import { SancoesSecao, TEXTO_REGISTRO } from "@/components/sancoes-secao";
 import { ServicoFederalSecao } from "@/components/servico-federal-secao";
 import { CandidaturaSecao } from "@/components/candidatura-secao";
@@ -45,6 +47,8 @@ import {
 import {
   type EleitoDetalhe,
   getAgenda,
+  getAntecessores,
+  getResultadoEleicao,
   getAtosPresidente,
   getCanais,
   getCarreira,
@@ -165,10 +169,15 @@ async function Perfil({
     redirect(`/${e.mandato_local.casa === "camara" ? "vereador" : "deputado-estadual"}/${e.mandato_local.id}`);
   }
   const executivo = CARGO_EXECUTIVO.test(e.cargo);
-  const [canais, linha, painelR] = await Promise.all([
+  const cargoTse = e.cargo.toUpperCase();
+  const [canais, linha, painelR, eleicaoR, antecessoresR] = await Promise.all([
     e.municipio_ibge ? getCanais(e.municipio_ibge) : null,
     getLinhaDoTempo("candidatura", id),
     executivo ? getPainelExecutivo(id) : null,
+    getResultadoEleicao({ candidatura: id }),
+    /^(PRESIDENTE|GOVERNADOR|PREFEITO|SENADOR|VEREADOR)$/.test(cargoTse)
+      ? getAntecessores({ cargo: cargoTse, uf: e.uf, municipio: e.municipio_ibge })
+      : null,
   ]);
   // API antiga sem a rota do painel: o perfil cai no comportamento de antes.
   const painel = painelR?.ok ? painelR.dados : null;
@@ -371,6 +380,20 @@ async function Perfil({
           titulo: "Quem é",
           conteudo: (
             <QuemESecao pessoais={recente?.pessoais ?? e.pessoais} votos={e.votos != null ? { ano: e.ano_eleicao, total: e.votos } : null} />
+          ),
+        },
+        {
+          id: "eleicao",
+          titulo: `Como foi a eleição de ${e.ano_eleicao}`,
+          conteudo: eleicaoR.ok && (
+            <TabelaResultado r={eleicaoR.dados} titulo={`Como foi a eleição de ${e.ano_eleicao}`} />
+          ),
+        },
+        {
+          id: "antecessores",
+          titulo: "Quem teve o cargo antes",
+          conteudo: antecessoresR?.ok && antecessoresR.dados.mandatos.length > 1 && (
+            <AntecessoresLinha d={antecessoresR.dados} atualId={e.id} />
           ),
         },
         {

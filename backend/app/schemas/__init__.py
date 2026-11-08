@@ -1394,6 +1394,7 @@ class ServicoFederalDaPessoa(BaseModel):
 
 
 class CandidaturaDaCarreira(BaseModel):
+    candidatura_id: int | None = None
     ano: int
     cargo: str
     uf: str

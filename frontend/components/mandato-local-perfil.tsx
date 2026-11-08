@@ -8,6 +8,8 @@ import { FotoVereador } from "@/components/camara-secao";
 import { SobreOCargo } from "@/components/cargo/sobre-o-cargo";
 import { CabecalhoConfianca } from "@/components/perfil/cabecalho-confianca";
 import { CarreiraSecao } from "@/components/carreira-secao";
+import { AntecessoresLinha } from "@/components/eleicao/antecessores-linha";
+import { TabelaResultado } from "@/components/eleicao/tabela-resultado";
 import { EmendasDoDeputadoEstadual } from "@/components/emendas-estaduais";
 import { SubsidioEstadualSecao } from "@/components/subsidio-estadual";
 import { TetoVereadorSecao } from "@/components/teto-vereador-secao";
@@ -30,7 +32,7 @@ import { AbasDetalhe, type AbaDetalhe } from "@/components/painel/abas-detalhe";
 import { formatarNumero } from "@/components/painel/barra-comparacao";
 import { CartaoNumero, GradeCartoes } from "@/components/painel/cartao-numero";
 import { ListaPerguntas, Pergunta } from "@/components/painel/pergunta";
-import { getCanais, getEleito, getEmendasDeputadoEstadual, getLinhaDoTempo, getSancoes, getVereador, getVotacoesLocais, type VereadorDetalhe } from "@/lib/api";
+import { getAntecessores, getCanais, getEleito, getResultadoEleicao, getEmendasDeputadoEstadual, getLinhaDoTempo, getSancoes, getVereador, getVotacoesLocais, type VereadorDetalhe } from "@/lib/api";
 import { CartaoChecklist, ChecklistPerfil, DESTINO_CHECKLIST } from "@/components/perfil/checklist-perfil";
 import { ComoCobrar } from "@/components/perfil/como-cobrar";
 import { montarChecklist } from "@/lib/checklist-perfil";
@@ -53,7 +55,7 @@ export async function PerfilMandatoLocal({ id, paginaVotos }: { id: string; pagi
   const textoCompartilhar = v.gastos
     ? `${v.nome} (${cargo.toLowerCase()}) gastou ${formatarReais(v.gastos.total, true)} do gabinete em ${v.gastos.ano}, segundo a ${nomeCasa}. Veja o perfil com dados oficiais:`
     : `${v.nome} (${cargo.toLowerCase()}) tem ${v.projetos} projetos no ano atual e no anterior, segundo a ${nomeCasa}. Veja o perfil com dados oficiais:`;
-  const [eleicao, votacoes, linha, emendasEstaduaisR, canaisR] = await Promise.all([
+  const [eleicao, votacoes, linha, emendasEstaduaisR, canaisR, resultadoR, antecessoresR] = await Promise.all([
     v.candidatura_id ? getEleito(String(v.candidatura_id)) : null,
     getVotacoesLocais(String(v.id), paginaVotos),
     getLinhaDoTempo(camara ? "vereador" : "deputado_estadual", String(v.id)),
@@ -61,6 +63,9 @@ export async function PerfilMandatoLocal({ id, paginaVotos }: { id: string; pagi
     camara ? null : getEmendasDeputadoEstadual(v.id),
     // Sites da câmara e da prefeitura, para "Como cobrar" (só vereador).
     camara && v.municipio_ibge ? getCanais(v.municipio_ibge) : null,
+    // Eleição que elegeu a pessoa e quem esteve na câmara antes (Frente 5).
+    v.candidatura_id ? getResultadoEleicao({ candidatura: v.candidatura_id, limite: 40 }) : null,
+    camara && v.municipio_ibge ? getAntecessores({ cargo: "VEREADOR", municipio: v.municipio_ibge }) : null,
   ]);
   const canaisCidade = canaisR?.ok ? canaisR.dados.itens : undefined;
   const emendasEstaduais = emendasEstaduaisR?.ok ? emendasEstaduaisR.dados : null;
@@ -178,6 +183,20 @@ export async function PerfilMandatoLocal({ id, paginaVotos }: { id: string; pagi
               pessoais={dEleicao.pessoais}
               votos={dEleicao.votos != null ? { ano: dEleicao.ano_eleicao, total: dEleicao.votos } : null}
             />
+          ),
+        },
+        {
+          id: "eleicao",
+          titulo: "Como foi a eleição",
+          conteudo: resultadoR?.ok && (
+            <TabelaResultado r={resultadoR.dados} titulo={`Como foi a eleição de ${resultadoR.dados.ano}`} />
+          ),
+        },
+        {
+          id: "antecessores",
+          titulo: "Quem esteve na câmara antes",
+          conteudo: antecessoresR?.ok && antecessoresR.dados.mandatos.length > 1 && (
+            <AntecessoresLinha d={antecessoresR.dados} atualId={v.candidatura_id} />
           ),
         },
         {

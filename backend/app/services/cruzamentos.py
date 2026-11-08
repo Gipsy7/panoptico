@@ -297,6 +297,7 @@ def carreira(session: Session, pessoa_id: int) -> dict | None:
         tem_bens = tse._tem_bens(session, c.id)
         itens.append(
             {
+                "candidatura_id": c.id,
                 "ano": c.ano_eleicao,
                 "cargo": c.cargo.capitalize(),
                 "uf": c.uf,

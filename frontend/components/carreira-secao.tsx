@@ -2,6 +2,7 @@ import { FonteRodape } from "@/components/fonte-rodape";
 import { getCarreira, type CandidaturaDaCarreira } from "@/lib/api";
 import { formatarReais } from "@/lib/formato";
 import { LinkExterno } from "@/components/link-externo";
+import { GavetaResultado } from "@/components/eleicao/gaveta-resultado";
 
 function resultado(c: CandidaturaDaCarreira): string {
   if (c.eleito === true) return "Eleito(a)";
@@ -56,6 +57,9 @@ export async function CarreiraSecao({ pessoaId }: { pessoaId: number }) {
                 </LinkExterno>
               )}
               {c.ligacao && <span className="text-sm text-muted-foreground">{c.ligacao}</span>}
+              {c.candidatura_id && c.ano >= 2016 && !/^(vice|1º|2º|suplente)/i.test(c.cargo) && (
+                <GavetaResultado candidaturaId={c.candidatura_id} rotulo={`${c.cargo}, ${c.ano}`} />
+              )}
             </li>
           );
         })}

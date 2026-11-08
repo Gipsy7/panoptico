@@ -1,4 +1,8 @@
-import { type CorpoSugestao, type PerfilTipo, mensagemDeFalha } from "@/lib/avisar-erro";
+import {
+  type CorpoSugestao,
+  type PerfilTipo,
+  mensagemDeFalha,
+} from "@/lib/avisar-erro";
 import type { Correcoes } from "@/lib/correcoes";
 
 // No navegador, a API pública; no servidor (renderização), o endereço interno quando houver
@@ -12,7 +16,9 @@ const API_URL =
 // IP (as renderizações de muitos visitantes saem dos mesmos IPs da Vercel). Não é segredo:
 // o limite existe contra robôs desatentos, não contra quem queira contorná-lo.
 const CABECALHOS: HeadersInit | undefined =
-  typeof window === "undefined" ? { "User-Agent": "panoptico-site" } : undefined;
+  typeof window === "undefined"
+    ? { "User-Agent": "panoptico-site" }
+    : undefined;
 
 // Endereço público da API (o navegador baixa as fotos direto dela, com cache na CDN).
 const API_PUBLICA = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
@@ -27,7 +33,9 @@ export function urlFotoDe(candidato: { id: number; foto_de?: number | null }) {
 }
 
 /** "foto de 2022", só quando a foto vem de outra eleição da mesma pessoa. */
-export function legendaFoto(candidato: { foto_ano?: number | null }): string | null {
+export function legendaFoto(candidato: {
+  foto_ano?: number | null;
+}): string | null {
   return candidato.foto_ano ? `foto de ${candidato.foto_ano}` : null;
 }
 
@@ -77,7 +85,12 @@ export type ItemCustoMandato = {
   observacao: string | null;
   usou: number | null;
   media_casa: number | null;
-  usou_situacao: "fixo" | "carregado" | "na_pagina_da_casa" | "nao_carregado" | "nao_publicado";
+  usou_situacao:
+    | "fixo"
+    | "carregado"
+    | "na_pagina_da_casa"
+    | "nao_carregado"
+    | "nao_publicado";
   usou_url: string | null;
 };
 
@@ -110,24 +123,34 @@ export type Representantes = {
   atualizado_em: string | null;
 };
 
-export type Resultado<T> = { ok: true; dados: T } | { ok: false; status: number; mensagem: string };
+export type Resultado<T> =
+  { ok: true; dados: T } | { ok: false; status: number; mensagem: string };
 
 async function getJson<T>(caminho: string): Promise<Resultado<T>> {
   let resposta: Response;
   try {
     resposta = await fetch(`${API_URL}${caminho}`, { headers: CABECALHOS });
   } catch {
-    return { ok: false, status: 503, mensagem: "Não foi possível falar com o servidor agora." };
+    return {
+      ok: false,
+      status: 503,
+      mensagem: "Não foi possível falar com o servidor agora.",
+    };
   }
   if (!resposta.ok) {
     const corpo = await resposta.json().catch(() => null);
-    const detalhe = typeof corpo?.detail === "string" ? corpo.detail : "Algo deu errado.";
+    const detalhe =
+      typeof corpo?.detail === "string" ? corpo.detail : "Algo deu errado.";
     return { ok: false, status: resposta.status, mensagem: detalhe };
   }
   return { ok: true, dados: (await resposta.json()) as T };
 }
 
-export function getRepresentantes(busca: { cep?: string; uf?: string; municipio?: string }) {
+export function getRepresentantes(busca: {
+  cep?: string;
+  uf?: string;
+  municipio?: string;
+}) {
   const params = new URLSearchParams();
   if (busca.municipio) params.set("municipio", busca.municipio);
   else if (busca.cep) params.set("cep", busca.cep);
@@ -136,7 +159,9 @@ export function getRepresentantes(busca: { cep?: string; uf?: string; municipio?
 }
 
 export function getParlamentar(id: string) {
-  return getJson<ParlamentarDetalhe>(`/parlamentares/${encodeURIComponent(id)}`);
+  return getJson<ParlamentarDetalhe>(
+    `/parlamentares/${encodeURIComponent(id)}`,
+  );
 }
 
 export function getSaude() {
@@ -166,7 +191,9 @@ export type Gastos = {
 
 export function getGastos(id: string, ano?: string) {
   const query = ano ? `?ano=${encodeURIComponent(ano)}` : "";
-  return getJson<Gastos>(`/parlamentares/${encodeURIComponent(id)}/gastos${query}`);
+  return getJson<Gastos>(
+    `/parlamentares/${encodeURIComponent(id)}/gastos${query}`,
+  );
 }
 
 export type ProjetoItem = {
@@ -187,7 +214,12 @@ export type Projetos = {
   coautor: number;
   viraram_norma: number;
   media_casa_primeiro_autor: number;
-  por_tipo: { sigla: string; nome: string; primeiro_autor: number; coautor: number }[];
+  por_tipo: {
+    sigla: string;
+    nome: string;
+    primeiro_autor: number;
+    coautor: number;
+  }[];
   recentes: ProjetoItem[];
   viraram_norma_lista: ProjetoItem[];
   fonte_nome: string;
@@ -208,17 +240,33 @@ export type NormaItem = {
   data_publicacao: string | null;
   ementa: string;
   url: string;
-  projetos: { casa: string; id_externo: string; identificacao: string | null; link: string | null }[];
+  projetos: {
+    casa: string;
+    id_externo: string;
+    identificacao: string | null;
+    link: string | null;
+  }[];
 };
 
 export type ViraramLei = FonteBloco & {
   total: number;
   primeiro_autor: number;
   media_casa: number;
-  itens: { projeto: string; projeto_link: string; primeiro_autor: boolean; norma: NormaItem }[];
+  itens: {
+    projeto: string;
+    projeto_link: string;
+    primeiro_autor: boolean;
+    norma: NormaItem;
+  }[];
 };
 
-export type AnoDeLeis = { ano: number; total: number; leis: number; leis_complementares: number; emendas_constitucionais: number };
+export type AnoDeLeis = {
+  ano: number;
+  total: number;
+  leis: number;
+  leis_complementares: number;
+  emendas_constitucionais: number;
+};
 
 /** Filtro "Virou lei": contagem por ano e as normas do ano aberto. */
 export type BlocoLeis = FonteBloco & {
@@ -308,7 +356,9 @@ export type EleitosFuturos = {
 };
 
 export function getEleitos2026(uf: string) {
-  return getJson<EleitosFuturos>(`/estados/${encodeURIComponent(uf)}/eleitos-2026`);
+  return getJson<EleitosFuturos>(
+    `/estados/${encodeURIComponent(uf)}/eleitos-2026`,
+  );
 }
 
 export type Eleito = {
@@ -347,7 +397,10 @@ export type ListaEleitos = {
 };
 
 /** Bens, campanha e dados da candidatura de uma eleição cuja posse ainda não aconteceu. */
-export type EleicaoRecente = Pick<CandidaturaTse, "bens" | "campanha" | "fonte_nome" | "fonte_url" | "atualizado_em"> & {
+export type EleicaoRecente = Pick<
+  CandidaturaTse,
+  "bens" | "campanha" | "fonte_nome" | "fonte_url" | "atualizado_em"
+> & {
   id: number;
   ano_eleicao: number;
   cargo: string;
@@ -356,7 +409,10 @@ export type EleicaoRecente = Pick<CandidaturaTse, "bens" | "campanha" | "fonte_n
 };
 
 export type EleitoDetalhe = Eleito &
-  Pick<CandidaturaTse, "bens" | "campanha" | "fonte_nome" | "fonte_url" | "atualizado_em"> & {
+  Pick<
+    CandidaturaTse,
+    "bens" | "campanha" | "fonte_nome" | "fonte_url" | "atualizado_em"
+  > & {
     /** Quando a própria casa (SAPL) lista a pessoa no cargo: o perfil com a atividade. */
     mandato_local: { id: number; casa: "camara" | "assembleia" } | null;
     pessoais: Pessoais | null;
@@ -449,7 +505,11 @@ export type VereadorDetalhe = VereadorItem & {
   /** "camara" (vereador) ou "assembleia" (deputado estadual). */
   casa: "camara" | "assembleia";
   uf: string;
-  presenca: { sessoes: number; presencas: number; media_casa: number | null } | null;
+  presenca: {
+    sessoes: number;
+    presencas: number;
+    media_casa: number | null;
+  } | null;
   /** Gastos do gabinete (verba indenizatória), onde a casa publica. */
   gastos: {
     ano: number;
@@ -463,7 +523,12 @@ export type VereadorDetalhe = VereadorItem & {
     /** Data da última carga que atualizou os gastos (pode ser anterior à do resto do perfil). */
     atualizado_em?: string | null;
     /** O que a planilha traz mas não entra na soma por mês (ex.: comprovantes sem data). */
-    fora_da_soma?: { linhas: number; valor: number; linhas_valor_ilegivel: number; motivo: string } | null;
+    fora_da_soma?: {
+      linhas: number;
+      valor: number;
+      linhas_valor_ilegivel: number;
+      motivo: string;
+    } | null;
     /** Fonte própria dos gastos (portal de transparência), quando não é a do resto do perfil. */
     fonte_nome?: string | null;
     fonte_url?: string | null;
@@ -528,7 +593,9 @@ export type VotacoesLocais = {
 
 export function getVotacoesLocais(id: string, pagina?: string) {
   const params = pagina ? `?pagina=${encodeURIComponent(pagina)}` : "";
-  return getJson<VotacoesLocais>(`/vereadores/${encodeURIComponent(id)}/votacoes${params}`);
+  return getJson<VotacoesLocais>(
+    `/vereadores/${encodeURIComponent(id)}/votacoes${params}`,
+  );
 }
 
 export function getAssembleia(uf: string) {
@@ -544,7 +611,13 @@ export type Fornecedores = {
   orgaos: {
     orgao: string;
     total_pago: number;
-    itens: { fornecedor: string; nome_omitido?: boolean; documento: string | null; valor_pago: number; pagamentos: number }[];
+    itens: {
+      fornecedor: string;
+      nome_omitido?: boolean;
+      documento: string | null;
+      valor_pago: number;
+      pagamentos: number;
+    }[];
   }[];
   fonte_nome: string;
   fonte_url: string;
@@ -552,7 +625,9 @@ export type Fornecedores = {
 };
 
 export function getFornecedores(ibge: string) {
-  return getJson<Fornecedores>(`/municipios/${encodeURIComponent(ibge)}/fornecedores`);
+  return getJson<Fornecedores>(
+    `/municipios/${encodeURIComponent(ibge)}/fornecedores`,
+  );
 }
 
 export type ContasMunicipio = {
@@ -571,14 +646,20 @@ export type ContasMunicipio = {
   municipios_sem_camara?: number | null;
   media_uf_camara_descricao?: string | null;
   por_area: { nome: string; valor: number; percentual: number }[];
-  anterior: { ano: number; despesa_paga: number | null; receita_total: number | null } | null;
+  anterior: {
+    ano: number;
+    despesa_paga: number | null;
+    receita_total: number | null;
+  } | null;
   fonte_nome: string;
   fonte_url: string;
   atualizado_em: string | null;
 };
 
 export function getContas(ibge: string) {
-  return getJson<ContasMunicipio>(`/municipios/${encodeURIComponent(ibge)}/contas`);
+  return getJson<ContasMunicipio>(
+    `/municipios/${encodeURIComponent(ibge)}/contas`,
+  );
 }
 
 export type TipoRepasseEstadual = {
@@ -620,21 +701,34 @@ export type RepassesEstaduais = {
 };
 
 export function getRepassesEstaduais(ibge: string) {
-  return getJson<RepassesEstaduais>(`/municipios/${encodeURIComponent(ibge)}/repasses-estaduais`);
+  return getJson<RepassesEstaduais>(
+    `/municipios/${encodeURIComponent(ibge)}/repasses-estaduais`,
+  );
 }
 
-export type Canal = { tipo: string; url: string; sistema: string | null; verificado_em: string | null };
+export type Canal = {
+  tipo: string;
+  url: string;
+  sistema: string | null;
+  verificado_em: string | null;
+};
 
 export function getCanais(ibge: string) {
-  return getJson<{ itens: Canal[] }>(`/municipios/${encodeURIComponent(ibge)}/canais`);
+  return getJson<{ itens: Canal[] }>(
+    `/municipios/${encodeURIComponent(ibge)}/canais`,
+  );
 }
 
 export function getVereadores(ibge: string) {
-  return getJson<ListaEleitos>(`/municipios/${encodeURIComponent(ibge)}/vereadores`);
+  return getJson<ListaEleitos>(
+    `/municipios/${encodeURIComponent(ibge)}/vereadores`,
+  );
 }
 
 export function getDeputadosEstaduais(uf: string) {
-  return getJson<ListaEleitos>(`/estados/${encodeURIComponent(uf)}/deputados-estaduais`);
+  return getJson<ListaEleitos>(
+    `/estados/${encodeURIComponent(uf)}/deputados-estaduais`,
+  );
 }
 
 export function getEleito(id: string) {
@@ -664,11 +758,15 @@ export type VotosComissoes = {
 export function getVotosComissoes(id: string, pagina?: string) {
   const params = new URLSearchParams();
   if (pagina) params.set("pagina", pagina);
-  return getJson<VotosComissoes>(`/parlamentares/${encodeURIComponent(id)}/votos-comissoes?${params}`);
+  return getJson<VotosComissoes>(
+    `/parlamentares/${encodeURIComponent(id)}/votos-comissoes?${params}`,
+  );
 }
 
 export function getCandidatura(id: string) {
-  return getJson<CandidaturaTse>(`/parlamentares/${encodeURIComponent(id)}/candidatura`);
+  return getJson<CandidaturaTse>(
+    `/parlamentares/${encodeURIComponent(id)}/candidatura`,
+  );
 }
 
 export function getProjetos(id: string) {
@@ -701,7 +799,12 @@ export type DestinoEmendas = {
   quantidade: number;
   valor_total: number;
   valor_repassado: number;
-  por_situacao: { tipo: string; situacao: string | null; quantidade: number; valor_total: number }[];
+  por_situacao: {
+    tipo: string;
+    situacao: string | null;
+    quantidade: number;
+    valor_total: number;
+  }[];
   relatorios_de_gestao: { situacao: string | null; quantidade: number }[];
   itens: DestinoEmendaItem[];
   limite: number;
@@ -711,7 +814,9 @@ export type DestinoEmendas = {
 };
 
 export function getDestinoEmendas(id: string) {
-  return getJson<DestinoEmendas>(`/parlamentares/${encodeURIComponent(id)}/emendas-destino`);
+  return getJson<DestinoEmendas>(
+    `/parlamentares/${encodeURIComponent(id)}/emendas-destino`,
+  );
 }
 
 export type EmendasRelator = {
@@ -737,7 +842,9 @@ export type EmendasRelator = {
 };
 
 export function getEmendasRelator(id: string) {
-  return getJson<EmendasRelator>(`/parlamentares/${encodeURIComponent(id)}/emendas-relator`);
+  return getJson<EmendasRelator>(
+    `/parlamentares/${encodeURIComponent(id)}/emendas-relator`,
+  );
 }
 
 export type Presenca = {
@@ -760,7 +867,9 @@ export type Presenca = {
 
 export function getPresenca(id: string, ano?: string) {
   const query = ano ? `?ano=${encodeURIComponent(ano)}` : "";
-  return getJson<Presenca>(`/parlamentares/${encodeURIComponent(id)}/presenca${query}`);
+  return getJson<Presenca>(
+    `/parlamentares/${encodeURIComponent(id)}/presenca${query}`,
+  );
 }
 
 export type EmendasMunicipio = {
@@ -770,7 +879,11 @@ export type EmendasMunicipio = {
   total_prefeitura: number;
   total_entidades: number;
   por_ano: { ano: number; total: number }[];
-  parlamentares: { parlamentar: ParlamentarResumo; total: number; do_estado: boolean }[];
+  parlamentares: {
+    parlamentar: ParlamentarResumo;
+    total: number;
+    do_estado: boolean;
+  }[];
   outros_autores: {
     autor_nome: string;
     total: number;
@@ -814,7 +927,12 @@ export type EmendasMunicipio = {
   atualizado_em: string | null;
 };
 
-export type EmendaEstadualSomas = { previsto: number; empenhado: number; pago: number; emendas: number };
+export type EmendaEstadualSomas = {
+  previsto: number;
+  empenhado: number;
+  pago: number;
+  emendas: number;
+};
 
 export type EmendasEstaduaisMunicipio = {
   uf: string;
@@ -861,7 +979,10 @@ export type EmendasDeputadoEstadual = {
   media_parcial?: boolean;
   media_descricao: string;
   por_ano: (EmendaEstadualSomas & { ano: number })[];
-  por_municipio: (EmendaEstadualSomas & { ibge: string | null; nome: string })[];
+  por_municipio: (EmendaEstadualSomas & {
+    ibge: string | null;
+    nome: string;
+  })[];
   numero_municipios: number;
   itens: {
     codigo: string;
@@ -886,7 +1007,9 @@ export type EmendasDeputadoEstadual = {
 };
 
 export function getEmendasDeputadoEstadual(mandatoId: string | number) {
-  return getJson<EmendasDeputadoEstadual>(`/deputados-estaduais/${encodeURIComponent(String(mandatoId))}/emendas`);
+  return getJson<EmendasDeputadoEstadual>(
+    `/deputados-estaduais/${encodeURIComponent(String(mandatoId))}/emendas`,
+  );
 }
 
 export type EmendaTipo = {
@@ -910,7 +1033,12 @@ export type EmendaSemIdentificacao = {
   descricao?: string;
 };
 
-export type EmendaColegiado = { autor_nome: string; tipo: string; rotulo: string; total: number };
+export type EmendaColegiado = {
+  autor_nome: string;
+  tipo: string;
+  rotulo: string;
+  total: number;
+};
 
 export type EmendasPrevistas = {
   planos: number;
@@ -962,10 +1090,17 @@ export type EmendasConvenios = {
 };
 
 export function getEmendasMunicipio(ibge: string) {
-  return getJson<EmendasMunicipio>(`/municipios/${encodeURIComponent(ibge)}/emendas`);
+  return getJson<EmendasMunicipio>(
+    `/municipios/${encodeURIComponent(ibge)}/emendas`,
+  );
 }
 
-export type Fonte = { dado: string; orgao: string; url: string; atualizado_em: string | null };
+export type Fonte = {
+  dado: string;
+  orgao: string;
+  url: string;
+  atualizado_em: string | null;
+};
 
 export function getFontes() {
   return getJson<Fonte[]>("/fontes");
@@ -977,7 +1112,14 @@ export function getMunicipios(uf: string) {
   return getJson<Municipio[]>(`/municipios?uf=${encodeURIComponent(uf)}`);
 }
 
-export type CriterioId = "nome" | "gastos" | "presenca" | "projetos" | "normas" | "emendas" | "governo";
+export type CriterioId =
+  | "nome"
+  | "gastos"
+  | "presenca"
+  | "projetos"
+  | "normas"
+  | "emendas"
+  | "governo";
 
 export type ParlamentarNaLista = ParlamentarResumo & {
   gastos: number;
@@ -1025,7 +1167,8 @@ export type FiltrosLista = {
 
 export function getParlamentares(filtros: FiltrosLista) {
   const params = new URLSearchParams();
-  for (const [chave, valor] of Object.entries(filtros)) if (valor) params.set(chave, valor);
+  for (const [chave, valor] of Object.entries(filtros))
+    if (valor) params.set(chave, valor);
   return getJson<ListaParlamentares>(`/parlamentares?${params}`);
 }
 
@@ -1039,13 +1182,21 @@ export function getTemas(id: string) {
   return getJson<Temas>(`/parlamentares/${encodeURIComponent(id)}/temas`);
 }
 
-export type Placar = { iguais: number; total: number; percentual: number | null };
+export type Placar = {
+  iguais: number;
+  total: number;
+  percentual: number | null;
+};
 
 /** Tipo da votação: "merito" (sobre o texto) ou "procedimento" (como e quando votar). */
 export type TipoVotacao = "merito" | "procedimento";
 /** Recorte pedido: todas as votações ou só um tipo. */
 export type RecorteVotacoes = "todas" | TipoVotacao;
-export type ContagemTipos = { todas: number; merito: number; procedimento: number };
+export type ContagemTipos = {
+  todas: number;
+  merito: number;
+  procedimento: number;
+};
 
 export type VotoItem = {
   data: string;
@@ -1095,11 +1246,19 @@ export type Votos = {
 
 export function getVotos(
   id: string,
-  opcoes: { ano?: string; tema?: string; pagina?: string; tipo?: RecorteVotacoes },
+  opcoes: {
+    ano?: string;
+    tema?: string;
+    pagina?: string;
+    tipo?: RecorteVotacoes;
+  },
 ) {
   const params = new URLSearchParams();
-  for (const [chave, valor] of Object.entries(opcoes)) if (valor) params.set(chave, valor);
-  return getJson<Votos>(`/parlamentares/${encodeURIComponent(id)}/votos?${params}`);
+  for (const [chave, valor] of Object.entries(opcoes))
+    if (valor) params.set(chave, valor);
+  return getJson<Votos>(
+    `/parlamentares/${encodeURIComponent(id)}/votos?${params}`,
+  );
 }
 
 export type Comparacao = {
@@ -1117,7 +1276,12 @@ export type Comparacao = {
     votacoes_em_comum: number;
     iguais: number;
     percentual: number | null;
-    por_tema: { tema: string; iguais: number; total: number; percentual: number | null }[];
+    por_tema: {
+      tema: string;
+      iguais: number;
+      total: number;
+      percentual: number | null;
+    }[];
     divergencias: {
       data: string;
       proposicao: string | null;
@@ -1160,7 +1324,12 @@ export type ComparacaoN = {
   mesma_casa: boolean;
   temas: { tema: string; valores: number[] }[];
   convergencia: ConvergenciaDoPar[];
-  coautorias: { i: number; j: number; total: number; itens: Comparacao["coautorias"]["itens"] }[];
+  coautorias: {
+    i: number;
+    j: number;
+    total: number;
+    itens: Comparacao["coautorias"]["itens"];
+  }[];
   atualizado_em: string | null;
 };
 
@@ -1198,7 +1367,9 @@ export async function getBusca(q: string) {
   // `nome` repetido de propósito: a API anterior só lê `nome` e não manda `partidos`
   // nem `pessoas`. Assim a busca segue funcionando se o site for publicado antes da API.
   const termo = encodeURIComponent(q);
-  const resposta = await getJson<RespostaBusca>(`/busca?q=${termo}&nome=${termo}`);
+  const resposta = await getJson<RespostaBusca>(
+    `/busca?q=${termo}&nome=${termo}`,
+  );
   if (resposta.ok) {
     resposta.dados.partidos ??= [];
     resposta.dados.pessoas ??= [];
@@ -1208,7 +1379,11 @@ export async function getBusca(q: string) {
 }
 
 export type LadoLocal = VereadorItem & {
-  presenca: { sessoes: number; presencas: number; media_casa: number | null } | null;
+  presenca: {
+    sessoes: number;
+    presencas: number;
+    media_casa: number | null;
+  } | null;
   proposicoes_por_tipo: Record<string, number>;
   pessoais: Pessoais | null;
   votos_recebidos: number | null;
@@ -1236,7 +1411,9 @@ export type ComparacaoLocal = {
 
 /** Dois da mesma câmara ou assembleia, lado a lado. */
 export function getComparacaoLocal(a: string, b: string) {
-  return getJson<ComparacaoLocal>(`/comparar/local?a=${encodeURIComponent(a)}&b=${encodeURIComponent(b)}`);
+  return getJson<ComparacaoLocal>(
+    `/comparar/local?a=${encodeURIComponent(a)}&b=${encodeURIComponent(b)}`,
+  );
 }
 
 /** De 2 a 4 da mesma câmara ou assembleia (chamada com `ids`). */
@@ -1257,7 +1434,9 @@ export type ComparacaoLocalN = {
 };
 
 export function getComparacaoLocalN(ids: (string | number)[]) {
-  return getJson<ComparacaoLocalN>(`/comparar/local?ids=${ids.map((i) => encodeURIComponent(i)).join(",")}`);
+  return getJson<ComparacaoLocalN>(
+    `/comparar/local?ids=${ids.map((i) => encodeURIComponent(i)).join(",")}`,
+  );
 }
 
 export type ProcessoSituacao = {
@@ -1286,12 +1465,18 @@ export type EventoItem = {
 export type LinhaDoTempo = { pessoa_id: number; itens: EventoItem[] };
 
 /** Os perfis do site, como a API os chama em /pessoas/de. */
-export type TipoDePerfil = "parlamentar" | "candidatura" | "vereador" | "deputado_estadual";
+export type TipoDePerfil =
+  "parlamentar" | "candidatura" | "vereador" | "deputado_estadual";
 
 /** Linha do tempo da pessoa por trás de um perfil. 404 quando o perfil não está ligado a
  * uma pessoa por vínculo forte ou revisado (aí a seção não aparece). */
-export async function getLinhaDoTempo(tipo: TipoDePerfil, id: string): Promise<Resultado<LinhaDoTempo>> {
-  const pessoa = await getJson<{ pessoa_id: number }>(`/pessoas/de?tipo=${tipo}&id=${encodeURIComponent(id)}`);
+export async function getLinhaDoTempo(
+  tipo: TipoDePerfil,
+  id: string,
+): Promise<Resultado<LinhaDoTempo>> {
+  const pessoa = await getJson<{ pessoa_id: number }>(
+    `/pessoas/de?tipo=${tipo}&id=${encodeURIComponent(id)}`,
+  );
   if (!pessoa.ok) return pessoa;
   return getJson<LinhaDoTempo>(`/pessoas/${pessoa.dados.pessoa_id}/eventos`);
 }
@@ -1306,7 +1491,9 @@ export type ConfiancaDoPerfil = {
 /** Linhas de confiança do cabeçalho: conferência do cadastro com a fonte oficial, último
  * registro oficial e pessoas públicas com nome muito parecido. */
 export function getConfiancaDoPerfil(tipo: TipoDePerfil, id: string) {
-  return getJson<ConfiancaDoPerfil>(`/pessoas/de/confianca?tipo=${tipo}&id=${encodeURIComponent(id)}`);
+  return getJson<ConfiancaDoPerfil>(
+    `/pessoas/de/confianca?tipo=${tipo}&id=${encodeURIComponent(id)}`,
+  );
 }
 
 export type PartidoNaLista = {
@@ -1369,7 +1556,9 @@ export type PartidoDetalhe = {
 
 export function getPartido(sigla: string, ano?: string) {
   const query = ano ? `?ano=${encodeURIComponent(ano)}` : "";
-  return getJson<PartidoDetalhe>(`/partidos/${encodeURIComponent(sigla)}${query}`);
+  return getJson<PartidoDetalhe>(
+    `/partidos/${encodeURIComponent(sigla)}${query}`,
+  );
 }
 
 export type ContratoPncp = {
@@ -1391,7 +1580,13 @@ export type ContratoPncp = {
 
 export type ContratosDaPessoa = {
   pessoa_id: number;
-  empresas: { cnpj: string; nome: string | null; nome_omitido?: boolean; qualificacao: string | null; contratos: number }[];
+  empresas: {
+    cnpj: string;
+    nome: string | null;
+    nome_omitido?: boolean;
+    qualificacao: string | null;
+    contratos: number;
+  }[];
   total_contratos: number;
   valor_total: number;
   contratos_suspeitos: number;
@@ -1419,7 +1614,14 @@ export type FornecedoresPncp = {
     ente_publico?: boolean;
   }[];
   /** Valores informados ao PNCP que parecem incorretos: fora do ranking e da soma. */
-  suspeitos: { fornecedor_cnpj: string; fornecedor: string | null; nome_omitido?: boolean; valor: number; contratos: number; url: string }[];
+  suspeitos: {
+    fornecedor_cnpj: string;
+    fornecedor: string | null;
+    nome_omitido?: boolean;
+    valor: number;
+    contratos: number;
+    url: string;
+  }[];
   soma_ate: string | null;
   fonte_nome: string;
   fonte_url: string;
@@ -1427,7 +1629,9 @@ export type FornecedoresPncp = {
 };
 
 export function getFornecedoresPncp(ibge: string) {
-  return getJson<FornecedoresPncp>(`/municipios/${encodeURIComponent(ibge)}/fornecedores-pncp`);
+  return getJson<FornecedoresPncp>(
+    `/municipios/${encodeURIComponent(ibge)}/fornecedores-pncp`,
+  );
 }
 
 export type SancaoItem = {
@@ -1494,7 +1698,10 @@ export type ServicoFederal = {
   cargos: CargoFederal[];
   viagens_por_ano: ViagensPorAno[];
   cartao_por_ano_e_orgao: CartaoPorAnoEOrgao[];
-  media_da_casa: { parlamentares_em_exercicio: number; descricao: string } | null;
+  media_da_casa: {
+    parlamentares_em_exercicio: number;
+    descricao: string;
+  } | null;
   fonte_nome: string;
   fonte_url: string;
   atualizado_em: string | null;
@@ -1505,6 +1712,7 @@ export function getServicoFederal(pessoaId: number) {
 }
 
 export type CandidaturaDaCarreira = {
+  candidatura_id?: number | null;
   ano: number;
   cargo: string;
   uf: string | null;
@@ -1535,7 +1743,6 @@ export function getCarreira(pessoaId: number) {
   return getJson<Carreira>(`/pessoas/${pessoaId}/carreira`);
 }
 
-
 export type VotoTema = {
   tema: string;
   total_votacoes: number;
@@ -1559,7 +1766,9 @@ export type VotosPorTema = {
 
 export function getVotosPorTema(id: string, ano?: string) {
   const query = ano ? `?ano=${encodeURIComponent(ano)}` : "";
-  return getJson<VotosPorTema>(`/parlamentares/${encodeURIComponent(id)}/votos-por-tema${query}`);
+  return getJson<VotosPorTema>(
+    `/parlamentares/${encodeURIComponent(id)}/votos-por-tema${query}`,
+  );
 }
 
 // ---- Comparador do 2º turno ----------------------------------------------------------
@@ -1573,7 +1782,14 @@ export type CandidatoSegundoTurno = {
   foto_de?: number | null;
   foto_ano?: number | null;
   foto_url: string | null;
-  vice: { id: number; nome_urna: string; partido: string | null; foto: boolean; foto_de?: number | null; foto_ano?: number | null } | null;
+  vice: {
+    id: number;
+    nome_urna: string;
+    partido: string | null;
+    foto: boolean;
+    foto_de?: number | null;
+    foto_ano?: number | null;
+  } | null;
   votos_1turno: number | null;
   /** Só depois do resultado: os votos do 2º turno (a fonte troca a coluna). */
   votos_2turno: number | null;
@@ -1595,15 +1811,26 @@ export type CandidatoSegundoTurno = {
     fonte_url: string;
   } | null;
   /** Nulo: a candidatura não está ligada a uma pessoa por dado seguro (não é "nenhum"). */
-  carreira: { ano: number; cargo: string; unidade: string; partido: string | null; situacao: string | null; eleito: boolean }[] | null;
-  sancoes: {
-    data: string | null;
-    tipo: string;
-    descricao: string;
-    orgao: string | null;
-    situacao: string | null;
-    fonte_url: string | null;
-  }[] | null;
+  carreira:
+    | {
+        ano: number;
+        cargo: string;
+        unidade: string;
+        partido: string | null;
+        situacao: string | null;
+        eleito: boolean;
+      }[]
+    | null;
+  sancoes:
+    | {
+        data: string | null;
+        tipo: string;
+        descricao: string;
+        orgao: string | null;
+        situacao: string | null;
+        fonte_url: string | null;
+      }[]
+    | null;
   pessoa_id: number | null;
   perfil: string;
 };
@@ -1625,7 +1852,13 @@ export type SegundoTurno = {
   data_segundo_turno: string | null;
   em_andamento: boolean;
   disputas: DisputaSegundoTurno[];
-  governador_eleito_1turno: { id: number; nome_urna: string; partido: string | null; numero: string | null; perfil?: string | null } | null;
+  governador_eleito_1turno: {
+    id: number;
+    nome_urna: string;
+    partido: string | null;
+    numero: string | null;
+    perfil?: string | null;
+  } | null;
   propostas_url: string;
   fonte_nome: string;
   fonte_url: string;
@@ -1636,7 +1869,11 @@ export type SegundoTurno = {
   sancoes_atualizado_em: string | null;
 };
 
-export function getSegundoTurno(busca: { cep?: string; uf?: string; municipio?: string }) {
+export function getSegundoTurno(busca: {
+  cep?: string;
+  uf?: string;
+  municipio?: string;
+}) {
   const params = new URLSearchParams();
   if (busca.municipio) params.set("municipio", busca.municipio);
   else if (busca.cep) params.set("cep", busca.cep);
@@ -1697,11 +1934,20 @@ export type VotacaoDetalhe = {
   resultado: "aprovada" | "rejeitada" | null;
   placar: { sim: number; nao: number; abstencao: number; obstrucao: number };
   outros_registros: { rotulo: string; quantidade: number }[];
-  placar_oficial: { sim: number | null; nao: number | null; abstencao: number | null } | null;
+  placar_oficial: {
+    sim: number | null;
+    nao: number | null;
+    abstencao: number | null;
+  } | null;
   registros: number;
   cadeiras: number;
   liderancas: { bancada: string; orientacao: string | null }[];
-  outras_bancadas: { bancada: string; tipo: string; orientacao: string; partidos: string[] }[];
+  outras_bancadas: {
+    bancada: string;
+    tipo: string;
+    orientacao: string;
+    partidos: string[];
+  }[];
   seguiram_governo: Placar;
   seguiram_partido: Placar;
   partidos: PartidoNaVotacao[];
@@ -1714,7 +1960,13 @@ export type VotacaoDetalhe = {
   discursos?: DiscursosDaVotacao | null;
 };
 
-export type PorUf = { uf: string; sim: number; nao: number; outros: number; total: number };
+export type PorUf = {
+  uf: string;
+  sim: number;
+  nao: number;
+  outros: number;
+  total: number;
+};
 
 export type DiscursoNaVotacao = {
   parlamentar_id: number;
@@ -1747,7 +1999,9 @@ export type DiscursosDaVotacao = {
 };
 
 export function getVotacao(casa: string, id: string) {
-  return getJson<VotacaoDetalhe>(`/votacoes/${encodeURIComponent(casa)}/${encodeURIComponent(id)}`);
+  return getJson<VotacaoDetalhe>(
+    `/votacoes/${encodeURIComponent(casa)}/${encodeURIComponent(id)}`,
+  );
 }
 
 // ---- Executivo: painel do ente, contas do estado e agenda (docs/DECISOES.md, 19/10/2026) ----
@@ -1768,7 +2022,12 @@ export type PainelExecutivo = {
   titular: boolean;
   nome_urna: string;
   ano_eleicao: number;
-  ente: { tipo: "uniao" | "estado" | "municipio"; nome: string; uf: string | null; municipio_ibge: string | null };
+  ente: {
+    tipo: "uniao" | "estado" | "municipio";
+    nome: string;
+    uf: string | null;
+    municipio_ibge: string | null;
+  };
   pessoa_id: number | null;
   mandato_presidencial: boolean;
   contas: BlocoPainel;
@@ -1781,7 +2040,9 @@ export type PainelExecutivo = {
 };
 
 export function getPainelExecutivo(candidaturaId: string | number) {
-  return getJson<PainelExecutivo>(`/executivo/${encodeURIComponent(String(candidaturaId))}/painel`);
+  return getJson<PainelExecutivo>(
+    `/executivo/${encodeURIComponent(String(candidaturaId))}/painel`,
+  );
 }
 
 export type ContasEstado = {
@@ -1799,7 +2060,11 @@ export type ContasEstado = {
   media_estados_descricao: string;
   assembleia: number | null;
   por_area: { nome: string; valor: number; percentual: number }[];
-  anterior: { ano: number; despesa_paga: number | null; receita_total: number | null } | null;
+  anterior: {
+    ano: number;
+    despesa_paga: number | null;
+    receita_total: number | null;
+  } | null;
   fonte_nome: string;
   fonte_url: string;
   atualizado_em: string | null;
@@ -1825,7 +2090,11 @@ export type AgendaItem = {
   origem: string | null;
   destino: string | null;
   detalhes: string | null;
-  participantes_publicos: { nome: string; cargo: string | null; orgao: string | null }[];
+  participantes_publicos: {
+    nome: string;
+    cargo: string | null;
+    orgao: string | null;
+  }[];
   n_participantes_publicos: number;
   entidades_privadas: string[];
   n_participantes_privados: number;
@@ -1845,13 +2114,18 @@ export type Agenda = {
   atualizado_em: string | null;
 };
 
-export function getAgenda(candidaturaId: string | number, filtro: { tipo?: string; ano?: string; pagina?: string } = {}) {
+export function getAgenda(
+  candidaturaId: string | number,
+  filtro: { tipo?: string; ano?: string; pagina?: string } = {},
+) {
   const params = new URLSearchParams();
   if (filtro.tipo) params.set("tipo", filtro.tipo);
   if (filtro.ano) params.set("ano", filtro.ano);
   if (filtro.pagina) params.set("pagina", filtro.pagina);
   const q = params.toString();
-  return getJson<Agenda>(`/executivo/${encodeURIComponent(String(candidaturaId))}/agenda${q ? `?${q}` : ""}`);
+  return getJson<Agenda>(
+    `/executivo/${encodeURIComponent(String(candidaturaId))}/agenda${q ? `?${q}` : ""}`,
+  );
 }
 
 export type AtoPresidencial = {
@@ -1890,7 +2164,9 @@ export function getAtosPresidente(
   const params = new URLSearchParams({ tipo: filtro.tipo });
   if (filtro.grupo) params.set("grupo", filtro.grupo);
   if (filtro.pagina) params.set("pagina", filtro.pagina);
-  return getJson<AtosPresidenciais>(`/executivo/${encodeURIComponent(String(candidaturaId))}/atos?${params}`);
+  return getJson<AtosPresidenciais>(
+    `/executivo/${encodeURIComponent(String(candidaturaId))}/atos?${params}`,
+  );
 }
 
 // --- Cobertura: o que existe e o que falta, por casa e seção ---
@@ -1902,7 +2178,12 @@ export type CoberturaContagem = {
   sem_fonte: number;
   total: number;
 };
-export type CoberturaPedido = { arquivo: string; orgao: string; data: string | null; url: string };
+export type CoberturaPedido = {
+  arquivo: string;
+  orgao: string;
+  data: string | null;
+  url: string;
+};
 export type CoberturaSecao = {
   secao: string;
   situacao: "sim" | "parcial" | "bloqueado" | "pedido" | "sem_fonte";
@@ -1910,7 +2191,11 @@ export type CoberturaSecao = {
   fonte: string;
   pedidos: CoberturaPedido[];
 };
-export type CoberturaCasa = { casa: string; cargo: string; secoes: CoberturaSecao[] };
+export type CoberturaCasa = {
+  casa: string;
+  cargo: string;
+  secoes: CoberturaSecao[];
+};
 export type Cobertura = {
   ufs: string[];
   uf: string | null;
@@ -1923,11 +2208,17 @@ export type Cobertura = {
 };
 
 export function getCobertura(uf?: string) {
-  return getJson<Cobertura>(`/cobertura${uf ? `?uf=${encodeURIComponent(uf)}` : ""}`);
+  return getJson<Cobertura>(
+    `/cobertura${uf ? `?uf=${encodeURIComponent(uf)}` : ""}`,
+  );
 }
 
 // --- Dinheiro federal: arrecadação da União e repasses a estados e cidades ---
-export type DinheiroFederalFonte = { nome: string; url: string; atualizado_em: string | null };
+export type DinheiroFederalFonte = {
+  nome: string;
+  url: string;
+  atualizado_em: string | null;
+};
 
 /** Chaves dos blocos de repasse (FPE, FPM...) para o valor somado no ano, ou null sem dado. */
 export type DinheiroFederalBlocos = Record<string, number | null>;
@@ -1954,7 +2245,11 @@ export type DinheiroFederalAno = {
   sem_dados?: boolean;
 };
 
-export type DinheiroFederalUF = DinheiroFederalTotais & { uf: string; nome: string; regiao: string };
+export type DinheiroFederalUF = DinheiroFederalTotais & {
+  uf: string;
+  nome: string;
+  regiao: string;
+};
 
 export type DinheiroFederalPainel = DinheiroFederalAno & {
   /** `sem_estado`: parte do repasse sem estado definido na fonte (está no total, em nenhum estado). */
@@ -1979,7 +2274,11 @@ export type DinheiroFederalEstado = DinheiroFederalAno &
     fontes: DinheiroFederalFonte[];
   };
 
-export type DinheiroFederalMunicipioId = { ibge: string; nome: string; uf: string };
+export type DinheiroFederalMunicipioId = {
+  ibge: string;
+  nome: string;
+  uf: string;
+};
 
 export type DinheiroFederalSerieAno = {
   ano: number;
@@ -2010,7 +2309,9 @@ export type DinheiroFederalMunicipio = {
 };
 
 export function getDinheiroFederal(ano?: number) {
-  return getJson<DinheiroFederalPainel>(`/dinheiro-federal${ano ? `?ano=${ano}` : ""}`);
+  return getJson<DinheiroFederalPainel>(
+    `/dinheiro-federal${ano ? `?ano=${ano}` : ""}`,
+  );
 }
 
 export function getDinheiroFederalUf(uf: string, ano?: number) {
@@ -2020,14 +2321,21 @@ export function getDinheiroFederalUf(uf: string, ano?: number) {
 }
 
 export function getDinheiroFederalMunicipio(ibge: string) {
-  return getJson<DinheiroFederalMunicipio>(`/municipios/${encodeURIComponent(ibge)}/dinheiro-federal`);
+  return getJson<DinheiroFederalMunicipio>(
+    `/municipios/${encodeURIComponent(ibge)}/dinheiro-federal`,
+  );
 }
 
 // ---- Projetos e votações (docs/DECISOES.md, 21/10/2026) ----
 
-export type FonteBloco = { fonte_nome: string; fonte_url: string; atualizado_em: string | null };
+export type FonteBloco = {
+  fonte_nome: string;
+  fonte_url: string;
+  atualizado_em: string | null;
+};
 
-export type CasaProjeto = "camara" | "senado" | "assembleia" | "camara_municipal";
+export type CasaProjeto =
+  "camara" | "senado" | "assembleia" | "camara_municipal";
 
 export type UltimaVotacaoItem = {
   data: string | null;
@@ -2063,7 +2371,12 @@ export type ItemProjeto = {
 /** Só com filtro de estado ou cidade: se há dado da câmara e da assembleia aqui. */
 export type CoberturaBusca = {
   uf: string | null;
-  camara: { municipio_ibge: string; municipio: string; tem_dados: boolean; canal_url: string | null } | null;
+  camara: {
+    municipio_ibge: string;
+    municipio: string;
+    tem_dados: boolean;
+    canal_url: string | null;
+  } | null;
   assembleia: { uf: string; tem_dados: boolean } | null;
 };
 
@@ -2096,7 +2409,8 @@ export type FiltrosProjetos = {
 
 export function buscarProjetos(filtros: FiltrosProjetos) {
   const params = new URLSearchParams();
-  for (const [chave, valor] of Object.entries(filtros)) if (valor) params.set(chave, valor);
+  for (const [chave, valor] of Object.entries(filtros))
+    if (valor) params.set(chave, valor);
   return getJson<BuscaProjetos>(`/projetos?${params}`);
 }
 
@@ -2104,14 +2418,16 @@ export function buscarProjetos(filtros: FiltrosProjetos) {
 export function getTemasProjetos(casa?: string) {
   const params = new URLSearchParams();
   if (casa === "camara" || casa === "senado") params.set("casa", casa);
-  return getJson<{ casa: string | null; temas: string[] }>(`/projetos/temas?${params}`);
+  return getJson<{ casa: string | null; temas: string[] }>(
+    `/projetos/temas?${params}`,
+  );
 }
 
 /** Projetos do Congresso com votação nominal, só casa, id e data (GET /projetos/ids), para o sitemap. */
 export function getIdsProjetos(limite = 5000) {
-  return getJson<{ itens: { casa: string; id_externo: string; data: string }[] }>(
-    `/projetos/ids?votacao=com&limite=${limite}`,
-  );
+  return getJson<{
+    itens: { casa: string; id_externo: string; data: string }[];
+  }>(`/projetos/ids?votacao=com&limite=${limite}`);
 }
 
 export type AutorProjeto = {
@@ -2141,12 +2457,25 @@ export type VotacaoDoProjeto = {
   descricao: string;
   resultado: string | null;
   secreta: boolean;
-  placar_publicado: { sim: number | null; nao: number | null; abstencao: number | null } | null;
-  placar_contado: { sim: number; nao: number; abstencao: number; obstrucao: number; outros: number };
+  placar_publicado: {
+    sim: number | null;
+    nao: number | null;
+    abstencao: number | null;
+  } | null;
+  placar_contado: {
+    sim: number;
+    nao: number;
+    abstencao: number;
+    obstrucao: number;
+    outros: number;
+  };
   link: string;
 };
 
-export type BlocoVotacoes = FonteBloco & { itens: VotacaoDoProjeto[]; aviso: string | null };
+export type BlocoVotacoes = FonteBloco & {
+  itens: VotacaoDoProjeto[];
+  aviso: string | null;
+};
 
 export type PessoaQueVotou = {
   parlamentar_id: number;
@@ -2178,9 +2507,17 @@ export type DiaDeDiscursos = {
   grupos: GrupoDiscursos[];
 };
 
-export type BlocoDiscursos = FonteBloco & { dias: DiaDeDiscursos[]; aviso: string };
+export type BlocoDiscursos = FonteBloco & {
+  dias: DiaDeDiscursos[];
+  aviso: string;
+};
 
-export type PassoDoCaminho = { data: string; orgao: string | null; descricao: string; etapa: string };
+export type PassoDoCaminho = {
+  data: string;
+  orgao: string | null;
+  descricao: string;
+  etapa: string;
+};
 
 export type ProjetoFederal = {
   casa: Casa;
@@ -2194,15 +2531,23 @@ export type ProjetoFederal = {
   votacoes: BlocoVotacoes;
   votacao_principal: BlocoQuemVotou | null;
   discursos: BlocoDiscursos;
-  discursos_do_dia: FonteBloco & { quantidade_nao_atribuida: number; itens: unknown[]; aviso: string };
+  discursos_do_dia: FonteBloco & {
+    quantidade_nao_atribuida: number;
+    itens: unknown[];
+    aviso: string;
+  };
   caminho: FonteBloco & { itens: PassoDoCaminho[] };
-  pauta: FonteBloco & { proxima: { data: string; sessao: string; url: string | null } | null };
+  pauta: FonteBloco & {
+    proxima: { data: string; sessao: string; url: string | null } | null;
+  };
   /** A lei que o projeto virou, quando virou. */
   norma?: (NormaItem & FonteBloco) | null;
 };
 
 export function getProjetoFederal(casa: string, id: string) {
-  return getJson<ProjetoFederal>(`/projetos/${encodeURIComponent(casa)}/${encodeURIComponent(id)}`);
+  return getJson<ProjetoFederal>(
+    `/projetos/${encodeURIComponent(casa)}/${encodeURIComponent(id)}`,
+  );
 }
 
 export type VotacaoLocalResumo = {
@@ -2254,7 +2599,12 @@ export type VotacaoLocal = FonteBloco & {
   sim: number;
   nao: number;
   abstencoes: number;
-  votos: { mandato_id: number; nome: string; partido: string | null; voto: string }[];
+  votos: {
+    mandato_id: number;
+    nome: string;
+    partido: string | null;
+    voto: string;
+  }[];
   projeto_local_id: number | null;
   projeto_link: string | null;
   url_oficial: string | null;
@@ -2279,7 +2629,12 @@ export type ItemDePauta = {
   link: string | null;
 };
 
-export type Pauta = FonteBloco & { casa: Casa | null; dias: number; itens: ItemDePauta[]; aviso: string | null };
+export type Pauta = FonteBloco & {
+  casa: Casa | null;
+  dias: number;
+  itens: ItemDePauta[];
+  aviso: string | null;
+};
 
 export function getPauta(dias = 14, casa?: Casa) {
   const params = new URLSearchParams({ dias: String(dias) });
@@ -2310,8 +2665,16 @@ export function postArgosNaoEntendida(texto: string): Promise<void> {
 }
 
 /** Avaliação "isso ajudou?"; `conversa` só vai se a pessoa deixou guardar (já limpa). */
-export function postArgosAvaliacao(util: boolean, assunto: string, conversa?: MensagemArgos[]): Promise<void> {
-  return postarArgos("/argos/avaliacao", { util, assunto, ...(conversa?.length ? { conversa } : {}) });
+export function postArgosAvaliacao(
+  util: boolean,
+  assunto: string,
+  conversa?: MensagemArgos[],
+): Promise<void> {
+  return postarArgos("/argos/avaliacao", {
+    util,
+    assunto,
+    ...(conversa?.length ? { conversa } : {}),
+  });
 }
 
 export type ItemBancada = { partido: string; n: number };
@@ -2386,10 +2749,14 @@ export function getCorrecoes(filtro?: { tipo: PerfilTipo; id: string }) {
   return getJson<Correcoes>(`/correcoes${query ? `?${query}` : ""}`);
 }
 
-export type ResultadoSugestao = { ok: true; protocolo: string } | { ok: false; status: number; mensagem: string };
+export type ResultadoSugestao =
+  | { ok: true; protocolo: string }
+  | { ok: false; status: number; mensagem: string };
 
 /** Envia o aviso (chamado no navegador). Nunca lança erro. */
-export async function postSugestao(corpo: CorpoSugestao): Promise<ResultadoSugestao> {
+export async function postSugestao(
+  corpo: CorpoSugestao,
+): Promise<ResultadoSugestao> {
   let resposta: Response;
   try {
     resposta = await fetch(`${API_URL}/sugestoes`, {
@@ -2403,9 +2770,16 @@ export async function postSugestao(corpo: CorpoSugestao): Promise<ResultadoSuges
   const json = await resposta.json().catch(() => null);
   if (!resposta.ok) {
     const detalhe = typeof json?.detail === "string" ? json.detail : undefined;
-    return { ok: false, status: resposta.status, mensagem: mensagemDeFalha(resposta.status, detalhe) };
+    return {
+      ok: false,
+      status: resposta.status,
+      mensagem: mensagemDeFalha(resposta.status, detalhe),
+    };
   }
-  return { ok: true, protocolo: typeof json?.protocolo === "string" ? json.protocolo : "" };
+  return {
+    ok: true,
+    protocolo: typeof json?.protocolo === "string" ? json.protocolo : "",
+  };
 }
 
 // --- Calendário das votações do Plenário (GET /votacoes/calendario) ---
@@ -2458,16 +2832,167 @@ export function getCalendarioVotacoes(opcoes: {
   pagina?: string;
 }) {
   const params = new URLSearchParams();
-  for (const [chave, valor] of Object.entries(opcoes)) if (valor) params.set(chave, valor);
+  for (const [chave, valor] of Object.entries(opcoes))
+    if (valor) params.set(chave, valor);
   return getJson<CalendarioVotacoes>(`/votacoes/calendario?${params}`);
 }
 
 /** O Plenário agora (Câmara e Senado); chamado no navegador, sem travar a página. Nunca lança erro. */
-export async function getAoVivo(): Promise<import("@/lib/ao-vivo").AoVivo | null> {
+export async function getAoVivo(): Promise<
+  import("@/lib/ao-vivo").AoVivo | null
+> {
   try {
     const resposta = await fetch(`${API_URL}/ao-vivo`);
     return resposta.ok ? await resposta.json() : null;
   } catch {
     return null;
   }
+}
+
+// --- Eleições completas (Frente 5): resultado, mais votados, eleitores e antecessores ---
+
+export type FonteEleicao = {
+  fonte_nome: string;
+  fonte_url: string;
+  atualizado_em: string | null;
+};
+export type MunicipioRef = { ibge: string; nome: string; uf: string };
+
+export type CandidatoResultado = {
+  nome_urna: string;
+  numero: string | null;
+  partido: string | null;
+  votos: number;
+  pct: number | null;
+  situacao: string | null;
+  eleito: boolean;
+  candidatura_id: number | null;
+};
+
+export type ResultadoEleicao = FonteEleicao & {
+  ano: number;
+  cargo: string;
+  turno: number;
+  turnos: number[];
+  abrangencia: "disputa" | "municipio";
+  uf: string | null;
+  municipio: MunicipioRef | null;
+  proporcional: boolean;
+  totais: {
+    aptos: number;
+    comparecimento: number;
+    abstencoes: number;
+    brancos: number;
+    nulos: number;
+    validos: number;
+    pct_comparecimento: number | null;
+    pct_brancos: number | null;
+    pct_nulos: number | null;
+    exterior_incluido: boolean;
+  } | null;
+  candidatos: CandidatoResultado[];
+  total_candidatos: number;
+  anteriores: {
+    ano: number;
+    turno: number;
+    eleitos: { nome_urna: string; partido: string | null; votos: number }[];
+  }[];
+  destaque_candidatura_id?: number | null;
+};
+
+export type EleicaoDisponivel = {
+  ano: number;
+  cargo: string;
+  turnos: number[];
+};
+
+export type MaisVotados = FonteEleicao & {
+  ano: number;
+  municipio: MunicipioRef | null;
+  cargos: {
+    cargo: string;
+    nominais: number | null;
+    votos_em_eleitos: number | null;
+    pct_em_eleitos: number | null;
+    itens: (Omit<CandidatoResultado, "numero"> & { posicao: number })[];
+  }[];
+};
+
+export type Eleitores = FonteEleicao & {
+  municipio: MunicipioRef | null;
+  ano: number;
+  cargo_referencia: string;
+  eleitores: number;
+  votaram: number;
+  pct_votaram: number | null;
+  populacao: {
+    valor: number;
+    ano: number;
+    fonte_nome: string;
+    fonte_url: string;
+  } | null;
+  eleitores_por_100_moradores: number | null;
+};
+
+export type Antecessores = FonteEleicao & {
+  cargo: string;
+  uf: string | null;
+  municipio: MunicipioRef | null;
+  mandatos: {
+    ano: number;
+    inicio: number;
+    fim: number;
+    pessoas: {
+      nome: string;
+      partido: string | null;
+      candidatura_id: number | null;
+    }[];
+  }[];
+};
+
+export function getResultadoEleicao(opcoes: {
+  ano?: number | string;
+  cargo?: string;
+  turno?: number | string;
+  uf?: string;
+  municipio?: string;
+  candidatura?: number | string;
+  limite?: number;
+}) {
+  const params = new URLSearchParams();
+  for (const [chave, valor] of Object.entries(opcoes))
+    if (valor !== undefined && valor !== "") params.set(chave, String(valor));
+  return getJson<ResultadoEleicao>(`/eleicoes/resultado?${params}`);
+}
+
+/** Versão para o navegador (gaveta da carreira): mesma rota, pela URL pública da API. */
+export function urlResultadoEleicao(candidatura: number) {
+  return `${API_PUBLICA}/eleicoes/resultado?candidatura=${candidatura}`;
+}
+
+export function getEleicoesDisponiveis() {
+  return getJson<EleicaoDisponivel[]>(`/eleicoes/disponiveis`);
+}
+
+export function getMaisVotados(ibge: string, ano?: number) {
+  return getJson<MaisVotados>(
+    `/municipios/${encodeURIComponent(ibge)}/mais-votados${ano ? `?ano=${ano}` : ""}`,
+  );
+}
+
+export function getEleitores(ibge: string) {
+  return getJson<Eleitores>(
+    `/municipios/${encodeURIComponent(ibge)}/eleitores`,
+  );
+}
+
+export function getAntecessores(opcoes: {
+  cargo: string;
+  uf?: string | null;
+  municipio?: string | null;
+}) {
+  const params = new URLSearchParams({ cargo: opcoes.cargo });
+  if (opcoes.uf) params.set("uf", opcoes.uf);
+  if (opcoes.municipio) params.set("municipio", opcoes.municipio);
+  return getJson<Antecessores>(`/eleicoes/antecessores?${params}`);
 }

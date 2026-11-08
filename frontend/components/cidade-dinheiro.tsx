@@ -5,6 +5,9 @@ import { notFound } from "next/navigation";
 import { AvisoErro } from "@/components/aviso-erro";
 import { CompartilharWhatsApp } from "@/components/compartilhar";
 import { ContasSecao } from "@/components/contas-secao";
+import { EleitoresBarras } from "@/components/eleicao/eleitores-barras";
+import { MaisVotados } from "@/components/eleicao/mais-votados";
+import { TabelaResultado } from "@/components/eleicao/tabela-resultado";
 import { EmendasMunicipioSecao } from "@/components/emendas-municipio";
 import { EsqueletoSecao } from "@/components/esqueleto-secao";
 import { FonteRodape } from "@/components/fonte-rodape";
@@ -20,6 +23,9 @@ import {
   type DinheiroFederalMunicipio,
   type EmendasMunicipio,
   getContas,
+  getEleitores,
+  getMaisVotados,
+  getResultadoEleicao,
   getDinheiroFederalMunicipio,
   getEmendasMunicipio,
   getFornecedores,
@@ -37,7 +43,8 @@ const UF_COM_TCE = ["SP", "RS"];
 /** Metadados da página /cidade/[ibge]. */
 export async function metadadosCidade(ibge: string): Promise<Metadata> {
   const r = await getRepresentantes({ municipio: ibge });
-  if (!r.ok || !r.dados.localizacao.municipio) return { title: "Dinheiro da cidade" };
+  if (!r.ok || !r.dados.localizacao.municipio)
+    return { title: "Dinheiro da cidade" };
   const lugar = `${r.dados.localizacao.municipio}-${r.dados.localizacao.uf}`;
   return {
     title: `Para onde foi o dinheiro de ${lugar}`,
@@ -46,9 +53,20 @@ export async function metadadosCidade(ibge: string): Promise<Metadata> {
 }
 
 /** Corpo da página /cidade/[ibge]; `params` ainda é uma Promise (cacheComponents). */
-export function PaginaCidade({ params }: { params: Promise<{ ibge: string }> }) {
+/** Última eleição municipal (prefeito e vereadores). */
+const ANO_MUNICIPAL = 2024;
+
+export function PaginaCidade({
+  params,
+}: {
+  params: Promise<{ ibge: string }>;
+}) {
   return (
-    <Revelacao fallback={<EsqueletoSecao rotulo="Carregando o dinheiro da cidade…" secoes={4} />}>
+    <Revelacao
+      fallback={
+        <EsqueletoSecao rotulo="Carregando o dinheiro da cidade…" secoes={4} />
+      }
+    >
       {params.then(({ ibge }) => (
         <Cidade ibge={ibge} />
       ))}
@@ -57,28 +75,58 @@ export function PaginaCidade({ params }: { params: Promise<{ ibge: string }> }) 
 }
 
 function rotuloMedia(municipios: number | null | undefined) {
-  return municipios ? `Média dos ${municipios.toLocaleString("pt-BR")} municípios do estado` : "Média dos municípios do estado";
+  return municipios
+    ? `Média dos ${municipios.toLocaleString("pt-BR")} municípios do estado`
+    : "Média dos municípios do estado";
 }
 
 async function Cidade({ ibge }: { ibge: string }) {
   const rep = await getRepresentantes({ municipio: ibge });
   if (!rep.ok) {
     if (rep.status === 404 || rep.status === 422) notFound();
-    return <AvisoErro titulo="Não deu para buscar agora" mensagem={rep.mensagem} />;
+    return (
+      <AvisoErro titulo="Não deu para buscar agora" mensagem={rep.mensagem} />
+    );
   }
   const { municipio, uf, estado } = rep.dados.localizacao;
   if (!municipio) notFound();
 
-  const [emendasR, contasR, fornecedoresR, pncpR, federalR, estaduaisR] = await Promise.all([
+  const [
+    emendasR,
+    contasR,
+    fornecedoresR,
+    pncpR,
+    federalR,
+    estaduaisR,
+    eleitoresR,
+    prefeitoR,
+    vereadorR,
+    maisVotadosR,
+  ] = await Promise.all([
     getEmendasMunicipio(ibge),
     getContas(ibge),
     getFornecedores(ibge),
     getFornecedoresPncp(ibge),
     getDinheiroFederalMunicipio(ibge),
     getRepassesEstaduais(ibge),
+    getEleitores(ibge),
+    getResultadoEleicao({
+      ano: ANO_MUNICIPAL,
+      cargo: "PREFEITO",
+      municipio: ibge,
+    }),
+    getResultadoEleicao({
+      ano: ANO_MUNICIPAL,
+      cargo: "VEREADOR",
+      municipio: ibge,
+      limite: 40,
+    }),
+    getMaisVotados(ibge),
   ]);
   const repassesEstado = estaduaisR.ok ? estaduaisR.dados : null;
-  const temRepassesEstado = Boolean(repassesEstado?.disponivel && repassesEstado.total != null);
+  const temRepassesEstado = Boolean(
+    repassesEstado?.disponivel && repassesEstado.total != null,
+  );
   const federal = federalR.ok ? federalR.dados : null;
   const emendas = emendasR.ok ? emendasR.dados : null;
   const contas = contasR.ok ? contasR.dados : null;
@@ -86,27 +134,44 @@ async function Cidade({ ibge }: { ibge: string }) {
   const pncp = pncpR.ok && pncpR.dados.itens.length > 0 ? pncpR.dados : null;
   const populacao = emendas?.populacao ?? contas?.populacao ?? null;
   const tceCarregado = UF_COM_TCE.includes(uf);
-  const capitalComTcm = (uf === "SP" && municipio === "São Paulo") || (uf === "RJ" && municipio === "Rio de Janeiro");
+  const capitalComTcm =
+    (uf === "SP" && municipio === "São Paulo") ||
+    (uf === "RJ" && municipio === "Rio de Janeiro");
 
   const maiorAutor = maiorValorDeAutor(emendas);
   const maiorPncp = pncp?.itens.find((f) => !f.ente_publico) ?? null;
-  const totalTce = fornecedores ? fornecedores.orgaos.reduce((soma, o) => soma + o.total_pago, 0) : 0;
+  const totalTce = fornecedores
+    ? fornecedores.orgaos.reduce((soma, o) => soma + o.total_pago, 0)
+    : 0;
   // Total de todos os tipos quando a API traz; senão, só as individuais (API antiga).
   const totalEmendas = emendas ? (emendas.total_geral ?? emendas.total) : 0;
-  const porHabEmendas = emendas ? (emendas.total_geral != null ? emendas.por_habitante_geral : emendas.por_habitante) : null;
+  const porHabEmendas = emendas
+    ? emendas.total_geral != null
+      ? emendas.por_habitante_geral
+      : emendas.por_habitante
+    : null;
   const mediaEmendas = emendas
     ? emendas.total_geral != null
       ? emendas.media_uf_por_habitante_geral
       : emendas.media_uf_por_habitante
     : null;
   const rotuloPeriodo = emendas
-    ? emendas.periodo?.inicio != null && emendas.periodo.fim != null && emendas.periodo.inicio !== emendas.periodo.fim
+    ? emendas.periodo?.inicio != null &&
+      emendas.periodo.fim != null &&
+      emendas.periodo.inicio !== emendas.periodo.fim
       ? `de ${emendas.periodo.inicio} a ${emendas.periodo.fim}`
       : `desde ${emendas.periodo?.inicio ?? emendas.desde}`
     : "";
   const temEmendas = totalEmendas > 0;
-  const gastoInformado = Boolean(contas && contas.despesa_paga && contas.despesa_por_habitante != null);
-  const temCartoes = temEmendas || temRepassesEstado || Boolean(contas) || Boolean(maiorPncp) || totalTce > 0;
+  const gastoInformado = Boolean(
+    contas && contas.despesa_paga && contas.despesa_por_habitante != null,
+  );
+  const temCartoes =
+    temEmendas ||
+    temRepassesEstado ||
+    Boolean(contas) ||
+    Boolean(maiorPncp) ||
+    totalTce > 0;
 
   // Cada seção aparece UMA vez, dentro de uma aba; o cartão do topo abre a mesma seção em gaveta.
   const abas: AbaDetalhe[] = [
@@ -120,14 +185,21 @@ async function Cidade({ ibge }: { ibge: string }) {
           conteudo: emendas ? (
             <EmendasMunicipioSecao dados={emendas} />
           ) : (
-            <SemDado titulo="Dinheiro enviado por emendas" mensagem="Não deu para buscar as emendas desta cidade agora." />
+            <SemDado
+              titulo="Dinheiro enviado por emendas"
+              mensagem="Não deu para buscar as emendas desta cidade agora."
+            />
           ),
         },
         {
           id: "repasses-estado",
           titulo: "Dinheiro do governo do estado",
           conteudo: repassesEstado ? (
-            <RepassesEstaduaisSecao dados={repassesEstado} cidade={municipio} estado={estado} />
+            <RepassesEstaduaisSecao
+              dados={repassesEstado}
+              cidade={municipio}
+              estado={estado}
+            />
           ) : (
             <SemDado
               titulo="Dinheiro do governo do estado"
@@ -180,7 +252,45 @@ async function Cidade({ ibge }: { ibge: string }) {
         {
           id: "pncp",
           titulo: "Contratos no PNCP",
-          conteudo: pncp && <FornecedoresPncpSecao dados={pncp} cidade={municipio} />,
+          conteudo: pncp && (
+            <FornecedoresPncpSecao dados={pncp} cidade={municipio} />
+          ),
+        },
+      ],
+    },
+    {
+      id: "eleicoes",
+      rotulo: "Eleições",
+      secoes: [
+        {
+          id: "eleitores",
+          titulo: "Moradores e eleitores",
+          conteudo: eleitoresR.ok && <EleitoresBarras d={eleitoresR.dados} />,
+        },
+        {
+          id: "eleicao-prefeito",
+          titulo: `Prefeito, eleição de ${ANO_MUNICIPAL}`,
+          conteudo: prefeitoR.ok && (
+            <TabelaResultado
+              r={prefeitoR.dados}
+              titulo={`Prefeito, eleição de ${ANO_MUNICIPAL}`}
+            />
+          ),
+        },
+        {
+          id: "eleicao-vereador",
+          titulo: `Vereadores, eleição de ${ANO_MUNICIPAL}`,
+          conteudo: vereadorR.ok && (
+            <TabelaResultado
+              r={vereadorR.dados}
+              titulo={`Vereadores, eleição de ${ANO_MUNICIPAL}`}
+            />
+          ),
+        },
+        {
+          id: "mais-votados",
+          titulo: "Deputados mais votados aqui",
+          conteudo: maisVotadosR.ok && <MaisVotados d={maisVotadosR.dados} />,
         },
       ],
     },
@@ -196,7 +306,10 @@ async function Cidade({ ibge }: { ibge: string }) {
           </h1>
           {populacao != null && (
             <p className="text-muted-foreground">
-              <span className="tabular-nums">{populacao.toLocaleString("pt-BR")}</span> habitantes
+              <span className="tabular-nums">
+                {populacao.toLocaleString("pt-BR")}
+              </span>{" "}
+              habitantes
             </p>
           )}
           <Link
@@ -215,12 +328,19 @@ async function Cidade({ ibge }: { ibge: string }) {
                   destino="emendas"
                   rotulo={`Emendas pagas ${rotuloPeriodo}`}
                   valor={formatarReaisCompacto(totalEmendas)}
-                  apoio={emendas.total_geral != null ? "Todos os tipos de emenda" : undefined}
+                  apoio={
+                    emendas.total_geral != null
+                      ? "Todos os tipos de emenda"
+                      : undefined
+                  }
                   largo
                   comparacao={
                     porHabEmendas != null && mediaEmendas != null
                       ? {
-                          pessoa: { rotulo: `${municipio}, por morador`, valor: porHabEmendas },
+                          pessoa: {
+                            rotulo: `${municipio}, por morador`,
+                            valor: porHabEmendas,
+                          },
                           media: {
                             rotulo: rotuloMedia(emendas.municipios_na_media),
                             valor: mediaEmendas,
@@ -243,11 +363,17 @@ async function Cidade({ ibge }: { ibge: string }) {
                   }
                   largo
                   comparacao={
-                    repassesEstado.por_habitante != null && repassesEstado.media_uf_por_habitante != null
+                    repassesEstado.por_habitante != null &&
+                    repassesEstado.media_uf_por_habitante != null
                       ? {
-                          pessoa: { rotulo: `${municipio}, por morador`, valor: repassesEstado.por_habitante },
+                          pessoa: {
+                            rotulo: `${municipio}, por morador`,
+                            valor: repassesEstado.por_habitante,
+                          },
                           media: {
-                            rotulo: rotuloMedia(repassesEstado.municipios_na_media),
+                            rotulo: rotuloMedia(
+                              repassesEstado.municipios_na_media,
+                            ),
                             valor: repassesEstado.media_uf_por_habitante,
                           },
                           formato: "reais",
@@ -260,13 +386,25 @@ async function Cidade({ ibge }: { ibge: string }) {
                 <CartaoNumero
                   destino="contas"
                   rotulo={`Prefeitura gastou por morador em ${contas.ano}`}
-                  valor={gastoInformado ? formatarReais(contas.despesa_por_habitante!, true) : "Não informado pela fonte"}
+                  valor={
+                    gastoInformado
+                      ? formatarReais(contas.despesa_por_habitante!, true)
+                      : "Não informado pela fonte"
+                  }
                   largo
-                  apoio={gastoInformado ? undefined : "O Tesouro Nacional não traz a despesa paga desta prefeitura"}
+                  apoio={
+                    gastoInformado
+                      ? undefined
+                      : "O Tesouro Nacional não traz a despesa paga desta prefeitura"
+                  }
                   comparacao={
-                    gastoInformado && contas.media_uf_despesa_por_habitante != null
+                    gastoInformado &&
+                    contas.media_uf_despesa_por_habitante != null
                       ? {
-                          pessoa: { rotulo: municipio, valor: contas.despesa_por_habitante! },
+                          pessoa: {
+                            rotulo: municipio,
+                            valor: contas.despesa_por_habitante!,
+                          },
                           media: {
                             rotulo: rotuloMedia(contas.municipios_na_media),
                             valor: contas.media_uf_despesa_por_habitante,
@@ -290,7 +428,12 @@ async function Cidade({ ibge }: { ibge: string }) {
                   destino="pncp"
                   rotulo={`Maior contrato no PNCP em ${pncp.ano}`}
                   valor={formatarReaisCompacto(maiorPncp.valor)}
-                  apoio={maiorPncp.fornecedor ?? (maiorPncp.nome_omitido ? `MEI (nome omitido por conter CPF) · CNPJ ${maiorPncp.fornecedor_cnpj}` : "Empresa sem nome informado")}
+                  apoio={
+                    maiorPncp.fornecedor ??
+                    (maiorPncp.nome_omitido
+                      ? `MEI (nome omitido por conter CPF) · CNPJ ${maiorPncp.fornecedor_cnpj}`
+                      : "Empresa sem nome informado")
+                  }
                 />
               )}
               {fornecedores && totalTce > 0 && (
@@ -302,11 +445,21 @@ async function Cidade({ ibge }: { ibge: string }) {
                 />
               )}
             </GradeCartoes>
-            <p className="text-sm text-muted-foreground">Toque ou clique num número para ver o detalhe, com a fonte e a data.</p>
+            <p className="text-sm text-muted-foreground">
+              Toque ou clique num número para ver o detalhe, com a fonte e a
+              data.
+            </p>
           </>
         )}
 
-        {federal && <DinheiroFederalCartao dados={federal} ibge={ibge} uf={uf} municipio={municipio} />}
+        {federal && (
+          <DinheiroFederalCartao
+            dados={federal}
+            ibge={ibge}
+            uf={uf}
+            municipio={municipio}
+          />
+        )}
 
         <CompartilharWhatsApp
           caminho={`/cidade/${ibge}`}
@@ -322,22 +475,32 @@ async function Cidade({ ibge }: { ibge: string }) {
             resposta="Cada município conta um, grande ou pequeno"
           >
             <p>
-              {municipio} recebeu {formatarReais(porHabEmendas, true)} em emendas por morador. A média dos{" "}
-              {emendas.municipios_na_media?.toLocaleString("pt-BR")} municípios de {estado} é{" "}
-              {formatarReais(mediaEmendas, true)}.
+              {municipio} recebeu {formatarReais(porHabEmendas, true)} em
+              emendas por morador. A média dos{" "}
+              {emendas.municipios_na_media?.toLocaleString("pt-BR")} municípios
+              de {estado} é {formatarReais(mediaEmendas, true)}.
             </p>
             <BarraComparacao
               pessoa={{ rotulo: municipio, valor: porHabEmendas }}
-              media={{ rotulo: "Média dos municípios do estado", valor: mediaEmendas }}
+              media={{
+                rotulo: "Média dos municípios do estado",
+                valor: mediaEmendas,
+              }}
               formato="reais"
             />
             <p>
-              É uma média simples: calculamos o valor por morador de cada município e dividimos pelo número de
-              municípios, sem pesar pela população. Por isso, uma cidade pequena que recebeu muito para poucos
-              moradores puxa a média para cima, e o resultado pode ficar longe do que a maioria das cidades recebeu.
-              Não é o total do estado dividido pelos moradores do estado.
+              É uma média simples: calculamos o valor por morador de cada
+              município e dividimos pelo número de municípios, sem pesar pela
+              população. Por isso, uma cidade pequena que recebeu muito para
+              poucos moradores puxa a média para cima, e o resultado pode ficar
+              longe do que a maioria das cidades recebeu. Não é o total do
+              estado dividido pelos moradores do estado.
             </p>
-            <FonteRodape fonte={emendas.fonte_nome} url={emendas.fonte_url} atualizadoEm={emendas.atualizado_em} />
+            <FonteRodape
+              fonte={emendas.fonte_nome}
+              url={emendas.fonte_url}
+              atualizadoEm={emendas.atualizado_em}
+            />
           </Pergunta>
         )}
         {emendas && temEmendas && (
@@ -347,13 +510,22 @@ async function Cidade({ ibge }: { ibge: string }) {
             resposta={`${formatarReaisCompacto(emendas.total_prefeitura)} para a prefeitura e ${formatarReaisCompacto(emendas.total_entidades)} para entidades`}
           >
             <p>
-              Uma parte das emendas é paga à prefeitura e aos fundos municipais; outra parte é paga a entidades sem
-              fins lucrativos que atuam na cidade. {emendas.total_geral != null
+              Uma parte das emendas é paga à prefeitura e aos fundos municipais;
+              outra parte é paga a entidades sem fins lucrativos que atuam na
+              cidade.{" "}
+              {emendas.total_geral != null
                 ? "Os dois valores contam só as emendas individuais; bancada, comissão e relator ficam de fora desta divisão."
                 : `Os dois valores somam o total pago desde ${emendas.desde}.`}
             </p>
-            <ComposicaoDestino prefeitura={emendas.total_prefeitura} entidades={emendas.total_entidades} />
-            <FonteRodape fonte={emendas.fonte_nome} url={emendas.fonte_url} atualizadoEm={emendas.atualizado_em} />
+            <ComposicaoDestino
+              prefeitura={emendas.total_prefeitura}
+              entidades={emendas.total_entidades}
+            />
+            <FonteRodape
+              fonte={emendas.fonte_nome}
+              url={emendas.fonte_url}
+              atualizadoEm={emendas.atualizado_em}
+            />
           </Pergunta>
         )}
         <Pergunta
@@ -365,8 +537,10 @@ async function Cidade({ ibge }: { ibge: string }) {
             {emendas?.total_geral != null ? (
               <>
                 <li>
-                  Pagamentos em que a fonte não identifica o município não entram no total. Os pagamentos sem
-                  código de emenda e sem autor entram no total, mas não são atribuídos a nenhum parlamentar.
+                  Pagamentos em que a fonte não identifica o município não
+                  entram no total. Os pagamentos sem código de emenda e sem
+                  autor entram no total, mas não são atribuídos a nenhum
+                  parlamentar.
                 </li>
                 <li>
                   {emendas.estaduais
@@ -374,31 +548,45 @@ async function Cidade({ ibge }: { ibge: string }) {
                     : "Emendas estaduais (das assembleias legislativas) ainda não foram carregadas."}
                 </li>
                 <li>
-                  O que está previsto e ainda sem pagamento, e os convênios, aparecem separados e nunca somados ao
-                  valor pago.
+                  O que está previsto e ainda sem pagamento, e os convênios,
+                  aparecem separados e nunca somados ao valor pago.
                 </li>
               </>
             ) : (
               <>
                 <li>
-                  As <TermoOficial id="transferencia-especial">transferências especiais</TermoOficial> (&quot;emendas Pix&quot;) e os convênios não trazem o município na
-                  fonte, então não aparecem nas emendas desta página.
+                  As{" "}
+                  <TermoOficial id="transferencia-especial">
+                    transferências especiais
+                  </TermoOficial>{" "}
+                  (&quot;emendas Pix&quot;) e os convênios não trazem o
+                  município na fonte, então não aparecem nas emendas desta
+                  página.
                 </li>
-                <li>Emendas de bancada, de comissão e de relator não estão somadas, e só entra o valor já pago.</li>
+                <li>
+                  Emendas de bancada, de comissão e de relator não estão
+                  somadas, e só entra o valor já pago.
+                </li>
               </>
             )}
             <li>
-              Só os Tribunais de Contas de São Paulo e do Rio Grande do Sul estão carregados; os dos demais estados
-              ainda não.
+              Só os Tribunais de Contas de São Paulo e do Rio Grande do Sul
+              estão carregados; os dos demais estados ainda não.
             </li>
-            <li>Prefeituras que não publicam contratos no PNCP não aparecem na lista de contratos.</li>
             <li>
-              Os repasses do governo do estado vêm das contas que a própria prefeitura envia ao Tesouro Nacional; quando
-              a prefeitura não enviou as contas do ano, não há como mostrar quanto ela recebeu.
+              Prefeituras que não publicam contratos no PNCP não aparecem na
+              lista de contratos.
+            </li>
+            <li>
+              Os repasses do governo do estado vêm das contas que a própria
+              prefeitura envia ao Tesouro Nacional; quando a prefeitura não
+              enviou as contas do ano, não há como mostrar quanto ela recebeu.
             </li>
           </ul>
         </Pergunta>
-        {(emendas?.media_uf_descricao || contas?.media_uf_descricao || temRepassesEstado) && (
+        {(emendas?.media_uf_descricao ||
+          contas?.media_uf_descricao ||
+          temRepassesEstado) && (
           <Pergunta
             id="entender-media"
             pergunta="Como é calculada a média do estado?"
@@ -418,13 +606,15 @@ async function Cidade({ ibge }: { ibge: string }) {
             )}
             {temRepassesEstado && repassesEstado && (
               <p>
-                <span className="font-medium">Repasses do governo do estado: </span>
+                <span className="font-medium">
+                  Repasses do governo do estado:{" "}
+                </span>
                 {repassesEstado.media_uf_descricao}
               </p>
             )}
             <p className="text-muted-foreground">
-              A média dá o contexto; não é meta nem nota. Nos gráficos, bronze é sempre esta cidade e cinza é sempre a
-              média.
+              A média dá o contexto; não é meta nem nota. Nos gráficos, bronze é
+              sempre esta cidade e cinza é sempre a média.
             </p>
           </Pergunta>
         )}
@@ -440,7 +630,8 @@ function maiorValorDeAutor(emendas: EmendasMunicipio | null) {
   if (!emendas) return null;
   const a = emendas.parlamentares[0];
   const b = emendas.outros_autores[0];
-  if (a && (!b || a.total >= b.total)) return { nome: a.parlamentar.nome_parlamentar, total: a.total };
+  if (a && (!b || a.total >= b.total))
+    return { nome: a.parlamentar.nome_parlamentar, total: a.total };
   if (b) return { nome: b.autor_nome, total: b.total };
   return null;
 }
@@ -448,27 +639,52 @@ function maiorValorDeAutor(emendas: EmendasMunicipio | null) {
 const PCT = new Intl.NumberFormat("pt-BR", { maximumFractionDigits: 0 });
 
 /** Uma barra dividida entre prefeitura e entidades; os valores ficam na legenda. */
-function ComposicaoDestino({ prefeitura, entidades }: { prefeitura: number; entidades: number }) {
+function ComposicaoDestino({
+  prefeitura,
+  entidades,
+}: {
+  prefeitura: number;
+  entidades: number;
+}) {
   const total = prefeitura + entidades;
   if (total <= 0) return null;
   const partes = [
-    { rotulo: "Prefeitura e fundos municipais", valor: prefeitura, cor: "bg-bronze" },
-    { rotulo: "Entidades sem fins lucrativos", valor: entidades, cor: "bg-chart-2" },
+    {
+      rotulo: "Prefeitura e fundos municipais",
+      valor: prefeitura,
+      cor: "bg-bronze",
+    },
+    {
+      rotulo: "Entidades sem fins lucrativos",
+      valor: entidades,
+      cor: "bg-chart-2",
+    },
   ].filter((x) => x.valor > 0);
   return (
     <div className="flex flex-col gap-2">
-      <div aria-hidden className="flex h-3 w-full gap-px overflow-hidden rounded-[2px] ring-1 ring-border">
+      <div
+        aria-hidden
+        className="flex h-3 w-full gap-px overflow-hidden rounded-[2px] ring-1 ring-border"
+      >
         {partes.map((x) => (
-          <span key={x.rotulo} className={`${x.cor} h-full`} style={{ flexGrow: x.valor }} />
+          <span
+            key={x.rotulo}
+            className={`${x.cor} h-full`}
+            style={{ flexGrow: x.valor }}
+          />
         ))}
       </div>
       <ul className="flex flex-col gap-1">
         {partes.map((x) => (
           <li key={x.rotulo} className="flex items-center gap-2">
-            <span aria-hidden className={`${x.cor} size-3 shrink-0 rounded-[2px] ring-1 ring-border`} />
+            <span
+              aria-hidden
+              className={`${x.cor} size-3 shrink-0 rounded-[2px] ring-1 ring-border`}
+            />
             <span className="min-w-0 flex-1">{x.rotulo}</span>
             <span className="tabular-nums">
-              {formatarReais(x.valor, true)} ({PCT.format((x.valor / total) * 100)}%)
+              {formatarReais(x.valor, true)} (
+              {PCT.format((x.valor / total) * 100)}%)
             </span>
           </li>
         ))}
@@ -499,28 +715,46 @@ function DinheiroFederalCartao({
   municipio: string;
 }) {
   // Último ano fechado (o ano em curso soma só os meses já publicados); sem ele, o mais recente.
-  const ultimo = dados.serie.filter((s) => s.ano <= ANO_PADRAO).at(-1) ?? dados.serie.at(-1);
+  const ultimo =
+    dados.serie.filter((s) => s.ano <= ANO_PADRAO).at(-1) ?? dados.serie.at(-1);
   if (!ultimo) return null;
   const fonte = dados.fontes[0];
-  const datas = dados.fontes.map((f) => f.atualizado_em).filter((d): d is string => Boolean(d)).sort();
+  const datas = dados.fontes
+    .map((f) => f.atualizado_em)
+    .filter((d): d is string => Boolean(d))
+    .sort();
   return (
-    <section aria-labelledby="federal-titulo" className="flex flex-col gap-2 rounded-[2px] border border-border bg-card p-4">
+    <section
+      aria-labelledby="federal-titulo"
+      className="flex flex-col gap-2 rounded-[2px] border border-border bg-card p-4"
+    >
       <h2 id="federal-titulo" className="text-xl">
         Repasses da União nesta cidade
       </h2>
-      <p className="text-sm text-muted-foreground">Repasses da União à prefeitura de {municipio} em {ultimo.ano}.</p>
+      <p className="text-sm text-muted-foreground">
+        Repasses da União à prefeitura de {municipio} em {ultimo.ano}.
+      </p>
       <dl className="grid grid-cols-2 gap-4">
         <div>
-          <dt className="text-sm text-muted-foreground">Repassado em {ultimo.ano}</dt>
-          <dd className="numero text-2xl">{formatarReaisCompacto(ultimo.repasse)}</dd>
+          <dt className="text-sm text-muted-foreground">
+            Repassado em {ultimo.ano}
+          </dt>
+          <dd className="numero text-2xl">
+            {formatarReaisCompacto(ultimo.repasse)}
+          </dd>
         </div>
         {ultimo.por_habitante != null && (
           <div>
             <dt className="text-sm text-muted-foreground">Por morador</dt>
-            <dd className="numero text-2xl">{formatarReais(ultimo.por_habitante, true)}</dd>
+            <dd className="numero text-2xl">
+              {formatarReais(ultimo.por_habitante, true)}
+            </dd>
             {ultimo.media_estado_por_habitante != null && (
               <dd className="text-sm text-muted-foreground">
-                Média de {uf}: <span className="tabular-nums">{formatarReais(ultimo.media_estado_por_habitante, true)}</span>
+                Média de {uf}:{" "}
+                <span className="tabular-nums">
+                  {formatarReais(ultimo.media_estado_por_habitante, true)}
+                </span>
               </dd>
             )}
           </div>
@@ -532,7 +766,13 @@ function DinheiroFederalCartao({
       >
         Ver no mapa
       </Link>
-      {fonte && <FonteRodape fonte={fonte.nome} url={fonte.url} atualizadoEm={datas[0] ?? null} />}
+      {fonte && (
+        <FonteRodape
+          fonte={fonte.nome}
+          url={fonte.url}
+          atualizadoEm={datas[0] ?? null}
+        />
+      )}
     </section>
   );
 }

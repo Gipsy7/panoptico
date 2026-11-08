@@ -9,6 +9,8 @@ import { CepForm } from "@/components/cep-form";
 import { Revelacao } from "@/components/revelacao";
 import { CompartilharWhatsApp } from "@/components/compartilhar";
 import { CompartilharCartao } from "@/components/compartilhar-cartao";
+import { EleitoresBarras } from "@/components/eleicao/eleitores-barras";
+import { MaisVotados } from "@/components/eleicao/mais-votados";
 import { FonteRodape } from "@/components/fonte-rodape";
 import { CamaraSecao } from "@/components/camara-secao";
 import { CanaisSecao } from "@/components/canais-secao";
@@ -41,6 +43,8 @@ import {
   getCanais,
   getContas,
   getDinheiroFederal,
+  getEleitores,
+  getMaisVotados,
   getFornecedores,
   getFornecedoresPncp,
   getExecutivo,
@@ -140,7 +144,7 @@ async function Lista({ cep, uf, municipio }: Busca) {
   }
 
   const { localizacao, deputados, senadores, atualizado_em } = resultado.dados;
-  const [emendasResultado, vereadoresResultado, estaduaisResultado, executivoResultado, canaisResultado, contasResultado, camaraResultado, fornecedoresResultado, fornecedoresPncpResultado, assembleiaResultado, eleitos2026Resultado, federalResultado] = await Promise.all([
+  const [emendasResultado, vereadoresResultado, estaduaisResultado, executivoResultado, canaisResultado, contasResultado, camaraResultado, fornecedoresResultado, fornecedoresPncpResultado, assembleiaResultado, eleitos2026Resultado, federalResultado, eleitoresResultado, maisVotadosResultado] = await Promise.all([
     localizacao.codigo_ibge ? getEmendasMunicipio(localizacao.codigo_ibge) : null,
     localizacao.codigo_ibge ? getVereadores(localizacao.codigo_ibge) : null,
     getDeputadosEstaduais(localizacao.uf),
@@ -153,6 +157,8 @@ async function Lista({ cep, uf, municipio }: Busca) {
     getAssembleia(localizacao.uf),
     getEleitos2026(localizacao.uf),
     getDinheiroFederal(),
+    localizacao.codigo_ibge ? getEleitores(localizacao.codigo_ibge) : null,
+    localizacao.codigo_ibge ? getMaisVotados(localizacao.codigo_ibge) : null,
   ]);
   const federal = federalResultado.ok ? federalResultado.dados : null;
   const federalUf = federal?.ufs.find((u) => u.uf === localizacao.uf) ?? null;
@@ -440,6 +446,9 @@ async function Lista({ cep, uf, municipio }: Busca) {
           }
         />
       </div>
+
+      {eleitoresResultado?.ok && <EleitoresBarras d={eleitoresResultado.dados} />}
+      {maisVotadosResultado?.ok && <MaisVotados d={maisVotadosResultado.dados} />}
 
       {federal && !federal.sem_dados && federalUf && (
         <section aria-labelledby="federal-titulo" className="flex flex-col gap-2">

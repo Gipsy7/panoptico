@@ -19,48 +19,85 @@ import {
 } from "@/components/segundo-turno";
 import { CabecalhoPagina } from "@/components/ui/cabecalho-pagina";
 import { Migalhas } from "@/components/ui/migalhas";
-import { type SegundoTurno, getAgendaSegundoTurno, getSegundoTurno } from "@/lib/api";
+import {
+  type SegundoTurno,
+  getAgendaSegundoTurno,
+  getSegundoTurno,
+} from "@/lib/api";
 import { formatarCep, formatarData } from "@/lib/formato";
 import { UFS } from "@/lib/ufs";
 import { LinkExterno } from "@/components/link-externo";
+import {
+  type EscolhaResultado,
+  ResultadosSeletor,
+} from "@/components/eleicao/resultados-seletor";
 
-type Busca = { cep?: string; uf?: string; municipio?: string };
+type Busca = {
+  cep?: string;
+  uf?: string;
+  municipio?: string;
+  escolha?: EscolhaResultado;
+};
 
 function primeiro(valor: string | string[] | undefined) {
   return Array.isArray(valor) ? valor[0] : valor;
 }
 
 function lerBusca(sp: Record<string, string | string[] | undefined>): Busca {
-  return { cep: primeiro(sp.cep), uf: primeiro(sp.uf), municipio: primeiro(sp.municipio) };
+  return {
+    cep: primeiro(sp.cep),
+    uf: primeiro(sp.uf),
+    municipio: primeiro(sp.municipio),
+    escolha: {
+      ano: primeiro(sp.ano),
+      cargo: primeiro(sp.cargo),
+      turno: primeiro(sp.turno),
+      onde: primeiro(sp.onde),
+    },
+  };
 }
 
-export async function generateMetadata({ searchParams }: PageProps<"/segundo-turno">): Promise<Metadata> {
+export async function generateMetadata({
+  searchParams,
+}: PageProps<"/segundo-turno">): Promise<Metadata> {
   const sp = await searchParams;
   const busca = lerBusca(sp);
   const base = {
     ...metadadosComFiltro("/segundo-turno", sp),
     title: "Compare os candidatos do 2º turno",
-    description: "Digite o CEP e veja, lado a lado, os candidatos do 2º turno, com dados oficiais do TSE.",
+    description:
+      "Digite o CEP e veja, lado a lado, os candidatos do 2º turno, com dados oficiais do TSE.",
   };
   if (!busca.cep && !busca.uf && !busca.municipio) return base;
   const r = await getSegundoTurno(busca);
   if (!r.ok) return base;
   const { uf, estado } = r.dados.localizacao;
   const titulo = `2º turno em ${estado}`;
-  const nomes = r.dados.disputas.flatMap((d) => d.candidatos.map((c) => c.nome_urna));
+  const nomes = r.dados.disputas.flatMap((d) =>
+    d.candidatos.map((c) => c.nome_urna),
+  );
   return {
     ...base,
     title: titulo,
     description: nomes.length
       ? `${nomes.join(", ")}: bens, campanha, eleições anteriores e registros na CGU e no TCU, lado a lado, com dados oficiais.`
       : base.description,
-    openGraph: { title: titulo, images: [{ url: `/segundo-turno/imagem?uf=${uf}`, width: 1200, height: 630 }] },
+    openGraph: {
+      title: titulo,
+      images: [
+        { url: `/segundo-turno/imagem?uf=${uf}`, width: 1200, height: 630 },
+      ],
+    },
   };
 }
 
-export default function SegundoTurnoPage({ searchParams }: PageProps<"/segundo-turno">) {
+export default function SegundoTurnoPage({
+  searchParams,
+}: PageProps<"/segundo-turno">) {
   return (
-    <Revelacao fallback={<EsqueletoSecao rotulo="Carregando o 2º turno…" secoes={3} />}>
+    <Revelacao
+      fallback={<EsqueletoSecao rotulo="Carregando o 2º turno…" secoes={3} />}
+    >
       {searchParams.then((sp) => (
         <Conteudo {...lerBusca(sp)} />
       ))}
@@ -93,7 +130,13 @@ function Busca({ rotulo = "Ver os candidatos" }: { rotulo?: string }) {
         <label htmlFor="uf-2t" className="text-base font-medium">
           Ou escolha o estado
         </label>
-        <select id="uf-2t" name="uf" required defaultValue="" className="seletor h-12 w-full text-base">
+        <select
+          id="uf-2t"
+          name="uf"
+          required
+          defaultValue=""
+          className="seletor h-12 w-full text-base"
+        >
           <option value="" disabled>
             Selecione
           </option>
@@ -116,7 +159,11 @@ async function Conteudo(busca: Busca) {
   const r = await getSegundoTurno(busca);
   if (!r.ok) {
     const titulo =
-      r.status === 404 ? "Não encontramos esse CEP" : r.status === 422 ? "CEP inválido" : "Não deu para buscar agora";
+      r.status === 404
+        ? "Não encontramos esse CEP"
+        : r.status === 422
+          ? "CEP inválido"
+          : "Não deu para buscar agora";
     return (
       <div className="pagina-secoes">
         <AvisoErro titulo={titulo} mensagem={r.mensagem} />
@@ -124,25 +171,54 @@ async function Conteudo(busca: Busca) {
       </div>
     );
   }
-  return <Resultado dados={r.dados} />;
+  const loc = r.dados.localizacao;
+  const escondidos: Record<string, string> = {};
+  if (busca.cep) escondidos.cep = busca.cep;
+  else if (busca.municipio) escondidos.municipio = busca.municipio;
+  else if (busca.uf) escondidos.uf = busca.uf;
+  return (
+    <>
+      <Resultado dados={r.dados} />
+      <div className="pagina-secoes">
+        <ResultadosSeletor
+          acao="/segundo-turno#resultados-titulo"
+          escondidos={escondidos}
+          uf={loc.uf}
+          ibge={loc.codigo_ibge}
+          cidade={loc.municipio}
+          escolha={busca.escolha ?? {}}
+        />
+      </div>
+    </>
+  );
 }
 
 async function Inicio() {
   const agenda = await getAgendaSegundoTurno();
   const a = agenda.ok ? agenda.dados : null;
-  const nomes = a?.ufs_governador.map((s) => UFS.find((u) => u.sigla === s)?.nome ?? s) ?? [];
+  const nomes =
+    a?.ufs_governador.map((s) => UFS.find((u) => u.sigla === s)?.nome ?? s) ??
+    [];
   return (
     <div className="pagina-secoes">
       <div className="flex flex-col gap-4">
-        <Migalhas itens={[{ rotulo: "Início", href: "/" }, { rotulo: "2º turno" }]} />
+        <Migalhas
+          itens={[{ rotulo: "Início", href: "/" }, { rotulo: "2º turno" }]}
+        />
         <CabecalhoPagina
-          sobretitulo={a?.data_segundo_turno ? `2º turno · ${formatarData(a.data_segundo_turno)}` : "2º turno"}
+          sobretitulo={
+            a?.data_segundo_turno
+              ? `2º turno · ${formatarData(a.data_segundo_turno)}`
+              : "2º turno"
+          }
           titulo="Compare os candidatos do 2º turno"
           subtitulo="Digite o CEP e veja, lado a lado, quem estará na sua urna, com os mesmos dados oficiais para cada candidato."
         />
         {a?.em_andamento && (
           <p className="text-sm text-muted-foreground">
-            {a.presidente ? "Há 2º turno para presidente" : "Não há 2º turno para presidente na base"}
+            {a.presidente
+              ? "Há 2º turno para presidente"
+              : "Não há 2º turno para presidente na base"}
             {nomes.length > 0 ? ` e para governador em ${lista(nomes)}.` : "."}
           </p>
         )}
@@ -157,24 +233,40 @@ function cap(t: string) {
 }
 
 function lista(itens: string[]) {
-  return itens.length > 1 ? `${itens.slice(0, -1).join(", ")} e ${itens.at(-1)}` : (itens[0] ?? "");
+  return itens.length > 1
+    ? `${itens.slice(0, -1).join(", ")} e ${itens.at(-1)}`
+    : (itens[0] ?? "");
 }
 
 function Resultado({ dados }: { dados: SegundoTurno }) {
   const { localizacao: loc, disputas } = dados;
   const lugar = loc.municipio ? `${loc.municipio}/${loc.uf}` : loc.estado;
-  const quando = dados.data_segundo_turno ? dataPorExtenso(dados.data_segundo_turno) : null;
-  const cargos = disputas.map((d) => (d.chave === "presidente" ? "presidente" : `governador ${deEstado(d.unidade)}`));
+  const quando = dados.data_segundo_turno
+    ? dataPorExtenso(dados.data_segundo_turno)
+    : null;
+  const cargos = disputas.map((d) =>
+    d.chave === "presidente"
+      ? "presidente"
+      : `governador ${deEstado(d.unidade)}`,
+  );
   const ufGov = disputas.find((d) => d.chave === "governador");
   const decidido = disputas.length > 0 && disputas.every((d) => d.decidida);
 
   return (
     <article data-largura="larga" className="pagina-secoes">
       <div className="flex flex-col gap-4">
-        <Migalhas itens={[{ rotulo: "Início", href: "/" }, { rotulo: "2º turno" }]} />
+        <Migalhas
+          itens={[{ rotulo: "Início", href: "/" }, { rotulo: "2º turno" }]}
+        />
         <CabecalhoPagina
-          sobretitulo={loc.cep ? `CEP ${formatarCep(loc.cep)}` : "Busca por estado"}
-          titulo={decidido ? `Resultado do 2º turno em ${lugar}` : `O 2º turno em ${lugar}`}
+          sobretitulo={
+            loc.cep ? `CEP ${formatarCep(loc.cep)}` : "Busca por estado"
+          }
+          titulo={
+            decidido
+              ? `Resultado do 2º turno em ${lugar}`
+              : `O 2º turno em ${lugar}`
+          }
           subtitulo={
             disputas.length === 0
               ? undefined
@@ -192,10 +284,19 @@ function Resultado({ dados }: { dados: SegundoTurno }) {
         )}
         {!ufGov && dados.governador_eleito_1turno && (
           <p className="text-sm text-muted-foreground">
-            {cap(emEstado(loc.estado))} não há 2º turno para governador: {dados.governador_eleito_1turno.nome_urna}
-            {dados.governador_eleito_1turno.partido ? ` (${dados.governador_eleito_1turno.partido})` : ""} foi eleito(a)
-            no 1º turno.{" "}
-            <Link href={dados.governador_eleito_1turno.perfil ?? `/eleito/${dados.governador_eleito_1turno.id}`} className="underline underline-offset-2">
+            {cap(emEstado(loc.estado))} não há 2º turno para governador:{" "}
+            {dados.governador_eleito_1turno.nome_urna}
+            {dados.governador_eleito_1turno.partido
+              ? ` (${dados.governador_eleito_1turno.partido})`
+              : ""}{" "}
+            foi eleito(a) no 1º turno.{" "}
+            <Link
+              href={
+                dados.governador_eleito_1turno.perfil ??
+                `/eleito/${dados.governador_eleito_1turno.id}`
+              }
+              className="underline underline-offset-2"
+            >
               Ver perfil
             </Link>
           </p>
@@ -220,7 +321,10 @@ function Resultado({ dados }: { dados: SegundoTurno }) {
       {disputas.length > 0 && (
         <p className="text-sm">
           As propostas de governo de cada candidato estão no{" "}
-          <LinkExterno href={dados.propostas_url} className="font-medium underline underline-offset-2">
+          <LinkExterno
+            href={dados.propostas_url}
+            className="font-medium underline underline-offset-2"
+          >
             DivulgaCandContas, do TSE
           </LinkExterno>{" "}
           (procure pelo nome do candidato).
@@ -228,77 +332,93 @@ function Resultado({ dados }: { dados: SegundoTurno }) {
       )}
 
       {disputas.length > 0 && (
-      <ListaPerguntas titulo="Para entender os números">
-        <Pergunta
-          id="entender-ordem"
-          pergunta="Por que os candidatos aparecem nessa ordem?"
-          resposta="Pelo número na urna, do menor para o maior"
-        >
-          <p>
-            A ordem não tem relação com votos, pesquisas ou qualquer avaliação. Os dois lados mostram exatamente os
-            mesmos campos, com o mesmo destaque.
-          </p>
-        </Pergunta>
-        <Pergunta
-          id="entender-bens"
-          pergunta="O que são bens declarados?"
-          resposta="O patrimônio que o candidato informou ao TSE"
-        >
-          <p>
-            Ao pedir o registro, cada candidato entrega uma lista de bens (imóveis, veículos, aplicações, participação em
-            empresas) com o valor que ele mesmo informa. O TSE publica a lista como recebeu, sem conferir os valores. Um
-            imóvel costuma ser declarado pelo valor de compra, não pelo de mercado.
-          </p>
-          <p>
-            Quando a mesma pessoa foi candidata antes, aparece também o total declarado na eleição anterior que está na
-            base.
-          </p>
-        </Pergunta>
-        <Pergunta
-          id="entender-dinheiro"
-          pergunta="De onde vem o dinheiro da campanha?"
-          resposta="Partido, fundos públicos, pessoas e o próprio candidato"
-        >
-          <p>
-            A campanha recebe dinheiro do partido (que inclui o Fundo Especial de Financiamento de Campanha, público), de
-            pessoas físicas e do próprio candidato. Empresas não podem doar desde 2015. O valor mostrado é o que a
-            prestação de contas do 1º turno registra; a do 2º turno é entregue depois da votação.
-          </p>
-          <p>Pela lei de proteção de dados, o Panóptico não mostra o nome de quem doou como pessoa física.</p>
-        </Pergunta>
-        <Pergunta
-          id="entender-falta"
-          pergunta="Por que um candidato não tem algum dado?"
-          resposta="A fonte ainda não publicou ou a base ainda não carregou"
-        >
-          <p>
-            “Não informado pela fonte” quer dizer que o arquivo do TSE carregado no Panóptico não traz aquele dado para
-            o candidato (por exemplo, a prestação de contas ainda não entregue). “Não identificado na base” quer dizer que
-            a candidatura ainda não foi ligada com segurança ao histórico da pessoa; sem essa ligação, não dá para
-            dizer quais eleições disputou nem se há registros na CGU e no TCU.
-          </p>
-          <p>
-            Antes do resultado, os votos mostrados são os votos válidos que o candidato recebeu no 1º turno; depois, os
-            do 2º turno. O percentual não aparece porque a base não tem o total de votos válidos de cada disputa, e
-            o Panóptico não estima esse número.
-          </p>
-        </Pergunta>
-        <Pergunta
-          id="entender-registro"
-          pergunta="O que são os registros na CGU e no TCU?"
-          resposta="Sanções e contas julgadas irregulares, como a fonte informa"
-        >
-          <p>
-            A Controladoria-Geral da União mantém cadastros de pessoas punidas (por exemplo, impedidas de contratar com
-            o governo ou demitidas do serviço público), e o Tribunal de Contas da União publica quem teve as contas
-            julgadas irregulares. {TEXTO_REGISTRO}
-          </p>
-        </Pergunta>
-      </ListaPerguntas>
+        <ListaPerguntas titulo="Para entender os números">
+          <Pergunta
+            id="entender-ordem"
+            pergunta="Por que os candidatos aparecem nessa ordem?"
+            resposta="Pelo número na urna, do menor para o maior"
+          >
+            <p>
+              A ordem não tem relação com votos, pesquisas ou qualquer
+              avaliação. Os dois lados mostram exatamente os mesmos campos, com
+              o mesmo destaque.
+            </p>
+          </Pergunta>
+          <Pergunta
+            id="entender-bens"
+            pergunta="O que são bens declarados?"
+            resposta="O patrimônio que o candidato informou ao TSE"
+          >
+            <p>
+              Ao pedir o registro, cada candidato entrega uma lista de bens
+              (imóveis, veículos, aplicações, participação em empresas) com o
+              valor que ele mesmo informa. O TSE publica a lista como recebeu,
+              sem conferir os valores. Um imóvel costuma ser declarado pelo
+              valor de compra, não pelo de mercado.
+            </p>
+            <p>
+              Quando a mesma pessoa foi candidata antes, aparece também o total
+              declarado na eleição anterior que está na base.
+            </p>
+          </Pergunta>
+          <Pergunta
+            id="entender-dinheiro"
+            pergunta="De onde vem o dinheiro da campanha?"
+            resposta="Partido, fundos públicos, pessoas e o próprio candidato"
+          >
+            <p>
+              A campanha recebe dinheiro do partido (que inclui o Fundo Especial
+              de Financiamento de Campanha, público), de pessoas físicas e do
+              próprio candidato. Empresas não podem doar desde 2015. O valor
+              mostrado é o que a prestação de contas do 1º turno registra; a do
+              2º turno é entregue depois da votação.
+            </p>
+            <p>
+              Pela lei de proteção de dados, o Panóptico não mostra o nome de
+              quem doou como pessoa física.
+            </p>
+          </Pergunta>
+          <Pergunta
+            id="entender-falta"
+            pergunta="Por que um candidato não tem algum dado?"
+            resposta="A fonte ainda não publicou ou a base ainda não carregou"
+          >
+            <p>
+              “Não informado pela fonte” quer dizer que o arquivo do TSE
+              carregado no Panóptico não traz aquele dado para o candidato (por
+              exemplo, a prestação de contas ainda não entregue). “Não
+              identificado na base” quer dizer que a candidatura ainda não foi
+              ligada com segurança ao histórico da pessoa; sem essa ligação, não
+              dá para dizer quais eleições disputou nem se há registros na CGU e
+              no TCU.
+            </p>
+            <p>
+              Antes do resultado, os votos mostrados são os votos válidos que o
+              candidato recebeu no 1º turno; depois, os do 2º turno. O
+              percentual não aparece porque a base não tem o total de votos
+              válidos de cada disputa, e o Panóptico não estima esse número.
+            </p>
+          </Pergunta>
+          <Pergunta
+            id="entender-registro"
+            pergunta="O que são os registros na CGU e no TCU?"
+            resposta="Sanções e contas julgadas irregulares, como a fonte informa"
+          >
+            <p>
+              A Controladoria-Geral da União mantém cadastros de pessoas punidas
+              (por exemplo, impedidas de contratar com o governo ou demitidas do
+              serviço público), e o Tribunal de Contas da União publica quem
+              teve as contas julgadas irregulares. {TEXTO_REGISTRO}
+            </p>
+          </Pergunta>
+        </ListaPerguntas>
       )}
 
       {disputas.some((d) => d.candidatos.length > 0) && (
-        <section aria-labelledby="detalhe-titulo" className="flex flex-col gap-4">
+        <section
+          aria-labelledby="detalhe-titulo"
+          className="flex flex-col gap-4"
+        >
           <h2 id="detalhe-titulo" className="text-2xl">
             Em detalhe
           </h2>
@@ -306,11 +426,20 @@ function Resultado({ dados }: { dados: SegundoTurno }) {
             <div key={d.chave} className="flex flex-col gap-2">
               <h3 className="sobretitulo">{tituloDisputa(d)}</h3>
               {d.candidatos.map((c) => (
-                <DetalheCandidato key={c.id} c={c} dados={dados} cargo={d.cargo} />
+                <DetalheCandidato
+                  key={c.id}
+                  c={c}
+                  dados={dados}
+                  cargo={d.cargo}
+                />
               ))}
             </div>
           ))}
-          <FonteRodape fonte="TSE: prestação de contas eleitorais" url={dados.contas_url} atualizadoEm={dados.atualizado_em} />
+          <FonteRodape
+            fonte="TSE: prestação de contas eleitorais"
+            url={dados.contas_url}
+            atualizadoEm={dados.atualizado_em}
+          />
         </section>
       )}
 
