@@ -34,6 +34,7 @@ for a in $anos_contas; do passo "Despesas por fornecedor $a (TCE-RS)" py ingesti
 
 # "Por dentro da cidade" (redesenho): fontes que mudam todo mês (Anatel, CNES) e as do IBGE, leves,
 # que trazem o ano novo quando sai. Homicídios (SIM, anual) e IDEB (a cada 2 anos) ficam manuais.
+passo_tolerante "Inflação (IBGE, IPCA)" py ingestion.ibge.ipca
 passo_tolerante "Banda larga fixa (Anatel)" py ingestion.anatel.banda_larga
 passo_tolerante "Leitos e unidades de saúde (CNES)" py ingestion.datasus.cnes
 passo_tolerante "PIB dos municípios (IBGE)" py ingestion.ibge.pib

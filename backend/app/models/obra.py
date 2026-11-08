@@ -198,3 +198,14 @@ class SaudeCnes(Base):
     ubs: Mapped[int] = mapped_column(Integer)
     hospitais: Mapped[int] = mapped_column(Integer)
     ingestao_id: Mapped[int | None] = mapped_column(ForeignKey("fonte_ingestao.id"))
+
+
+class IpcaIndice(Base):
+    """IPCA, número-índice mensal (IBGE, base dez/1993 = 100), para descontar a inflação."""
+
+    __tablename__ = "ipca_indice"
+
+    ano: Mapped[int] = mapped_column(SmallInteger, primary_key=True)
+    mes: Mapped[int] = mapped_column(SmallInteger, primary_key=True)
+    indice: Mapped[Decimal] = mapped_column(Numeric(14, 4))
+    ingestao_id: Mapped[int | None] = mapped_column(ForeignKey("fonte_ingestao.id"))

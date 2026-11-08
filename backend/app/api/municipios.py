@@ -25,6 +25,7 @@ from app.schemas.repasses_estaduais import RepassesEstaduaisResposta
 from app.schemas.saneamento import SaneamentoMunicipio
 from app.schemas.saude_cnes import SaudeMunicipio
 from app.schemas.seguranca import SegurancaMunicipio
+from app.schemas.tempo import LinhaDoTempo
 from app.services import (
     agro,
     comparar_cidades,
@@ -41,6 +42,7 @@ from app.services import (
     saneamento,
     saude_cnes,
     seguranca,
+    tempo,
 )
 from app.services.texto_busca import normalizar
 
@@ -205,6 +207,15 @@ def saude_da_cidade(ibge: str, session: Annotated[Session, Depends(get_session)]
     if municipio is None:
         raise HTTPException(404, "Município não encontrado.")
     return saude_cnes.do_lugar(session, ibge, municipio.uf)
+
+
+@router.get("/municipios/{ibge}/tempo", response_model=LinhaDoTempo)
+def tempo_da_cidade(ibge: str, session: Annotated[Session, Depends(get_session)]) -> dict:
+    """Séries anuais da cidade no mesmo eixo de anos, com prefeitos e governadores."""
+    municipio = session.get(Municipio, ibge)
+    if municipio is None:
+        raise HTTPException(404, "Município não encontrado.")
+    return tempo.da_cidade(session, ibge, municipio.uf)
 
 
 @router.get("/obras/estados", response_model=ObrasPorUf)

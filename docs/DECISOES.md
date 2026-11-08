@@ -1869,6 +1869,20 @@ Pedido do dono depois de usar o release no celular:
   infraestrutura (a da Internet) para Saúde ter a sua.
 - **Agenda mensal da VPS:** Anatel, CNES, PIB, PAM, PPM e CEMPRE entram no `mensal.sh` em modo tolerante; SIM (anual)
   e IDEB (a cada 2 anos) ficam manuais.
+- **Mapa, cruzamentos e descobertas (08/11, protótipos A, B e C combinados):**
+  - "O que mudou": frases literais tiradas das séries (de quanto para quanto, em que anos, com estado e Brasil),
+    com janela fixa (5 anos; 10 no IDEB), nunca o ano que deixaria a frase mais forte. Cada uma abre a pergunta
+    completa com a série, os números ligados (taxa, gasto da área) e quem governava ao fundo.
+  - Aba "Ao longo do tempo": séries empilhadas, cada uma na sua escala, no mesmo eixo de anos, com prefeito e
+    governador; tocar numa gestão mostra cada número no começo (último ano antes da posse) e no fim do período.
+  - Dinheiro de anos diferentes sempre em reais do último ano completo do IPCA. Cada série diz quem responde pelo
+    serviço; homicídios são cruzados com o gasto do governo do estado (polícia é do estado), não só da prefeitura.
+  - Toda comparação diz que andar junto não prova causa e que as faixas só situam no tempo.
+  - As abas de "Por dentro" viraram 5 assuntos (Pessoas e serviços, Dinheiro, Economia, Política, Comparar) com as
+    abas de cada um embaixo; nenhuma aba fica escondida em rolagem lateral.
+- **Ordenação sem ranking (dono, 08/11):** continua proibido ranking, posição ("1º", "top 10") ou selo. Lista pode
+  vir ordenada por um número quando isso ajuda a ler (do maior para o menor, por exemplo), sempre com a ordem
+  escrita numa linha curta junto da lista.
 - **Partidos no padrão novo:** o topo de `/partidos` virou "Quem é quem nos partidos": lista reta com a barra das
   cadeiras na Câmara num tom só (a cor não diz nada sobre o partido) e a ficha do partido escolhido (Câmara, Senado,
   prefeitos e vereadores eleitos na última eleição municipal, Fundo Partidário), escolhida por `?partido=` para o

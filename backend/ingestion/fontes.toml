@@ -354,6 +354,13 @@ frequencia = "mensal"
 bruto = "recorte"
 
 [[fonte]]
+nome = "ibge_ipca"
+modulo = "ingestion.ibge.ipca"
+uso = "Valores de anos diferentes em reais de hoje (linha do tempo, O que mudou)"
+recorte = "número-índice mensal do IPCA desde jan/2000 (SIDRA, tabela 1737)"
+frequencia = "mensal"
+
+[[fonte]]
 nome = "resumos"
 modulo = "ingestion.resumos"
 uso = "Números-chave e lista de parlamentares"

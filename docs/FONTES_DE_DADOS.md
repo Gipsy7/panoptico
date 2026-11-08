@@ -260,6 +260,18 @@ Endpoints conferidos em 2026-10-06.
 - **Conferido (set/2026):** Brasil 460.549 leitos de internação (318.479 do SUS), 82.975 complementares, 50.733 unidades básicas, 7.128 hospitais; Blumenau 795 leitos (447 do SUS), 126 complementares, 63 unidades básicas, 9 hospitais.
 - **Frequência:** mensal (`datasus_cnes`, `ingestion/datasus/cnes.py`; ~30 s), na agenda mensal da VPS.
 
+## IBGE: IPCA (linha do tempo)
+
+- **URL:** `https://servicodados.ibge.gov.br/api/v3/agregados/1737/periodos/200001-209912/variaveis/2266?localidades=N1[all]` (número-índice, base dez/1993 = 100). 321 meses até set/2026.
+- **Uso:** valor do ano × (média do índice no último ano completo ÷ média do índice no ano do valor). "Reais de 2025" enquanto 2026 não fecha.
+- **Frequência:** mensal (`ibge_ipca`, `ingestion/ibge/ipca.py`).
+
+## Tesouro (SICONFI): contas por área desde 2015
+
+- A API da DCA (`apidatalake.tesouro.gov.br/ords/siconfi/tt/dca`) devolve vazio para 2013 e 2014; a série por função começa em 2015, para estados e prefeituras. O rótulo do total muda entre anos ("Despesas (Exceto Intraorçamentárias)" em 2015), mas o recorte por função de governo funciona em todos.
+- Conferido: governo de SC gastou em segurança pública R$ 1,98 bi em 2015 e R$ 3,36 bi em 2024 (valores da época); por morador, em reais de 2025, R$ 500 e R$ 455.
+- Carga histórica: `python -m ingestion.siconfi.contas_estados --ano 2015 ... 2023` e `python -m ingestion.siconfi.contas --ano <ano>` (prefeituras, ~0,8 s por consulta; um ano por vez). A agenda mensal segue carregando só os dois últimos anos.
+
 ## Ministério da Saúde: hospitais e leitos (reconhecimento de 08/11/2026, sem ingestão)
 
 - **URL:** `https://apidadosabertos.saude.gov.br/assistencia-a-saude/hospitais-e-leitos?limit=1000&offset=N` (até 1.000 por página). O CKAN antigo (opendatasus) virou o novo portal `dadosabertos.saude.gov.br`, sem API de catálogo, e os arquivos no S3 antigo dão 403 (`AccessDenied`, endereço que não existe mais, não bloqueio).

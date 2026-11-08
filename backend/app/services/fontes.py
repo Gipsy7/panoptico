@@ -124,6 +124,12 @@ CATALOGO = [
         "url": "https://cnes.datasus.gov.br/",
     },
     {
+        "dado": "Inflação (IPCA), para mostrar valores de anos diferentes em reais de hoje",
+        "orgao": "Instituto Brasileiro de Geografia e Estatística (IBGE)",
+        "fontes": ["ibge_ipca"],
+        "url": "https://sidra.ibge.gov.br/tabela/1737",
+    },
+    {
         "dado": "PIB dos municípios e valor adicionado por atividade (2002 em diante)",
         "orgao": "Instituto Brasileiro de Geografia e Estatística (IBGE)",
         "fontes": ["ibge_pib"],

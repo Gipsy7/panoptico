@@ -16,7 +16,18 @@ from app.schemas.pib import PibMunicipio
 from app.schemas.saneamento import SaneamentoMunicipio
 from app.schemas.saude_cnes import SaudeMunicipio
 from app.schemas.seguranca import SegurancaMunicipio
-from app.services import agro, emprego, ideb, internet, pib, saneamento, saude_cnes, seguranca
+from app.schemas.tempo import LinhaDoTempo
+from app.services import (
+    agro,
+    emprego,
+    ideb,
+    internet,
+    pib,
+    saneamento,
+    saude_cnes,
+    seguranca,
+    tempo,
+)
 from app.services.pib import CODIGO_UF
 
 router = APIRouter()
@@ -96,3 +107,10 @@ def seguranca_do_estado(uf: str, session: Sessao) -> dict:
     dados = seguranca.do_municipio(session, codigo, uf)
     dados["estado"] = {"serie": [], "media_3_anos_por_100_mil": None}
     return dados
+
+
+@router.get("/estados/{uf}/tempo", response_model=LinhaDoTempo)
+def tempo_do_estado(uf: str, session: Sessao) -> dict:
+    """Séries anuais do estado no mesmo eixo de anos, com os governadores."""
+    uf, _ = _codigo(uf)
+    return tempo.do_estado(session, uf)

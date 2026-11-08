@@ -9,8 +9,10 @@
 import { type KeyboardEvent, type ReactNode, useState, useSyncExternalStore } from "react";
 
 import type { Tema } from "@/components/painel/cartao-numero";
+import { Segmentado } from "@/components/segmentado";
 
-export type AbaTema = { id: string; rotulo: string; tema: Tema; conteudo: ReactNode };
+/** `grupo`: com ele, as abas viram dois níveis (assunto em cima, abas do assunto embaixo). */
+export type AbaTema = { id: string; rotulo: string; tema: Tema; conteudo: ReactNode; grupo?: string };
 
 const nada = () => () => {};
 
@@ -19,28 +21,43 @@ export function AbasTema({ rotulo, abas }: { rotulo: string; abas: AbaTema[] }) 
   // Só esconde painéis depois de hidratar: sem JS, todos ficam visíveis.
   const comJs = useSyncExternalStore(nada, () => true, () => false);
   if (abas.length === 0) return null;
+  const comGrupos = abas.every((a) => a.grupo);
+  const grupos = comGrupos ? [...new Set(abas.map((a) => a.grupo!))] : [];
+  const grupoAtivo = abas.find((a) => a.id === ativa)?.grupo;
+  const daVez = comGrupos ? abas.filter((a) => a.grupo === grupoAtivo) : abas;
 
   const teclar = (e: KeyboardEvent<HTMLButtonElement>) => {
-    const i = abas.findIndex((a) => a.id === ativa);
+    const i = daVez.findIndex((a) => a.id === ativa);
     let j = -1;
-    if (e.key === "ArrowRight") j = (i + 1) % abas.length;
-    else if (e.key === "ArrowLeft") j = (i - 1 + abas.length) % abas.length;
+    if (e.key === "ArrowRight") j = (i + 1) % daVez.length;
+    else if (e.key === "ArrowLeft") j = (i - 1 + daVez.length) % daVez.length;
     else if (e.key === "Home") j = 0;
-    else if (e.key === "End") j = abas.length - 1;
+    else if (e.key === "End") j = daVez.length - 1;
     if (j < 0) return;
     e.preventDefault();
-    setAtiva(abas[j].id);
-    document.getElementById(`tema-${abas[j].id}-botao`)?.focus();
+    setAtiva(daVez[j].id);
+    document.getElementById(`tema-${daVez[j].id}-botao`)?.focus();
   };
 
   return (
     <div className="flex min-w-0 flex-col">
+      {comGrupos && (
+        <div className="mb-2">
+          <Segmentado
+            rotulo={`Assuntos: ${rotulo}`}
+            opcoes={grupos.map((g) => ({ valor: g, rotulo: g }))}
+            valor={grupoAtivo ?? grupos[0]}
+            aoMudar={(g) => setAtiva(abas.find((a) => a.grupo === g)!.id)}
+          />
+        </div>
+      )}
       <div
+        hidden={comGrupos && comJs && daVez.length < 2}
         role="tablist"
         aria-label={rotulo}
         className="flex flex-wrap gap-x-1 border-b border-border"
       >
-        {abas.map((a) => {
+        {(comJs ? daVez : abas).map((a) => {
           const sel = a.id === ativa;
           return (
             <button

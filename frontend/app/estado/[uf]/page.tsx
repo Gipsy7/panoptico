@@ -16,6 +16,8 @@ import { InternetResumo } from "@/components/internet-secao";
 import { PibResumo } from "@/components/pib-secao";
 import { SaneamentoResumo } from "@/components/saneamento-secao";
 import { SaudeResumo } from "@/components/saude-secao";
+import { AoLongoDoTempo } from "@/components/tempo/ao-longo-do-tempo";
+import { OQueMudou } from "@/components/tempo/o-que-mudou";
 import { SegurancaResumo } from "@/components/seguranca-secao";
 import {
   getBancadasEstado,
@@ -24,6 +26,7 @@ import {
   getExecutivo,
   getObrasEstados,
   getTemaEstado,
+  getTempoEstado,
   type AgroMunicipio,
   type EmpregoMunicipio,
   type IdebMunicipio,
@@ -73,7 +76,7 @@ const num = (n: number) => n.toLocaleString("pt-BR");
 async function Estado({ uf }: { uf: string }) {
   const e = estadoDe(uf);
   if (!e) notFound();
-  const [federalR, contasR, executivoR, bancadasR, obrasR, pibR, empregoR, agroR, idebR, internetR, saneamentoR, segurancaR, saudeR] =
+  const [federalR, contasR, executivoR, bancadasR, obrasR, pibR, empregoR, agroR, idebR, internetR, saneamentoR, segurancaR, saudeR, tempoR] =
     await Promise.all([
       getDinheiroFederalUf(uf),
       getContasEstado(uf),
@@ -88,6 +91,7 @@ async function Estado({ uf }: { uf: string }) {
       getTemaEstado<SaneamentoMunicipio>(uf, "saneamento"),
       getTemaEstado<SegurancaMunicipio>(uf, "seguranca"),
       getTemaEstado<SaudeMunicipio>(uf, "saude"),
+      getTempoEstado(uf),
     ]);
   const pib = pibR.ok && pibR.dados.serie.length > 0 ? pibR.dados : null;
   const emprego = empregoR.ok && empregoR.dados.serie.length > 0 ? empregoR.dados : null;
@@ -95,6 +99,7 @@ async function Estado({ uf }: { uf: string }) {
   const ideb = idebR.ok && idebR.dados.etapas.length > 0 ? idebR.dados : null;
   const internet = internetR.ok && internetR.dados.acessos != null ? internetR.dados : null;
   const saneamento = saneamentoR.ok && saneamentoR.dados.ano != null ? saneamentoR.dados : null;
+  const tempo = tempoR.ok && tempoR.dados.series.length > 0 ? tempoR.dados : null;
   const saude = saudeR.ok && saudeR.dados.cidade ? saudeR.dados : null;
   const seguranca = segurancaR.ok && segurancaR.dados.cidade.serie.length > 0 ? segurancaR.dados : null;
   const obras = obrasR.ok ? (obrasR.dados.ufs.find((u) => u.uf === uf) ?? null) : null;
@@ -127,7 +132,7 @@ async function Estado({ uf }: { uf: string }) {
   const abas: AbaTema[] = [];
   if (populacao != null || cidades) {
     abas.push({
-      id: "retrato",
+      id: "retrato", grupo: "Pessoas e serviços",
       rotulo: "Retrato",
       tema: "eleicoes",
       conteudo: (
@@ -145,7 +150,7 @@ async function Estado({ uf }: { uf: string }) {
   }
   if (federal || contas) {
     abas.push({
-      id: "dinheiro",
+      id: "dinheiro", grupo: "Dinheiro",
       rotulo: "Dinheiro público",
       tema: "dinheiro",
       conteudo: (
@@ -177,7 +182,7 @@ async function Estado({ uf }: { uf: string }) {
   }
   if (pib || emprego) {
     abas.push({
-      id: "economia",
+      id: "economia", grupo: "Economia",
       rotulo: "Economia",
       tema: "economia",
       conteudo: (
@@ -188,10 +193,10 @@ async function Estado({ uf }: { uf: string }) {
       ),
     });
   }
-  if (agro) abas.push({ id: "agro", rotulo: "Agro", tema: "trabalho", conteudo: <AgroResumo dados={agro} cidade={e.nome} uf={uf} /> });
+  if (agro) abas.push({ id: "agro", grupo: "Economia", rotulo: "Agro", tema: "trabalho", conteudo: <AgroResumo dados={agro} cidade={e.nome} uf={uf} /> });
   if (ideb)
     abas.push({
-      id: "educacao",
+      id: "educacao", grupo: "Pessoas e serviços",
       rotulo: "Educação",
       tema: "escolas",
       conteudo: <IdebResumo dados={ideb} cidade={e.nome} uf={uf} linkCompleto={false} />,
@@ -199,7 +204,7 @@ async function Estado({ uf }: { uf: string }) {
   if (obras && obras.total > 0) {
     const paradas = paradasACada100(obras.por_situacao);
     abas.push({
-      id: "obras",
+      id: "obras", grupo: "Dinheiro",
       rotulo: "Obras",
       tema: "obras",
       conteudo: (
@@ -224,26 +229,34 @@ async function Estado({ uf }: { uf: string }) {
     });
   }
   if (internet)
-    abas.push({ id: "internet", rotulo: "Internet", tema: "obras", conteudo: <InternetResumo dados={internet} cidade={e.nome} uf={uf} /> });
+    abas.push({ id: "internet", grupo: "Pessoas e serviços", rotulo: "Internet", tema: "obras", conteudo: <InternetResumo dados={internet} cidade={e.nome} uf={uf} /> });
   if (saneamento)
     abas.push({
-      id: "saneamento",
+      id: "saneamento", grupo: "Pessoas e serviços",
       rotulo: "Saneamento",
       tema: "obras",
       conteudo: <SaneamentoResumo dados={saneamento} cidade={e.nome} uf={uf} />,
     });
   if (saude)
-    abas.push({ id: "saude", rotulo: "Saúde", tema: "saude", conteudo: <SaudeResumo dados={saude} cidade={e.nome} uf={uf} /> });
+    abas.push({ id: "saude", grupo: "Pessoas e serviços", rotulo: "Saúde", tema: "saude", conteudo: <SaudeResumo dados={saude} cidade={e.nome} uf={uf} /> });
   if (seguranca)
     abas.push({
-      id: "seguranca",
+      id: "seguranca", grupo: "Pessoas e serviços",
       rotulo: "Segurança",
       tema: "seguranca",
       conteudo: <SegurancaResumo dados={seguranca} cidade={e.nome} uf={uf} />,
     });
+  if (tempo)
+    abas.push({
+      id: "tempo",
+      grupo: "Comparar",
+      rotulo: "Ao longo do tempo",
+      tema: "eleicoes",
+      conteudo: <AoLongoDoTempo linha={tempo} lugar={e.nome} />,
+    });
   if (governador || bancadas) {
     abas.push({
-      id: "politica",
+      id: "politica", grupo: "Política",
       rotulo: "Política",
       tema: "votos",
       conteudo: (
@@ -317,6 +330,7 @@ async function Estado({ uf }: { uf: string }) {
           <h1 className="titulo-pagina">{e.nome}</h1>
           {partes.length > 0 && <p className="max-w-3xl text-lg leading-snug">{partes.join(" ")}</p>}
         </div>
+        {tempo && <OQueMudou linha={tempo} lugar={e.nome} nomeEstado={uf} />}
         {abas.length > 0 ? (
           <AbasTema rotulo={`Temas de ${e.nome}`} abas={abas} />
         ) : (

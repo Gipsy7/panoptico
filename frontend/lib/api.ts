@@ -1236,6 +1236,45 @@ export function getCadeirasPartidos() {
   return getJson<CadeirasPorPartido>("/partidos/cadeiras");
 }
 
+export type PontoAno = { ano: number; valor: number };
+
+export type SerieTempo = {
+  id: string;
+  tema: string;
+  rotulo: string;
+  unidade: string;
+  /** Quem responde pelo serviço: "prefeitura", "estado", "estado e prefeituras" ou "—". */
+  responsavel: string;
+  decimais: number;
+  pontos: PontoAno[];
+  comparacoes: { rotulo: string; pontos: PontoAno[] }[];
+  fonte_nome: string;
+  nota: string | null;
+};
+
+export type Gestao = { inicio: number; fim: number; nome: string; partido: string };
+
+export type TempoDoLugar = {
+  codigo: string;
+  uf: string;
+  ano_inicial: number | null;
+  ano_final: number | null;
+  /** Ano dos reais em que o dinheiro vem (último ano completo do IPCA). */
+  reais_de: number | null;
+  series: SerieTempo[];
+  gestoes: { prefeito?: Gestao[]; governador?: Gestao[] };
+};
+
+/** Séries anuais da cidade no mesmo eixo de anos, com prefeitos e governadores. */
+export function getTempoMunicipio(ibge: string) {
+  return getJson<TempoDoLugar>(`/municipios/${encodeURIComponent(ibge)}/tempo`);
+}
+
+/** Séries anuais do estado, com os governadores. */
+export function getTempoEstado(uf: string) {
+  return getJson<TempoDoLugar>(`/estados/${encodeURIComponent(uf)}/tempo`);
+}
+
 export type CidadesParecidas = {
   ano_populacao: number | null;
   cidades: {

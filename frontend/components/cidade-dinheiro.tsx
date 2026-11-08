@@ -10,6 +10,8 @@ import { EmpregoResumo } from "@/components/emprego-secao";
 import { InternetResumo } from "@/components/internet-secao";
 import { SaneamentoResumo } from "@/components/saneamento-secao";
 import { SaudeResumo } from "@/components/saude-secao";
+import { AoLongoDoTempo } from "@/components/tempo/ao-longo-do-tempo";
+import { OQueMudou } from "@/components/tempo/o-que-mudou";
 import { SegurancaResumo } from "@/components/seguranca-secao";
 import { ParecidasSecao, VocacoesSecao } from "@/components/parecidas-secao";
 import { AgroResumo } from "@/components/agro-secao";
@@ -51,6 +53,7 @@ import {
   getSaneamentoMunicipio,
   getSegurancaMunicipio,
   getSaudeMunicipio,
+  getTempoMunicipio,
   getObrasMunicipio,
   getResultadoEleicao,
   getDinheiroFederalMunicipio,
@@ -142,6 +145,7 @@ async function Cidade({ ibge }: { ibge: string }) {
     saneamentoR,
     segurancaR,
     saudeR,
+    tempoR,
   ] = await Promise.all([
     getEmendasMunicipio(ibge),
     getContas(ibge),
@@ -175,6 +179,7 @@ async function Cidade({ ibge }: { ibge: string }) {
     getSaneamentoMunicipio(ibge),
     getSegurancaMunicipio(ibge),
     getSaudeMunicipio(ibge),
+    getTempoMunicipio(ibge),
   ]);
   const repassesEstado = estaduaisR.ok ? estaduaisR.dados : null;
   const temRepassesEstado = Boolean(
@@ -193,6 +198,7 @@ async function Cidade({ ibge }: { ibge: string }) {
   const vocacoesCidade = vocacoesR.ok ? vocacoesR.dados : null;
   const internetCidade = internetR.ok && internetR.dados.acessos != null ? internetR.dados : null;
   const saneamentoCidade = saneamentoR.ok && saneamentoR.dados.ano != null ? saneamentoR.dados : null;
+  const tempoCidade = tempoR.ok && tempoR.dados.series.length > 0 ? tempoR.dados : null;
   const saudeCidade = saudeR.ok && saudeR.dados.cidade ? saudeR.dados : null;
   const segurancaCidade = segurancaR.ok && segurancaR.dados.cidade.serie.length > 0 ? segurancaR.dados : null;
   const agroCidade = agroR.ok && (agroR.dados.valor_total != null || agroR.dados.pecuaria) ? agroR.dados : null;
@@ -509,12 +515,15 @@ async function Cidade({ ibge }: { ibge: string }) {
           </p>
         </div>
 
+        {tempoCidade && <OQueMudou linha={tempoCidade} lugar={municipio} nomeEstado={uf} />}
+
         <AbasTema
           rotulo={`Temas de ${municipio}`}
           abas={[
-            ...(retrato ? [{ id: "retrato", rotulo: "Retrato", tema: "eleicoes" as const, conteudo: retrato }] : []),
+            ...(retrato ? [{ id: "retrato", grupo: "Pessoas e serviços", rotulo: "Retrato", tema: "eleicoes" as const, conteudo: retrato }] : []),
             {
               id: "dinheiro",
+              grupo: "Dinheiro",
               rotulo: "Dinheiro público",
               tema: "dinheiro" as const,
               conteudo: (
@@ -667,6 +676,7 @@ async function Cidade({ ibge }: { ibge: string }) {
               ? [
                   {
                     id: "economia",
+                    grupo: "Economia",
                     rotulo: "Economia",
                     tema: "economia" as const,
                     conteudo: (
@@ -683,6 +693,7 @@ async function Cidade({ ibge }: { ibge: string }) {
               ? [
                   {
                     id: "agro",
+                    grupo: "Economia",
                     rotulo: "Agro",
                     tema: "trabalho" as const,
                     conteudo: <AgroResumo dados={agroCidade} cidade={municipio} uf={uf} />,
@@ -693,6 +704,7 @@ async function Cidade({ ibge }: { ibge: string }) {
               ? [
                   {
                     id: "educacao",
+                    grupo: "Pessoas e serviços",
                     rotulo: "Educação",
                     tema: "escolas" as const,
                     conteudo: <IdebResumo dados={idebCidade} cidade={municipio} uf={uf} faixas={faixasPrefeito} />,
@@ -703,6 +715,7 @@ async function Cidade({ ibge }: { ibge: string }) {
               ? [
                   {
                     id: "obras",
+                    grupo: "Dinheiro",
                     rotulo: "Obras",
                     tema: "obras" as const,
                     conteudo: <ObrasResumo dados={obrasCidade} municipio={municipio} />,
@@ -713,6 +726,7 @@ async function Cidade({ ibge }: { ibge: string }) {
               ? [
                   {
                     id: "internet",
+                    grupo: "Pessoas e serviços",
                     rotulo: "Internet",
                     tema: "obras" as const,
                     conteudo: <InternetResumo dados={internetCidade} cidade={municipio} uf={uf} />,
@@ -723,6 +737,7 @@ async function Cidade({ ibge }: { ibge: string }) {
               ? [
                   {
                     id: "saneamento",
+                    grupo: "Pessoas e serviços",
                     rotulo: "Saneamento",
                     tema: "obras" as const,
                     conteudo: <SaneamentoResumo dados={saneamentoCidade} cidade={municipio} uf={uf} />,
@@ -733,6 +748,7 @@ async function Cidade({ ibge }: { ibge: string }) {
               ? [
                   {
                     id: "saude",
+                    grupo: "Pessoas e serviços",
                     rotulo: "Saúde",
                     tema: "saude" as const,
                     conteudo: <SaudeResumo dados={saudeCidade} cidade={municipio} uf={uf} />,
@@ -743,17 +759,30 @@ async function Cidade({ ibge }: { ibge: string }) {
               ? [
                   {
                     id: "seguranca",
+                    grupo: "Pessoas e serviços",
                     rotulo: "Segurança",
                     tema: "seguranca" as const,
                     conteudo: <SegurancaResumo dados={segurancaCidade} cidade={municipio} uf={uf} />,
                   },
                 ]
               : []),
-            ...(politica ? [{ id: "politica", rotulo: "Política", tema: "votos" as const, conteudo: politica }] : []),
+            ...(politica ? [{ id: "politica", grupo: "Política", rotulo: "Política", tema: "votos" as const, conteudo: politica }] : []),
+            ...(tempoCidade
+              ? [
+                  {
+                    id: "tempo",
+                    grupo: "Comparar",
+                    rotulo: "Ao longo do tempo",
+                    tema: "eleicoes" as const,
+                    conteudo: <AoLongoDoTempo linha={tempoCidade} lugar={municipio} />,
+                  },
+                ]
+              : []),
             ...(parecidas
               ? [
                   {
                     id: "parecidas",
+                    grupo: "Comparar",
                     rotulo: "Cidades parecidas",
                     tema: "eleicoes" as const,
                     conteudo: <ParecidasSecao dados={parecidas} cidade={municipio} />,
