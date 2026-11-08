@@ -29,7 +29,13 @@ from app.models.empresa import Empresa
 from app.models.fonte_ingestao import DownloadCache, FonteIngestao
 from app.models.municipio import Municipio
 from app.models.norma import Norma, NormaProposicao
-from app.models.obra import IdebResultado, ObraFederal, ObraFederalMunicipio, PibIbge
+from app.models.obra import (
+    AgroLavoura,
+    IdebResultado,
+    ObraFederal,
+    ObraFederalMunicipio,
+    PibIbge,
+)
 from app.models.parlamentar import Parlamentar
 from app.models.partido_conta import (
     PartidoContaSoma,
@@ -72,6 +78,7 @@ from app.models.votacao import Orientacao, Votacao, VotacaoComissao, Voto, VotoC
 
 __all__ = [
     "AgendaCompromisso",
+    "AgroLavoura",
     "ArgosAvaliacao",
     "ArgosConversa",
     "ArgosFraseNaoEntendida",

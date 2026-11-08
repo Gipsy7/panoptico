@@ -302,6 +302,13 @@ frequencia = "mensal"
 depende = ["ibge_populacao"]
 
 [[fonte]]
+nome = "ibge_pam"
+modulo = "ingestion.ibge.pam"
+uso = "Agro no Raio-X da cidade (valor da produção das lavouras e os produtos que mais pesam)"
+recorte = "valor da produção por produto no último ano da PAM (tabela 5457), por município, estado e Brasil; zeros não são guardados"
+frequencia = "mensal"
+
+[[fonte]]
 nome = "resumos"
 modulo = "ingestion.resumos"
 uso = "Números-chave e lista de parlamentares"

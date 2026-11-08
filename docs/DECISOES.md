@@ -1806,6 +1806,10 @@ Escolhas do dono entre 3 protótipos: resultado em tabela densa com barras (A), 
   de onde vem a riqueza (valor adicionado por atividade, no último ano em que o IBGE separa). Os valores são da
   época, sem descontar a inflação; por isso não há gráfico de crescimento até haver um deflator oficial. O PIB por
   morador só aparece em ano com população do IBGE no mesmo ano (2023 não tem estimativa): nada se interpola.
+- **Agro (PAM do IBGE):** o valor da produção das lavouras no último ano e os produtos que mais pesam, com a parte
+  de cada um no total da cidade e o total do estado. Só lavouras; a tela diz que a pecuária ainda não está.
+- **Saúde adiada:** a API de hospitais e leitos do Ministério da Saúde não traz o mês de cada retrato e quase
+  todas as linhas vêm sem município; somar daria número errado. Fica para os arquivos do CNES (ver FONTES).
 
 ## 2026-11-08: redesenho, etapa 4 (Raio-X da cidade e do estado)
 

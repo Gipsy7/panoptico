@@ -1114,6 +1114,24 @@ export function getMunicipios(uf: string) {
   return getJson<Municipio[]>(`/municipios?uf=${encodeURIComponent(uf)}`);
 }
 
+export type AgroMunicipio = {
+  municipio_ibge: string;
+  uf: string;
+  ano: number | null;
+  valor_total: number | null;
+  uf_valor_total: number | null;
+  produtos: { produto: string; valor: number; percentual: number | null }[];
+  outros_produtos: number;
+  fonte_nome: string;
+  fonte_url: string;
+  atualizado_em: string | null;
+};
+
+/** Lavouras da cidade (IBGE, PAM): valor da produção e os produtos que mais pesam. */
+export function getAgroMunicipio(ibge: string) {
+  return getJson<AgroMunicipio>(`/municipios/${encodeURIComponent(ibge)}/agro`);
+}
+
 export type PibMunicipio = {
   municipio_ibge: string;
   uf: string;

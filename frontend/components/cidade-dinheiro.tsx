@@ -6,6 +6,7 @@ import { AbasTema } from "@/components/abas-tema";
 import { AvisoErro } from "@/components/aviso-erro";
 import { IdebResumo, IdebSecao } from "@/components/ideb-secao";
 import { PibResumo } from "@/components/pib-secao";
+import { AgroResumo } from "@/components/agro-secao";
 import { ObrasResumo, ObrasSecao } from "@/components/obras-secao";
 import { Chapa, cargoDoVice } from "@/components/chapa";
 import { FotoOuIniciais } from "@/components/eleitos-secao";
@@ -35,6 +36,7 @@ import {
   getMaisVotados,
   getIdebMunicipio,
   getPibMunicipio,
+  getAgroMunicipio,
   getObrasMunicipio,
   getResultadoEleicao,
   getDinheiroFederalMunicipio,
@@ -117,6 +119,7 @@ async function Cidade({ ibge }: { ibge: string }) {
     obrasR,
     idebR,
     pibR,
+    agroR,
   ] = await Promise.all([
     getEmendasMunicipio(ibge),
     getContas(ibge),
@@ -141,6 +144,7 @@ async function Cidade({ ibge }: { ibge: string }) {
     getObrasMunicipio(ibge),
     getIdebMunicipio(ibge),
     getPibMunicipio(ibge),
+    getAgroMunicipio(ibge),
   ]);
   const repassesEstado = estaduaisR.ok ? estaduaisR.dados : null;
   const temRepassesEstado = Boolean(
@@ -154,6 +158,7 @@ async function Cidade({ ibge }: { ibge: string }) {
   const obrasCidade = obrasR.ok && obrasR.dados.total > 0 ? obrasR.dados : null;
   const idebCidade = idebR.ok && idebR.dados.etapas.length > 0 ? idebR.dados : null;
   const pibCidade = pibR.ok && pibR.dados.serie.length > 0 ? pibR.dados : null;
+  const agroCidade = agroR.ok && agroR.dados.valor_total != null ? agroR.dados : null;
   const populacao = emendas?.populacao ?? contas?.populacao ?? null;
   const tceCarregado = UF_COM_TCE.includes(uf);
   const capitalComTcm =
@@ -624,6 +629,16 @@ async function Cidade({ ibge }: { ibge: string }) {
                     rotulo: "Economia",
                     tema: "economia" as const,
                     conteudo: <PibResumo dados={pibCidade} cidade={municipio} uf={uf} />,
+                  },
+                ]
+              : []),
+            ...(agroCidade
+              ? [
+                  {
+                    id: "agro",
+                    rotulo: "Agro",
+                    tema: "trabalho" as const,
+                    conteudo: <AgroResumo dados={agroCidade} cidade={municipio} uf={uf} />,
                   },
                 ]
               : []),

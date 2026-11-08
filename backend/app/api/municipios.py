@@ -13,12 +13,14 @@ from app.schemas import (
     FornecedoresResposta,
     MunicipioInfo,
 )
+from app.schemas.agro import AgroMunicipio
 from app.schemas.emendas_municipio import EmendasMunicipioCompleta
 from app.schemas.ideb import IdebMunicipio
 from app.schemas.obras import ObrasMunicipio, ObrasPorUf
 from app.schemas.pib import PibMunicipio
 from app.schemas.repasses_estaduais import RepassesEstaduaisResposta
 from app.services import (
+    agro,
     contas,
     contratos_pncp,
     emendas,
@@ -121,6 +123,15 @@ def pib_do_municipio(ibge: str, session: Annotated[Session, Depends(get_session)
     if municipio is None:
         raise HTTPException(404, "Município não encontrado.")
     return pib.do_municipio(session, ibge, municipio.uf)
+
+
+@router.get("/municipios/{ibge}/agro", response_model=AgroMunicipio)
+def agro_do_municipio(ibge: str, session: Annotated[Session, Depends(get_session)]) -> dict:
+    """Lavouras da cidade (IBGE, PAM): valor da produção e os produtos que mais pesam."""
+    municipio = session.get(Municipio, ibge)
+    if municipio is None:
+        raise HTTPException(404, "Município não encontrado.")
+    return agro.do_municipio(session, ibge, municipio.uf)
 
 
 @router.get("/obras/estados", response_model=ObrasPorUf)

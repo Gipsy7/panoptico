@@ -78,3 +78,17 @@ class PibIbge(Base):
     vab_servicos: Mapped[Decimal | None] = mapped_column(Numeric(16, 0))
     vab_administracao: Mapped[Decimal | None] = mapped_column(Numeric(16, 0))
     ingestao_id: Mapped[int | None] = mapped_column(ForeignKey("fonte_ingestao.id"))
+
+
+class AgroLavoura(Base):
+    """Valor da produção das lavouras (IBGE, PAM, tabela 5457) por produto, em mil reais, no
+    último ano publicado: código de 1 dígito = Brasil, 2 = UF, 7 = município. "Total" é a soma
+    de todos os produtos, como o IBGE publica."""
+
+    __tablename__ = "agro_lavoura"
+
+    codigo: Mapped[str] = mapped_column(String(7), primary_key=True)
+    ano: Mapped[int] = mapped_column(SmallInteger, primary_key=True)
+    produto: Mapped[str] = mapped_column(String(80), primary_key=True)
+    valor: Mapped[Decimal] = mapped_column(Numeric(16, 0))
+    ingestao_id: Mapped[int | None] = mapped_column(ForeignKey("fonte_ingestao.id"))

@@ -86,6 +86,12 @@ CATALOGO = [
         "url": "https://www.gov.br/transferegov/pt-br",
     },
     {
+        "dado": "Valor da produção das lavouras por produto (Produção Agrícola Municipal)",
+        "orgao": "Instituto Brasileiro de Geografia e Estatística (IBGE)",
+        "fontes": ["ibge_pam"],
+        "url": "https://sidra.ibge.gov.br/tabela/5457",
+    },
+    {
         "dado": "PIB dos municípios e valor adicionado por atividade (2002 em diante)",
         "orgao": "Instituto Brasileiro de Geografia e Estatística (IBGE)",
         "fontes": ["ibge_pib"],

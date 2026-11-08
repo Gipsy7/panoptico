@@ -204,6 +204,20 @@ Endpoints conferidos em 2026-10-06.
 - **Link por obra:** a consulta da própria API (`?id_projeto_investimento=…`).
 - **Frequência:** semanal (`obrasgov_obras`, `ingestion/obrasgov/obras.py`).
 
+## IBGE: Produção Agrícola Municipal (redesenho, etapa 5)
+
+- **URL:** `https://servicodados.ibge.gov.br/api/v3/agregados/5457/periodos/{ano}/variaveis/215?localidades=N6[N3[uf]]&classificacao=782[all]` (um estado por consulta), mais `N3[all]` e `N1[all]`. SIDRA, tabela 5457 (1974 a 2025).
+- **Campos:** variável 215, valor da produção (mil reais desde 1994); classificação 782, 86 produtos das lavouras temporárias e permanentes, mais "Total".
+- **Armadilhas:** "-" é zero e "..." é sem dado; produtos com "*" (abacaxi, coco...) têm quantidade em mil frutos, por isso só o valor é guardado. Só lavouras: pecuária fica na PPM (tabelas 3939 e 74), ainda não carregada.
+- **Conferido:** Blumenau 2025 = R$ 4.500 mil (palmito R$ 2.400 mil, banana R$ 1.589 mil). Carga de 08/11/2026: 77.107 valores; a soma dos municípios fecha com o Brasil.
+- **Frequência:** mensal (`ibge_pam`, `ingestion/ibge/pam.py`).
+
+## Ministério da Saúde: hospitais e leitos (reconhecimento de 08/11/2026, sem ingestão)
+
+- **URL:** `https://apidadosabertos.saude.gov.br/assistencia-a-saude/hospitais-e-leitos?limit=1000&offset=N` (até 1.000 por página). O CKAN antigo (opendatasus) virou o novo portal `dadosabertos.saude.gov.br`, sem API de catálogo, e os arquivos no S3 antigo dão 403 (`AccessDenied`, endereço que não existe mais, não bloqueio).
+- **Por que não entrou:** a API devolve 1,5 milhão de linhas, retratos mensais acumulados **sem campo de mês**, e 87% delas sem `codigo_ibge_do_municipio` (vem com 4 dígitos ou nulo). Não dá para isolar o mês mais recente nem somar por cidade sem contar o mesmo leito várias vezes.
+- **Caminho para saúde:** os arquivos mensais do CNES (LT, leitos; ST, estabelecimentos) no FTP do DATASUS, que trazem a competência, em formato DBC (precisa de leitor próprio), ou o SIM para mortalidade infantil.
+
 ## IBGE: PIB dos Municípios (redesenho, etapa 5)
 
 - **URL:** API de agregados v3, `https://servicodados.ibge.gov.br/api/v3/agregados/5938/periodos/{ano}/variaveis/37|498|513|517|6575|525?localidades=N6[all]` (e `N3[all]`, `N1[all]`); metadados em `/agregados/5938/metadados` (`periodicidade.fim` diz o último ano). SIDRA, tabela 5938.
