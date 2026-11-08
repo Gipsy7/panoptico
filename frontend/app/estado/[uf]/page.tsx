@@ -9,14 +9,36 @@ import { FotoOuIniciais } from "@/components/eleitos-secao";
 import { EsqueletoSecao } from "@/components/esqueleto-secao";
 import { FonteRodape } from "@/components/fonte-rodape";
 import { Revelacao } from "@/components/revelacao";
-import { getBancadasEstado, getContasEstado, getDinheiroFederalUf, getExecutivo, getObrasEstados } from "@/lib/api";
+import { AgroResumo } from "@/components/agro-secao";
+import { EmpregoResumo } from "@/components/emprego-secao";
+import { IdebResumo } from "@/components/ideb-secao";
+import { InternetResumo } from "@/components/internet-secao";
+import { PibResumo } from "@/components/pib-secao";
+import { SaneamentoResumo } from "@/components/saneamento-secao";
+import { SegurancaResumo } from "@/components/seguranca-secao";
+import {
+  getBancadasEstado,
+  getContasEstado,
+  getDinheiroFederalUf,
+  getExecutivo,
+  getObrasEstados,
+  getTemaEstado,
+  type AgroMunicipio,
+  type EmpregoMunicipio,
+  type IdebMunicipio,
+  type InternetMunicipio,
+  type PibMunicipio,
+  type SaneamentoMunicipio,
+  type SegurancaMunicipio,
+} from "@/lib/api";
 import { paradasACada100 } from "@/lib/obras";
 import { formatarReais, formatarReaisCompacto } from "@/lib/formato";
 import { UFS } from "@/lib/ufs";
 
 /**
- * "Por dentro" do estado (redesenho, etapa 4): o mesmo modelo da cidade, só com o que já está carregado
- * (moradores, dinheiro da União, contas do governo do estado, governador e vice, bancadas). As telas
+ * "Por dentro" do estado (redesenho, etapas 4 e 5): o mesmo modelo da cidade (moradores, dinheiro da União,
+ * contas do governo do estado, economia, agro, escolas, obras, internet, saneamento, segurança, governador e
+ * vice, bancadas). As telas
  * completas continuam onde estão; "Tudo sobre" leva a elas.
  */
 
@@ -30,7 +52,7 @@ export async function generateMetadata({ params }: PageProps<"/estado/[uf]">): P
   if (!e) return { title: "Estado" };
   return {
     title: `${e.nome} por dentro: dinheiro público, obras e quem governa`,
-    description: `${e.nome}: moradores, quanto a União arrecada e repassa, contas do governo do estado, governador e vice e as bancadas, com dados oficiais, fonte e data.`,
+    description: `${e.nome}: moradores, economia, agro, escolas, internet, saneamento, segurança, quanto a União arrecada e repassa, contas do governo do estado, governador e vice e as bancadas, com dados oficiais, fonte e data.`,
   };
 }
 
@@ -49,13 +71,28 @@ const num = (n: number) => n.toLocaleString("pt-BR");
 async function Estado({ uf }: { uf: string }) {
   const e = estadoDe(uf);
   if (!e) notFound();
-  const [federalR, contasR, executivoR, bancadasR, obrasR] = await Promise.all([
-    getDinheiroFederalUf(uf),
-    getContasEstado(uf),
-    getExecutivo(uf),
-    getBancadasEstado(uf),
-    getObrasEstados(),
-  ]);
+  const [federalR, contasR, executivoR, bancadasR, obrasR, pibR, empregoR, agroR, idebR, internetR, saneamentoR, segurancaR] =
+    await Promise.all([
+      getDinheiroFederalUf(uf),
+      getContasEstado(uf),
+      getExecutivo(uf),
+      getBancadasEstado(uf),
+      getObrasEstados(),
+      getTemaEstado<PibMunicipio>(uf, "pib"),
+      getTemaEstado<EmpregoMunicipio>(uf, "emprego"),
+      getTemaEstado<AgroMunicipio>(uf, "agro"),
+      getTemaEstado<IdebMunicipio>(uf, "ideb"),
+      getTemaEstado<InternetMunicipio>(uf, "internet"),
+      getTemaEstado<SaneamentoMunicipio>(uf, "saneamento"),
+      getTemaEstado<SegurancaMunicipio>(uf, "seguranca"),
+    ]);
+  const pib = pibR.ok && pibR.dados.serie.length > 0 ? pibR.dados : null;
+  const emprego = empregoR.ok && empregoR.dados.serie.length > 0 ? empregoR.dados : null;
+  const agro = agroR.ok && (agroR.dados.valor_total != null || agroR.dados.pecuaria) ? agroR.dados : null;
+  const ideb = idebR.ok && idebR.dados.etapas.length > 0 ? idebR.dados : null;
+  const internet = internetR.ok && internetR.dados.acessos != null ? internetR.dados : null;
+  const saneamento = saneamentoR.ok && saneamentoR.dados.ano != null ? saneamentoR.dados : null;
+  const seguranca = segurancaR.ok && segurancaR.dados.cidade.serie.length > 0 ? segurancaR.dados : null;
   const obras = obrasR.ok ? (obrasR.dados.ufs.find((u) => u.uf === uf) ?? null) : null;
   const federal = federalR.ok && !federalR.dados.sem_dados ? federalR.dados : null;
   const contas = contasR.ok ? contasR.dados : null;
@@ -98,7 +135,7 @@ async function Estado({ uf }: { uf: string }) {
             {bancadas && bancadas.assembleia.total > 0 && numero("Cadeiras na Assembleia", num(bancadas.assembleia.total))}
           </dl>
           <p className="text-sm text-muted-foreground">
-            Economia, escolas e saúde entram aqui quando os dados do IBGE, do INEP e do DATASUS forem carregados.
+            Saúde (hospitais, leitos e equipes) entra aqui quando os dados do DATASUS forem carregados.
           </p>
           <FonteRodape fonte="IBGE (população)" atualizadoEm={null} />
         </div>
@@ -137,6 +174,27 @@ async function Estado({ uf }: { uf: string }) {
       ),
     });
   }
+  if (pib || emprego) {
+    abas.push({
+      id: "economia",
+      rotulo: "Economia",
+      tema: "economia",
+      conteudo: (
+        <div className="flex flex-col gap-5">
+          {pib && <PibResumo dados={pib} cidade={e.nome} uf={uf} />}
+          {emprego && <EmpregoResumo dados={emprego} cidade={e.nome} uf={uf} />}
+        </div>
+      ),
+    });
+  }
+  if (agro) abas.push({ id: "agro", rotulo: "Agro", tema: "trabalho", conteudo: <AgroResumo dados={agro} cidade={e.nome} uf={uf} /> });
+  if (ideb)
+    abas.push({
+      id: "educacao",
+      rotulo: "Educação",
+      tema: "escolas",
+      conteudo: <IdebResumo dados={ideb} cidade={e.nome} uf={uf} linkCompleto={false} />,
+    });
   if (obras && obras.total > 0) {
     const paradas = paradasACada100(obras.por_situacao);
     abas.push({
@@ -164,6 +222,22 @@ async function Estado({ uf }: { uf: string }) {
       ),
     });
   }
+  if (internet)
+    abas.push({ id: "internet", rotulo: "Internet", tema: "obras", conteudo: <InternetResumo dados={internet} cidade={e.nome} uf={uf} /> });
+  if (saneamento)
+    abas.push({
+      id: "saneamento",
+      rotulo: "Saneamento",
+      tema: "saude",
+      conteudo: <SaneamentoResumo dados={saneamento} cidade={e.nome} uf={uf} />,
+    });
+  if (seguranca)
+    abas.push({
+      id: "seguranca",
+      rotulo: "Segurança",
+      tema: "seguranca",
+      conteudo: <SegurancaResumo dados={seguranca} cidade={e.nome} uf={uf} />,
+    });
   if (governador || bancadas) {
     abas.push({
       id: "politica",

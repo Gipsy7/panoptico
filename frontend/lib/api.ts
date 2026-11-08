@@ -1158,6 +1158,32 @@ export function getSaneamentoMunicipio(ibge: string) {
   return getJson<SaneamentoMunicipio>(`/municipios/${encodeURIComponent(ibge)}/saneamento`);
 }
 
+export type HomicidiosLugar = {
+  serie: { ano: number; homicidios: number; por_100_mil: number | null }[];
+  media_3_anos_por_100_mil: number | null;
+};
+
+export type SegurancaMunicipio = {
+  municipio_ibge: string;
+  uf: string;
+  cidade: HomicidiosLugar;
+  estado: HomicidiosLugar;
+  brasil: HomicidiosLugar;
+  fonte_nome: string;
+  fonte_url: string;
+  atualizado_em: string | null;
+};
+
+/** Homicídios de moradores (SIM/DATASUS) ano a ano, com o estado e o Brasil. */
+export function getSegurancaMunicipio(ibge: string) {
+  return getJson<SegurancaMunicipio>(`/municipios/${encodeURIComponent(ibge)}/seguranca`);
+}
+
+/** Os temas de "Por dentro do estado": as mesmas formas das cidades, com o estado no lugar do município. */
+export function getTemaEstado<T>(uf: string, tema: "pib" | "emprego" | "agro" | "ideb" | "internet" | "saneamento" | "seguranca") {
+  return getJson<T>(`/estados/${encodeURIComponent(uf)}/${tema}`);
+}
+
 export type CidadesParecidas = {
   ano_populacao: number | null;
   cidades: {

@@ -67,3 +67,37 @@ def do_municipio(session: Session, ibge: str, uf: str) -> dict:
         "fonte_url": FONTE_URL,
         "atualizado_em": atualizado_em(session),
     }
+
+
+def do_estado(session: Session, uf: str) -> dict:
+    """A soma dos municípios do estado, por 100 moradores, com o Brasil."""
+    ano, mes, acessos, fibra, rapidos = session.execute(
+        select(
+            func.max(InternetFixa.ano),
+            func.max(InternetFixa.mes),
+            func.sum(InternetFixa.acessos),
+            func.sum(InternetFixa.acessos_fibra),
+            func.sum(InternetFixa.acessos_rapidos),
+        )
+        .join(Municipio, Municipio.ibge == InternetFixa.codigo)
+        .where(Municipio.uf == uf)
+    ).one()
+    acessos_br = session.scalar(select(func.sum(InternetFixa.acessos)))
+    codigo = CODIGO_UF.get(uf, "")
+    return {
+        "municipio_ibge": codigo,
+        "uf": uf,
+        "ano": ano,
+        "mes": mes,
+        "acessos": acessos,
+        "por_100_moradores": _por_100(acessos, _populacao(session, codigo, ano)) if ano else None,
+        "uf_por_100_moradores": None,
+        "brasil_por_100_moradores": _por_100(acessos_br, _populacao(session, "1", ano))
+        if ano
+        else None,
+        "percentual_fibra": 100 * fibra / acessos if acessos else None,
+        "percentual_rapida": 100 * rapidos / acessos if acessos else None,
+        "fonte_nome": FONTE_NOME,
+        "fonte_url": FONTE_URL,
+        "atualizado_em": atualizado_em(session),
+    }

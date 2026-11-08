@@ -64,3 +64,40 @@ def do_municipio(session: Session, ibge: str, uf: str) -> dict:
         "fonte_url": FONTE_URL,
         "atualizado_em": atualizado_em(session),
     }
+
+
+def do_estado(session: Session, uf: str) -> dict:
+    """O IDEB do estado por etapa e rede, com o do Brasil na mesma rede."""
+    linhas = session.scalars(
+        select(IdebResultado).where(
+            or_(
+                (IdebResultado.abrangencia == "uf") & (IdebResultado.codigo == uf),
+                IdebResultado.abrangencia == "brasil",
+            )
+        )
+    ).all()
+    series: dict[tuple, list] = defaultdict(list)
+    for r in sorted(linhas, key=lambda r: r.ano):
+        series[(r.abrangencia, r.etapa, r.rede)].append({"ano": r.ano, "valor": float(r.valor)})
+    etapas = []
+    for etapa, rotulo in ETAPAS:
+        redes = [
+            {
+                "rede": rede,
+                "serie": series[("uf", etapa, rede)],
+                "uf": [],
+                "brasil": series.get(("brasil", etapa, rede), []),
+            }
+            for rede in REDES
+            if series.get(("uf", etapa, rede))
+        ]
+        if redes:
+            etapas.append({"etapa": etapa, "rotulo": rotulo, "redes": redes})
+    return {
+        "municipio_ibge": uf,
+        "uf": uf,
+        "etapas": etapas,
+        "fonte_nome": FONTE_NOME,
+        "fonte_url": FONTE_URL,
+        "atualizado_em": atualizado_em(session),
+    }

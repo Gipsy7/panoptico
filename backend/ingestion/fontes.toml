@@ -338,6 +338,14 @@ recorte = "% dos domicílios no Censo 2022 (tabelas 6803, 6805 e 6892), por muni
 frequencia = "manual"
 
 [[fonte]]
+nome = "datasus_homicidios"
+modulo = "ingestion.datasus.homicidios"
+uso = "Segurança em Por dentro da cidade: homicídios de moradores por ano e por 100 mil"
+recorte = "só a contagem de homicídios (CID X85 a Y09, Y35 e Y36) por município de residência, estado e Brasil, anos fechados desde 2014; nenhum dado de pessoa"
+frequencia = "manual"
+bruto = "recorte"
+
+[[fonte]]
 nome = "resumos"
 modulo = "ingestion.resumos"
 uso = "Números-chave e lista de parlamentares"

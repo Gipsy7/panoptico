@@ -535,6 +535,15 @@ wheels = [
 ]
 
 [[package]]
+name = "dbfread"
+version = "2.0.7"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/ad/ae/a5891681f5012724d062a4ca63ec2ff539c73d5804ba594e7e0e72099d3f/dbfread-2.0.7.tar.gz", hash = "sha256:07c8a9af06ffad3f6f03e8fe91ad7d2733e31a26d2b72c4dd4cfbae07ee3b73d", size = 33212, upload-time = "2016-11-25T11:25:01.408Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/4c/94/51349e43503e30ed7b4ecfe68a8809cdb58f722c0feb79d18b1f1e36fe74/dbfread-2.0.7-py2.py3-none-any.whl", hash = "sha256:f604def58c59694fa0160d7be5d0b8d594467278d2bb6a47d46daf7162c84cec", size = 20018, upload-time = "2016-11-25T11:27:36.001Z" },
+]
+
+[[package]]
 name = "fastapi"
 version = "0.142.2"
 source = { registry = "https://pypi.org/simple" }
@@ -1158,6 +1167,7 @@ dependencies = [
     { name = "psycopg", extra = ["binary"] },
     { name = "pydantic-settings" },
     { name = "pypdf" },
+    { name = "pyreaddbc" },
     { name = "pywebpush" },
     { name = "sqlalchemy" },
     { name = "uvicorn", extra = ["standard"] },
@@ -1183,6 +1193,7 @@ requires-dist = [
     { name = "psycopg", extras = ["binary"], specifier = ">=3.3.6" },
     { name = "pydantic-settings", specifier = ">=2.15.0" },
     { name = "pypdf", specifier = ">=6.0.0" },
+    { name = "pyreaddbc", specifier = ">=2.0.4" },
     { name = "pywebpush", specifier = ">=2.5.0" },
     { name = "sqlalchemy", specifier = ">=2.1.3" },
     { name = "uvicorn", extras = ["standard"], specifier = ">=0.54.0" },
@@ -1730,6 +1741,25 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/45/7e/d08c72b29e89b1ad14acaae817685ca06bac93691bddfd4fac08a703e5b0/pypdf-6.20.0.tar.gz", hash = "sha256:72b1e897fef7f5bbed7f2a93881a4861d98dbf25ae39981c8a023583239edbda", size = 7072602, upload-time = "2026-10-09T10:49:39.165Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/18/42/a945f65cc61c739ec80f4112c4b78ed1791f25d33f45f19389c9c9e247e2/pypdf-6.20.0-py3-none-any.whl", hash = "sha256:f003fc2014814d264fe7dd3f9d435c158e23e1a85a2233f87a0a2d6d21c914ad", size = 401710, upload-time = "2026-10-09T10:49:36.882Z" },
+]
+
+[[package]]
+name = "pyreaddbc"
+version = "2.0.4"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "dbfread" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/57/13/8982e2c83d74219b969ad9018ccddcd424002830f14cceaf801a375d3cc6/pyreaddbc-2.0.4.tar.gz", hash = "sha256:e3ce8f12b0feec3d6bf2b3722309346f015a22e8279f9789e9eeda869d8b33d1", size = 26296, upload-time = "2026-05-26T15:57:52.301Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/97/76/50615400d00f8d5d2da05705697c426af14e8ec4e8f577087c5a77fccd36/pyreaddbc-2.0.4-cp312-cp312-macosx_11_0_arm64.whl", hash = "sha256:90dedbd59cb8cf588352610132396a74b32d4536ab718239c8cb120c0579d046", size = 31482, upload-time = "2026-05-26T15:57:42.854Z" },
+    { url = "https://files.pythonhosted.org/packages/2f/e9/f2102e044c043510e6108a93486efe1ae5657f09380f8b07f45981a5fd42/pyreaddbc-2.0.4-cp312-cp312-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:c053370eee23ba23589369128fac5ca81a797db5e61e8bf67f1b4b325b69fa35", size = 46080, upload-time = "2026-05-26T15:57:43.627Z" },
+    { url = "https://files.pythonhosted.org/packages/37/22/ff0a5c55b3792fac65ab70a7e0804d73297b36b5647ebf3ec587ead914a8/pyreaddbc-2.0.4-cp312-cp312-manylinux_2_5_x86_64.manylinux1_x86_64.manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:754c1c2eb23afdad25d71edbcde0aeb8388fd297e28b094ee209c95fead6e92b", size = 46199, upload-time = "2026-05-26T15:57:44.438Z" },
+    { url = "https://files.pythonhosted.org/packages/b7/29/dde4414d0403fb814aa8c1812878f6e2d012dd01f388d33301ebaf4109be/pyreaddbc-2.0.4-cp312-cp312-win_amd64.whl", hash = "sha256:fb47791187148753c9dd6fbf244924ff53f59db02111f9b122e0f494a8a9f6c0", size = 33172, upload-time = "2026-05-26T15:57:45.343Z" },
+    { url = "https://files.pythonhosted.org/packages/ae/ea/ec8e8d5b8b4bbcd4a1ae4be225495858ed47ee916b04104049e3f039d3e4/pyreaddbc-2.0.4-cp313-cp313-macosx_11_0_arm64.whl", hash = "sha256:882e4687adc47ae7702fe39fd139f27a2744feb6dc276463b761dac6d490a382", size = 31492, upload-time = "2026-05-26T15:57:46.109Z" },
+    { url = "https://files.pythonhosted.org/packages/db/02/ed73c48698cb23bb3f6303cb9b1e78b790f21dff95196262d968a23bca77/pyreaddbc-2.0.4-cp313-cp313-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:83ed8c757b85c6c48c3fc961edb829a75ce4ee32483a91659d5705e57c6fa3df", size = 46081, upload-time = "2026-05-26T15:57:46.788Z" },
+    { url = "https://files.pythonhosted.org/packages/85/dc/3bc61f06a9da2f663ef3643f51f8829d8a89d0bd7295fe81adcf77f19026/pyreaddbc-2.0.4-cp313-cp313-manylinux_2_5_x86_64.manylinux1_x86_64.manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:def263c24f62a110bfb8af040df5c602e7381df9ea91e824d48a63a00917b2c5", size = 46214, upload-time = "2026-05-26T15:57:47.616Z" },
+    { url = "https://files.pythonhosted.org/packages/0a/e7/4818b2c7a96951d9dc7ea6b5cda3656588848a2057add96733838c58a26c/pyreaddbc-2.0.4-cp313-cp313-win_amd64.whl", hash = "sha256:e07862c8409d69c961268d26a08c52d468ac259ab964dc2fc24822fbc790c930", size = 33173, upload-time = "2026-05-26T15:57:48.347Z" },
 ]
 
 [[package]]

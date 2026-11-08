@@ -1857,6 +1857,12 @@ Pedido do dono depois de usar o release no celular:
   Anatel não é usada porque mistura unidades entre os meses.
 - **Saneamento (Censo 2022):** aba "Saneamento" com o % de domicílios com água da rede, esgoto na rede e lixo
   coletado, ao lado do estado e do Brasil. Fonte é o Censo e não o SINISA, que não tem API aberta por município.
+- **Segurança (SIM/DATASUS):** aba "Segurança" com os homicídios de moradores no último ano fechado, a taxa média
+  dos últimos 3 anos por 100 mil moradores (estável em cidade pequena, onde poucos casos mudam muito a taxa de um
+  ano) com o estado e o Brasil, e a contagem ano a ano desde 2014. Sem ranking nem cor de "bom/ruim".
+- **Por dentro do estado:** as abas Economia, Agro, Educação, Internet, Saneamento e Segurança usam os mesmos serviços
+  das cidades com o código do estado (`/estados/{uf}/pib`, `/agro`, `/ideb`, `/emprego`, `/internet`, `/saneamento`,
+  `/seguranca`), comparando só com o Brasil.
 - **Saúde adiada:** a API de hospitais e leitos do Ministério da Saúde não traz o mês de cada retrato e quase
   todas as linhas vêm sem município; somar daria número errado. Fica para os arquivos do CNES (ver FONTES).
 

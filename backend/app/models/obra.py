@@ -166,3 +166,16 @@ class SaneamentoCenso(Base):
     esgoto_rede: Mapped[Decimal | None] = mapped_column(Numeric(5, 2))
     lixo_coletado: Mapped[Decimal | None] = mapped_column(Numeric(5, 2))
     ingestao_id: Mapped[int | None] = mapped_column(ForeignKey("fonte_ingestao.id"))
+
+
+class HomicidioSim(Base):
+    """Homicídios por lugar de residência e ano no SIM (DATASUS): causa básica X85 a Y09, Y35 e
+    Y36, o recorte do Atlas da Violência. Código de 1 dígito = Brasil, 2 = UF, 7 = município
+    (cidade sem nenhum caso no ano entra com zero)."""
+
+    __tablename__ = "homicidio_sim"
+
+    codigo: Mapped[str] = mapped_column(String(7), primary_key=True)
+    ano: Mapped[int] = mapped_column(SmallInteger, primary_key=True)
+    homicidios: Mapped[int] = mapped_column(Integer)
+    ingestao_id: Mapped[int | None] = mapped_column(ForeignKey("fonte_ingestao.id"))

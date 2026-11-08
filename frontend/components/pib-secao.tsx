@@ -17,7 +17,7 @@ export function PibResumo({ dados, cidade, uf }: { dados: PibMunicipio; cidade: 
         <div className="border-t-2 border-foreground pt-2">
           <dt className="text-sm text-muted-foreground">PIB de {cidade} em {ultimo.ano}</dt>
           <dd className="numero text-2xl">{formatarReaisCompacto(ultimo.pib)}</dd>
-          <dd className="text-sm text-muted-foreground">Tudo o que foi produzido na cidade no ano</dd>
+          <dd className="text-sm text-muted-foreground">Tudo o que foi produzido em {cidade} no ano</dd>
         </div>
         {comPorMorador?.por_habitante != null && (
           <div className="border-t-2 border-foreground pt-2">

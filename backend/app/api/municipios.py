@@ -23,6 +23,7 @@ from app.schemas.obras import ObrasMunicipio, ObrasPorUf
 from app.schemas.pib import PibMunicipio
 from app.schemas.repasses_estaduais import RepassesEstaduaisResposta
 from app.schemas.saneamento import SaneamentoMunicipio
+from app.schemas.seguranca import SegurancaMunicipio
 from app.services import (
     agro,
     comparar_cidades,
@@ -37,6 +38,7 @@ from app.services import (
     pib,
     repasses_estaduais,
     saneamento,
+    seguranca,
 )
 from app.services.texto_busca import normalizar
 
@@ -183,6 +185,15 @@ def saneamento_da_cidade(ibge: str, session: Annotated[Session, Depends(get_sess
     if municipio is None:
         raise HTTPException(404, "Município não encontrado.")
     return saneamento.do_municipio(session, ibge, municipio.uf)
+
+
+@router.get("/municipios/{ibge}/seguranca", response_model=SegurancaMunicipio)
+def seguranca_da_cidade(ibge: str, session: Annotated[Session, Depends(get_session)]) -> dict:
+    """Homicídios de moradores (SIM/DATASUS) ano a ano, com o estado e o Brasil."""
+    municipio = session.get(Municipio, ibge)
+    if municipio is None:
+        raise HTTPException(404, "Município não encontrado.")
+    return seguranca.do_municipio(session, ibge, municipio.uf)
 
 
 @router.get("/obras/estados", response_model=ObrasPorUf)

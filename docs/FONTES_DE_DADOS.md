@@ -243,6 +243,15 @@ Endpoints conferidos em 2026-10-06.
 - **Conferido:** Blumenau 94,0% água, 67,6% esgoto, 99,9% lixo; SC 84,4 / 54,3 / 96,7; Brasil 83,9 / 64,7 / 91,7. 5.598 lugares.
 - **Frequência:** manual (`ibge_saneamento`, `ingestion/ibge/saneamento.py`).
 
+## DATASUS: homicídios no SIM (redesenho, etapa 5)
+
+- **URL:** `ftp://ftp.datasus.gov.br/dissemin/publicos/SIM/CID10/DORES/DO<UF><ano>.dbc` (um arquivo por UF de residência e ano; só anos fechados, hoje até 2024; os preliminares ficam em `SIM/PRELIM`). SP 2024 tem 29 MB comprimidos.
+- **Formato:** DBC = DBF comprimido (PKWARE implode). Descomprimimos com `pyreaddbc` (AGPL, equipe do PySUS) e lemos o DBF de largura fixa direto, só `CODMUNRES` (6 dígitos, sem o verificador) e `CAUSABAS`. Nenhum dado de pessoa é guardado, só as contagens.
+- **Recorte:** homicídio = causa básica X85 a Y09 (agressões) ou Y35 e Y36 (intervenção legal), o mesmo do Atlas da Violência. Por município de **residência**. Cidade sem caso no ano entra com zero; código "ignorado" (ex.: 420000) conta no estado e não numa cidade. Ano só entra com as 27 UFs publicadas.
+- **Atlas da Violência (Ipea):** a API antiga (`/atlasviolencia/api/v1`) saiu do ar com o site novo; usamos a fonte primária que ele usa.
+- **Conferido:** Brasil 65.602 (2017), 46.409 (2022) e 45.747 (2023), iguais aos do Atlas. SC 654 e Blumenau 20 em 2024. 61.589 linhas (lugar × ano, 2014 a 2024).
+- **Frequência:** manual, uma vez por ano (`datasus_homicidios`, `ingestion/datasus/homicidios.py`; bruto = recorte). Carga de ~9 min (≈300 arquivos).
+
 ## Ministério da Saúde: hospitais e leitos (reconhecimento de 08/11/2026, sem ingestão)
 
 - **URL:** `https://apidadosabertos.saude.gov.br/assistencia-a-saude/hospitais-e-leitos?limit=1000&offset=N` (até 1.000 por página). O CKAN antigo (opendatasus) virou o novo portal `dadosabertos.saude.gov.br`, sem API de catálogo, e os arquivos no S3 antigo dão 403 (`AccessDenied`, endereço que não existe mais, não bloqueio).

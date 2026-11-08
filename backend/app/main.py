@@ -12,6 +12,7 @@ from app.api import (
     dinheiro_federal,
     eleicoes,
     eleitos,
+    estado_temas,
     executivo,
     fontes,
     municipios,
@@ -77,6 +78,7 @@ app.include_router(cobertura.router)
 app.include_router(representantes.router)
 app.include_router(parlamentares.router)
 app.include_router(municipios.router)
+app.include_router(estado_temas.router)
 app.include_router(dinheiro_federal.router)
 app.include_router(fontes.router)
 app.include_router(comparar.router)

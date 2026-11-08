@@ -112,6 +112,12 @@ CATALOGO = [
         "url": "https://sidra.ibge.gov.br/tabela/6805",
     },
     {
+        "dado": "Homicídios por município de residência (anos fechados desde 2014)",
+        "orgao": "Ministério da Saúde, DATASUS (SIM)",
+        "fontes": ["datasus_homicidios"],
+        "url": "https://datasus.saude.gov.br/mortalidade-desde-1996-pela-cid-10",
+    },
+    {
         "dado": "PIB dos municípios e valor adicionado por atividade (2002 em diante)",
         "orgao": "Instituto Brasileiro de Geografia e Estatística (IBGE)",
         "fontes": ["ibge_pib"],

@@ -194,11 +194,14 @@ export function IdebResumo({
   cidade,
   uf,
   faixas = [],
+  linkCompleto = true,
 }: {
   dados: IdebMunicipio;
   cidade: string;
   uf: string;
   faixas?: FaixaMandato[];
+  /** Na página do estado não há a seção completa (camada 3). */
+  linkCompleto?: boolean;
 }) {
   const principal = dados.etapas[0];
   const redePrincipal = principal ? redeComparada(principal.redes) : null;
@@ -225,8 +228,9 @@ export function IdebResumo({
         })}
       </dl>
       <p className="text-sm text-muted-foreground">
-        IDEB das {REDE.publica}, de 0 a 10: junta a aprovação e a nota da prova do Saeb. Comparado com o estado e o
-        Brasil na mesma rede.
+        IDEB das {REDE.publica}, de 0 a 10: junta a aprovação e a nota da prova do Saeb. Comparado com{" "}
+        {dados.etapas.some((e) => e.redes.some((r) => r.uf.length > 0)) ? "o estado e o Brasil" : "o Brasil"} na mesma
+        rede.
       </p>
       {principal && redePrincipal && (
         <div className="flex flex-col gap-1">
@@ -241,11 +245,13 @@ export function IdebResumo({
           )}
         </div>
       )}
-      <p className="text-sm">
-        <a href="#ver-ideb" className="underline underline-offset-4">
-          IDEB por etapa e rede de ensino
-        </a>
-      </p>
+      {linkCompleto && (
+        <p className="text-sm">
+          <a href="#ver-ideb" className="underline underline-offset-4">
+            IDEB por etapa e rede de ensino
+          </a>
+        </p>
+      )}
       <FonteRodape fonte={dados.fonte_nome} url={dados.fonte_url} atualizadoEm={dados.atualizado_em} />
     </div>
   );
