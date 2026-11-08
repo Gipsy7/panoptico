@@ -16,6 +16,7 @@ from sqlalchemy import and_, case, exists, func, literal, literal_column, select
 from sqlalchemy.orm import Session
 
 from app.models import Candidatura, MandatoLocal, Municipio, Parlamentar, Pessoa, PessoaVinculo
+from app.partidos import sigla_partido
 from app.services import eleitos_futuros, tse
 from app.services.pessoas import publicavel
 from ingestion.comum import chave_nome
@@ -281,7 +282,7 @@ def buscar(session: Session, nome: str) -> dict:
                 "cargo": "Vereador"
                 if camara
                 else ("Deputado distrital" if m.uf == "DF" else "Deputado estadual"),
-                "partido": m.partido,
+                "partido": sigla_partido(m.partido),
                 "lugar": f"{cidade}/{m.uf}" if cidade else m.uf,
                 "caminho": f"/{'vereador' if camara else 'deputado-estadual'}/{m.id}",
                 "_ordem": ORDEM_CARGO["VEREADOR" if camara else "DEPUTADO ESTADUAL"],

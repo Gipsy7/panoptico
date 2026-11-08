@@ -22,6 +22,7 @@ from app.models import (
     VotacaoLocal,
     VotoLocal,
 )
+from app.partidos import sigla_partido
 from app.services import eleitos_futuros, media_casa, subsidio_estadual, tse
 
 FONTES = {
@@ -445,7 +446,7 @@ def _item(m: MandatoLocal, projetos: int, com_foto_tse: set[int], votos: int = 0
         "votacoes": votos,
         "id": m.id,
         "nome": m.nome,
-        "partido": m.partido,
+        "partido": sigla_partido(m.partido),
         "foto_url": m.foto_url,
         "foto_tse": m.candidatura_id in com_foto_tse if m.candidatura_id else False,
         "titular": m.titular,

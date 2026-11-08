@@ -9,7 +9,15 @@ import {
   quebrarNome,
 } from "@/lib/cartao";
 
-const base = { nome: "Fulana", casa: "camara" as const, cargo: "Deputada federal", partido: "XYZ", uf: "SC", foto: null, fonte: "Fonte: Câmara" };
+const base = {
+  nome: "Fulana",
+  casa: "camara" as const,
+  cargo: "Deputada federal",
+  partido: "XYZ",
+  uf: "SC",
+  foto: null,
+  fonte: "Fonte: Câmara",
+};
 
 describe("cartão do perfil", () => {
   it("formato desconhecido cai no Feed", () => {
@@ -26,9 +34,18 @@ describe("cartão do perfil", () => {
   it("federal: presença é o número grande, com a média ao lado", () => {
     const d = montarFederal({
       ...base,
-      presenca: { ano: 2026, votou: 112, total_votacoes: 118, media_casa_percentual: 88.1 },
+      presenca: {
+        ano: 2026,
+        votou: 112,
+        total_votacoes: 118,
+        media_casa_percentual: 88.1,
+      },
       gastos: { ano: 2026, total: 312000, media_casa: 388000 },
-      projetos: { desde: "2019-02-01", primeiro_autor: 9, media_casa_primeiro_autor: 6.2 },
+      projetos: {
+        desde: "2019-02-01",
+        primeiro_autor: 9,
+        media_casa_primeiro_autor: 6.2,
+      },
       governo: { iguais: 71, total: 98, media_percentual: 65.3 },
     });
     expect(d.principal?.valor).toBe("112");
@@ -42,7 +59,10 @@ describe("cartão do perfil", () => {
   });
 
   it("federal sem votações: o primeiro número com média assume, sem inventar", () => {
-    const d = montarFederal({ ...base, gastos: { ano: 2026, total: 0, media_casa: 1000 } });
+    const d = montarFederal({
+      ...base,
+      gastos: { ano: 2026, total: 0, media_casa: 1000 },
+    });
     expect(d.principal?.valor).toBe("Nenhum reembolso");
     expect(d.principal?.media).toContain("Média da Câmara");
     expect(d.outros).toHaveLength(0);
@@ -71,7 +91,12 @@ describe("cartão do perfil", () => {
   });
 
   it("local sem número com média: o primeiro vira principal", () => {
-    const d = montarLocal({ ...base, casa: "camara", projetos: 3, proposicoes: 4 });
+    const d = montarLocal({
+      ...base,
+      casa: "camara",
+      projetos: 3,
+      proposicoes: 4,
+    });
     expect(d.principal?.valor).toBe("3");
     expect(d.principal?.media).toBeUndefined();
   });
@@ -91,7 +116,19 @@ describe("cartão do perfil", () => {
     });
     expect(d.principal?.valor).toBe("4.641");
     expect(d.principal?.media).toBeUndefined();
-    const v = montarEleito({ ...{ nome: "B", cargo: "Prefeito", unidade: null, partido: null, uf: "SC", situacao: "Eleito", anoEleicao: 2024, foto: null, fonte: "x" } });
+    const v = montarEleito({
+      ...{
+        nome: "B",
+        cargo: "Prefeito",
+        unidade: null,
+        partido: null,
+        uf: "SC",
+        situacao: "Eleito",
+        anoEleicao: 2024,
+        foto: null,
+        fonte: "x",
+      },
+    });
     expect(v.principal).toBeNull();
     expect(v.frase).toBe("Eleito em 2024 para prefeito.");
   });
@@ -104,7 +141,10 @@ describe("cartão do perfil", () => {
     expect(quebrarNome("Adail")).toEqual(["Adail"]);
     expect(quebrarNome("Altair Silva")).toEqual(["Altair Silva"]);
     expect(quebrarNome("Carlos Chiodini")).toEqual(["Carlos", "Chiodini"]);
-    expect(quebrarNome("Maria da Silva Souza")).toEqual(["Maria da", "Silva Souza"]);
+    expect(quebrarNome("Maria da Silva Souza")).toEqual([
+      "Maria da",
+      "Silva Souza",
+    ]);
   });
 });
 
@@ -117,6 +157,26 @@ describe("escolherNumeros sem média", () => {
     expect(r.principal?.rotulo).toBe("Salário");
   });
   it("só zeros: sem principal", () => {
-    expect(escolherNumeros([{ rotulo: "Projetos", valor: "0" }]).principal).toBeNull();
+    expect(
+      escolherNumeros([{ rotulo: "Projetos", valor: "0" }]).principal,
+    ).toBeNull();
+  });
+});
+
+describe("cartão local sem números", () => {
+  it("diz a cidade do vereador", () => {
+    const d = montarLocal({
+      nome: "X",
+      casa: "camara",
+      cargo: "Vereador",
+      partido: null,
+      uf: "AC",
+      municipio: "Feijó",
+      foto: null,
+      fonte: "",
+      projetos: 0,
+      proposicoes: 0,
+    });
+    expect(d.frase).toBe("Vereador em Feijó (AC).");
   });
 });

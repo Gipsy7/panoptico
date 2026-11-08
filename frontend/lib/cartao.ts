@@ -77,6 +77,8 @@ type EntradaFederal = {
   cargo: string;
   partido: string | null;
   uf: string | null;
+  /** Cidade do vereador, para a frase do cartão sem números ("Vereador em Feijó (AC)"). */
+  municipio?: string | null;
   foto: string | null;
   fonte: string;
   presenca?: {
@@ -170,6 +172,8 @@ type EntradaLocal = {
   cargo: string;
   partido: string | null;
   uf: string | null;
+  /** Cidade do vereador, para a frase do cartão sem números ("Vereador em Feijó (AC)."). */
+  municipio?: string | null;
   foto: string | null;
   fonte: string;
   presenca?: {
@@ -244,7 +248,12 @@ export function montarLocal(e: EntradaLocal): DadosCartao {
     foto: e.foto,
     principal,
     outros,
-    frase: principal ? null : `${e.cargo}${e.uf ? ` em ${e.uf}` : ""}.`,
+    frase: principal
+      ? null
+      : `${e.cargo} em ${e.municipio ? `${e.municipio}${e.uf ? ` (${e.uf})` : ""}` : (e.uf ?? "")}.`.replace(
+          " em .",
+          ".",
+        ),
     fonte: e.fonte,
   };
 }

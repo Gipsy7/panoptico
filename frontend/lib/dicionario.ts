@@ -41,19 +41,30 @@ const LRF_URL = "https://www.planalto.gov.br/ccivil_03/leis/lcp/lcp101.htm";
 const L9096_URL = "https://www.planalto.gov.br/ccivil_03/leis/l9096.htm";
 const L9504_URL = "https://www.planalto.gov.br/ccivil_03/leis/l9504.htm";
 const L8443_URL = "https://www.planalto.gov.br/ccivil_03/leis/l8443.htm";
-const L12846_URL = "https://www.planalto.gov.br/ccivil_03/_ato2011-2014/2013/lei/l12846.htm";
-const L14133_URL = "https://www.planalto.gov.br/ccivil_03/_ato2019-2022/2021/lei/l14133.htm";
+const L12846_URL =
+  "https://www.planalto.gov.br/ccivil_03/_ato2011-2014/2013/lei/l12846.htm";
+const L14133_URL =
+  "https://www.planalto.gov.br/ccivil_03/_ato2019-2022/2021/lei/l14133.htm";
 const LC95_URL = "https://www.planalto.gov.br/ccivil_03/leis/lcp/lcp95.htm";
-const ATO_CEAP_URL = "https://www2.camara.leg.br/legin/int/atomes/2009/atodamesa-43-21-maio-2009-588364-norma-cd-mesa.html";
+const ATO_CEAP_URL =
+  "https://www2.camara.leg.br/legin/int/atomes/2009/atodamesa-43-21-maio-2009-588364-norma-cd-mesa.html";
 const ATO_VERBA_GABINETE_URL =
   "https://www2.camara.leg.br/legin/int/atomes/2026/atodamesa-243-20-fevereiro-2026-798719-publicacaooriginal-178156-cd-mesa.html";
 const ATO_MORADIA_URL =
   "https://www2.camara.leg.br/legin/int/atomes/2015/atodamesa-3-25-fevereiro-2015-780187-publicacaooriginal-146196-cd-mesa.html";
-const STF_ADPF854_URL = "https://portal.stf.jus.br/processos/detalhe.asp?incidente=6199750";
-const GLOSSARIO_ORCAMENTO_URL = "https://www.congressonacional.leg.br/legislacao-e-publicacoes/glossario-orcamentario";
+const STF_ADPF854_URL =
+  "https://portal.stf.jus.br/processos/detalhe.asp?incidente=6199750";
+const GLOSSARIO_ORCAMENTO_URL =
+  "https://www.congressonacional.leg.br/legislacao-e-publicacoes/glossario-orcamentario";
 
-const cf = (artigo: string): FonteTermo => ({ rotulo: `${CF}, ${artigo}`, url: CF_URL });
-const ricd = (artigo: string): FonteTermo => ({ rotulo: `${RICD}, ${artigo}`, url: RICD_URL });
+const cf = (artigo: string): FonteTermo => ({
+  rotulo: `${CF}, ${artigo}`,
+  url: CF_URL,
+});
+const ricd = (artigo: string): FonteTermo => ({
+  rotulo: `${RICD}, ${artigo}`,
+  url: RICD_URL,
+});
 
 export const TERMOS: Termo[] = [
   // ---------- Propostas e leis ----------
@@ -66,7 +77,11 @@ export const TERMOS: Termo[] = [
       "Nome oficial de tudo o que é apresentado para a Câmara (ou outra Casa) decidir: projetos de lei, propostas de emenda à Constituição, medidas provisórias, requerimentos, emendas e pareceres.",
     exemplo: { rotulo: "Lista de projetos e votações", href: "/projetos" },
     fonte: ricd("art. 100"),
-    sinonimos: ["proposicoes", "proposicao legislativa", "proposicoes legislativas"],
+    sinonimos: [
+      "proposicoes",
+      "proposicao legislativa",
+      "proposicoes legislativas",
+    ],
   },
   {
     id: "pl",
@@ -87,6 +102,11 @@ export const TERMOS: Termo[] = [
     explicacao:
       "Lei para assuntos que a própria Constituição manda tratar em lei complementar, como regras de impostos e das finanças públicas. Para ser aprovada precisa da maioria absoluta: mais da metade de todos os deputados (257 de 513) e de todos os senadores (41 de 81).",
     fonte: cf("art. 69"),
+    exemplo: {
+      rotulo:
+        "PLP 68/2024, que virou a Lei Complementar 214/2025 (reforma tributária)",
+      href: "/projeto/camara/2430143",
+    },
     sinonimos: ["plp", "lei complementar", "projeto de lei complementar"],
   },
   {
@@ -97,7 +117,17 @@ export const TERMOS: Termo[] = [
     explicacao:
       "Proposta para mudar a Constituição, a lei mais importante do país. É mais difícil de aprovar que uma lei comum: precisa de 3 em cada 5 votos (308 deputados e 49 senadores), em duas votações na Câmara e duas no Senado. Não passa pelo presidente da República: aprovada, o próprio Congresso a publica (promulga).",
     fonte: cf("art. 60"),
-    sinonimos: ["pec", "pecs", "emenda constitucional", "emenda a constituicao", "proposta de emenda a constituicao"],
+    exemplo: {
+      rotulo: "PEC 66/2023, sobre o pagamento de precatórios pelos municípios",
+      href: "/projeto/camara/2454495",
+    },
+    sinonimos: [
+      "pec",
+      "pecs",
+      "emenda constitucional",
+      "emenda a constituicao",
+      "proposta de emenda a constituicao",
+    ],
   },
   {
     id: "mp",
@@ -107,6 +137,10 @@ export const TERMOS: Termo[] = [
     explicacao:
       "Norma que o presidente da República publica sozinho, em caso de relevância e urgência, e que vale como lei desde o primeiro dia. O Congresso tem até 120 dias (60 mais 60) para votar; se não votar, ela perde a validade. Depois de 45 dias sem votação, ela trava boa parte das outras votações da Casa onde estiver, até ser votada.",
     fonte: cf("art. 62"),
+    exemplo: {
+      rotulo: "MP 1.343/2026, votada e transformada em lei",
+      href: "/projeto/camara/2610975",
+    },
     sinonimos: ["mp", "mpv", "mps", "medida provisoria", "medidas provisorias"],
   },
   {
@@ -117,6 +151,11 @@ export const TERMOS: Termo[] = [
     explicacao:
       "Forma de o Congresso decidir sozinho os assuntos que a Constituição dá só a ele: aprovar tratados internacionais, suspender um decreto do presidente que passou do limite da lei, fixar o salário dos parlamentares e do presidente. Não vai para sanção.",
     fonte: cf("arts. 49 e 59, VI"),
+    exemplo: {
+      rotulo:
+        "PDL 41/2026, que aprova o acordo de comércio entre o Mercosul e a União Europeia",
+      href: "/projeto/senado/172821",
+    },
     sinonimos: ["pdl", "decreto legislativo", "projeto de decreto legislativo"],
   },
   {
@@ -148,7 +187,14 @@ export const TERMOS: Termo[] = [
     explicacao:
       "Quando o presidente da República recusa um projeto aprovado pelo Congresso, inteiro (veto total) ou só alguns trechos (veto parcial), por achá-lo contra a Constituição ou contra o interesse público. O Congresso analisa o veto em sessão conjunta e pode derrubá-lo com a maioria absoluta dos deputados (257) e dos senadores (41).",
     fonte: cf("art. 66, §§ 1º a 6º"),
-    sinonimos: ["veto", "vetos", "vetou", "veto parcial", "veto total", "derrubada de veto"],
+    sinonimos: [
+      "veto",
+      "vetos",
+      "vetou",
+      "veto parcial",
+      "veto total",
+      "derrubada de veto",
+    ],
   },
   {
     id: "promulgacao",
@@ -188,7 +234,12 @@ export const TERMOS: Termo[] = [
     explicacao:
       "Atalho que dispensa prazos e etapas do caminho normal, para o projeto ser votado mais cedo. O pedido de urgência é votado no Plenário. Há uma urgência mais forte, que põe o projeto na pauta do mesmo dia e precisa do apoio da maioria absoluta da Câmara (257 deputados).",
     fonte: ricd("arts. 152 a 155"),
-    sinonimos: ["urgencia", "regime de urgencia", "requerimento de urgencia", "urgencia urgentissima"],
+    sinonimos: [
+      "urgencia",
+      "regime de urgencia",
+      "requerimento de urgencia",
+      "urgencia urgentissima",
+    ],
   },
   {
     id: "destaque",
@@ -209,7 +260,10 @@ export const TERMOS: Termo[] = [
     resumo: "Reunião em que a Casa toda vota.",
     explicacao:
       "Reunião em que todos os deputados (ou todos os senadores) podem votar. Muitos projetos passam antes pelas comissões, grupos menores que estudam cada assunto.",
-    exemplo: { rotulo: "Projetos com votação nominal", href: "/projetos?votacao=com" },
+    exemplo: {
+      rotulo: "Projetos com votação nominal",
+      href: "/projetos?votacao=com",
+    },
     fonte: { rotulo: RICD, url: RICD_URL },
     sinonimos: ["plenario"],
   },
@@ -220,7 +274,10 @@ export const TERMOS: Termo[] = [
     resumo: "Cada voto fica registrado com o nome.",
     explicacao:
       "Votação em que cada parlamentar registra o voto (Sim, Não ou Abstenção) no painel eletrônico, e a lista com o nome de cada um fica pública. É dela que vêm os números de presença e de votos do Panóptico.",
-    exemplo: { rotulo: "Projetos com votação nominal", href: "/projetos?votacao=com" },
+    exemplo: {
+      rotulo: "Projetos com votação nominal",
+      href: "/projetos?votacao=com",
+    },
     fonte: ricd("arts. 184 e 186"),
     sinonimos: ["votacao nominal", "votacoes nominais", "voto nominal"],
   },
@@ -232,7 +289,12 @@ export const TERMOS: Termo[] = [
     explicacao:
       "Votação em que ninguém registra o voto no painel: quem preside pede que os favoráveis fiquem como estão e anuncia o resultado. Por isso não dá para saber como cada parlamentar votou, e ela não entra na conta de votos de ninguém. Os parlamentares podem pedir a verificação, que transforma a votação em nominal.",
     fonte: ricd("art. 185"),
-    sinonimos: ["votacao simbolica", "votacoes simbolicas", "voto simbolico", "simbolica"],
+    sinonimos: [
+      "votacao simbolica",
+      "votacoes simbolicas",
+      "voto simbolico",
+      "simbolica",
+    ],
   },
   {
     id: "obstrucao",
@@ -240,9 +302,14 @@ export const TERMOS: Termo[] = [
     oficial: "Obstrução parlamentar",
     resumo: "Forma de atrasar ou impedir uma votação.",
     explicacao:
-      "Forma de atrasar ou impedir uma votação: parlamentares de um partido deixam de registrar voto, para que não se alcance o número mínimo de presentes (quórum). Quando a obstrução é decidida pela liderança do partido e comunicada à Mesa, a lista de votos mostra \"Obstrução\" ao lado do nome e ela não conta como falta.",
+      'Forma de atrasar ou impedir uma votação: parlamentares de um partido deixam de registrar voto, para que não se alcance o número mínimo de presentes (quórum). Quando a obstrução é decidida pela liderança do partido e comunicada à Mesa, a lista de votos mostra "Obstrução" ao lado do nome e ela não conta como falta.',
     fonte: ricd("art. 82, § 6º"),
-    sinonimos: ["obstrucao", "obstrucao parlamentar", "em obstrucao", "obstruir"],
+    sinonimos: [
+      "obstrucao",
+      "obstrucao parlamentar",
+      "em obstrucao",
+      "obstruir",
+    ],
   },
   {
     id: "quorum",
@@ -262,7 +329,12 @@ export const TERMOS: Termo[] = [
     explicacao:
       "Mais da metade de todos os membros da Casa, contando quem faltou: 257 dos 513 deputados ou 41 dos 81 senadores. É diferente da maioria simples, que conta só quem votou. Leis complementares e a derrubada de veto pedem maioria absoluta; mudanças na Constituição pedem 3/5.",
     fonte: cf("arts. 47, 60 e 69"),
-    sinonimos: ["maioria absoluta", "maioria simples", "maioria qualificada", "tres quintos"],
+    sinonimos: [
+      "maioria absoluta",
+      "maioria simples",
+      "maioria qualificada",
+      "tres quintos",
+    ],
   },
   {
     id: "orientacao",
@@ -272,7 +344,13 @@ export const TERMOS: Termo[] = [
     explicacao:
       "Antes de cada votação, o líder de cada partido, bloco ou federação (e o líder do Governo) diz no microfone como recomenda que seu grupo vote: Sim, Não, Obstrução ou liberado. Cada parlamentar continua livre para votar diferente; o Panóptico mostra quantas vezes seguiu a orientação.",
     fonte: ricd("arts. 9º a 11"),
-    sinonimos: ["orientacao", "orientacao de voto", "orientacao de bancada", "orientacao do governo", "orientou"],
+    sinonimos: [
+      "orientacao",
+      "orientacao de voto",
+      "orientacao de bancada",
+      "orientacao do governo",
+      "orientou",
+    ],
   },
   {
     id: "lider",
@@ -282,7 +360,13 @@ export const TERMOS: Termo[] = [
     explicacao:
       "Deputado escolhido pelo partido ou bloco para falar em nome dele, orientar o voto da bancada e indicar quem ocupa as vagas nas comissões. O presidente da República pode indicar um Líder do Governo.",
     fonte: ricd("arts. 9º a 11"),
-    sinonimos: ["lider", "lideres", "lideranca", "lider do governo", "lider da oposicao"],
+    sinonimos: [
+      "lider",
+      "lideres",
+      "lideranca",
+      "lider do governo",
+      "lider da oposicao",
+    ],
   },
   {
     id: "bancada",
@@ -291,7 +375,10 @@ export const TERMOS: Termo[] = [
     resumo: "O grupo de parlamentares de um partido (ou de um estado).",
     explicacao:
       "O conjunto de parlamentares de um mesmo partido na Casa. A palavra também é usada para o grupo de um mesmo estado (bancada de Minas) ou de um mesmo interesse (bancada da saúde), mas só a do partido tem regras no Regimento.",
-    exemplo: { rotulo: "Deputados e senadores por partido", href: "/parlamentares" },
+    exemplo: {
+      rotulo: "Deputados e senadores por partido",
+      href: "/parlamentares",
+    },
     fonte: ricd("art. 9º"),
     sinonimos: ["bancada", "bancadas", "representacao partidaria"],
   },
@@ -313,7 +400,12 @@ export const TERMOS: Termo[] = [
     explicacao:
       "Grupo que dirige os trabalhos e a administração da Casa. Na Câmara são sete deputados: o presidente, dois vice-presidentes e quatro secretários, eleitos pelos colegas para mandato de dois anos.",
     fonte: ricd("art. 14"),
-    sinonimos: ["mesa", "mesa diretora", "mesa da camara", "presidente da camara"],
+    sinonimos: [
+      "mesa",
+      "mesa diretora",
+      "mesa da camara",
+      "presidente da camara",
+    ],
   },
   {
     id: "comissao",
@@ -323,7 +415,12 @@ export const TERMOS: Termo[] = [
     explicacao:
       "Grupo de parlamentares que estuda os projetos de um assunto (saúde, educação, orçamento...) antes do Plenário. Em muitos casos a própria comissão aprova ou rejeita o projeto, sem ir ao Plenário (o chamado poder conclusivo).",
     fonte: { rotulo: `${CF}, art. 58, e ${RICD}, art. 24`, url: CF_URL },
-    sinonimos: ["comissao", "comissoes", "comissao permanente", "poder conclusivo"],
+    sinonimos: [
+      "comissao",
+      "comissoes",
+      "comissao permanente",
+      "poder conclusivo",
+    ],
   },
   {
     id: "relator",
@@ -353,7 +450,13 @@ export const TERMOS: Termo[] = [
     explicacao:
       "Comissão criada para investigar um fato determinado, por prazo certo, a pedido de um terço dos deputados ou dos senadores (quando reúne as duas Casas, chama-se CPMI). Pode ouvir testemunhas e pedir documentos. No fim, o relatório vai ao Ministério Público, que decide se acusa alguém na Justiça.",
     fonte: cf("art. 58, § 3º"),
-    sinonimos: ["cpi", "cpis", "cpmi", "cpmis", "comissao parlamentar de inquerito"],
+    sinonimos: [
+      "cpi",
+      "cpis",
+      "cpmi",
+      "cpmis",
+      "comissao parlamentar de inquerito",
+    ],
   },
   {
     id: "indiciamento",
@@ -416,7 +519,13 @@ export const TERMOS: Termo[] = [
     explicacao:
       "Nome oficial do salário de quem tem mandato. É pago em parcela única, sem gratificação somada. O dos deputados federais e senadores é fixado pelo próprio Congresso; o dos deputados estaduais, pela Assembleia, até 75% do federal; o dos vereadores, pela Câmara Municipal, com limite pelo tamanho da cidade.",
     fonte: cf("arts. 27, § 2º, 29, VI, 39, § 4º, e 49, VII"),
-    sinonimos: ["subsidio", "subsidios", "salario", "salario de deputado", "salario de senador"],
+    sinonimos: [
+      "subsidio",
+      "subsidios",
+      "salario",
+      "salario de deputado",
+      "salario de senador",
+    ],
   },
   {
     id: "cota",
@@ -425,10 +534,20 @@ export const TERMOS: Termo[] = [
     resumo: "Verba mensal para despesas do mandato. Não é salário.",
     explicacao:
       "Dinheiro que cada deputado pode usar todo mês em despesas do mandato: passagens, combustível, aluguel de escritório no estado, telefone, divulgação. Não é salário: é reembolso, só com nota fiscal, e o valor muda de estado para estado por causa do preço das passagens. No Senado se chama CEAPS.",
-    exemplo: { rotulo: "Parlamentares por gasto da cota", href: "/parlamentares?ordenar=gastos" },
-    fonte: { rotulo: "Câmara dos Deputados, Ato da Mesa nº 43/2009", url: ATO_CEAP_URL },
+    exemplo: {
+      rotulo: "Parlamentares por gasto da cota",
+      href: "/parlamentares?ordenar=gastos",
+    },
+    fonte: {
+      rotulo: "Câmara dos Deputados, Ato da Mesa nº 43/2009",
+      url: ATO_CEAP_URL,
+    },
     sinonimos: [
-      "cota", "cota parlamentar", "ceap", "ceaps", "gastos do gabinete",
+      "cota",
+      "cota parlamentar",
+      "ceap",
+      "ceaps",
+      "gastos do gabinete",
       "cota para o exercicio da atividade parlamentar",
     ],
   },
@@ -436,20 +555,34 @@ export const TERMOS: Termo[] = [
     id: "verba-gabinete",
     termo: "Verba para pagar assessores",
     oficial: "Verba de gabinete",
-    resumo: "Dinheiro por mês para pagar a equipe do gabinete. Não é salário nem cota.",
+    resumo:
+      "Dinheiro por mês para pagar a equipe do gabinete. Não é salário nem cota.",
     explicacao:
       "Valor máximo que a Casa paga por mês em salários da equipe que o parlamentar escolhe para trabalhar com ele, em Brasília ou no estado. Na Câmara, paga de 5 a 25 secretários parlamentares, que são servidores comissionados e recebem da própria Câmara. É separada da cota parlamentar e do salário.",
-    fonte: { rotulo: "Câmara dos Deputados, Ato da Mesa nº 243/2026", url: ATO_VERBA_GABINETE_URL },
-    sinonimos: ["verba de gabinete", "verba do gabinete", "assessores", "secretario parlamentar", "secretarios parlamentares"],
+    fonte: {
+      rotulo: "Câmara dos Deputados, Ato da Mesa nº 243/2026",
+      url: ATO_VERBA_GABINETE_URL,
+    },
+    sinonimos: [
+      "verba de gabinete",
+      "verba do gabinete",
+      "assessores",
+      "secretario parlamentar",
+      "secretarios parlamentares",
+    ],
   },
   {
     id: "auxilio-moradia",
     termo: "Moradia em Brasília",
     oficial: "Auxílio-moradia ou imóvel funcional",
-    resumo: "Ajuda para morar em Brasília, para quem não usa apartamento da Casa.",
+    resumo:
+      "Ajuda para morar em Brasília, para quem não usa apartamento da Casa.",
     explicacao:
       "Quem tem mandato no Congresso pode morar num apartamento funcional, que é da Câmara ou do Senado, ou receber o auxílio-moradia, um valor máximo por mês para aluguel ou hotel em Brasília. Não dá para ter os dois. Na Câmara o limite é fixado por ato da Mesa; no Senado, a página de transparência publica o valor.",
-    fonte: { rotulo: "Câmara dos Deputados, Ato da Mesa nº 3/2015", url: ATO_MORADIA_URL },
+    fonte: {
+      rotulo: "Câmara dos Deputados, Ato da Mesa nº 3/2015",
+      url: ATO_MORADIA_URL,
+    },
     sinonimos: ["auxilio moradia", "apartamento funcional", "imovel funcional"],
   },
 
@@ -472,7 +605,11 @@ export const TERMOS: Termo[] = [
     explicacao:
       "Lei votada todo ano que diz as metas, as prioridades e as regras para montar o orçamento do ano seguinte. Vem antes do orçamento propriamente dito.",
     fonte: cf("art. 165, § 2º"),
-    sinonimos: ["ldo", "lei de diretrizes orcamentarias", "diretrizes orcamentarias"],
+    sinonimos: [
+      "ldo",
+      "lei de diretrizes orcamentarias",
+      "diretrizes orcamentarias",
+    ],
   },
   {
     id: "loa",
@@ -481,9 +618,18 @@ export const TERMOS: Termo[] = [
     resumo: "Lei que diz quanto o governo pode gastar em cada coisa no ano.",
     explicacao:
       "Lei votada todo ano que lista quanto o governo prevê arrecadar e quanto pode gastar em cada área no ano seguinte. O governo manda o projeto, e deputados e senadores podem mudá-lo com emendas.",
-    exemplo: { rotulo: "Impostos e repasses por cidade e estado", href: "/impostos-e-repasses" },
+    exemplo: {
+      rotulo: "Impostos e repasses por cidade e estado",
+      href: "/impostos-e-repasses",
+    },
     fonte: cf("arts. 165, § 5º, e 166"),
-    sinonimos: ["loa", "orcamento", "lei orcamentaria", "lei orcamentaria anual", "orcamento da uniao"],
+    sinonimos: [
+      "loa",
+      "orcamento",
+      "lei orcamentaria",
+      "lei orcamentaria anual",
+      "orcamento da uniao",
+    ],
   },
   {
     id: "emenda-parlamentar",
@@ -492,9 +638,18 @@ export const TERMOS: Termo[] = [
     resumo: "Pedido de um parlamentar para usar parte do Orçamento.",
     explicacao:
       "Pedido de deputados e senadores para que parte do dinheiro do Orçamento da União vá para um fim: uma obra, um posto de saúde, um repasse para uma cidade. Pode ser individual, de bancada estadual, de comissão ou, até 2022, de relator. As individuais e as de bancada têm pagamento obrigatório, dentro dos limites da Constituição.",
-    exemplo: { rotulo: "Emendas que chegaram à sua cidade (digite o CEP)", href: "/#cep" },
+    exemplo: {
+      rotulo: "Emendas que chegaram à sua cidade (digite o CEP)",
+      href: "/#cep",
+    },
     fonte: cf("art. 166"),
-    sinonimos: ["emenda", "emendas", "emenda parlamentar", "emendas parlamentares", "emenda ao orcamento"],
+    sinonimos: [
+      "emenda",
+      "emendas",
+      "emenda parlamentar",
+      "emendas parlamentares",
+      "emenda ao orcamento",
+    ],
   },
   {
     id: "emenda-individual",
@@ -503,9 +658,17 @@ export const TERMOS: Termo[] = [
     resumo: "A parte do orçamento que cada parlamentar indica sozinho.",
     explicacao:
       "Emenda que cada deputado ou senador apresenta sozinho. Todas juntas podem somar até 2% da receita corrente líquida do ano anterior, e metade desse valor tem de ir para a saúde. O governo é obrigado a pagar, salvo impedimento técnico.",
-    exemplo: { rotulo: "Parlamentares por valor de emendas", href: "/parlamentares?ordenar=emendas" },
+    exemplo: {
+      rotulo: "Parlamentares por valor de emendas",
+      href: "/parlamentares?ordenar=emendas",
+    },
     fonte: cf("art. 166, §§ 9º e 11"),
-    sinonimos: ["emenda individual", "emendas individuais", "emenda impositiva", "emendas impositivas"],
+    sinonimos: [
+      "emenda individual",
+      "emendas individuais",
+      "emenda impositiva",
+      "emendas impositivas",
+    ],
   },
   {
     id: "emenda-bancada",
@@ -524,7 +687,10 @@ export const TERMOS: Termo[] = [
     resumo: "Emenda apresentada por uma comissão do Congresso.",
     explicacao:
       "Emenda ao orçamento apresentada por uma comissão da Câmara, do Senado ou mista, e não por um parlamentar. O pagamento não é obrigatório pela Constituição. Não aparece no nome de um parlamentar só.",
-    fonte: { rotulo: "Congresso Nacional, Glossário de termos orçamentários", url: GLOSSARIO_ORCAMENTO_URL },
+    fonte: {
+      rotulo: "Congresso Nacional, Glossário de termos orçamentários",
+      url: GLOSSARIO_ORCAMENTO_URL,
+    },
     sinonimos: ["emenda de comissao", "emendas de comissao", "rp8"],
   },
   {
@@ -533,9 +699,18 @@ export const TERMOS: Termo[] = [
     oficial: "Emenda de relator-geral (RP9)",
     resumo: "Emendas do relator do orçamento, de 2020 a 2022.",
     explicacao:
-      "Emendas que o relator-geral do orçamento incluía e que eram distribuídas por indicação de parlamentares, sem o nome deles aparecer no orçamento (o chamado \"orçamento secreto\"). Foram usadas de 2020 a 2022, até o Supremo Tribunal Federal julgá-las contra a Constituição, em dezembro de 2022.",
-    fonte: { rotulo: "Supremo Tribunal Federal, ADPF 854", url: STF_ADPF854_URL },
-    sinonimos: ["emenda de relator", "emendas de relator", "rp9", "orcamento secreto", "relator geral"],
+      'Emendas que o relator-geral do orçamento incluía e que eram distribuídas por indicação de parlamentares, sem o nome deles aparecer no orçamento (o chamado "orçamento secreto"). Foram usadas de 2020 a 2022, até o Supremo Tribunal Federal julgá-las contra a Constituição, em dezembro de 2022.',
+    fonte: {
+      rotulo: "Supremo Tribunal Federal, ADPF 854",
+      url: STF_ADPF854_URL,
+    },
+    sinonimos: [
+      "emenda de relator",
+      "emendas de relator",
+      "rp9",
+      "orcamento secreto",
+      "relator geral",
+    ],
   },
   {
     id: "transferencia-especial",
@@ -543,21 +718,42 @@ export const TERMOS: Termo[] = [
     oficial: "Transferência especial",
     resumo: "Emenda que cai direto no caixa da prefeitura ou do estado.",
     explicacao:
-      "Forma de pagar emenda individual em que o dinheiro vai direto para o caixa da prefeitura ou do estado, sem convênio e sem dizer antes em qual obra ou serviço será usado. Por isso ficou conhecida como \"emenda Pix\". Ao ser transferido, o dinheiro passa a pertencer ao estado ou ao município.",
-    exemplo: { rotulo: "Emendas que chegaram à sua cidade (digite o CEP)", href: "/#cep" },
+      'Forma de pagar emenda individual em que o dinheiro vai direto para o caixa da prefeitura ou do estado, sem convênio e sem dizer antes em qual obra ou serviço será usado. Por isso ficou conhecida como "emenda Pix". Ao ser transferido, o dinheiro passa a pertencer ao estado ou ao município.',
+    exemplo: {
+      rotulo: "Emendas que chegaram à sua cidade (digite o CEP)",
+      href: "/#cep",
+    },
     fonte: cf("art. 166-A"),
-    sinonimos: ["emenda pix", "emendas pix", "transferencia especial", "transferencias especiais"],
+    sinonimos: [
+      "emenda pix",
+      "emendas pix",
+      "transferencia especial",
+      "transferencias especiais",
+    ],
   },
   {
     id: "transferencia-voluntaria",
     termo: "Convênio",
     oficial: "Transferência voluntária",
-    resumo: "Dinheiro que o governo federal manda por acordo, para um fim certo.",
+    resumo:
+      "Dinheiro que o governo federal manda por acordo, para um fim certo.",
     explicacao:
       "Dinheiro que a União manda a um estado ou cidade por acordo (convênio ou contrato de repasse), para um fim combinado, sem ser obrigada por lei. Quem recebe precisa cumprir regras e prestar contas do uso.",
-    exemplo: { rotulo: "Repasses para cada cidade", href: "/impostos-e-repasses" },
-    fonte: { rotulo: "Lei de Responsabilidade Fiscal (LC nº 101/2000), art. 25", url: LRF_URL },
-    sinonimos: ["convenio", "convenios", "transferencia voluntaria", "transferencias voluntarias", "contrato de repasse"],
+    exemplo: {
+      rotulo: "Repasses para cada cidade",
+      href: "/impostos-e-repasses",
+    },
+    fonte: {
+      rotulo: "Lei de Responsabilidade Fiscal (LC nº 101/2000), art. 25",
+      url: LRF_URL,
+    },
+    sinonimos: [
+      "convenio",
+      "convenios",
+      "transferencia voluntaria",
+      "transferencias voluntarias",
+      "contrato de repasse",
+    ],
   },
   {
     id: "empenho",
@@ -567,7 +763,13 @@ export const TERMOS: Termo[] = [
     explicacao:
       "Primeiro passo de um gasto público: o governo reserva o dinheiro do orçamento para uma despesa. Empenhado ainda não é pago; o serviço precisa ser entregue e conferido (liquidação) antes do pagamento.",
     fonte: { rotulo: "Lei nº 4.320/1964, art. 58", url: L4320_URL },
-    sinonimos: ["empenho", "empenhado", "empenhada", "empenhos", "valor empenhado"],
+    sinonimos: [
+      "empenho",
+      "empenhado",
+      "empenhada",
+      "empenhos",
+      "valor empenhado",
+    ],
   },
   {
     id: "liquidacao",
@@ -606,7 +808,10 @@ export const TERMOS: Termo[] = [
     resumo: "Parte do Imposto de Renda e do IPI que vai para as cidades.",
     explicacao:
       "Parte do Imposto de Renda e do IPI arrecadados pela União que a Constituição manda dividir entre todas as cidades, pelo tamanho da população e pela renda. É obrigatório: não depende de emenda nem de acordo.",
-    exemplo: { rotulo: "Impostos e repasses por cidade", href: "/impostos-e-repasses" },
+    exemplo: {
+      rotulo: "Impostos e repasses por cidade",
+      href: "/impostos-e-repasses",
+    },
     fonte: cf("art. 159, I, b, d, e e f"),
     sinonimos: ["fpm", "fundo de participacao dos municipios"],
   },
@@ -617,7 +822,10 @@ export const TERMOS: Termo[] = [
     resumo: "Parte do Imposto de Renda e do IPI que vai para os estados.",
     explicacao:
       "Parte do Imposto de Renda e do IPI arrecadados pela União (21,5%) que a Constituição manda dividir entre os estados e o Distrito Federal. É obrigatório: não depende de emenda nem de acordo.",
-    exemplo: { rotulo: "Impostos e repasses por estado", href: "/impostos-e-repasses" },
+    exemplo: {
+      rotulo: "Impostos e repasses por estado",
+      href: "/impostos-e-repasses",
+    },
     fonte: cf("art. 159, I, a"),
     sinonimos: ["fpe", "fundo de participacao dos estados"],
   },
@@ -628,7 +836,10 @@ export const TERMOS: Termo[] = [
     resumo: "Fundo que divide dinheiro de impostos para as escolas públicas.",
     explicacao:
       "Fundo de cada estado que junta parte dos impostos do estado e das cidades e divide pelo número de alunos da rede pública, da creche ao ensino médio. A União completa o valor onde o dinheiro por aluno fica abaixo do mínimo.",
-    exemplo: { rotulo: "Impostos e repasses por cidade", href: "/impostos-e-repasses" },
+    exemplo: {
+      rotulo: "Impostos e repasses por cidade",
+      href: "/impostos-e-repasses",
+    },
     fonte: cf("art. 212-A"),
     sinonimos: ["fundeb"],
   },
@@ -662,7 +873,11 @@ export const TERMOS: Termo[] = [
     explicacao:
       "Em alguns estados e nas cidades de São Paulo e do Rio de Janeiro, um tribunal próprio fiscaliza as prefeituras e câmaras municipais, no lugar do TCE. A Constituição proíbe criar novos tribunais de contas municipais.",
     fonte: cf("art. 31, §§ 1º e 4º"),
-    sinonimos: ["tcm", "tribunal de contas do municipio", "tribunal de contas dos municipios"],
+    sinonimos: [
+      "tcm",
+      "tribunal de contas do municipio",
+      "tribunal de contas dos municipios",
+    ],
   },
   {
     id: "contas-irregulares",
@@ -671,8 +886,16 @@ export const TERMOS: Termo[] = [
     resumo: "O TCU concluiu que houve problema no uso do dinheiro.",
     explicacao:
       "Decisão do Tribunal de Contas da União de que quem cuidou de dinheiro público não prestou contas, causou prejuízo ou desrespeitou a lei. Pode vir com multa e ordem de devolver valores. O TCU também pode proibir a pessoa de ocupar cargo de confiança no governo federal por 5 a 8 anos (inabilitação). Não é condenação criminal.",
-    fonte: { rotulo: "Lei nº 8.443/1992 (Lei Orgânica do TCU), arts. 16, III, e 60", url: L8443_URL },
-    sinonimos: ["contas irregulares", "contas julgadas irregulares", "inabilitacao", "contas reprovadas"],
+    fonte: {
+      rotulo: "Lei nº 8.443/1992 (Lei Orgânica do TCU), arts. 16, III, e 60",
+      url: L8443_URL,
+    },
+    sinonimos: [
+      "contas irregulares",
+      "contas julgadas irregulares",
+      "inabilitacao",
+      "contas reprovadas",
+    ],
   },
   {
     id: "cadastros-cgu",
@@ -681,8 +904,19 @@ export const TERMOS: Termo[] = [
     resumo: "Listas públicas de empresas e pessoas punidas pelo governo.",
     explicacao:
       "Listas públicas mantidas pela Controladoria-Geral da União: o CEIS reúne empresas e pessoas proibidas de contratar com o governo; o CNEP, empresas punidas pela Lei Anticorrupção; o CEAF, servidores federais expulsos. Estar na lista mostra uma punição administrativa, não uma condenação criminal.",
-    fonte: { rotulo: "Lei nº 12.846/2013 (Lei Anticorrupção), arts. 22 e 23", url: L12846_URL },
-    sinonimos: ["ceis", "cnep", "ceaf", "cgu", "cadastro da cgu", "cadastros da cgu", "controladoria geral da uniao"],
+    fonte: {
+      rotulo: "Lei nº 12.846/2013 (Lei Anticorrupção), arts. 22 e 23",
+      url: L12846_URL,
+    },
+    sinonimos: [
+      "ceis",
+      "cnep",
+      "ceaf",
+      "cgu",
+      "cadastro da cgu",
+      "cadastros da cgu",
+      "controladoria geral da uniao",
+    ],
   },
   {
     id: "ministerio-publico",
@@ -692,7 +926,14 @@ export const TERMOS: Termo[] = [
     explicacao:
       "Órgão independente que defende a lei e os interesses da sociedade. É o único que pode acusar alguém de crime na Justiça (ação penal pública) e também pode abrir investigações civis e processos para proteger o patrimônio público e o meio ambiente. Não faz parte de nenhum dos três Poderes.",
     fonte: cf("arts. 127 e 129"),
-    sinonimos: ["ministerio publico", "mp federal", "mpf", "promotor", "promotoria", "procurador"],
+    sinonimos: [
+      "ministerio publico",
+      "mp federal",
+      "mpf",
+      "promotor",
+      "promotoria",
+      "procurador",
+    ],
   },
   {
     id: "licitacao",
@@ -701,7 +942,10 @@ export const TERMOS: Termo[] = [
     resumo: "Disputa pública para o governo escolher de quem comprar.",
     explicacao:
       "Disputa pública que o governo faz antes de comprar ou contratar, para escolher a proposta mais vantajosa e dar a todos a mesma chance. As compras são publicadas no Portal Nacional de Contratações Públicas (PNCP).",
-    fonte: { rotulo: "Lei nº 14.133/2021 (Lei de Licitações), arts. 11 e 174", url: L14133_URL },
+    fonte: {
+      rotulo: "Lei nº 14.133/2021 (Lei de Licitações), arts. 11 e 174",
+      url: L14133_URL,
+    },
     sinonimos: ["licitacao", "licitacoes", "pregao", "pncp"],
   },
   {
@@ -712,7 +956,12 @@ export const TERMOS: Termo[] = [
     explicacao:
       "Casos em que a lei permite contratar sem licitação. Na dispensa, a disputa seria possível, mas a lei a dispensa (compras de valor baixo, emergências). Na inexigibilidade, não há como disputar (só um fornecedor, um artista exclusivo). Mesmo assim o contrato precisa ser publicado.",
     fonte: { rotulo: "Lei nº 14.133/2021, arts. 74 e 75", url: L14133_URL },
-    sinonimos: ["dispensa", "dispensa de licitacao", "inexigibilidade", "sem licitacao"],
+    sinonimos: [
+      "dispensa",
+      "dispensa de licitacao",
+      "inexigibilidade",
+      "sem licitacao",
+    ],
   },
 
   // ---------- Partidos e eleições ----------
@@ -724,8 +973,14 @@ export const TERMOS: Termo[] = [
     explicacao:
       "Dinheiro público (e multas eleitorais) que o TSE divide todo mês entre os partidos, a maior parte de acordo com os votos que cada um teve na última eleição para a Câmara dos Deputados. Serve para manter o partido funcionando.",
     exemplo: { rotulo: "Dinheiro dos partidos", href: "/partidos" },
-    fonte: { rotulo: "Lei nº 9.096/1995 (Lei dos Partidos), arts. 38 e 41-A", url: L9096_URL },
-    sinonimos: ["fundo partidario", "fundo especial de assistencia financeira aos partidos politicos"],
+    fonte: {
+      rotulo: "Lei nº 9.096/1995 (Lei dos Partidos), arts. 38 e 41-A",
+      url: L9096_URL,
+    },
+    sinonimos: [
+      "fundo partidario",
+      "fundo especial de assistencia financeira aos partidos politicos",
+    ],
   },
   {
     id: "fundo-eleitoral",
@@ -735,8 +990,16 @@ export const TERMOS: Termo[] = [
     explicacao:
       "Dinheiro público repassado aos partidos em ano de eleição, para pagar as campanhas. O valor é definido no orçamento, e a divisão entre os partidos segue, em maior parte, o número de deputados e senadores de cada um e os votos para a Câmara.",
     exemplo: { rotulo: "Dinheiro dos partidos", href: "/partidos" },
-    fonte: { rotulo: "Lei nº 9.504/1997 (Lei das Eleições), arts. 16-C e 16-D", url: L9504_URL },
-    sinonimos: ["fundo eleitoral", "fefc", "fundao", "fundo especial de financiamento de campanha"],
+    fonte: {
+      rotulo: "Lei nº 9.504/1997 (Lei das Eleições), arts. 16-C e 16-D",
+      url: L9504_URL,
+    },
+    sinonimos: [
+      "fundo eleitoral",
+      "fefc",
+      "fundao",
+      "fundo especial de financiamento de campanha",
+    ],
   },
   {
     id: "federacao",
@@ -746,7 +1009,10 @@ export const TERMOS: Termo[] = [
     explicacao:
       "União de dois ou mais partidos, que passam a atuar como se fossem um só por pelo menos 4 anos, nas eleições e no trabalho no Congresso. Diferente da coligação, que só valia na eleição.",
     exemplo: { rotulo: "Partidos", href: "/partidos" },
-    fonte: { rotulo: "Lei nº 9.096/1995 (Lei dos Partidos), art. 11-A", url: L9096_URL },
+    fonte: {
+      rotulo: "Lei nº 9.096/1995 (Lei dos Partidos), art. 11-A",
+      url: L9096_URL,
+    },
     sinonimos: ["federacao", "federacoes", "federacao partidaria"],
   },
   {
@@ -756,7 +1022,10 @@ export const TERMOS: Termo[] = [
     resumo: "Lista do que o candidato diz ter, entregue ao TSE.",
     explicacao:
       "Lista de bens (imóveis, carros, dinheiro aplicado...) que todo candidato entrega à Justiça Eleitoral no pedido de registro. Os bens e os valores são informados pelo próprio candidato.",
-    fonte: { rotulo: "Lei nº 9.504/1997 (Lei das Eleições), art. 11, § 1º, IV", url: L9504_URL },
+    fonte: {
+      rotulo: "Lei nº 9.504/1997 (Lei das Eleições), art. 11, § 1º, IV",
+      url: L9504_URL,
+    },
     sinonimos: ["bens", "bens declarados", "declaracao de bens", "patrimonio"],
   },
   {
@@ -766,8 +1035,16 @@ export const TERMOS: Termo[] = [
     resumo: "Quanto a campanha recebeu e gastou, informado ao TSE.",
     explicacao:
       "Relatório que cada candidato e partido entrega à Justiça Eleitoral com todo o dinheiro que a campanha recebeu (de quem) e gastou (com quem). A Justiça Eleitoral analisa e pode aprovar, aprovar com ressalvas ou desaprovar as contas.",
-    fonte: { rotulo: "Lei nº 9.504/1997 (Lei das Eleições), art. 28", url: L9504_URL },
-    sinonimos: ["prestacao de contas", "contas de campanha", "doacoes de campanha", "gastos de campanha"],
+    fonte: {
+      rotulo: "Lei nº 9.504/1997 (Lei das Eleições), art. 28",
+      url: L9504_URL,
+    },
+    sinonimos: [
+      "prestacao de contas",
+      "contas de campanha",
+      "doacoes de campanha",
+      "gastos de campanha",
+    ],
   },
 ];
 
@@ -789,7 +1066,9 @@ export function termoPorId(id: string): Termo | undefined {
 
 /** Ordem do índice: pelo nome do dia a dia, sem acento. */
 export function termosEmOrdem(): Termo[] {
-  return [...TERMOS].sort((a, b) => normalizarTermo(a.termo).localeCompare(normalizarTermo(b.termo), "pt-BR"));
+  return [...TERMOS].sort((a, b) =>
+    normalizarTermo(a.termo).localeCompare(normalizarTermo(b.termo), "pt-BR"),
+  );
 }
 
 /** Letra do índice A–Z (sem acento). */
@@ -798,11 +1077,16 @@ export function letraDoTermo(t: Termo): string {
 }
 
 function textoDeBusca(t: Termo): string {
-  return normalizarTermo([t.termo, t.oficial, t.resumo, ...(t.sinonimos ?? [])].join(" "));
+  return normalizarTermo(
+    [t.termo, t.oficial, t.resumo, ...(t.sinonimos ?? [])].join(" "),
+  );
 }
 
 /** Busca do índice: todas as palavras digitadas precisam aparecer (sem acento, sem maiúscula). */
-export function buscarTermos(consulta: string, termos: Termo[] = termosEmOrdem()): Termo[] {
+export function buscarTermos(
+  consulta: string,
+  termos: Termo[] = termosEmOrdem(),
+): Termo[] {
   const palavras = normalizarTermo(consulta).split(" ").filter(Boolean);
   if (!palavras.length) return termos;
   return termos.filter((t) => {
@@ -816,13 +1100,22 @@ export function buscarTermos(consulta: string, termos: Termo[] = termosEmOrdem()
  * o nome, o nome oficial e os sinônimos; a forma mais longa encontrada vence. Devolve também a
  * forma achada (normalizada), para quem quer saber o que sobrou da frase.
  */
-export function acharTermoComForma(trecho: string): { termo: Termo; forma: string } | undefined {
+export function acharTermoComForma(
+  trecho: string,
+): { termo: Termo; forma: string } | undefined {
   const alvo = ` ${normalizarTermo(trecho)} `;
   let melhor: { termo: Termo; forma: string } | undefined;
   for (const t of TERMOS) {
-    const formas = [t.termo, t.oficial, ...(t.sinonimos ?? [])].map(normalizarTermo);
+    const formas = [t.termo, t.oficial, ...(t.sinonimos ?? [])].map(
+      normalizarTermo,
+    );
     for (const f of formas) {
-      if (f && alvo.includes(` ${f} `) && (!melhor || f.length > melhor.forma.length)) melhor = { termo: t, forma: f };
+      if (
+        f &&
+        alvo.includes(` ${f} `) &&
+        (!melhor || f.length > melhor.forma.length)
+      )
+        melhor = { termo: t, forma: f };
     }
   }
   return melhor;

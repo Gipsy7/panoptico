@@ -40,6 +40,7 @@ from app.models import (
     VotacaoLocal,
     VotoLocal,
 )
+from app.partidos import sigla_partido
 from ingestion import comum
 from ingestion.canais import catalogo
 from ingestion.identidade import casar_nome
@@ -527,6 +528,8 @@ def gravar(session: Session, ibge: str | None, camara: dict, uf: str | None = No
         linha = {k: val for k, val in v.items() if k not in ("projetos", "gastos", "gastos_fora")}
         for campo in ("inicio", "fim"):
             linha[campo] = date.fromisoformat(linha[campo]) if linha[campo] else None
+        if "partido" in linha:
+            linha["partido"] = sigla_partido(linha["partido"])
         mandato_id = session.execute(
             insert(MandatoLocal)
             .values(

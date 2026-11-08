@@ -23,13 +23,19 @@ type Lado = "esquerda" | "direita";
 type Posicao = { lado: Lado; y: number };
 
 function limitarY(y: number, altura: number) {
-  return Math.min(Math.max(y, TOPO), Math.max(TOPO, window.innerHeight - altura - MARGEM));
+  return Math.min(
+    Math.max(y, TOPO),
+    Math.max(TOPO, window.innerHeight - altura - MARGEM),
+  );
 }
 
 function lerPosicao(): Posicao | null {
   try {
     const bruto = JSON.parse(localStorage.getItem(CHAVE_POSICAO) ?? "null");
-    if ((bruto?.lado === "esquerda" || bruto?.lado === "direita") && Number.isFinite(bruto.y)) {
+    if (
+      (bruto?.lado === "esquerda" || bruto?.lado === "direita") &&
+      Number.isFinite(bruto.y)
+    ) {
       return { lado: bruto.lado, y: bruto.y };
     }
   } catch {
@@ -40,7 +46,16 @@ function lerPosicao(): Posicao | null {
 
 function Olho({ className }: { className?: string }) {
   return (
-    <svg aria-hidden viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+    <svg
+      aria-hidden
+      viewBox="0 0 24 24"
+      className={className}
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.6"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
       <path d="M2 12s3.6-6.5 10-6.5S22 12 22 12s-3.6 6.5-10 6.5S2 12 2 12z" />
       <circle cx="12" cy="12" r="3" />
     </svg>
@@ -62,14 +77,25 @@ export function ArgosBotao() {
   const [jaAbriu, setJaAbriu] = useState(false);
   const [oculto, setOculto] = useState(false);
   /** Pergunta pedida de fora (ex.: "Perguntar ao Argos" na gaveta do dicionário). */
-  const [pedido, setPedido] = useState<{ n: number; frase: string } | null>(null);
+  const [pedido, setPedido] = useState<{ n: number; frase: string } | null>(
+    null,
+  );
   const [posicao, setPosicao] = useState<Posicao | null>(null);
-  const [arrastando, setArrastando] = useState<{ x: number; y: number } | null>(null);
+  const [arrastando, setArrastando] = useState<{ x: number; y: number } | null>(
+    null,
+  );
   const botao = useRef<HTMLButtonElement>(null);
   const caixa = useRef<HTMLDivElement>(null);
   const painel = useRef<HTMLDivElement>(null);
   const devolverFoco = useRef(false);
-  const gesto = useRef<{ id: number; x: number; y: number; esquerda: number; topo: number; moveu: boolean } | null>(null);
+  const gesto = useRef<{
+    id: number;
+    x: number;
+    y: number;
+    esquerda: number;
+    topo: number;
+    moveu: boolean;
+  } | null>(null);
   const ignorarClique = useRef(false);
 
   function abrir() {
@@ -137,7 +163,14 @@ export function ArgosBotao() {
     if (e.pointerType === "mouse" && e.button !== 0) return;
     const r = caixa.current?.getBoundingClientRect();
     if (!r) return;
-    gesto.current = { id: e.pointerId, x: e.clientX, y: e.clientY, esquerda: r.left, topo: r.top, moveu: false };
+    gesto.current = {
+      id: e.pointerId,
+      x: e.clientX,
+      y: e.clientY,
+      esquerda: r.left,
+      topo: r.top,
+      moveu: false,
+    };
     e.currentTarget.setPointerCapture(e.pointerId);
   }
 
@@ -150,7 +183,10 @@ export function ArgosBotao() {
     if (!g.moveu && Math.hypot(dx, dy) < LIMIAR) return;
     g.moveu = true;
     setArrastando({
-      x: Math.min(Math.max(g.esquerda + dx, 0), window.innerWidth - c.offsetWidth),
+      x: Math.min(
+        Math.max(g.esquerda + dx, 0),
+        window.innerWidth - c.offsetWidth,
+      ),
       y: limitarY(g.topo + dy, c.offsetHeight),
     });
   }
@@ -165,7 +201,12 @@ export function ArgosBotao() {
     setTimeout(() => (ignorarClique.current = false), 0);
     const dx = e.clientX - g.x;
     const dy = e.clientY - g.y;
-    const centro = Math.min(Math.max(g.esquerda + dx, 0), window.innerWidth - c.offsetWidth) + c.offsetWidth / 2;
+    const centro =
+      Math.min(
+        Math.max(g.esquerda + dx, 0),
+        window.innerWidth - c.offsetWidth,
+      ) +
+      c.offsetWidth / 2;
     const nova: Posicao = {
       lado: centro < window.innerWidth / 2 ? "esquerda" : "direita",
       y: limitarY(g.topo + dy, c.offsetHeight),
@@ -206,7 +247,9 @@ export function ArgosBotao() {
       }
     };
     document.addEventListener("keydown", aoTeclar);
-    const desfazerInerte = painel.current ? tornarFundoInerte(painel.current) : () => {};
+    const desfazerInerte = painel.current
+      ? tornarFundoInerte(painel.current)
+      : () => {};
     painel.current?.focus();
     return () => {
       desfazerInerte();
@@ -221,10 +264,14 @@ export function ArgosBotao() {
       ? {
           top: posicao.y,
           bottom: "auto",
-          ...(posicao.lado === "direita" ? { right: MARGEM, left: "auto" } : { left: MARGEM, right: "auto" }),
+          ...(posicao.lado === "direita"
+            ? { right: MARGEM, left: "auto" }
+            : { left: MARGEM, right: "auto" }),
         }
       : undefined;
-  const invertido = (arrastando ? false : posicao?.lado === "esquerda") ? "flex-row-reverse" : "flex-row";
+  const invertido = (arrastando ? false : posicao?.lado === "esquerda")
+    ? "flex-row-reverse"
+    : "flex-row";
 
   return (
     <>
@@ -238,10 +285,18 @@ export function ArgosBotao() {
             type="button"
             onClick={esconder}
             aria-label="Esconder o Argos"
-            className="flex size-11 shrink-0 items-center justify-center focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-bronze-texto"
+            className={`absolute -top-3 z-10 flex size-8 items-center justify-center focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-bronze-texto ${invertido === "flex-row" ? "-left-3" : "-right-3"}`}
           >
             <span className="flex size-6 items-center justify-center rounded-[2px] bg-secondary text-foreground ring-1 ring-foreground/25">
-              <svg aria-hidden viewBox="0 0 24 24" className="size-3.5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+              <svg
+                aria-hidden
+                viewBox="0 0 24 24"
+                className="size-3.5"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+              >
                 <path d="M6 6l12 12M18 6L6 18" />
               </svg>
             </span>
@@ -280,15 +335,24 @@ export function ArgosBotao() {
                 Argos
               </h2>
               <p className="text-sm text-muted-foreground">
-                Respostas com os dados oficiais do site. Não dou opinião nem nota.
+                Respostas com os dados oficiais do site. Não dou opinião nem
+                nota.
               </p>
             </div>
-            <button type="button" onClick={() => fechar(true)} className="botao-linha shrink-0 px-3">
+            <button
+              type="button"
+              onClick={() => fechar(true)}
+              className="botao-linha shrink-0 px-3"
+            >
               Fechar
               <span className="sr-only"> o chat com o Argos</span>
             </button>
           </div>
-          <ArgosChat modo="painel" pedido={pedido} aoNavegar={() => fechar(false)} />
+          <ArgosChat
+            modo="painel"
+            pedido={pedido}
+            aoNavegar={() => fechar(false)}
+          />
         </div>
       )}
     </>

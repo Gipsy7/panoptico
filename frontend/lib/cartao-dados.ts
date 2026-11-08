@@ -9,7 +9,12 @@ import {
   urlFotoDe,
   urlFotoTse,
 } from "@/lib/api";
-import { type DadosCartao, montarEleito, montarFederal, montarLocal } from "@/lib/cartao";
+import {
+  type DadosCartao,
+  montarEleito,
+  montarFederal,
+  montarLocal,
+} from "@/lib/cartao";
 import { NOME_CASA } from "@/lib/formato";
 import { rodapeFonte } from "@/lib/og";
 
@@ -29,7 +34,10 @@ export async function dadosFederal(id: string): Promise<DadosCartao | null> {
   ]);
   if (!parlamentar.ok) return null;
   const p = parlamentar.dados;
-  const gov = votos.ok && votos.dados.governo && votos.dados.governo.total > 0 ? votos.dados.governo : null;
+  const gov =
+    votos.ok && votos.dados.governo && votos.dados.governo.total > 0
+      ? votos.dados.governo
+      : null;
   const usados = [
     presenca.ok && presenca.dados.total_votacoes > 0 ? presenca.dados : null,
     gastos.ok ? gastos.dados : null,
@@ -43,12 +51,21 @@ export async function dadosFederal(id: string): Promise<DadosCartao | null> {
     partido: p.partido,
     uf: p.uf,
     foto: p.foto_url,
-    fonte: rodapeFonte(NOME_CASA[p.casa], maisRecente(usados.map((d) => d.atualizado_em)) ?? p.atualizado_em),
+    fonte: rodapeFonte(
+      NOME_CASA[p.casa],
+      maisRecente(usados.map((d) => d.atualizado_em)) ?? p.atualizado_em,
+    ),
     presenca: presenca.ok ? presenca.dados : null,
     gastos: gastos.ok ? gastos.dados : null,
     projetos: projetos.ok ? projetos.dados : null,
     governo:
-      gov && votos.ok ? { iguais: gov.iguais, total: gov.total, media_percentual: votos.dados.media_governo } : null,
+      gov && votos.ok
+        ? {
+            iguais: gov.iguais,
+            total: gov.total,
+            media_percentual: votos.dados.media_governo,
+          }
+        : null,
   });
 }
 
@@ -60,11 +77,22 @@ export async function dadosLocal(id: string): Promise<DadosCartao | null> {
   return montarLocal({
     nome: v.nome,
     casa: v.casa,
-    cargo: camara ? "Vereador" : v.uf === "DF" ? "Deputado distrital" : "Deputado estadual",
+    cargo: camara
+      ? "Vereador"
+      : v.uf === "DF"
+        ? "Deputado distrital"
+        : "Deputado estadual",
     partido: v.partido,
     uf: v.uf,
-    foto: v.foto_tse && v.candidatura_id ? urlFotoTse(v.candidatura_id) : v.foto_url,
-    fonte: rodapeFonte(v.fonte_nome, maisRecente([v.atualizado_em, v.gastos?.atualizado_em])),
+    municipio: camara ? (v.municipio_nome ?? null) : null,
+    foto:
+      v.foto_tse && v.candidatura_id
+        ? urlFotoTse(v.candidatura_id)
+        : v.foto_url,
+    fonte: rodapeFonte(
+      v.fonte_nome,
+      maisRecente([v.atualizado_em, v.gastos?.atualizado_em]),
+    ),
     presenca: v.presenca,
     gastos: v.gastos,
     projetos: v.projetos,
@@ -94,6 +122,8 @@ export async function dadosEleito(id: string): Promise<DadosCartao | null> {
     fonte: rodapeFonte("TSE", e.atualizado_em),
     votos: e.votos,
     bens: e.bens ? { ano: e.bens.candidatura.ano, total: e.bens.total } : null,
-    receitas: e.campanha ? { ano: e.campanha.candidatura.ano, total: e.campanha.receitas_total } : null,
+    receitas: e.campanha
+      ? { ano: e.campanha.candidatura.ano, total: e.campanha.receitas_total }
+      : null,
   });
 }

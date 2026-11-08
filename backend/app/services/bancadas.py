@@ -12,9 +12,9 @@ from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from app.models import Candidatura, FonteIngestao, MandatoLocal, Parlamentar
+from app.partidos import SEM_PARTIDO, sigla_partido
 from app.services import camaras, eleitos_futuros, tse
 
-SEM_PARTIDO = "Sem partido"
 FONTE_CAMARA = (
     "camara_deputados",
     "Câmara dos Deputados (dados abertos)",
@@ -31,7 +31,7 @@ CARGOS_ESTADUAIS = ("DEPUTADO ESTADUAL", "DEPUTADO DISTRITAL")
 
 def contar(partidos) -> list[dict]:
     """[{partido, n}] por n decrescente e sigla; partido vazio vira 'Sem partido'."""
-    c = Counter((p or "").strip() or SEM_PARTIDO for p in partidos)
+    c = Counter(sigla_partido(p) or SEM_PARTIDO for p in partidos)
     return [{"partido": p, "n": n} for p, n in sorted(c.items(), key=lambda x: (-x[1], x[0]))]
 
 

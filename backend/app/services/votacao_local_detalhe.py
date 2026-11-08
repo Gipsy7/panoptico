@@ -8,6 +8,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.models import MandatoLocal, Municipio, ProjetoLocal, VotacaoLocal, VotoLocal
+from app.partidos import sigla_partido
 from app.services import projeto_fontes
 
 CASA_DO_LOCAL = {"assembleia": "assembleia", "camara": "camara_municipal"}
@@ -94,7 +95,11 @@ def projeto(session: Session, projeto_id: int) -> dict | None:
         "uf": mandato.uf if mandato else None,
         "municipio_ibge": p.municipio_ibge,
         "municipio": _nome_municipio(session, p.municipio_ibge),
-        "autor": {"mandato_id": mandato.id, "nome": mandato.nome, "partido": mandato.partido}
+        "autor": {
+            "mandato_id": mandato.id,
+            "nome": mandato.nome,
+            "partido": sigla_partido(mandato.partido),
+        }
         if mandato
         else None,
         "votacoes": [

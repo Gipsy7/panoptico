@@ -1,7 +1,8 @@
 from datetime import date, datetime
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, field_validator
 
+from app.partidos import sigla_partido
 from app.schemas.projeto import NormaItem
 
 
@@ -518,6 +519,12 @@ class VereadorItem(BaseModel):
     id: int
     nome: str
     partido: str | None
+
+    @field_validator("partido")
+    @classmethod
+    def _sigla(cls, valor: str | None) -> str | None:
+        return sigla_partido(valor)
+
     foto_url: str | None
     foto_tse: bool
     titular: bool
