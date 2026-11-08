@@ -188,7 +188,7 @@ function SerieIdeb({
   );
 }
 
-/** Resumo da aba Educação do Raio-X: o número mais recente de cada etapa e a série da primeira. */
+/** Resumo da aba Educação de "Por dentro da cidade": o número mais recente de cada etapa e a série da primeira. */
 export function IdebResumo({
   dados,
   cidade,

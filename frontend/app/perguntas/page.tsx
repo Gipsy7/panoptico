@@ -9,7 +9,7 @@ import { CONTATO_EMAIL } from "@/lib/site";
 export const metadata: Metadata = {
   title: "Perguntas frequentes",
   description:
-    "De onde vêm os dados, se o site guarda o CEP, o que é a média da Casa, como corrigir um número e como usar os dados.",
+    "De onde vêm os dados, se o site guarda a localização, o que é a média da Casa, como corrigir um número e como usar os dados.",
 };
 
 const LINK = "underline underline-offset-2";
@@ -52,9 +52,10 @@ const RESPOSTAS: Record<string, ReactNode> = {
   ),
   cep: (
     <>
-      Não. O CEP é usado só para descobrir a cidade e o estado e não é gravado em banco de
-      dados. A localização, se você escolher usá-la, é processada no seu aparelho e não é enviada
-      a nenhum servidor. Não há cadastro nem cookies de rastreamento ou publicidade. A única
+      Não. A localização, se você escolher usá-la, é processada no seu aparelho e não é enviada a
+      nenhum servidor; a última cidade escolhida fica guardada só no seu navegador, para o cabeçalho.
+      O CEP, se você preferir usá-lo, serve só para descobrir a cidade e o estado e não é gravado em
+      banco de dados. Não há cadastro nem cookies de rastreamento ou publicidade. A única
       exceção é opcional: se você ativar avisos no celular (nos ambientes em que existirem),
       guardamos um endereço técnico do aparelho e o que ele acompanha, e você pode apagar tudo ao
       cancelar. Os detalhes estão na página de{" "}

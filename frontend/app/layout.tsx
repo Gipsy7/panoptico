@@ -1,11 +1,9 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Newsreader } from "next/font/google";
 import Link from "next/link";
-import { Suspense } from "react";
 
 import { ArgosBotao } from "@/components/argos/argos-botao";
 import { FaixaRelease } from "@/components/faixa-release";
-import { GuiaVisita } from "@/components/guia-visita";
 import { AoVivoFaixa } from "@/components/ao-vivo";
 import { Logo, Marca } from "@/components/logo";
 import { MenuPrincipal } from "@/components/menu-principal";
@@ -34,7 +32,7 @@ export const metadata: Metadata = {
   ...(EH_RELEASE ? { robots: { index: false, follow: false } } : {}),
   title: { default: "Panóptico: quem te representa, às claras", template: "%s · Panóptico" },
   description:
-    "Digite seu CEP e veja quem te representa no Congresso, com dados oficiais e link para a fonte.",
+    "Ache a sua cidade pela localização ou pelo nome e veja quem te representa, do presidente ao vereador, e o que acontece na cidade, com dados oficiais e link para a fonte.",
   openGraph: {
     siteName: "Panóptico.social",
     locale: "pt_BR",
@@ -56,7 +54,7 @@ const SALTO =
 const SALTOS = [
   { tecla: "1", href: "#conteudo", rotulo: "Pular para o conteúdo" },
   { tecla: "2", href: "#menu-principal", rotulo: "Ir para o menu" },
-  { tecla: "3", href: "/#cep", rotulo: "Ir para a busca por CEP" },
+  { tecla: "3", href: "/#cep", rotulo: "Ir para a escolha da cidade" },
 ];
 
 const LINK = "alvo-link underline underline-offset-2 hover:text-foreground";
@@ -101,9 +99,6 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
             <MenuPrincipal />
           </div>
           <AoVivoFaixa />
-          <Suspense fallback={null}>
-            <GuiaVisita />
-          </Suspense>
         </header>
         <main id="conteudo" tabIndex={-1} className="outline-none mx-auto w-full max-w-3xl flex-1 px-4 py-8 has-[[data-largura=larga]]:max-w-5xl">
           {children}
@@ -162,7 +157,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
             </nav>
             <p>
               Dados públicos e oficiais da Câmara dos Deputados, do Senado Federal, do Portal da
-              Transparência e do IBGE. O Panóptico não guarda o seu CEP; só guarda um endereço técnico do aparelho se você ativar, por opção, os avisos no celular.
+              Transparência, do IBGE, do INEP, do TSE e do Obrasgov. O Panóptico não guarda a sua localização nem o seu CEP; só guarda um endereço técnico do aparelho se você ativar, por opção, os avisos no celular.
             </p>
           </div>
         </footer>

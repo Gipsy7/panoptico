@@ -169,6 +169,10 @@ const GRUPOS: Record<string, Caso[]> = {
     ["fornecedores da prefeitura de São Paulo", { assunto: "cidade", uf: "SP" }],
     ["licitações em Gaspar", { assunto: "cidade", nome: "gaspar" }],
     ["vereadores", { assunto: "cidade" }],
+    ["o que acontece na minha cidade", { assunto: "cidade" }],
+    ["obras em Blumenau SC", { assunto: "cidade", nome: "blumenau", uf: "SC" }],
+    ["ideb de Gaspar", { assunto: "cidade", nome: "gaspar" }],
+    ["economia da cidade de Gaspar SC", { assunto: "cidade", nome: "gaspar", uf: "SC" }],
   ],
   "eleições": [
     ["segundo turno", { assunto: "eleicao" }],

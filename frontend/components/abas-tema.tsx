@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * Abas de tema do Raio-X (Retrato, Dinheiro público, Política...): régua com a cor de cada assunto
+ * Abas de tema de "Por dentro" (cidade e estado) (Retrato, Dinheiro público, Política...): régua com a cor de cada assunto
  * e um painel por vez, com a faixa da cor ao lado. Os painéis chegam prontos do servidor; sem
  * JavaScript aparecem todos, um embaixo do outro (nada fica escondido).
  */

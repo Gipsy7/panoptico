@@ -9,9 +9,10 @@ const TEXTO = `# Panóptico
 
 ## Como achar um representante
 
-- [Início (busca por CEP)](${SITE_URL}/): digite o CEP e veja quem o representa.
+- [Início](${SITE_URL}/): ache a cidade pela localização ou pelo nome (o CEP também funciona) e veja quem a representa.
+- Por dentro da cidade (economia, agro, escolas, obras, dinheiro público, política): ${SITE_URL}/cidade/{codigo-ibge}
+- Por dentro do estado: ${SITE_URL}/estado/{UF}
 - Perfil de deputado federal ou senador: ${SITE_URL}/parlamentar/{id}
-- Cidade (vereadores, prefeitura, repasses): ${SITE_URL}/cidade/{codigo-ibge}
 - [Representantes](${SITE_URL}/representantes): quem representa o cidadão em cada nível. Por cidade: ${SITE_URL}/representantes?uf={UF}&municipio={codigo-ibge}; por estado: ${SITE_URL}/representantes?uf={UF}.
 - Deputado estadual: ${SITE_URL}/deputado-estadual/{id}; vereador: ${SITE_URL}/vereador/{id}; eleitos de 2026: ${SITE_URL}/eleito/{id}.
 - [Todos os parlamentares](${SITE_URL}/parlamentares): lista de deputados federais e senadores, filtrável por estado e partido.

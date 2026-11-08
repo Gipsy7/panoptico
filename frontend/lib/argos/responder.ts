@@ -363,7 +363,7 @@ export function respostaRepresentantes(cep: string | null, r: Representantes, ca
       : []),
     { rotulo: "Ver todos, com prefeito, vereadores e governador", href },
   ];
-  if (l.codigo_ibge) links.push({ rotulo: `Dinheiro e contas de ${l.municipio ?? "sua cidade"}`, href: `/cidade/${l.codigo_ibge}` });
+  if (l.codigo_ibge) links.push({ rotulo: `Por dentro de ${l.municipio ?? "sua cidade"}`, href: `/cidade/${l.codigo_ibge}` });
   const detalhes =
     mostraDeputados
       ? [
@@ -498,7 +498,7 @@ export function respostaGovernoGasto(i: Pick<Interpretacao, "instituicao" | "mes
         texto: `O Panóptico não mostra o gasto da prefeitura mês a mês. O que tem de ${lugar.municipio.nome}-${lugar.municipio.uf} são as contas anuais da prefeitura (receita e despesa por área, enviadas ao Tesouro), o dinheiro federal repassado e as emendas recebidas.`,
         detalhes,
         links: [
-          { rotulo: `Contas e dinheiro de ${lugar.municipio.nome}`, href: `/cidade/${lugar.municipio.ibge}` },
+          { rotulo: `Por dentro de ${lugar.municipio.nome}`, href: `/cidade/${lugar.municipio.ibge}` },
           { rotulo: "Impostos e repasses da cidade", href: linkDinheiro(lugar) },
         ],
         botoes: SEM_BOTOES,
@@ -506,9 +506,9 @@ export function respostaGovernoGasto(i: Pick<Interpretacao, "instituicao" | "mes
     }
     return {
       texto:
-        "O Panóptico mostra as contas anuais de cada prefeitura (receita e despesa por área), não o gasto mês a mês. Diga a cidade e o estado (por exemplo: contas da prefeitura de Gaspar SC) ou digite o CEP.",
+        "O Panóptico mostra as contas anuais de cada prefeitura (receita e despesa por área), não o gasto mês a mês. Diga a cidade e o estado (por exemplo: contas da prefeitura de Gaspar SC).",
       detalhes,
-      links: [{ rotulo: "Escolher pelo CEP", href: "/#cep" }],
+      links: [{ rotulo: "Escolher a cidade", href: "/#cep" }],
       botoes: SEM_BOTOES,
     };
   }
@@ -542,7 +542,7 @@ export function respostaExecutivo(cargo: Interpretacao["cargo"], lugar: Lugar): 
   const href = lugar.municipio ? `/representantes?municipio=${lugar.municipio.ibge}` : lugar.uf ? `/representantes?uf=${lugar.uf}` : null;
   if (!href) {
     return {
-      texto: `${inicio} aparece na página Seus representantes, com o que faz, gasta e recebe. Digite o seu CEP ou diga o estado ou a cidade.`,
+      texto: `${inicio} aparece na página Seus representantes, com o que faz, gasta e recebe. Diga a cidade e o estado (por exemplo: Blumenau SC).`,
       links: [{ rotulo: "Escolher a cidade", href: "/#cep" }],
       botoes: SEM_BOTOES,
     };
@@ -578,7 +578,7 @@ export function respostaCargo(cargoId: string | undefined, topico?: "faz" | "pod
   return {
     texto,
     detalhes,
-    links: [{ rotulo: "Ver quem ocupa o cargo (pelo CEP)", href: "/representantes" }],
+    links: [{ rotulo: "Ver quem ocupa o cargo na sua cidade", href: "/#cep" }],
     botoes,
     fonte: { nome: CF_NOME, url: CF_URL, atualizadoEm: CF_CONFERIDA_EM },
   };
@@ -619,9 +619,10 @@ export function respostaLista(f: { casa?: Casa; uf?: string; partido?: string })
 
 export function respostaCidade(m: Municipio): Mensagem {
   return {
-    texto: `${m.nome}-${m.uf}: vereadores e câmara, contas da prefeitura, dinheiro federal recebido, emendas e fornecedores, o que houver de dado oficial.`,
+    texto: `Por dentro de ${m.nome}-${m.uf}: economia (PIB), agro, escolas (IDEB), obras federais, dinheiro público, prefeito e vice, vereadores e eleições, o que houver de dado oficial.`,
     links: [
-      { rotulo: `Página de ${m.nome}`, href: `/cidade/${m.ibge}` },
+      { rotulo: `Por dentro de ${m.nome}`, href: `/cidade/${m.ibge}` },
+      { rotulo: `Por dentro de ${nomeDaUf(m.uf)}`, href: `/estado/${m.uf}` },
       { rotulo: `Quem representa ${m.nome}`, href: `/representantes?municipio=${m.ibge}` },
       { rotulo: "Impostos e repasses da cidade", href: `/impostos-e-repasses/${m.uf}/${m.ibge}` },
     ],
@@ -631,7 +632,7 @@ export function respostaCidade(m: Municipio): Mensagem {
 
 export function pedirCidade(): Mensagem {
   return {
-    texto: "De qual cidade? Escreva o nome e o estado (por exemplo: Gaspar SC) ou digite o CEP.",
+    texto: "De qual cidade? Escreva o nome e o estado (por exemplo: Gaspar SC).",
     links: [{ rotulo: "Escolher a cidade", href: "/#cep" }],
     botoes: SEM_BOTOES,
   };

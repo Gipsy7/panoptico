@@ -146,7 +146,7 @@ export function HistoriaPanoptico({ dados, cep }: { dados: Promise<DadosDaHistor
 
         <Passo rotulo="Os limites" titulo="O que o site não faz">
           <ul className="flex list-disc flex-col gap-1 pl-5">
-            <li>Não vigia quem usa o site: não há cadastro e o CEP digitado não é guardado.</li>
+            <li>Não vigia quem usa o site: não há cadastro e a localização e o CEP não são guardados.</li>
             <li>Não dá nota, não faz ranking e não classifica ninguém: mostra o número e a média da Casa ao lado.</li>
             <li>Só usa dados públicos e oficiais.</li>
           </ul>

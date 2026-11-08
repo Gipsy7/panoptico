@@ -2,7 +2,6 @@ import { FimDoPerfil } from "@/components/avisar-erro/entradas";
 import { LinkCorrecao } from "@/components/avisar-erro/link-correcao";
 import { AvisosDoPerfil, RespostasCitado } from "@/components/avisar-erro/respostas-citado";
 import { SobreOCargo } from "@/components/cargo/sobre-o-cargo";
-import { DicaPagina } from "@/components/dica-pagina";
 import { CabecalhoConfianca } from "@/components/perfil/cabecalho-confianca";
 import type { Metadata } from "next";
 import Link from "next/link";
@@ -101,7 +100,6 @@ export default function ParlamentarPage({
 }: PageProps<"/parlamentar/[id]">) {
   return (
     <>
-      <DicaPagina chave="perfil" />
     <Revelacao fallback={<Carregando />}>
       {Promise.all([params, searchParams]).then(([{ id }, sp]) => {
         const texto = (v: string | string[] | undefined) => (typeof v === "string" ? v : undefined);

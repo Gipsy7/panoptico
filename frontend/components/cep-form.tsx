@@ -47,6 +47,8 @@ export function CepForm({ semCepInicial = false }: { semCepInicial?: boolean } =
   const [focarCep, setFocarCep] = useState(false);
   // CEP como opção principal (escolhido pelo usuário ou depois de recusa/falha da localização).
   const [modoCep, setModoCep] = useState(false);
+  // CEP só aparece quando a pessoa pede ("Use o CEP"); sem localização, o caminho é o nome da cidade.
+  const [pediuCep, setPediuCep] = useState(false);
   const [aviso, setAviso] = useState("");
   const [erroCep, setErroCep] = useState("");
   const campoCep = useRef<HTMLInputElement>(null);
@@ -97,6 +99,11 @@ export function CepForm({ semCepInicial = false }: { semCepInicial?: boolean } =
   }, [cidadeAchada, definirCidade]);
   const nomeUf = (sigla: string) => UFS.find((u) => u.sigla === sigla)?.nome ?? sigla;
 
+  function pedirCep() {
+    setPediuCep(true);
+    irParaCep();
+  }
+
   function irParaCep() {
     setLoc({ estado: "ocioso" });
     setModoCep(true);
@@ -105,7 +112,7 @@ export function CepForm({ semCepInicial = false }: { semCepInicial?: boolean } =
 
   function falhar() {
     irParaCep();
-    setAviso("Não deu para achar sua cidade. Digite o CEP ou escolha a cidade.");
+    setAviso("Não deu para achar sua cidade pela localização. Digite o nome dela.");
   }
 
   // As coordenadas só existem dentro desta função: não vão a servidor, URL nem armazenamento.
@@ -287,8 +294,22 @@ export function CepForm({ semCepInicial = false }: { semCepInicial?: boolean } =
             {aviso}
           </p>
         )}
-        {formCep}
-        <BuscaCidade />
+        {pediuCep ? (
+          <>
+            {formCep}
+            <BuscaCidade />
+          </>
+        ) : (
+          <>
+            <BuscaCidade rotulo="Digite o nome da sua cidade" />
+            <p className="flex flex-wrap items-center justify-center gap-x-1 text-sm text-muted-foreground">
+              Prefere o CEP?
+              <button type="button" onClick={pedirCep} className="min-h-11 px-1 underline underline-offset-4">
+                Usar o CEP
+              </button>
+            </p>
+          </>
+        )}
         {linkSemCep}
         {temGeo && (
           <button
@@ -329,7 +350,7 @@ export function CepForm({ semCepInicial = false }: { semCepInicial?: boolean } =
     <div className="revelar-item flex flex-col gap-3 border-t border-border pt-3">
       <button
         type="button"
-        onClick={irParaCep}
+        onClick={pedirCep}
         className="self-center min-h-11 px-3 text-base text-foreground underline underline-offset-4"
       >
         Prefiro digitar o CEP
@@ -341,7 +362,7 @@ export function CepForm({ semCepInicial = false }: { semCepInicial?: boolean } =
   const outrosCaminhos = (
     <p className="flex flex-wrap items-center justify-center gap-x-1 text-sm text-muted-foreground">
       Tem o CEP?
-      <button type="button" onClick={irParaCep} className="min-h-11 px-1 text-foreground underline underline-offset-4">
+      <button type="button" onClick={pedirCep} className="min-h-11 px-1 text-foreground underline underline-offset-4">
         Use o CEP
       </button>
       ·
@@ -377,7 +398,7 @@ export function CepForm({ semCepInicial = false }: { semCepInicial?: boolean } =
               onClick={() => router.push(`/cidade/${lugar.ibge}`)}
               className="botao-linha min-h-12 w-full justify-center"
             >
-              Raio-X da cidade
+              Por dentro da cidade
             </button>
           </div>
         </div>
@@ -391,7 +412,7 @@ export function CepForm({ semCepInicial = false }: { semCepInicial?: boolean } =
               ·
             </>
           )}
-          <button type="button" onClick={irParaCep} className="min-h-11 px-1 underline underline-offset-4">
+          <button type="button" onClick={pedirCep} className="min-h-11 px-1 underline underline-offset-4">
             Usar o CEP
           </button>
         </p>

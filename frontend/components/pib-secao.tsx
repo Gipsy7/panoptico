@@ -3,7 +3,7 @@ import type { PibMunicipio } from "@/lib/api";
 import { formatarReais, formatarReaisCompacto } from "@/lib/formato";
 
 /**
- * Economia no Raio-X (IBGE, PIB dos Municípios): o PIB mais recente, o PIB por morador com o do
+ * Economia em "Por dentro da cidade" (IBGE, PIB dos Municípios): o PIB mais recente, o PIB por morador com o do
  * estado e o do Brasil no mesmo ano, e de onde vem a riqueza (valor adicionado por atividade).
  * Valores da época, sem descontar a inflação: por isso a comparação é no mesmo ano.
  */

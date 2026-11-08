@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 
-import { DicaPagina } from "@/components/dica-pagina";
 import { EsqueletoSecao } from "@/components/esqueleto-secao";
 import { PerfilMandatoLocal } from "@/components/mandato-local-perfil";
 import { Revelacao } from "@/components/revelacao";
@@ -53,7 +52,6 @@ async function DadosEstruturados({ id }: { id: string }) {
 export default function Pagina({ params, searchParams }: PageProps<"/vereador/[id]">) {
   return (
     <>
-      <DicaPagina chave="perfil" />
     <Revelacao fallback={<EsqueletoSecao rotulo="Carregando o perfil…" secoes={3} />}>
       {Promise.all([params, searchParams]).then(([{ id }, busca]) => (
         <>

@@ -261,7 +261,7 @@ describe("respostaCargo", () => {
     expect(todo).toContain("CF art. 29");
     expect(m.fonte?.url).toContain("planalto.gov.br");
     expect(m.fonte?.atualizadoEm).toBeTruthy();
-    expect(m.links[0].href).toBe("/representantes");
+    expect(m.links[0].href).toBe("/#cep");
   });
 
   it("'quanto ganha' abre com o salário; senador traz o valor e de onde vem", () => {

@@ -1,4 +1,4 @@
-/** Conta das obras federais (Obrasgov.br), sem React, para o mapa e o Raio-X. */
+/** Conta das obras federais (Obrasgov.br), sem React, para o mapa e "Por dentro". */
 
 export type Situacao = { situacao: string; obras: number };
 

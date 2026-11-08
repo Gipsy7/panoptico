@@ -57,13 +57,28 @@ const PINO = (
 export function LugarNoCabecalho({ compacto = false }: { compacto?: boolean }) {
   // Larguras em px (não em rem): com o texto a 200% o chip não pode crescer e empurrar o menu.
   const lugar = useLugar();
+  if (!lugar && compacto) {
+    // Celular sem cidade: só o alfinete, quadrado como o botão do menu (o texto apertava o cabeçalho).
+    return (
+      <Link
+        href="/#cep"
+        aria-label="Escolher a cidade"
+        className="flex size-11 shrink-0 items-center justify-center rounded-[var(--raio)] hover:bg-accent focus-visible:outline-2 focus-visible:outline-bronze [&_svg]:size-5"
+      >
+        {PINO}
+      </Link>
+    );
+  }
   return (
     <Link
       href={lugar ? `/cidade/${lugar.ibge}` : "/#cep"}
-      className="inline-flex min-h-10 max-w-[150px] min-w-0 items-center gap-1.5 rounded-[var(--raio)] border border-border bg-card px-2.5 text-sm whitespace-nowrap hover:border-foreground/40 focus-visible:outline-2 focus-visible:outline-bronze"
+      className="inline-flex min-h-10 max-w-[150px] min-w-0 items-center gap-1.5 max-[399px]:min-w-10 max-[399px]:justify-center max-[399px]:px-0 rounded-[var(--raio)] border border-border bg-card px-2.5 text-sm whitespace-nowrap hover:border-foreground/40 focus-visible:outline-2 focus-visible:outline-bronze"
     >
       {PINO}
-      <span className="truncate">{lugar ? (compacto ? lugar.nome : `${lugar.nome}, ${lugar.uf}`) : "Escolher cidade"}</span>
+      {/* No celular estreito o nome some (fica para o leitor de tela): o cabeçalho cabe numa linha. */}
+      <span className={compacto ? "truncate max-[399px]:sr-only" : "truncate"}>
+        {lugar ? (compacto ? lugar.nome : `${lugar.nome}, ${lugar.uf}`) : "Escolher cidade"}
+      </span>
       {lugar && <span className="sr-only">: abrir a página da cidade</span>}
     </Link>
   );

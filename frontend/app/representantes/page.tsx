@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { DicaPagina } from "@/components/dica-pagina";
 import Link from "next/link";
 
 import { EsqueletoSecao } from "@/components/esqueleto-secao";
@@ -90,7 +89,6 @@ const LIMITE_LISTA = 8;
 export default function RepresentantesPage({ searchParams }: PageProps<"/representantes">) {
   return (
     <>
-      <DicaPagina chave="representantes" />
     <Revelacao fallback={<EsqueletoSecao rotulo="Carregando representantes…" secoes={4} />}>
       {searchParams.then((sp) => (
         <Lista

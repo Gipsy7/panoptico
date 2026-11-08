@@ -94,9 +94,9 @@ describe("conversar", () => {
     expect(v.mensagens[0].texto).toBe("Não encontramos esse CEP.");
   });
 
-  it("'meus deputados' sem CEP pede o CEP", async () => {
+  it("'meus deputados' sem lugar pede a cidade", async () => {
     const v = await conversar({ frase: "quem são meus deputados" }, VAZIO, api());
-    expect(v.mensagens[0].texto).toContain("digite o seu CEP");
+    expect(v.mensagens[0].texto).toContain("nome da sua cidade");
   });
 
   it("homônimos viram botões e o clique vai direto ao assunto", async () => {

@@ -59,7 +59,10 @@ export const PALAVRAS_ASSUNTO: Record<string, string[]> = {
   cidade: [
     "vereadores", "vereadoras", "camara municipal", "camara de vereadores", "prefeitura",
     "contas da prefeitura", "fornecedores", "licitacao", "licitacoes", "orcamento da cidade",
-    "dados da cidade", "contratos da prefeitura", "contratos",
+    "dados da cidade", "contratos da prefeitura", "contratos", "por dentro da cidade",
+    "o que acontece na minha cidade", "o que acontece na cidade", "economia da cidade", "pib da cidade",
+    "obras da cidade", "obras na cidade", "escolas da cidade", "ideb", "agro da cidade", "obras",
+    "obra", "obras federais", "obras paradas", "escolas", "economia", "pib", "agro", "lavouras",
   ],
   eleicao: [
     "segundo turno", "2 turno", "eleicao", "eleicoes", "candidatos", "quem ganhou", "eleitos",
@@ -232,7 +235,7 @@ export const PAGINAS: Record<string, { href: string; rotulo: string; texto: stri
   privacidade: {
     href: "/privacidade",
     rotulo: "Privacidade",
-    texto: "O CEP é usado só para achar a cidade e o estado e não é gravado. Não há cadastro nem cookies de rastreamento. Só quem ativar avisos no celular (opcional, onde existirem) tem um endereço técnico do aparelho guardado, apagado ao cancelar. Os detalhes estão na página de privacidade.",
+    texto: "A localização do celular é usada só no aparelho para achar a cidade e não é enviada; a última cidade escolhida fica guardada só no seu aparelho, para o cabeçalho. O CEP, se você usar, também não é gravado. Não há cadastro nem cookies de rastreamento. Só quem ativar avisos no celular (opcional, onde existirem) tem um endereço técnico do aparelho guardado, apagado ao cancelar. Os detalhes estão na página de privacidade.",
   },
   codigo: {
     href: "https://github.com/Gipsy7/panoptico",
@@ -374,13 +377,13 @@ export const SUGESTOES_POR_PALAVRA: { palavras: string[]; botao: Botao }[] = [
 
 export const TEXTOS = {
   apresentacao:
-    "Sou o Argos, assistente do Panóptico. Respondo com os dados oficiais do site: quem te representa, gastos, presença, projetos, dinheiro federal, partidos e como o site funciona, sempre com a fonte e a data. Não dou opinião nem nota.",
+    "Sou o Argos, assistente do Panóptico. Respondo com os dados oficiais do site: quem te representa (com o vice ao lado do prefeito, do governador e do presidente), o que acontece na sua cidade (economia, agro, escolas, obras e dinheiro público), gastos, presença, projetos, partidos e como o site funciona, sempre com a fonte e a data. Não dou opinião nem nota.",
   sobreArgos:
     "Sou o Argos, o assistente do Panóptico. Não sou uma inteligência artificial nem uma pessoa: sou um assistente de respostas prontas. Reconheço palavras da sua pergunta, busco nos dados oficiais do site e respondo com a fonte e a data. Não dou opinião nem nota.",
   opiniao: "Eu não dou opinião nem nota. Mostro o dado oficial para você tirar suas conclusões.",
   naoEntendi: "Não entendi. Tente assim:",
   pedirCep:
-    "Para saber quem representa você, digite o seu CEP (8 números). Ele é usado só para achar a cidade e o estado e não é guardado.",
+    "Para saber quem representa você, escreva o nome da sua cidade e o estado (por exemplo: Blumenau SC). Na página inicial também dá para usar a localização do celular, que não sai do aparelho. Se preferir, o CEP também funciona.",
   pedirNome:
     "De quem? Escreva o nome de um deputado federal ou senador, por exemplo: quanto Fulano gastou.",
   semNome: "Não achei ninguém com esse nome.",
@@ -395,6 +398,7 @@ export const EXEMPLOS = [
   "Comparar dois deputados",
   "Impostos e repasses",
   "O que é a média da Casa?",
-  "O site guarda o meu CEP?",
+  "O que acontece na minha cidade?",
+  "O site guarda a minha localização?",
   "De onde vêm os dados?",
 ];

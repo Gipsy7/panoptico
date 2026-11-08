@@ -15,7 +15,7 @@ import { formatarReais, formatarReaisCompacto } from "@/lib/formato";
 import { UFS } from "@/lib/ufs";
 
 /**
- * Raio-X do estado (redesenho, etapa 4): o mesmo modelo da cidade, só com o que já está carregado
+ * "Por dentro" do estado (redesenho, etapa 4): o mesmo modelo da cidade, só com o que já está carregado
  * (moradores, dinheiro da União, contas do governo do estado, governador e vice, bancadas). As telas
  * completas continuam onde estão; "Tudo sobre" leva a elas.
  */
@@ -29,7 +29,7 @@ export async function generateMetadata({ params }: PageProps<"/estado/[uf]">): P
   const e = estadoDe(uf);
   if (!e) return { title: "Estado" };
   return {
-    title: `Raio-X de ${e.nome}: dinheiro público e quem governa`,
+    title: `${e.nome} por dentro: dinheiro público, obras e quem governa`,
     description: `${e.nome}: moradores, quanto a União arrecada e repassa, contas do governo do estado, governador e vice e as bancadas, com dados oficiais, fonte e data.`,
   };
 }
@@ -64,7 +64,7 @@ async function Estado({ uf }: { uf: string }) {
   const populacao = federal?.populacao ?? contas?.populacao ?? null;
   const cidades = federal?.cidades.length ?? null;
 
-  // Frase do Raio-X: só fatos com fonte, sem adjetivo; o que não houver fica de fora.
+  // Frase do "Por dentro": só fatos com fonte, sem adjetivo; o que não houver fica de fora.
   const partes: string[] = [];
   if (populacao != null) partes.push(`${e.nome} tem ${num(populacao)} moradores${cidades ? ` em ${num(cidades)} cidades` : ""}.`);
   if (federal?.arrecadacao != null && federal.repasse != null)
@@ -155,7 +155,7 @@ async function Estado({ uf }: { uf: string }) {
             {obras.por_situacao.map((g) => numero(g.situacao, num(g.obras)))}
           </dl>
           <p className="text-sm text-muted-foreground">
-            As obras de cada cidade, uma a uma, estão no Raio-X da cidade.
+            As obras de cada cidade, uma a uma, estão em &ldquo;Por dentro da cidade&rdquo;.
           </p>
           {obrasR.ok && (
             <FonteRodape fonte={obrasR.dados.fonte_nome} url={obrasR.dados.fonte_url} atualizadoEm={obrasR.dados.atualizado_em} />
@@ -236,7 +236,7 @@ async function Estado({ uf }: { uf: string }) {
     <article data-largura="larga" className="pagina-secoes">
       <div className="flex flex-col gap-4">
         <div className="flex flex-col gap-1">
-          <p className="sobretitulo">Raio-X · Estado</p>
+          <p className="sobretitulo">Por dentro do estado</p>
           <h1 className="titulo-pagina">{e.nome}</h1>
           {partes.length > 0 && <p className="max-w-3xl text-lg leading-snug">{partes.join(" ")}</p>}
         </div>

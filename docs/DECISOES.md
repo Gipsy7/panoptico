@@ -10,6 +10,7 @@
 - [2026-11-07: votação de mérito e de procedimento, calendário (Frente 4)](#2026-11-07-votação-de-mérito-e-de-procedimento-calendário-frente-4)
 - [2026-11-07: Plenário agora, selo "Ao vivo" no cabeçalho (Frente 4)](#2026-11-07-plenário-agora-selo-ao-vivo-no-cabeçalho-frente-4)
 - [2026-11-07: eleições completas (Frente 5)](#2026-11-07-eleições-completas-frente-5)
+- [2026-11-08: menos instrução, mais cidade: sem dicas e guia, "Por dentro", CEP em segundo plano](#2026-11-08-menos-instrução-mais-cidade-sem-dicas-e-guia-por-dentro-cep-em-segundo-plano)
 - [2026-11-08: redesenho, etapa 6: a faixa de cada mandato nas séries](#2026-11-08-redesenho-etapa-6-a-faixa-de-cada-mandato-nas-séries)
 - [2026-11-08: redesenho, etapa 5: obras federais (Obrasgov.br)](#2026-11-08-redesenho-etapa-5-obras-federais-obrasgovbr)
 - [2026-11-08: redesenho, etapa 4 (Raio-X da cidade e do estado)](#2026-11-08-redesenho-etapa-4-raio-x-da-cidade-e-do-estado)
@@ -1783,6 +1784,22 @@ Escolhas do dono entre 3 protótipos: resultado em tabela densa com barras (A), 
 - **Eleitores:** soma dos aptos das zonas na eleição mais recente carregada, ao lado da população do IBGE. Não é o cadastro do eleitorado.
 - **`/segundo-turno` generalizada:** no mesmo endereço, abaixo do comparador, a seção "Resultado das eleições" com ano, cargo, turno e "onde" (formulário GET, funciona sem JavaScript).
 - **Nome de urna igual ao de outra pessoa** (ex.: "Jair Bolsonaro" para Jair Renan em 2026): a tabela mostra o nome de urna do TSE e liga ao perfil pela candidatura, nunca pelo nome.
+
+## 2026-11-08: menos instrução, mais cidade: sem dicas e guia, "Por dentro", CEP em segundo plano
+
+Pedido do dono depois de usar o release no celular:
+
+- **Saem as dicas em caixa (`DicaPagina`) e o guia de três passos do topo (`GuiaVisita`)**: mais atrapalhavam do que
+  ajudavam. Fica só a mãozinha animada (`MaoToque`) onde é preciso tocar (home e mapa), o toque minimalista.
+- **Cabeçalho no celular:** sem cidade escolhida, só o alfinete (sem o texto "Escolher cidade", que apertava o
+  menu); com cidade, o nome aparece a partir de 400 px e, abaixo disso, o alfinete num quadro (o nome fica para o
+  leitor de tela).
+- **"Raio-X" vira "Por dentro":** "Por dentro da cidade · estado", "Por dentro de Santa Catarina", e o botão da home
+  "Por dentro da cidade" (a ideia: ficar por dentro do que acontece na sua cidade).
+- **CEP em segundo plano:** a entrada é a localização do aparelho ou o nome da cidade. Sem localização, a busca pelo
+  nome é o caminho principal e o CEP é um link ("Prefere o CEP?"). O Argos, as perguntas frequentes, o rodapé, o
+  atalho de teclado e o `llms.txt` passam a falar de localização e nome da cidade; o Argos também conhece "Por
+  dentro", economia, agro, escolas e obras, a página do estado e o vice ao lado do titular.
 
 ## 2026-11-08: redesenho, etapa 6: a faixa de cada mandato nas séries
 

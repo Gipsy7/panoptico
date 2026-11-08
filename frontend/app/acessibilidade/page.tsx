@@ -56,7 +56,7 @@ export default function AcessibilidadePage() {
             <kbd>2</kbd>: ir para o menu.
           </li>
           <li>
-            <kbd>3</kbd>: ir para a busca por CEP.
+            <kbd>3</kbd>: ir para a escolha da cidade.
           </li>
         </ul>
         <p>A combinação depende do navegador:</p>

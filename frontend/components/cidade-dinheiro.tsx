@@ -61,7 +61,7 @@ export async function metadadosCidade(ibge: string): Promise<Metadata> {
     return { title: "Dinheiro da cidade" };
   const lugar = `${r.dados.localizacao.municipio}-${r.dados.localizacao.uf}`;
   return {
-    title: `Raio-X de ${lugar}: dinheiro público, eleições e quem representa`,
+    title: `${lugar} por dentro: o que acontece na cidade, dinheiro público e quem representa`,
     description: `Emendas parlamentares pagas, contas da prefeitura e fornecedores de ${lugar}, com dados oficiais, fonte e data.`,
   };
 }
@@ -360,7 +360,7 @@ async function Cidade({ ibge }: { ibge: string }) {
   const eleitores = eleitoresR.ok ? eleitoresR.dados : null;
   const prefeito = executivoR.ok ? executivoR.dados.prefeito : null;
   const num = (n: number) => n.toLocaleString("pt-BR");
-  // Frase do Raio-X: só fatos com fonte, sem adjetivo (o que não houver fica de fora).
+  // Frase do "Por dentro": só fatos com fonte, sem adjetivo (o que não houver fica de fora).
   const frase = [
     populacao != null ? `${municipio} tem ${num(populacao)} moradores` : null,
     eleitores ? `${num(eleitores.eleitores)} eleitores em ${eleitores.ano}` : null,
@@ -462,7 +462,7 @@ async function Cidade({ ibge }: { ibge: string }) {
       <LembrarLugar ibge={ibge} nome={municipio} uf={uf} />
       <div className="flex flex-col gap-4">
         <div className="flex flex-col gap-1">
-          <p className="sobretitulo">Raio-X · {estado}</p>
+          <p className="sobretitulo">Por dentro da cidade · {estado}</p>
           <h1 className="titulo-pagina">{municipio}</h1>
           {frase && <p className="max-w-3xl text-lg leading-snug">{frase}</p>}
           <p className="flex flex-wrap gap-x-4">
@@ -473,7 +473,7 @@ async function Cidade({ ibge }: { ibge: string }) {
               Quem representa {municipio}
             </Link>
             <Link href={`/estado/${uf}`} className="alvo-link text-sm font-medium text-primary underline underline-offset-4">
-              Raio-X de {estado}
+              Por dentro de {estado}
             </Link>
           </p>
         </div>

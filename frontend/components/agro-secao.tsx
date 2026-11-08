@@ -3,7 +3,7 @@ import type { AgroMunicipio } from "@/lib/api";
 import { formatarReaisCompacto } from "@/lib/formato";
 
 /**
- * Agro no Raio-X (IBGE, Produção Agrícola Municipal): o valor da produção das lavouras no último
+ * Agro em "Por dentro da cidade" (IBGE, Produção Agrícola Municipal): o valor da produção das lavouras no último
  * ano e os produtos que mais pesam, cada um com a parte do total da cidade. Só lavouras: a
  * pecuária (rebanhos, leite) ainda não está carregada, e a tela diz isso.
  */

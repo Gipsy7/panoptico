@@ -2,7 +2,6 @@ import { FimDoPerfil } from "@/components/avisar-erro/entradas";
 import { LinkCorrecao } from "@/components/avisar-erro/link-correcao";
 import { AvisosDoPerfil, RespostasCitado } from "@/components/avisar-erro/respostas-citado";
 import { SobreOCargo } from "@/components/cargo/sobre-o-cargo";
-import { DicaPagina } from "@/components/dica-pagina";
 import { CabecalhoConfianca } from "@/components/perfil/cabecalho-confianca";
 import { cargoDoRotulo } from "@/lib/cargos";
 import type { Metadata } from "next";
@@ -126,7 +125,6 @@ function texto(v: string | string[] | undefined): string | undefined {
 export default function EleitoPage({ params, searchParams }: PageProps<"/eleito/[id]">) {
   return (
     <>
-      <DicaPagina chave="perfil" />
     <Revelacao fallback={<EsqueletoSecao rotulo="Carregando o perfil…" secoes={3} />}>
       {Promise.all([params, searchParams]).then(([{ id }, sp]) => (
         <>

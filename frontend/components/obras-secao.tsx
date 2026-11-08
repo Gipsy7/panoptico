@@ -40,7 +40,7 @@ function Linha({ o }: { o: ObrasMunicipio["itens"][number] }) {
   );
 }
 
-/** Resumo do topo (aba Obras do Raio-X): contagem por situação. */
+/** Resumo do topo (aba Obras de "Por dentro da cidade"): contagem por situação. */
 export function ObrasResumo({ dados, municipio }: { dados: ObrasMunicipio; municipio: string }) {
   return (
     <div className="flex flex-col gap-3">
