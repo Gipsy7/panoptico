@@ -1869,6 +1869,11 @@ Pedido do dono depois de usar o release no celular:
   infraestrutura (a da Internet) para Saúde ter a sua.
 - **Agenda mensal da VPS:** Anatel, CNES, PIB, PAM, PPM e CEMPRE entram no `mensal.sh` em modo tolerante; SIM (anual)
   e IDEB (a cada 2 anos) ficam manuais.
+- **Partidos no padrão novo:** o topo de `/partidos` virou "Quem é quem nos partidos": lista reta com a barra das
+  cadeiras na Câmara num tom só (a cor não diz nada sobre o partido) e a ficha do partido escolhido (Câmara, Senado,
+  prefeitos e vereadores eleitos na última eleição municipal, Fundo Partidário), escolhida por `?partido=` para o
+  link ser compartilhável. A tabela de dinheiro segue inteira logo abaixo. Rota `GET /partidos/cadeiras`; as siglas
+  das fontes são juntadas por `sigla_partido` ("PC do B" do TSE = "PCdoB" da Câmara).
 - **Saúde adiada (superado pelo CNES em DBC, acima):** a API de hospitais e leitos do Ministério da Saúde não traz o mês de cada retrato e quase
   todas as linhas vêm sem município; somar daria número errado. Fica para os arquivos do CNES (ver FONTES).
 

@@ -36,3 +36,26 @@ class ComposicaoCongresso(BaseModel):
     fonte_2027_nome: str | None
     fonte_2027_url: str | None
     atualizado_2027_em: datetime | None
+
+
+class CadeirasPartido(BaseModel):
+    partido: str
+    camara: int
+    senado: int
+    prefeitos: int
+    vereadores: int
+    sigla_contas: str | None
+
+
+class FonteCadeiras(BaseModel):
+    nome: str
+    url: str
+    atualizado_em: datetime | None
+
+
+class CadeirasPorPartido(BaseModel):
+    itens: list[CadeirasPartido]
+    total_camara: int
+    total_senado: int
+    ano_municipal: int | None
+    fontes: list[FonteCadeiras]

@@ -11,7 +11,7 @@ from datetime import datetime
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
-from app.models import Candidatura, FonteIngestao, MandatoLocal, Parlamentar
+from app.models import Candidatura, FonteIngestao, MandatoLocal, Parlamentar, PartidoContaSoma
 from app.partidos import SEM_PARTIDO, sigla_partido
 from app.services import camaras, eleitos_futuros, tse
 
@@ -201,3 +201,58 @@ def composicao(session: Session, casa: str) -> dict:
         "fonte_2027_url": tse.URL_CANDIDATOS.format(ano=ano) if a_partir else None,
         "atualizado_2027_em": tse._atualizado_em(session) if a_partir else None,
     }
+
+
+def cadeiras_por_partido(session: Session) -> dict:
+    """Por partido: deputados federais e senadores no cargo hoje, prefeitos e vereadores eleitos
+    na última eleição municipal (TSE), e a sigla com que o partido aparece nas contas do TSE (para
+    o link). Só partidos com ao menos uma cadeira; siglas padronizadas (`sigla_partido`)."""
+    camara = {i["partido"]: i["n"] for i in _federal(session, "camara")["itens"]}
+    senado = {i["partido"]: i["n"] for i in _federal(session, "senado")["itens"]}
+    ano_mun = session.scalar(
+        select(func.max(Candidatura.ano_eleicao)).where(Candidatura.cargo == "PREFEITO", ELEITO)
+    )
+    municipais: dict[str, Counter] = {"PREFEITO": Counter(), "VEREADOR": Counter()}
+    if ano_mun:
+        linhas = session.execute(
+            select(Candidatura.cargo, Candidatura.partido, func.count())
+            .where(
+                Candidatura.ano_eleicao == ano_mun,
+                Candidatura.cargo.in_(("PREFEITO", "VEREADOR")),
+                ELEITO,
+            )
+            .group_by(Candidatura.cargo, Candidatura.partido)
+        ).all()
+        for cargo, partido, n in linhas:
+            municipais[cargo][sigla_partido(partido) or SEM_PARTIDO] += n
+    contas = {
+        sigla_partido(p): p for p in session.scalars(select(PartidoContaSoma.partido).distinct())
+    }
+    siglas = set(camara) | set(senado) | set(municipais["PREFEITO"]) | set(municipais["VEREADOR"])
+    itens = [
+        {
+            "partido": s,
+            "camara": camara.get(s, 0),
+            "senado": senado.get(s, 0),
+            "prefeitos": municipais["PREFEITO"][s],
+            "vereadores": municipais["VEREADOR"][s],
+            "sigla_contas": contas.get(s),
+        }
+        for s in siglas
+        if s != SEM_PARTIDO
+    ]
+    itens.sort(key=lambda i: (-i["camara"], -i["senado"], -i["vereadores"], i["partido"]))
+    return {
+        "itens": itens,
+        "total_camara": sum(camara.values()),
+        "total_senado": sum(senado.values()),
+        "ano_municipal": ano_mun,
+        "fontes": [
+            {"nome": FONTE_CAMARA[1], "url": FONTE_CAMARA[2],
+             "atualizado_em": _data_fonte(session, [FONTE_CAMARA[0]])},
+            {"nome": FONTE_SENADO[1], "url": FONTE_SENADO[2],
+             "atualizado_em": _data_fonte(session, [FONTE_SENADO[0]])},
+            {"nome": tse.FONTE_NOME, "url": tse.URL_CANDIDATOS.format(ano=ano_mun or ""),
+             "atualizado_em": tse._atualizado_em(session)},
+        ],
+    }  # fmt: skip

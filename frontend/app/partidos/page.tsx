@@ -11,15 +11,16 @@ import { Revelacao } from "@/components/revelacao";
 import { CampoSelect, type FiltroAtivo, PilulasAtivas } from "@/components/ui/campos-filtro";
 import { CamposOrdenacao } from "@/components/ui/campos-filtro-cliente";
 import { PainelFiltros } from "@/components/ui/painel-filtros";
+import { PartidosCadeiras } from "@/components/partidos-cadeiras";
 import { Resumo2x2 } from "@/components/ui/resumo-2x2";
-import { type PartidoNaLista, getPartidos } from "@/lib/api";
+import { type PartidoNaLista, getCadeirasPartidos, getPartidos } from "@/lib/api";
 import { formatarReais, formatarReaisCompacto } from "@/lib/formato";
 
 export async function generateMetadata({ searchParams }: PageProps<"/partidos">): Promise<Metadata> {
   return {
-    title: "Dinheiro dos partidos",
+    title: "Partidos: cadeiras e dinheiro",
     description:
-      "Quanto cada partido recebeu do Fundo Partidário e do fundo eleitoral, quanto arrecadou, gastou e repassou a candidaturas, segundo a prestação de contas entregue ao TSE.",
+      "Quantos deputados, senadores, prefeitos e vereadores cada partido tem, e quanto recebeu do Fundo Partidário e do fundo eleitoral, arrecadou, gastou e repassou a candidaturas, segundo a Câmara, o Senado e o TSE.",
     ...metadadosComFiltro("/partidos", await searchParams),
   };
 }
@@ -42,15 +43,52 @@ export default function PartidosPage({ searchParams }: PageProps<"/partidos">) {
     <div className="pagina-secoes" data-largura="larga">
       <CabecalhoPagina
         sobretitulo="Partidos"
-        titulo="Dinheiro dos partidos"
-        subtitulo="Valores que os próprios partidos declararam ao Tribunal Superior Eleitoral (TSE) na prestação de contas anual: de onde veio o dinheiro e para onde foi. Toque ou clique no título de uma coluna para ordenar."
+        titulo="Quem é quem nos partidos"
+        subtitulo="Quantas cadeiras cada partido tem no Congresso, nas prefeituras e nas câmaras municipais, e o dinheiro que declarou ao Tribunal Superior Eleitoral (TSE)."
       />
+      <Revelacao fallback={<EsqueletoSecao rotulo="Carregando as cadeiras dos partidos…" secoes={1} />}>
+        {searchParams.then((sp) => (
+          <Cadeiras sp={sp} />
+        ))}
+      </Revelacao>
+      <section aria-labelledby="dinheiro-titulo" className="flex flex-col gap-2">
+        <h2 id="dinheiro-titulo" className="text-2xl">
+          Dinheiro dos partidos
+        </h2>
+        <p className="text-muted-foreground">
+          Valores que os próprios partidos declararam ao TSE na prestação de contas anual: de onde veio o dinheiro e
+          para onde foi. Toque ou clique no título de uma coluna para ordenar.
+        </p>
+      </section>
       <Revelacao fallback={<EsqueletoSecao rotulo="Carregando as contas dos partidos…" secoes={2} />}>
         {searchParams.then((sp) => (
           <Tabela ano={texto(sp.ano)} ordenar={texto(sp.ordenar)} ordem={texto(sp.ordem)} />
         ))}
       </Revelacao>
     </div>
+  );
+}
+
+async function Cadeiras({ sp }: { sp: Record<string, string | string[] | undefined> }) {
+  const [cadeirasR, contasR] = await Promise.all([getCadeirasPartidos(), getPartidos()]);
+  if (!cadeirasR.ok) return null;
+  const hrefPartido = (sigla: string) => {
+    const q = new URLSearchParams();
+    for (const k of ["ano", "ordenar", "ordem"]) {
+      const v = texto(sp[k]);
+      if (v) q.set(k, v);
+    }
+    q.set("partido", sigla);
+    return `/partidos?${q.toString()}#ficha`;
+  };
+  return (
+    <PartidosCadeiras
+      dados={cadeirasR.dados}
+      contas={contasR.ok ? contasR.dados.partidos : []}
+      anoContas={contasR.ok ? contasR.dados.ano : null}
+      escolhido={texto(sp.partido)}
+      hrefPartido={hrefPartido}
+    />
   );
 }
 

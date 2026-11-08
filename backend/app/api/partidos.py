@@ -5,7 +5,8 @@ from sqlalchemy.orm import Session
 
 from app.db import get_session
 from app.schemas import PartidoDetalheResposta, PartidosResposta
-from app.services import partidos
+from app.schemas.bancadas import CadeirasPorPartido
+from app.services import bancadas, partidos
 
 router = APIRouter()
 
@@ -22,6 +23,12 @@ def listar_partidos(
     if escolhido not in anos:
         raise HTTPException(404, f"Sem contas de partidos para {escolhido}.")
     return partidos.listar(session, escolhido)
+
+
+@router.get("/partidos/cadeiras", response_model=CadeirasPorPartido)
+def cadeiras_dos_partidos(session: Annotated[Session, Depends(get_session)]) -> dict:
+    """Deputados e senadores no cargo, prefeitos e vereadores eleitos, por partido."""
+    return bancadas.cadeiras_por_partido(session)
 
 
 @router.get("/partidos/{sigla}", response_model=PartidoDetalheResposta)

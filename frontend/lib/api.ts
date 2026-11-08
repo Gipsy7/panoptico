@@ -1214,6 +1214,28 @@ export function getSaudeMunicipio(ibge: string) {
   return getJson<SaudeMunicipio>(`/municipios/${encodeURIComponent(ibge)}/saude`);
 }
 
+export type CadeirasPartido = {
+  partido: string;
+  camara: number;
+  senado: number;
+  prefeitos: number;
+  vereadores: number;
+  sigla_contas: string | null;
+};
+
+export type CadeirasPorPartido = {
+  itens: CadeirasPartido[];
+  total_camara: number;
+  total_senado: number;
+  ano_municipal: number | null;
+  fontes: { nome: string; url: string; atualizado_em: string | null }[];
+};
+
+/** Deputados e senadores no cargo, prefeitos e vereadores eleitos, por partido. */
+export function getCadeirasPartidos() {
+  return getJson<CadeirasPorPartido>("/partidos/cadeiras");
+}
+
 export type CidadesParecidas = {
   ano_populacao: number | null;
   cidades: {

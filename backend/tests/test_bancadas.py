@@ -192,3 +192,33 @@ def test_composicao_senado_soma_81_e_sem_eleitos_vem_nulo(client, session):
     # os que seguem aparecem com o partido de hoje (PL/PT), não o da candidatura (XX)
     assert por == {"PSD": 30, "NOVO": 24, "PL": 15, "PT": 12}
     assert client.get("/congresso/composicao?casa=outra").status_code == 422
+
+
+def test_cadeiras_por_partido_junta_casas_e_eleicao_municipal(client, session):
+    from decimal import Decimal
+
+    from app.models import PartidoContaSoma
+
+    ing = _ingestao(session)
+    for i, p in enumerate(["PL", "PCdoB", "PL"]):
+        _parl(session, ing, "camara", i, p)
+    _parl(session, ing, "senado", 1, "MDB")
+    _cand(session, ing, "PREFEITO", "PC do B", 1, ano=2024, situacao="ELEITO")
+    _cand(session, ing, "VEREADOR", "PC do B", 2, ano=2024)
+    _cand(session, ing, "VEREADOR", "PL", 3, ano=2024)
+    _cand(session, ing, "VEREADOR", "NOVO", 4, ano=2024, situacao="NÃO ELEITO")
+    session.add(
+        PartidoContaSoma(
+            ano=2024, tipo="receita", partido="PC do B", esfera="Nacional", uf="",
+            fonte_recurso="x", natureza="x", categoria="x", valor=Decimal(1), lancamentos=1,
+        )
+    )  # fmt: skip
+    session.flush()
+    corpo = client.get("/partidos/cadeiras").json()
+    por = {i["partido"]: i for i in corpo["itens"]}
+    assert [i["partido"] for i in corpo["itens"]] == ["PL", "PCdoB", "MDB"]
+    assert (por["PL"]["camara"], por["PL"]["vereadores"]) == (2, 1)
+    assert (por["PCdoB"]["prefeitos"], por["PCdoB"]["vereadores"]) == (1, 1)
+    assert por["PCdoB"]["sigla_contas"] == "PC do B"
+    assert por["MDB"]["senado"] == 1 and "NOVO" not in por
+    assert corpo["ano_municipal"] == 2024 and corpo["total_camara"] == 3
