@@ -1852,6 +1852,9 @@ Pedido do dono depois de usar o release no celular:
   médio mensal com o do estado e o do Brasil no mesmo ano, e "onde a cidade trabalha" (seções da CNAE, só cidades
   com 50 mil habitantes ou mais, como o IBGE publica). A tela diz que o trabalho informal fica de fora. Escolhido no
   lugar dos microdados da RAIS e do CAGED (dezenas de GB) porque o IBGE já entrega por município, com conferência.
+- **Internet (Anatel):** aba "Internet" com acessos de banda larga fixa por 100 moradores no mês mais recente (com o
+  estado e o Brasil contados do mesmo jeito), a parte por fibra e a de mais de 34 Mbps. A "densidade" publicada pela
+  Anatel não é usada porque mistura unidades entre os meses.
 - **Saúde adiada:** a API de hospitais e leitos do Ministério da Saúde não traz o mês de cada retrato e quase
   todas as linhas vêm sem município; somar daria número errado. Fica para os arquivos do CNES (ver FONTES).
 

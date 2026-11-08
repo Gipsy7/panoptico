@@ -1114,6 +1114,27 @@ export function getMunicipios(uf: string) {
   return getJson<Municipio[]>(`/municipios?uf=${encodeURIComponent(uf)}`);
 }
 
+export type InternetMunicipio = {
+  municipio_ibge: string;
+  uf: string;
+  ano: number | null;
+  mes: number | null;
+  acessos: number | null;
+  por_100_moradores: number | null;
+  uf_por_100_moradores: number | null;
+  brasil_por_100_moradores: number | null;
+  percentual_fibra: number | null;
+  percentual_rapida: number | null;
+  fonte_nome: string;
+  fonte_url: string;
+  atualizado_em: string | null;
+};
+
+/** Banda larga fixa (Anatel) por 100 moradores, com o estado e o Brasil. */
+export function getInternetMunicipio(ibge: string) {
+  return getJson<InternetMunicipio>(`/municipios/${encodeURIComponent(ibge)}/internet`);
+}
+
 export type CidadesParecidas = {
   ano_populacao: number | null;
   cidades: {

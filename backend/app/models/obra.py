@@ -1,7 +1,7 @@
 from datetime import date
 from decimal import Decimal
 
-from sqlalchemy import Date, ForeignKey, Index, Numeric, SmallInteger, String
+from sqlalchemy import Date, ForeignKey, Index, Integer, Numeric, SmallInteger, String
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.models.base import Base
@@ -135,4 +135,19 @@ class EmpregoSetor(Base):
     secao: Mapped[str] = mapped_column(String(1), primary_key=True)
     nome: Mapped[str] = mapped_column(String(160))
     pessoal_ocupado: Mapped[Decimal] = mapped_column(Numeric(12, 0))
+    ingestao_id: Mapped[int | None] = mapped_column(ForeignKey("fonte_ingestao.id"))
+
+
+class InternetFixa(Base):
+    """Banda larga fixa (Anatel) no mês mais recente: acessos por município, os de fibra
+    (FTTH/FTTB) e os de mais de 34 Mbps. A conta por 100 moradores é feita na API."""
+
+    __tablename__ = "internet_fixa"
+
+    codigo: Mapped[str] = mapped_column(String(7), primary_key=True)
+    ano: Mapped[int] = mapped_column(SmallInteger)
+    mes: Mapped[int] = mapped_column(SmallInteger)
+    acessos: Mapped[int] = mapped_column(Integer)
+    acessos_fibra: Mapped[int] = mapped_column(Integer)
+    acessos_rapidos: Mapped[int] = mapped_column(Integer)
     ingestao_id: Mapped[int | None] = mapped_column(ForeignKey("fonte_ingestao.id"))

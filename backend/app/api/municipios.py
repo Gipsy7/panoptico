@@ -18,6 +18,7 @@ from app.schemas.comparar_cidades import CidadesParecidas, Vocacoes
 from app.schemas.emendas_municipio import EmendasMunicipioCompleta
 from app.schemas.emprego import EmpregoMunicipio
 from app.schemas.ideb import IdebMunicipio
+from app.schemas.internet import InternetMunicipio
 from app.schemas.obras import ObrasMunicipio, ObrasPorUf
 from app.schemas.pib import PibMunicipio
 from app.schemas.repasses_estaduais import RepassesEstaduaisResposta
@@ -30,6 +31,7 @@ from app.services import (
     emprego,
     fornecedores,
     ideb,
+    internet,
     obras,
     pib,
     repasses_estaduais,
@@ -161,6 +163,15 @@ def vocacoes_da_cidade(ibge: str, session: Annotated[Session, Depends(get_sessio
     if session.get(Municipio, ibge) is None:
         raise HTTPException(404, "Município não encontrado.")
     return comparar_cidades.vocacoes(session, ibge)
+
+
+@router.get("/municipios/{ibge}/internet", response_model=InternetMunicipio)
+def internet_da_cidade(ibge: str, session: Annotated[Session, Depends(get_session)]) -> dict:
+    """Banda larga fixa (Anatel) por 100 moradores, com o estado e o Brasil."""
+    municipio = session.get(Municipio, ibge)
+    if municipio is None:
+        raise HTTPException(404, "Município não encontrado.")
+    return internet.do_municipio(session, ibge, municipio.uf)
 
 
 @router.get("/obras/estados", response_model=ObrasPorUf)

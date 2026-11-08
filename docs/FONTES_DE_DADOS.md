@@ -226,6 +226,14 @@ Endpoints conferidos em 2026-10-06.
 - **Conferido:** Blumenau 2024: 198.372 pessoas ocupadas, 147.817 assalariados, 36.264 empresas, salário médio de R$ 4.069,10 (2,9 salários mínimos); indústria de transformação 47.410 pessoas. A carga confere a soma dos municípios com o Brasil em cada ano.
 - **Frequência:** mensal (`ibge_cempre`, `ingestion/ibge/cempre.py`).
 
+## Anatel: banda larga fixa (redesenho, etapa 5)
+
+- **URL:** `https://www.anatel.gov.br/dadosabertos/paineis_de_dados/acessos/acessos_banda_larga_fixa.zip` (~1 GB, atualizado no começo de cada mês). Dentro: um CSV por ano (`Acessos_Banda_Larga_Fixa_<ano>.csv`, `;`, UTF-8 com BOM; colunas Ano, Mês, Empresa, CNPJ, UF, Município, Código IBGE Município, Faixa de Velocidade, Velocidade, Tecnologia, Meio de Acesso, Tipo de Pessoa, Tipo de Produto, Acessos), o `Densidade_Banda_Larga_Fixa.csv` e um PDF de metadados.
+- **O que guardamos:** a soma do mês mais recente por município: acessos, os de fibra (Tecnologia FTTH ou FTTB) e os de mais de 34 Mbps (Faixa "> 34Mbps"). O CSV de 2026 (~930 MB) é lido em fluxo em ~35 s.
+- **Armadilha:** o `Densidade_Banda_Larga_Fixa.csv` **mistura unidades**: o PDF diz "por 100 domicílios", mas o Brasil aparece com 22,3 (dez/2022), 94,0 (dez/2025) e 27,2 (set/2026). Não é usado; a API divide os acessos pela população do IBGE (por 100 moradores). Conferido: Brasil set/2026 = 27,19 por 100 moradores, igual ao 27,18 da Anatel naquele mês.
+- **Conferido:** Blumenau set/2026: 167.493 acessos, 42,9 por 100 moradores (SC 38,3), 74,9% por fibra, 98,9% acima de 34 Mbps.
+- **Frequência:** mensal (`anatel_banda_larga`, `ingestion/anatel/banda_larga.py`; bruto = recorte).
+
 ## Ministério da Saúde: hospitais e leitos (reconhecimento de 08/11/2026, sem ingestão)
 
 - **URL:** `https://apidadosabertos.saude.gov.br/assistencia-a-saude/hospitais-e-leitos?limit=1000&offset=N` (até 1.000 por página). O CKAN antigo (opendatasus) virou o novo portal `dadosabertos.saude.gov.br`, sem API de catálogo, e os arquivos no S3 antigo dão 403 (`AccessDenied`, endereço que não existe mais, não bloqueio).

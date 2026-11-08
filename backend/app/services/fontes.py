@@ -100,6 +100,12 @@ CATALOGO = [
         "url": "https://sidra.ibge.gov.br/tabela/9509",
     },
     {
+        "dado": "Banda larga fixa por município (acessos, fibra e velocidade)",
+        "orgao": "Agência Nacional de Telecomunicações (Anatel)",
+        "fontes": ["anatel_banda_larga"],
+        "url": "https://www.gov.br/anatel/pt-br/dados/acessos/banda-larga-fixa",
+    },
+    {
         "dado": "PIB dos municípios e valor adicionado por atividade (2002 em diante)",
         "orgao": "Instituto Brasileiro de Geografia e Estatística (IBGE)",
         "fontes": ["ibge_pib"],

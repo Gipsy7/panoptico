@@ -323,6 +323,14 @@ recorte = "totais por município, estado e Brasil desde 2022 (tabela 9509) e pes
 frequencia = "mensal"
 
 [[fonte]]
+nome = "anatel_banda_larga"
+modulo = "ingestion.anatel.banda_larga"
+uso = "Internet em Por dentro da cidade: banda larga fixa por 100 moradores, fibra e velocidade"
+recorte = "só a soma do mês mais recente por município (acessos, de fibra, de mais de 34 Mbps); o zip de ~1 GB fica na Anatel"
+frequencia = "mensal"
+bruto = "recorte"
+
+[[fonte]]
 nome = "resumos"
 modulo = "ingestion.resumos"
 uso = "Números-chave e lista de parlamentares"
