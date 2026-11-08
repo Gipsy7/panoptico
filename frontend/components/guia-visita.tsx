@@ -146,7 +146,7 @@ export function GuiaVisita() {
           <>
             {" "}
             <Link href="/#cep" className="font-medium underline underline-offset-2">
-              Digitar o CEP
+              Escolher a cidade
             </Link>
           </>
         ) : null}

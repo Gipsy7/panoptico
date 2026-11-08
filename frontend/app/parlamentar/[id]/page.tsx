@@ -353,6 +353,50 @@ async function Perfil({
     },
   ];
 
+  const acoes = (
+    <>
+      <div className="flex flex-wrap gap-2">
+        <Link href={`/comparar?a=${p.id}`} className="botao-linha">
+          Comparar com outro parlamentar
+        </Link>
+      </div>
+      <div className="flex flex-col gap-1">
+        {p.uf && (
+          <Link href={`/representantes?uf=${p.uf}`} className="alvo-link self-start text-sm text-muted-foreground underline underline-offset-4">
+            Ver quem mais representa o estado ({p.uf})
+          </Link>
+        )}
+        {p.partido && (
+          <Link
+            href={`/parlamentares?partido=${encodeURIComponent(p.partido)}`}
+            className="alvo-link self-start text-sm text-muted-foreground underline underline-offset-4"
+          >
+            Ver os outros parlamentares do {p.partido}
+          </Link>
+        )}
+      </div>
+      {p.uf && (
+        <Link
+          href={`/impostos-e-repasses/${p.uf}`}
+          className="alvo-link self-start text-sm text-muted-foreground underline underline-offset-4"
+        >
+          {p.uf} no mapa de impostos e repasses
+        </Link>
+      )}
+      <CompartilharCartao
+        caminho={`/parlamentar/${p.id}`}
+        cartao={`/parlamentar/${p.id}/cartao`}
+        nomeArquivo={p.nome_parlamentar}
+        texto={`Veja os gastos, a presença e os projetos de ${p.nome_parlamentar} (${NOME_CASA[p.casa]}), com dados oficiais:`}
+      >
+        <CompartilharWhatsApp
+          caminho={`/parlamentar/${p.id}`}
+          texto={`Veja os gastos, a presença e os projetos de ${p.nome_parlamentar} (${NOME_CASA[p.casa]}), com dados oficiais:`}
+        />
+      </CompartilharCartao>
+    </>
+  );
+
   return (
     <AvisosDoPerfil tipo="parlamentar" id={String(p.id)} nome={p.nome_parlamentar}>
     <article data-largura="larga" data-perfil className="pagina-secoes">
@@ -366,105 +410,74 @@ async function Perfil({
         imagem={p.foto_url}
         oficial={p.pagina_url}
       />
-      <div className="flex flex-col gap-4">
-        <Migalhas
-          itens={[
-            { rotulo: "Início", href: "/" },
-            { rotulo: "Parlamentares", href: "/parlamentares" },
-            { rotulo: p.nome_parlamentar },
-          ]}
-        />
-        <header className="flex items-start gap-4">
-          <Foto parlamentar={p} largura={96} prioridade decorativa />
-          <div className="flex min-w-0 flex-col gap-1">
-            <p className="sobretitulo">{p.casa === "senado" ? "Senador" : "Deputado federal"}</p>
-            <h1 className="titulo-pagina">{p.nome_parlamentar}</h1>
-            {p.nome_civil && p.nome_civil !== p.nome_parlamentar && (
-              <p className="text-sm text-muted-foreground">{p.nome_civil}</p>
-            )}
-            <p className="text-muted-foreground">
-              {NOME_CASA[p.casa]} · {[p.partido, p.uf].filter(Boolean).join(" · ")}
-            </p>
-            {!p.em_exercicio && <p className="text-sm font-medium">Fora de exercício no momento.</p>}
-            <CabecalhoConfianca tipo="parlamentar" id={String(p.id)} />
-            <SobreOCargo cargo={p.casa === "senado" ? "senador" : "deputado-federal"} />
-          </div>
-        </header>
-        <LinkCorrecao tipo="parlamentar" id={String(p.id)} />
-        <BotaoAviso alvoTipo="parlamentar" alvoChave={chaveAlvo(p.casa, p.id_externo)} destino={p.nome_parlamentar} />
-
-        {candidatura.ok && candidatura.dados.eleito_2026 && (
-          <SeloEleitoFuturo eleito={candidatura.dados.eleito_2026} atualizadoEm={candidatura.dados.atualizado_em} />
-        )}
-
-        <ResumoPerfil
-          nome={p.nome_parlamentar}
-          casa={p.casa}
-          gastos={gastos.ok ? gastos.dados : undefined}
-          presenca={presenca.ok ? presenca.dados : undefined}
-          projetos={projetos.ok ? projetos.dados : undefined}
-          votos={votos.ok ? comNumerosDeTodas(votos.dados) : undefined}
-          bens={candidatura.ok ? candidatura.dados.bens : undefined}
-          sancoes={sancoes?.ok ? sancoes.dados : undefined}
-          subsidio={p.remuneracao.subsidio_mensal}
-        />
-        <CartaoChecklist checklist={checklist} />
-        <p className="text-sm text-muted-foreground">Toque ou clique num número para ver o detalhe, com a fonte e a data.</p>
-
-        <div className="flex flex-wrap gap-2">
-          <Link href={`/comparar?a=${p.id}`} className="botao-linha">
-            Comparar com outro parlamentar
-          </Link>
-        </div>
-        <div className="flex flex-col gap-1">
-          {p.uf && (
-            <Link href={`/representantes?uf=${p.uf}`} className="alvo-link self-start text-sm text-muted-foreground underline underline-offset-4">
-              Ver quem mais representa o estado ({p.uf})
-            </Link>
-          )}
-          {p.partido && (
-            <Link
-              href={`/parlamentares?partido=${encodeURIComponent(p.partido)}`}
-              className="alvo-link self-start text-sm text-muted-foreground underline underline-offset-4"
-            >
-              Ver os outros parlamentares do {p.partido}
-            </Link>
-          )}
-        </div>
-        {p.uf && (
-          <Link
-            href={`/impostos-e-repasses/${p.uf}`}
-            className="alvo-link self-start text-sm text-muted-foreground underline underline-offset-4"
-          >
-            {p.uf} no mapa de impostos e repasses
-          </Link>
-        )}
-        <CompartilharCartao
-          caminho={`/parlamentar/${p.id}`}
-          cartao={`/parlamentar/${p.id}/cartao`}
-          nomeArquivo={p.nome_parlamentar}
-          texto={`Veja os gastos, a presença e os projetos de ${p.nome_parlamentar} (${NOME_CASA[p.casa]}), com dados oficiais:`}
-        >
-          <CompartilharWhatsApp
-            caminho={`/parlamentar/${p.id}`}
-            texto={`Veja os gastos, a presença e os projetos de ${p.nome_parlamentar} (${NOME_CASA[p.casa]}), com dados oficiais:`}
-          />
-        </CompartilharCartao>
-      </div>
-
-      <PerguntasPerfil
-        casa={p.casa}
-        nome={p.nome_parlamentar}
-        presenca={presenca.ok ? presenca.dados : undefined}
-        votos={votos.ok ? comNumerosDeTodas(votos.dados) : undefined}
-        temSancoes={pessoaId !== null}
+      <Migalhas
+        itens={[
+          { rotulo: "Início", href: "/" },
+          { rotulo: "Parlamentares", href: "/parlamentares" },
+          { rotulo: p.nome_parlamentar },
+        ]}
       />
+      <div className="flex flex-col gap-[var(--esp-10)] lg:grid lg:grid-cols-[17rem_minmax(0,1fr)] lg:items-start lg:gap-10">
+        {/* Coluna da pessoa: no computador acompanha a rolagem, com as ações juntas. */}
+        <aside aria-label="Quem é" className="flex flex-col gap-4 lg:sticky lg:top-24">
+          <header className="flex items-start gap-4 lg:flex-col">
+            <Foto parlamentar={p} largura={96} prioridade decorativa />
+            <div className="flex min-w-0 flex-col gap-1">
+              <p className="sobretitulo">{p.casa === "senado" ? "Senador" : "Deputado federal"}</p>
+              <h1 className="titulo-pagina">{p.nome_parlamentar}</h1>
+              {p.nome_civil && p.nome_civil !== p.nome_parlamentar && (
+                <p className="text-sm text-muted-foreground">{p.nome_civil}</p>
+              )}
+              <p className="text-muted-foreground">
+                {NOME_CASA[p.casa]} · {[p.partido, p.uf].filter(Boolean).join(" · ")}
+              </p>
+              {!p.em_exercicio && <p className="text-sm font-medium">Fora de exercício no momento.</p>}
+              <CabecalhoConfianca tipo="parlamentar" id={String(p.id)} />
+              <SobreOCargo cargo={p.casa === "senado" ? "senador" : "deputado-federal"} />
+            </div>
+          </header>
+          <LinkCorrecao tipo="parlamentar" id={String(p.id)} />
+          <BotaoAviso alvoTipo="parlamentar" alvoChave={chaveAlvo(p.casa, p.id_externo)} destino={p.nome_parlamentar} />
 
-      <AbasDetalhe titulo="Tudo em detalhe" abas={abas} />
+          <div className="hidden flex-col gap-3 lg:flex">{acoes}</div>
+        </aside>
+        <div className="pagina-secoes min-w-0">
+          <div className="flex flex-col gap-4">
+            {candidatura.ok && candidatura.dados.eleito_2026 && (
+              <SeloEleitoFuturo eleito={candidatura.dados.eleito_2026} atualizadoEm={candidatura.dados.atualizado_em} />
+            )}
 
-      <RespostasCitado tipo="parlamentar" id={String(p.id)} nome={p.nome_parlamentar} />
-      <FimDoPerfil />
-      <FonteRodape fonte={FONTE_CASA[p.casa]} url={p.fonte_url} atualizadoEm={p.atualizado_em} />
+            <ResumoPerfil
+              nome={p.nome_parlamentar}
+              casa={p.casa}
+              gastos={gastos.ok ? gastos.dados : undefined}
+              presenca={presenca.ok ? presenca.dados : undefined}
+              projetos={projetos.ok ? projetos.dados : undefined}
+              votos={votos.ok ? comNumerosDeTodas(votos.dados) : undefined}
+              bens={candidatura.ok ? candidatura.dados.bens : undefined}
+              sancoes={sancoes?.ok ? sancoes.dados : undefined}
+              subsidio={p.remuneracao.subsidio_mensal}
+            />
+            <p className="text-sm text-muted-foreground">Toque ou clique num número para ver o detalhe, com a fonte e a data.</p>
+
+            <CartaoChecklist checklist={checklist} />
+            <div className="flex flex-col gap-3 lg:hidden">{acoes}</div>
+          </div>
+          <PerguntasPerfil
+            casa={p.casa}
+            nome={p.nome_parlamentar}
+            presenca={presenca.ok ? presenca.dados : undefined}
+            votos={votos.ok ? comNumerosDeTodas(votos.dados) : undefined}
+            temSancoes={pessoaId !== null}
+          />
+
+          <AbasDetalhe titulo="Tudo sobre este mandato" abas={abas} />
+
+          <RespostasCitado tipo="parlamentar" id={String(p.id)} nome={p.nome_parlamentar} />
+          <FimDoPerfil />
+          <FonteRodape fonte={FONTE_CASA[p.casa]} url={p.fonte_url} atualizadoEm={p.atualizado_em} />
+        </div>
+      </div>
     </article>
     </AvisosDoPerfil>
   );

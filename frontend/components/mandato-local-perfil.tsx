@@ -261,237 +261,249 @@ export async function PerfilMandatoLocal({ id, paginaVotos }: { id: string; pagi
       ],
     },
   ];
+  const acoes = (
+    <CompartilharCartao caminho={rota} cartao={`${rota}/cartao`} nomeArquivo={v.nome} texto={textoCompartilhar}>
+      <CompartilharWhatsApp caminho={rota} texto={textoCompartilhar} />
+    </CompartilharCartao>
+  );
+
   return (
     <AvisosDoPerfil tipo={camara ? "vereador" : "deputado-estadual"} id={String(v.id)} nome={v.nome}>
     <article data-largura="larga" data-perfil className="pagina-secoes">
-      <header className="flex items-start gap-4">
-        <FotoVereador vereador={v} tamanho={72} decorativa />
-        <div className="flex min-w-0 flex-col gap-1">
-          <p className="sobretitulo">{cargo}</p>
-          <h1 className="titulo-pagina">{v.nome}</h1>
-          {v.nome_completo && v.nome_completo !== v.nome && (
-            <p className="text-sm text-muted-foreground">{v.nome_completo}</p>
-          )}
-          <p className="flex flex-wrap gap-1">
-            <span className="pilula">{cargo}</span>
-            {v.partido && <span className="pilula">{v.partido}</span>}
-            <span className="pilula">{v.titular ? "Titular" : "Suplente"}</span>
-          </p>
-          {(v.inicio || v.fim) && (
-            <p className="text-sm text-muted-foreground">
-              Mandato {v.inicio ? `de ${formatarData(v.inicio)}` : ""} {v.fim ? `até ${formatarData(v.fim)}` : ""}
-            </p>
-          )}
-          <CabecalhoConfianca tipo={camara ? "vereador" : "deputado_estadual"} id={String(v.id)} />
-          <SobreOCargo cargo={camara ? "vereador" : "deputado-estadual"} df={v.uf === "DF"} />
+      <div className="flex flex-col gap-[var(--esp-10)] lg:grid lg:grid-cols-[17rem_minmax(0,1fr)] lg:items-start lg:gap-10">
+        {/* Coluna da pessoa: no computador acompanha a rolagem, com as ações juntas. */}
+        <aside aria-label="Quem é" className="flex flex-col gap-4 lg:sticky lg:top-24">
+          <header className="flex items-start gap-4 lg:flex-col">
+            <FotoVereador vereador={v} tamanho={72} decorativa />
+            <div className="flex min-w-0 flex-col gap-1">
+              <p className="sobretitulo">{cargo}</p>
+              <h1 className="titulo-pagina">{v.nome}</h1>
+              {v.nome_completo && v.nome_completo !== v.nome && (
+                <p className="text-sm text-muted-foreground">{v.nome_completo}</p>
+              )}
+              <p className="flex flex-wrap gap-1">
+                <span className="pilula">{cargo}</span>
+                {v.partido && <span className="pilula">{v.partido}</span>}
+                <span className="pilula">{v.titular ? "Titular" : "Suplente"}</span>
+              </p>
+              {(v.inicio || v.fim) && (
+                <p className="text-sm text-muted-foreground">
+                  Mandato {v.inicio ? `de ${formatarData(v.inicio)}` : ""} {v.fim ? `até ${formatarData(v.fim)}` : ""}
+                </p>
+              )}
+              <CabecalhoConfianca tipo={camara ? "vereador" : "deputado_estadual"} id={String(v.id)} />
+              <SobreOCargo cargo={camara ? "vereador" : "deputado-estadual"} df={v.uf === "DF"} />
+            </div>
+          </header>
+          <LinkCorrecao tipo={camara ? "vereador" : "deputado-estadual"} id={String(v.id)} />
+          <div className="hidden lg:block">{acoes}</div>
+        </aside>
+        <div className="pagina-secoes min-w-0">
+
+
+          {v.eleito_2026 && <SeloEleitoFuturo eleito={v.eleito_2026} atualizadoEm={v.atualizado_em} />}
+
+
+          <GradeCartoes rotulo="Números principais">
+            {v.presenca && v.presenca.sessoes > 0 && (
+              <CartaoNumero
+                destino="presenca"
+                rotulo="Presença nas sessões, ano atual e anterior"
+                valor={String(v.presenca.presencas)}
+                complemento={`de ${v.presenca.sessoes}`}
+                largo
+                comparacao={
+                  v.presenca.media_casa !== null
+                    ? {
+                        pessoa: { rotulo: v.nome, valor: (100 * v.presenca.presencas) / v.presenca.sessoes },
+                        media: { rotulo: mediaCasa, valor: v.presenca.media_casa },
+                        formato: "percentual",
+                        escala: 100,
+                      }
+                    : undefined
+                }
+              />
+            )}
+            {v.subsidio && v.subsidio.valor !== null && (
+              <CartaoNumero
+                destino="salario"
+                rotulo="Salário bruto (subsídio) por mês"
+                valor={formatarReais(v.subsidio.valor, true)}
+                apoio={v.uf === "DF" ? "Igual para toda a Câmara Legislativa" : "Igual para toda a Assembleia"}
+              />
+            )}
+            {v.gastos && (
+              <CartaoNumero
+                destino="gastos"
+                rotulo={`Verba do gabinete em ${v.gastos.ano}`}
+                valor={v.gastos.total === 0 ? formatarGastos(0) : formatarReaisCompacto(v.gastos.total)}
+                apoio={v.gastos.media_casa !== null ? `Média ${formatarReaisCompacto(v.gastos.media_casa)}` : undefined}
+              />
+            )}
+            {emendasEstaduais && (
+              <CartaoNumero
+                destino="emendas-estaduais"
+                rotulo="Emendas ao orçamento do Estado, pagas"
+                valor={formatarReaisCompacto(emendasEstaduais.total_pago)}
+                comparacao={
+                  emendasEstaduais.media_casa_pago !== null
+                    ? {
+                        pessoa: { rotulo: v.nome, valor: emendasEstaduais.total_pago },
+                        media: { rotulo: mediaCasa, valor: emendasEstaduais.media_casa_pago },
+                        formato: "reais-compacto",
+                      }
+                    : undefined
+                }
+              />
+            )}
+            {comRegistroDeVoto && votacoes.ok && (
+              <CartaoNumero
+                destino="votos"
+                rotulo="Votações nominais, ano atual e anterior"
+                valor={String(votacoes.dados.votou)}
+                complemento={`de ${votacoes.dados.total}`}
+                apoio="Em que registrou voto"
+              />
+            )}
+            <CartaoNumero
+              destino="proposicoes"
+              rotulo="Projetos como autor ou coautor"
+              valor={formatarNumero(v.projetos, "inteiro")}
+              apoio={`${formatarNumero(v.proposicoes, "inteiro")} proposições no total`}
+            />
+            {v.eleicao_recente?.bens && (
+              <CartaoNumero
+                destino="candidatura-recente"
+                rotulo={`Bens declarados em ${v.eleicao_recente.bens.candidatura.ano}`}
+                valor={formatarReaisCompacto(v.eleicao_recente.bens.total)}
+                apoio={
+                  v.eleicao_recente.bens.anterior
+                    ? `Em ${v.eleicao_recente.bens.anterior.candidatura.ano}: ${formatarReaisCompacto(v.eleicao_recente.bens.anterior.total)}`
+                    : "Valor informado ao TSE"
+                }
+              />
+            )}
+            {dEleicao?.bens && (
+              <CartaoNumero
+                destino="candidatura"
+                rotulo={`Bens declarados em ${dEleicao.bens.candidatura.ano}`}
+                valor={formatarReaisCompacto(dEleicao.bens.total)}
+                apoio={
+                  dEleicao.bens.anterior
+                    ? `Em ${dEleicao.bens.anterior.candidatura.ano}: ${formatarReaisCompacto(dEleicao.bens.anterior.total)}`
+                    : "Valor informado ao TSE"
+                }
+              />
+            )}
+            {dEleicao?.votos != null && (
+              <CartaoNumero
+                destino="quem-e"
+                rotulo={`Votos recebidos em ${dEleicao.ano_eleicao}`}
+                valor={formatarNumero(dEleicao.votos, "inteiro")}
+                apoio="Número informado pelo TSE"
+              />
+            )}
+            {sancoes?.ok && (
+              <CartaoNumero
+                destino="sancoes"
+                rotulo="Registros na CGU e no TCU"
+                valor={sancoes.dados.itens.length === 0 ? "Nenhum" : String(sancoes.dados.itens.length)}
+                apoio={sancoes.dados.atualizado_em ? `Consulta de ${formatarData(sancoes.dados.atualizado_em)}` : undefined}
+              />
+            )}
+          </GradeCartoes>
+          <CartaoChecklist checklist={checklist} />
+          <p className="text-sm text-muted-foreground">Toque ou clique num número para ver o detalhe, com a fonte e a data.</p>
+
+          <Link href={`/comparar/local?a=${v.id}`} className="botao-linha self-start">
+            Comparar com outro {camara ? "vereador desta câmara" : "deputado desta assembleia"}
+          </Link>
+
+          <div className="lg:hidden">{acoes}</div>
+
+          <ListaPerguntas titulo="Para entender os números">
+            <Pergunta
+              id="entender-dados"
+              pergunta={`De onde vêm os dados desta ${nomeCasa}?`}
+              resposta={`Do que a própria ${nomeCasa} publica, do ano atual e do anterior`}
+            >
+              <p>
+                Os números de gastos, presença, votos e projetos são os que a {nomeCasa} divulga em dados abertos, sobre o
+                ano atual e o anterior. O Panóptico não corrige nem completa esses registros.
+              </p>
+              {faltam.length > 0 && (
+                <p>
+                  Para esta {nomeCasa}, não há dados abertos de: {faltam.join(", ")}. Por isso esses números não aparecem,
+                  e isso não diz nada sobre a pessoa.{" "}
+                  {casaNaMatriz(v) && <PorQueFalta uf={v.uf} casa={casaNaMatriz(v)} />}
+                </p>
+              )}
+              <FonteRodape fonte={v.fonte_nome} url={v.fonte_url} atualizadoEm={v.atualizado_em} />
+            </Pergunta>
+            {v.presenca && (
+              <Pergunta
+                id="entender-presenca"
+                pergunta="O que entra na conta da presença?"
+                resposta="As sessões plenárias com lista de presença lançada"
+              >
+                <p>
+                  Em {v.presenca.sessoes} sessões, {v.nome} aparece na lista de presença de {v.presenca.presencas}.
+                  Ausências justificadas (licença, missão oficial) não aparecem separadas nos dados da {nomeCasa}.
+                </p>
+                <p className="text-muted-foreground">
+                  Parte do trabalho de quem está no cargo acontece fora das sessões e não entra neste número.
+                </p>
+              </Pergunta>
+            )}
+            {(v.gastos?.media_casa != null || v.presenca?.media_casa != null) && (
+              <Pergunta
+                id="entender-media"
+                pergunta="Como é calculada a média?"
+                resposta={`É a média entre quem está no cargo na ${nomeCasa}`}
+              >
+                <p>
+                  Somamos o valor de cada parlamentar em exercício e dividimos pelo número deles. Quem não tem registro no
+                  período entra com zero. Nas barras, bronze é sempre esta pessoa e cinza é sempre a média.
+                </p>
+                <p className="text-muted-foreground">A média dá o contexto; não é meta nem nota.</p>
+              </Pergunta>
+            )}
+            {pessoaId !== null && (
+              <Pergunta
+                id="entender-registro"
+                pergunta="O que é um registro na CGU e no TCU?"
+                resposta="Uma punição ou decisão que um órgão público registrou"
+              >
+                <p>
+                  A Controladoria-Geral da União (CGU) mantém os cadastros de quem foi punido por órgãos públicos{" "}
+                  <span className="text-muted-foreground">
+                    (<TermoOficial id="cadastros-cgu">CEIS, CNEP e CEAF</TermoOficial>)
+                  </span>. O Tribunal de Contas da União (TCU)
+                  publica quem teve as contas julgadas irregulares ou foi proibido de exercer cargo público.
+                </p>
+                <p>{TEXTO_REGISTRO}</p>
+                <p>
+                  <a href="#ver-sancoes" className="alvo-link underline underline-offset-2">
+                    Ver os registros desta pessoa
+                  </a>
+                </p>
+              </Pergunta>
+            )}
+          </ListaPerguntas>
+
+          <AbasDetalhe titulo="Tudo sobre este mandato" abas={abas} />
+
+          <RespostasCitado tipo={camara ? "vereador" : "deputado-estadual"} id={String(v.id)} nome={v.nome} />
+          <FimDoPerfil />
+
+          <Link
+            href={v.municipio_ibge ? `/representantes?municipio=${v.municipio_ibge}` : `/representantes?uf=${v.uf}`}
+            className="self-start text-sm underline underline-offset-4"
+          >
+            {camara ? "Ver a câmara e os outros representantes da cidade" : "Ver a assembleia e os outros representantes do estado"}
+          </Link>
         </div>
-      </header>
-
-      <LinkCorrecao tipo={camara ? "vereador" : "deputado-estadual"} id={String(v.id)} />
-
-      {v.eleito_2026 && <SeloEleitoFuturo eleito={v.eleito_2026} atualizadoEm={v.atualizado_em} />}
-
-
-      <GradeCartoes rotulo="Números principais">
-        {v.presenca && v.presenca.sessoes > 0 && (
-          <CartaoNumero
-            destino="presenca"
-            rotulo="Presença nas sessões, ano atual e anterior"
-            valor={String(v.presenca.presencas)}
-            complemento={`de ${v.presenca.sessoes}`}
-            largo
-            comparacao={
-              v.presenca.media_casa !== null
-                ? {
-                    pessoa: { rotulo: v.nome, valor: (100 * v.presenca.presencas) / v.presenca.sessoes },
-                    media: { rotulo: mediaCasa, valor: v.presenca.media_casa },
-                    formato: "percentual",
-                    escala: 100,
-                  }
-                : undefined
-            }
-          />
-        )}
-        {v.subsidio && v.subsidio.valor !== null && (
-          <CartaoNumero
-            destino="salario"
-            rotulo="Salário bruto (subsídio) por mês"
-            valor={formatarReais(v.subsidio.valor, true)}
-            apoio={v.uf === "DF" ? "Igual para toda a Câmara Legislativa" : "Igual para toda a Assembleia"}
-          />
-        )}
-        {v.gastos && (
-          <CartaoNumero
-            destino="gastos"
-            rotulo={`Verba do gabinete em ${v.gastos.ano}`}
-            valor={v.gastos.total === 0 ? formatarGastos(0) : formatarReaisCompacto(v.gastos.total)}
-            apoio={v.gastos.media_casa !== null ? `Média ${formatarReaisCompacto(v.gastos.media_casa)}` : undefined}
-          />
-        )}
-        {emendasEstaduais && (
-          <CartaoNumero
-            destino="emendas-estaduais"
-            rotulo="Emendas ao orçamento do Estado, pagas"
-            valor={formatarReaisCompacto(emendasEstaduais.total_pago)}
-            comparacao={
-              emendasEstaduais.media_casa_pago !== null
-                ? {
-                    pessoa: { rotulo: v.nome, valor: emendasEstaduais.total_pago },
-                    media: { rotulo: mediaCasa, valor: emendasEstaduais.media_casa_pago },
-                    formato: "reais-compacto",
-                  }
-                : undefined
-            }
-          />
-        )}
-        {comRegistroDeVoto && votacoes.ok && (
-          <CartaoNumero
-            destino="votos"
-            rotulo="Votações nominais, ano atual e anterior"
-            valor={String(votacoes.dados.votou)}
-            complemento={`de ${votacoes.dados.total}`}
-            apoio="Em que registrou voto"
-          />
-        )}
-        <CartaoNumero
-          destino="proposicoes"
-          rotulo="Projetos como autor ou coautor"
-          valor={formatarNumero(v.projetos, "inteiro")}
-          apoio={`${formatarNumero(v.proposicoes, "inteiro")} proposições no total`}
-        />
-        {v.eleicao_recente?.bens && (
-          <CartaoNumero
-            destino="candidatura-recente"
-            rotulo={`Bens declarados em ${v.eleicao_recente.bens.candidatura.ano}`}
-            valor={formatarReaisCompacto(v.eleicao_recente.bens.total)}
-            apoio={
-              v.eleicao_recente.bens.anterior
-                ? `Em ${v.eleicao_recente.bens.anterior.candidatura.ano}: ${formatarReaisCompacto(v.eleicao_recente.bens.anterior.total)}`
-                : "Valor informado ao TSE"
-            }
-          />
-        )}
-        {dEleicao?.bens && (
-          <CartaoNumero
-            destino="candidatura"
-            rotulo={`Bens declarados em ${dEleicao.bens.candidatura.ano}`}
-            valor={formatarReaisCompacto(dEleicao.bens.total)}
-            apoio={
-              dEleicao.bens.anterior
-                ? `Em ${dEleicao.bens.anterior.candidatura.ano}: ${formatarReaisCompacto(dEleicao.bens.anterior.total)}`
-                : "Valor informado ao TSE"
-            }
-          />
-        )}
-        {dEleicao?.votos != null && (
-          <CartaoNumero
-            destino="quem-e"
-            rotulo={`Votos recebidos em ${dEleicao.ano_eleicao}`}
-            valor={formatarNumero(dEleicao.votos, "inteiro")}
-            apoio="Número informado pelo TSE"
-          />
-        )}
-        {sancoes?.ok && (
-          <CartaoNumero
-            destino="sancoes"
-            rotulo="Registros na CGU e no TCU"
-            valor={sancoes.dados.itens.length === 0 ? "Nenhum" : String(sancoes.dados.itens.length)}
-            apoio={sancoes.dados.atualizado_em ? `Consulta de ${formatarData(sancoes.dados.atualizado_em)}` : undefined}
-          />
-        )}
-      </GradeCartoes>
-      <CartaoChecklist checklist={checklist} />
-      <p className="text-sm text-muted-foreground">Toque ou clique num número para ver o detalhe, com a fonte e a data.</p>
-
-      <Link href={`/comparar/local?a=${v.id}`} className="botao-linha self-start">
-        Comparar com outro {camara ? "vereador desta câmara" : "deputado desta assembleia"}
-      </Link>
-
-      <CompartilharCartao caminho={rota} cartao={`${rota}/cartao`} nomeArquivo={v.nome} texto={textoCompartilhar}>
-        <CompartilharWhatsApp caminho={rota} texto={textoCompartilhar} />
-      </CompartilharCartao>
-
-      <ListaPerguntas titulo="Para entender os números">
-        <Pergunta
-          id="entender-dados"
-          pergunta={`De onde vêm os dados desta ${nomeCasa}?`}
-          resposta={`Do que a própria ${nomeCasa} publica, do ano atual e do anterior`}
-        >
-          <p>
-            Os números de gastos, presença, votos e projetos são os que a {nomeCasa} divulga em dados abertos, sobre o
-            ano atual e o anterior. O Panóptico não corrige nem completa esses registros.
-          </p>
-          {faltam.length > 0 && (
-            <p>
-              Para esta {nomeCasa}, não há dados abertos de: {faltam.join(", ")}. Por isso esses números não aparecem,
-              e isso não diz nada sobre a pessoa.{" "}
-              {casaNaMatriz(v) && <PorQueFalta uf={v.uf} casa={casaNaMatriz(v)} />}
-            </p>
-          )}
-          <FonteRodape fonte={v.fonte_nome} url={v.fonte_url} atualizadoEm={v.atualizado_em} />
-        </Pergunta>
-        {v.presenca && (
-          <Pergunta
-            id="entender-presenca"
-            pergunta="O que entra na conta da presença?"
-            resposta="As sessões plenárias com lista de presença lançada"
-          >
-            <p>
-              Em {v.presenca.sessoes} sessões, {v.nome} aparece na lista de presença de {v.presenca.presencas}.
-              Ausências justificadas (licença, missão oficial) não aparecem separadas nos dados da {nomeCasa}.
-            </p>
-            <p className="text-muted-foreground">
-              Parte do trabalho de quem está no cargo acontece fora das sessões e não entra neste número.
-            </p>
-          </Pergunta>
-        )}
-        {(v.gastos?.media_casa != null || v.presenca?.media_casa != null) && (
-          <Pergunta
-            id="entender-media"
-            pergunta="Como é calculada a média?"
-            resposta={`É a média entre quem está no cargo na ${nomeCasa}`}
-          >
-            <p>
-              Somamos o valor de cada parlamentar em exercício e dividimos pelo número deles. Quem não tem registro no
-              período entra com zero. Nas barras, bronze é sempre esta pessoa e cinza é sempre a média.
-            </p>
-            <p className="text-muted-foreground">A média dá o contexto; não é meta nem nota.</p>
-          </Pergunta>
-        )}
-        {pessoaId !== null && (
-          <Pergunta
-            id="entender-registro"
-            pergunta="O que é um registro na CGU e no TCU?"
-            resposta="Uma punição ou decisão que um órgão público registrou"
-          >
-            <p>
-              A Controladoria-Geral da União (CGU) mantém os cadastros de quem foi punido por órgãos públicos{" "}
-              <span className="text-muted-foreground">
-                (<TermoOficial id="cadastros-cgu">CEIS, CNEP e CEAF</TermoOficial>)
-              </span>. O Tribunal de Contas da União (TCU)
-              publica quem teve as contas julgadas irregulares ou foi proibido de exercer cargo público.
-            </p>
-            <p>{TEXTO_REGISTRO}</p>
-            <p>
-              <a href="#ver-sancoes" className="alvo-link underline underline-offset-2">
-                Ver os registros desta pessoa
-              </a>
-            </p>
-          </Pergunta>
-        )}
-      </ListaPerguntas>
-
-      <AbasDetalhe titulo="Tudo em detalhe" abas={abas} />
-
-      <RespostasCitado tipo={camara ? "vereador" : "deputado-estadual"} id={String(v.id)} nome={v.nome} />
-      <FimDoPerfil />
-
-      <Link
-        href={v.municipio_ibge ? `/representantes?municipio=${v.municipio_ibge}` : `/representantes?uf=${v.uf}`}
-        className="self-start text-sm underline underline-offset-4"
-      >
-        {camara ? "Ver a câmara e os outros representantes da cidade" : "Ver a assembleia e os outros representantes do estado"}
-      </Link>
+      </div>
     </article>
     </AvisosDoPerfil>
   );

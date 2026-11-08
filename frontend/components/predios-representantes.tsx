@@ -991,7 +991,8 @@ export function PrediosRepresentantes({
         id="painel-predio"
         tabIndex={-1}
         aria-label="Quem trabalha no prédio escolhido"
-        className="min-w-0 scroll-mt-[calc(var(--altura-cabecalho)+0.75rem)] rounded-[var(--radius)] border border-border bg-card p-5 focus:outline-none focus-visible:outline-2 focus-visible:outline-bronze"
+        style={{ borderTopColor: COR_DA_ESFERA[sel.id] }}
+        className="min-w-0 scroll-mt-[calc(var(--altura-cabecalho)+0.75rem)] rounded-[var(--raio)] border border-t-4 border-border bg-card p-5 focus:outline-none focus-visible:outline-2 focus-visible:outline-bronze"
       >
         <p role="status" className="sr-only">
           {anuncio}
@@ -1084,6 +1085,17 @@ export function PrediosRepresentantes({
     </div>
   );
 }
+
+/** Faixa do painel pela esfera: país, estado ou cidade (cor de assunto, não de partido). */
+const COR_DA_ESFERA: Record<PredioId, string> = {
+  planalto: "var(--tema-votos)",
+  senado: "var(--tema-votos)",
+  camara: "var(--tema-votos)",
+  governo: "var(--tema-trabalho)",
+  assembleia: "var(--tema-trabalho)",
+  prefeitura: "var(--tema-obras)",
+  camaramun: "var(--tema-obras)",
+};
 
 function pessoaDaChapa(p: PessoaPredio): PessoaDaChapa {
   return {

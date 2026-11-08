@@ -366,13 +366,10 @@ async function Lista({ cep, uf, municipio }: Busca) {
       <div className="flex flex-col gap-4">
         <div className="flex flex-col gap-1">
           <p className="sobretitulo">
-            {localizacao.cep
-              ? `CEP ${formatarCep(localizacao.cep)}`
-              : cidade
-                ? "Busca por cidade"
-                : "Busca por estado"}
+            Quem decide por {lugar}
+            {localizacao.cep && ` · CEP ${formatarCep(localizacao.cep)}`}
           </p>
-          <h1 className="titulo-pagina">Você está em {lugar}</h1>
+          <h1 className="titulo-pagina">{temCidade ? "Três andares de poder" : "Dois andares de poder"}</h1>
           <p className="text-muted-foreground">
             {temCidade
               ? "Quem decide sobre a sua vida mora em três andares: o país, o estado e a cidade. Toque ou clique num prédio para ver quem trabalha lá e o que faz."

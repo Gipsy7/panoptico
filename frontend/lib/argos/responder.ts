@@ -543,7 +543,7 @@ export function respostaExecutivo(cargo: Interpretacao["cargo"], lugar: Lugar): 
   if (!href) {
     return {
       texto: `${inicio} aparece na página Seus representantes, com o que faz, gasta e recebe. Digite o seu CEP ou diga o estado ou a cidade.`,
-      links: [{ rotulo: "Digitar o CEP", href: "/#cep" }],
+      links: [{ rotulo: "Escolher a cidade", href: "/#cep" }],
       botoes: SEM_BOTOES,
     };
   }
@@ -632,7 +632,7 @@ export function respostaCidade(m: Municipio): Mensagem {
 export function pedirCidade(): Mensagem {
   return {
     texto: "De qual cidade? Escreva o nome e o estado (por exemplo: Gaspar SC) ou digite o CEP.",
-    links: [{ rotulo: "Digitar o CEP", href: "/#cep" }],
+    links: [{ rotulo: "Escolher a cidade", href: "/#cep" }],
     botoes: SEM_BOTOES,
   };
 }

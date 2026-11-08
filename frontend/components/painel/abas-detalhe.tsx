@@ -27,17 +27,74 @@
  *     ] },
  *   ]} />
  */
-import { type KeyboardEvent, type ReactNode, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  type KeyboardEvent,
+  type ReactNode,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  useSyncExternalStore,
+} from "react";
 import { flushSync } from "react-dom";
 
+import type { Tema } from "@/components/painel/cartao-numero";
 import { tornarFundoInerte } from "@/lib/fundo-inerte";
 
 export type SecaoDetalhe = { id: string; titulo: string; conteudo: ReactNode };
-export type AbaDetalhe = { id: string; rotulo: string; secoes: SecaoDetalhe[] };
+export type AbaDetalhe = { id: string; rotulo: string; secoes: SecaoDetalhe[]; tema?: Tema };
+
+/** Cor de cada grupo pelo assunto (tokens `--tema-*`), sem cada tela precisar dizer. */
+const TEMA_DA_ABA: Record<string, Tema> = {
+  dinheiro: "dinheiro",
+  entrou: "dinheiro",
+  gastou: "dinheiro",
+  recebeu: "dinheiro",
+  governo: "dinheiro",
+  votacoes: "votos",
+  votos: "votos",
+  partidos: "votos",
+  parlamentares: "votos",
+  discursos: "votos",
+  projetos: "trabalho",
+  trata: "trabalho",
+  proposicao: "trabalho",
+  caminho: "trabalho",
+  medidas: "trabalho",
+  agenda: "trabalho",
+  ficha: "eleicoes",
+  eleicoes: "eleicoes",
+  eleitos: "eleicoes",
+  justica: "seguranca",
+};
+
+function corDaAba(a: AbaDetalhe): string {
+  const t = a.tema ?? TEMA_DA_ABA[a.id];
+  return t ? `var(--tema-${t})` : "var(--bronze)";
+}
 
 const PREFIXO = "ver-";
 
-export function AbasDetalhe({ titulo, abas }: { titulo: string; abas: AbaDetalhe[] }) {
+// Índice aberto no computador; no celular os grupos começam fechados (23 seções empilhadas
+// empurrariam as abas para longe).
+const LARGO = "(min-width: 1024px)";
+function assinarLargura(aviso: () => void) {
+  const m = window.matchMedia(LARGO);
+  m.addEventListener("change", aviso);
+  return () => m.removeEventListener("change", aviso);
+}
+
+export function AbasDetalhe({
+  titulo,
+  abas,
+  indice = true,
+}: {
+  titulo: string;
+  abas: AbaDetalhe[];
+  /** Índice "tudo" acima das abas: cada grupo com as suas seções; tocar abre a seção inteira. */
+  indice?: boolean;
+}) {
   const abaDaSecao = useMemo(() => {
     const mapa = new Map<string, string>();
     for (const a of abas) for (const s of a.secoes) mapa.set(s.id, a.id);
@@ -51,6 +108,8 @@ export function AbasDetalhe({ titulo, abas }: { titulo: string; abas: AbaDetalhe
   const [ativa, setAtiva] = useState(abas[0]?.id ?? "");
   const [gaveta, setGaveta] = useState<string | null>(null);
   const [vazias, setVazias] = useState<Set<string>>(new Set());
+  const [secoesVazias, setSecoesVazias] = useState<Set<string>>(new Set());
+  const largo = useSyncExternalStore(assinarLargura, () => window.matchMedia(LARGO).matches, () => false);
   const raiz = useRef<HTMLElement>(null);
   const botaoFechar = useRef<HTMLButtonElement>(null);
   const abridor = useRef<HTMLElement | null>(null);
@@ -90,8 +149,11 @@ export function AbasDetalhe({ titulo, abas }: { titulo: string; abas: AbaDetalhe
     for (const painel of el.querySelectorAll<HTMLElement>("[data-aba]")) {
       if (!painel.querySelector("[data-secao]:not(:empty)")) sem.add(painel.dataset.aba!);
     }
+    const semSecao = new Set<string>();
+    for (const s of el.querySelectorAll<HTMLElement>("[data-secao]:empty")) semSecao.add(s.dataset.secao!);
     const quadro = requestAnimationFrame(() => {
       setVazias(sem);
+      setSecoesVazias(semSecao);
       setAtiva((atual) => (sem.has(atual) ? (abas.find((a) => !sem.has(a.id))?.id ?? atual) : atual));
       aplicarHash(true);
     });
@@ -221,6 +283,11 @@ export function AbasDetalhe({ titulo, abas }: { titulo: string; abas: AbaDetalhe
   }, [ativa, vazias]);
 
   const visiveis = abas.filter((a) => !vazias.has(a.id));
+  const grupos = visiveis
+    .map((aba) => ({ aba, secoes: aba.secoes.filter((s) => !secoesVazias.has(s.id) && s.conteudo) }))
+    .filter((g) => g.secoes.length > 0);
+  const totalSecoes = grupos.reduce((n, g) => n + g.secoes.length, 0);
+  const mostrarIndice = indice && grupos.length > 1 && totalSecoes >= 4;
 
   const aoTeclarAba = (e: KeyboardEvent<HTMLButtonElement>) => {
     const i = visiveis.findIndex((a) => a.id === ativa);
@@ -240,6 +307,48 @@ export function AbasDetalhe({ titulo, abas }: { titulo: string; abas: AbaDetalhe
       <h2 id="detalhe-titulo" className="mb-2 text-2xl">
         {titulo}
       </h2>
+      {mostrarIndice && (
+        <nav aria-label={`Índice: ${titulo}`} className="mb-6">
+          <p className="mb-2 text-sm text-muted-foreground">
+            {totalSecoes} {totalSecoes === 1 ? "seção" : "seções"}, por assunto. Toque numa para abrir inteira, com a fonte e a data.
+          </p>
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3 lg:gap-3">
+            {grupos.map(({ aba, secoes }) => (
+              <details
+                key={`${aba.id}-${largo}`}
+                open={largo}
+                className="group/indice rounded-[var(--raio)] border border-t-4 border-border bg-card"
+                style={{ borderTopColor: corDaAba(aba) }}
+              >
+                <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-2 px-3 font-semibold [&::-webkit-details-marker]:hidden">
+                  {aba.rotulo}
+                  <span className="text-sm font-normal text-muted-foreground">
+                    {secoes.length}
+                    <span aria-hidden className="ml-2 inline-block transition-transform group-open/indice:rotate-180">
+                      ▾
+                    </span>
+                  </span>
+                </summary>
+                <ul className="border-t border-border">
+                  {secoes.map((s) => (
+                    <li key={s.id} className="border-b border-border last:border-b-0">
+                      <a
+                        href={`#${PREFIXO}${s.id}`}
+                        className="flex min-h-11 items-center justify-between gap-2 px-3 text-sm hover:bg-accent focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-bronze"
+                      >
+                        {s.titulo}
+                        <span aria-hidden className="text-bronze-texto">
+                          ›
+                        </span>
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </details>
+            ))}
+          </div>
+        </nav>
+      )}
       <div
         role="tablist"
         aria-label={titulo}
@@ -258,6 +367,7 @@ export function AbasDetalhe({ titulo, abas }: { titulo: string; abas: AbaDetalhe
               tabIndex={eAtiva ? 0 : -1}
               onClick={() => setAtiva(a.id)}
               onKeyDown={aoTeclarAba}
+              style={eAtiva ? { borderBottomColor: corDaAba(a) } : undefined}
               className={`flex min-h-11 shrink-0 snap-start items-center border-b-2 px-3 text-sm whitespace-nowrap focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-bronze ${
                 eAtiva
                   ? "border-bronze font-semibold text-foreground"
@@ -288,17 +398,18 @@ export function AbasDetalhe({ titulo, abas }: { titulo: string; abas: AbaDetalhe
                 id={`${PREFIXO}${s.id}`}
                 data-secao={s.id}
                 role={aberta ? "dialog" : undefined}
+                style={aberta ? { borderColor: corDaAba(a) } : undefined}
                 aria-modal={aberta ? true : undefined}
                 aria-label={aberta ? tituloDaSecao.get(s.id) : undefined}
                 className={
                   aberta
-                    ? "fixed inset-x-0 bottom-0 z-[60] mx-auto flex max-h-[88dvh] w-full max-w-3xl flex-col gap-4 overflow-y-auto overscroll-contain rounded-t-xl border-t border-border bg-background px-4 pb-8 shadow-[var(--sombra-menu)] motion-safe:animate-in motion-safe:slide-in-from-bottom-8 motion-safe:fade-in motion-safe:duration-200"
+                    ? "fixed inset-x-0 bottom-0 z-[60] mx-auto flex max-h-[88dvh] w-full max-w-3xl flex-col gap-4 overflow-y-auto overscroll-contain rounded-t-[var(--raio)] border-t-4 bg-background px-4 pb-8 shadow-[var(--sombra-menu)] motion-safe:animate-in motion-safe:slide-in-from-bottom-8 motion-safe:fade-in motion-safe:duration-200 lg:inset-y-0 lg:right-0 lg:left-auto lg:mx-0 lg:max-h-none lg:w-[min(46rem,92vw)] lg:max-w-none lg:rounded-none lg:border-t-0 lg:border-l-4 lg:px-6 lg:motion-safe:slide-in-from-right-8"
                     : "min-w-0 scroll-mt-28 empty:hidden"
                 }
               >
                 {aberta && (
                   <div className="sticky top-0 z-10 -mx-4 flex flex-col items-center gap-1 border-b border-border bg-background px-4 pt-2 pb-2">
-                    <span aria-hidden className="h-1 w-10 rounded-full bg-border" />
+                    <span aria-hidden className="h-1 w-10 rounded-[1px] bg-border lg:hidden" />
                     <div className="flex w-full items-center justify-between gap-3">
                       <p className="min-w-0 truncate text-sm text-muted-foreground">{a.rotulo}</p>
                       <button ref={botaoFechar} type="button" onClick={fechar} className="botao-linha shrink-0">

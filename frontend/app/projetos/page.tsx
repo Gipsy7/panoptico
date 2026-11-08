@@ -53,7 +53,7 @@ const DIAS_PAUTA = 14;
 
 export default function ProjetosPage({ searchParams }: PageProps<"/projetos">) {
   return (
-    <div className="pagina-secoes">
+    <div data-largura="larga" className="pagina-secoes">
       <DicaPagina chave="projetos" />
       <CabecalhoPagina
         sobretitulo="Projetos e votações"
@@ -92,15 +92,31 @@ async function Conteudo({ filtros, calendario }: { filtros: FiltrosProjetos; cal
   return (
     <>
       <BarraDeBusca filtros={filtros} cidades={cidades} temas={temas} ativos={ativos} />
-      {primeiraPagina && semFiltro && <NaPauta />}
-      {primeiraPagina && semFiltro && <SecaoCalendarioVotacoes estado={calendario} />}
-      {leis ? (
-        <LeisPorAno leis={leis} filtros={filtros} />
-      ) : resultado.ok ? (
-        <Lista filtros={filtros} dados={resultado.dados} />
-      ) : (
-        <AvisoErro titulo="Não deu para carregar a lista" mensagem={resultado.mensagem} />
-      )}
+      {/* No computador: pauta e lista à esquerda, o calendário numa coluna de 20rem ao lado. No
+          celular a ordem é a de sempre: pauta, calendário, lista. */}
+      <div
+        className={`flex flex-col gap-[var(--esp-10)] md:gap-[var(--esp-16)] ${primeiraPagina && semFiltro ? "lg:grid lg:grid-cols-[minmax(0,1fr)_20rem] lg:items-start lg:gap-x-10" : ""}`}
+      >
+        {primeiraPagina && semFiltro && (
+          <div className="min-w-0 lg:col-start-1 lg:row-start-1">
+            <NaPauta />
+          </div>
+        )}
+        {primeiraPagina && semFiltro && (
+          <aside aria-label="Calendário de votações" className="min-w-0 lg:col-start-2 lg:row-span-2 lg:row-start-1">
+            <SecaoCalendarioVotacoes estado={calendario} />
+          </aside>
+        )}
+        <div className="min-w-0 lg:col-start-1">
+          {leis ? (
+            <LeisPorAno leis={leis} filtros={filtros} />
+          ) : resultado.ok ? (
+            <Lista filtros={filtros} dados={resultado.dados} />
+          ) : (
+            <AvisoErro titulo="Não deu para carregar a lista" mensagem={resultado.mensagem} />
+          )}
+        </div>
+      </div>
     </>
   );
 }

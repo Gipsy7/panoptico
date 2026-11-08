@@ -10,6 +10,7 @@
 - [2026-11-07: votação de mérito e de procedimento, calendário (Frente 4)](#2026-11-07-votação-de-mérito-e-de-procedimento-calendário-frente-4)
 - [2026-11-07: Plenário agora, selo "Ao vivo" no cabeçalho (Frente 4)](#2026-11-07-plenário-agora-selo-ao-vivo-no-cabeçalho-frente-4)
 - [2026-11-07: eleições completas (Frente 5)](#2026-11-07-eleições-completas-frente-5)
+- [2026-11-08: redesenho, etapa 3 (telas em três camadas)](#2026-11-08-redesenho-etapa-3-telas-em-três-camadas)
 - [2026-11-08: redesenho, etapa 2 (home: entrar pelo lugar)](#2026-11-08-redesenho-etapa-2-home-entrar-pelo-lugar)
 - [2026-11-08: redesenho, etapa 1 (base visual e navegação)](#2026-11-08-redesenho-etapa-1-base-visual-e-navegação)
 - [2026-11-08: siglas de partido padronizadas](#2026-11-08-siglas-de-partido-padronizadas)
@@ -1779,6 +1780,22 @@ Escolhas do dono entre 3 protótipos: resultado em tabela densa com barras (A), 
 - **Eleitores:** soma dos aptos das zonas na eleição mais recente carregada, ao lado da população do IBGE. Não é o cadastro do eleitorado.
 - **`/segundo-turno` generalizada:** no mesmo endereço, abaixo do comparador, a seção "Resultado das eleições" com ano, cargo, turno e "onde" (formulário GET, funciona sem JavaScript).
 - **Nome de urna igual ao de outra pessoa** (ex.: "Jair Bolsonaro" para Jair Renan em 2026): a tabela mostra o nome de urna do TSE e liga ao perfil pela candidatura, nunca pelo nome.
+
+## 2026-11-08: redesenho, etapa 3 (telas em três camadas)
+
+Seguindo o protótipo 3 aprovado (o dono autorizou seguir sem novos protótipos):
+
+- **"Tudo em detalhe" (`AbasDetalhe`) vira a terceira camada de todas as telas que o usam** (perfis, cidade,
+  representantes, projetos, votações): acima das abas, um índice por assunto com todas as seções (faixa de cor
+  do tema; no celular os grupos começam fechados). Tocar numa seção abre-a inteira: no celular, folha que sobe;
+  no computador, painel lateral. Nenhuma seção saiu; a seção sem dado continua sumindo do índice e das abas.
+- **Perfis (federal, eleito, deputado estadual e vereador) em duas colunas no computador:** a coluna da pessoa
+  (foto, nome, correção, ações) acompanha a rolagem; os números, as perguntas e "Tudo sobre este mandato"
+  ficam à direita. No celular, as ações vêm logo depois dos cartões. Cartões em 3 colunas no computador.
+- **Quem te representa:** "Quem decide por X" e "Três andares de poder" (o cabeçalho já mostra a cidade); o
+  painel do prédio ganha a faixa da esfera (país, estado, cidade), com cores de assunto, nunca de partido.
+- **Decisões no computador:** página larga; pauta e lista à esquerda, calendário numa coluna ao lado. No celular a
+  ordem não muda (pauta, calendário, lista).
 
 ## 2026-11-08: redesenho, etapa 2 (home: entrar pelo lugar)
 
