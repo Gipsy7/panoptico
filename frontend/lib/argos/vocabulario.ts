@@ -63,6 +63,8 @@ export const PALAVRAS_ASSUNTO: Record<string, string[]> = {
     "o que acontece na minha cidade", "o que acontece na cidade", "economia da cidade", "pib da cidade",
     "obras da cidade", "obras na cidade", "escolas da cidade", "ideb", "agro da cidade", "obras",
     "obra", "obras federais", "obras paradas", "escolas", "economia", "pib", "agro", "lavouras",
+    "saneamento", "esgoto", "agua encanada", "coleta de lixo", "internet", "banda larga", "fibra",
+    "emprego", "empregos", "cidades parecidas",
   ],
   eleicao: [
     "segundo turno", "2 turno", "eleicao", "eleicoes", "candidatos", "quem ganhou", "eleitos",
@@ -377,7 +379,7 @@ export const SUGESTOES_POR_PALAVRA: { palavras: string[]; botao: Botao }[] = [
 
 export const TEXTOS = {
   apresentacao:
-    "Sou o Argos, assistente do Panóptico. Respondo com os dados oficiais do site: quem te representa (com o vice ao lado do prefeito, do governador e do presidente), o que acontece na sua cidade (economia, agro, escolas, obras e dinheiro público), gastos, presença, projetos, partidos e como o site funciona, sempre com a fonte e a data. Não dou opinião nem nota.",
+    "Sou o Argos, assistente do Panóptico. Respondo com os dados oficiais do site: quem te representa (com o vice ao lado do prefeito, do governador e do presidente), o que acontece na sua cidade (economia, agro, escolas, obras, internet, saneamento e dinheiro público), gastos, presença, projetos, partidos e como o site funciona, sempre com a fonte e a data. Não dou opinião nem nota.",
   sobreArgos:
     "Sou o Argos, o assistente do Panóptico. Não sou uma inteligência artificial nem uma pessoa: sou um assistente de respostas prontas. Reconheço palavras da sua pergunta, busco nos dados oficiais do site e respondo com a fonte e a data. Não dou opinião nem nota.",
   opiniao: "Eu não dou opinião nem nota. Mostro o dado oficial para você tirar suas conclusões.",

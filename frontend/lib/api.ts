@@ -1135,6 +1135,29 @@ export function getInternetMunicipio(ibge: string) {
   return getJson<InternetMunicipio>(`/municipios/${encodeURIComponent(ibge)}/internet`);
 }
 
+export type SaneamentoValores = {
+  agua_rede: number | null;
+  esgoto_rede: number | null;
+  lixo_coletado: number | null;
+};
+
+export type SaneamentoMunicipio = {
+  municipio_ibge: string;
+  uf: string;
+  ano: number | null;
+  cidade: SaneamentoValores;
+  estado: SaneamentoValores;
+  brasil: SaneamentoValores;
+  fonte_nome: string;
+  fonte_url: string;
+  atualizado_em: string | null;
+};
+
+/** Água, esgoto e lixo no Censo 2022 (IBGE), com o estado e o Brasil. */
+export function getSaneamentoMunicipio(ibge: string) {
+  return getJson<SaneamentoMunicipio>(`/municipios/${encodeURIComponent(ibge)}/saneamento`);
+}
+
 export type CidadesParecidas = {
   ano_populacao: number | null;
   cidades: {

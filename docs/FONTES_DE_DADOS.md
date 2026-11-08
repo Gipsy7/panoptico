@@ -234,6 +234,15 @@ Endpoints conferidos em 2026-10-06.
 - **Conferido:** Blumenau set/2026: 167.493 acessos, 42,9 por 100 moradores (SC 38,3), 74,9% por fibra, 98,9% acima de 34 Mbps.
 - **Frequência:** mensal (`anatel_banda_larga`, `ingestion/anatel/banda_larga.py`; bruto = recorte).
 
+## IBGE: saneamento no Censo 2022 (redesenho, etapa 5)
+
+- **URL:** SIDRA v3, `https://servicodados.ibge.gov.br/api/v3/agregados/{tabela}/periodos/2022/variaveis/1000381?localidades=N6[all]&classificacao=...` (também N3 e N1). Variável 1000381 = % dos domicílios particulares permanentes ocupados.
+- **O que guardamos:** água (tabela 6803, classificação 1821, categoria 72144 "possui ligação à rede geral e a utiliza como forma principal"), esgoto (6805, 11558, 46290 "rede geral, rede pluvial ou fossa ligada à rede") e lixo (6892, 67, 2520 "coletado"), por município, estado e Brasil.
+- **Por que o Censo e não o SNIS/SINISA:** o SINISA não tem API aberta por município; o Censo mede todos os domicílios com o mesmo método. Um ano só (2022).
+- **Armadilhas:** valores ausentes como `-`, `...` ou `X`; o esgoto "ligado à rede" não conta fossa séptica isolada.
+- **Conferido:** Blumenau 94,0% água, 67,6% esgoto, 99,9% lixo; SC 84,4 / 54,3 / 96,7; Brasil 83,9 / 64,7 / 91,7. 5.598 lugares.
+- **Frequência:** manual (`ibge_saneamento`, `ingestion/ibge/saneamento.py`).
+
 ## Ministério da Saúde: hospitais e leitos (reconhecimento de 08/11/2026, sem ingestão)
 
 - **URL:** `https://apidadosabertos.saude.gov.br/assistencia-a-saude/hospitais-e-leitos?limit=1000&offset=N` (até 1.000 por página). O CKAN antigo (opendatasus) virou o novo portal `dadosabertos.saude.gov.br`, sem API de catálogo, e os arquivos no S3 antigo dão 403 (`AccessDenied`, endereço que não existe mais, não bloqueio).

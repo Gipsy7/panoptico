@@ -8,6 +8,7 @@ import { IdebResumo, IdebSecao } from "@/components/ideb-secao";
 import { PibResumo } from "@/components/pib-secao";
 import { EmpregoResumo } from "@/components/emprego-secao";
 import { InternetResumo } from "@/components/internet-secao";
+import { SaneamentoResumo } from "@/components/saneamento-secao";
 import { ParecidasSecao, VocacoesSecao } from "@/components/parecidas-secao";
 import { AgroResumo } from "@/components/agro-secao";
 import { ObrasResumo, ObrasSecao } from "@/components/obras-secao";
@@ -45,6 +46,7 @@ import {
   getCidadesParecidas,
   getVocacoes,
   getInternetMunicipio,
+  getSaneamentoMunicipio,
   getObrasMunicipio,
   getResultadoEleicao,
   getDinheiroFederalMunicipio,
@@ -133,6 +135,7 @@ async function Cidade({ ibge }: { ibge: string }) {
     parecidasR,
     vocacoesR,
     internetR,
+    saneamentoR,
   ] = await Promise.all([
     getEmendasMunicipio(ibge),
     getContas(ibge),
@@ -163,6 +166,7 @@ async function Cidade({ ibge }: { ibge: string }) {
     getCidadesParecidas(ibge),
     getVocacoes(ibge),
     getInternetMunicipio(ibge),
+    getSaneamentoMunicipio(ibge),
   ]);
   const repassesEstado = estaduaisR.ok ? estaduaisR.dados : null;
   const temRepassesEstado = Boolean(
@@ -180,6 +184,7 @@ async function Cidade({ ibge }: { ibge: string }) {
   const parecidas = parecidasR.ok && parecidasR.dados.cidades.length > 1 ? parecidasR.dados : null;
   const vocacoesCidade = vocacoesR.ok ? vocacoesR.dados : null;
   const internetCidade = internetR.ok && internetR.dados.acessos != null ? internetR.dados : null;
+  const saneamentoCidade = saneamentoR.ok && saneamentoR.dados.ano != null ? saneamentoR.dados : null;
   const agroCidade = agroR.ok && (agroR.dados.valor_total != null || agroR.dados.pecuaria) ? agroR.dados : null;
   // Faixas dos mandatos de prefeito no fundo das séries (Etapa 6): só eleitos com nome.
   const faixasPrefeito = antecessoresR.ok
@@ -704,6 +709,16 @@ async function Cidade({ ibge }: { ibge: string }) {
                     rotulo: "Internet",
                     tema: "obras" as const,
                     conteudo: <InternetResumo dados={internetCidade} cidade={municipio} uf={uf} />,
+                  },
+                ]
+              : []),
+            ...(saneamentoCidade
+              ? [
+                  {
+                    id: "saneamento",
+                    rotulo: "Saneamento",
+                    tema: "saude" as const,
+                    conteudo: <SaneamentoResumo dados={saneamentoCidade} cidade={municipio} uf={uf} />,
                   },
                 ]
               : []),

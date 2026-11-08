@@ -151,3 +151,18 @@ class InternetFixa(Base):
     acessos_fibra: Mapped[int] = mapped_column(Integer)
     acessos_rapidos: Mapped[int] = mapped_column(Integer)
     ingestao_id: Mapped[int | None] = mapped_column(ForeignKey("fonte_ingestao.id"))
+
+
+class SaneamentoCenso(Base):
+    """Saneamento no Censo 2022 (IBGE), em % dos domicílios: água da rede geral como forma
+    principal, esgoto na rede (ou fossa ligada a ela) e lixo coletado. Código de 1 dígito =
+    Brasil, 2 = UF, 7 = município."""
+
+    __tablename__ = "saneamento_censo"
+
+    codigo: Mapped[str] = mapped_column(String(7), primary_key=True)
+    ano: Mapped[int] = mapped_column(SmallInteger)
+    agua_rede: Mapped[Decimal | None] = mapped_column(Numeric(5, 2))
+    esgoto_rede: Mapped[Decimal | None] = mapped_column(Numeric(5, 2))
+    lixo_coletado: Mapped[Decimal | None] = mapped_column(Numeric(5, 2))
+    ingestao_id: Mapped[int | None] = mapped_column(ForeignKey("fonte_ingestao.id"))

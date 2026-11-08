@@ -22,6 +22,7 @@ from app.schemas.internet import InternetMunicipio
 from app.schemas.obras import ObrasMunicipio, ObrasPorUf
 from app.schemas.pib import PibMunicipio
 from app.schemas.repasses_estaduais import RepassesEstaduaisResposta
+from app.schemas.saneamento import SaneamentoMunicipio
 from app.services import (
     agro,
     comparar_cidades,
@@ -35,6 +36,7 @@ from app.services import (
     obras,
     pib,
     repasses_estaduais,
+    saneamento,
 )
 from app.services.texto_busca import normalizar
 
@@ -172,6 +174,15 @@ def internet_da_cidade(ibge: str, session: Annotated[Session, Depends(get_sessio
     if municipio is None:
         raise HTTPException(404, "Município não encontrado.")
     return internet.do_municipio(session, ibge, municipio.uf)
+
+
+@router.get("/municipios/{ibge}/saneamento", response_model=SaneamentoMunicipio)
+def saneamento_da_cidade(ibge: str, session: Annotated[Session, Depends(get_session)]) -> dict:
+    """Água, esgoto e lixo no Censo 2022 (IBGE), com o estado e o Brasil."""
+    municipio = session.get(Municipio, ibge)
+    if municipio is None:
+        raise HTTPException(404, "Município não encontrado.")
+    return saneamento.do_municipio(session, ibge, municipio.uf)
 
 
 @router.get("/obras/estados", response_model=ObrasPorUf)

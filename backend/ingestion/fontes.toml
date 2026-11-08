@@ -331,6 +331,13 @@ frequencia = "mensal"
 bruto = "recorte"
 
 [[fonte]]
+nome = "ibge_saneamento"
+modulo = "ingestion.ibge.saneamento"
+uso = "Saneamento em Por dentro da cidade: água da rede, esgoto na rede e lixo coletado"
+recorte = "% dos domicílios no Censo 2022 (tabelas 6803, 6805 e 6892), por município, estado e Brasil"
+frequencia = "manual"
+
+[[fonte]]
 nome = "resumos"
 modulo = "ingestion.resumos"
 uso = "Números-chave e lista de parlamentares"

@@ -1855,6 +1855,8 @@ Pedido do dono depois de usar o release no celular:
 - **Internet (Anatel):** aba "Internet" com acessos de banda larga fixa por 100 moradores no mês mais recente (com o
   estado e o Brasil contados do mesmo jeito), a parte por fibra e a de mais de 34 Mbps. A "densidade" publicada pela
   Anatel não é usada porque mistura unidades entre os meses.
+- **Saneamento (Censo 2022):** aba "Saneamento" com o % de domicílios com água da rede, esgoto na rede e lixo
+  coletado, ao lado do estado e do Brasil. Fonte é o Censo e não o SINISA, que não tem API aberta por município.
 - **Saúde adiada:** a API de hospitais e leitos do Ministério da Saúde não traz o mês de cada retrato e quase
   todas as linhas vêm sem município; somar daria número errado. Fica para os arquivos do CNES (ver FONTES).
 

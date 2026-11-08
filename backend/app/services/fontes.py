@@ -106,6 +106,12 @@ CATALOGO = [
         "url": "https://www.gov.br/anatel/pt-br/dados/acessos/banda-larga-fixa",
     },
     {
+        "dado": "Saneamento por município no Censo 2022 (água, esgoto e lixo)",
+        "orgao": "Instituto Brasileiro de Geografia e Estatística (IBGE)",
+        "fontes": ["ibge_saneamento"],
+        "url": "https://sidra.ibge.gov.br/tabela/6805",
+    },
+    {
         "dado": "PIB dos municípios e valor adicionado por atividade (2002 em diante)",
         "orgao": "Instituto Brasileiro de Geografia e Estatística (IBGE)",
         "fontes": ["ibge_pib"],
