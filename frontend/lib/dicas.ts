@@ -6,7 +6,7 @@ export const DICAS = {
   projetos: "Procure pelo número do projeto (PL 2338/2023) ou por uma palavra do assunto.",
   representantes: "Toque numa pessoa para ver o que ela faz, gasta e vota, com a fonte e a data.",
   perfil: "Toque num número para ver de onde ele vem. A média da Casa fica ao lado.",
-  cidade: "Toque num prédio para ver quem trabalha lá e o que faz.",
+  cidade: "Toque num tema (Retrato, Dinheiro público, Política). Tudo sobre a cidade fica no fim da página.",
 } as const;
 
 export type ChaveDica = keyof typeof DICAS;

@@ -70,11 +70,11 @@ function AreasLista({ lista, maior }: { lista: ContasMunicipio["por_area"]; maio
     <ul className="flex flex-col gap-2.5">
       {lista.map((a) => (
         <li key={a.nome} className="flex flex-col gap-1">
-          <div className="flex items-baseline justify-between gap-3 text-sm">
+          <div className="flex flex-wrap items-baseline justify-between gap-x-3 text-sm">
             <span className="min-w-0">{a.nome}</span>
-            <span className="shrink-0 tabular-nums">
+            <span className="flex flex-wrap gap-x-1 tabular-nums">
               {formatarReais(a.valor, true)}
-              <span className="ml-1 text-sm text-muted-foreground">
+              <span className="text-sm text-muted-foreground">
                 {a.percentual.toLocaleString("pt-BR", { maximumFractionDigits: 1 })}%
               </span>
             </span>

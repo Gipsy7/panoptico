@@ -136,11 +136,11 @@ function Partes({ titulo, itens, total }: { titulo: string; itens: { nome: strin
           const parte = (i.valor / total) * 100;
           return (
             <li key={i.nome} className="flex flex-col gap-1">
-              <div className="flex items-baseline justify-between gap-3 text-sm">
+              <div className="flex flex-wrap items-baseline justify-between gap-x-3 text-sm">
                 <span className="min-w-0">{i.nome}</span>
-                <span className="shrink-0 tabular-nums">
+                <span className="flex flex-wrap gap-x-1 tabular-nums">
                   {formatarReais(i.valor, true)}
-                  <span className="ml-1 text-sm text-muted-foreground">
+                  <span className="text-sm text-muted-foreground">
                     {parte < 0.1 ? "<0,1" : parte.toLocaleString("pt-BR", { maximumFractionDigits: parte < 1 ? 1 : 0 })}%
                   </span>
                 </span>

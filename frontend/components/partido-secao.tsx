@@ -47,9 +47,9 @@ function Grupos({ titulo, grupos }: { titulo: string; grupos: GrupoFefc[] }) {
                   {g.candidatos.toLocaleString("pt-BR")} candidaturas
                 </span>
               </span>
-              <span className="shrink-0 tabular-nums">
+              <span className="flex flex-wrap gap-x-1 tabular-nums">
                 {formatarReais(g.valor, true)}
-                <span className="ml-1 text-sm text-muted-foreground">
+                <span className="text-sm text-muted-foreground">
                   {total ? ((g.valor / total) * 100).toLocaleString("pt-BR", { maximumFractionDigits: 1 }) : "0"}%
                 </span>
               </span>

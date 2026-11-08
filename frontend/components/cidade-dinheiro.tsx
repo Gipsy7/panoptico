@@ -2,7 +2,10 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
+import { AbasTema } from "@/components/abas-tema";
 import { AvisoErro } from "@/components/aviso-erro";
+import { Chapa, cargoDoVice } from "@/components/chapa";
+import { FotoOuIniciais } from "@/components/eleitos-secao";
 import { CompartilharWhatsApp } from "@/components/compartilhar";
 import { ContasSecao } from "@/components/contas-secao";
 import { LembrarLugar } from "@/components/lugar-escolhido";
@@ -25,6 +28,7 @@ import {
   type EmendasMunicipio,
   getContas,
   getEleitores,
+  getExecutivo,
   getMaisVotados,
   getResultadoEleicao,
   getDinheiroFederalMunicipio,
@@ -48,7 +52,7 @@ export async function metadadosCidade(ibge: string): Promise<Metadata> {
     return { title: "Dinheiro da cidade" };
   const lugar = `${r.dados.localizacao.municipio}-${r.dados.localizacao.uf}`;
   return {
-    title: `Para onde foi o dinheiro de ${lugar}`,
+    title: `Raio-X de ${lugar}: dinheiro público, eleições e quem representa`,
     description: `Emendas parlamentares pagas, contas da prefeitura e fornecedores de ${lugar}, com dados oficiais, fonte e data.`,
   };
 }
@@ -103,6 +107,7 @@ async function Cidade({ ibge }: { ibge: string }) {
     prefeitoR,
     vereadorR,
     maisVotadosR,
+    executivoR,
   ] = await Promise.all([
     getEmendasMunicipio(ibge),
     getContas(ibge),
@@ -123,6 +128,7 @@ async function Cidade({ ibge }: { ibge: string }) {
       limite: 40,
     }),
     getMaisVotados(ibge),
+    getExecutivo(uf, ibge),
   ]);
   const repassesEstado = estaduaisR.ok ? estaduaisR.dados : null;
   const temRepassesEstado = Boolean(
@@ -297,31 +303,138 @@ async function Cidade({ ibge }: { ibge: string }) {
     },
   ];
 
+  const eleitores = eleitoresR.ok ? eleitoresR.dados : null;
+  const prefeito = executivoR.ok ? executivoR.dados.prefeito : null;
+  const num = (n: number) => n.toLocaleString("pt-BR");
+  // Frase do Raio-X: só fatos com fonte, sem adjetivo (o que não houver fica de fora).
+  const frase = [
+    populacao != null ? `${municipio} tem ${num(populacao)} moradores` : null,
+    eleitores ? `${num(eleitores.eleitores)} eleitores em ${eleitores.ano}` : null,
+  ]
+    .filter(Boolean)
+    .join(" e ")
+    .concat(
+      gastoInformado && contas
+        ? `${populacao != null || eleitores ? ". " : ""}Em ${contas.ano}, a prefeitura gastou ${formatarReais(contas.despesa_por_habitante!, true)} por morador${contas.media_uf_despesa_por_habitante != null ? ` (média do estado: ${formatarReais(contas.media_uf_despesa_por_habitante, true)})` : ""}.`
+        : populacao != null || eleitores
+          ? "."
+          : "",
+    );
+  const retrato =
+    populacao != null || eleitores ? (
+      <div className="flex flex-col gap-3">
+        <dl className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+          {populacao != null && (
+            <div className="border-t-2 border-foreground pt-2">
+              <dt className="text-sm text-muted-foreground">Moradores</dt>
+              <dd className="numero text-2xl">{num(populacao)}</dd>
+            </div>
+          )}
+          {eleitores && (
+            <div className="border-t-2 border-foreground pt-2">
+              <dt className="text-sm text-muted-foreground">Eleitores em {eleitores.ano}</dt>
+              <dd className="numero text-2xl">{num(eleitores.eleitores)}</dd>
+            </div>
+          )}
+          {eleitores?.eleitores_por_100_moradores != null && (
+            <div className="border-t-2 border-foreground pt-2">
+              <dt className="text-sm text-muted-foreground">Eleitores a cada 100 moradores</dt>
+              <dd className="numero text-2xl">{num(eleitores.eleitores_por_100_moradores)}</dd>
+            </div>
+          )}
+          {eleitores?.pct_votaram != null && (
+            <div className="border-t-2 border-foreground pt-2">
+              <dt className="text-sm text-muted-foreground">Votaram em {eleitores.ano}</dt>
+              <dd className="numero text-2xl">{eleitores.pct_votaram.toLocaleString("pt-BR", { maximumFractionDigits: 1 })}%</dd>
+            </div>
+          )}
+        </dl>
+        <p className="text-sm text-muted-foreground">
+          Economia, escolas, saúde e obras entram aqui quando os dados do IBGE, do INEP, do DATASUS e do Obrasgov forem
+          carregados.
+        </p>
+        <FonteRodape
+          fonte={eleitores ? `${eleitores.fonte_nome}; IBGE` : "IBGE"}
+          url={eleitores?.fonte_url}
+          atualizadoEm={eleitores?.atualizado_em ?? null}
+        />
+      </div>
+    ) : null;
+  const politica = prefeito ? (
+    <div className="flex flex-col gap-3">
+      <Chapa
+        titular={{
+          nome: prefeito.titular.nome_urna,
+          partido: prefeito.titular.partido,
+          cargo: prefeito.cargo,
+          href: `/eleito/${prefeito.titular.id}`,
+          retrato: <FotoOuIniciais eleito={prefeito.titular} tamanho={40} decorativa />,
+        }}
+        vice={
+          prefeito.vice && {
+            nome: prefeito.vice.nome_urna,
+            partido: prefeito.vice.partido,
+            cargo: cargoDoVice(prefeito.cargo),
+            href: `/eleito/${prefeito.vice.id}`,
+            retrato: <FotoOuIniciais eleito={prefeito.vice} tamanho={40} decorativa />,
+          }
+        }
+        rodape={`Eleitos juntos, na mesma chapa, em ${prefeito.ano_eleicao}.`}
+      />
+      <ul className="flex flex-col gap-1 text-sm">
+        <li>
+          <Link href={`/representantes?municipio=${ibge}`} className="underline underline-offset-4">
+            Quem representa {municipio}, do presidente aos vereadores
+          </Link>
+        </li>
+        <li>
+          <a href="#ver-eleicao-prefeito" className="underline underline-offset-4">
+            Resultado da eleição para prefeito
+          </a>
+        </li>
+        <li>
+          <a href="#ver-mais-votados" className="underline underline-offset-4">
+            Deputados mais votados aqui
+          </a>
+        </li>
+      </ul>
+      {executivoR.ok && (
+        <FonteRodape fonte={executivoR.dados.fonte_nome} url={executivoR.dados.fonte_url} atualizadoEm={executivoR.dados.atualizado_em} />
+      )}
+    </div>
+  ) : null;
+
   return (
     <article data-largura="larga" className="pagina-secoes">
       <LembrarLugar ibge={ibge} nome={municipio} uf={uf} />
       <div className="flex flex-col gap-4">
         <div className="flex flex-col gap-1">
-          <p className="sobretitulo">Dinheiro público</p>
-          <h1 className="titulo-pagina">
-            Para onde foi o dinheiro de {municipio}-{uf}
-          </h1>
-          {populacao != null && (
-            <p className="text-muted-foreground">
-              <span className="tabular-nums">
-                {populacao.toLocaleString("pt-BR")}
-              </span>{" "}
-              habitantes
-            </p>
-          )}
-          <Link
-            href={`/representantes?municipio=${ibge}`}
-            className="alvo-link self-start text-sm font-medium text-primary underline underline-offset-4"
-          >
-            Quem representa {municipio}
-          </Link>
+          <p className="sobretitulo">Raio-X · {estado}</p>
+          <h1 className="titulo-pagina">{municipio}</h1>
+          {frase && <p className="max-w-3xl text-lg leading-snug">{frase}</p>}
+          <p className="flex flex-wrap gap-x-4">
+            <Link
+              href={`/representantes?municipio=${ibge}`}
+              className="alvo-link text-sm font-medium text-primary underline underline-offset-4"
+            >
+              Quem representa {municipio}
+            </Link>
+            <Link href={`/estado/${uf}`} className="alvo-link text-sm font-medium text-primary underline underline-offset-4">
+              Raio-X de {estado}
+            </Link>
+          </p>
         </div>
 
+        <AbasTema
+          rotulo={`Temas de ${municipio}`}
+          abas={[
+            ...(retrato ? [{ id: "retrato", rotulo: "Retrato", tema: "eleicoes" as const, conteudo: retrato }] : []),
+            {
+              id: "dinheiro",
+              rotulo: "Dinheiro público",
+              tema: "dinheiro" as const,
+              conteudo: (
+                <div className="flex flex-col gap-4">
         {temCartoes && (
           <>
             <GradeCartoes rotulo={`Números do dinheiro de ${municipio}`}>
@@ -462,6 +575,13 @@ async function Cidade({ ibge }: { ibge: string }) {
             municipio={municipio}
           />
         )}
+
+                </div>
+              ),
+            },
+            ...(politica ? [{ id: "politica", rotulo: "Política", tema: "votos" as const, conteudo: politica }] : []),
+          ]}
+        />
 
         <CompartilharWhatsApp
           caminho={`/cidade/${ibge}`}
@@ -622,7 +742,7 @@ async function Cidade({ ibge }: { ibge: string }) {
         )}
       </ListaPerguntas>
 
-      <AbasDetalhe titulo="Tudo em detalhe" abas={abas} />
+      <AbasDetalhe titulo={`Tudo sobre ${municipio}`} abas={abas} />
     </article>
   );
 }

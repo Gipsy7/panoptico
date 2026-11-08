@@ -18,11 +18,11 @@ function TiposLista({
     <ul className="flex flex-col gap-4">
       {tipos.map((t) => (
         <li key={t.chave} className="flex flex-col gap-1">
-          <div className="flex items-baseline justify-between gap-3">
+          <div className="flex flex-wrap items-baseline justify-between gap-x-3">
             <span className="min-w-0 font-medium">{t.rotulo}</span>
-            <span className="shrink-0 tabular-nums">
+            <span className="flex flex-wrap gap-x-1 tabular-nums">
               {formatarReais(t.valor, true)}
-              <span className="ml-1 text-sm text-muted-foreground">
+              <span className="text-sm text-muted-foreground">
                 {porcento(t.percentual)}
               </span>
             </span>

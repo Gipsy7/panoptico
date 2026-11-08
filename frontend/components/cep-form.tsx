@@ -377,7 +377,7 @@ export function CepForm({ semCepInicial = false }: { semCepInicial?: boolean } =
               onClick={() => router.push(`/cidade/${lugar.ibge}`)}
               className="botao-linha min-h-12 w-full justify-center"
             >
-              Para onde foi o dinheiro
+              Raio-X da cidade
             </button>
           </div>
         </div>

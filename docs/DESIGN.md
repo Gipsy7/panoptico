@@ -124,6 +124,12 @@ faixa de 4 px no topo com a cor do tema (vem do `destino`, ou da prop `tema`).
 **Chapa.** No Executivo, titular e vice sempre lado a lado (foto, cargo, nome, partido, link), com a nota "Eleitos
 juntos, na mesma chapa". Usada na seção Executivo, no painel dos prédios e no perfil do eleito.
 
+**Abas de tema (`AbasTema`).** No Raio-X: régua com o quadradinho e a linha de baixo na cor do assunto, um painel
+por vez com a faixa da cor à esquerda; sem JavaScript, todos os painéis aparecem.
+
+**"Tudo sobre…" (`AbasDetalhe`).** Índice por assunto (faixa de cor no topo de cada grupo; fechado no celular,
+aberto no computador) acima das abas; a seção abre inteira em folha (celular) ou painel lateral (computador).
+
 **Cabeçalho.** Menu: Seu lugar, Representantes, Decisões, Dinheiro público, Comparar, Partidos, Apoie (as URLs
 antigas ficam). À direita, a cidade escolhida ("Blumenau, SC", guardada só no aparelho) e a lupa. O "Ao vivo" é
 uma faixa fina sob o cabeçalho, só durante a sessão do Plenário.

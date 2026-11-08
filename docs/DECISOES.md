@@ -10,6 +10,7 @@
 - [2026-11-07: votação de mérito e de procedimento, calendário (Frente 4)](#2026-11-07-votação-de-mérito-e-de-procedimento-calendário-frente-4)
 - [2026-11-07: Plenário agora, selo "Ao vivo" no cabeçalho (Frente 4)](#2026-11-07-plenário-agora-selo-ao-vivo-no-cabeçalho-frente-4)
 - [2026-11-07: eleições completas (Frente 5)](#2026-11-07-eleições-completas-frente-5)
+- [2026-11-08: redesenho, etapa 4 (Raio-X da cidade e do estado)](#2026-11-08-redesenho-etapa-4-raio-x-da-cidade-e-do-estado)
 - [2026-11-08: redesenho, etapa 3 (telas em três camadas)](#2026-11-08-redesenho-etapa-3-telas-em-três-camadas)
 - [2026-11-08: redesenho, etapa 2 (home: entrar pelo lugar)](#2026-11-08-redesenho-etapa-2-home-entrar-pelo-lugar)
 - [2026-11-08: redesenho, etapa 1 (base visual e navegação)](#2026-11-08-redesenho-etapa-1-base-visual-e-navegação)
@@ -1780,6 +1781,22 @@ Escolhas do dono entre 3 protótipos: resultado em tabela densa com barras (A), 
 - **Eleitores:** soma dos aptos das zonas na eleição mais recente carregada, ao lado da população do IBGE. Não é o cadastro do eleitorado.
 - **`/segundo-turno` generalizada:** no mesmo endereço, abaixo do comparador, a seção "Resultado das eleições" com ano, cargo, turno e "onde" (formulário GET, funciona sem JavaScript).
 - **Nome de urna igual ao de outra pessoa** (ex.: "Jair Bolsonaro" para Jair Renan em 2026): a tabela mostra o nome de urna do TSE e liga ao perfil pela candidatura, nunca pelo nome.
+
+## 2026-11-08: redesenho, etapa 4 (Raio-X da cidade e do estado)
+
+- **`/cidade/[ibge]` vira o Raio-X** (mesma URL): "Raio-X · estado", o nome da cidade e uma frase só com fatos
+  carregados (moradores, eleitores, gasto da prefeitura por morador com a média do estado). Abas de tema
+  (`AbasTema`): Retrato (moradores, eleitores, comparecimento), Dinheiro público (os cartões de antes) e Política
+  (prefeito e vice lado a lado, links para a eleição e os mais votados). Todas as seções de antes continuam em
+  "Tudo sobre a cidade".
+- **`/estado/[uf]` (novo):** o mesmo modelo com o que já existe: moradores e cidades, arrecadação e repasse da
+  União, gasto do governo do estado por morador (com a média dos estados), gasto na área Legislativa, governador e
+  vice, bancadas da Assembleia, da Câmara e do Senado; "Tudo sobre" leva às telas completas. Entra no sitemap.
+- **Sem dado, sem aba:** economia, escolas, saúde e obras só aparecem quando os conectores da etapa 5 trouxerem os
+  dados; até lá o Retrato diz o que falta.
+- **Série com a faixa de cada mandato** (`SerieMandatos`) fica para quando houver séries longas (etapas 5 e 6).
+- **Reflow a 200%:** listas de valor com percentual (contas, repasses, executivo, candidatura, partidos) passam a
+  quebrar linha em vez de estourar a 360 px.
 
 ## 2026-11-08: redesenho, etapa 3 (telas em três camadas)
 

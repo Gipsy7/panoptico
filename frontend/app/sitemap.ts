@@ -83,6 +83,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const p = await perfis();
     const dinamicas = [
       ...UFS.map(({ sigla }) => caminhoRepresentantes({ uf: sigla })),
+      ...UFS.map(({ sigla }) => `/estado/${sigla}`),
       // "Quem me representa em <cidade>": a porta de entrada de quem busca pelo nome da cidade.
       ...p.cidades.map((c) => caminhoRepresentantes({ uf: c.uf, municipio: c.ibge })),
       ...p.parlamentares.map((id) => `/parlamentar/${id}`),
