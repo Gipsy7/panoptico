@@ -294,6 +294,14 @@ frequencia = "mensal"
 bruto = "recorte"
 
 [[fonte]]
+nome = "ibge_pib"
+modulo = "ingestion.ibge.pib"
+uso = "Economia no Raio-X da cidade (PIB, PIB por morador com o do estado e do Brasil, de onde vem a riqueza)"
+recorte = "PIB e valor adicionado por atividade de 2002 em diante, por município, estado e Brasil (tabela 5938 do SIDRA)"
+frequencia = "mensal"
+depende = ["ibge_populacao"]
+
+[[fonte]]
 nome = "resumos"
 modulo = "ingestion.resumos"
 uso = "Números-chave e lista de parlamentares"

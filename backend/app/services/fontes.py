@@ -86,6 +86,12 @@ CATALOGO = [
         "url": "https://www.gov.br/transferegov/pt-br",
     },
     {
+        "dado": "PIB dos municípios e valor adicionado por atividade (2002 em diante)",
+        "orgao": "Instituto Brasileiro de Geografia e Estatística (IBGE)",
+        "fontes": ["ibge_pib"],
+        "url": "https://sidra.ibge.gov.br/tabela/5938",
+    },
+    {
         "dado": "IDEB das escolas públicas por município, estado e Brasil (2005 a 2025)",
         "orgao": "Instituto Nacional de Estudos e Pesquisas Educacionais (INEP)",
         "fontes": ["inep_ideb"],

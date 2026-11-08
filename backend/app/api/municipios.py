@@ -16,6 +16,7 @@ from app.schemas import (
 from app.schemas.emendas_municipio import EmendasMunicipioCompleta
 from app.schemas.ideb import IdebMunicipio
 from app.schemas.obras import ObrasMunicipio, ObrasPorUf
+from app.schemas.pib import PibMunicipio
 from app.schemas.repasses_estaduais import RepassesEstaduaisResposta
 from app.services import (
     contas,
@@ -24,6 +25,7 @@ from app.services import (
     fornecedores,
     ideb,
     obras,
+    pib,
     repasses_estaduais,
 )
 from app.services.texto_busca import normalizar
@@ -110,6 +112,15 @@ def ideb_do_municipio(ibge: str, session: Annotated[Session, Depends(get_session
     if municipio is None:
         raise HTTPException(404, "Município não encontrado.")
     return ideb.do_municipio(session, ibge, municipio.uf)
+
+
+@router.get("/municipios/{ibge}/pib", response_model=PibMunicipio)
+def pib_do_municipio(ibge: str, session: Annotated[Session, Depends(get_session)]) -> dict:
+    """PIB da cidade (IBGE), com o PIB por morador do estado e do Brasil no mesmo ano."""
+    municipio = session.get(Municipio, ibge)
+    if municipio is None:
+        raise HTTPException(404, "Município não encontrado.")
+    return pib.do_municipio(session, ibge, municipio.uf)
 
 
 @router.get("/obras/estados", response_model=ObrasPorUf)

@@ -1114,6 +1114,27 @@ export function getMunicipios(uf: string) {
   return getJson<Municipio[]>(`/municipios?uf=${encodeURIComponent(uf)}`);
 }
 
+export type PibMunicipio = {
+  municipio_ibge: string;
+  uf: string;
+  serie: {
+    ano: number;
+    pib: number;
+    por_habitante: number | null;
+    uf_por_habitante: number | null;
+    brasil_por_habitante: number | null;
+  }[];
+  setores: { ano: number; itens: { setor: string; valor: number; percentual: number }[] } | null;
+  fonte_nome: string;
+  fonte_url: string;
+  atualizado_em: string | null;
+};
+
+/** PIB da cidade (IBGE), com o PIB por morador do estado e do Brasil no mesmo ano. */
+export function getPibMunicipio(ibge: string) {
+  return getJson<PibMunicipio>(`/municipios/${encodeURIComponent(ibge)}/pib`);
+}
+
 export type IdebPonto = { ano: number; valor: number };
 export type IdebRede = { rede: string; serie: IdebPonto[]; uf: IdebPonto[]; brasil: IdebPonto[] };
 export type IdebMunicipio = {

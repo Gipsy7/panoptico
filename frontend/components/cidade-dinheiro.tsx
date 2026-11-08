@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import { AbasTema } from "@/components/abas-tema";
 import { AvisoErro } from "@/components/aviso-erro";
 import { IdebResumo, IdebSecao } from "@/components/ideb-secao";
+import { PibResumo } from "@/components/pib-secao";
 import { ObrasResumo, ObrasSecao } from "@/components/obras-secao";
 import { Chapa, cargoDoVice } from "@/components/chapa";
 import { FotoOuIniciais } from "@/components/eleitos-secao";
@@ -33,6 +34,7 @@ import {
   getExecutivo,
   getMaisVotados,
   getIdebMunicipio,
+  getPibMunicipio,
   getObrasMunicipio,
   getResultadoEleicao,
   getDinheiroFederalMunicipio,
@@ -114,6 +116,7 @@ async function Cidade({ ibge }: { ibge: string }) {
     executivoR,
     obrasR,
     idebR,
+    pibR,
   ] = await Promise.all([
     getEmendasMunicipio(ibge),
     getContas(ibge),
@@ -137,6 +140,7 @@ async function Cidade({ ibge }: { ibge: string }) {
     getExecutivo(uf, ibge),
     getObrasMunicipio(ibge),
     getIdebMunicipio(ibge),
+    getPibMunicipio(ibge),
   ]);
   const repassesEstado = estaduaisR.ok ? estaduaisR.dados : null;
   const temRepassesEstado = Boolean(
@@ -149,6 +153,7 @@ async function Cidade({ ibge }: { ibge: string }) {
   const pncp = pncpR.ok && pncpR.dados.itens.length > 0 ? pncpR.dados : null;
   const obrasCidade = obrasR.ok && obrasR.dados.total > 0 ? obrasR.dados : null;
   const idebCidade = idebR.ok && idebR.dados.etapas.length > 0 ? idebR.dados : null;
+  const pibCidade = pibR.ok && pibR.dados.serie.length > 0 ? pibR.dados : null;
   const populacao = emendas?.populacao ?? contas?.populacao ?? null;
   const tceCarregado = UF_COM_TCE.includes(uf);
   const capitalComTcm =
@@ -384,7 +389,7 @@ async function Cidade({ ibge }: { ibge: string }) {
           )}
         </dl>
         <p className="text-sm text-muted-foreground">
-          Economia e saúde entram aqui quando os dados do IBGE e do DATASUS forem carregados.
+          Saúde e segurança entram aqui quando os dados do DATASUS forem carregados.
         </p>
         <FonteRodape
           fonte={eleitores ? `${eleitores.fonte_nome}; IBGE` : "IBGE"}
@@ -612,6 +617,16 @@ async function Cidade({ ibge }: { ibge: string }) {
                 </div>
               ),
             },
+            ...(pibCidade
+              ? [
+                  {
+                    id: "economia",
+                    rotulo: "Economia",
+                    tema: "economia" as const,
+                    conteudo: <PibResumo dados={pibCidade} cidade={municipio} uf={uf} />,
+                  },
+                ]
+              : []),
             ...(idebCidade
               ? [
                   {

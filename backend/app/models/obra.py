@@ -60,3 +60,21 @@ class IdebResultado(Base):
     ano: Mapped[int] = mapped_column(SmallInteger, primary_key=True)
     valor: Mapped[Decimal] = mapped_column(Numeric(3, 1))
     ingestao_id: Mapped[int | None] = mapped_column(ForeignKey("fonte_ingestao.id"))
+
+
+class PibIbge(Base):
+    """PIB dos Municípios (IBGE, SIDRA 5938), em mil reais a preços correntes: código de 1
+    dígito = Brasil, 2 = UF, 7 = município (o mesmo de `populacao_ibge`). As atividades ficam
+    vazias nos anos em que o IBGE só publicou o total."""
+
+    __tablename__ = "pib_ibge"
+
+    codigo: Mapped[str] = mapped_column(String(7), primary_key=True)
+    ano: Mapped[int] = mapped_column(SmallInteger, primary_key=True)
+    pib: Mapped[Decimal] = mapped_column(Numeric(16, 0))
+    vab_total: Mapped[Decimal | None] = mapped_column(Numeric(16, 0))
+    vab_agropecuaria: Mapped[Decimal | None] = mapped_column(Numeric(16, 0))
+    vab_industria: Mapped[Decimal | None] = mapped_column(Numeric(16, 0))
+    vab_servicos: Mapped[Decimal | None] = mapped_column(Numeric(16, 0))
+    vab_administracao: Mapped[Decimal | None] = mapped_column(Numeric(16, 0))
+    ingestao_id: Mapped[int | None] = mapped_column(ForeignKey("fonte_ingestao.id"))

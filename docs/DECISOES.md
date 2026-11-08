@@ -1802,6 +1802,10 @@ Escolhas do dono entre 3 protótipos: resultado em tabela densa com barras (A), 
   que existe nos três níveis; cada rede aparece em "Tudo sobre". As metas não entram: acabaram em 2021. O gráfico
   usa a escala fixa do índice (0 a 10), para não exagerar diferenças; cores validadas (bronze para a cidade, cinza
   contínuo para o estado e tracejado para o Brasil).
+- **Economia (PIB do IBGE):** o PIB mais recente, o PIB por morador com o do estado e o do Brasil **no mesmo ano** e
+  de onde vem a riqueza (valor adicionado por atividade, no último ano em que o IBGE separa). Os valores são da
+  época, sem descontar a inflação; por isso não há gráfico de crescimento até haver um deflator oficial. O PIB por
+  morador só aparece em ano com população do IBGE no mesmo ano (2023 não tem estimativa): nada se interpola.
 
 ## 2026-11-08: redesenho, etapa 4 (Raio-X da cidade e do estado)
 

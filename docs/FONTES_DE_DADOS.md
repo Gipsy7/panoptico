@@ -203,6 +203,14 @@ Endpoints conferidos em 2026-10-06.
 - **Link por obra:** a consulta da própria API (`?id_projeto_investimento=…`).
 - **Frequência:** semanal (`obrasgov_obras`, `ingestion/obrasgov/obras.py`).
 
+## IBGE: PIB dos Municípios (redesenho, etapa 5)
+
+- **URL:** API de agregados v3, `https://servicodados.ibge.gov.br/api/v3/agregados/5938/periodos/{ano}/variaveis/37|498|513|517|6575|525?localidades=N6[all]` (e `N3[all]`, `N1[all]`); metadados em `/agregados/5938/metadados` (`periodicidade.fim` diz o último ano). SIDRA, tabela 5938.
+- **Variáveis:** 37 PIB a preços correntes; 498 valor adicionado bruto (VAB) total; 513 agropecuária; 517 indústria; 6575 serviços (sem administração pública); 525 administração, defesa, educação e saúde públicas. Mil reais.
+- **Armadilhas:** todos os anos de todos os municípios numa consulta dá **erro 500** (limite de valores): um ano por consulta. No `curl`, os colchetes de `N6[all]` precisam de `-g`. Em 08/11/2026, 2022 e 2023 só tinham o PIB total; as atividades vinham "...". Preços correntes: sem deflator, a série não mostra crescimento real.
+- **Conferido:** Blumenau, PIB 2021 = R$ 20.579.490 mil (indústria R$ 4.729.190 mil); 2023 = R$ 24.871.920 mil. A carga confere a soma dos municípios com o Brasil (tolerância de 0,5%).
+- **Frequência:** mensal (`ibge_pib`, `ingestion/ibge/pib.py`); o PIB por morador usa `populacao_ibge` do mesmo ano.
+
 ## INEP: IDEB (redesenho, etapa 5)
 
 - **URL:** `https://download.inep.gov.br/ideb/resultados/divulgacao_{anos_iniciais|anos_finais|ensino_medio}_municipios_2025.zip`, `divulgacao_regioes_ufs_ideb_2025.zip` e `divulgacao_brasil_ideb_2025.zip` (página: gov.br/inep, Ideb, Resultados). Os nomes de UF e Brasil não seguem o padrão dos municípios (`..._ufs_2025.zip` dá 404).
