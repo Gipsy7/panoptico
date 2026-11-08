@@ -11,7 +11,7 @@ import { ComoSeparamos } from "@/components/como-separamos-votacoes";
 import { FonteRodape } from "@/components/fonte-rodape";
 import { TermoOficial } from "@/components/termo-oficial";
 import { TextoLongo } from "@/components/ui/texto-longo";
-import { type CalendarioVotacoes as Dados, type Casa, type VotacaoDoCalendario, getCalendarioVotacoes } from "@/lib/api";
+import type { CalendarioVotacoes as Dados, Casa, VotacaoDoCalendario } from "@/lib/api";
 import {
   DIAS_SEMANA_CURTO,
   FAIXAS,
@@ -44,21 +44,6 @@ const CASA_NO_PLENARIO: Record<Casa, string> = {
   camara: "no Plenário da Câmara",
   senado: "no Plenário do Senado",
 };
-
-/** Busca e mostra o calendário; sem dado (API fora ou Casa sem votação), não mostra nada. */
-export async function SecaoCalendarioVotacoes({ estado }: { estado: EstadoCalendario }) {
-  const [ano, mes] = estado.mes ? estado.mes.split("-") : [undefined, undefined];
-  const r = await getCalendarioVotacoes({
-    casa: estado.casa,
-    ano,
-    mes,
-    dia: estado.dia,
-    tipo: estado.tipo,
-    pagina: estado.pagina,
-  });
-  if (!r.ok) return null;
-  return <CalendarioVotacoes dados={r.dados} estado={estado} />;
-}
 
 export function CalendarioVotacoes({ dados, estado }: { dados: Dados; estado: EstadoCalendario }) {
   const { ano, mes, tipo } = dados;

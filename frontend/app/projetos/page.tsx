@@ -4,7 +4,7 @@ import Form from "next/form";
 import Link from "next/link";
 
 import { AvisoErro } from "@/components/aviso-erro";
-import { SecaoCalendarioVotacoes } from "@/components/calendario-votacoes";
+import { SecaoCalendarioVotacoes } from "@/components/calendario-secao";
 import { PlacarCompacto } from "@/components/barra-placar";
 import { EsqueletoSecao } from "@/components/esqueleto-secao";
 import { FonteRodape } from "@/components/fonte-rodape";

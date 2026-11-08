@@ -1800,6 +1800,10 @@ Pedido do dono depois de usar o release no celular:
   nome é o caminho principal e o CEP é um link ("Prefere o CEP?"). O Argos, as perguntas frequentes, o rodapé, o
   atalho de teclado e o `llms.txt` passam a falar de localização e nome da cidade; o Argos também conhece "Por
   dentro", economia, agro, escolas e obras, a página do estado e o vice ao lado do titular.
+- **Calendário de Decisões sem recarregar:** tocar num dia, mês, Casa ou na chave "Só o que muda leis" refazia a
+  página inteira (a lista de projetos, ~1 s, com o esqueleto de carregamento fazendo a tela pular). Agora o
+  calendário busca só os próprios dados (`/votacoes/calendario`) e troca o endereço com `history.replaceState`:
+  100 a 200 ms. Sem JavaScript, os links abrem o endereço como antes.
 
 ## 2026-11-08: redesenho, etapa 6: a faixa de cada mandato nas séries
 
