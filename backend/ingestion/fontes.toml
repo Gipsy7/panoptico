@@ -346,6 +346,14 @@ frequencia = "manual"
 bruto = "recorte"
 
 [[fonte]]
+nome = "datasus_cnes"
+modulo = "ingestion.datasus.cnes"
+uso = "Saúde em Por dentro da cidade: leitos, leitos de UTI e intermediários, unidades básicas e hospitais"
+recorte = "só as contagens por município no mês mais recente com as 27 UFs (arquivos LT e ST); nenhum CPF, CNPJ ou nome"
+frequencia = "mensal"
+bruto = "recorte"
+
+[[fonte]]
 nome = "resumos"
 modulo = "ingestion.resumos"
 uso = "Números-chave e lista de parlamentares"

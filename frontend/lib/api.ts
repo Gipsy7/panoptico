@@ -1180,8 +1180,38 @@ export function getSegurancaMunicipio(ibge: string) {
 }
 
 /** Os temas de "Por dentro do estado": as mesmas formas das cidades, com o estado no lugar do município. */
-export function getTemaEstado<T>(uf: string, tema: "pib" | "emprego" | "agro" | "ideb" | "internet" | "saneamento" | "seguranca") {
+export function getTemaEstado<T>(uf: string, tema: "pib" | "emprego" | "agro" | "ideb" | "internet" | "saneamento" | "saude" | "seguranca") {
   return getJson<T>(`/estados/${encodeURIComponent(uf)}/${tema}`);
+}
+
+export type SaudeLugar = {
+  leitos: number;
+  leitos_sus: number;
+  leitos_por_mil: number | null;
+  leitos_complementares: number;
+  leitos_complementares_sus: number;
+  complementares_por_100_mil: number | null;
+  ubs: number;
+  ubs_por_10_mil: number | null;
+  hospitais: number;
+};
+
+export type SaudeMunicipio = {
+  municipio_ibge: string;
+  uf: string;
+  ano: number | null;
+  mes: number | null;
+  cidade: SaudeLugar | null;
+  estado: SaudeLugar | null;
+  brasil: SaudeLugar | null;
+  fonte_nome: string;
+  fonte_url: string;
+  atualizado_em: string | null;
+};
+
+/** Leitos, unidades básicas e hospitais (CNES/DATASUS), com o estado e o Brasil. */
+export function getSaudeMunicipio(ibge: string) {
+  return getJson<SaudeMunicipio>(`/municipios/${encodeURIComponent(ibge)}/saude`);
 }
 
 export type CidadesParecidas = {

@@ -41,6 +41,7 @@ from app.models.obra import (
     ObraFederalMunicipio,
     PibIbge,
     SaneamentoCenso,
+    SaudeCnes,
 )
 from app.models.parlamentar import Parlamentar
 from app.models.partido_conta import (
@@ -171,6 +172,7 @@ __all__ = [
     "ResumoParlamentar",
     "SancaoEmpresa",
     "SaneamentoCenso",
+    "SaudeCnes",
     "ServidorFederal",
     "SocioPessoa",
     "Sugestao",

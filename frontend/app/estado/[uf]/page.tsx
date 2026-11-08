@@ -15,6 +15,7 @@ import { IdebResumo } from "@/components/ideb-secao";
 import { InternetResumo } from "@/components/internet-secao";
 import { PibResumo } from "@/components/pib-secao";
 import { SaneamentoResumo } from "@/components/saneamento-secao";
+import { SaudeResumo } from "@/components/saude-secao";
 import { SegurancaResumo } from "@/components/seguranca-secao";
 import {
   getBancadasEstado,
@@ -29,6 +30,7 @@ import {
   type InternetMunicipio,
   type PibMunicipio,
   type SaneamentoMunicipio,
+  type SaudeMunicipio,
   type SegurancaMunicipio,
 } from "@/lib/api";
 import { paradasACada100 } from "@/lib/obras";
@@ -71,7 +73,7 @@ const num = (n: number) => n.toLocaleString("pt-BR");
 async function Estado({ uf }: { uf: string }) {
   const e = estadoDe(uf);
   if (!e) notFound();
-  const [federalR, contasR, executivoR, bancadasR, obrasR, pibR, empregoR, agroR, idebR, internetR, saneamentoR, segurancaR] =
+  const [federalR, contasR, executivoR, bancadasR, obrasR, pibR, empregoR, agroR, idebR, internetR, saneamentoR, segurancaR, saudeR] =
     await Promise.all([
       getDinheiroFederalUf(uf),
       getContasEstado(uf),
@@ -85,6 +87,7 @@ async function Estado({ uf }: { uf: string }) {
       getTemaEstado<InternetMunicipio>(uf, "internet"),
       getTemaEstado<SaneamentoMunicipio>(uf, "saneamento"),
       getTemaEstado<SegurancaMunicipio>(uf, "seguranca"),
+      getTemaEstado<SaudeMunicipio>(uf, "saude"),
     ]);
   const pib = pibR.ok && pibR.dados.serie.length > 0 ? pibR.dados : null;
   const emprego = empregoR.ok && empregoR.dados.serie.length > 0 ? empregoR.dados : null;
@@ -92,6 +95,7 @@ async function Estado({ uf }: { uf: string }) {
   const ideb = idebR.ok && idebR.dados.etapas.length > 0 ? idebR.dados : null;
   const internet = internetR.ok && internetR.dados.acessos != null ? internetR.dados : null;
   const saneamento = saneamentoR.ok && saneamentoR.dados.ano != null ? saneamentoR.dados : null;
+  const saude = saudeR.ok && saudeR.dados.cidade ? saudeR.dados : null;
   const seguranca = segurancaR.ok && segurancaR.dados.cidade.serie.length > 0 ? segurancaR.dados : null;
   const obras = obrasR.ok ? (obrasR.dados.ufs.find((u) => u.uf === uf) ?? null) : null;
   const federal = federalR.ok && !federalR.dados.sem_dados ? federalR.dados : null;
@@ -134,9 +138,6 @@ async function Estado({ uf }: { uf: string }) {
             {cidades != null && numero("Cidades", num(cidades))}
             {bancadas && bancadas.assembleia.total > 0 && numero("Cadeiras na Assembleia", num(bancadas.assembleia.total))}
           </dl>
-          <p className="text-sm text-muted-foreground">
-            Saúde (hospitais, leitos e equipes) entra aqui quando os dados do DATASUS forem carregados.
-          </p>
           <FonteRodape fonte="IBGE (população)" atualizadoEm={null} />
         </div>
       ),
@@ -228,9 +229,11 @@ async function Estado({ uf }: { uf: string }) {
     abas.push({
       id: "saneamento",
       rotulo: "Saneamento",
-      tema: "saude",
+      tema: "obras",
       conteudo: <SaneamentoResumo dados={saneamento} cidade={e.nome} uf={uf} />,
     });
+  if (saude)
+    abas.push({ id: "saude", rotulo: "Saúde", tema: "saude", conteudo: <SaudeResumo dados={saude} cidade={e.nome} uf={uf} /> });
   if (seguranca)
     abas.push({
       id: "seguranca",

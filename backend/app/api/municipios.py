@@ -23,6 +23,7 @@ from app.schemas.obras import ObrasMunicipio, ObrasPorUf
 from app.schemas.pib import PibMunicipio
 from app.schemas.repasses_estaduais import RepassesEstaduaisResposta
 from app.schemas.saneamento import SaneamentoMunicipio
+from app.schemas.saude_cnes import SaudeMunicipio
 from app.schemas.seguranca import SegurancaMunicipio
 from app.services import (
     agro,
@@ -38,6 +39,7 @@ from app.services import (
     pib,
     repasses_estaduais,
     saneamento,
+    saude_cnes,
     seguranca,
 )
 from app.services.texto_busca import normalizar
@@ -194,6 +196,15 @@ def seguranca_da_cidade(ibge: str, session: Annotated[Session, Depends(get_sessi
     if municipio is None:
         raise HTTPException(404, "Município não encontrado.")
     return seguranca.do_municipio(session, ibge, municipio.uf)
+
+
+@router.get("/municipios/{ibge}/saude", response_model=SaudeMunicipio)
+def saude_da_cidade(ibge: str, session: Annotated[Session, Depends(get_session)]) -> dict:
+    """Leitos, unidades básicas e hospitais (CNES/DATASUS), com o estado e o Brasil."""
+    municipio = session.get(Municipio, ibge)
+    if municipio is None:
+        raise HTTPException(404, "Município não encontrado.")
+    return saude_cnes.do_lugar(session, ibge, municipio.uf)
 
 
 @router.get("/obras/estados", response_model=ObrasPorUf)

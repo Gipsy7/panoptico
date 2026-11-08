@@ -179,3 +179,22 @@ class HomicidioSim(Base):
     ano: Mapped[int] = mapped_column(SmallInteger, primary_key=True)
     homicidios: Mapped[int] = mapped_column(Integer)
     ingestao_id: Mapped[int | None] = mapped_column(ForeignKey("fonte_ingestao.id"))
+
+
+class SaudeCnes(Base):
+    """Saúde no CNES (DATASUS) no mês mais recente: leitos de internação e, à parte, complementares
+    (UTI e intermediários), cada um com os do SUS; unidades básicas e hospitais. Código: 1 dígito =
+    Brasil, 2 = UF, 7 = município."""
+
+    __tablename__ = "saude_cnes"
+
+    codigo: Mapped[str] = mapped_column(String(7), primary_key=True)
+    ano: Mapped[int] = mapped_column(SmallInteger)
+    mes: Mapped[int] = mapped_column(SmallInteger)
+    leitos: Mapped[int] = mapped_column(Integer)
+    leitos_sus: Mapped[int] = mapped_column(Integer)
+    leitos_complementares: Mapped[int] = mapped_column(Integer)
+    leitos_complementares_sus: Mapped[int] = mapped_column(Integer)
+    ubs: Mapped[int] = mapped_column(Integer)
+    hospitais: Mapped[int] = mapped_column(Integer)
+    ingestao_id: Mapped[int | None] = mapped_column(ForeignKey("fonte_ingestao.id"))

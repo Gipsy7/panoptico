@@ -14,8 +14,9 @@ from app.schemas.ideb import IdebMunicipio
 from app.schemas.internet import InternetMunicipio
 from app.schemas.pib import PibMunicipio
 from app.schemas.saneamento import SaneamentoMunicipio
+from app.schemas.saude_cnes import SaudeMunicipio
 from app.schemas.seguranca import SegurancaMunicipio
-from app.services import agro, emprego, ideb, internet, pib, saneamento, seguranca
+from app.services import agro, emprego, ideb, internet, pib, saneamento, saude_cnes, seguranca
 from app.services.pib import CODIGO_UF
 
 router = APIRouter()
@@ -79,6 +80,13 @@ def saneamento_do_estado(uf: str, session: Sessao) -> dict:
     dados = saneamento.do_municipio(session, codigo, uf)
     dados["estado"] = dict.fromkeys(saneamento.CAMPOS)
     return dados
+
+
+@router.get("/estados/{uf}/saude", response_model=SaudeMunicipio)
+def saude_do_estado(uf: str, session: Sessao) -> dict:
+    """Leitos, unidades básicas e hospitais do estado (CNES/DATASUS), com o Brasil."""
+    uf, codigo = _codigo(uf)
+    return saude_cnes.do_lugar(session, codigo, uf, comparar_estado=False)
 
 
 @router.get("/estados/{uf}/seguranca", response_model=SegurancaMunicipio)

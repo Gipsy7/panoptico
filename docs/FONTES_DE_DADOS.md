@@ -252,6 +252,14 @@ Endpoints conferidos em 2026-10-06.
 - **Conferido:** Brasil 65.602 (2017), 46.409 (2022) e 45.747 (2023), iguais aos do Atlas. SC 654 e Blumenau 20 em 2024. 61.589 linhas (lugar × ano, 2014 a 2024).
 - **Frequência:** manual, uma vez por ano (`datasus_homicidios`, `ingestion/datasus/homicidios.py`; bruto = recorte). Carga de ~9 min (≈300 arquivos).
 
+## DATASUS: leitos e unidades no CNES (redesenho, etapa 5)
+
+- **URL:** `ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/Dados/{LT,ST}/<tipo><UF><AAMM>.dbc` (mensal; LT = leitos, um registro por estabelecimento e tipo de leito; ST = estabelecimentos). SP: ST de 5,5 MB e LT de 100 KB comprimidos. Lidos com o mesmo leitor de DBC do SIM (`ingestion/datasus/dbc.py`).
+- **O que guardamos:** na competência mais recente com LT e ST das 27 UFs, por município (`CODUFMUN`, 6 dígitos): leitos de internação existentes e do SUS (`QT_EXIST`, `QT_SUS`; TP_LEITO 1, 2, 4, 5, 6 e 7, como no TabNet), à parte os complementares (TP_LEITO 3: UTI e intermediários), unidades básicas (TP_UNID 01 e 02) e hospitais (05, 07 e 15). O bruto guarda as contagens por tipo; as regras ficam no `normalizar` (o `--de-raw` reprocessa).
+- **Armadilha:** "leitos" somando tudo dá 543.524 no Brasil; os de internação, sem os complementares, são 460.549 (set/2026). O arquivo ST traz CPF de consultórios de pessoa física: só `CODUFMUN` e `TP_UNID` são lidos.
+- **Conferido (set/2026):** Brasil 460.549 leitos de internação (318.479 do SUS), 82.975 complementares, 50.733 unidades básicas, 7.128 hospitais; Blumenau 795 leitos (447 do SUS), 126 complementares, 63 unidades básicas, 9 hospitais.
+- **Frequência:** mensal (`datasus_cnes`, `ingestion/datasus/cnes.py`; ~30 s), na agenda mensal da VPS.
+
 ## Ministério da Saúde: hospitais e leitos (reconhecimento de 08/11/2026, sem ingestão)
 
 - **URL:** `https://apidadosabertos.saude.gov.br/assistencia-a-saude/hospitais-e-leitos?limit=1000&offset=N` (até 1.000 por página). O CKAN antigo (opendatasus) virou o novo portal `dadosabertos.saude.gov.br`, sem API de catálogo, e os arquivos no S3 antigo dão 403 (`AccessDenied`, endereço que não existe mais, não bloqueio).

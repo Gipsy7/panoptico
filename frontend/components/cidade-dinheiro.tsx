@@ -9,6 +9,7 @@ import { PibResumo } from "@/components/pib-secao";
 import { EmpregoResumo } from "@/components/emprego-secao";
 import { InternetResumo } from "@/components/internet-secao";
 import { SaneamentoResumo } from "@/components/saneamento-secao";
+import { SaudeResumo } from "@/components/saude-secao";
 import { SegurancaResumo } from "@/components/seguranca-secao";
 import { ParecidasSecao, VocacoesSecao } from "@/components/parecidas-secao";
 import { AgroResumo } from "@/components/agro-secao";
@@ -49,6 +50,7 @@ import {
   getInternetMunicipio,
   getSaneamentoMunicipio,
   getSegurancaMunicipio,
+  getSaudeMunicipio,
   getObrasMunicipio,
   getResultadoEleicao,
   getDinheiroFederalMunicipio,
@@ -139,6 +141,7 @@ async function Cidade({ ibge }: { ibge: string }) {
     internetR,
     saneamentoR,
     segurancaR,
+    saudeR,
   ] = await Promise.all([
     getEmendasMunicipio(ibge),
     getContas(ibge),
@@ -171,6 +174,7 @@ async function Cidade({ ibge }: { ibge: string }) {
     getInternetMunicipio(ibge),
     getSaneamentoMunicipio(ibge),
     getSegurancaMunicipio(ibge),
+    getSaudeMunicipio(ibge),
   ]);
   const repassesEstado = estaduaisR.ok ? estaduaisR.dados : null;
   const temRepassesEstado = Boolean(
@@ -189,6 +193,7 @@ async function Cidade({ ibge }: { ibge: string }) {
   const vocacoesCidade = vocacoesR.ok ? vocacoesR.dados : null;
   const internetCidade = internetR.ok && internetR.dados.acessos != null ? internetR.dados : null;
   const saneamentoCidade = saneamentoR.ok && saneamentoR.dados.ano != null ? saneamentoR.dados : null;
+  const saudeCidade = saudeR.ok && saudeR.dados.cidade ? saudeR.dados : null;
   const segurancaCidade = segurancaR.ok && segurancaR.dados.cidade.serie.length > 0 ? segurancaR.dados : null;
   const agroCidade = agroR.ok && (agroR.dados.valor_total != null || agroR.dados.pecuaria) ? agroR.dados : null;
   // Faixas dos mandatos de prefeito no fundo das séries (Etapa 6): só eleitos com nome.
@@ -722,8 +727,18 @@ async function Cidade({ ibge }: { ibge: string }) {
                   {
                     id: "saneamento",
                     rotulo: "Saneamento",
-                    tema: "saude" as const,
+                    tema: "obras" as const,
                     conteudo: <SaneamentoResumo dados={saneamentoCidade} cidade={municipio} uf={uf} />,
+                  },
+                ]
+              : []),
+            ...(saudeCidade
+              ? [
+                  {
+                    id: "saude",
+                    rotulo: "Saúde",
+                    tema: "saude" as const,
+                    conteudo: <SaudeResumo dados={saudeCidade} cidade={municipio} uf={uf} />,
                   },
                 ]
               : []),

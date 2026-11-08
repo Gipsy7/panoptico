@@ -32,6 +32,15 @@ for a in $anos_contas; do passo "Despesas por fornecedor $a (TCE-SP)" py ingesti
 passo "Transferências obrigatórias (Tesouro)" py ingestion.tesouro.transferencias --ano $anos_atual
 for a in $anos_contas; do passo "Despesas por fornecedor $a (TCE-RS)" py ingestion.tce.rs --ano "$a"; done
 
+# "Por dentro da cidade" (redesenho): fontes que mudam todo mês (Anatel, CNES) e as do IBGE, leves,
+# que trazem o ano novo quando sai. Homicídios (SIM, anual) e IDEB (a cada 2 anos) ficam manuais.
+passo_tolerante "Banda larga fixa (Anatel)" py ingestion.anatel.banda_larga
+passo_tolerante "Leitos e unidades de saúde (CNES)" py ingestion.datasus.cnes
+passo_tolerante "PIB dos municípios (IBGE)" py ingestion.ibge.pib
+passo_tolerante "Lavouras (IBGE, PAM)" py ingestion.ibge.pam
+passo_tolerante "Pecuária (IBGE, PPM)" py ingestion.ibge.ppm
+passo_tolerante "Empresas e emprego (IBGE, CEMPRE)" py ingestion.ibge.cempre
+
 # Cadastro de empresas: base de ~7,8 GB lida em fluxo; o servidor da Receita já travou uma vez
 # sem erro, então até três tentativas (a seguinte pula os zips já lidos).
 empresas() {

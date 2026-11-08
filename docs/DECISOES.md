@@ -1863,7 +1863,13 @@ Pedido do dono depois de usar o release no celular:
 - **Por dentro do estado:** as abas Economia, Agro, Educação, Internet, Saneamento e Segurança usam os mesmos serviços
   das cidades com o código do estado (`/estados/{uf}/pib`, `/agro`, `/ideb`, `/emprego`, `/internet`, `/saneamento`,
   `/seguranca`), comparando só com o Brasil.
-- **Saúde adiada:** a API de hospitais e leitos do Ministério da Saúde não traz o mês de cada retrato e quase
+- **Saúde (CNES):** aba "Saúde" com leitos de internação por mil moradores (e quantos são do SUS), leitos de UTI e
+  intermediários por 100 mil, unidades básicas por 10 mil e hospitais, com o estado e o Brasil. Os arquivos DBC do
+  FTP do DATASUS são lidos com `pyreaddbc`, a mesma dependência do SIM. A cor de Saneamento passou a ser a de
+  infraestrutura (a da Internet) para Saúde ter a sua.
+- **Agenda mensal da VPS:** Anatel, CNES, PIB, PAM, PPM e CEMPRE entram no `mensal.sh` em modo tolerante; SIM (anual)
+  e IDEB (a cada 2 anos) ficam manuais.
+- **Saúde adiada (superado pelo CNES em DBC, acima):** a API de hospitais e leitos do Ministério da Saúde não traz o mês de cada retrato e quase
   todas as linhas vêm sem município; somar daria número errado. Fica para os arquivos do CNES (ver FONTES).
 
 ## 2026-11-08: redesenho, etapa 4 (Raio-X da cidade e do estado)

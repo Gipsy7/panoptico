@@ -3,18 +3,13 @@ DATASUS, o mesmo dado que o Atlas da Violência (Ipea) usa.
 
 Homicídio = causa básica (CID-10) de X85 a Y09 (agressões) ou Y35 e Y36 (intervenção legal e
 operações de guerra), o recorte do Atlas. Só os anos fechados (`CID10/DORES`, um DBC por UF de
-residência e ano). Os DBC são DBF comprimidos (largura fixa): descomprimimos com `pyreaddbc` e lemos
-só duas colunas, `CODMUNRES` (6 dígitos, sem o dígito verificador) e `CAUSABAS`. Nada além das
-contagens é guardado: nenhum dado de pessoa sai do arquivo.
+residência e ano), lidos por `ingestion.datasus.dbc`: só duas colunas, `CODMUNRES` (6 dígitos,
+sem o dígito verificador) e `CAUSABAS`. Nada além das contagens é guardado: nenhum dado de pessoa
+sai do arquivo.
 """
 
 import argparse
 import re
-import shutil
-import struct
-import tempfile
-import time
-import urllib.request
 from collections import Counter
 from pathlib import Path
 from typing import Any
@@ -26,11 +21,14 @@ from sqlalchemy.orm import Session
 from app.models import FonteIngestao, HomicidioSim, Municipio
 from app.services.pib import CODIGO_UF
 from ingestion import comum
+from ingestion.datasus import dbc
 
 FONTE = "datasus_homicidios"
-URL = "ftp://ftp.datasus.gov.br/dissemin/publicos/SIM/CID10/DORES/"
+PASTA = "SIM/CID10/DORES/"
+URL = dbc.FTP + PASTA
 ANO_INICIAL = 2014
 ARQUIVO = re.compile(r"^DO([A-Z]{2})(\d{4})\.dbc$", re.IGNORECASE)
+COLUNAS = ("CODMUNRES", "CAUSABAS")
 
 
 def e_homicidio(causa: str) -> bool:
@@ -38,77 +36,39 @@ def e_homicidio(causa: str) -> bool:
     return "X85" <= g <= "Y09" or g in ("Y35", "Y36")
 
 
-def ler_dbf(caminho: Path) -> tuple[Counter, int]:
-    """Conta homicídios por município (6 dígitos) num DBF do SIM e o total do arquivo."""
+def contar(regs) -> tuple[Counter, int]:
+    """Homicídios por município (6 dígitos) e o total dos registros."""
     por_mun: Counter = Counter()
     total = 0
-    with caminho.open("rb") as f:
-        n, tam_cab, tam_reg = struct.unpack("<IHH", f.read(32)[4:12])
-        campos: dict[str, tuple[int, int]] = {}
-        pos = 1  # o 1º byte do registro é a marca de apagado
-        while True:
-            d = f.read(32)
-            if not d or d[0] == 0x0D:
-                break
-            campos[d[:11].split(b"\0")[0].decode("latin-1")] = (pos, d[16])
-            pos += d[16]
-        (pm, tm), (pc, tc) = campos["CODMUNRES"], campos["CAUSABAS"]
-        f.seek(tam_cab)
-        for _ in range(n):
-            r = f.read(tam_reg)
-            if len(r) < tam_reg:
-                break
-            if r[0:1] == b"*":  # registro apagado
-                continue
-            if e_homicidio(r[pc : pc + tc].decode("latin-1").strip()):
-                total += 1
-                por_mun[r[pm : pm + tm].decode("latin-1").strip()] += 1
+    for r in regs:
+        if e_homicidio(r["CAUSABAS"]):
+            total += 1
+            por_mun[r["CODMUNRES"]] += 1
     return por_mun, total
 
 
-def _abrir(url: str, tentativas: int = 5):
-    for t in range(tentativas):
-        try:
-            return urllib.request.urlopen(url, timeout=120)  # noqa: S310 (FTP público do DATASUS)
-        except OSError:
-            if t == tentativas - 1:
-                raise
-            time.sleep(10 * (t + 1))
-    raise RuntimeError("inalcançável")
+def ler_dbf(caminho: Path) -> tuple[Counter, int]:
+    """Conta homicídios por município (6 dígitos) num DBF do SIM e o total do arquivo."""
+    return contar(dbc.registros(caminho, COLUNAS))
 
 
 def listar() -> list[tuple[str, int, str]]:
-    with _abrir(URL) as r:
-        texto = r.read().decode("latin-1")
-    arquivos = []
-    for linha in texto.splitlines():
-        nome = linha.split()[-1] if linha.split() else ""
-        m = ARQUIVO.match(nome)
-        if m and m.group(1).upper() != "BR" and int(m.group(2)) >= ANO_INICIAL:
-            arquivos.append((m.group(1).upper(), int(m.group(2)), nome))
+    arquivos = [
+        (m.group(1).upper(), int(m.group(2)), m.group(0))
+        for m in dbc.listar(PASTA, ARQUIVO)
+        if m.group(1).upper() != "BR" and int(m.group(2)) >= ANO_INICIAL
+    ]
     return sorted(arquivos, key=lambda a: (a[1], a[0]))
 
 
 def baixar(client: httpx.Client) -> dict[str, Any]:
-    import pyreaddbc  # só na carga: a API não precisa dele
-
     recorte: dict[str, Any] = {"anos": {}}
-    pasta = Path(tempfile.mkdtemp(prefix="sim_"))
-    try:
-        for uf, ano, nome in listar():
-            dbc, dbf = pasta / nome, pasta / (nome[:-4] + ".dbf")
-            with _abrir(URL + nome) as r, dbc.open("wb") as saida:
-                shutil.copyfileobj(r, saida, 1 << 20)
-            pyreaddbc.dbc2dbf(str(dbc), str(dbf))
-            dbc.unlink()
-            por_mun, total = ler_dbf(dbf)
-            dbf.unlink()
-            do_ano = recorte["anos"].setdefault(str(ano), {"uf": {}, "municipios": {}})
-            do_ano["uf"][uf] = total
-            for cod, n in por_mun.items():
-                do_ano["municipios"][cod] = do_ano["municipios"].get(cod, 0) + n
-    finally:
-        shutil.rmtree(pasta, ignore_errors=True)
+    for uf, ano, nome in listar():
+        por_mun, total = contar(dbc.ler_remoto(PASTA, nome, COLUNAS))
+        do_ano = recorte["anos"].setdefault(str(ano), {"uf": {}, "municipios": {}})
+        do_ano["uf"][uf] = total
+        for cod, n in por_mun.items():
+            do_ano["municipios"][cod] = do_ano["municipios"].get(cod, 0) + n
     return recorte
 
 
