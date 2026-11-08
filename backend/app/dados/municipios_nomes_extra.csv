@@ -1,0 +1,4 @@
+uf,nome_na_fonte,ibge,fonte,data,justificativa
+RR,São Luiz,1400605,https://servicodados.ibge.gov.br/api/v1/localidades/municipios/1400605,2026-10-20,"A CGU grafa SÃO LUIZ; o IBGE registra São Luiz do Anauá, único município de RR com esse nome. Fora da tabela de alterações toponímicas do IBGE; confirmado por ser o único São Luiz de RR no IBGE."
+RN,Açu,2400208,https://servicodados.ibge.gov.br/api/v1/localidades/municipios/2400208,2026-10-20,"A CGU grafa AÇU; o IBGE registra Assú (nome oficial), único Açu/Assú do RN. Grafia fora da tabela de alterações toponímicas do IBGE."
+RN,Arês,2401206,https://servicodados.ibge.gov.br/api/v1/localidades/municipios/2401206,2026-10-20,"A CGU grafa ARÊS; o IBGE registra Arez (código 2401206), único município de RN com esse nome. Grafia fora da tabela de alterações toponímicas do IBGE."

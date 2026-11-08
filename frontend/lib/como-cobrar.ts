@@ -59,11 +59,12 @@ export const ASSEMBLEIA_POR_UF: Record<string, string> = {
   TO: "https://www.al.to.leg.br/",
 };
 
-/** Ministério Público do estado (MPDFT no DF). AL, AP e SP não responderam à conferência: sem link. */
+/** Ministério Público do estado (MPDFT no DF). AL, AP e SP conferidos em 08/11/2026 (o site do MPSP recusa
+ * robôs, mas o domínio é o oficial e o link é para o cidadão abrir). */
 export const MINISTERIO_PUBLICO_POR_UF: Record<string, string | null> = {
   AC: "https://www.mpac.mp.br/",
-  AL: null,
-  AP: null,
+  AL: "https://www.mpal.mp.br/",
+  AP: "https://www.mpap.mp.br/",
   AM: "https://www.mpam.mp.br/",
   BA: "https://www.mpba.mp.br/",
   CE: "https://mpce.mp.br/",
@@ -85,17 +86,18 @@ export const MINISTERIO_PUBLICO_POR_UF: Record<string, string | null> = {
   RO: "https://www.mpro.mp.br/",
   RR: "https://www.mprr.mp.br/",
   SC: "https://www.mpsc.mp.br/",
-  SP: null,
+  SP: "https://www.mpsp.mp.br/",
   SE: "https://www.mpse.mp.br/",
   TO: "https://www.mpto.mp.br/portal/",
 };
 
-/** Tribunal de Contas do estado (do DF no DF). AL e AM não responderam à conferência: sem link. */
+/** Tribunal de Contas do estado (do DF no DF). AL e AM conferidos em 08/11/2026 (o TCE-AM mudou de
+ * tce.am.gov.br para tceam.tc.br). */
 export const TRIBUNAL_DE_CONTAS_POR_UF: Record<string, string | null> = {
   AC: "https://tceac.tc.br/site/",
-  AL: null,
+  AL: "https://www.tceal.tc.br/",
   AP: "https://www.tce.ap.gov.br/",
-  AM: null,
+  AM: "https://www.tceam.tc.br/",
   BA: "https://www.tce.ba.gov.br/",
   CE: "https://www.tce.ce.gov.br/",
   DF: "https://www2.tc.df.gov.br/",

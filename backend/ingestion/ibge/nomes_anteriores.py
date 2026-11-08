@@ -28,6 +28,7 @@ ANOS = (2014, 2024)  # a de 2014 traz o histórico antigo; a de 2024, de 2017 em
 RAIZ = Path(__file__).resolve().parents[3] / "data"
 CSV_IBGE = RAIZ / "municipios_nomes_anteriores.csv"
 CSV_EXTRA = RAIZ / "municipios_nomes_extra.csv"
+COPIA = Path(__file__).resolve().parents[2] / "app" / "dados"
 COLUNAS = ["uf", "nome_na_fonte", "ibge", "fonte", "data", "justificativa"]
 UF_POR_CODIGO = {
     "11": "RO", "12": "AC", "13": "AM", "14": "RR", "15": "PA", "16": "AP", "17": "TO",
@@ -119,7 +120,10 @@ def carregar_apelidos() -> dict[tuple[str, str], str]:
     """(UF, chave do nome na fonte) -> IBGE. Mesmo nome para municípios diferentes é descartado."""
     mapa: dict[tuple[str, str], str] = {}
     ambiguos: set[tuple[str, str]] = set()
-    for caminho in (CSV_IBGE, CSV_EXTRA):
+    for principal in (CSV_IBGE, CSV_EXTRA):
+        # Na imagem Docker (contexto backend/) a pasta data/ da raiz não existe: vale a cópia
+        # empacotada em app/dados/ (tests/test_nomes_anteriores.py garante que são iguais).
+        caminho = principal if principal.exists() else COPIA / principal.name
         if not caminho.exists():
             continue
         with caminho.open(encoding="utf-8", newline="") as f:

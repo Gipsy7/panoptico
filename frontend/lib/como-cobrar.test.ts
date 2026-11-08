@@ -37,8 +37,7 @@ describe("canaisParaCobrar", () => {
   });
 
   it("UF sem endereço conferido fica sem link, nunca inventado", () => {
-    const c = canaisParaCobrar({ esfera: "estadual", uf: "SP" });
-    expect(c[1].url).toBeNull();
+    expect(canaisParaCobrar({ esfera: "estadual", uf: "SP" })[1].url).toBe("https://www.mpsp.mp.br/");
     expect(canaisParaCobrar({ esfera: "estadual", uf: "XX" }).every((x) => x.url === null)).toBe(true);
   });
 

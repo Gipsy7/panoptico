@@ -12,6 +12,7 @@ description: Como subir o Panóptico localmente no Windows (Postgres, API FastAP
 - PostgreSQL 18 nativo (serviço `postgresql-x64-18`); `psql` em `/c/Program Files/PostgreSQL/18/bin/psql.exe`. Bancos `panoptico` e `panoptico_test`, usuário/senha `panoptico` (só local). Não use a senha do superusuário `postgres`.
 - Sem Docker.
 - `backend/.env` aponta para o banco local; `frontend/.env.local` tem `NEXT_PUBLIC_API_URL=http://localhost:8000`.
+- **Prévia para o celular do dono (IP da LAN):** o build leva `NEXT_PUBLIC_API_URL=http://<IP da LAN>:<porta>` (o celular chama a API por ele), mas o Node desta máquina NÃO alcança o próprio IP da LAN (o fetch estoura em ~10 s; o curl alcança). Sem contorno, toda página leva ~11 s (o `generateMetadata` espera o prazo e sai com o título genérico). Rode o `next start` com `API_URL_INTERNA=http://localhost:<porta>`: o servidor do site fala com a API pelo localhost, o navegador pelo IP. O IP muda (era .10, depois .48): confira com `Get-NetIPAddress -AddressFamily IPv4` e ponha o IP novo também no `CORS_ORIGINS` da API. Se o IP mudou, apague o `.next` antes do build (o cache do Turbopack guardou o IP antigo num chunk).
 
 ## Subir
 

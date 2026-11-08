@@ -71,6 +71,8 @@ TITULAR_DO_VICE = {
 }
 # Nomes do TSE que diferem do IBGE além do que a comparação aproximada resolve.
 GRAFIAS_TSE = {
+    # Em 2026 o TSE escreveu só "BOM JESUS" (código 92690, o mesmo de "BOM JESUS DE GOIÁS" em 2024).
+    ("GO", "BOM JESUS"): "Bom Jesus de Goiás",
     ("RN", "BOA SAUDE"): "Januário Cicco",
     ("RR", "SAO LUIZ"): "São Luiz do Anauá",
 }
