@@ -774,7 +774,7 @@ async function Cidade({ ibge }: { ibge: string }) {
                     grupo: "Comparar",
                     rotulo: "Ao longo do tempo",
                     tema: "eleicoes" as const,
-                    conteudo: <AoLongoDoTempo linha={tempoCidade} lugar={municipio} />,
+                    conteudo: <AoLongoDoTempo linha={tempoCidade} lugar={municipio} nomeEstado={uf} />,
                   },
                 ]
               : []),

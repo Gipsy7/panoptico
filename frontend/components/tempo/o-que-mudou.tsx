@@ -8,7 +8,7 @@
 import { useState } from "react";
 
 import { corDoTema, dominioDe } from "@/components/tempo/ao-longo-do-tempo";
-import { EixoAnos, FaixasGestao, LinhaSerie } from "@/components/tempo/eixo-tempo";
+import { EixoAnos, FaixasGestao, LinhaSerie, PainelAno, resumoSerie, useAnoFoco } from "@/components/tempo/eixo-tempo";
 import type { TempoDoLugar, SerieTempo } from "@/lib/api";
 import { type Descoberta, formatarValor, gerarDescobertas } from "@/lib/descobertas";
 
@@ -102,29 +102,33 @@ function Pergunta({
 }) {
   const s = porId.get(x.serie)!;
   const dom = dominioDe(linha);
+  const [foco, setFoco] = useAnoFoco();
   const ligadas = (LIGADAS[x.serie] ?? []).map((id) => porId.get(id)).filter((v): v is SerieTempo => Boolean(v));
   const curta = s.decimais <= 1 && !s.unidade.startsWith("R$");
   return (
     <div className="flex flex-col gap-3 border border-t-4 border-border bg-card p-4" style={{ borderTopColor: corDoTema(x.tema) }}>
       <h3 className="text-xl">{x.pergunta}</h3>
       <div className="flex flex-col gap-1">
-        {linha.gestoes.prefeito && <FaixasGestao d={dom} gestoes={linha.gestoes.prefeito} cargo="Prefeito" />}
-        {linha.gestoes.governador && <FaixasGestao d={dom} gestoes={linha.gestoes.governador} cargo="Governador" />}
+        {linha.gestoes.prefeito && <FaixasGestao d={dom} gestoes={linha.gestoes.prefeito} cargo="Prefeito" foco={foco} />}
+        {linha.gestoes.governador && <FaixasGestao d={dom} gestoes={linha.gestoes.governador} cargo="Governador" foco={foco} />}
         <p className="pt-1 text-sm font-semibold">
           {s.rotulo} <span className="font-normal text-muted-foreground">({s.unidade})</span>
         </p>
-        <LinhaSerie d={dom} s={s} cor={corDoTema(s.tema)} todos={curta} altura={96} />
+        <p className="text-xs text-muted-foreground">{resumoSerie(s, dom)}</p>
+        <LinhaSerie d={dom} s={s} cor={corDoTema(s.tema)} todos={curta} altura={110} foco={foco} aoFocar={setFoco} nomeEstado={nomeEstado} />
         {ligadas.map((l) => (
           <div key={l.id} className="border-t border-border pt-2">
             <p className="text-sm font-semibold">
               {l.rotulo} <span className="font-normal text-muted-foreground">({l.unidade})</span>
             </p>
-            <LinhaSerie d={dom} s={l} cor={corDoTema(l.tema)} />
+            <p className="text-xs text-muted-foreground">{resumoSerie(l, dom)}</p>
+            <LinhaSerie d={dom} s={l} cor={corDoTema(l.tema)} foco={foco} aoFocar={setFoco} nomeEstado={nomeEstado} />
             {ultimoComparado(l, nomeEstado) && <p className="text-sm text-muted-foreground">{ultimoComparado(l, nomeEstado)}</p>}
           </div>
         ))}
-        <EixoAnos d={dom} />
+        <EixoAnos d={dom} foco={foco} />
       </div>
+      <PainelAno ano={foco} series={[s, ...ligadas]} gestoes={linha.gestoes} nomeEstado={nomeEstado} />
       {ultimoComparado(s, nomeEstado) && <p className="text-sm">{ultimoComparado(s, nomeEstado)}</p>}
       <ul className="flex flex-col gap-1 text-sm text-muted-foreground">
         {AVISO[s.responsavel] && <li>{AVISO[s.responsavel]}</li>}

@@ -28,6 +28,9 @@ import { classe, quantis, type ClasseMapa } from "@/lib/mapa";
 
 export type UfDoMapa = UfDinheiro;
 
+/** Primeira letra minúscula, menos em sigla ("IDEB", "PIB"). */
+const minuscula = (t: string) => (t.length > 1 && t[1] === t[1].toUpperCase() && /\p{L}/u.test(t[1]) ? t : t[0].toLowerCase() + t.slice(1));
+
 // Estados por onde a mão passeia: grandes e espalhados, o primeiro bem visível no celular.
 const ROTEIRO_MAO = ["PA", "BA", "AM", "MG", "MT", "RS"];
 
@@ -75,6 +78,12 @@ function Dispersao({
   const px = (v: number) => (x1 === x0 ? 50 : 5 + ((v - x0) / (x1 - x0)) * 90);
   const py = (v: number) => (y1 === y0 ? 50 : 95 - ((v - y0) / (y1 - y0)) * 90);
   const r = correlacao(xs, ys);
+  const mediana = (v: number[]) => {
+    const o = [...v].sort((a, b) => a - b);
+    return o.length % 2 ? o[(o.length - 1) / 2] : (o[o.length / 2 - 1] + o[o.length / 2]) / 2;
+  };
+  const [mdx, mdy] = [mediana(xs), mediana(ys)];
+  const ativo = pts.find((p) => p.uf === realce);
   const quando = (c: Camada, a: number | null) => (a ? ` (${a})` : "");
   return (
     <figure className="m-0 flex flex-col gap-2 border border-t-4 border-border bg-card p-3" style={{ borderTopColor: "var(--tema-votos)" }}>
@@ -83,7 +92,7 @@ function Dispersao({
           Os 27 estados, um ponto cada
         </span>
         <b>{x.rotulo}</b>
-        {quando(x, anoX)} e <b>{y.rotulo.toLowerCase()}</b>
+        {quando(x, anoX)} e <b>{minuscula(y.rotulo)}</b>
         {quando(y, anoY)}: {frasePadrao(r)}.
       </figcaption>
       <div className="grid grid-cols-[auto_1fr] gap-x-2">
@@ -92,6 +101,12 @@ function Dispersao({
           <span>{y.formatar(y0)}</span>
         </div>
         <div className="relative aspect-[4/3] border-b border-l border-border">
+          {/* Medianas: metade dos estados de cada lado de cada linha tracejada. */}
+          <span aria-hidden className="absolute inset-y-0 border-l border-dashed border-muted-foreground/50" style={{ left: `${px(mdx)}%` }} />
+          <span aria-hidden className="absolute inset-x-0 border-t border-dashed border-muted-foreground/50" style={{ top: `${py(mdy)}%` }} />
+          <span aria-hidden className="absolute top-0.5 text-[0.65rem] text-muted-foreground" style={{ left: `calc(${px(mdx)}% + 3px)` }}>
+            metade ← → metade
+          </span>
           {pts.map((p) => {
             const ativo = p.uf === realce;
             return (
@@ -104,7 +119,7 @@ function Dispersao({
                 onMouseLeave={() => aoRealcar(null)}
                 onFocus={() => aoRealcar(p.uf)}
                 onClick={() => aoRealcar(p.uf)}
-                className="absolute flex size-6 -translate-x-1/2 -translate-y-1/2 items-center justify-center"
+                className="absolute flex size-8 -translate-x-1/2 -translate-y-1/2 items-center justify-center"
                 style={{ left: `${px(p.vx)}%`, top: `${py(p.vy)}%`, zIndex: ativo ? 2 : 1 }}
               >
                 <span
@@ -124,6 +139,18 @@ function Dispersao({
           <span>{x.formatar(x1)}</span>
         </div>
       </div>
+      <p className="min-h-10 text-sm" aria-live="polite">
+        {ativo ? (
+          <>
+            <b>{ativo.nome}</b>: {minuscula(x.rotulo)} {x.formatar(ativo.vx)} ({ativo.vx >= mdx ? "acima" : "abaixo"} da metade
+            dos estados); {minuscula(y.rotulo)} {y.formatar(ativo.vy)} ({ativo.vy >= mdy ? "acima" : "abaixo"} da metade).
+          </>
+        ) : (
+          <span className="text-muted-foreground">
+            Toque num ponto ou num estado do mapa. Cada linha tracejada marca o meio: metade dos estados fica de cada lado.
+          </span>
+        )}
+      </p>
       <p className="text-xs text-muted-foreground">
         Andar junto não prova que um causa o outro: renda, tamanho, história e quem presta o serviço pesam nos dois.
         {anoX !== anoY && anoX && anoY ? " Os anos dos dois números são diferentes." : ""}
@@ -442,7 +469,7 @@ export function MapaHome({
         {lista && (
           <div className="flex flex-col gap-1">
             <p className="text-xs text-muted-foreground">
-              Em ordem do maior para o menor: {camada.rotulo.toLowerCase()}
+              Em ordem do maior para o menor: {minuscula(camada.rotulo)}
               {ano ? `, ${ano}` : ""}. Estados sem dado no fim.
             </p>
             <ol className="flex flex-col">

@@ -7,7 +7,16 @@
  */
 import { useState } from "react";
 
-import { EixoAnos, FaixasGestao, LinhaSerie, type Dominio, nomeCurto } from "@/components/tempo/eixo-tempo";
+import {
+  EixoAnos,
+  FaixasGestao,
+  LinhaSerie,
+  PainelAno,
+  type Dominio,
+  nomeCurto,
+  resumoSerie,
+  useAnoFoco,
+} from "@/components/tempo/eixo-tempo";
 import type { Gestao, TempoDoLugar, SerieTempo } from "@/lib/api";
 import { formatarValor } from "@/lib/descobertas";
 
@@ -30,8 +39,9 @@ function comecoEFim(s: SerieTempo, g: Gestao) {
   return [lista[0], lista[lista.length - 1]] as const;
 }
 
-export function AoLongoDoTempo({ linha, lugar }: { linha: TempoDoLugar; lugar: string }) {
+export function AoLongoDoTempo({ linha, lugar, nomeEstado = "estado" }: { linha: TempoDoLugar; lugar: string; nomeEstado?: string }) {
   const d = dominioDe(linha);
+  const [foco, setFoco] = useAnoFoco();
   const [ligadas, setLigadas] = useState<Set<string>>(
     () => new Set(linha.series.filter((s) => PADRAO.has(s.id)).map((s) => s.id)),
   );
@@ -50,7 +60,9 @@ export function AoLongoDoTempo({ linha, lugar }: { linha: TempoDoLugar; lugar: s
   return (
     <div className="flex flex-col gap-4">
       <p className="text-sm text-muted-foreground">
-        Cada linha tem a sua escala. Dinheiro em reais de {linha.reais_de}, descontada a inflação. Escolha o que ver:
+        Cada gráfico tem a sua escala (o menor e o maior valor ficam escritos à direita). Dinheiro em reais de{" "}
+        {linha.reais_de}, descontada a inflação. Passe o dedo sobre um gráfico para ver o ano em todos. Escolha o que
+        ver:
       </p>
       <fieldset className="flex flex-wrap gap-x-4 gap-y-1">
         <legend className="sr-only">Séries mostradas</legend>
@@ -65,20 +77,32 @@ export function AoLongoDoTempo({ linha, lugar }: { linha: TempoDoLugar; lugar: s
 
       <div className="flex flex-col gap-1">
         {linha.gestoes.prefeito && (
-          <FaixasGestao d={d} gestoes={linha.gestoes.prefeito} cargo="Prefeito" selecionada={sel?.chave} aoEscolher={escolher("Prefeito")} />
+          <FaixasGestao d={d} gestoes={linha.gestoes.prefeito} cargo="Prefeito" selecionada={sel?.chave} aoEscolher={escolher("Prefeito")} foco={foco} />
         )}
         {linha.gestoes.governador && (
-          <FaixasGestao d={d} gestoes={linha.gestoes.governador} cargo="Governador" selecionada={sel?.chave} aoEscolher={escolher("Governador")} />
+          <FaixasGestao d={d} gestoes={linha.gestoes.governador} cargo="Governador" selecionada={sel?.chave} aoEscolher={escolher("Governador")} foco={foco} />
         )}
         {ativas.map((s) => (
           <div key={s.id} className="border-t border-border pt-2">
             <p className="text-sm font-semibold">
               {s.rotulo} <span className="font-normal text-muted-foreground">({s.unidade})</span>
             </p>
-            <LinhaSerie d={d} s={s} cor={corDoTema(s.tema)} faixa={sel ? { de: sel.g.inicio, ate: sel.g.fim } : null} />
+            <p className="text-xs text-muted-foreground">{resumoSerie(s, d)}</p>
+            <LinhaSerie
+              d={d}
+              s={s}
+              cor={corDoTema(s.tema)}
+              faixa={sel ? { de: sel.g.inicio, ate: sel.g.fim } : null}
+              foco={foco}
+              aoFocar={setFoco}
+              nomeEstado={nomeEstado}
+            />
           </div>
         ))}
-        <EixoAnos d={d} />
+        <EixoAnos d={d} foco={foco} />
+      </div>
+      <div className="sticky bottom-2 z-10">
+        <PainelAno ano={foco} series={ativas} gestoes={linha.gestoes} nomeEstado={nomeEstado} />
       </div>
 
       <div aria-live="polite">

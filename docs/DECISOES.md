@@ -1887,6 +1887,13 @@ Pedido do dono depois de usar o release no celular:
   do maior para o menor com a ordem escrita. A legenda diz que mais escuro é número maior, não melhor nem pior.
   Rota `GET /estados/indicadores` (todos os estados de uma vez, consultas agrupadas). Tocar duas vezes num estado
   abre "Por dentro do estado".
+- **Gráficos interativos e legíveis (dono, 08/11: "mais interativos e mais fáceis de entender"):** nas linhas do
+  tempo, passar o dedo ou o mouse marca o ano em todos os gráficos da tela e um painel diz quem governava e o valor
+  de cada série (com estado e Brasil); as setas do teclado mudam o ano (o gráfico é um controle deslizante para leitor
+  de tela). Cada gráfico tem uma frase ("de X em A para Y em B") e o maior e o menor valor escritos; estado e Brasil
+  entram como linhas cinza (contínua e tracejada) quando a unidade é a mesma, com o nome no fim da linha. No gráfico
+  de pontos do mapa, as medianas tracejadas mostram "metade dos estados de cada lado" e o estado em foco ganha uma
+  frase com os dois números e de que lado da metade está.
 - **Ordenação sem ranking (dono, 08/11):** continua proibido ranking, posição ("1º", "top 10") ou selo. Lista pode
   vir ordenada por um número quando isso ajuda a ler (do maior para o menor, por exemplo), sempre com a ordem
   escrita numa linha curta junto da lista.
