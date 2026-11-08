@@ -1265,6 +1265,28 @@ export type TempoDoLugar = {
   gestoes: { prefeito?: Gestao[]; governador?: Gestao[] };
 };
 
+export type IndicadorUf = {
+  id: string;
+  tema: string;
+  grupo: string;
+  rotulo: string;
+  titulo: string;
+  unidade: string;
+  responsavel: string;
+  decimais: number;
+  fonte_nome: string;
+  nota: string | null;
+  anos: number[];
+  valores: Record<string, PontoAno[]>;
+};
+
+export type IndicadoresUfs = { reais_de: number | null; indicadores: IndicadorUf[] };
+
+/** Indicadores dos 27 estados, com os anos de cada um (mapa da home). */
+export function getIndicadoresUfs() {
+  return getJson<IndicadoresUfs>("/estados/indicadores");
+}
+
 /** Séries anuais da cidade no mesmo eixo de anos, com prefeitos e governadores. */
 export function getTempoMunicipio(ibge: string) {
   return getJson<TempoDoLugar>(`/municipios/${encodeURIComponent(ibge)}/tempo`);

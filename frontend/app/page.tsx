@@ -14,7 +14,7 @@ import { Marca } from "@/components/logo";
 import { PanopticoDesenho } from "@/components/panoptico-desenho";
 import { JsonLd } from "@/components/json-ld";
 import { IndicadorRolagem } from "@/components/revelar";
-import { getDinheiroFederal, getObrasEstados } from "@/lib/api";
+import { getDinheiroFederal, getIndicadoresUfs, getObrasEstados } from "@/lib/api";
 import { paradasACada100 } from "@/lib/obras";
 import { SITE_URL } from "@/lib/site";
 
@@ -117,7 +117,7 @@ export default function Home() {
 }
 
 async function DinheiroFederalHome() {
-  const [r, obrasR] = await Promise.all([getDinheiroFederal(), getObrasEstados()]);
+  const [r, obrasR, indR] = await Promise.all([getDinheiroFederal(), getObrasEstados(), getIndicadoresUfs()]);
   // Camada "Obras" do mapa: paradas a cada 100 começadas e não terminadas (Obrasgov.br).
   const obrasPorUf = new Map(
     obrasR.ok ? obrasR.dados.ufs.map((u) => [u.uf, paradasACada100(u.por_situacao)] as const) : [],
@@ -145,13 +145,17 @@ async function DinheiroFederalHome() {
     <section aria-labelledby="impostos-titulo" className="revelar grid grid-cols-1 items-start gap-8 md:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)] md:gap-16">
       <div className="flex flex-col gap-4">
         <div className="revelar-item flex flex-col gap-3">
-          <p className="sobretitulo">Impostos e repasses</p>
+          <p className="sobretitulo">Mapa dos estados</p>
           <h2 id="impostos-titulo" className="text-3xl leading-tight text-balance sm:text-4xl">
-            Quanto a União arrecada e repassa em cada estado
+            Explore o Brasil, estado por estado
           </h2>
         </div>
-        <p className="revelar-item text-muted-foreground">Dados de {ano}. Passe o mouse, toque ou clique num estado para ver os números.</p>
-        <dl className="revelar-item grid grid-cols-2 gap-4 border-t border-foreground pt-4">
+        <p className="revelar-item text-muted-foreground">
+          Segurança, saúde, escolas, economia, infraestrutura e o dinheiro da União no mesmo mapa. Escolha um número,
+          mude o ano, compare dois números e veja a lista. Toque num estado para os detalhes.
+        </p>
+        <p className="revelar-item text-sm font-semibold">Impostos e repasses da União em {ano}</p>
+        <dl className="revelar-item -mt-2 grid grid-cols-2 gap-4 border-t border-foreground pt-4">
           <div>
             <dt className="text-sm text-muted-foreground">Arrecadado no país</dt>
             <dd className="numero text-2xl">{reais(brasil.arrecadacao)}</dd>
@@ -186,6 +190,9 @@ async function DinheiroFederalHome() {
           obrasParadas: obrasPorUf.get(u.uf) ?? null,
         }))}
         fonteObras={obrasR.ok && obrasPorUf.size > 0 ? obrasR.dados.fonte_nome : null}
+        indicadores={indR.ok ? indR.dados : null}
+        anoDinheiro={ano}
+        fonteDinheiro={fontes[0]?.nome ?? "Tesouro Nacional e Receita Federal"}
       />
       </div>
     </section>

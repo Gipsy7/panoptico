@@ -1,9 +1,10 @@
 "use client";
 
-// Mapa da home: só estados, coloridos pela camada escolhida na régua (repasse a cada R$ 100
-// arrecadados, arrecadado ou repassado); as camadas novas entram quando os dados chegarem.
-// No computador o resumo segue o mouse e o clique abre o estado; no celular o 1º toque
-// mostra o resumo logo abaixo e o 2º abre a página do estado.
+// Mapa da home como ferramenta de exploração (protótipo A): assuntos e camadas (o dinheiro da
+// União e os indicadores dos estados), régua de anos, "comparar com" (pontos dos 27 estados
+// ligados ao mapa) e a lista do maior para o menor, com a ordem escrita. Título, legenda, ficha e
+// fonte mudam junto com a camada. No computador o resumo segue o mouse e o clique abre o estado;
+// no celular o 1º toque mostra o resumo e o 2º abre a página do estado.
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -11,103 +12,33 @@ import { useEffect, useMemo, useRef, useState } from "react";
 
 import { MaoToque, useMovimentoReduzido } from "@/components/mao-toque";
 import { MapaBrasil } from "@/components/mapa/mapa-brasil";
-import { Segmentado } from "@/components/segmentado";
 import estilos from "@/components/mapa/mapa-brasil.module.css";
+import { Segmentado } from "@/components/segmentado";
+import type { IndicadoresUfs } from "@/lib/api";
+import {
+  anoDaCamada,
+  type Camada,
+  correlacao,
+  frasePadrao,
+  montarCamadas,
+  ordenarDoMaior,
+  type UfDinheiro,
+} from "@/lib/camadas-mapa";
 import { classe, quantis, type ClasseMapa } from "@/lib/mapa";
-import { reais } from "@/components/dinheiro-federal/formatos";
 
-export interface UfDoMapa {
-  uf: string;
-  nome: string;
-  arrecadacao: number | null;
-  repasse: number | null;
-  /** Obras federais paradas a cada 100 começadas e não terminadas (Obrasgov.br). */
-  obrasParadas?: number | null;
-}
-
-const REAIS_100 = new Intl.NumberFormat("pt-BR", {
-  style: "currency",
-  currency: "BRL",
-  maximumFractionDigits: 0,
-});
-
-function aCada100(u: UfDoMapa): number | null {
-  return u.arrecadacao && u.arrecadacao > 0 && u.repasse != null
-    ? (u.repasse / u.arrecadacao) * 100
-    : null;
-}
-
-function Resumo({ u }: { u: UfDoMapa }) {
-  const r = aCada100(u);
-  return (
-    <div className="flex flex-col gap-0.5 text-sm">
-      <strong>{u.nome}</strong>
-      <span>
-        Arrecadou <span className="tabular-nums">{reais(u.arrecadacao)}</span>
-      </span>
-      <span>
-        Recebeu <span className="tabular-nums">{reais(u.repasse)}</span>
-      </span>
-      <span>
-        A cada R$ 100 arrecadados:{" "}
-        <span className="tabular-nums">
-          {r != null ? REAIS_100.format(r) : "sem dado"}
-        </span>
-      </span>
-      {u.obrasParadas != null && (
-        <span>
-          Obras federais paradas a cada 100 abertas:{" "}
-          <span className="tabular-nums">{u.obrasParadas.toLocaleString("pt-BR", { maximumFractionDigits: 0 })}</span>
-        </span>
-      )}
-    </div>
-  );
-}
-
-type CamadaId = "retorno" | "arrecadado" | "repassado" | "obras";
-
-const CAMADAS: Record<
-  CamadaId,
-  { rotulo: string; valor: (u: UfDoMapa) => number | null; texto: (u: UfDoMapa) => string; legenda: string; titulo: string }
-> = {
-  retorno: {
-    rotulo: "A cada R$ 100",
-    valor: aCada100,
-    texto: (u) => {
-      const r = aCada100(u);
-      return r != null ? `${REAIS_100.format(r)} a cada R$ 100 arrecadados` : "sem dado";
-    },
-    legenda: "mais por R$ 100 arrecadados",
-    titulo: "colorido pelo repasse da União a cada R$ 100 arrecadados",
-  },
-  arrecadado: {
-    rotulo: "Arrecadado",
-    valor: (u) => u.arrecadacao,
-    texto: (u) => (u.arrecadacao != null ? `arrecadou ${reais(u.arrecadacao)}` : "sem dado"),
-    legenda: "mais arrecadado",
-    titulo: "colorido por quanto a União arrecadou",
-  },
-  repassado: {
-    rotulo: "Repassado",
-    valor: (u) => u.repasse,
-    texto: (u) => (u.repasse != null ? `recebeu ${reais(u.repasse)}` : "sem dado"),
-    legenda: "mais recebido",
-    titulo: "colorido por quanto a União repassou ao estado e às cidades",
-  },
-  obras: {
-    rotulo: "Obras paradas",
-    valor: (u) => u.obrasParadas ?? null,
-    texto: (u) =>
-      u.obrasParadas != null
-        ? `${u.obrasParadas.toLocaleString("pt-BR", { maximumFractionDigits: 0 })} obras federais paradas a cada 100 começadas e não terminadas`
-        : "sem dado",
-    legenda: "mais paradas a cada 100",
-    titulo: "colorido por quantas obras federais estão paradas a cada 100 começadas e não terminadas",
-  },
-};
+export type UfDoMapa = UfDinheiro;
 
 // Estados por onde a mão passeia: grandes e espalhados, o primeiro bem visível no celular.
 const ROTEIRO_MAO = ["PA", "BA", "AM", "MG", "MT", "RS"];
+
+type Pergunta = { texto: string; camada: string; comparar?: string; ano?: "primeiro" };
+const PERGUNTAS: Pergunta[] = [
+  { texto: "Onde há mais homicídios por morador?", camada: "homicidios" },
+  { texto: "Como os homicídios mudaram desde 2019?", camada: "homicidios", ano: "primeiro" },
+  { texto: "Quem gasta mais com segurança tem menos homicídios?", camada: "gasto_seguranca", comparar: "homicidios" },
+  { texto: "Estados com PIB maior têm IDEB maior?", camada: "pib", comparar: "ideb" },
+  { texto: "Quanto a União devolve a cada R$ 100?", camada: "retorno" },
+];
 
 interface PontoMao {
   uf: string;
@@ -116,19 +47,134 @@ interface PontoMao {
   largura: number;
 }
 
-export function MapaHome({ ufs, fonteObras = null }: { ufs: UfDoMapa[]; fonteObras?: string | null }) {
+function Dispersao({
+  ufs,
+  x,
+  y,
+  anoX,
+  anoY,
+  realce,
+  aoRealcar,
+}: {
+  ufs: UfDinheiro[];
+  x: Camada;
+  y: Camada;
+  anoX: number | null;
+  anoY: number | null;
+  realce: string | null;
+  aoRealcar: (uf: string | null) => void;
+}) {
+  const pts = ufs
+    .map((u) => ({ uf: u.uf, nome: u.nome, vx: x.valor(u.uf, anoX), vy: y.valor(u.uf, anoY) }))
+    .filter((p): p is { uf: string; nome: string; vx: number; vy: number } => p.vx != null && p.vy != null);
+  if (pts.length < 5) return <p className="text-sm text-muted-foreground">Poucos estados com os dois números para comparar.</p>;
+  const xs = pts.map((p) => p.vx);
+  const ys = pts.map((p) => p.vy);
+  const [x0, x1, y0, y1] = [Math.min(...xs), Math.max(...xs), Math.min(...ys), Math.max(...ys)];
+  // 5% de margem dentro da área: o maior e o menor não encostam na borda.
+  const px = (v: number) => (x1 === x0 ? 50 : 5 + ((v - x0) / (x1 - x0)) * 90);
+  const py = (v: number) => (y1 === y0 ? 50 : 95 - ((v - y0) / (y1 - y0)) * 90);
+  const r = correlacao(xs, ys);
+  const quando = (c: Camada, a: number | null) => (a ? ` (${a})` : "");
+  return (
+    <figure className="m-0 flex flex-col gap-2 border border-t-4 border-border bg-card p-3" style={{ borderTopColor: "var(--tema-votos)" }}>
+      <figcaption className="text-sm">
+        <span className="block text-xs font-semibold tracking-wider uppercase" style={{ color: "var(--tema-votos)" }}>
+          Os 27 estados, um ponto cada
+        </span>
+        <b>{x.rotulo}</b>
+        {quando(x, anoX)} e <b>{y.rotulo.toLowerCase()}</b>
+        {quando(y, anoY)}: {frasePadrao(r)}.
+      </figcaption>
+      <div className="grid grid-cols-[auto_1fr] gap-x-2">
+        <div className="flex flex-col justify-between text-right text-xs text-muted-foreground tabular-nums">
+          <span>{y.formatar(y1)}</span>
+          <span>{y.formatar(y0)}</span>
+        </div>
+        <div className="relative aspect-[4/3] border-b border-l border-border">
+          {pts.map((p) => {
+            const ativo = p.uf === realce;
+            return (
+              <button
+                key={p.uf}
+                type="button"
+                aria-label={`${p.nome}: ${x.formatar(p.vx)}; ${y.formatar(p.vy)}`}
+                title={`${p.nome}: ${x.formatar(p.vx)} · ${y.formatar(p.vy)}`}
+                onMouseEnter={() => aoRealcar(p.uf)}
+                onMouseLeave={() => aoRealcar(null)}
+                onFocus={() => aoRealcar(p.uf)}
+                onClick={() => aoRealcar(p.uf)}
+                className="absolute flex size-6 -translate-x-1/2 -translate-y-1/2 items-center justify-center"
+                style={{ left: `${px(p.vx)}%`, top: `${py(p.vy)}%`, zIndex: ativo ? 2 : 1 }}
+              >
+                <span
+                  aria-hidden
+                  className="block rounded-full ring-2 ring-[var(--background)]"
+                  style={{ width: ativo ? 14 : 9, height: ativo ? 14 : 9, background: ativo ? "var(--bronze)" : "var(--foreground)" }}
+                />
+                {ativo && <span className="absolute left-5 text-xs font-semibold whitespace-nowrap">{p.uf}</span>}
+              </button>
+            );
+          })}
+        </div>
+        <span />
+        <div className="flex justify-between text-xs text-muted-foreground tabular-nums">
+          <span>{x.formatar(x0)}</span>
+          <span>{x.rotulo} →</span>
+          <span>{x.formatar(x1)}</span>
+        </div>
+      </div>
+      <p className="text-xs text-muted-foreground">
+        Andar junto não prova que um causa o outro: renda, tamanho, história e quem presta o serviço pesam nos dois.
+        {anoX !== anoY && anoX && anoY ? " Os anos dos dois números são diferentes." : ""}
+      </p>
+    </figure>
+  );
+}
+
+export function MapaHome({
+  ufs,
+  fonteObras = null,
+  indicadores = null,
+  anoDinheiro,
+  fonteDinheiro,
+}: {
+  ufs: UfDoMapa[];
+  fonteObras?: string | null;
+  indicadores?: IndicadoresUfs | null;
+  anoDinheiro: number;
+  fonteDinheiro: string;
+}) {
   const router = useRouter();
+  const NOMES = useMemo(() => Object.fromEntries(ufs.map((u) => [u.uf, u.nome])) as Record<string, string>, [ufs]);
+  const camadas = useMemo(
+    () => montarCamadas(ufs, indicadores, anoDinheiro, fonteDinheiro, fonteObras),
+    [ufs, indicadores, anoDinheiro, fonteDinheiro, fonteObras],
+  );
+  const grupos = [...new Set(camadas.map((c) => c.grupo))];
+  const [camadaId, setCamadaId] = useState(camadas[0]?.id ?? "retorno");
+  const [anoEscolhido, setAnoEscolhido] = useState<number | null>(null);
+  const [cmpId, setCmpId] = useState("");
   const [sel, setSel] = useState<string | null>(null);
-  const [camadaId, setCamadaId] = useState<CamadaId>("retorno");
-  const camada = CAMADAS[camadaId];
-  const porUf = useMemo(() => new Map(ufs.map((u) => [u.uf, u])), [ufs]);
-  const cortes = useMemo(() => quantis(ufs.map(camada.valor)), [ufs, camada]);
-  const escolhida = sel ? porUf.get(sel) : undefined;
+  const [realce, setRealce] = useState<string | null>(null);
+  const [lista, setLista] = useState(false);
+  const camada = camadas.find((c) => c.id === camadaId) ?? camadas[0];
+  const cmp = camadas.find((c) => c.id === cmpId && c.id !== camada.id) ?? null;
+  const ano = anoDaCamada(camada, anoEscolhido);
+  const anoCmp = cmp ? anoDaCamada(cmp, anoEscolhido) : null;
+  const cortes = useMemo(() => quantis(ufs.map((u) => camada.valor(u.uf, ano))), [ufs, camada, ano]);
   const caixa = useRef<HTMLDivElement>(null);
   const [pontos, setPontos] = useState<PontoMao[]>([]);
   const [tocou, setTocou] = useState(false);
   const [passo, setPasso] = useState(0);
   const reduzido = useMovimentoReduzido();
+  const foco = realce ?? sel;
+
+  const escolherCamada = (id: string) => {
+    setCamadaId(id);
+    setAnoEscolhido(null);
+    if (id === cmpId) setCmpId("");
+  };
 
   // Centros dos estados medidos na tela depois de montar (sem JS não há mão, então não há salto).
   useEffect(() => {
@@ -136,20 +182,15 @@ export function MapaHome({ ufs, fonteObras = null }: { ufs: UfDoMapa[]; fonteObr
     if (!el) return;
     const medir = () => {
       const base = el.getBoundingClientRect();
-      const lista: PontoMao[] = [];
+      const l: PontoMao[] = [];
       for (const uf of ROTEIRO_MAO) {
         const p = el.querySelector(`path[data-id="${uf}"]`);
         if (!p) continue;
         const r = p.getBoundingClientRect();
         if (r.width === 0) continue;
-        lista.push({
-          uf,
-          x: r.left - base.left + r.width / 2,
-          y: r.top - base.top + r.height / 2,
-          largura: base.width,
-        });
+        l.push({ uf, x: r.left - base.left + r.width / 2, y: r.top - base.top + r.height / 2, largura: base.width });
       }
-      setPontos(lista);
+      setPontos(l);
     };
     medir();
     const ro = new ResizeObserver(medir);
@@ -165,31 +206,141 @@ export function MapaHome({ ufs, fonteObras = null }: { ufs: UfDoMapa[]; fonteObr
     if (tocou || reduzido || pontos.length < 2) return;
     // Passeia 3 voltas pelo roteiro e para (WCAG 2.2.2): a mão fica parada no último estado.
     const limite = 3 * pontos.length - 1;
-    const t = setInterval(() => {
-      setPasso((i) => {
-        if (i >= limite) {
-          clearInterval(t);
-          return i;
-        }
-        return i + 1;
-      });
-    }, 2600);
+    const t = setInterval(() => setPasso((i) => (i >= limite ? (clearInterval(t), i) : i + 1)), 2600);
     return () => clearInterval(t);
   }, [tocou, reduzido, pontos.length]);
 
+  // Estado em foco (ponto do gráfico ou toque) com o contorno reforçado no mapa.
+  useEffect(() => {
+    const el = caixa.current;
+    if (!el) return;
+    el.querySelectorAll<SVGPathElement>("path[data-realce]").forEach((p) => {
+      p.removeAttribute("data-realce");
+      p.style.removeProperty("stroke");
+      p.style.removeProperty("stroke-width");
+    });
+    if (!foco) return;
+    const p = el.querySelector<SVGPathElement>(`path[data-id="${foco}"]`);
+    if (p) {
+      p.setAttribute("data-realce", "");
+      p.style.stroke = "var(--foreground)";
+      p.style.strokeWidth = "2.5";
+    }
+  }, [foco]);
+
+  const animar = () => {
+    if (reduzido || camada.anos.length < 2) return;
+    let i = 0;
+    setAnoEscolhido(camada.anos[0]);
+    const t = setInterval(() => {
+      i++;
+      if (i >= camada.anos.length) return clearInterval(t);
+      setAnoEscolhido(camada.anos[i]);
+    }, 1100);
+  };
+
   const daVez = pontos.length > 0 ? pontos[passo % pontos.length] : null;
+  const vals = ufs.map((u) => camada.valor(u.uf, ano)).filter((v): v is number => v != null);
+  const [mn, mx] = vals.length ? [Math.min(...vals), Math.max(...vals)] : [null, null];
+  const limites = mn != null && mx != null ? [mn, ...cortes, mx] : [];
+  const escolhida = foco ? ufs.find((u) => u.uf === foco) : undefined;
+  const ordenada = ordenarDoMaior(ufs.map((u) => ({ uf: u.uf, nome: u.nome, valor: camada.valor(u.uf, ano) })));
 
   return (
     <div className="flex flex-col gap-3">
-      <Segmentado
-        rotulo="O que colorir no mapa"
-        opcoes={(Object.keys(CAMADAS) as CamadaId[])
-          .filter((k) => k !== "obras" || fonteObras)
-          .map((k) => ({ valor: k, rotulo: CAMADAS[k].rotulo }))}
-        valor={camadaId}
-        aoMudar={setCamadaId}
-        esticar
-      />
+      <div className="flex flex-col gap-1.5">
+        <p className="text-xs text-muted-foreground">Comece por uma pergunta</p>
+        <ul className="flex flex-wrap gap-1.5">
+          {PERGUNTAS.filter((p) => camadas.some((c) => c.id === p.camada) && (!p.comparar || camadas.some((c) => c.id === p.comparar))).map((p) => (
+            <li key={p.texto}>
+              <button
+                type="button"
+                onClick={() => {
+                  escolherCamada(p.camada);
+                  setCmpId(p.comparar ?? "");
+                  if (p.ano === "primeiro") {
+                    const c = camadas.find((x) => x.id === p.camada);
+                    if (c && c.anos.length > 1) setTimeout(animar, 0);
+                  }
+                }}
+                className="min-h-10 border border-border bg-card px-3 py-1.5 text-left text-sm hover:border-foreground"
+              >
+                {p.texto}
+              </button>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <div className="flex flex-col gap-1.5">
+        <p className="text-xs text-muted-foreground">Ou escolha o assunto e o número</p>
+        <Segmentado
+          rotulo="Assunto do mapa"
+          opcoes={grupos.map((g) => ({ valor: g, rotulo: g }))}
+          valor={camada.grupo}
+          aoMudar={(g) => escolherCamada(camadas.find((c) => c.grupo === g)!.id)}
+        />
+        <div className="flex flex-wrap gap-1.5" role="group" aria-label="O que colorir no mapa">
+          {camadas
+            .filter((c) => c.grupo === camada.grupo)
+            .map((c) => (
+              <button
+                key={c.id}
+                type="button"
+                aria-pressed={c.id === camada.id}
+                onClick={() => escolherCamada(c.id)}
+                className={`inline-flex min-h-10 items-center gap-2 border px-3 text-sm ${
+                  c.id === camada.id ? "border-foreground font-semibold" : "border-border bg-card"
+                }`}
+                style={c.id === camada.id ? { boxShadow: `inset 0 -3px 0 var(--tema-${c.tema})` } : undefined}
+              >
+                <span aria-hidden className="size-2.5" style={{ background: `var(--tema-${c.tema})` }} />
+                {c.rotulo}
+              </button>
+            ))}
+        </div>
+      </div>
+
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm">
+        {camada.anos.length > 1 && (
+          <label className="flex max-w-full min-w-0 flex-wrap items-center gap-2">
+            Ano
+            <input
+              type="range"
+              min={0}
+              max={camada.anos.length - 1}
+              value={Math.max(0, camada.anos.indexOf(ano ?? camada.anos[camada.anos.length - 1]))}
+              onChange={(e) => setAnoEscolhido(camada.anos[Number(e.target.value)])}
+              className="w-32 max-w-full min-w-0 accent-[var(--bronze)] sm:w-40"
+              aria-valuetext={String(ano)}
+            />
+            <span className="numero">{ano}</span>
+          </label>
+        )}
+        <label className="flex max-w-full min-w-0 flex-wrap items-center gap-2">
+          Comparar com
+          <select
+            value={cmp?.id ?? ""}
+            onChange={(e) => setCmpId(e.target.value)}
+            className="min-h-10 w-[13rem] max-w-full min-w-0 border border-border bg-card px-2"
+          >
+            <option value="">nada (só o mapa)</option>
+            {camadas
+              .filter((c) => c.id !== camada.id)
+              .map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.grupo}: {c.rotulo}
+                </option>
+              ))}
+          </select>
+        </label>
+      </div>
+
+      <h3 className="text-xl leading-snug" aria-live="polite">
+        {camada.titulo}
+        {ano && !camada.titulo.endsWith(String(ano)) ? `, ${ano}` : ""}
+      </h3>
+
       <div
         ref={caixa}
         className="relative mx-auto w-full max-w-[26rem]"
@@ -202,90 +353,116 @@ export function MapaHome({ ufs, fonteObras = null }: { ufs: UfDoMapa[]; fonteObr
       >
         <MapaBrasil
           niveis="uf"
-          className="mx-auto h-[360px] w-full md:h-[420px]"
-          titulo={`Mapa dos estados do Brasil, ${camada.titulo}`}
+          className="mx-auto h-[340px] w-full md:h-[400px]"
+          titulo={`Mapa dos estados do Brasil: ${camada.titulo}`}
           toqueUnico={false}
-          onNavegar={({ uf }) =>
-            uf && router.push(`/impostos-e-repasses/${uf}`)
-          }
+          onNavegar={({ uf }) => uf && router.push(`/estado/${uf}`)}
           onSelecionar={(a) => {
             setSel(a?.id ?? null);
             if (a) setTocou(true);
           }}
-          classe={(_n, id): ClasseMapa =>
-            classe(porUf.get(id) ? camada.valor(porUf.get(id)!) : null, cortes)
-          }
+          classe={(_n, id): ClasseMapa => classe(camada.valor(id, ano), cortes)}
           rotulo={(_n, id) => {
-            const u = porUf.get(id);
-            return u ? `${u.nome}: ${camada.texto(u)}` : id;
+            const v = camada.valor(id, ano);
+            return `${NOMES[id] ?? id}: ${v == null ? "sem dado" : camada.formatar(v)}`;
           }}
           resumo={(_n, id) => {
-            const u = porUf.get(id);
-            return u ? <Resumo u={u} /> : id;
+            const v = camada.valor(id, ano);
+            return (
+              <span className="flex flex-col text-sm">
+                <strong>{NOMES[id] ?? id}</strong>
+                <span>
+                  {camada.rotulo}: {v == null ? "sem dado" : camada.formatar(v)}
+                </span>
+              </span>
+            );
           }}
         />
         {daVez && (
-          <svg
-            aria-hidden="true"
-            // 1 px, não 0: o navegador não desenha um <svg> de tamanho zero, nem com overflow visível.
-            className="pointer-events-none absolute left-0 top-0 z-10 size-px overflow-visible"
-          >
+          <svg aria-hidden="true" className="pointer-events-none absolute left-0 top-0 z-10 size-px overflow-visible">
             <MaoToque
               x={daVez.x}
               y={daVez.y}
               oculta={tocou}
-              // Fim das 3 voltas: a mão para de pulsar também (WCAG 2.2.2).
               reduzido={reduzido || passo >= 3 * pontos.length - 1}
               etiquetaEsquerda={daVez.x > daVez.largura * 0.55}
             />
           </svg>
         )}
       </div>
-      <div
-        className={`${estilos.caixa} flex items-center gap-2 text-sm text-muted-foreground`}
-        aria-hidden
-      >
-        <span>menos</span>
-        <span className="flex overflow-hidden rounded-[2px] ring-1 ring-border">
-          {[1, 2, 3, 4, 5].map((c) => (
-            <span
-              key={c}
-              className="h-3 w-8"
-              style={{ background: `var(--mapa-${c})` }}
-            />
-          ))}
-        </span>
-        <span>{camada.legenda}</span>
-      </div>
-      {camadaId === "obras" && fonteObras && (
-        <p className="text-sm text-muted-foreground">
-          Paradas = paralisadas ou inacabadas; abertas = essas mais as em execução. Fonte: {fonteObras}.
-        </p>
+
+      {limites.length > 0 && (
+        <div className={`${estilos.caixa} flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground`}>
+          <span className="flex overflow-hidden ring-1 ring-border" aria-hidden>
+            {[1, 2, 3, 4, 5].map((c) => (
+              <span key={c} className="h-3 w-7" style={{ background: `var(--mapa-${c})` }} />
+            ))}
+          </span>
+          <span>
+            de {camada.formatar(limites[0])} a {camada.formatar(limites[limites.length - 1])}; mais escuro = número maior (não
+            quer dizer melhor nem pior)
+          </span>
+        </div>
       )}
-      <div
-        className="min-h-[7rem] border-t border-border pt-3"
-      >
+
+      {cmp && (
+        <Dispersao ufs={ufs} x={camada} y={cmp} anoX={ano} anoY={anoCmp} realce={foco} aoRealcar={setRealce} />
+      )}
+
+      <div className="min-h-[5rem] border-t border-border pt-3" aria-live="polite">
         {escolhida ? (
-          <div className="flex flex-col gap-2">
-            <Resumo u={escolhida} />
-            <Link
-              href={`/impostos-e-repasses/${escolhida.uf}`}
-              className="botao-linha self-start"
-            >
-              Abrir {escolhida.nome}
+          <div className="flex flex-col gap-2 text-sm">
+            <strong className="text-base">{escolhida.nome}</strong>
+            <dl className="grid grid-cols-2 gap-x-4 gap-y-1">
+              {camadas
+                .filter((c) => c.id === camada.id || c.id === cmp?.id || c.grupo === camada.grupo)
+                .map((c) => {
+                  const v = c.valor(escolhida.uf, c.id === camada.id ? ano : c.id === cmp?.id ? anoCmp : null);
+                  return (
+                    <div key={c.id}>
+                      <dt className="text-xs text-muted-foreground">{c.rotulo}</dt>
+                      <dd className="numero">{v == null ? "sem dado" : c.formatar(v)}</dd>
+                    </div>
+                  );
+                })}
+            </dl>
+            <Link href={`/estado/${escolhida.uf}`} className="botao-linha self-start">
+              Por dentro de {escolhida.nome}
             </Link>
           </div>
         ) : (
-          <p className="text-sm text-muted-foreground">
-            Toque, clique ou use as setas do teclado num estado para ver os números.
-          </p>
+          <p className="text-sm text-muted-foreground">Toque, clique ou use as setas do teclado num estado para ver os números.</p>
         )}
-        <div className="mt-2 flex">
-          <Link href="/impostos-e-repasses?vista=lista" className="botao-linha">
-            Ver como lista
-          </Link>
-        </div>
       </div>
+
+      <div className="flex flex-col gap-2">
+        <button type="button" aria-expanded={lista} onClick={() => setLista((v) => !v)} className="botao-linha self-start">
+          {lista ? "Esconder a lista" : "Ver os estados em lista"}
+        </button>
+        {lista && (
+          <div className="flex flex-col gap-1">
+            <p className="text-xs text-muted-foreground">
+              Em ordem do maior para o menor: {camada.rotulo.toLowerCase()}
+              {ano ? `, ${ano}` : ""}. Estados sem dado no fim.
+            </p>
+            <ol className="flex flex-col">
+              {ordenada.map((u) => (
+                <li key={u.uf} className="grid grid-cols-[1fr_auto] gap-3 border-b border-border py-1.5 text-sm">
+                  <Link href={`/estado/${u.uf}`} className="underline-offset-4 hover:underline">
+                    {u.nome}
+                  </Link>
+                  <span className="numero">{u.valor == null ? "sem dado" : camada.formatar(u.valor)}</span>
+                </li>
+              ))}
+            </ol>
+          </div>
+        )}
+      </div>
+
+      <p className="text-xs text-muted-foreground">
+        Fonte: {camada.fonte}
+        {cmp && cmp.fonte !== camada.fonte ? `; ${cmp.fonte}` : ""}.{camada.nota ? ` ${camada.nota}` : ""}
+      </p>
     </div>
   );
 }

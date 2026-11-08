@@ -65,3 +65,29 @@ def test_rota_tempo_da_cidade_e_do_estado(client, session):
     uf = client.get("/estados/sc/tempo").json()
     assert "gasto_seguranca_estado" in {s["id"] for s in uf["series"]}
     assert client.get("/municipios/9999999/tempo").status_code == 404
+
+
+def test_indicadores_dos_estados(client, session):
+    from app.models import HomicidioSim, PopulacaoIbge, SaneamentoCenso
+
+    _ipca(session, {2024: 200.0})
+    session.execute(
+        insert(PopulacaoIbge),
+        [{"codigo": c, "ano": 2024, "valor": v, "origem": "estimativa"}
+         for c, v in [("42", 8_000_000), ("43", 10_000_000)]],
+    )  # fmt: skip
+    session.execute(
+        insert(HomicidioSim),
+        [{"codigo": c, "ano": 2024, "homicidios": n} for c, n in [("42", 800), ("43", 2000)]],
+    )
+    session.add(SaneamentoCenso(codigo="42", ano=2022, esgoto_rede=Decimal("54.34")))
+    session.add(ContasEstado(uf="SC", ano=2024, populacao=8_000_000,
+                             despesa_por_area={"Segurança Pública": 3_200_000_000}))  # fmt: skip
+    session.flush()
+    corpo = client.get("/estados/indicadores").json()
+    por = {i["id"]: i for i in corpo["indicadores"]}
+    assert por["homicidios"]["valores"]["SC"] == [{"ano": 2024, "valor": 10.0}]
+    assert por["homicidios"]["valores"]["RS"][0]["valor"] == 20.0
+    assert por["gasto_seguranca"]["valores"]["SC"][0]["valor"] == 400.0
+    assert por["esgoto"]["anos"] == [2022]
+    assert "leitos" not in por  # sem dado: fora

@@ -16,7 +16,7 @@ from app.schemas.pib import PibMunicipio
 from app.schemas.saneamento import SaneamentoMunicipio
 from app.schemas.saude_cnes import SaudeMunicipio
 from app.schemas.seguranca import SegurancaMunicipio
-from app.schemas.tempo import LinhaDoTempo
+from app.schemas.tempo import IndicadoresUfs, LinhaDoTempo
 from app.services import (
     agro,
     emprego,
@@ -28,6 +28,7 @@ from app.services import (
     seguranca,
     tempo,
 )
+from app.services.indicadores_ufs import indicadores
 from app.services.pib import CODIGO_UF
 
 router = APIRouter()
@@ -39,6 +40,12 @@ def _codigo(uf: str) -> tuple[str, str]:
     if uf not in CODIGO_UF:
         raise HTTPException(404, "Estado não encontrado.")
     return uf, CODIGO_UF[uf]
+
+
+@router.get("/estados/indicadores", response_model=IndicadoresUfs)
+def indicadores_dos_estados(session: Sessao) -> dict:
+    """Indicadores dos 27 estados com os anos de cada um, para o mapa da home."""
+    return indicadores(session)
 
 
 @router.get("/estados/{uf}/pib", response_model=PibMunicipio)

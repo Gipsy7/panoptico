@@ -39,3 +39,23 @@ class LinhaDoTempo(BaseModel):
     reais_de: int | None
     series: list[SerieTempo]
     gestoes: dict[str, list[Gestao]]
+
+
+class IndicadorUf(BaseModel):
+    id: str
+    tema: str
+    grupo: str
+    rotulo: str
+    titulo: str
+    unidade: str
+    responsavel: str
+    decimais: int
+    fonte_nome: str
+    nota: str | None
+    anos: list[int]
+    valores: dict[str, list[PontoAno]]
+
+
+class IndicadoresUfs(BaseModel):
+    reais_de: int | None
+    indicadores: list[IndicadorUf]

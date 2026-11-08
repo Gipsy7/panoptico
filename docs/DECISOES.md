@@ -1880,6 +1880,13 @@ Pedido do dono depois de usar o release no celular:
   - Toda comparação diz que andar junto não prova causa e que as faixas só situam no tempo.
   - As abas de "Por dentro" viraram 5 assuntos (Pessoas e serviços, Dinheiro, Economia, Política, Comparar) com as
     abas de cada um embaixo; nenhuma aba fica escondida em rolagem lateral.
+- **Mapa investigador na home (protótipo A):** o mapa dos estados passou a ter assuntos e números (segurança,
+  saúde, escolas, economia, infraestrutura e o dinheiro da União), régua de anos onde há série, "comparar com"
+  (um ponto por estado, com a frase "sem padrão claro" / "tende a..." pela correlação de postos e o aviso de que
+  andar junto não prova causa), perguntas para começar, título/legenda/ficha/fonte que mudam com a camada e a lista
+  do maior para o menor com a ordem escrita. A legenda diz que mais escuro é número maior, não melhor nem pior.
+  Rota `GET /estados/indicadores` (todos os estados de uma vez, consultas agrupadas). Tocar duas vezes num estado
+  abre "Por dentro do estado".
 - **Ordenação sem ranking (dono, 08/11):** continua proibido ranking, posição ("1º", "top 10") ou selo. Lista pode
   vir ordenada por um número quando isso ajuda a ler (do maior para o menor, por exemplo), sempre com a ordem
   escrita numa linha curta junto da lista.
