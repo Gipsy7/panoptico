@@ -4,7 +4,9 @@ import Form from "next/form";
 import { useRouter } from "next/navigation";
 import { useEffect, useId, useRef, useState, useSyncExternalStore } from "react";
 
+import { BuscaCidade } from "@/components/busca-cidade";
 import { useCidadeAchada } from "@/components/localizacao-home";
+import { useLugar } from "@/components/lugar-escolhido";
 import { MaoToque, useMovimentoReduzido } from "@/components/mao-toque";
 import { type Municipio, getMunicipios } from "@/lib/api";
 import { formatarCep } from "@/lib/formato";
@@ -40,6 +42,8 @@ export function CepForm({ semCepInicial = false }: { semCepInicial?: boolean } =
     () => true,
   );
   const [permNegada, setPermNegada] = useState(false);
+  // Cidade lembrada no aparelho (etapa 1): quem volta vê "Da última vez" antes dos outros caminhos.
+  const lugar = useLugar();
   const [focarCep, setFocarCep] = useState(false);
   // CEP como opção principal (escolhido pelo usuário ou depois de recusa/falha da localização).
   const [modoCep, setModoCep] = useState(false);
@@ -267,7 +271,7 @@ export function CepForm({ semCepInicial = false }: { semCepInicial?: boolean } =
       onClick={() => setSemCep(true)}
       className="self-center min-h-11 px-3 text-sm text-muted-foreground underline underline-offset-4"
     >
-      Não sei meu CEP
+      Escolher pela lista de estados
     </button>
   );
 
@@ -275,7 +279,7 @@ export function CepForm({ semCepInicial = false }: { semCepInicial?: boolean } =
 
   // CEP como principal: sem API de localização, permissão negada, falha ou escolha do usuário.
   // Com a API, a localização fica como opção secundária.
-  if (!temGeo || ((permNegada || modoCep) && loc.estado !== "achou")) {
+  if ((!temGeo && (!lugar || modoCep)) || ((permNegada || modoCep) && loc.estado !== "achou")) {
     return (
       <div className="flex flex-col gap-3">
         {aviso && (
@@ -284,6 +288,7 @@ export function CepForm({ semCepInicial = false }: { semCepInicial?: boolean } =
           </p>
         )}
         {formCep}
+        <BuscaCidade />
         {linkSemCep}
         {temGeo && (
           <button
@@ -306,7 +311,7 @@ export function CepForm({ semCepInicial = false }: { semCepInicial?: boolean } =
   const alfinete = (invertido: boolean) => (
     <span
       aria-hidden="true"
-      className={`mx-auto flex size-[72px] items-center justify-center rounded-full border ${
+      className={`mx-auto flex size-[72px] items-center justify-center rounded-[var(--raio)] border ${
         invertido
           ? "border-primary bg-primary text-primary-foreground"
           : "border-border bg-muted text-bronze-texto"
@@ -333,6 +338,66 @@ export function CepForm({ semCepInicial = false }: { semCepInicial?: boolean } =
     </div>
   );
 
+  const outrosCaminhos = (
+    <p className="flex flex-wrap items-center justify-center gap-x-1 text-sm text-muted-foreground">
+      Tem o CEP?
+      <button type="button" onClick={irParaCep} className="min-h-11 px-1 text-foreground underline underline-offset-4">
+        Use o CEP
+      </button>
+      ·
+      <button type="button" onClick={() => setSemCep(true)} className="min-h-11 px-1 underline underline-offset-4">
+        Lista de estados
+      </button>
+    </p>
+  );
+  if (lugar && loc.estado === "ocioso") {
+    return (
+      <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-3 rounded-[var(--raio)] border border-t-4 border-border border-t-bronze bg-card p-4">
+          <p className="flex items-center gap-1.5 text-xs font-medium tracking-wide text-muted-foreground uppercase">
+            <svg aria-hidden viewBox="0 0 24 24" className="size-4 text-bronze" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M12 21s7-6.2 7-11.5A7 7 0 0 0 5 9.5C5 14.8 12 21 12 21z" />
+              <circle cx="12" cy="9.5" r="2.5" />
+            </svg>
+            Da última vez
+          </p>
+          <p className="font-heading text-3xl leading-tight">
+            {lugar.nome}, {lugar.uf}
+          </p>
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+            <button
+              type="button"
+              onClick={() => router.push(`/representantes?municipio=${lugar.ibge}`)}
+              className="botao w-full"
+            >
+              Quem me representa
+            </button>
+            <button
+              type="button"
+              onClick={() => router.push(`/cidade/${lugar.ibge}`)}
+              className="botao-linha min-h-12 w-full justify-center"
+            >
+              Para onde foi o dinheiro
+            </button>
+          </div>
+        </div>
+        <BuscaCidade rotulo="Outra cidade" />
+        <p className="flex flex-wrap items-center gap-x-1 text-sm text-muted-foreground">
+          {temGeo && (
+            <>
+              <button type="button" onClick={usarLocalizacao} className="min-h-11 px-1 underline underline-offset-4">
+                Usar minha localização
+              </button>
+              ·
+            </>
+          )}
+          <button type="button" onClick={irParaCep} className="min-h-11 px-1 underline underline-offset-4">
+            Usar o CEP
+          </button>
+        </p>
+      </div>
+    );
+  }
   if (loc.estado === "achou") {
     const c = loc.cidade;
     return (
@@ -389,7 +454,8 @@ export function CepForm({ semCepInicial = false }: { semCepInicial?: boolean } =
       <p role="status" aria-live="polite" className="text-sm text-muted-foreground">
         Pede a sua localização. Ela fica no seu celular: só usamos para achar a cidade.
       </p>
-      {preferirCep(true)}
+      <BuscaCidade />
+      {outrosCaminhos}
     </div>
   );
 }

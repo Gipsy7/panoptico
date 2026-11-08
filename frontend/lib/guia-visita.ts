@@ -25,7 +25,7 @@ export function tipoDeGuia(caminho: string | null | undefined): TipoGuia | null 
 }
 
 export const GUIA_GERAL: PassoGuia[] = [
-  { rotulo: "CEP", frase: "Digite o seu CEP para ver quem representa a sua cidade." },
+  { rotulo: "Cidade", frase: "Use a localização ou digite o nome da cidade (ou o CEP) para ver quem a representa." },
   { rotulo: "Pessoas", frase: "Depois, toque num representante, do presidente ao vereador." },
   { rotulo: "Números", frase: "Cada número vem com a média da Casa, a fonte e a data." },
 ];

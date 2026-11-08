@@ -1,6 +1,7 @@
 "use client";
 
-// Mapa da home: só estados, coloridos pelo repasse a cada R$ 100 arrecadados.
+// Mapa da home: só estados, coloridos pela camada escolhida na régua (repasse a cada R$ 100
+// arrecadados, arrecadado ou repassado); as camadas novas entram quando os dados chegarem.
 // No computador o resumo segue o mouse e o clique abre o estado; no celular o 1º toque
 // mostra o resumo logo abaixo e o 2º abre a página do estado.
 
@@ -10,6 +11,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 
 import { MaoToque, useMovimentoReduzido } from "@/components/mao-toque";
 import { MapaBrasil } from "@/components/mapa/mapa-brasil";
+import { Segmentado } from "@/components/segmentado";
 import estilos from "@/components/mapa/mapa-brasil.module.css";
 import { classe, quantis, type ClasseMapa } from "@/lib/mapa";
 import { reais } from "@/components/dinheiro-federal/formatos";
@@ -54,6 +56,38 @@ function Resumo({ u }: { u: UfDoMapa }) {
   );
 }
 
+type CamadaId = "retorno" | "arrecadado" | "repassado";
+
+const CAMADAS: Record<
+  CamadaId,
+  { rotulo: string; valor: (u: UfDoMapa) => number | null; texto: (u: UfDoMapa) => string; legenda: string; titulo: string }
+> = {
+  retorno: {
+    rotulo: "A cada R$ 100",
+    valor: aCada100,
+    texto: (u) => {
+      const r = aCada100(u);
+      return r != null ? `${REAIS_100.format(r)} a cada R$ 100 arrecadados` : "sem dado";
+    },
+    legenda: "mais por R$ 100 arrecadados",
+    titulo: "colorido pelo repasse da União a cada R$ 100 arrecadados",
+  },
+  arrecadado: {
+    rotulo: "Arrecadado",
+    valor: (u) => u.arrecadacao,
+    texto: (u) => (u.arrecadacao != null ? `arrecadou ${reais(u.arrecadacao)}` : "sem dado"),
+    legenda: "mais arrecadado",
+    titulo: "colorido por quanto a União arrecadou",
+  },
+  repassado: {
+    rotulo: "Repassado",
+    valor: (u) => u.repasse,
+    texto: (u) => (u.repasse != null ? `recebeu ${reais(u.repasse)}` : "sem dado"),
+    legenda: "mais recebido",
+    titulo: "colorido por quanto a União repassou ao estado e às cidades",
+  },
+};
+
 // Estados por onde a mão passeia: grandes e espalhados, o primeiro bem visível no celular.
 const ROTEIRO_MAO = ["PA", "BA", "AM", "MG", "MT", "RS"];
 
@@ -67,8 +101,10 @@ interface PontoMao {
 export function MapaHome({ ufs }: { ufs: UfDoMapa[] }) {
   const router = useRouter();
   const [sel, setSel] = useState<string | null>(null);
+  const [camadaId, setCamadaId] = useState<CamadaId>("retorno");
+  const camada = CAMADAS[camadaId];
   const porUf = useMemo(() => new Map(ufs.map((u) => [u.uf, u])), [ufs]);
-  const cortes = useMemo(() => quantis(ufs.map(aCada100)), [ufs]);
+  const cortes = useMemo(() => quantis(ufs.map(camada.valor)), [ufs, camada]);
   const escolhida = sel ? porUf.get(sel) : undefined;
   const caixa = useRef<HTMLDivElement>(null);
   const [pontos, setPontos] = useState<PontoMao[]>([]);
@@ -127,6 +163,13 @@ export function MapaHome({ ufs }: { ufs: UfDoMapa[] }) {
 
   return (
     <div className="flex flex-col gap-3">
+      <Segmentado
+        rotulo="O que colorir no mapa"
+        opcoes={(Object.keys(CAMADAS) as CamadaId[]).map((k) => ({ valor: k, rotulo: CAMADAS[k].rotulo }))}
+        valor={camadaId}
+        aoMudar={setCamadaId}
+        esticar
+      />
       <div
         ref={caixa}
         className="relative mx-auto w-full max-w-[26rem]"
@@ -140,7 +183,7 @@ export function MapaHome({ ufs }: { ufs: UfDoMapa[] }) {
         <MapaBrasil
           niveis="uf"
           className="mx-auto h-[360px] w-full md:h-[420px]"
-          titulo="Mapa dos estados do Brasil, colorido pelo repasse da União a cada R$ 100 arrecadados"
+          titulo={`Mapa dos estados do Brasil, ${camada.titulo}`}
           toqueUnico={false}
           onNavegar={({ uf }) =>
             uf && router.push(`/impostos-e-repasses/${uf}`)
@@ -150,14 +193,11 @@ export function MapaHome({ ufs }: { ufs: UfDoMapa[] }) {
             if (a) setTocou(true);
           }}
           classe={(_n, id): ClasseMapa =>
-            classe(porUf.get(id) ? aCada100(porUf.get(id)!) : null, cortes)
+            classe(porUf.get(id) ? camada.valor(porUf.get(id)!) : null, cortes)
           }
           rotulo={(_n, id) => {
             const u = porUf.get(id);
-            const r = u ? aCada100(u) : null;
-            return u
-              ? `${u.nome}: ${r != null ? `${REAIS_100.format(r)} a cada R$ 100 arrecadados` : "sem dado"}`
-              : id;
+            return u ? `${u.nome}: ${camada.texto(u)}` : id;
           }}
           resumo={(_n, id) => {
             const u = porUf.get(id);
@@ -195,7 +235,7 @@ export function MapaHome({ ufs }: { ufs: UfDoMapa[] }) {
             />
           ))}
         </span>
-        <span>mais por R$ 100 arrecadados</span>
+        <span>{camada.legenda}</span>
       </div>
       <div
         className="min-h-[7rem] border-t border-border pt-3"

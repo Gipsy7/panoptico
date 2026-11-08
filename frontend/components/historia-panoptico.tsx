@@ -164,7 +164,7 @@ export function HistoriaPanoptico({ dados, cep }: { dados: Promise<DadosDaHistor
         </Passo>
 
         <Passo ultimo rotulo="Sua vez" titulo="Agora veja quem te representa">
-          <p>Digite o seu CEP e veja, do Congresso à câmara da cidade, quem exerce o mandato por você.</p>
+          <p>Escolha a sua cidade e veja, do Congresso à câmara da cidade, quem exerce o mandato por você.</p>
           <div id="cep" className="max-w-md scroll-mt-40 border-t border-foreground pt-6">
             {cep}
           </div>

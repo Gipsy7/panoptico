@@ -10,6 +10,7 @@
 - [2026-11-07: votação de mérito e de procedimento, calendário (Frente 4)](#2026-11-07-votação-de-mérito-e-de-procedimento-calendário-frente-4)
 - [2026-11-07: Plenário agora, selo "Ao vivo" no cabeçalho (Frente 4)](#2026-11-07-plenário-agora-selo-ao-vivo-no-cabeçalho-frente-4)
 - [2026-11-07: eleições completas (Frente 5)](#2026-11-07-eleições-completas-frente-5)
+- [2026-11-08: redesenho, etapa 2 (home: entrar pelo lugar)](#2026-11-08-redesenho-etapa-2-home-entrar-pelo-lugar)
 - [2026-11-08: redesenho, etapa 1 (base visual e navegação)](#2026-11-08-redesenho-etapa-1-base-visual-e-navegação)
 - [2026-11-08: siglas de partido padronizadas](#2026-11-08-siglas-de-partido-padronizadas)
 - [2026-11-07: quanto custa o mandato (Frente 6)](#2026-11-07-quanto-custa-o-mandato-frente-6)
@@ -1778,6 +1779,21 @@ Escolhas do dono entre 3 protótipos: resultado em tabela densa com barras (A), 
 - **Eleitores:** soma dos aptos das zonas na eleição mais recente carregada, ao lado da população do IBGE. Não é o cadastro do eleitorado.
 - **`/segundo-turno` generalizada:** no mesmo endereço, abaixo do comparador, a seção "Resultado das eleições" com ano, cargo, turno e "onde" (formulário GET, funciona sem JavaScript).
 - **Nome de urna igual ao de outra pessoa** (ex.: "Jair Bolsonaro" para Jair Renan em 2026): a tabela mostra o nome de urna do TSE e liga ao perfil pela candidatura, nunca pelo nome.
+
+## 2026-11-08: redesenho, etapa 2 (home: entrar pelo lugar)
+
+Escolha do dono entre 3 versões: a A ("três caminhos"), a do protótipo 3.
+
+- **A localização continua calculada no aparelho** (`lib/localizacao.ts`, malha do IBGE no cliente). O plano previa
+  uma rota `/localizar` no servidor; ela não foi feita porque mandaria as coordenadas ao servidor sem
+  necessidade.
+- **Busca pela cidade** (`GET /municipios/busca?q=`, até 8, sem acento nem caixa, primeiro quem começa com o
+  texto): fica logo abaixo do botão da localização e substitui o "Não sei meu CEP". O CEP vira link, e a
+  escolha por estado e cidade em listas continua ("Lista de estados"), com a opção "Todo o estado".
+- **Quem volta** vê "Da última vez: Blumenau, SC" com "Quem me representa" e "Para onde foi o dinheiro"; os
+  outros caminhos ficam menores embaixo.
+- **Régua no mapa da home:** A cada R$ 100 | Arrecadado | Repassado. Obras, economia e escolas entram quando
+  os conectores da etapa 5 trouxerem os dados; a régua só mostra camada com dado.
 
 ## 2026-11-08: redesenho, etapa 1 (base visual e navegação)
 

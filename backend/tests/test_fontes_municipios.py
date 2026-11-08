@@ -19,6 +19,17 @@ def test_municipios_da_uf_em_ordem(client, session):
     assert client.get("/municipios?uf=t").status_code == 422
 
 
+def test_busca_de_cidade_pelo_nome(client, session):
+    session.execute(insert(Municipio), MUNICIPIOS)
+    # Sem acento e sem caixa; quem começa com o texto vem antes de quem só o contém.
+    assert [m["nome"] for m in client.get("/municipios/busca?q=maca").json()] == ["Macapá"]
+    assert [m["nome"] for m in client.get("/municipios/busca?q=lan").json()] == ["Abreulândia"]
+    assert [m["nome"] for m in client.get("/municipios/busca?q=pa").json()] == ["Palmas", "Macapá"]
+    assert [m["nome"] for m in client.get("/municipios/busca?q=pal").json()] == ["Palmas"]
+    assert client.get("/municipios/busca?q=a").status_code == 422
+    assert client.get("/municipios/busca?q=%25%25").json() == []
+
+
 def test_representantes_por_municipio(client, session):
     _popular(session)
     session.execute(insert(Municipio), MUNICIPIOS)

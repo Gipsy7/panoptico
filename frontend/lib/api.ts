@@ -1114,6 +1114,11 @@ export function getMunicipios(uf: string) {
   return getJson<Municipio[]>(`/municipios?uf=${encodeURIComponent(uf)}`);
 }
 
+/** Cidades pelo nome (sem acento nem caixa), no máximo 8: a busca da home. */
+export function buscarMunicipios(q: string) {
+  return getJson<Municipio[]>(`/municipios/busca?q=${encodeURIComponent(q)}`);
+}
+
 export type CriterioId =
   | "nome"
   | "gastos"

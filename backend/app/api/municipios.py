@@ -1,7 +1,7 @@
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, Query
-from sqlalchemy import select
+from sqlalchemy import case, select
 from sqlalchemy.orm import Session
 
 from app.db import get_session
@@ -16,6 +16,7 @@ from app.schemas import (
 from app.schemas.emendas_municipio import EmendasMunicipioCompleta
 from app.schemas.repasses_estaduais import RepassesEstaduaisResposta
 from app.services import contas, contratos_pncp, emendas, fornecedores, repasses_estaduais
+from app.services.texto_busca import normalizar
 
 router = APIRouter()
 
@@ -82,6 +83,27 @@ def canais_do_municipio(ibge: str, session: Annotated[Session, Depends(get_sessi
         canais, key=lambda c: ORDEM_CANAIS.index(c.tipo) if c.tipo in ORDEM_CANAIS else 99
     )
     return {"itens": canais}
+
+
+@router.get("/municipios/busca", response_model=list[MunicipioInfo])
+def buscar_municipio(
+    q: Annotated[str, Query(min_length=2, max_length=80)],
+    session: Annotated[Session, Depends(get_session)],
+) -> list[Municipio]:
+    """Cidades pelo nome, sem acento nem caixa (a busca da home): primeiro as que começam com o
+    texto, depois as que o contêm; no máximo 8."""
+    termo = " ".join(normalizar(q).upper().split())
+    if len(termo) < 2:
+        return []
+    comeca = Municipio.nome_chave.startswith(termo, autoescape=True)
+    return list(
+        session.scalars(
+            select(Municipio)
+            .where(Municipio.nome_chave.contains(termo, autoescape=True))
+            .order_by(case((comeca, 0), else_=1), Municipio.nome_chave, Municipio.uf)
+            .limit(8)
+        )
+    )
 
 
 @router.get("/municipios", response_model=list[MunicipioInfo])
