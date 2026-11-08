@@ -212,6 +212,13 @@ Endpoints conferidos em 2026-10-06.
 - **Conferido:** Blumenau 2025 = R$ 4.500 mil (palmito R$ 2.400 mil, banana R$ 1.589 mil). Carga de 08/11/2026: 77.107 valores; a soma dos municípios fecha com o Brasil.
 - **Frequência:** mensal (`ibge_pam`, `ingestion/ibge/pam.py`).
 
+## IBGE: Pesquisa da Pecuária Municipal (redesenho, etapa 5)
+
+- **URL:** a mesma API de agregados v3; tabela 3939 (variável 105, efetivo dos rebanhos, classificação 79) e tabela 74 (variável 215, valor da produção de origem animal, classificação 80), um estado por consulta, mais `N3[all]` e `N1[all]`. 1974 a 2025.
+- **Armadilhas:** "Suíno - matrizes de suínos" e "Galináceos - galinhas" são parte de "Suíno - total" e "Galináceos - total": ficam de fora para não contar duas vezes. A PPM não mede carne nem abate. Rebanho em cabeças; produção de origem animal em mil reais (leite, ovos, mel, lã, casulos).
+- **Conferido:** Blumenau 2025: 6.824 bovinos, 721.789 galináceos, ovos de galinha R$ 111.662 mil, total de origem animal R$ 118.568 mil. Carga de 08/11/2026: 58.935 valores; a soma dos bovinos dos municípios fecha com o Brasil.
+- **Frequência:** mensal (`ibge_ppm`, `ingestion/ibge/ppm.py`).
+
 ## Ministério da Saúde: hospitais e leitos (reconhecimento de 08/11/2026, sem ingestão)
 
 - **URL:** `https://apidadosabertos.saude.gov.br/assistencia-a-saude/hospitais-e-leitos?limit=1000&offset=N` (até 1.000 por página). O CKAN antigo (opendatasus) virou o novo portal `dadosabertos.saude.gov.br`, sem API de catálogo, e os arquivos no S3 antigo dão 403 (`AccessDenied`, endereço que não existe mais, não bloqueio).

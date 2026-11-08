@@ -1834,7 +1834,8 @@ Pedido do dono depois de usar o release no celular:
   época, sem descontar a inflação; por isso não há gráfico de crescimento até haver um deflator oficial. O PIB por
   morador só aparece em ano com população do IBGE no mesmo ano (2023 não tem estimativa): nada se interpola.
 - **Agro (PAM do IBGE):** o valor da produção das lavouras no último ano e os produtos que mais pesam, com a parte
-  de cada um no total da cidade e o total do estado. Só lavouras; a tela diz que a pecuária ainda não está.
+  de cada um no total da cidade e o total do estado; e a criação (PPM): rebanhos em cabeças e o valor de leite, ovos
+  e mel. Subtotais do IBGE ficam de fora e a tela diz que a pesquisa não mede carne.
 - **Saúde adiada:** a API de hospitais e leitos do Ministério da Saúde não traz o mês de cada retrato e quase
   todas as linhas vêm sem município; somar daria número errado. Fica para os arquivos do CNES (ver FONTES).
 

@@ -5,7 +5,7 @@ from decimal import Decimal
 import pytest
 from sqlalchemy import insert
 
-from app.models import AgroLavoura, Municipio
+from app.models import AgroLavoura, AgroPecuaria, Municipio
 from ingestion.ibge import pam
 from tests.test_api import _ingestao
 
@@ -56,4 +56,16 @@ def test_rota_do_agro(client, session):
     ]
     assert round(corpo["produtos"][0]["percentual"], 1) == round(100 * 2400 / 4500, 1)
     assert corpo["uf_valor_total"] == 20_000_000_000
+    assert corpo["pecuaria"] is None
+    session.execute(
+        insert(AgroPecuaria),
+        [{"codigo": "4202404", "ano": 2025, "categoria": c, "item": i, "valor": v}
+         for c, i, v in [("rebanho", "Bovino", 6824), ("rebanho", "Galináceos - total", 721789),
+                         ("produto", "Total", 118568), ("produto", "Ovos de galinha", 111662),
+                         ("produto", "Leite", 6720)]],
+    )  # fmt: skip
+    pec = client.get("/municipios/4202404/agro").json()["pecuaria"]
+    assert [r["item"] for r in pec["rebanhos"]] == ["Galináceos", "Bovino"]
+    assert pec["valor_origem_animal"] == 118_568_000
+    assert pec["produtos"][0]["produto"] == "Ovos de galinha"
     assert client.get("/municipios/9999999/agro").status_code == 404

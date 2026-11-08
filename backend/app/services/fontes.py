@@ -86,9 +86,10 @@ CATALOGO = [
         "url": "https://www.gov.br/transferegov/pt-br",
     },
     {
-        "dado": "Valor da produção das lavouras por produto (Produção Agrícola Municipal)",
+        "dado": "Lavouras, rebanhos e produção de origem animal "
+        "(Produção Agrícola e Pecuária Municipal)",
         "orgao": "Instituto Brasileiro de Geografia e Estatística (IBGE)",
-        "fontes": ["ibge_pam"],
+        "fontes": ["ibge_pam", "ibge_ppm"],
         "url": "https://sidra.ibge.gov.br/tabela/5457",
     },
     {

@@ -92,3 +92,17 @@ class AgroLavoura(Base):
     produto: Mapped[str] = mapped_column(String(80), primary_key=True)
     valor: Mapped[Decimal] = mapped_column(Numeric(16, 0))
     ingestao_id: Mapped[int | None] = mapped_column(ForeignKey("fonte_ingestao.id"))
+
+
+class AgroPecuaria(Base):
+    """Pecuária (IBGE, PPM) no último ano: `rebanho` em cabeças (tabela 3939) e `produto` de
+    origem animal em mil reais (tabela 74). Código de 1 dígito = Brasil, 2 = UF, 7 = município."""
+
+    __tablename__ = "agro_pecuaria"
+
+    codigo: Mapped[str] = mapped_column(String(7), primary_key=True)
+    ano: Mapped[int] = mapped_column(SmallInteger, primary_key=True)
+    categoria: Mapped[str] = mapped_column(String(10), primary_key=True)  # rebanho | produto
+    item: Mapped[str] = mapped_column(String(80), primary_key=True)
+    valor: Mapped[Decimal] = mapped_column(Numeric(16, 0))
+    ingestao_id: Mapped[int | None] = mapped_column(ForeignKey("fonte_ingestao.id"))

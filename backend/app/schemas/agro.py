@@ -9,6 +9,21 @@ class AgroProduto(BaseModel):
     percentual: float | None
 
 
+class AgroRebanho(BaseModel):
+    item: str
+    cabecas: int
+
+
+class AgroPecuariaResumo(BaseModel):
+    ano: int
+    rebanhos: list[AgroRebanho]
+    valor_origem_animal: float | None
+    produtos: list[AgroProduto]
+    fonte_nome: str
+    fonte_url: str
+    atualizado_em: datetime | None
+
+
 class AgroMunicipio(BaseModel):
     municipio_ibge: str
     uf: str
@@ -17,6 +32,7 @@ class AgroMunicipio(BaseModel):
     uf_valor_total: float | None
     produtos: list[AgroProduto]
     outros_produtos: int
+    pecuaria: AgroPecuariaResumo | None = None
     fonte_nome: str
     fonte_url: str
     atualizado_em: datetime | None

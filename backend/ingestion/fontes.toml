@@ -281,14 +281,14 @@ depende = ["transparencia_emendas"]
 [[fonte]]
 nome = "obrasgov_obras"
 modulo = "ingestion.obrasgov.obras"
-uso = "Obras federais da cidade e do estado no Raio-X (situação, valor previsto, % executado)"
+uso = "Obras federais da cidade e do estado em Por dentro (situação, valor previsto, % executado)"
 recorte = "todas as obras e projetos de investimento do Obrasgov.br (~155 mil), só os campos usados (sem as descrições longas), com o município pela geometria"
 frequencia = "semanal"
 
 [[fonte]]
 nome = "inep_ideb"
 modulo = "ingestion.inep.ideb"
-uso = "Escolas no Raio-X da cidade e do estado (IDEB por etapa e rede, com o do estado e o do Brasil)"
+uso = "Escolas em Por dentro da cidade e do estado (IDEB por etapa e rede, com o do estado e o do Brasil)"
 recorte = "notas observadas do IDEB de 2005 a 2025 por município, estado e Brasil; as planilhas (~70 MB) ficam no INEP e o bruto guardado é só o recorte das notas"
 frequencia = "mensal"
 bruto = "recorte"
@@ -296,7 +296,7 @@ bruto = "recorte"
 [[fonte]]
 nome = "ibge_pib"
 modulo = "ingestion.ibge.pib"
-uso = "Economia no Raio-X da cidade (PIB, PIB por morador com o do estado e do Brasil, de onde vem a riqueza)"
+uso = "Economia em Por dentro da cidade (PIB, PIB por morador com o do estado e do Brasil, de onde vem a riqueza)"
 recorte = "PIB e valor adicionado por atividade de 2002 em diante, por município, estado e Brasil (tabela 5938 do SIDRA)"
 frequencia = "mensal"
 depende = ["ibge_populacao"]
@@ -304,8 +304,15 @@ depende = ["ibge_populacao"]
 [[fonte]]
 nome = "ibge_pam"
 modulo = "ingestion.ibge.pam"
-uso = "Agro no Raio-X da cidade (valor da produção das lavouras e os produtos que mais pesam)"
+uso = "Agro em Por dentro da cidade (valor da produção das lavouras e os produtos que mais pesam)"
 recorte = "valor da produção por produto no último ano da PAM (tabela 5457), por município, estado e Brasil; zeros não são guardados"
+frequencia = "mensal"
+
+[[fonte]]
+nome = "ibge_ppm"
+modulo = "ingestion.ibge.ppm"
+uso = "Agro em Por dentro da cidade: rebanhos e produção de origem animal (leite, ovos, mel)"
+recorte = "efetivo dos rebanhos (tabela 3939) e valor da produção de origem animal (tabela 74) no último ano da PPM, por município, estado e Brasil; subtotais e zeros não são guardados"
 frequencia = "mensal"
 
 [[fonte]]

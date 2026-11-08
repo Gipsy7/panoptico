@@ -161,7 +161,7 @@ async function Cidade({ ibge }: { ibge: string }) {
   const obrasCidade = obrasR.ok && obrasR.dados.total > 0 ? obrasR.dados : null;
   const idebCidade = idebR.ok && idebR.dados.etapas.length > 0 ? idebR.dados : null;
   const pibCidade = pibR.ok && pibR.dados.serie.length > 0 ? pibR.dados : null;
-  const agroCidade = agroR.ok && agroR.dados.valor_total != null ? agroR.dados : null;
+  const agroCidade = agroR.ok && (agroR.dados.valor_total != null || agroR.dados.pecuaria) ? agroR.dados : null;
   // Faixas dos mandatos de prefeito no fundo das séries (Etapa 6): só eleitos com nome.
   const faixasPrefeito = antecessoresR.ok
     ? antecessoresR.dados.mandatos

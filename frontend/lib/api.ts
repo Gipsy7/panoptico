@@ -1122,6 +1122,15 @@ export type AgroMunicipio = {
   uf_valor_total: number | null;
   produtos: { produto: string; valor: number; percentual: number | null }[];
   outros_produtos: number;
+  pecuaria?: {
+    ano: number;
+    rebanhos: { item: string; cabecas: number }[];
+    valor_origem_animal: number | null;
+    produtos: { produto: string; valor: number; percentual: number | null }[];
+    fonte_nome: string;
+    fonte_url: string;
+    atualizado_em: string | null;
+  } | null;
   fonte_nome: string;
   fonte_url: string;
   atualizado_em: string | null;

@@ -31,6 +31,7 @@ from app.models.municipio import Municipio
 from app.models.norma import Norma, NormaProposicao
 from app.models.obra import (
     AgroLavoura,
+    AgroPecuaria,
     IdebResultado,
     ObraFederal,
     ObraFederalMunicipio,
@@ -79,6 +80,7 @@ from app.models.votacao import Orientacao, Votacao, VotacaoComissao, Voto, VotoC
 __all__ = [
     "AgendaCompromisso",
     "AgroLavoura",
+    "AgroPecuaria",
     "ArgosAvaliacao",
     "ArgosConversa",
     "ArgosFraseNaoEntendida",
