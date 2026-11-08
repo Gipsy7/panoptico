@@ -437,9 +437,6 @@ async function Cidade({ ibge }: { ibge: string }) {
             </div>
           )}
         </dl>
-        <p className="text-sm text-muted-foreground">
-          Saúde e segurança entram aqui quando os dados do DATASUS forem carregados.
-        </p>
         <FonteRodape
           fonte={eleitores ? `${eleitores.fonte_nome}; IBGE` : "IBGE"}
           url={eleitores?.fonte_url}

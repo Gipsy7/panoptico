@@ -2,7 +2,8 @@
 
 /**
  * Abas de tema de "Por dentro" (cidade e estado) (Retrato, Dinheiro público, Política...): régua com a cor de cada assunto
- * e um painel por vez, com a faixa da cor ao lado. Os painéis chegam prontos do servidor; sem
+ * e um painel por vez, com a faixa da cor ao lado. A régua quebra em linhas: nenhuma aba fica escondida
+ * atrás de rolagem lateral. Os painéis chegam prontos do servidor; sem
  * JavaScript aparecem todos, um embaixo do outro (nada fica escondido).
  */
 import { type KeyboardEvent, type ReactNode, useState, useSyncExternalStore } from "react";
@@ -37,7 +38,7 @@ export function AbasTema({ rotulo, abas }: { rotulo: string; abas: AbaTema[] }) 
       <div
         role="tablist"
         aria-label={rotulo}
-        className="-mx-4 flex snap-x gap-1 overflow-x-auto border-b border-border px-4 [scrollbar-width:none] lg:mx-0 lg:px-0"
+        className="flex flex-wrap gap-x-1 border-b border-border"
       >
         {abas.map((a) => {
           const sel = a.id === ativa;
@@ -53,7 +54,7 @@ export function AbasTema({ rotulo, abas }: { rotulo: string; abas: AbaTema[] }) 
               onClick={() => setAtiva(a.id)}
               onKeyDown={teclar}
               style={sel ? { borderBottomColor: `var(--tema-${a.tema})` } : undefined}
-              className={`flex min-h-11 shrink-0 snap-start items-center gap-2 border-b-4 px-3 text-sm whitespace-nowrap focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-bronze ${
+              className={`flex min-h-11 items-center gap-2 border-b-4 px-3 text-sm whitespace-nowrap focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-bronze ${
                 sel ? "font-semibold text-foreground" : "border-transparent text-muted-foreground hover:text-foreground"
               }`}
             >
