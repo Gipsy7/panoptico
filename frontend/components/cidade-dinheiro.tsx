@@ -7,6 +7,7 @@ import { AvisoErro } from "@/components/aviso-erro";
 import { IdebResumo, IdebSecao } from "@/components/ideb-secao";
 import { PibResumo } from "@/components/pib-secao";
 import { EmpregoResumo } from "@/components/emprego-secao";
+import { ParecidasSecao, VocacoesSecao } from "@/components/parecidas-secao";
 import { AgroResumo } from "@/components/agro-secao";
 import { ObrasResumo, ObrasSecao } from "@/components/obras-secao";
 import { Chapa, cargoDoVice } from "@/components/chapa";
@@ -40,6 +41,8 @@ import {
   getAgroMunicipio,
   getAntecessores,
   getEmpregoMunicipio,
+  getCidadesParecidas,
+  getVocacoes,
   getObrasMunicipio,
   getResultadoEleicao,
   getDinheiroFederalMunicipio,
@@ -125,6 +128,8 @@ async function Cidade({ ibge }: { ibge: string }) {
     agroR,
     antecessoresR,
     empregoR,
+    parecidasR,
+    vocacoesR,
   ] = await Promise.all([
     getEmendasMunicipio(ibge),
     getContas(ibge),
@@ -152,6 +157,8 @@ async function Cidade({ ibge }: { ibge: string }) {
     getAgroMunicipio(ibge),
     getAntecessores({ cargo: "PREFEITO", municipio: ibge }),
     getEmpregoMunicipio(ibge),
+    getCidadesParecidas(ibge),
+    getVocacoes(ibge),
   ]);
   const repassesEstado = estaduaisR.ok ? estaduaisR.dados : null;
   const temRepassesEstado = Boolean(
@@ -166,6 +173,8 @@ async function Cidade({ ibge }: { ibge: string }) {
   const idebCidade = idebR.ok && idebR.dados.etapas.length > 0 ? idebR.dados : null;
   const pibCidade = pibR.ok && pibR.dados.serie.length > 0 ? pibR.dados : null;
   const empregoCidade = empregoR.ok && empregoR.dados.serie.length > 0 ? empregoR.dados : null;
+  const parecidas = parecidasR.ok && parecidasR.dados.cidades.length > 1 ? parecidasR.dados : null;
+  const vocacoesCidade = vocacoesR.ok ? vocacoesR.dados : null;
   const agroCidade = agroR.ok && (agroR.dados.valor_total != null || agroR.dados.pecuaria) ? agroR.dados : null;
   // Faixas dos mandatos de prefeito no fundo das séries (Etapa 6): só eleitos com nome.
   const faixasPrefeito = antecessoresR.ok
@@ -647,6 +656,7 @@ async function Cidade({ ibge }: { ibge: string }) {
                       <div className="flex flex-col gap-6">
                         {pibCidade && <PibResumo dados={pibCidade} cidade={municipio} uf={uf} />}
                         {empregoCidade && <EmpregoResumo dados={empregoCidade} cidade={municipio} uf={uf} />}
+                        {vocacoesCidade && <VocacoesSecao dados={vocacoesCidade} cidade={municipio} />}
                       </div>
                     ),
                   },
@@ -683,6 +693,16 @@ async function Cidade({ ibge }: { ibge: string }) {
                 ]
               : []),
             ...(politica ? [{ id: "politica", rotulo: "Política", tema: "votos" as const, conteudo: politica }] : []),
+            ...(parecidas
+              ? [
+                  {
+                    id: "parecidas",
+                    rotulo: "Cidades parecidas",
+                    tema: "eleicoes" as const,
+                    conteudo: <ParecidasSecao dados={parecidas} cidade={municipio} />,
+                  },
+                ]
+              : []),
           ]}
         />
 

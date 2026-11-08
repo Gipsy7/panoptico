@@ -1813,6 +1813,14 @@ Pedido do dono depois de usar o release no celular:
 - **Sem atribuir:** a nota abaixo diz que as faixas só situam no tempo, que o índice depende de muitos fatores e que
   as escolas estaduais são do governo do estado. Faixas alternadas em cinza, sem cor de partido.
 - Só existem mandatos desde a eleição de 2016 no banco; antes disso a série aparece sem faixa.
+- **Cidades parecidas** (aba nova em "Por dentro da cidade"): as 6 cidades do Brasil com a população mais próxima,
+  lado a lado em moradores, PIB por morador, IDEB dos anos iniciais (rede pública) e salário médio. A ordem é a da
+  população, não um ranking; a cidade aberta tem faixa e fundo, sem destacar os números; as outras levam à página
+  delas. Só dados já carregados, sem tabela nova.
+- **Vocações** (fim da aba Economia): o peso de cada atividade aqui e no Brasil, pelas pessoas ocupadas (CNAE; só
+  cidades com 50 mil habitantes ou mais) e pela riqueza produzida (valor adicionado do PIB). Mostra as atividades
+  com peso pelo menos 1,2 vez o do país, com os dois percentuais escritos; a explicação diz que é o "quociente
+  locacional" e que compara peso, não tamanho.
 
 ## 2026-11-08: redesenho, etapa 5: obras federais (Obrasgov.br)
 

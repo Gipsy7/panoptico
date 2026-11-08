@@ -1114,6 +1114,35 @@ export function getMunicipios(uf: string) {
   return getJson<Municipio[]>(`/municipios?uf=${encodeURIComponent(uf)}`);
 }
 
+export type CidadesParecidas = {
+  ano_populacao: number | null;
+  cidades: {
+    ibge: string;
+    nome: string;
+    uf: string;
+    esta: boolean;
+    populacao: number;
+    pib_por_morador: number | null;
+    pib_ano: number | null;
+    ideb: number | null;
+    ideb_ano: number | null;
+    salario_medio: number | null;
+    salario_ano: number | null;
+  }[];
+};
+export type Vocacao = { atividade: string; percentual: number; percentual_brasil: number; razao: number | null };
+export type Vocacoes = { pib_ano: number | null; pib: Vocacao[]; emprego_ano: number | null; emprego: Vocacao[] };
+
+/** As cidades com a população mais próxima, lado a lado (não é ranking). */
+export function getCidadesParecidas(ibge: string) {
+  return getJson<CidadesParecidas>(`/municipios/${encodeURIComponent(ibge)}/parecidas`);
+}
+
+/** O peso de cada atividade na cidade e no Brasil (PIB e pessoas ocupadas). */
+export function getVocacoes(ibge: string) {
+  return getJson<Vocacoes>(`/municipios/${encodeURIComponent(ibge)}/vocacoes`);
+}
+
 export type EmpregoMunicipio = {
   municipio_ibge: string;
   uf: string;

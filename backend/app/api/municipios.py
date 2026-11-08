@@ -14,6 +14,7 @@ from app.schemas import (
     MunicipioInfo,
 )
 from app.schemas.agro import AgroMunicipio
+from app.schemas.comparar_cidades import CidadesParecidas, Vocacoes
 from app.schemas.emendas_municipio import EmendasMunicipioCompleta
 from app.schemas.emprego import EmpregoMunicipio
 from app.schemas.ideb import IdebMunicipio
@@ -22,6 +23,7 @@ from app.schemas.pib import PibMunicipio
 from app.schemas.repasses_estaduais import RepassesEstaduaisResposta
 from app.services import (
     agro,
+    comparar_cidades,
     contas,
     contratos_pncp,
     emendas,
@@ -143,6 +145,22 @@ def emprego_do_municipio(ibge: str, session: Annotated[Session, Depends(get_sess
     if municipio is None:
         raise HTTPException(404, "Município não encontrado.")
     return emprego.do_municipio(session, ibge, municipio.uf)
+
+
+@router.get("/municipios/{ibge}/parecidas", response_model=CidadesParecidas)
+def cidades_parecidas(ibge: str, session: Annotated[Session, Depends(get_session)]) -> dict:
+    """As cidades com a população mais próxima, lado a lado (não é ranking)."""
+    if session.get(Municipio, ibge) is None:
+        raise HTTPException(404, "Município não encontrado.")
+    return comparar_cidades.parecidas(session, ibge)
+
+
+@router.get("/municipios/{ibge}/vocacoes", response_model=Vocacoes)
+def vocacoes_da_cidade(ibge: str, session: Annotated[Session, Depends(get_session)]) -> dict:
+    """O peso de cada atividade aqui e no Brasil (PIB e pessoas ocupadas)."""
+    if session.get(Municipio, ibge) is None:
+        raise HTTPException(404, "Município não encontrado.")
+    return comparar_cidades.vocacoes(session, ibge)
 
 
 @router.get("/obras/estados", response_model=ObrasPorUf)
