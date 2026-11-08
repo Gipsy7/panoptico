@@ -46,38 +46,100 @@ const CUSTOS = [
   },
 ];
 
+// Formas de ajudar além do dinheiro (protótipo 3 do redesenho): cada uma com a cor de um assunto.
+const FORMAS = [
+  {
+    tema: "dinheiro",
+    titulo: "Pix",
+    texto: "Qualquer valor, uma vez ou todo mês. O código e a chave estão logo abaixo.",
+    acao: "Doar por Pix",
+    href: "#pix",
+  },
+  {
+    tema: "votos",
+    titulo: "Divulgue",
+    texto: "Ache quem representa a sua cidade e mande o cartão nos grupos de WhatsApp.",
+    acao: "Achar a minha cidade",
+    href: "/#cep",
+  },
+  {
+    tema: "escolas",
+    titulo: "Ajude nos dados",
+    texto: "Viu um número errado? Toda seção tem \"Avisar um erro\". Veja também o que cada fonte cobre e o que falta.",
+    acao: "Ver as fontes",
+    href: "/sobre-as-fontes",
+  },
+  {
+    tema: "eleicoes",
+    titulo: "Código aberto",
+    texto: "O código é livre (AGPL) e os dados são abertos: dá para contribuir ou reusar.",
+    acao: "Ver no GitHub",
+    href: "https://github.com/Gipsy7/panoptico",
+  },
+] as const;
+
 export default function ApoiePage() {
   return (
-    <article className="pagina-secoes">
-      <header className="flex flex-col gap-2">
+    <article data-largura="larga" className="pagina-secoes">
+      <header className="flex max-w-3xl flex-col gap-2">
         <p className="sobretitulo">Apoie</p>
-        <h1 className="titulo-pagina">Um site pequeno, com custos pequenos</h1>
+        <h1 className="titulo-pagina">Um site público precisa de gente pública</h1>
         <p className="text-muted-foreground">
           O Panóptico é gratuito, sem anúncios e sem cadastro, e vai continuar assim. Se ele foi
-          útil para você, uma doação ajuda a pagar os custos de manter tudo no ar.
+          útil para você, há quatro jeitos de ajudar, e só um deles é dinheiro.
         </p>
       </header>
 
-      <section className="flex flex-col gap-3">
-        <h2 className="text-2xl">Quanto custa</h2>
-        <ul className="lista-fios flex flex-col">
-          {CUSTOS.map((c) => (
-            <li key={c.item} className="flex flex-col gap-0.5 py-3">
-              <div className="flex flex-wrap items-baseline justify-between gap-x-4">
-                <span>{c.item}</span>
-                <span className="numero">{c.valor}</span>
-              </div>
-              {c.nota && <span className="text-sm text-muted-foreground">{c.nota}</span>}
+      <div className="grid grid-cols-1 items-start gap-[var(--esp-10)] lg:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)] lg:gap-10">
+        <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          {FORMAS.map((f) => (
+            <li
+              key={f.titulo}
+              className="flex flex-col gap-2 rounded-[var(--raio)] border border-t-4 border-border bg-card p-4"
+              style={{ borderTopColor: `var(--tema-${f.tema})` }}
+            >
+              <h2 className="text-xl">{f.titulo}</h2>
+              <p className="text-sm text-muted-foreground">{f.texto}</p>
+              {f.href.startsWith("http") ? (
+                <a href={f.href} className="botao-linha mt-auto self-start" rel="noopener">
+                  {f.acao}
+                </a>
+              ) : (
+                <Link href={f.href} className="botao-linha mt-auto self-start">
+                  {f.acao}
+                </Link>
+              )}
             </li>
           ))}
         </ul>
-        <p className="text-sm text-muted-foreground">
-          O trabalho de desenvolvimento é voluntário. O que entrar de doação vai primeiro para
-          esses custos, e o que sobrar fica guardado para os próximos meses.
-        </p>
-      </section>
 
-      <section className="flex flex-col gap-3">
+        <section
+          aria-labelledby="custos-titulo"
+          className="flex flex-col gap-3 rounded-[var(--raio)] border border-t-4 border-border bg-card p-4"
+          style={{ borderTopColor: "var(--tema-dinheiro)" }}
+        >
+          <h2 id="custos-titulo" className="text-xl">
+            Quanto custa manter
+          </h2>
+          <ul className="lista-fios flex flex-col">
+            {CUSTOS.map((c) => (
+              <li key={c.item} className="flex flex-col gap-0.5 py-3">
+                <div className="flex flex-wrap items-baseline justify-between gap-x-4">
+                  <span>{c.item}</span>
+                  <span className="numero">{c.valor}</span>
+                </div>
+                {c.nota && <span className="text-sm text-muted-foreground">{c.nota}</span>}
+              </li>
+            ))}
+          </ul>
+          <p className="text-sm text-muted-foreground">
+            O trabalho de desenvolvimento é voluntário. O que entrar de doação vai primeiro para
+            esses custos, e o que sobrar fica guardado para os próximos meses.
+          </p>
+        </section>
+      </div>
+
+      <section id="pix" className="flex scroll-mt-24 flex-col gap-3">
         <h2 className="text-2xl">Doe por Pix</h2>
         <p className="text-muted-foreground">
           Qualquer valor ajuda. Aponte a câmera do app do seu banco para o código ou, no

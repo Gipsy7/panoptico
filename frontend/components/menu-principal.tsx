@@ -72,7 +72,7 @@ export function MenuPrincipal() {
 
   return (
     <>
-      <nav aria-label="Principal" className="hidden items-center gap-3 text-sm whitespace-nowrap xl:flex xl:gap-4">
+      <nav aria-label="Principal" className="hidden items-center gap-3 text-sm whitespace-nowrap xl:flex">
         {ITENS.map((i) => (
           <Link key={i.rotulo} href={i.href} className="alvo-link underline-offset-4 hover:underline">
             {i.rotulo}
@@ -85,7 +85,7 @@ export function MenuPrincipal() {
         <AlternarTema />
       </nav>
 
-      <div className="flex items-center gap-1 min-[22rem]:gap-2 xl:hidden">
+      <div className="flex min-w-0 items-center gap-1 min-[22rem]:gap-2 xl:hidden">
         {/* Botão de tema no cabeçalho quando cabe (a partir de 640 px); abaixo disso, no topo do menu. */}
         <div className="hidden sm:block">
           <AlternarTema />

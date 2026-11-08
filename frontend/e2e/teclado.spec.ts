@@ -30,8 +30,8 @@ test("menu do celular: Enter abre, Esc fecha e o foco volta ao botão", async ({
 
 test("CEP: inválido não sai da página; válido leva a /representantes", async ({ page }) => {
   await page.goto("/");
-  // Com localização disponível o CEP fica atrás de "Prefiro digitar o CEP".
-  const prefiro = page.getByRole("button", { name: "Prefiro digitar o CEP" });
+  // Com localização disponível o CEP fica atrás de "Use o CEP" (abaixo da busca pelo nome da cidade).
+  const prefiro = page.getByRole("button", { name: "Use o CEP" });
   const campo = page.getByLabel("Digite seu CEP");
   if (await prefiro.isVisible().catch(() => false)) {
     // Repete até a hidratação ligar o botão.

@@ -55,11 +55,12 @@ const PINO = (
 
 /** O lugar no cabeçalho: com lugar, "Blumenau, SC" (leva à cidade); sem, "Escolher cidade". */
 export function LugarNoCabecalho({ compacto = false }: { compacto?: boolean }) {
+  // Larguras em px (não em rem): com o texto a 200% o chip não pode crescer e empurrar o menu.
   const lugar = useLugar();
   return (
     <Link
       href={lugar ? `/cidade/${lugar.ibge}` : "/#cep"}
-      className="inline-flex min-h-10 max-w-[11rem] items-center gap-1.5 rounded-[var(--raio)] border border-border bg-card px-2.5 text-sm whitespace-nowrap hover:border-foreground/40 focus-visible:outline-2 focus-visible:outline-bronze"
+      className="inline-flex min-h-10 max-w-[150px] min-w-0 items-center gap-1.5 rounded-[var(--raio)] border border-border bg-card px-2.5 text-sm whitespace-nowrap hover:border-foreground/40 focus-visible:outline-2 focus-visible:outline-bronze"
     >
       {PINO}
       <span className="truncate">{lugar ? (compacto ? lugar.nome : `${lugar.nome}, ${lugar.uf}`) : "Escolher cidade"}</span>

@@ -166,7 +166,6 @@ export function CalendarioVotacoes({ dados, estado }: { dados: Dados; estado: Es
                   <Link
                     href={ir({ dia: diaSel === dia ? undefined : dataIso(ano, mes, dia) })}
                     scroll={false}
-                    aria-label={rotulo}
                     aria-current={diaSel === dia ? "date" : undefined}
                     className={cn(
                       base,
@@ -175,6 +174,9 @@ export function CalendarioVotacoes({ dados, estado }: { dados: Dados; estado: Es
                     )}
                   >
                     {corpo}
+                    {/* Nome pelo texto escondido, não por aria-label: o número visível ("2", "1") não
+                        bate com a frase e o leitor de tela precisa da frase inteira. */}
+                    <span className="sr-only">{rotulo}</span>
                   </Link>
                 ) : (
                   <span className={cn(base, "border-transparent")}>

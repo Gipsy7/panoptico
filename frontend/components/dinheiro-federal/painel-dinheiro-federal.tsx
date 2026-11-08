@@ -579,6 +579,7 @@ export function PainelDinheiroFederal({ inicial }: { inicial: EstadoInicial }) {
         <div className={estilos.migalhas}>
           <Migalhas itens={migalhas} />
         </div>
+        <p className="sobretitulo">Dinheiro público</p>
         <h1 className={`${estilos.h1} font-heading`}>
           <span className={estilos.longo}>Quanto a União arrecada e quanto repassa em cada estado</span>
           <span className={estilos.curto}>Imposto federal: o que sai e o que volta</span>

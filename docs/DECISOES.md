@@ -1796,6 +1796,13 @@ Seguindo o protótipo 3 aprovado (o dono autorizou seguir sem novos protótipos)
   painel do prédio ganha a faixa da esfera (país, estado, cidade), com cores de assunto, nunca de partido.
 - **Decisões no computador:** página larga; pauta e lista à esquerda, calendário numa coluna ao lado. No celular a
   ordem não muda (pauta, calendário, lista).
+- **Apoie:** quatro formas de ajudar (Pix, divulgar, ajudar nos dados, código aberto) e, ao lado, quanto custa
+  manter, com os custos reais de antes; o Pix continua abaixo, completo.
+- **Dinheiro público** (`/impostos-e-repasses`, mesma URL): camadas e "Mapa | Lista" em régua reta; painel do
+  estado com a faixa de dinheiro.
+- **Acessibilidade:** os dias do calendário de votações passam a ter o nome pelo texto escondido (o número visível
+  não batia com o `aria-label`, regra *label-content-name-mismatch*); o chip da cidade no cabeçalho tem largura em
+  px, para não estourar com o texto a 200%.
 
 ## 2026-11-08: redesenho, etapa 2 (home: entrar pelo lugar)
 
