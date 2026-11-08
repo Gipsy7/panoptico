@@ -23,6 +23,7 @@ import io
 import json
 import re
 import zipfile
+from collections.abc import Iterator
 from decimal import Decimal, InvalidOperation
 from pathlib import Path
 from typing import Any
@@ -59,38 +60,52 @@ UFS = {
 }  # fmt: skip
 
 
-def planilhas(conteudo: bytes) -> list[list[list[str]]]:
-    """Todas as planilhas de um xlsx (na ordem do arquivo), só com a biblioteca padrão."""
+def _linhas(arquivo, textos: list[str]) -> Iterator[list[str]]:
+    """Linhas de uma planilha lidas em fluxo (iterparse): a de municípios tem ~14 mil linhas e
+    ~120 colunas, e montada inteira na memória derrubava a carga na VPS (4 GB)."""
+    for _evento, linha in ElementTree.iterparse(arquivo):
+        if linha.tag != f"{NS}row":
+            continue
+        celulas: dict[int, str] = {}
+        for c in linha.findall(f"{NS}c"):
+            coluna = 0
+            for letra in re.match(r"[A-Z]+", c.get("r", "A"))[0]:
+                coluna = coluna * 26 + ord(letra) - 64
+            valor = c.find(f"{NS}v")
+            if c.get("t") == "s" and valor is not None:
+                texto = textos[int(valor.text)]
+            elif c.get("t") == "inlineStr":
+                texto = "".join(t.text or "" for t in c.iter(f"{NS}t"))
+            else:
+                texto = valor.text if valor is not None and valor.text else ""
+            celulas[coluna - 1] = texto.strip()
+        linha.clear()
+        largura = max(celulas, default=-1) + 1
+        yield [celulas.get(i, "") for i in range(largura)]
+
+
+def folhas(conteudo: bytes) -> Iterator[Iterator[list[str]]]:
+    """Cada planilha de um xlsx (na ordem do arquivo), em fluxo; consuma uma antes da outra."""
     with zipfile.ZipFile(io.BytesIO(conteudo)) as z:
         textos: list[str] = []
         if "xl/sharedStrings.xml" in z.namelist():
-            raiz = ElementTree.fromstring(z.read("xl/sharedStrings.xml"))
-            textos = ["".join(t.text or "" for t in si.iter(f"{NS}t")) for si in raiz]
+            with z.open("xl/sharedStrings.xml") as f:
+                for _evento, si in ElementTree.iterparse(f):
+                    if si.tag == f"{NS}si":
+                        textos.append("".join(t.text or "" for t in si.iter(f"{NS}t")))
+                        si.clear()
         nomes = sorted(
             (n for n in z.namelist() if re.fullmatch(r"xl/worksheets/sheet\d+\.xml", n)),
             key=lambda n: int(re.search(r"(\d+)\.xml$", n)[1]),
         )
-        resultado = []
         for nome in nomes:
-            linhas = []
-            for linha in ElementTree.fromstring(z.read(nome)).iter(f"{NS}row"):
-                celulas: dict[int, str] = {}
-                for c in linha.findall(f"{NS}c"):
-                    coluna = 0
-                    for letra in re.match(r"[A-Z]+", c.get("r", "A"))[0]:
-                        coluna = coluna * 26 + ord(letra) - 64
-                    valor = c.find(f"{NS}v")
-                    if c.get("t") == "s" and valor is not None:
-                        texto = textos[int(valor.text)]
-                    elif c.get("t") == "inlineStr":
-                        texto = "".join(t.text or "" for t in c.iter(f"{NS}t"))
-                    else:
-                        texto = valor.text if valor is not None and valor.text else ""
-                    celulas[coluna - 1] = texto.strip()
-                largura = max(celulas, default=-1) + 1
-                linhas.append([celulas.get(i, "") for i in range(largura)])
-            resultado.append(linhas)
-        return resultado
+            with z.open(nome) as f:
+                yield _linhas(f, textos)
+
+
+def planilhas(conteudo: bytes) -> list[list[list[str]]]:
+    """Todas as planilhas, inteiras (para arquivos pequenos e testes)."""
+    return [list(f) for f in folhas(conteudo)]
 
 
 def _nota(texto: str) -> str | None:
@@ -104,18 +119,20 @@ def _rede(texto: str) -> str | None:
     return REDES.get(re.sub(r"\s*\(\d+\)\s*$", "", texto).strip().lower())
 
 
-def notas(linhas: list[list[str]], colunas_chave: int) -> list[list[Any]]:
-    """[chave..., rede, {ano: nota}] de cada linha de dados da planilha."""
-    cab = next(
-        (i for i, r in enumerate(linhas) if any(c.startswith("VL_OBSERVADO_") for c in r)), None
-    )
-    if cab is None:
+def notas(linhas, colunas_chave: int) -> list[list[Any]]:
+    """[chave..., rede, {ano: nota}] de cada linha de dados da planilha (lista ou fluxo)."""
+    linhas = iter(linhas)
+    anos = None
+    for r in linhas:
+        if any(c.startswith("VL_OBSERVADO_") for c in r):
+            anos = {
+                i: c.rsplit("_", 1)[1] for i, c in enumerate(r) if c.startswith("VL_OBSERVADO_")
+            }
+            break
+    if anos is None:
         raise ValueError("Planilha do IDEB sem a linha de códigos (VL_OBSERVADO_*)")
-    anos = {
-        i: c.rsplit("_", 1)[1] for i, c in enumerate(linhas[cab]) if c.startswith("VL_OBSERVADO_")
-    }
     saida = []
-    for r in linhas[cab + 1 :]:
+    for r in linhas:
         if len(r) <= colunas_chave or not r[0]:
             break  # fim dos dados (depois vêm as notas de rodapé)
         rede = _rede(r[colunas_chave])
@@ -148,13 +165,16 @@ def _baixar(client: httpx.Client, edicao: int) -> dict[str, Any]:
         x = _xlsx_do_zip(
             comum.get_bytes(client, f"{BASE}divulgacao_{nome}_municipios_{edicao}.zip")
         )
-        linhas = planilhas(x)[0]
+        gerador = folhas(x)  # guardado: descartado, ele fecharia o zip antes da leitura
+        linhas = next(gerador)
         # SG_UF, CO_MUNICIPIO, NO_MUNICIPIO, REDE: a chave é o código (coluna 1).
         recorte["municipios"][etapa] = [[r[1], r[3], r[4]] for r in notas(linhas, 3)]
+        gerador.close()
+        del x
     for arquivo, chave in ((f"divulgacao_regioes_ufs_ideb_{edicao}.zip", "ufs"),
                            (f"divulgacao_brasil_ideb_{edicao}.zip", "brasil")):  # fmt: skip
-        folhas = planilhas(_xlsx_do_zip(comum.get_bytes(client, BASE + arquivo)))
-        for etapa, linhas in zip(ORDEM_ETAPAS, folhas, strict=False):
+        planilha = folhas(_xlsx_do_zip(comum.get_bytes(client, BASE + arquivo)))
+        for etapa, linhas in zip(ORDEM_ETAPAS, planilha, strict=False):
             recorte[chave][etapa] = [[r[0], r[1], r[2]] for r in notas(linhas, 1)]
     return recorte
 

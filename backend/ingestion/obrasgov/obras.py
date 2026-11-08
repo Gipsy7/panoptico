@@ -55,9 +55,29 @@ CAMPOS_PROJETO = (
 )
 
 
-def paginas(client: httpx.Client, recurso: str, campos: tuple[str, ...] | None = None):
-    """Todas as linhas do recurso, página a página (1, 2, ... até `total_pages`)."""
-    linhas: list[dict[str, Any]] = []
+def _compacto(item: dict[str, Any], campos: tuple[str, ...]) -> list[Any]:
+    """Só os valores usados, em lista (sem os nomes dos campos em cada linha): com dicionários,
+    a carga passava de 1,4 GB de memória e caía na VPS (4 GB). Listas aninhadas viram o mínimo:
+    executor e tipo, o primeiro; investimentos, [valor, fonte]."""
+    linha = []
+    for k in campos:
+        v = item.get(k)
+        if k == "executores":
+            v = (v or [{}])[0].get("organizacao_executor") if v else None
+        elif k == "eixos_tipos":
+            v = (v or [{}])[0].get("tipo") if v else None
+        elif k == "investimentos_previstos":
+            v = [
+                [i.get("vl_investimento_previsto"), i.get("desc_nome_fonte_recurso")]
+                for i in v or []
+            ]
+        linha.append(v)
+    return linha
+
+
+def paginas(client: httpx.Client, recurso: str, campos: tuple[str, ...]):
+    """Todas as linhas do recurso, página a página (1, 2, ... até `total_pages`), compactas."""
+    linhas: list[list[Any]] = []
     pagina, total = 1, 1
     while pagina <= total:
         corpo = comum.get_json(
@@ -65,7 +85,7 @@ def paginas(client: httpx.Client, recurso: str, campos: tuple[str, ...] | None =
         )
         total = int(corpo.get("total_pages") or 0)
         for item in corpo.get("data") or []:
-            linhas.append({k: item.get(k) for k in campos} if campos else item)
+            linhas.append(_compacto(item, campos))
         pagina += 1
         time.sleep(PAUSA)
     return linhas
@@ -73,13 +93,43 @@ def paginas(client: httpx.Client, recurso: str, campos: tuple[str, ...] | None =
 
 def baixar_tudo(client: httpx.Client) -> dict[str, list[dict[str, Any]]]:
     projetos = paginas(client, "projeto-investimento", CAMPOS_PROJETO)
-    geometrias = paginas(client, "geometria", ("id_projeto_investimento", "cod_ibge"))
-    execucoes = paginas(
-        client,
-        "execucao-fisica",
-        ("id_projeto_investimento", "percentual_execucao_fisica", "dt_atualizacao_execucao"),
-    )
-    return {"projetos": projetos, "geometrias": geometrias, "execucoes": execucoes}
+    geometrias = paginas(client, "geometria", CAMPOS_GEOMETRIA)
+    execucoes = paginas(client, "execucao-fisica", CAMPOS_EXECUCAO)
+    return {
+        "formato": 2,
+        "colunas": {
+            "projetos": CAMPOS_PROJETO,
+            "geometrias": CAMPOS_GEOMETRIA,
+            "execucoes": CAMPOS_EXECUCAO,
+        },
+        "projetos": projetos,
+        "geometrias": geometrias,
+        "execucoes": execucoes,
+    }
+
+
+CAMPOS_GEOMETRIA = ("id_projeto_investimento", "cod_ibge")
+CAMPOS_EXECUCAO = (
+    "id_projeto_investimento",
+    "percentual_execucao_fisica",
+    "dt_atualizacao_execucao",
+)
+GZIP = bytes([0x1F, 0x8B])  # assinatura do gzip: o bruto pode vir comprimido ou não
+
+
+def _linhas(recorte: dict[str, Any], parte: str):
+    """Linhas como dicionário, uma de cada vez: aceita o formato compacto (2) e o antigo."""
+    colunas = (recorte.get("colunas") or {}).get(parte)
+    for linha in recorte[parte]:
+        if colunas is None:  # formato antigo (bruto de 08/11/2026): já vem em dicionário
+            yield _antigo(linha) if parte == "projetos" else linha
+        else:
+            yield dict(zip(colunas, linha, strict=True))
+
+
+def _antigo(p: dict[str, Any]) -> dict[str, Any]:
+    """Projeto do bruto antigo, com as listas aninhadas, na forma do compacto."""
+    return {**p, **dict(zip(CAMPOS_PROJETO, _compacto(p, CAMPOS_PROJETO), strict=True))}
 
 
 def _data(valor: str | None) -> date | None:
@@ -94,37 +144,35 @@ def _texto(valor: Any, limite: int) -> str | None:
     return texto[:limite] or None
 
 
-def normalizar(recorte: dict[str, list[dict[str, Any]]]) -> tuple[list[dict], list[dict]]:
-    """Bruto -> (obras, ligações obra-município). Obra repetida entre páginas fica uma só."""
+def _obras(recorte: dict[str, Any]):
+    """Cada obra, uma de cada vez (para não montar 155 mil dicionários na memória). Obra
+    repetida entre páginas sai uma vez só."""
     execucao: dict[str, tuple[str, Any]] = {}  # id -> (data de atualização, percentual)
-    for e in recorte["execucoes"]:
+    for e in _linhas(recorte, "execucoes"):
         chave = e["id_projeto_investimento"]
         quando = e.get("dt_atualizacao_execucao") or ""
         if chave and (chave not in execucao or quando >= execucao[chave][0]):
             execucao[chave] = (quando, e.get("percentual_execucao_fisica"))
 
-    obras: dict[str, dict[str, Any]] = {}
-    for p in recorte["projetos"]:
+    vistas: set[str] = set()
+    for p in _linhas(recorte, "projetos"):
         chave = p["id_projeto_investimento"]
-        if not chave or not p.get("desc_nome"):
+        if not chave or not p.get("desc_nome") or chave in vistas:
             continue
+        vistas.add(chave)
         previstos = p.get("investimentos_previstos") or []
-        total = sum(Decimal(str(i.get("vl_investimento_previsto") or 0)) for i in previstos)
+        total = sum(Decimal(str(v or 0)) for v, _fonte in previstos)
         federal = sum(
-            Decimal(str(i.get("vl_investimento_previsto") or 0))
-            for i in previstos
-            if (i.get("desc_nome_fonte_recurso") or "").lower() == "federal"
+            Decimal(str(v or 0)) for v, fonte in previstos if (fonte or "").lower() == "federal"
         )
-        executores = p.get("executores") or []
-        tipos = p.get("eixos_tipos") or []
         quando, percentual = execucao.get(chave, ("", None))
-        obras[chave] = {
+        yield {
             "id_unico": chave,
             "nome": _texto(p["desc_nome"], 400),
             "situacao": _texto(p.get("situacao"), 40),
             "natureza": _texto(p.get("natureza_intervencao"), 60),
             "especie": _texto(p.get("especie_intervencao"), 60),
-            "tipo": _texto(tipos[0].get("tipo"), 120) if tipos else None,
+            "tipo": _texto(p.get("eixos_tipos"), 120),
             "uf": (p.get("uf_principal") or "")[:2] or None,
             "data_inicial_prevista": _data(p.get("dt_inicial_prevista")),
             "data_final_prevista": _data(p.get("dt_final_prevista")),
@@ -134,38 +182,51 @@ def normalizar(recorte: dict[str, list[dict[str, Any]]]) -> tuple[list[dict], li
             "valor_previsto": total if previstos else None,
             "valor_previsto_federal": federal if previstos else None,
             "responsavel": _texto(p.get("organizacao_resp"), 300),
-            "executor": _texto(executores[0].get("organizacao_executor"), 300)
-            if executores
-            else None,
+            "executor": _texto(p.get("executores"), 300),
             "percentual_execucao": Decimal(str(percentual)) if percentual is not None else None,
             "execucao_atualizada_em": _data(quando),
         }
 
+
+def _municipios(recorte: dict[str, Any], ids: set[str]) -> list[dict[str, str]]:
     ligacoes = {
         (g["id_projeto_investimento"], str(g["cod_ibge"]).zfill(7))
-        for g in recorte["geometrias"]
-        if g.get("cod_ibge") and g.get("id_projeto_investimento") in obras
+        for g in _linhas(recorte, "geometrias")
+        if g.get("cod_ibge") and g.get("id_projeto_investimento") in ids
     }
-    municipios = [{"obra_id": o, "municipio_ibge": m} for o, m in sorted(ligacoes)]
-    return list(obras.values()), municipios
+    return [{"obra_id": o, "municipio_ibge": m} for o, m in sorted(ligacoes)]
+
+
+def normalizar(recorte: dict[str, Any]) -> tuple[list[dict], list[dict]]:
+    """Bruto -> (obras, ligações obra-município), inteiros (testes e conferência)."""
+    obras = list(_obras(recorte))
+    return obras, _municipios(recorte, {o["id_unico"] for o in obras})
 
 
 def carregar(session: Session, payload: bytes, ingestao: FonteIngestao) -> int:
-    recorte = json.loads(gzip.decompress(payload) if payload[:2] == b"\x1f\x8b" else payload)
-    obras, municipios = normalizar(recorte)
-    if not obras:
-        raise ValueError("Nenhuma obra na API do Obrasgov; abortando.")
-    sem_municipio = len(obras) - len({m["obra_id"] for m in municipios})
-    print(f"  {len(obras)} obras; {len(municipios)} ligações a município; "
-          f"{sem_municipio} sem município na geometria")  # fmt: skip
+    recorte = json.loads(gzip.decompress(payload) if payload[:2] == GZIP else payload)
+    del payload
     session.execute(delete(ObraFederalMunicipio))
     session.execute(delete(ObraFederal))
-    linhas = [{**o, "ingestao_id": ingestao.id} for o in obras]
-    for inicio in range(0, len(linhas), LOTE):
-        session.execute(insert(ObraFederal), linhas[inicio : inicio + LOTE])
+    ids: set[str] = set()
+    lote: list[dict[str, Any]] = []
+    for obra in _obras(recorte):
+        ids.add(obra["id_unico"])
+        lote.append({**obra, "ingestao_id": ingestao.id})
+        if len(lote) == LOTE:
+            session.execute(insert(ObraFederal), lote)
+            lote = []
+    if lote:
+        session.execute(insert(ObraFederal), lote)
+    if not ids:
+        raise ValueError("Nenhuma obra na API do Obrasgov; abortando.")
+    municipios = _municipios(recorte, ids)
     for inicio in range(0, len(municipios), LOTE):
         session.execute(insert(ObraFederalMunicipio), municipios[inicio : inicio + LOTE])
-    return len(obras)
+    sem_municipio = len(ids) - len({m["obra_id"] for m in municipios})
+    print(f"  {len(ids)} obras; {len(municipios)} ligações a município; "
+          f"{sem_municipio} sem município na geometria")  # fmt: skip
+    return len(ids)
 
 
 def executar(de_raw: Path | None = None) -> int:
