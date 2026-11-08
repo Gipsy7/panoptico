@@ -4,6 +4,8 @@ import { notFound } from "next/navigation";
 
 import { AbasTema } from "@/components/abas-tema";
 import { AvisoErro } from "@/components/aviso-erro";
+import { IdebResumo, IdebSecao } from "@/components/ideb-secao";
+import { ObrasResumo, ObrasSecao } from "@/components/obras-secao";
 import { Chapa, cargoDoVice } from "@/components/chapa";
 import { FotoOuIniciais } from "@/components/eleitos-secao";
 import { CompartilharWhatsApp } from "@/components/compartilhar";
@@ -30,6 +32,8 @@ import {
   getEleitores,
   getExecutivo,
   getMaisVotados,
+  getIdebMunicipio,
+  getObrasMunicipio,
   getResultadoEleicao,
   getDinheiroFederalMunicipio,
   getEmendasMunicipio,
@@ -108,6 +112,8 @@ async function Cidade({ ibge }: { ibge: string }) {
     vereadorR,
     maisVotadosR,
     executivoR,
+    obrasR,
+    idebR,
   ] = await Promise.all([
     getEmendasMunicipio(ibge),
     getContas(ibge),
@@ -129,6 +135,8 @@ async function Cidade({ ibge }: { ibge: string }) {
     }),
     getMaisVotados(ibge),
     getExecutivo(uf, ibge),
+    getObrasMunicipio(ibge),
+    getIdebMunicipio(ibge),
   ]);
   const repassesEstado = estaduaisR.ok ? estaduaisR.dados : null;
   const temRepassesEstado = Boolean(
@@ -139,6 +147,8 @@ async function Cidade({ ibge }: { ibge: string }) {
   const contas = contasR.ok ? contasR.dados : null;
   const fornecedores = fornecedoresR.ok ? fornecedoresR.dados : null;
   const pncp = pncpR.ok && pncpR.dados.itens.length > 0 ? pncpR.dados : null;
+  const obrasCidade = obrasR.ok && obrasR.dados.total > 0 ? obrasR.dados : null;
+  const idebCidade = idebR.ok && idebR.dados.etapas.length > 0 ? idebR.dados : null;
   const populacao = emendas?.populacao ?? contas?.populacao ?? null;
   const tceCarregado = UF_COM_TCE.includes(uf);
   const capitalComTcm =
@@ -266,6 +276,30 @@ async function Cidade({ ibge }: { ibge: string }) {
       ],
     },
     {
+      id: "educacao",
+      rotulo: "Educação",
+      tema: "escolas",
+      secoes: [
+        {
+          id: "ideb",
+          titulo: "IDEB das escolas",
+          conteudo: idebCidade && <IdebSecao dados={idebCidade} cidade={municipio} uf={uf} />,
+        },
+      ],
+    },
+    {
+      id: "obras",
+      rotulo: "Obras",
+      tema: "obras",
+      secoes: [
+        {
+          id: "obras",
+          titulo: "Obras federais",
+          conteudo: obrasCidade && <ObrasSecao dados={obrasCidade} municipio={municipio} />,
+        },
+      ],
+    },
+    {
       id: "eleicoes",
       rotulo: "Eleições",
       secoes: [
@@ -350,8 +384,7 @@ async function Cidade({ ibge }: { ibge: string }) {
           )}
         </dl>
         <p className="text-sm text-muted-foreground">
-          Economia, escolas, saúde e obras entram aqui quando os dados do IBGE, do INEP, do DATASUS e do Obrasgov forem
-          carregados.
+          Economia e saúde entram aqui quando os dados do IBGE e do DATASUS forem carregados.
         </p>
         <FonteRodape
           fonte={eleitores ? `${eleitores.fonte_nome}; IBGE` : "IBGE"}
@@ -579,6 +612,26 @@ async function Cidade({ ibge }: { ibge: string }) {
                 </div>
               ),
             },
+            ...(idebCidade
+              ? [
+                  {
+                    id: "educacao",
+                    rotulo: "Educação",
+                    tema: "escolas" as const,
+                    conteudo: <IdebResumo dados={idebCidade} cidade={municipio} uf={uf} />,
+                  },
+                ]
+              : []),
+            ...(obrasCidade
+              ? [
+                  {
+                    id: "obras",
+                    rotulo: "Obras",
+                    tema: "obras" as const,
+                    conteudo: <ObrasResumo dados={obrasCidade} municipio={municipio} />,
+                  },
+                ]
+              : []),
             ...(politica ? [{ id: "politica", rotulo: "Política", tema: "votos" as const, conteudo: politica }] : []),
           ]}
         />

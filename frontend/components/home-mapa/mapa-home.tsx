@@ -21,6 +21,8 @@ export interface UfDoMapa {
   nome: string;
   arrecadacao: number | null;
   repasse: number | null;
+  /** Obras federais paradas a cada 100 começadas e não terminadas (Obrasgov.br). */
+  obrasParadas?: number | null;
 }
 
 const REAIS_100 = new Intl.NumberFormat("pt-BR", {
@@ -52,11 +54,17 @@ function Resumo({ u }: { u: UfDoMapa }) {
           {r != null ? REAIS_100.format(r) : "sem dado"}
         </span>
       </span>
+      {u.obrasParadas != null && (
+        <span>
+          Obras federais paradas a cada 100 abertas:{" "}
+          <span className="tabular-nums">{u.obrasParadas.toLocaleString("pt-BR", { maximumFractionDigits: 0 })}</span>
+        </span>
+      )}
     </div>
   );
 }
 
-type CamadaId = "retorno" | "arrecadado" | "repassado";
+type CamadaId = "retorno" | "arrecadado" | "repassado" | "obras";
 
 const CAMADAS: Record<
   CamadaId,
@@ -86,6 +94,16 @@ const CAMADAS: Record<
     legenda: "mais recebido",
     titulo: "colorido por quanto a União repassou ao estado e às cidades",
   },
+  obras: {
+    rotulo: "Obras paradas",
+    valor: (u) => u.obrasParadas ?? null,
+    texto: (u) =>
+      u.obrasParadas != null
+        ? `${u.obrasParadas.toLocaleString("pt-BR", { maximumFractionDigits: 0 })} obras federais paradas a cada 100 começadas e não terminadas`
+        : "sem dado",
+    legenda: "mais paradas a cada 100",
+    titulo: "colorido por quantas obras federais estão paradas a cada 100 começadas e não terminadas",
+  },
 };
 
 // Estados por onde a mão passeia: grandes e espalhados, o primeiro bem visível no celular.
@@ -98,7 +116,7 @@ interface PontoMao {
   largura: number;
 }
 
-export function MapaHome({ ufs }: { ufs: UfDoMapa[] }) {
+export function MapaHome({ ufs, fonteObras = null }: { ufs: UfDoMapa[]; fonteObras?: string | null }) {
   const router = useRouter();
   const [sel, setSel] = useState<string | null>(null);
   const [camadaId, setCamadaId] = useState<CamadaId>("retorno");
@@ -165,7 +183,9 @@ export function MapaHome({ ufs }: { ufs: UfDoMapa[] }) {
     <div className="flex flex-col gap-3">
       <Segmentado
         rotulo="O que colorir no mapa"
-        opcoes={(Object.keys(CAMADAS) as CamadaId[]).map((k) => ({ valor: k, rotulo: CAMADAS[k].rotulo }))}
+        opcoes={(Object.keys(CAMADAS) as CamadaId[])
+          .filter((k) => k !== "obras" || fonteObras)
+          .map((k) => ({ valor: k, rotulo: CAMADAS[k].rotulo }))}
         valor={camadaId}
         aoMudar={setCamadaId}
         esticar
@@ -237,6 +257,11 @@ export function MapaHome({ ufs }: { ufs: UfDoMapa[] }) {
         </span>
         <span>{camada.legenda}</span>
       </div>
+      {camadaId === "obras" && fonteObras && (
+        <p className="text-sm text-muted-foreground">
+          Paradas = paralisadas ou inacabadas; abertas = essas mais as em execução. Fonte: {fonteObras}.
+        </p>
+      )}
       <div
         className="min-h-[7rem] border-t border-border pt-3"
       >

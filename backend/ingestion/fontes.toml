@@ -279,6 +279,21 @@ frequencia = "diaria"
 depende = ["transparencia_emendas"]
 
 [[fonte]]
+nome = "obrasgov_obras"
+modulo = "ingestion.obrasgov.obras"
+uso = "Obras federais da cidade e do estado no Raio-X (situação, valor previsto, % executado)"
+recorte = "todas as obras e projetos de investimento do Obrasgov.br (~155 mil), só os campos usados (sem as descrições longas), com o município pela geometria"
+frequencia = "semanal"
+
+[[fonte]]
+nome = "inep_ideb"
+modulo = "ingestion.inep.ideb"
+uso = "Escolas no Raio-X da cidade e do estado (IDEB por etapa e rede, com o do estado e o do Brasil)"
+recorte = "notas observadas do IDEB de 2005 a 2025 por município, estado e Brasil; as planilhas (~70 MB) ficam no INEP e o bruto guardado é só o recorte das notas"
+frequencia = "mensal"
+bruto = "recorte"
+
+[[fonte]]
 nome = "resumos"
 modulo = "ingestion.resumos"
 uso = "Números-chave e lista de parlamentares"

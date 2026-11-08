@@ -86,6 +86,18 @@ CATALOGO = [
         "url": "https://www.gov.br/transferegov/pt-br",
     },
     {
+        "dado": "IDEB das escolas públicas por município, estado e Brasil (2005 a 2025)",
+        "orgao": "Instituto Nacional de Estudos e Pesquisas Educacionais (INEP)",
+        "fontes": ["inep_ideb"],
+        "url": "https://www.gov.br/inep/pt-br/areas-de-atuacao/pesquisas-estatisticas-e-indicadores/ideb/resultados",
+    },
+    {
+        "dado": "Obras federais: situação, valor previsto, percentual executado e município",
+        "orgao": "Ministério da Gestão e da Inovação (Obrasgov.br)",
+        "fontes": ["obrasgov_obras"],
+        "url": "https://api-publica.obrasgov.gestao.gov.br/obras",
+    },
+    {
         "dado": "Eleitos (do vereador ao presidente), bens, contas de campanha, votos, "
         "redes e fotos",
         "orgao": "Tribunal Superior Eleitoral",

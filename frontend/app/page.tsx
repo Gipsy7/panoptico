@@ -14,7 +14,8 @@ import { Marca } from "@/components/logo";
 import { PanopticoDesenho } from "@/components/panoptico-desenho";
 import { JsonLd } from "@/components/json-ld";
 import { IndicadorRolagem } from "@/components/revelar";
-import { getDinheiroFederal } from "@/lib/api";
+import { getDinheiroFederal, getObrasEstados } from "@/lib/api";
+import { paradasACada100 } from "@/lib/obras";
 import { SITE_URL } from "@/lib/site";
 
 const REPOSITORIO = "https://github.com/Gipsy7/panoptico";
@@ -116,7 +117,11 @@ export default function Home() {
 }
 
 async function DinheiroFederalHome() {
-  const r = await getDinheiroFederal();
+  const [r, obrasR] = await Promise.all([getDinheiroFederal(), getObrasEstados()]);
+  // Camada "Obras" do mapa: paradas a cada 100 começadas e não terminadas (Obrasgov.br).
+  const obrasPorUf = new Map(
+    obrasR.ok ? obrasR.dados.ufs.map((u) => [u.uf, paradasACada100(u.por_situacao)] as const) : [],
+  );
   if (!r.ok) return null;
   if (r.dados.sem_dados) {
     return (
@@ -173,7 +178,14 @@ async function DinheiroFederalHome() {
       </div>
       <div className="revelar-item">
       <MapaHome
-        ufs={ufs.map((u) => ({ uf: u.uf, nome: u.nome, arrecadacao: u.arrecadacao, repasse: u.repasse }))}
+        ufs={ufs.map((u) => ({
+          uf: u.uf,
+          nome: u.nome,
+          arrecadacao: u.arrecadacao,
+          repasse: u.repasse,
+          obrasParadas: obrasPorUf.get(u.uf) ?? null,
+        }))}
+        fonteObras={obrasR.ok && obrasPorUf.size > 0 ? obrasR.dados.fonte_nome : null}
       />
       </div>
     </section>

@@ -10,6 +10,7 @@
 - [2026-11-07: votação de mérito e de procedimento, calendário (Frente 4)](#2026-11-07-votação-de-mérito-e-de-procedimento-calendário-frente-4)
 - [2026-11-07: Plenário agora, selo "Ao vivo" no cabeçalho (Frente 4)](#2026-11-07-plenário-agora-selo-ao-vivo-no-cabeçalho-frente-4)
 - [2026-11-07: eleições completas (Frente 5)](#2026-11-07-eleições-completas-frente-5)
+- [2026-11-08: redesenho, etapa 5: obras federais (Obrasgov.br)](#2026-11-08-redesenho-etapa-5-obras-federais-obrasgovbr)
 - [2026-11-08: redesenho, etapa 4 (Raio-X da cidade e do estado)](#2026-11-08-redesenho-etapa-4-raio-x-da-cidade-e-do-estado)
 - [2026-11-08: redesenho, etapa 3 (telas em três camadas)](#2026-11-08-redesenho-etapa-3-telas-em-três-camadas)
 - [2026-11-08: redesenho, etapa 2 (home: entrar pelo lugar)](#2026-11-08-redesenho-etapa-2-home-entrar-pelo-lugar)
@@ -1781,6 +1782,26 @@ Escolhas do dono entre 3 protótipos: resultado em tabela densa com barras (A), 
 - **Eleitores:** soma dos aptos das zonas na eleição mais recente carregada, ao lado da população do IBGE. Não é o cadastro do eleitorado.
 - **`/segundo-turno` generalizada:** no mesmo endereço, abaixo do comparador, a seção "Resultado das eleições" com ano, cargo, turno e "onde" (formulário GET, funciona sem JavaScript).
 - **Nome de urna igual ao de outra pessoa** (ex.: "Jair Bolsonaro" para Jair Renan em 2026): a tabela mostra o nome de urna do TSE e liga ao perfil pela candidatura, nunca pelo nome.
+
+## 2026-11-08: redesenho, etapa 5: obras federais (Obrasgov.br)
+
+- **Fonte:** a API pública nova do Obrasgov.br (`api-publica.obrasgov.gestao.gov.br/obras`), porque é a única que
+  diz o município (pela geometria, com o código do IBGE); a antiga sai do ar em 31/08/2026 e não tem município.
+- **O que entra:** todas as obras e projetos (~155 mil), com situação, valor previsto (total e federal), datas,
+  responsável, executor e o percentual de execução física mais recente. Uma obra em vários municípios aparece em
+  cada um. Carga semanal, tudo de uma vez (apaga e reinsere numa transação).
+- **No site:** aba "Obras" no Raio-X da cidade (contagem por situação, como a fonte registra) e a lista, uma a uma,
+  em "Tudo sobre"; aba "Obras" no estado; camada "Obras paradas" no mapa da home.
+- **A conta do mapa:** obras paradas (paralisadas ou inacabadas) a cada 100 começadas e não terminadas (em execução
+  mais paradas), pela UF principal da obra. É uma proporção, para comparar estados de tamanhos diferentes, e a
+  definição aparece sob o mapa. Nenhuma cor de "bom" ou "ruim": a escala é a mesma das outras camadas.
+- **Ordem da lista:** em execução, paralisada, inacabada, cadastrada, concluída, cancelada; dentro de cada uma, pelo
+  valor. É a ordem do que está em andamento ao que acabou, não um ranking.
+- **Escolas (IDEB do INEP):** a nota observada de 2005 a 2025 por município, estado e Brasil, etapa e rede. No
+  Raio-X, a aba "Educação" compara as **escolas públicas** (municipais, estaduais e federais juntas), a única rede
+  que existe nos três níveis; cada rede aparece em "Tudo sobre". As metas não entram: acabaram em 2021. O gráfico
+  usa a escala fixa do índice (0 a 10), para não exagerar diferenças; cores validadas (bronze para a cidade, cinza
+  contínuo para o estado e tracejado para o Brasil).
 
 ## 2026-11-08: redesenho, etapa 4 (Raio-X da cidade e do estado)
 

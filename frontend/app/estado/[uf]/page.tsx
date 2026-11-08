@@ -9,7 +9,8 @@ import { FotoOuIniciais } from "@/components/eleitos-secao";
 import { EsqueletoSecao } from "@/components/esqueleto-secao";
 import { FonteRodape } from "@/components/fonte-rodape";
 import { Revelacao } from "@/components/revelacao";
-import { getBancadasEstado, getContasEstado, getDinheiroFederalUf, getExecutivo } from "@/lib/api";
+import { getBancadasEstado, getContasEstado, getDinheiroFederalUf, getExecutivo, getObrasEstados } from "@/lib/api";
+import { paradasACada100 } from "@/lib/obras";
 import { formatarReais, formatarReaisCompacto } from "@/lib/formato";
 import { UFS } from "@/lib/ufs";
 
@@ -48,12 +49,14 @@ const num = (n: number) => n.toLocaleString("pt-BR");
 async function Estado({ uf }: { uf: string }) {
   const e = estadoDe(uf);
   if (!e) notFound();
-  const [federalR, contasR, executivoR, bancadasR] = await Promise.all([
+  const [federalR, contasR, executivoR, bancadasR, obrasR] = await Promise.all([
     getDinheiroFederalUf(uf),
     getContasEstado(uf),
     getExecutivo(uf),
     getBancadasEstado(uf),
+    getObrasEstados(),
   ]);
+  const obras = obrasR.ok ? (obrasR.dados.ufs.find((u) => u.uf === uf) ?? null) : null;
   const federal = federalR.ok && !federalR.dados.sem_dados ? federalR.dados : null;
   const contas = contasR.ok ? contasR.dados : null;
   const governador = executivoR.ok ? executivoR.dados.governador : null;
@@ -74,7 +77,7 @@ async function Estado({ uf }: { uf: string }) {
     );
 
   const numero = (rotulo: string, valor: string) => (
-    <div className="border-t-2 border-foreground pt-2">
+    <div key={rotulo} className="border-t-2 border-foreground pt-2">
       <dt className="text-sm text-muted-foreground">{rotulo}</dt>
       <dd className="numero text-2xl">{valor}</dd>
     </div>
@@ -95,8 +98,7 @@ async function Estado({ uf }: { uf: string }) {
             {bancadas && bancadas.assembleia.total > 0 && numero("Cadeiras na Assembleia", num(bancadas.assembleia.total))}
           </dl>
           <p className="text-sm text-muted-foreground">
-            Economia, escolas, saúde e obras entram aqui quando os dados do IBGE, do INEP, do DATASUS e do Obrasgov forem
-            carregados.
+            Economia, escolas e saúde entram aqui quando os dados do IBGE, do INEP e do DATASUS forem carregados.
           </p>
           <FonteRodape fonte="IBGE (população)" atualizadoEm={null} />
         </div>
@@ -131,6 +133,33 @@ async function Estado({ uf }: { uf: string }) {
             <FonteRodape fonte={federal.fontes[0]?.nome ?? "Tesouro Nacional e Receita Federal"} url={federal.fontes[0]?.url} atualizadoEm={federal.fontes[0]?.atualizado_em ?? null} />
           )}
           {contas && <FonteRodape fonte={contas.fonte_nome} url={contas.fonte_url} atualizadoEm={contas.atualizado_em} />}
+        </div>
+      ),
+    });
+  }
+  if (obras && obras.total > 0) {
+    const paradas = paradasACada100(obras.por_situacao);
+    abas.push({
+      id: "obras",
+      rotulo: "Obras",
+      tema: "obras",
+      conteudo: (
+        <div className="flex flex-col gap-3">
+          <p className="text-lg leading-snug">
+            {num(obras.total)} obras e projetos federais registrados em {e.nome}
+            {paradas != null &&
+              `; de cada 100 começados e não terminados, ${paradas.toLocaleString("pt-BR", { maximumFractionDigits: 0 })} estão parados (paralisados ou inacabados)`}
+            .
+          </p>
+          <dl className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+            {obras.por_situacao.map((g) => numero(g.situacao, num(g.obras)))}
+          </dl>
+          <p className="text-sm text-muted-foreground">
+            As obras de cada cidade, uma a uma, estão no Raio-X da cidade.
+          </p>
+          {obrasR.ok && (
+            <FonteRodape fonte={obrasR.dados.fonte_nome} url={obrasR.dados.fonte_url} atualizadoEm={obrasR.dados.atualizado_em} />
+          )}
         </div>
       ),
     });

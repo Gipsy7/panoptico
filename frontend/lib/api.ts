@@ -1114,6 +1114,64 @@ export function getMunicipios(uf: string) {
   return getJson<Municipio[]>(`/municipios?uf=${encodeURIComponent(uf)}`);
 }
 
+export type IdebPonto = { ano: number; valor: number };
+export type IdebRede = { rede: string; serie: IdebPonto[]; uf: IdebPonto[]; brasil: IdebPonto[] };
+export type IdebMunicipio = {
+  municipio_ibge: string;
+  uf: string;
+  etapas: { etapa: string; rotulo: string; redes: IdebRede[] }[];
+  fonte_nome: string;
+  fonte_url: string;
+  atualizado_em: string | null;
+};
+
+/** IDEB da cidade por etapa e rede, com o do estado e o do Brasil (INEP). */
+export function getIdebMunicipio(ibge: string) {
+  return getJson<IdebMunicipio>(`/municipios/${encodeURIComponent(ibge)}/ideb`);
+}
+
+export type ObraSituacao = { situacao: string; obras: number; valor_previsto: number };
+export type ObraItem = {
+  id_unico: string;
+  nome: string;
+  situacao: string | null;
+  tipo: string | null;
+  valor_previsto: number | null;
+  percentual_execucao: number | null;
+  data_inicial_prevista: string | null;
+  data_final_prevista: string | null;
+  executor: string | null;
+  responsavel: string | null;
+  url: string;
+};
+export type ObrasMunicipio = {
+  municipio_ibge: string;
+  total: number;
+  valor_previsto: number;
+  por_situacao: ObraSituacao[];
+  itens: ObraItem[];
+  fonte_nome: string;
+  fonte_url: string;
+  atualizado_em: string | null;
+};
+
+/** Obras federais da cidade (Obrasgov.br), por situação, com o percentual executado. */
+export function getObrasMunicipio(ibge: string) {
+  return getJson<ObrasMunicipio>(`/municipios/${encodeURIComponent(ibge)}/obras`);
+}
+
+export type ObrasPorUf = {
+  ufs: { uf: string; total: number; por_situacao: ObraSituacao[] }[];
+  fonte_nome: string;
+  fonte_url: string;
+  atualizado_em: string | null;
+};
+
+/** Obras federais por estado e situação (Obrasgov.br). */
+export function getObrasEstados() {
+  return getJson<ObrasPorUf>("/obras/estados");
+}
+
 /** Cidades pelo nome (sem acento nem caixa), no máximo 8: a busca da home. */
 export function buscarMunicipios(q: string) {
   return getJson<Municipio[]>(`/municipios/busca?q=${encodeURIComponent(q)}`);

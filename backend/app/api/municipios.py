@@ -14,8 +14,18 @@ from app.schemas import (
     MunicipioInfo,
 )
 from app.schemas.emendas_municipio import EmendasMunicipioCompleta
+from app.schemas.ideb import IdebMunicipio
+from app.schemas.obras import ObrasMunicipio, ObrasPorUf
 from app.schemas.repasses_estaduais import RepassesEstaduaisResposta
-from app.services import contas, contratos_pncp, emendas, fornecedores, repasses_estaduais
+from app.services import (
+    contas,
+    contratos_pncp,
+    emendas,
+    fornecedores,
+    ideb,
+    obras,
+    repasses_estaduais,
+)
 from app.services.texto_busca import normalizar
 
 router = APIRouter()
@@ -83,6 +93,29 @@ def canais_do_municipio(ibge: str, session: Annotated[Session, Depends(get_sessi
         canais, key=lambda c: ORDEM_CANAIS.index(c.tipo) if c.tipo in ORDEM_CANAIS else 99
     )
     return {"itens": canais}
+
+
+@router.get("/municipios/{ibge}/obras", response_model=ObrasMunicipio)
+def obras_do_municipio(ibge: str, session: Annotated[Session, Depends(get_session)]) -> dict:
+    """Obras federais do Obrasgov.br na cidade, por situação, com o percentual executado."""
+    if session.get(Municipio, ibge) is None:
+        raise HTTPException(404, "Município não encontrado.")
+    return obras.do_municipio(session, ibge)
+
+
+@router.get("/municipios/{ibge}/ideb", response_model=IdebMunicipio)
+def ideb_do_municipio(ibge: str, session: Annotated[Session, Depends(get_session)]) -> dict:
+    """IDEB da cidade por etapa e rede, com o do estado e o do Brasil na mesma rede (INEP)."""
+    municipio = session.get(Municipio, ibge)
+    if municipio is None:
+        raise HTTPException(404, "Município não encontrado.")
+    return ideb.do_municipio(session, ibge, municipio.uf)
+
+
+@router.get("/obras/estados", response_model=ObrasPorUf)
+def obras_por_estado(session: Annotated[Session, Depends(get_session)]) -> dict:
+    """Obras federais por estado e situação (Obrasgov.br)."""
+    return obras.resumo_ufs(session)
 
 
 @router.get("/municipios/busca", response_model=list[MunicipioInfo])
