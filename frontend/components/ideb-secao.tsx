@@ -31,7 +31,20 @@ const B = 28;
 const W = 560;
 const H = 220;
 
-function SerieIdeb({ rede, cidade, uf }: { rede: IdebRede; cidade: string; uf: string }) {
+/** Faixa de um mandato no fundo da série: só situa no tempo, não atribui o número a ninguém. */
+export type FaixaMandato = { inicio: number; fim: number; rotulo: string };
+
+function SerieIdeb({
+  rede,
+  cidade,
+  uf,
+  faixas = [],
+}: {
+  rede: IdebRede;
+  cidade: string;
+  uf: string;
+  faixas?: FaixaMandato[];
+}) {
   const anos = [...new Set([...rede.serie, ...rede.uf, ...rede.brasil].map((p) => p.ano))].sort((a, b) => a - b);
   if (anos.length < 2) return null;
   const x = (ano: number) => L + ((ano - anos[0]) / (anos[anos.length - 1] - anos[0])) * (W - L - R);
@@ -74,6 +87,22 @@ function SerieIdeb({ rede, cidade, uf }: { rede: IdebRede; cidade: string; uf: s
         aria-label={`IDEB de ${anos[0]} a ${anos[anos.length - 1]}, escala de 0 a 10. ${resumo}.`}
         className="h-auto w-full max-w-2xl"
       >
+        {faixas
+          .filter((f) => f.fim >= anos[0] && f.inicio <= anos[anos.length - 1])
+          .map((f, i) => {
+            const a = x(Math.max(f.inicio - 0.5, anos[0]));
+            const b = x(Math.min(f.fim + 0.5, anos[anos.length - 1]));
+            return (
+              <g key={`${f.inicio}-${f.rotulo}`}>
+                <rect x={a} y={T} width={Math.max(0, b - a)} height={H - T - B} fill={i % 2 ? "transparent" : "var(--muted)"} />
+                <text x={a + 4} y={T + (i % 2 ? 24 : 12)} fontSize="10" fill="var(--muted-foreground)">
+                  {/* ~5,5 px por letra a 10 px: o nome inteiro só quando cabe na faixa */}
+                  {f.rotulo.length * 5.5 + 8 <= Math.max(b - a, 70) ? f.rotulo : f.rotulo.split(" ").at(-1)}
+                  <title>{`${f.rotulo}: ${f.inicio} a ${f.fim}`}</title>
+                </text>
+              </g>
+            );
+          })}
         {[0, 2, 4, 6, 8, 10].map((v) => (
           <g key={v}>
             <line x1={L} x2={W - R} y1={y(v)} y2={y(v)} stroke="var(--border)" strokeWidth={1} />
@@ -160,7 +189,17 @@ function SerieIdeb({ rede, cidade, uf }: { rede: IdebRede; cidade: string; uf: s
 }
 
 /** Resumo da aba Educação do Raio-X: o número mais recente de cada etapa e a série da primeira. */
-export function IdebResumo({ dados, cidade, uf }: { dados: IdebMunicipio; cidade: string; uf: string }) {
+export function IdebResumo({
+  dados,
+  cidade,
+  uf,
+  faixas = [],
+}: {
+  dados: IdebMunicipio;
+  cidade: string;
+  uf: string;
+  faixas?: FaixaMandato[];
+}) {
   const principal = dados.etapas[0];
   const redePrincipal = principal ? redeComparada(principal.redes) : null;
   return (
@@ -192,7 +231,14 @@ export function IdebResumo({ dados, cidade, uf }: { dados: IdebMunicipio; cidade
       {principal && redePrincipal && (
         <div className="flex flex-col gap-1">
           <h3 className="text-base font-semibold">{principal.rotulo}, desde {redePrincipal.serie[0]?.ano}</h3>
-          <SerieIdeb rede={redePrincipal} cidade={cidade} uf={uf} />
+          <SerieIdeb rede={redePrincipal} cidade={cidade} uf={uf} faixas={faixas} />
+          {faixas.length > 0 && (
+            <p className="text-xs text-muted-foreground">
+              No fundo, o prefeito eleito de cada período (TSE):{" "}
+              {faixas.map((f) => `${f.rotulo} (${f.inicio} a ${f.fim})`).join(", ")}. As faixas só situam no tempo: a nota
+              depende de muitos fatores, e as escolas estaduais são do governo do estado.
+            </p>
+          )}
         </div>
       )}
       <p className="text-sm">

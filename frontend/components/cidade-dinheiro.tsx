@@ -37,6 +37,7 @@ import {
   getIdebMunicipio,
   getPibMunicipio,
   getAgroMunicipio,
+  getAntecessores,
   getObrasMunicipio,
   getResultadoEleicao,
   getDinheiroFederalMunicipio,
@@ -120,6 +121,7 @@ async function Cidade({ ibge }: { ibge: string }) {
     idebR,
     pibR,
     agroR,
+    antecessoresR,
   ] = await Promise.all([
     getEmendasMunicipio(ibge),
     getContas(ibge),
@@ -145,6 +147,7 @@ async function Cidade({ ibge }: { ibge: string }) {
     getIdebMunicipio(ibge),
     getPibMunicipio(ibge),
     getAgroMunicipio(ibge),
+    getAntecessores({ cargo: "PREFEITO", municipio: ibge }),
   ]);
   const repassesEstado = estaduaisR.ok ? estaduaisR.dados : null;
   const temRepassesEstado = Boolean(
@@ -159,6 +162,13 @@ async function Cidade({ ibge }: { ibge: string }) {
   const idebCidade = idebR.ok && idebR.dados.etapas.length > 0 ? idebR.dados : null;
   const pibCidade = pibR.ok && pibR.dados.serie.length > 0 ? pibR.dados : null;
   const agroCidade = agroR.ok && agroR.dados.valor_total != null ? agroR.dados : null;
+  // Faixas dos mandatos de prefeito no fundo das séries (Etapa 6): só eleitos com nome.
+  const faixasPrefeito = antecessoresR.ok
+    ? antecessoresR.dados.mandatos
+        .filter((m) => m.pessoas.length > 0)
+        .map((m) => ({ inicio: m.inicio, fim: m.fim, rotulo: nomeCurto(m.pessoas[0].nome) }))
+        .sort((a, b) => a.inicio - b.inicio)
+    : [];
   const populacao = emendas?.populacao ?? contas?.populacao ?? null;
   const tceCarregado = UF_COM_TCE.includes(uf);
   const capitalComTcm =
@@ -648,7 +658,7 @@ async function Cidade({ ibge }: { ibge: string }) {
                     id: "educacao",
                     rotulo: "Educação",
                     tema: "escolas" as const,
-                    conteudo: <IdebResumo dados={idebCidade} cidade={municipio} uf={uf} />,
+                    conteudo: <IdebResumo dados={idebCidade} cidade={municipio} uf={uf} faixas={faixasPrefeito} />,
                   },
                 ]
               : []),
@@ -828,6 +838,16 @@ async function Cidade({ ibge }: { ibge: string }) {
       <AbasDetalhe titulo={`Tudo sobre ${municipio}`} abas={abas} />
     </article>
   );
+}
+
+/** "MÁRIO HILDEBRANDT" -> "Mário Hildebrandt" (o nome de urna vem em maiúsculas no TSE). */
+function nomeCurto(nome: string): string {
+  const minusculas = new Set(["da", "de", "do", "das", "dos", "e"]);
+  return nome
+    .toLowerCase()
+    .split(/\s+/)
+    .map((p, i) => (i > 0 && minusculas.has(p) ? p : p.charAt(0).toUpperCase() + p.slice(1)))
+    .join(" ");
 }
 
 /** Maior valor individual: entre os parlamentares em exercício e os outros autores. */

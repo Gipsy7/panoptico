@@ -10,6 +10,7 @@
 - [2026-11-07: votação de mérito e de procedimento, calendário (Frente 4)](#2026-11-07-votação-de-mérito-e-de-procedimento-calendário-frente-4)
 - [2026-11-07: Plenário agora, selo "Ao vivo" no cabeçalho (Frente 4)](#2026-11-07-plenário-agora-selo-ao-vivo-no-cabeçalho-frente-4)
 - [2026-11-07: eleições completas (Frente 5)](#2026-11-07-eleições-completas-frente-5)
+- [2026-11-08: redesenho, etapa 6: a faixa de cada mandato nas séries](#2026-11-08-redesenho-etapa-6-a-faixa-de-cada-mandato-nas-séries)
 - [2026-11-08: redesenho, etapa 5: obras federais (Obrasgov.br)](#2026-11-08-redesenho-etapa-5-obras-federais-obrasgovbr)
 - [2026-11-08: redesenho, etapa 4 (Raio-X da cidade e do estado)](#2026-11-08-redesenho-etapa-4-raio-x-da-cidade-e-do-estado)
 - [2026-11-08: redesenho, etapa 3 (telas em três camadas)](#2026-11-08-redesenho-etapa-3-telas-em-três-camadas)
@@ -1782,6 +1783,15 @@ Escolhas do dono entre 3 protótipos: resultado em tabela densa com barras (A), 
 - **Eleitores:** soma dos aptos das zonas na eleição mais recente carregada, ao lado da população do IBGE. Não é o cadastro do eleitorado.
 - **`/segundo-turno` generalizada:** no mesmo endereço, abaixo do comparador, a seção "Resultado das eleições" com ano, cargo, turno e "onde" (formulário GET, funciona sem JavaScript).
 - **Nome de urna igual ao de outra pessoa** (ex.: "Jair Bolsonaro" para Jair Renan em 2026): a tabela mostra o nome de urna do TSE e liga ao perfil pela candidatura, nunca pelo nome.
+
+## 2026-11-08: redesenho, etapa 6: a faixa de cada mandato nas séries
+
+- **Comparar no tempo:** a série do IDEB da cidade ganha, no fundo, a faixa de cada prefeito eleito (TSE,
+  `/eleicoes/antecessores`), com o nome e os anos também escritos por extenso abaixo do gráfico (no celular o
+  rótulo fica pequeno; quando não cabe na faixa, vai só o sobrenome).
+- **Sem atribuir:** a nota abaixo diz que as faixas só situam no tempo, que o índice depende de muitos fatores e que
+  as escolas estaduais são do governo do estado. Faixas alternadas em cinza, sem cor de partido.
+- Só existem mandatos desde a eleição de 2016 no banco; antes disso a série aparece sem faixa.
 
 ## 2026-11-08: redesenho, etapa 5: obras federais (Obrasgov.br)
 
