@@ -30,7 +30,7 @@ export function MaisVotados({ d }: { d: Dados }) {
         </p>
       </div>
       {d.cargos.length > 1 && (
-        <div role="tablist" aria-label="Cargo" className="flex gap-2">
+        <div role="tablist" aria-label="Cargo" className="flex flex-wrap gap-2">
           {d.cargos.map((c, i) => (
             <button
               key={c.cargo}

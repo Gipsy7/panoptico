@@ -156,11 +156,11 @@ function Legenda({ i, casa }: { i: ItemCustoMandato; casa: Casa }) {
   const corte = i.oficial.indexOf(", ");
   const [oficial, resto] = corte > 0 ? [i.oficial.slice(0, corte), i.oficial.slice(corte)] : [i.oficial, ""];
   return (
-    <li className="grid grid-cols-[auto_1fr_auto] items-baseline gap-x-3 border-b border-border py-3">
-      <span aria-hidden className={`size-3 translate-y-0.5 rounded-[1px] border border-foreground/30 ${TOM[i.item]}`} />
-      <span className="text-base">{i.nome}</span>
-      <span className="numero text-base">{i.valor === null ? "não publicado" : formatarReais(i.valor)}</span>
-      <small className="col-start-2 col-end-4 text-sm text-muted-foreground">
+    <li className="flex flex-wrap items-baseline gap-x-3 border-b border-border py-3">
+      <span aria-hidden className={`size-3 shrink-0 translate-y-0.5 rounded-[1px] border border-foreground/30 ${TOM[i.item]}`} />
+      <span className="min-w-0 flex-1 text-base break-words">{i.nome}</span>
+      <span className="numero ml-auto text-base">{i.valor === null ? "não publicado" : formatarReais(i.valor)}</span>
+      <small className="min-w-0 basis-full pl-6 text-sm break-words text-muted-foreground">
         {termo && i.item !== "subsidio" ? <TermoOficial id={termo}>{oficial}</TermoOficial> : oficial}
         {resto}
         {" · "}
