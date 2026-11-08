@@ -10,6 +10,7 @@
 - [2026-11-07: votação de mérito e de procedimento, calendário (Frente 4)](#2026-11-07-votação-de-mérito-e-de-procedimento-calendário-frente-4)
 - [2026-11-07: Plenário agora, selo "Ao vivo" no cabeçalho (Frente 4)](#2026-11-07-plenário-agora-selo-ao-vivo-no-cabeçalho-frente-4)
 - [2026-11-07: eleições completas (Frente 5)](#2026-11-07-eleições-completas-frente-5)
+- [2026-11-08: siglas de partido padronizadas](#2026-11-08-siglas-de-partido-padronizadas)
 - [2026-11-07: quanto custa o mandato (Frente 6)](#2026-11-07-quanto-custa-o-mandato-frente-6)
 - [2026-11-07: custo da câmara por morador e a média do estado (Frente 6)](#2026-11-07-custo-da-câmara-por-morador-e-a-média-do-estado-frente-6)
 - [2026-10-29: medidas provisórias e vetos do Presidente](#2026-10-29-medidas-provisórias-e-vetos-do-presidente)
@@ -1776,3 +1777,7 @@ Escolhas do dono entre 3 protótipos: resultado em tabela densa com barras (A), 
 - **Eleitores:** soma dos aptos das zonas na eleição mais recente carregada, ao lado da população do IBGE. Não é o cadastro do eleitorado.
 - **`/segundo-turno` generalizada:** no mesmo endereço, abaixo do comparador, a seção "Resultado das eleições" com ano, cargo, turno e "onde" (formulário GET, funciona sem JavaScript).
 - **Nome de urna igual ao de outra pessoa** (ex.: "Jair Bolsonaro" para Jair Renan em 2026): a tabela mostra o nome de urna do TSE e liga ao perfil pela candidatura, nunca pelo nome.
+
+## 2026-11-08: siglas de partido padronizadas
+
+As câmaras municipais escrevem a mesma sigla de vários jeitos ("REP", "Rep.", "REPUBL", "Republicanos"), o que partia a contagem das bancadas. `app/partidos.py` (`sigla_partido`) junta só variações óbvias da MESMA sigla na forma do TSE (REPUBLICANOS, UNIÃO, PCdoB, PODE...). Siglas de partidos que mudaram de nome ou se fundiram (PMDB, DEM, PRB, PSL, PPS) ficam como vieram: são o registro da fonte, não erro de grafia. Sigla desconhecida sai como veio. Vale na contagem das bancadas e na saída da API dos vereadores e deputados estaduais (dados já gravados) e na gravação do SAPL (próximas cargas). A escolha de autoridades no Senado continua contando como votação de mérito em "Só o que muda leis" (decisão do dono em 08/11).
