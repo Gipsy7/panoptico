@@ -21,11 +21,11 @@ import { CandidaturaSecao } from "@/components/candidatura-secao";
 import { CompartilharWhatsApp } from "@/components/compartilhar";
 import { CompartilharCartao } from "@/components/compartilhar-cartao";
 import { QuemESecao } from "@/components/dados-pessoais";
+import { Chapa, cargoDoVice, type PessoaDaChapa } from "@/components/chapa";
 import { FotoOuIniciais } from "@/components/eleitos-secao";
 import { ContratosSocioSecao } from "@/components/contratos-socio-secao";
 import { LinhaDoTempoSecao } from "@/components/linha-do-tempo-secao";
 import { Revelacao } from "@/components/revelacao";
-import { LeituraFacil } from "@/components/leitura-facil";
 import { FonteRodape } from "@/components/fonte-rodape";
 import { AbasDetalhe, type AbaDetalhe } from "@/components/painel/abas-detalhe";
 import { formatarNumero } from "@/components/painel/barra-comparacao";
@@ -59,6 +59,7 @@ import {
   getSancoes,
   urlFotoDe,
 } from "@/lib/api";
+import type { Eleito } from "@/lib/api";
 import { formatarData, formatarReais, formatarReaisCompacto } from "@/lib/formato";
 import { JsonLdPerfil, montarDescricao, nomeComSigla } from "@/components/json-ld";
 import { LinkExterno } from "@/components/link-externo";
@@ -98,6 +99,17 @@ async function DadosEstruturados({ id }: { id: string }) {
       imagem={e.foto ? urlFotoDe(e) : null}
     />
   );
+}
+
+/** Pessoa da chapa: quem é o perfil aberto fica sem link (já está aqui). */
+function pessoaDaChapa(p: Eleito, cargo: string, atual: number): PessoaDaChapa {
+  return {
+    nome: p.nome_urna,
+    partido: p.partido,
+    cargo,
+    href: p.id === atual ? null : `/eleito/${p.id}`,
+    retrato: <FotoOuIniciais eleito={p} tamanho={40} decorativa />,
+  };
 }
 
 const CARGO_EXECUTIVO = /^(vice-)?(presidente|governador|prefeito)/i;
@@ -448,6 +460,16 @@ async function Perfil({
         </div>
       </header>
 
+      {e.chapa && (
+        <section aria-label="A chapa" className="border-t border-border pt-2">
+          <Chapa
+            titular={pessoaDaChapa(e.chapa.titular, e.chapa.cargo, e.id)}
+            vice={e.chapa.vice && pessoaDaChapa(e.chapa.vice, cargoDoVice(e.chapa.cargo), e.id)}
+            rodape={`Eleitos juntos, na mesma chapa, em ${e.chapa.ano_eleicao}. O vice assume se o titular deixar o cargo.`}
+          />
+        </section>
+      )}
+
       <LinkCorrecao tipo="eleito" id={String(e.id)} />
 
       {e.eleito_2026 && <SeloEleitoFuturo eleito={e.eleito_2026} atualizadoEm={e.atualizado_em} />}
@@ -464,7 +486,6 @@ async function Perfil({
 
       {painel && <AvisoDoGoverno painel={painel} />}
 
-      <LeituraFacil />
 
       <GradeCartoes rotulo="Números principais">
         {painel?.contas.disponivel && painel.ente.tipo !== "uniao" && (
@@ -565,9 +586,6 @@ async function Perfil({
           />
         )}
       </GradeCartoes>
-      <div data-so-facil>
-        <FonteRodape fonte={e.fonte_nome} url={e.fonte_url} atualizadoEm={e.atualizado_em} />
-      </div>
       <p className="text-sm text-muted-foreground">Toque ou clique num número para ver o detalhe, com a fonte e a data.</p>
 
       <CompartilharCartao

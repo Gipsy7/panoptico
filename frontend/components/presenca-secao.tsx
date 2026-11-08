@@ -49,10 +49,10 @@ export function PresencaSecao({ presenca, casa }: { presenca: Presenca; casa: Ca
 
           <div
             aria-hidden
-            className="h-2 w-full rounded-full bg-muted"
+            className="h-2 w-full rounded-[1px] bg-muted"
           >
             <div
-              className="h-2 rounded-full bg-chart-1"
+              className="h-2 rounded-[1px] bg-chart-1"
               style={{ width: `${p.percentual ?? 0}%` }}
             />
           </div>

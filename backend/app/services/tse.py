@@ -361,10 +361,22 @@ def eleito(session: Session, candidatura: Candidatura) -> dict:
         "eleicao_recente": eleicao_recente(session, futuro, candidatura),
         "bens": _bens(session, candidatura, None) if _tem_bens(session, candidatura.id) else None,
         "campanha": _campanha(session, candidatura),
+        "chapa": _chapa_de(session, candidatura),
         "fonte_nome": FONTE_NOME,
         "fonte_url": FONTE_URL,
         "atualizado_em": _atualizado_em(session),
     }
+
+
+def _chapa_de(session: Session, c: Candidatura) -> dict | None:
+    """No Executivo, a chapa de quem é o perfil: o titular com o vice (perfil do titular ou do
+    vice, os dois veem a mesma chapa). Fora do Executivo, nada."""
+    if c.cargo not in CARGOS_EXECUTIVO:
+        return None
+    if c.cargo.startswith("VICE") and not c.chapa_titular_id:
+        return None  # vice sem titular ligado: não se monta chapa pela metade
+    titular = session.get(Candidatura, c.chapa_titular_id) if c.chapa_titular_id else c
+    return _chapa(session, titular)
 
 
 def _chapa(session: Session, titular: Candidatura | None) -> dict | None:

@@ -58,8 +58,8 @@ export function ExemploCard({
               </span>{" "}
               votações em {ano}
             </p>
-            <div aria-hidden className="h-1.5 w-full rounded-full bg-muted">
-              <div className="h-1.5 rounded-full bg-chart-1" style={{ width: `${convergencia.percentual ?? 0}%` }} />
+            <div aria-hidden className="h-1.5 w-full rounded-[1px] bg-muted">
+              <div className="h-1.5 rounded-[1px] bg-chart-1" style={{ width: `${convergencia.percentual ?? 0}%` }} />
             </div>
           </div>
         )}

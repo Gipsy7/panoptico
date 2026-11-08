@@ -136,11 +136,11 @@ export function EmendasEstaduaisCidade({
                         </span>
                       </div>
                       <div
-                        className="h-2 w-full rounded-full bg-muted"
+                        className="h-2 w-full rounded-[1px] bg-muted"
                         aria-hidden
                       >
                         <div
-                          className="h-2 rounded-full bg-chart-1"
+                          className="h-2 rounded-[1px] bg-chart-1"
                           style={{ width: `${largura}%` }}
                         />
                       </div>

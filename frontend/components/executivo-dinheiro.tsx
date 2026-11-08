@@ -175,9 +175,9 @@ export function ContasDoGoverno({ painel, estado }: { painel: PainelExecutivo; e
                     </span>
                   </span>
                 </div>
-                <div aria-hidden className="h-1.5 w-full rounded-full bg-muted">
+                <div aria-hidden className="h-1.5 w-full rounded-[1px] bg-muted">
                   <div
-                    className="h-1.5 rounded-full bg-chart-1"
+                    className="h-1.5 rounded-[1px] bg-chart-1"
                     style={{ width: `${Math.max(1, Math.min(100, a.percentual))}%` }}
                   />
                 </div>

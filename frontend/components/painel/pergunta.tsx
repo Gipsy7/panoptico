@@ -17,7 +17,7 @@ import type { ReactNode } from "react";
 
 export function ListaPerguntas({ titulo, children }: { titulo: string; children: ReactNode }) {
   return (
-    <section aria-labelledby="entender-titulo" data-detalhe className="flex flex-col gap-3">
+    <section aria-labelledby="entender-titulo" className="flex flex-col gap-3">
       <h2 id="entender-titulo" className="text-2xl">
         {titulo}
       </h2>

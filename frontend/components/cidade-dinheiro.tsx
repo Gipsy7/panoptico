@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import { AvisoErro } from "@/components/aviso-erro";
 import { CompartilharWhatsApp } from "@/components/compartilhar";
 import { ContasSecao } from "@/components/contas-secao";
+import { LembrarLugar } from "@/components/lugar-escolhido";
 import { EleitoresBarras } from "@/components/eleicao/eleitores-barras";
 import { MaisVotados } from "@/components/eleicao/mais-votados";
 import { TabelaResultado } from "@/components/eleicao/tabela-resultado";
@@ -298,6 +299,7 @@ async function Cidade({ ibge }: { ibge: string }) {
 
   return (
     <article data-largura="larga" className="pagina-secoes">
+      <LembrarLugar ibge={ibge} nome={municipio} uf={uf} />
       <div className="flex flex-col gap-4">
         <div className="flex flex-col gap-1">
           <p className="sobretitulo">Dinheiro público</p>

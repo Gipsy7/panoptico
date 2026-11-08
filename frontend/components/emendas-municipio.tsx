@@ -465,9 +465,9 @@ function Barra({
         <span className="shrink-0 font-medium tabular-nums">{formatarReais(valor, true)}</span>
       </div>
       {nota && <p className="text-sm text-muted-foreground">{nota}</p>}
-      <div className="h-2 w-full rounded-full bg-muted" aria-hidden>
+      <div className="h-2 w-full rounded-[1px] bg-muted" aria-hidden>
         <div
-          className="h-2 rounded-full bg-chart-1 transition-opacity group-hover:opacity-80"
+          className="h-2 rounded-[1px] bg-chart-1 transition-opacity group-hover:opacity-80"
           style={{ width: `${largura}%` }}
         />
       </div>

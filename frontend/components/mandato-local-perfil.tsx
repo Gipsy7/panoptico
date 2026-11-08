@@ -20,7 +20,6 @@ import { CompartilharWhatsApp } from "@/components/compartilhar";
 import { CompartilharCartao } from "@/components/compartilhar-cartao";
 import { QuemESecao } from "@/components/dados-pessoais";
 import { SeloEleitoFuturo } from "@/components/eleito-futuro";
-import { LeituraFacil } from "@/components/leitura-facil";
 import { FimDoPerfil } from "@/components/avisar-erro/entradas";
 import { LinkCorrecao } from "@/components/avisar-erro/link-correcao";
 import { AvisosDoPerfil, RespostasCitado } from "@/components/avisar-erro/respostas-citado";
@@ -292,7 +291,6 @@ export async function PerfilMandatoLocal({ id, paginaVotos }: { id: string; pagi
 
       {v.eleito_2026 && <SeloEleitoFuturo eleito={v.eleito_2026} atualizadoEm={v.atualizado_em} />}
 
-      <LeituraFacil />
 
       <GradeCartoes rotulo="Números principais">
         {v.presenca && v.presenca.sessoes > 0 && (
@@ -403,12 +401,9 @@ export async function PerfilMandatoLocal({ id, paginaVotos }: { id: string; pagi
         )}
       </GradeCartoes>
       <CartaoChecklist checklist={checklist} />
-      <div data-so-facil>
-        <FonteRodape fonte={v.fonte_nome} url={v.fonte_url} atualizadoEm={v.atualizado_em} />
-      </div>
       <p className="text-sm text-muted-foreground">Toque ou clique num número para ver o detalhe, com a fonte e a data.</p>
 
-      <Link data-detalhe href={`/comparar/local?a=${v.id}`} className="botao-linha self-start">
+      <Link href={`/comparar/local?a=${v.id}`} className="botao-linha self-start">
         Comparar com outro {camara ? "vereador desta câmara" : "deputado desta assembleia"}
       </Link>
 

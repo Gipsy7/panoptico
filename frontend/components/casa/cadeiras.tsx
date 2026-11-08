@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 
+import { Segmentado } from "@/components/segmentado";
 import { FonteRodape } from "@/components/fonte-rodape";
 import {
   agrupar,
@@ -93,19 +94,15 @@ export function Cadeiras({
       <div className="flex flex-wrap items-center justify-between gap-2">
         {titulo && <h3 className="text-lg font-semibold">{titulo}</h3>}
         {temDepois && (
-          <div role="group" aria-label="Qual composição mostrar" className="flex overflow-hidden rounded-[var(--radius)] border border-border text-sm">
-            {(["hoje", "depois"] as const).map((q) => (
-              <button
-                key={q}
-                type="button"
-                aria-pressed={quando === q}
-                onClick={() => setQuando(q)}
-                className="min-h-11 px-3 focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-bronze aria-pressed:bg-accent aria-pressed:font-semibold"
-              >
-                {q === "hoje" ? rotuloHoje : rotuloDepois}
-              </button>
-            ))}
-          </div>
+          <Segmentado
+            rotulo="Qual composição mostrar"
+            opcoes={[
+              { valor: "hoje", rotulo: rotuloHoje },
+              { valor: "depois", rotulo: rotuloDepois },
+            ]}
+            valor={quando}
+            aoMudar={setQuando}
+          />
         )}
       </div>
       <svg

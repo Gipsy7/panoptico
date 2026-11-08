@@ -4,26 +4,43 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 
 import { AlternarTema } from "@/components/alternar-tema";
+import { LugarNoCabecalho, useLugar } from "@/components/lugar-escolhido";
 import { tornarFundoInerte } from "@/lib/fundo-inerte";
+import { type Lugar, hrefDoMenu } from "@/lib/lugar";
 
-const ITENS = [
-  { href: "/parlamentares", rotulo: "Parlamentares" },
-  { href: "/projetos", rotulo: "Projetos e votações" },
-  { href: "/comparar", rotulo: "Comparar" },
-  { href: "/impostos-e-repasses", rotulo: "Impostos e repasses" },
-  { href: "/partidos", rotulo: "Partidos" },
-  { href: "/apoie", rotulo: "Apoie" },
-];
+/** Menu do redesenho (08/11/2026): nomes nossos, ditos do jeito que a pessoa pensa. As URLs são as
+ * de sempre (links compartilhados continuam valendo); "Seu lugar" e "Representantes" já abrem na
+ * cidade escolhida, quando há uma. */
+function itens(lugar: Lugar | null) {
+  return [
+    { href: hrefDoMenu("Seu lugar", lugar), rotulo: "Seu lugar" },
+    { href: hrefDoMenu("Representantes", lugar), rotulo: "Representantes" },
+    { href: "/projetos", rotulo: "Decisões" },
+    { href: "/impostos-e-repasses", rotulo: "Dinheiro público" },
+    { href: "/comparar", rotulo: "Comparar" },
+    { href: "/partidos", rotulo: "Partidos" },
+    { href: "/apoie", rotulo: "Apoie" },
+  ];
+}
+
+const LUPA = (
+  <svg aria-hidden viewBox="0 0 24 24" className="size-5" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round">
+    <circle cx="11" cy="11" r="6" />
+    <path d="M16 16l4 4" />
+  </svg>
+);
 
 /**
- * Menu do topo. No computador, links em linha. No celular, o botão "Buscar pelo CEP" fica sempre
- * visível e o menu é um botão (`aria-expanded`) que abre um painel sob o cabeçalho; o painel fecha
+ * Menu do topo. No computador, links em linha, o lugar escolhido e a busca. No celular, o lugar
+ * escolhido fica sempre visível e o menu é um botão (`aria-expanded`) que abre um painel sob o cabeçalho; o painel fecha
  * ao tocar num link, ao tocar fora e com Esc, e trava a rolagem do fundo. Não lê a URL atual de
  * propósito: no layout, isso obrigaria a renderizar o cabeçalho a cada pedido. O botão de tema
  * (só o ícone de sol/lua) fica no cabeçalho; em telas abaixo de 640 px, no topo do painel do menu.
  */
 export function MenuPrincipal() {
   const [aberto, setAberto] = useState(false);
+  const lugar = useLugar();
+  const ITENS = itens(lugar);
   const botao = useRef<HTMLButtonElement>(null);
   const painel = useRef<HTMLDivElement>(null);
 
@@ -57,12 +74,13 @@ export function MenuPrincipal() {
     <>
       <nav aria-label="Principal" className="hidden items-center gap-3 text-sm whitespace-nowrap xl:flex xl:gap-4">
         {ITENS.map((i) => (
-          <Link key={i.href} href={i.href} className="alvo-link underline-offset-4 hover:underline">
+          <Link key={i.rotulo} href={i.href} className="alvo-link underline-offset-4 hover:underline">
             {i.rotulo}
           </Link>
         ))}
-        <Link href="/#cep" className="botao-linha px-4 whitespace-nowrap">
-          Buscar pelo CEP
+        <LugarNoCabecalho />
+        <Link href="/#busca-titulo" aria-label="Procurar pelo nome" className="flex size-10 items-center justify-center rounded-[var(--raio)] border border-border hover:border-foreground/40 focus-visible:outline-2 focus-visible:outline-bronze">
+          {LUPA}
         </Link>
         <AlternarTema />
       </nav>
@@ -72,13 +90,7 @@ export function MenuPrincipal() {
         <div className="hidden sm:block">
           <AlternarTema />
         </div>
-        <Link href="/#cep" onClick={() => setAberto(false)} aria-label="Buscar seus representantes" className="botao-linha px-3 whitespace-nowrap max-[22rem]:w-11 max-[22rem]:px-0 group-has-[[data-ao-vivo]]/cab:max-sm:w-11 group-has-[[data-ao-vivo]]/cab:max-sm:px-0">
-          <span className="max-[22rem]:sr-only group-has-[[data-ao-vivo]]/cab:max-sm:sr-only">Buscar</span>
-          <svg aria-hidden viewBox="0 0 24 24" className="hidden size-5 max-[22rem]:block group-has-[[data-ao-vivo]]/cab:max-sm:block" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round">
-            <circle cx="11" cy="11" r="6" />
-            <path d="M16 16l4 4" />
-          </svg>
-        </Link>
+        <LugarNoCabecalho compacto />
         <button
           ref={botao}
           type="button"
@@ -117,9 +129,12 @@ export function MenuPrincipal() {
             <div className="flex justify-end pt-1 sm:hidden">
               <AlternarTema />
             </div>
+            <Link href="/#busca-titulo" onClick={() => setAberto(false)} className="mt-1 flex min-h-12 items-center gap-2 border-b border-border">
+              {LUPA} Procurar pelo nome
+            </Link>
             <ul className="lista-fios flex flex-col text-base">
               {ITENS.map((i) => (
-                <li key={i.href}>
+                <li key={i.rotulo}>
                   <Link href={i.href} onClick={() => setAberto(false)} className="flex min-h-12 items-center">
                     {i.rotulo}
                   </Link>

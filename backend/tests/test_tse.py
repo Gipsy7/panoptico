@@ -267,6 +267,11 @@ def test_executivo_liga_vice_ao_titular(client, session):
     assert (
         client.get(f"/eleitos/{corpo['prefeito']['vice']['id']}").json()["cargo"] == "Vice-prefeito"
     )
+    # Os dois perfis mostram a mesma chapa, titular e vice.
+    for pessoa in ("titular", "vice"):
+        chapa = client.get(f"/eleitos/{corpo['prefeito'][pessoa]['id']}").json()["chapa"]
+        assert chapa["titular"]["nome_urna"] == "Prefeito Eleito"
+        assert chapa["vice"]["nome_urna"] == "Vice Eleita"
     assert client.get("/executivo?uf=XX").status_code == 404
 
 

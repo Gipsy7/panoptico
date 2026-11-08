@@ -49,7 +49,7 @@ export function EntradaRodape() {
   const temResposta = !!secao && contexto.secoesComResposta.has(normalizarSecao(secao));
 
   return (
-    <div ref={raiz} data-detalhe className="flex flex-wrap items-center gap-x-4">
+    <div ref={raiz} className="flex flex-wrap items-center gap-x-4">
       <button
         type="button"
         onClick={(e) => contexto.abrir({ modo: "erro", secao: tituloDaSecao(e.currentTarget) }, e.currentTarget)}
@@ -74,7 +74,6 @@ export function EntradaItem({ rotulo }: { rotulo: string }) {
   return (
     <button
       type="button"
-      data-detalhe
       onClick={(e) => contexto.abrir({ modo: "erro", secao: rotulo }, e.currentTarget)}
       className="-my-2 -mr-2 flex size-11 shrink-0 items-center justify-center rounded-md text-muted-foreground hover:bg-accent focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-[var(--bronze)]"
     >

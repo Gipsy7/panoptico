@@ -320,6 +320,8 @@ class EleitoDetalhe(EleitoItem):
     eleicao_recente: EleicaoRecente | None = None
     bens: BensDeclarados | None
     campanha: Campanha | None
+    # No Executivo, titular e vice (o mesmo nos dois perfis); fora dele, null.
+    chapa: Chapa | None = None
     fonte_nome: str
     fonte_url: str
     atualizado_em: datetime | None

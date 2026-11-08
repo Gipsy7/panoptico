@@ -106,10 +106,27 @@ Raio: `--radius` atual (0,25 rem; 2 px em botões e pílulas). Manter retangular
 Sombras: nenhuma em cartões (o fio basta). Única exceção: painel do menu móvel e o cartão flutuante da home,
 `--sombra-menu` (`0 16px 24px -20px rgb(0 0 0 / .25)` no claro). Alvos: altura mínima 44 px (botão, link isolado, seletor, linha de lista).
 
+**Cores de tema (redesenho, 08/11/2026).** Cada assunto tem uma cor e um fundo, nos dois temas, com contraste AA
+sobre `--background` e `--card`: `--tema-{dinheiro,obras,escolas,saude,votos,trabalho,eleicoes,economia,seguranca}` e
+`--tema-*-fundo` (classes `text-tema-*`, `bg-tema-*`, `bg-tema-*-fundo`). Servem para identificar o assunto (faixa
+do cartão, aba, legenda), nunca para julgar: não há cor de "bom" nem de "ruim". `--raio: 2px` é o canto de tudo
+que é novo (cartão, régua, chip).
+
 ## 4. Componentes
 
 **Cartão.** `bg-card`, borda 1 px `--border`, padding 16 px, sem sombra. Estrutura: sobretítulo, número (Newsreader),
-rótulo, ação opcional. No celular, largura total; no desktop, grade de 2 a 4 colunas.
+rótulo, ação opcional. No celular, largura total; no desktop, grade de 2 a 4 colunas. O `CartaoNumero` tem
+faixa de 4 px no topo com a cor do tema (vem do `destino`, ou da prop `tema`).
+
+**Régua (`Segmentado`).** Escolha entre poucas opções: botões retos colados, o escolhido preenchido
+(`aria-pressed`), quebra linha a 320 px. Substitui pílulas e botões soltos nesse papel.
+
+**Chapa.** No Executivo, titular e vice sempre lado a lado (foto, cargo, nome, partido, link), com a nota "Eleitos
+juntos, na mesma chapa". Usada na seção Executivo, no painel dos prédios e no perfil do eleito.
+
+**Cabeçalho.** Menu: Seu lugar, Representantes, Decisões, Dinheiro público, Comparar, Partidos, Apoie (as URLs
+antigas ficam). À direita, a cidade escolhida ("Blumenau, SC", guardada só no aparelho) e a lupa. O "Ao vivo" é
+uma faixa fina sob o cabeçalho, só durante a sessão do Plenário.
 
 **Número com média da Casa.** Linha 1: rótulo (14 px, cinza). Linha 2: número em serifa 32 px. Linha 3: "Média da Casa:
 X" em 14 px cinza. Tudo dentro de `figura` (fio de tinta em cima). Dois números lado a lado só se couberem em 360 px

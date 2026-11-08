@@ -19,6 +19,53 @@ import type { ReactNode } from "react";
 import { BarraComparacao, type FormatoNumero } from "@/components/painel/barra-comparacao";
 import { PontinhoNovo } from "@/components/perfil/novidades-perfil";
 
+export type Tema =
+  | "dinheiro"
+  | "obras"
+  | "escolas"
+  | "saude"
+  | "votos"
+  | "trabalho"
+  | "eleicoes"
+  | "economia"
+  | "seguranca";
+
+/** Cor da faixa pelo assunto do cartão, sem cada tela precisar dizer (tokens `--tema-*`). */
+const TEMA_DO_DESTINO: Record<string, Tema> = {
+  gastos: "dinheiro",
+  emendas: "dinheiro",
+  "emendas-estaduais": "dinheiro",
+  fornecedores: "dinheiro",
+  contas: "dinheiro",
+  "gov-contas": "dinheiro",
+  "gov-emendas": "dinheiro",
+  remuneracao: "dinheiro",
+  salario: "dinheiro",
+  "repasses-estado": "dinheiro",
+  pncp: "obras",
+  presenca: "votos",
+  votacoes: "votos",
+  votos: "votos",
+  "gov-vetos": "votos",
+  projetos: "trabalho",
+  proposicoes: "trabalho",
+  proposicao: "trabalho",
+  "gov-mpv": "trabalho",
+  caminho: "trabalho",
+  "do-que-se-trata": "trabalho",
+  candidatura: "eleicoes",
+  "candidatura-recente": "eleicoes",
+  carreira: "eleicoes",
+  partidos: "eleicoes",
+  parlamentares: "eleicoes",
+  "quem-e": "eleicoes",
+  sancoes: "seguranca",
+};
+
+export function temaDoDestino(destino: string): Tema | null {
+  return TEMA_DO_DESTINO[destino] ?? null;
+}
+
 export type Comparacao = {
   pessoa: { rotulo: string; valor: number };
   media: { rotulo: string; valor: number };
@@ -43,6 +90,7 @@ export function CartaoNumero({
   apoio,
   largo,
   href,
+  tema,
 }: {
   destino: string;
   rotulo: string;
@@ -57,12 +105,16 @@ export function CartaoNumero({
   largo?: boolean;
   /** Link para outra página (em vez de abrir a gaveta `#ver-<destino>`); `destino` fica ignorado. */
   href?: string;
+  /** Cor da faixa do topo; sem ela, vem do `destino`. */
+  tema?: Tema;
 }) {
+  const cor = tema ?? temaDoDestino(destino);
   return (
     <li className={`min-w-0 ${largo ? "col-span-2" : ""}`}>
       <a
         href={href ?? `#ver-${destino}`}
-        className="flex h-full min-h-11 min-w-0 flex-col gap-2 rounded-[var(--radius)] border border-border bg-card p-3 transition-colors duration-200 hover:border-foreground/40 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-bronze sm:p-4"
+        style={cor ? { borderTopColor: `var(--tema-${cor})` } : undefined}
+        className="flex h-full min-h-11 min-w-0 flex-col gap-2 rounded-[var(--raio)] border border-t-4 border-border bg-card p-3 transition-colors duration-200 hover:border-foreground/40 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-bronze sm:p-4"
       >
         <PontinhoNovo destino={destino} />
         <span className="text-sm leading-snug text-muted-foreground">{rotulo}</span>

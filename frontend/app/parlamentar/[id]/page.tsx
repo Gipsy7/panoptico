@@ -6,7 +6,6 @@ import { DicaPagina } from "@/components/dica-pagina";
 import { CabecalhoConfianca } from "@/components/perfil/cabecalho-confianca";
 import type { Metadata } from "next";
 import Link from "next/link";
-import { LeituraFacil } from "@/components/leitura-facil";
 import { EsqueletoSecao } from "@/components/esqueleto-secao";
 import { notFound } from "next/navigation";
 
@@ -398,7 +397,6 @@ async function Perfil({
           <SeloEleitoFuturo eleito={candidatura.dados.eleito_2026} atualizadoEm={candidatura.dados.atualizado_em} />
         )}
 
-        <LeituraFacil />
         <ResumoPerfil
           nome={p.nome_parlamentar}
           casa={p.casa}
@@ -413,12 +411,12 @@ async function Perfil({
         <CartaoChecklist checklist={checklist} />
         <p className="text-sm text-muted-foreground">Toque ou clique num número para ver o detalhe, com a fonte e a data.</p>
 
-        <div data-detalhe className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-2">
           <Link href={`/comparar?a=${p.id}`} className="botao-linha">
             Comparar com outro parlamentar
           </Link>
         </div>
-        <div data-detalhe className="flex flex-col gap-1">
+        <div className="flex flex-col gap-1">
           {p.uf && (
             <Link href={`/representantes?uf=${p.uf}`} className="alvo-link self-start text-sm text-muted-foreground underline underline-offset-4">
               Ver quem mais representa o estado ({p.uf})
@@ -435,7 +433,6 @@ async function Perfil({
         </div>
         {p.uf && (
           <Link
-            data-detalhe
             href={`/impostos-e-repasses/${p.uf}`}
             className="alvo-link self-start text-sm text-muted-foreground underline underline-offset-4"
           >

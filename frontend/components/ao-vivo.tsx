@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * Selo "Ao vivo" do cabeçalho e a gaveta com o que acontece agora no Plenário da Câmara e do Senado
+ * Faixa "Ao vivo" sob o cabeçalho e a gaveta com o que acontece agora no Plenário da Câmara e do Senado
  * (Frente 4, versão C). O selo só aparece quando a rota /ao-vivo responde com uma sessão em
  * andamento ("Ao vivo") ou com a data da próxima sessão ("Próx. 10/11"); enquanto a resposta não
  * chega, ou se ela falhar, nada aparece e o cabeçalho não muda. A busca roda no navegador, depois da
@@ -27,11 +27,10 @@ import {
   seloDe,
 } from "@/lib/ao-vivo";
 import { tornarFundoInerte } from "@/lib/fundo-inerte";
-import { cn } from "@/lib/utils";
 
 const INTERVALO_MS = 3 * 60 * 1000;
 
-export function AoVivoCabecalho() {
+export function AoVivoFaixa() {
   const [dados, setDados] = useState<AoVivo | null>(null);
   const [aberto, setAberto] = useState(false);
   const botao = useRef<HTMLButtonElement>(null);
@@ -56,37 +55,34 @@ export function AoVivoCabecalho() {
     };
   }, []);
 
+  // Redesenho (08/11/2026): a faixa fina sob o cabeçalho aparece só com sessão em andamento; o
+  // cabeçalho nunca muda. A próxima sessão fica em Decisões (/projetos), não no topo.
   const selo = seloDe(dados);
-  if (!selo || !dados) return null;
-  const agora = selo.tipo === "agora";
+  if (!selo || !dados || selo.tipo !== "agora") return null;
+  const casas = dados.casas.filter((c) => c.situacao === "agora");
+  const item = casas.find((c) => c.itens.length)?.itens[0] ?? null;
 
   return (
-    <>
-      <button
-        ref={botao}
-        type="button"
-        aria-haspopup="dialog"
-        aria-expanded={aberto}
-        data-ao-vivo
-        onClick={() => setAberto(true)}
-        className={cn(
-          // Abaixo de 400 px só o ponto (o texto vai para o leitor de tela); o Buscar vira ícone.
-          "ml-auto inline-flex min-h-11 w-11 shrink-0 cursor-pointer items-center justify-center gap-1.5 rounded-[2px] border px-0 text-[0.8125rem] whitespace-nowrap min-[25rem]:w-auto min-[25rem]:px-2.5 text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-bronze",
-          agora ? "border-bronze bg-[var(--realce)] font-semibold" : "border-[var(--borda-controle)] font-medium",
-        )}
-      >
-        <span
-          aria-hidden
-          className={cn(
-            "inline-block size-2.5 shrink-0 rounded-full",
-            agora ? "bg-bronze shadow-[0_0_0_3px_var(--realce-forte)]" : "border-2 border-[var(--borda-controle)]",
-          )}
-        />
-        <span aria-hidden className="hidden min-[25rem]:inline">
-          {selo.rotulo}
-        </span>
-        <span className="sr-only">{selo.leitor}. Abre os detalhes</span>
-      </button>
+    <div className="border-t border-border/70 bg-tema-votos-fundo">
+      <div className="mx-auto flex min-h-10 w-full max-w-5xl items-center gap-3 px-4 py-1.5 text-sm">
+        <span aria-hidden className="size-2.5 shrink-0 bg-tema-votos motion-safe:animate-pulse" />
+        <p className="min-w-0 flex-1 truncate">
+          <span className="font-semibold">{casas.map((c) => NOME_PLENARIO[c.casa]).join(" e ")}</span>
+          <span className="max-sm:hidden"> em sessão agora</span>
+          {item && <span className="max-sm:hidden">: {item.rotulo}</span>}
+        </p>
+        <button
+          ref={botao}
+          type="button"
+          aria-haspopup="dialog"
+          aria-expanded={aberto}
+          data-ao-vivo
+          onClick={() => setAberto(true)}
+          className="min-h-10 shrink-0 cursor-pointer px-1 font-semibold underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-bronze"
+        >
+          Ver a pauta<span className="sr-only">: {selo.leitor}</span>
+        </button>
+      </div>
       {aberto &&
         createPortal(
           <GavetaPlenario
@@ -98,7 +94,7 @@ export function AoVivoCabecalho() {
           />,
           document.body,
         )}
-    </>
+    </div>
   );
 }
 

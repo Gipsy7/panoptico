@@ -79,9 +79,9 @@ function AreasLista({ lista, maior }: { lista: ContasMunicipio["por_area"]; maio
               </span>
             </span>
           </div>
-          <div aria-hidden className="h-1.5 w-full rounded-full bg-muted">
+          <div aria-hidden className="h-1.5 w-full rounded-[1px] bg-muted">
             <div
-              className="h-1.5 rounded-full bg-chart-1"
+              className="h-1.5 rounded-[1px] bg-chart-1"
               style={{ width: `${maior ? Math.max(1, (a.valor / maior) * 100) : 0}%` }}
             />
           </div>

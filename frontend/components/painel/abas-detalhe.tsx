@@ -236,7 +236,7 @@ export function AbasDetalhe({ titulo, abas }: { titulo: string; abas: AbaDetalhe
   };
 
   return (
-    <section ref={raiz} aria-labelledby="detalhe-titulo" data-detalhe className="flex min-w-0 flex-col">
+    <section ref={raiz} aria-labelledby="detalhe-titulo" className="flex min-w-0 flex-col">
       <h2 id="detalhe-titulo" className="mb-2 text-2xl">
         {titulo}
       </h2>

@@ -19,9 +19,9 @@ function Barras({ itens, formatar = formatarReais }: { itens: { nome: string; va
             <span className="min-w-0">{i.nome}</span>
             <span className="shrink-0 tabular-nums">{formatar(i.valor)}</span>
           </div>
-          <div aria-hidden className="h-1.5 w-full rounded-full bg-muted">
+          <div aria-hidden className="h-1.5 w-full rounded-[1px] bg-muted">
             <div
-              className="h-1.5 rounded-full bg-chart-1"
+              className="h-1.5 rounded-[1px] bg-chart-1"
               style={{ width: `${maior ? Math.max(1, (i.valor / maior) * 100) : 0}%` }}
             />
           </div>
@@ -54,8 +54,8 @@ function Grupos({ titulo, grupos }: { titulo: string; grupos: GrupoFefc[] }) {
                 </span>
               </span>
             </div>
-            <div aria-hidden className="h-1.5 w-full rounded-full bg-muted">
-              <div className="h-1.5 rounded-full bg-chart-2" style={{ width: `${total ? Math.max(1, (g.valor / total) * 100) : 0}%` }} />
+            <div aria-hidden className="h-1.5 w-full rounded-[1px] bg-muted">
+              <div className="h-1.5 rounded-[1px] bg-chart-2" style={{ width: `${total ? Math.max(1, (g.valor / total) * 100) : 0}%` }} />
             </div>
           </li>
         ))}
@@ -173,11 +173,11 @@ export function PartidoSecao({ dados }: { dados: PartidoDetalhe }) {
                     </th>
                     <td className="py-1.5 pr-2 text-right tabular-nums">
                       {formatarReais(m.fundo_partidario, true)}
-                      <div aria-hidden className="mt-1 h-1.5 rounded-full bg-chart-1" style={{ width: larg(m.fundo_partidario) }} />
+                      <div aria-hidden className="mt-1 h-1.5 rounded-[1px] bg-chart-1" style={{ width: larg(m.fundo_partidario) }} />
                     </td>
                     <td className="py-1.5 text-right tabular-nums">
                       {m.fefc ? formatarReais(m.fefc, true) : "—"}
-                      <div aria-hidden className="mt-1 h-1.5 rounded-full bg-chart-2" style={{ width: larg(m.fefc) }} />
+                      <div aria-hidden className="mt-1 h-1.5 rounded-[1px] bg-chart-2" style={{ width: larg(m.fefc) }} />
                     </td>
                   </tr>
                 );

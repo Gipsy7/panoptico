@@ -324,9 +324,9 @@ export function GastosLocaisSecao({
                 {formatarReais(c.valor, true)}
               </span>
             </div>
-            <div aria-hidden className="h-1.5 w-full rounded-full bg-muted">
+            <div aria-hidden className="h-1.5 w-full rounded-[1px] bg-muted">
               <div
-                className="h-1.5 rounded-full bg-chart-1"
+                className="h-1.5 rounded-[1px] bg-chart-1"
                 style={{
                   width: `${maior > 0 ? Math.max(1, (100 * c.valor) / maior) : 0}%`,
                 }}

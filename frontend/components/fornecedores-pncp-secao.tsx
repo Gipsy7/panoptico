@@ -28,7 +28,7 @@ function Fornecedor({
       <span className="block">
         {nome ?? (omitido ? "MEI (nome omitido por conter CPF)" : "Nome não informado nesta base")}
         {entePublico && (
-          <span className="ml-2 whitespace-nowrap rounded-full px-2 py-0.5 text-xs text-muted-foreground ring-1 ring-foreground/20">
+          <span className="ml-2 whitespace-nowrap rounded-[var(--raio)] px-2 py-0.5 text-xs text-muted-foreground ring-1 ring-foreground/20">
             órgão público
           </span>
         )}

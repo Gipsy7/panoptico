@@ -10,6 +10,7 @@
 - [2026-11-07: votação de mérito e de procedimento, calendário (Frente 4)](#2026-11-07-votação-de-mérito-e-de-procedimento-calendário-frente-4)
 - [2026-11-07: Plenário agora, selo "Ao vivo" no cabeçalho (Frente 4)](#2026-11-07-plenário-agora-selo-ao-vivo-no-cabeçalho-frente-4)
 - [2026-11-07: eleições completas (Frente 5)](#2026-11-07-eleições-completas-frente-5)
+- [2026-11-08: redesenho, etapa 1 (base visual e navegação)](#2026-11-08-redesenho-etapa-1-base-visual-e-navegação)
 - [2026-11-08: siglas de partido padronizadas](#2026-11-08-siglas-de-partido-padronizadas)
 - [2026-11-07: quanto custa o mandato (Frente 6)](#2026-11-07-quanto-custa-o-mandato-frente-6)
 - [2026-11-07: custo da câmara por morador e a média do estado (Frente 6)](#2026-11-07-custo-da-câmara-por-morador-e-a-média-do-estado-frente-6)
@@ -1777,6 +1778,25 @@ Escolhas do dono entre 3 protótipos: resultado em tabela densa com barras (A), 
 - **Eleitores:** soma dos aptos das zonas na eleição mais recente carregada, ao lado da população do IBGE. Não é o cadastro do eleitorado.
 - **`/segundo-turno` generalizada:** no mesmo endereço, abaixo do comparador, a seção "Resultado das eleições" com ano, cargo, turno e "onde" (formulário GET, funciona sem JavaScript).
 - **Nome de urna igual ao de outra pessoa** (ex.: "Jair Bolsonaro" para Jair Renan em 2026): a tabela mostra o nome de urna do TSE e liga ao perfil pela candidatura, nunca pelo nome.
+
+## 2026-11-08: redesenho, etapa 1 (base visual e navegação)
+
+O dono aprovou o protótipo 3 do redesenho: identidade própria (formas retas, cores por assunto, réguas no lugar de
+pílulas), três pilares (conhecer o lugar, fiscalizar quem decide, comparar no tempo) e profundidade em três
+camadas (resumo, detalhe, tudo), sem que nenhuma seção de hoje deixe de existir. A implementação vai em seis
+etapas, cada uma conferida no celular do dono antes do release. A primeira:
+
+- **Menu com nomes nossos** (Seu lugar, Representantes, Decisões, Dinheiro público, Comparar, Partidos, Apoie).
+  Só o rótulo muda; as URLs ficam, para não quebrar links compartilhados nem a busca.
+- **Seu lugar:** a última cidade aberta (página da cidade ou "Quem te representa") fica guardada no aparelho
+  (`localStorage`, `panoptico:lugar`) e aparece no cabeçalho. Nada vai ao servidor; sem armazenamento, o site
+  funciona igual.
+- **"Ao vivo" sai do menu** (apertava o cabeçalho) e vira faixa fina embaixo dele, só com sessão em andamento.
+- **Vice ao lado do titular** (componente `Chapa`) em toda tela de presidente, governador e prefeito. A API do
+  eleito ganhou `chapa` (campo opcional): o perfil do titular e o do vice mostram a mesma chapa.
+- **Leitura fácil removida.** Com as três camadas, o resumo já é a leitura simples e o detalhe fica a um toque;
+  uma chave que esconde partes da página deixou de fazer sentido (pedido do dono).
+- **Cores de tema** e `--raio` (ver `DESIGN.md`), faixa de cor nos cartões de número e régua `Segmentado`.
 
 ## 2026-11-08: siglas de partido padronizadas
 

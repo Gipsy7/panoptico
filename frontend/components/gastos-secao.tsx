@@ -89,9 +89,9 @@ export function GastosSecao({
                       {formatarReais(c.total, true)}
                     </span>
                   </div>
-                  <div className="h-2 w-full rounded-full bg-muted" aria-hidden>
+                  <div className="h-2 w-full rounded-[1px] bg-muted" aria-hidden>
                     <div
-                      className="h-2 rounded-full bg-chart-1 transition-opacity group-hover:opacity-80"
+                      className="h-2 rounded-[1px] bg-chart-1 transition-opacity group-hover:opacity-80"
                       style={{ width: `${largura}%` }}
                     />
                   </div>

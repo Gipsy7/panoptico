@@ -9,6 +9,7 @@ import Link from "next/link";
 import { useDeferredValue, useMemo, useState } from "react";
 
 import { PlacarPorUf } from "@/components/placar-por-uf";
+import { Segmentado } from "@/components/segmentado";
 import { PilulasAtivas, SemResultados } from "@/components/ui/campos-filtro";
 import { SeletorUf, useUfEscolhida } from "@/components/uf-escolhida";
 import type { ParlamentarNaVotacao, PorUf } from "@/lib/api";
@@ -81,24 +82,16 @@ export function VotacaoParlamentares({
         </label>
         <fieldset className="flex flex-col gap-[var(--esp-1)] text-sm">
           <legend className="mb-1 font-medium">Agrupar por</legend>
-          <div className="flex gap-[var(--esp-2)]">
-            {(
-              [
-                ["partido", "Partido"],
-                ["uf", "Estado"],
-              ] as const
-            ).map(([valor, rotulo]) => (
-              <button
-                key={valor}
-                type="button"
-                aria-pressed={agrupar === valor}
-                onClick={() => setAgrupar(valor)}
-                className={`botao-linha h-12 flex-1 sm:flex-none ${agrupar === valor ? "border-foreground bg-accent font-semibold" : "text-muted-foreground"}`}
-              >
-                {rotulo}
-              </button>
-            ))}
-          </div>
+          <Segmentado
+            rotulo="Agrupar por"
+            opcoes={[
+              { valor: "partido", rotulo: "Partido" },
+              { valor: "uf", rotulo: "Estado" },
+            ]}
+            valor={agrupar}
+            aoMudar={setAgrupar}
+            esticar
+          />
         </fieldset>
       </div>
       <PilulasAtivas

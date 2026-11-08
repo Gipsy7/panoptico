@@ -145,8 +145,8 @@ function Partes({ titulo, itens, total }: { titulo: string; itens: { nome: strin
                   </span>
                 </span>
               </div>
-              <div aria-hidden className="h-1.5 w-full rounded-full bg-muted">
-                <div className="h-1.5 rounded-full bg-chart-1" style={{ width: `${Math.max(1, parte)}%` }} />
+              <div aria-hidden className="h-1.5 w-full rounded-[1px] bg-muted">
+                <div className="h-1.5 rounded-[1px] bg-chart-1" style={{ width: `${Math.max(1, parte)}%` }} />
               </div>
             </li>
           );

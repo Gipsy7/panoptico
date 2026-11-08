@@ -22,6 +22,24 @@
   --color-calor-3: var(--calor-3);
   --color-calor-4: var(--calor-4);
   --color-calor-texto-4: var(--calor-texto-4);
+  --color-tema-dinheiro: var(--tema-dinheiro);
+  --color-tema-dinheiro-fundo: var(--tema-dinheiro-fundo);
+  --color-tema-obras: var(--tema-obras);
+  --color-tema-obras-fundo: var(--tema-obras-fundo);
+  --color-tema-escolas: var(--tema-escolas);
+  --color-tema-escolas-fundo: var(--tema-escolas-fundo);
+  --color-tema-saude: var(--tema-saude);
+  --color-tema-saude-fundo: var(--tema-saude-fundo);
+  --color-tema-votos: var(--tema-votos);
+  --color-tema-votos-fundo: var(--tema-votos-fundo);
+  --color-tema-trabalho: var(--tema-trabalho);
+  --color-tema-trabalho-fundo: var(--tema-trabalho-fundo);
+  --color-tema-eleicoes: var(--tema-eleicoes);
+  --color-tema-eleicoes-fundo: var(--tema-eleicoes-fundo);
+  --color-tema-economia: var(--tema-economia);
+  --color-tema-economia-fundo: var(--tema-economia-fundo);
+  --color-tema-seguranca: var(--tema-seguranca);
+  --color-tema-seguranca-fundo: var(--tema-seguranca-fundo);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
   --font-heading: var(--font-newsreader);
@@ -130,6 +148,27 @@
   --calor-3: #ccb192;
   --calor-4: #ba966c;
   --calor-texto-4: #141414;
+  /* Cor por TEMA (nunca por partido): texto/faixa e fundo de cartão. Contraste do texto sobre o
+     fundo e sobre o papel: 4,6:1 ou mais (docs/DESIGN.md, "Cores de tema"). */
+  --tema-dinheiro: #8a5d22;
+  --tema-dinheiro-fundo: #f1e6d6;
+  --tema-obras: #9a4f33;
+  --tema-obras-fundo: #f3e2d9;
+  --tema-escolas: #4d6747;
+  --tema-escolas-fundo: #e3ebdf;
+  --tema-saude: #2b625d;
+  --tema-saude-fundo: #dde9e7;
+  --tema-votos: #664363;
+  --tema-votos-fundo: #ece0ea;
+  --tema-trabalho: #5f5e27;
+  --tema-trabalho-fundo: #ebead6;
+  --tema-eleicoes: #45413b;
+  --tema-eleicoes-fundo: #e6e2db;
+  --tema-economia: #7a6018;
+  --tema-economia-fundo: #f0e8cf;
+  --tema-seguranca: #55506a;
+  --tema-seguranca-fundo: #e6e3ec;
+  --raio: 2px;
   color-scheme: light;
 }
 
@@ -181,6 +220,27 @@
     --calor-3: #7b5f38;
     --calor-4: #c9954a;
     --calor-texto-4: #1c1a17;
+    /* Cor por TEMA (nunca por partido): texto/faixa e fundo de cartão. Contraste do texto sobre o
+       fundo e sobre o papel: 4,6:1 ou mais (docs/DESIGN.md, "Cores de tema"). */
+    --tema-dinheiro: #d0a060;
+    --tema-dinheiro-fundo: #3a2f22;
+    --tema-obras: #e09474;
+    --tema-obras-fundo: #3b2a22;
+    --tema-escolas: #a5c19b;
+    --tema-escolas-fundo: #26301f;
+    --tema-saude: #86c3bc;
+    --tema-saude-fundo: #1f302e;
+    --tema-votos: #cfa4ca;
+    --tema-votos-fundo: #33252f;
+    --tema-trabalho: #cbc983;
+    --tema-trabalho-fundo: #2e2d1d;
+    --tema-eleicoes: #cfc8bc;
+    --tema-eleicoes-fundo: #2c2925;
+    --tema-economia: #dcc272;
+    --tema-economia-fundo: #332c18;
+    --tema-seguranca: #bab2d2;
+    --tema-seguranca-fundo: #2a2733;
+    --raio: 2px;
   }
 }
 :root[data-theme="dark"] {
@@ -226,6 +286,27 @@
   --calor-3: #7b5f38;
   --calor-4: #c9954a;
   --calor-texto-4: #1c1a17;
+  /* Cor por TEMA (nunca por partido): texto/faixa e fundo de cartão. Contraste do texto sobre o
+     fundo e sobre o papel: 4,6:1 ou mais (docs/DESIGN.md, "Cores de tema"). */
+  --tema-dinheiro: #d0a060;
+  --tema-dinheiro-fundo: #3a2f22;
+  --tema-obras: #e09474;
+  --tema-obras-fundo: #3b2a22;
+  --tema-escolas: #a5c19b;
+  --tema-escolas-fundo: #26301f;
+  --tema-saude: #86c3bc;
+  --tema-saude-fundo: #1f302e;
+  --tema-votos: #cfa4ca;
+  --tema-votos-fundo: #33252f;
+  --tema-trabalho: #cbc983;
+  --tema-trabalho-fundo: #2e2d1d;
+  --tema-eleicoes: #cfc8bc;
+  --tema-eleicoes-fundo: #2c2925;
+  --tema-economia: #dcc272;
+  --tema-economia-fundo: #332c18;
+  --tema-seguranca: #bab2d2;
+  --tema-seguranca-fundo: #2a2733;
+  --raio: 2px;
 }
 
 @layer base {
@@ -863,37 +944,4 @@ html[data-argos-pagina] .argos-botao {
   .gaveta-termo {
     animation: folha-sobe var(--duracao-entrada) var(--curva-suave);
   }
-}
-
-/* Leitura fácil ("Ler em linguagem simples", components/leitura-facil.tsx): a mesma página, com
-   a letra maior e o detalhe (data-detalhe) escondido dentro do perfil ([data-perfil]). O resumo,
-   os números principais com a média da Casa e a fonte com a data nunca levam data-detalhe.
-   Sem JavaScript a chave não aparece e nada muda. */
-html:not([data-js]) .leitura-facil {
-  display: none;
-}
-html[data-leitura="facil"] {
-  font-size: 118.75%; /* 19 px */
-}
-html[data-leitura="facil"] [data-perfil] {
-  line-height: 1.6;
-}
-html[data-leitura="facil"] [data-perfil] [data-detalhe]:not(:has([role="dialog"])) {
-  display: none;
-}
-/* Cartão do topo tocado: a seção abre em gaveta, mas sem as abas e o título de trás. */
-html[data-leitura="facil"] [data-perfil] [data-detalhe]:has([role="dialog"]) > :is(h2, [role="tablist"]),
-html[data-leitura="facil"] [data-perfil] [data-aba]:not(:has([role="dialog"])) {
-  display: none;
-}
-html[data-leitura="facil"] [data-perfil] :is(h1, h2, h3) {
-  line-height: 1.2;
-}
-
-/* Fonte e data do perfil que só aparecem na leitura fácil (no modo completo ficam nas seções). */
-[data-so-facil] {
-  display: none;
-}
-html[data-leitura="facil"] [data-perfil] [data-so-facil] {
-  display: block;
 }

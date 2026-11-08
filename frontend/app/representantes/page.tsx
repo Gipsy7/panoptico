@@ -9,6 +9,8 @@ import { CepForm } from "@/components/cep-form";
 import { Revelacao } from "@/components/revelacao";
 import { CompartilharWhatsApp } from "@/components/compartilhar";
 import { CompartilharCartao } from "@/components/compartilhar-cartao";
+import { cargoDoVice } from "@/components/chapa";
+import { LembrarLugar } from "@/components/lugar-escolhido";
 import { EleitoresBarras } from "@/components/eleicao/eleitores-barras";
 import { MaisVotados } from "@/components/eleicao/mais-votados";
 import { FonteRodape } from "@/components/fonte-rodape";
@@ -360,6 +362,7 @@ async function Lista({ cep, uf, municipio }: Busca) {
 
   return (
     <article data-largura="larga" className="pagina-secoes">
+      {ibge && cidade && <LembrarLugar ibge={ibge} nome={cidade} uf={localizacao.uf} />}
       <div className="flex flex-col gap-4">
         <div className="flex flex-col gap-1">
           <p className="sobretitulo">
@@ -696,16 +699,30 @@ const ROSTOS = 6;
 
 const AVISO_EXECUTIVO = "Mudanças depois da eleição (renúncia, cassação, posse do vice) ainda não aparecem aqui.";
 
-function pessoaChapa(c: Chapa): PessoaPredio {
-  const vice = c.vice ? `Vice: ${c.vice.nome_urna}${c.vice.partido ? ` (${c.vice.partido})` : ""}` : null;
-  return {
+/** Titular e vice, nesta ordem: o painel do prédio mostra os dois lado a lado (`Chapa`). */
+function pessoasChapa(c: Chapa): PessoaPredio[] {
+  const titular: PessoaPredio = {
     chave: `chapa-${c.titular.id}`,
     nome: c.titular.nome_urna,
     partido: c.titular.partido,
-    detalhe: [`${c.cargo} · eleição de ${c.ano_eleicao}`, vice].filter(Boolean).join(" · "),
+    detalhe: `${c.cargo} · eleição de ${c.ano_eleicao}`,
+    cargo: c.cargo,
     foto: c.titular.foto ? urlFotoDe(c.titular) : null,
     href: `/eleito/${c.titular.id}`,
   };
+  if (!c.vice) return [titular];
+  return [
+    titular,
+    {
+      chave: `chapa-${c.vice.id}`,
+      nome: c.vice.nome_urna,
+      partido: c.vice.partido,
+      detalhe: `${cargoDoVice(c.cargo)} · eleição de ${c.ano_eleicao}`,
+      cargo: cargoDoVice(c.cargo),
+      foto: c.vice.foto ? urlFotoDe(c.vice) : null,
+      href: `/eleito/${c.vice.id}`,
+    },
+  ];
 }
 
 function pessoasParlamentares(lista: ParlamentarResumo[]): PessoaPredio[] {
@@ -787,7 +804,7 @@ function montarPredios({
     ...p,
     id,
     total: chapa ? 1 : 0,
-    pessoas: chapa ? [pessoaChapa(chapa)] : [],
+    pessoas: chapa ? pessoasChapa(chapa) : [],
     destino: "executivo",
     aviso: AVISO_EXECUTIVO,
     fonte: fonteExecutivo,

@@ -424,6 +424,8 @@ export type EleitoDetalhe = Eleito &
     /** Caminho do perfil principal da pessoa; a página da candidatura nova redireciona para ele. */
     perfil_principal?: string | null;
     eleicao_recente?: EleicaoRecente | null;
+    /** No Executivo, titular e vice (o mesmo nos dois perfis); fora dele, null. */
+    chapa?: Chapa | null;
   };
 
 export type Chapa = {

@@ -19,6 +19,7 @@ import {
   useState,
 } from "react";
 
+import { Chapa, type PessoaDaChapa } from "@/components/chapa";
 import { FonteRodape } from "@/components/fonte-rodape";
 import { MaoToque, useMovimentoReduzido } from "@/components/mao-toque";
 import {
@@ -51,6 +52,8 @@ export type PessoaPredio = {
   partido: string | null;
   /** Linha menor abaixo do nome (cargo, eleição, vice). */
   detalhe: string | null;
+  /** No Executivo, "Prefeito" ou "Vice-prefeito": o painel mostra a chapa lado a lado. */
+  cargo?: string;
   foto: string | null;
   href: string | null;
 };
@@ -1013,6 +1016,13 @@ export function PrediosRepresentantes({
           <p className="mt-2 text-sm text-muted-foreground">
             Ainda não há dados carregados para este prédio.
           </p>
+        ) : sel.destino === "executivo" ? (
+          <div className="mt-2">
+            <Chapa
+              titular={pessoaDaChapa(sel.pessoas[0])}
+              vice={sel.pessoas[1] ? pessoaDaChapa(sel.pessoas[1]) : null}
+            />
+          </div>
         ) : (
           <ul className="mt-1">
             {sel.pessoas.map((p) => (
@@ -1073,6 +1083,16 @@ export function PrediosRepresentantes({
       </aside>
     </div>
   );
+}
+
+function pessoaDaChapa(p: PessoaPredio): PessoaDaChapa {
+  return {
+    nome: p.nome,
+    partido: p.partido,
+    cargo: p.cargo ?? p.detalhe ?? "",
+    href: p.href,
+    retrato: <Retrato nome={p.nome} foto={p.foto} />,
+  };
 }
 
 function LinhaPessoa({ pessoa }: { pessoa: PessoaPredio }) {
