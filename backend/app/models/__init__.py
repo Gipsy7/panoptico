@@ -32,6 +32,8 @@ from app.models.norma import Norma, NormaProposicao
 from app.models.obra import (
     AgroLavoura,
     AgroPecuaria,
+    EmpregoIbge,
+    EmpregoSetor,
     IdebResultado,
     ObraFederal,
     ObraFederalMunicipio,
@@ -120,6 +122,8 @@ __all__ = [
     "EmendaPagamentoSemCodigo",
     "EmendaRelatorIndicacao",
     "EmendaTransferencia",
+    "EmpregoIbge",
+    "EmpregoSetor",
     "Empresa",
     "Evento",
     "FonteIngestao",

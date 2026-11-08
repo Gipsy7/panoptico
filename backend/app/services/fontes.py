@@ -93,6 +93,13 @@ CATALOGO = [
         "url": "https://sidra.ibge.gov.br/tabela/5457",
     },
     {
+        "dado": "Empresas, pessoas ocupadas, salário médio e atividades "
+        "(Cadastro Central de Empresas)",
+        "orgao": "Instituto Brasileiro de Geografia e Estatística (IBGE)",
+        "fontes": ["ibge_cempre"],
+        "url": "https://sidra.ibge.gov.br/tabela/9509",
+    },
+    {
         "dado": "PIB dos municípios e valor adicionado por atividade (2002 em diante)",
         "orgao": "Instituto Brasileiro de Geografia e Estatística (IBGE)",
         "fontes": ["ibge_pib"],

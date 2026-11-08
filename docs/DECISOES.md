@@ -1840,6 +1840,10 @@ Pedido do dono depois de usar o release no celular:
 - **Agro (PAM do IBGE):** o valor da produção das lavouras no último ano e os produtos que mais pesam, com a parte
   de cada um no total da cidade e o total do estado; e a criação (PPM): rebanhos em cabeças e o valor de leite, ovos
   e mel. Subtotais do IBGE ficam de fora e a tela diz que a pesquisa não mede carne.
+- **Trabalho (CEMPRE do IBGE), dentro da aba Economia:** pessoas trabalhando em empresas e órgãos, empresas e salário
+  médio mensal com o do estado e o do Brasil no mesmo ano, e "onde a cidade trabalha" (seções da CNAE, só cidades
+  com 50 mil habitantes ou mais, como o IBGE publica). A tela diz que o trabalho informal fica de fora. Escolhido no
+  lugar dos microdados da RAIS e do CAGED (dezenas de GB) porque o IBGE já entrega por município, com conferência.
 - **Saúde adiada:** a API de hospitais e leitos do Ministério da Saúde não traz o mês de cada retrato e quase
   todas as linhas vêm sem município; somar daria número errado. Fica para os arquivos do CNES (ver FONTES).
 

@@ -1114,6 +1114,31 @@ export function getMunicipios(uf: string) {
   return getJson<Municipio[]>(`/municipios?uf=${encodeURIComponent(uf)}`);
 }
 
+export type EmpregoMunicipio = {
+  municipio_ibge: string;
+  uf: string;
+  serie: {
+    ano: number;
+    empresas: number | null;
+    pessoal_ocupado: number | null;
+    assalariados: number | null;
+    salario_medio: number | null;
+    salario_medio_sm: number | null;
+    uf_salario_medio: number | null;
+    brasil_salario_medio: number | null;
+  }[];
+  setores_ano: number | null;
+  setores: { secao: string; nome: string; pessoal_ocupado: number; percentual: number | null }[];
+  fonte_nome: string;
+  fonte_url: string;
+  atualizado_em: string | null;
+};
+
+/** Trabalho formal da cidade (IBGE, CEMPRE): empresas, pessoas ocupadas e salário médio. */
+export function getEmpregoMunicipio(ibge: string) {
+  return getJson<EmpregoMunicipio>(`/municipios/${encodeURIComponent(ibge)}/emprego`);
+}
+
 export type AgroMunicipio = {
   municipio_ibge: string;
   uf: string;

@@ -219,6 +219,13 @@ Endpoints conferidos em 2026-10-06.
 - **Conferido:** Blumenau 2025: 6.824 bovinos, 721.789 galináceos, ovos de galinha R$ 111.662 mil, total de origem animal R$ 118.568 mil. Carga de 08/11/2026: 58.935 valores; a soma dos bovinos dos municípios fecha com o Brasil.
 - **Frequência:** mensal (`ibge_ppm`, `ingestion/ibge/ppm.py`).
 
+## IBGE: Cadastro Central de Empresas (redesenho, etapa 5)
+
+- **URL:** API de agregados v3; tabela 9509 (2022 a 2024: variáveis 367 empresas, 707 pessoal ocupado total, 708 assalariado, 10143 salário médio mensal em reais, 1606 em salários mínimos), um ano por consulta com `N6[all]`, `N3[all]` e `N1[all]`; tabela 9510 (mesmas variáveis por classificação 12762, CNAE 2.0), só as 21 seções (letras A a U), um estado por consulta.
+- **Armadilhas:** a 9510 é **só para municípios com 50 mil habitantes ou mais** (710 em 2024); as outras cidades têm só os totais. "X" é sigilo (poucas empresas) e não é guardado; "-" é zero. As tabelas antigas (1685, 6449) vão até 2021; as novas começam em 2022. O CEMPRE cobre empresas e órgãos com CNPJ: não inclui o trabalho informal (isso está na tela).
+- **Conferido:** Blumenau 2024: 198.372 pessoas ocupadas, 147.817 assalariados, 36.264 empresas, salário médio de R$ 4.069,10 (2,9 salários mínimos); indústria de transformação 47.410 pessoas. A carga confere a soma dos municípios com o Brasil em cada ano.
+- **Frequência:** mensal (`ibge_cempre`, `ingestion/ibge/cempre.py`).
+
 ## Ministério da Saúde: hospitais e leitos (reconhecimento de 08/11/2026, sem ingestão)
 
 - **URL:** `https://apidadosabertos.saude.gov.br/assistencia-a-saude/hospitais-e-leitos?limit=1000&offset=N` (até 1.000 por página). O CKAN antigo (opendatasus) virou o novo portal `dadosabertos.saude.gov.br`, sem API de catálogo, e os arquivos no S3 antigo dão 403 (`AccessDenied`, endereço que não existe mais, não bloqueio).

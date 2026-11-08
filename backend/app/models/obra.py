@@ -106,3 +106,33 @@ class AgroPecuaria(Base):
     item: Mapped[str] = mapped_column(String(80), primary_key=True)
     valor: Mapped[Decimal] = mapped_column(Numeric(16, 0))
     ingestao_id: Mapped[int | None] = mapped_column(ForeignKey("fonte_ingestao.id"))
+
+
+class EmpregoIbge(Base):
+    """Cadastro Central de Empresas (IBGE, tabela 9509): empresas, pessoas ocupadas,
+    assalariados e salário médio mensal (em reais e em salários mínimos), por ano. Código de 1
+    dígito = Brasil, 2 = UF, 7 = município. Não inclui o trabalho informal."""
+
+    __tablename__ = "emprego_ibge"
+
+    codigo: Mapped[str] = mapped_column(String(7), primary_key=True)
+    ano: Mapped[int] = mapped_column(SmallInteger, primary_key=True)
+    empresas: Mapped[Decimal | None] = mapped_column(Numeric(12, 0))
+    pessoal_ocupado: Mapped[Decimal] = mapped_column(Numeric(12, 0))
+    assalariados: Mapped[Decimal | None] = mapped_column(Numeric(12, 0))
+    salario_medio: Mapped[Decimal | None] = mapped_column(Numeric(12, 2))
+    salario_medio_sm: Mapped[Decimal | None] = mapped_column(Numeric(6, 2))
+    ingestao_id: Mapped[int | None] = mapped_column(ForeignKey("fonte_ingestao.id"))
+
+
+class EmpregoSetor(Base):
+    """Pessoas ocupadas por seção de atividade (CNAE 2.0, tabela 9510) no último ano."""
+
+    __tablename__ = "emprego_setor"
+
+    codigo: Mapped[str] = mapped_column(String(7), primary_key=True)
+    ano: Mapped[int] = mapped_column(SmallInteger, primary_key=True)
+    secao: Mapped[str] = mapped_column(String(1), primary_key=True)
+    nome: Mapped[str] = mapped_column(String(160))
+    pessoal_ocupado: Mapped[Decimal] = mapped_column(Numeric(12, 0))
+    ingestao_id: Mapped[int | None] = mapped_column(ForeignKey("fonte_ingestao.id"))

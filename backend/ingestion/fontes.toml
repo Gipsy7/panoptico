@@ -316,6 +316,13 @@ recorte = "efetivo dos rebanhos (tabela 3939) e valor da produção de origem an
 frequencia = "mensal"
 
 [[fonte]]
+nome = "ibge_cempre"
+modulo = "ingestion.ibge.cempre"
+uso = "Economia em Por dentro da cidade: empresas, pessoas ocupadas, salário médio e onde a cidade trabalha"
+recorte = "totais por município, estado e Brasil desde 2022 (tabela 9509) e pessoas ocupadas por seção da CNAE no último ano (tabela 9510, só municípios com 50 mil habitantes ou mais)"
+frequencia = "mensal"
+
+[[fonte]]
 nome = "resumos"
 modulo = "ingestion.resumos"
 uso = "Números-chave e lista de parlamentares"

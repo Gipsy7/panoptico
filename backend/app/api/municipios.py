@@ -15,6 +15,7 @@ from app.schemas import (
 )
 from app.schemas.agro import AgroMunicipio
 from app.schemas.emendas_municipio import EmendasMunicipioCompleta
+from app.schemas.emprego import EmpregoMunicipio
 from app.schemas.ideb import IdebMunicipio
 from app.schemas.obras import ObrasMunicipio, ObrasPorUf
 from app.schemas.pib import PibMunicipio
@@ -24,6 +25,7 @@ from app.services import (
     contas,
     contratos_pncp,
     emendas,
+    emprego,
     fornecedores,
     ideb,
     obras,
@@ -132,6 +134,15 @@ def agro_do_municipio(ibge: str, session: Annotated[Session, Depends(get_session
     if municipio is None:
         raise HTTPException(404, "Município não encontrado.")
     return agro.do_municipio(session, ibge, municipio.uf)
+
+
+@router.get("/municipios/{ibge}/emprego", response_model=EmpregoMunicipio)
+def emprego_do_municipio(ibge: str, session: Annotated[Session, Depends(get_session)]) -> dict:
+    """Trabalho formal da cidade (IBGE, CEMPRE): empresas, pessoas ocupadas e salário médio."""
+    municipio = session.get(Municipio, ibge)
+    if municipio is None:
+        raise HTTPException(404, "Município não encontrado.")
+    return emprego.do_municipio(session, ibge, municipio.uf)
 
 
 @router.get("/obras/estados", response_model=ObrasPorUf)
