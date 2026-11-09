@@ -1917,6 +1917,15 @@ Pedido do dono depois de usar o release no celular:
   link para tudo sobre o assunto) e o dinheiro da União num bloco que abre ao toque. Homicídios na cidade e no
   estado na mesma conta (média dos 3 últimos anos, `homicidios_media3` nos estados). A lista segue só no assunto
   Dinheiro por enquanto.
+- **Ligações entre assuntos ("Ligado a", 09/11):** um mesmo componente de chips com ícone leva do perfil do
+  parlamentar ao partido, aos outros do partido, aos representantes e ao "Por dentro" do estado e ao Mapa; do perfil
+  de eleito ao partido, à cidade ou ao estado e ao Mapa; da página do partido aos parlamentares e às cadeiras. A
+  rota `/partidos/{sigla}` aceita a grafia padronizada de outras fontes ("PCdoB" da Câmara → "PC do B" do TSE).
+  No Mapa, a lista vale para todos os assuntos, do maior para o menor, com a ordem escrita. O Argos indica a cidade
+  no Mapa.
+- **Placar oficial da Câmara (09/11):** quando votosSim/votosNao vêm vazios, vale o resultado escrito na descrição
+  ("Sim: 346; Não: 46; Abstenção: 3"), não a contagem da lista nominal, que às vezes perde votos. Achado no
+  PLP 74/2026 (343 na lista, 346 proclamados). A carga diária reprocessa o ano e corrige o que já está no banco.
 - **Ordenação sem ranking (dono, 08/11):** continua proibido ranking, posição ("1º", "top 10") ou selo. Lista pode
   vir ordenada por um número quando isso ajuda a ler (do maior para o menor, por exemplo), sempre com a ordem
   escrita numa linha curta junto da lista.

@@ -6,6 +6,8 @@ import { CabecalhoConfianca } from "@/components/perfil/cabecalho-confianca";
 import { cargoDoRotulo } from "@/lib/cargos";
 import type { Metadata } from "next";
 import Link from "next/link";
+
+import { LigadoA } from "@/components/ligado-a";
 import { EsqueletoSecao } from "@/components/esqueleto-secao";
 import { notFound, redirect } from "next/navigation";
 
@@ -471,6 +473,24 @@ async function Perfil({
               {cargoDoRotulo(e.cargo) && <SobreOCargo cargo={cargoDoRotulo(e.cargo)!} df={e.uf === "DF"} />}
             </div>
           </header>
+          <LigadoA
+            itens={[
+              ...(e.partido ? [{ icone: "partido" as const, rotulo: `Partido: ${e.partido}`, href: `/partidos/${encodeURIComponent(e.partido)}` }] : []),
+              ...(e.municipio_ibge
+                ? [
+                    { icone: "pessoa" as const, rotulo: `Quem mais representa ${e.unidade}`, href: `/representantes?municipio=${e.municipio_ibge}` },
+                    { icone: "lugar" as const, rotulo: `Tudo sobre ${e.unidade}`, href: `/cidade/${e.municipio_ibge}` },
+                    { icone: "lugar" as const, rotulo: `${e.unidade} no Mapa`, href: `/impostos-e-repasses/${e.uf}/${e.municipio_ibge}` },
+                  ]
+                : e.uf && e.uf !== "BR"
+                  ? [
+                      { icone: "pessoa" as const, rotulo: `Quem mais representa ${e.uf}`, href: `/representantes?uf=${e.uf}` },
+                      { icone: "lugar" as const, rotulo: `Tudo sobre ${e.unidade}`, href: `/estado/${e.uf}` },
+                      { icone: "lugar" as const, rotulo: `${e.uf} no Mapa`, href: `/impostos-e-repasses/${e.uf}` },
+                    ]
+                  : [{ icone: "lugar" as const, rotulo: "O Brasil no Mapa", href: "/impostos-e-repasses" }]),
+            ]}
+          />
           <LinkCorrecao tipo="eleito" id={String(e.id)} />
           <div className="hidden lg:block">{acoes}</div>
         </aside>

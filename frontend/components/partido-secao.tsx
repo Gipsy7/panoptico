@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { LigadoA } from "@/components/ligado-a";
 import { Migalhas } from "@/components/ui/migalhas";
 import { TabelaRolavel } from "@/components/ui/tabela-rolavel";
 import { FonteRodape } from "@/components/fonte-rodape";
@@ -103,12 +104,12 @@ export function PartidoSecao({ dados }: { dados: PartidoDetalhe }) {
             ))}
           </nav>
         )}
-        <Link
-          href={`/parlamentares?partido=${encodeURIComponent(dados.sigla)}`}
-          className="alvo-link self-start text-sm font-medium text-primary underline underline-offset-4"
-        >
-          Ver os deputados e senadores do {dados.sigla}
-        </Link>
+        <LigadoA
+          itens={[
+            { icone: "pessoa", rotulo: `Deputados e senadores do ${dados.sigla}`, href: `/parlamentares?partido=${encodeURIComponent(dados.sigla)}` },
+            { icone: "partido", rotulo: `Cadeiras do ${dados.sigla}: Congresso, prefeitos e vereadores`, href: `/partidos?partido=${encodeURIComponent(dados.sigla)}#ficha` },
+          ]}
+        />
       </header>
 
       <section aria-labelledby="partido-resumo" className="revelar flex flex-col gap-3">

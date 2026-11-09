@@ -27,7 +27,7 @@ export function PartidosCadeiras({
   const noCongresso = dados.itens.filter((i) => i.camara > 0 || i.senado > 0);
   const outros = dados.itens.filter((i) => i.camara === 0 && i.senado === 0);
   const atual =
-    dados.itens.find((i) => i.partido.toLowerCase() === escolhido?.toLowerCase()) ?? noCongresso[0] ?? dados.itens[0];
+    dados.itens.find((i) => [i.partido, i.sigla_contas].some((x) => x?.toLowerCase() === escolhido?.toLowerCase())) ?? noCongresso[0] ?? dados.itens[0];
   const maior = Math.max(1, ...noCongresso.map((i) => i.camara));
   if (!atual) return null;
   return (

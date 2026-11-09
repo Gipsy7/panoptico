@@ -260,6 +260,10 @@ Endpoints conferidos em 2026-10-06.
 - **Conferido (set/2026):** Brasil 460.549 leitos de internação (318.479 do SUS), 82.975 complementares, 50.733 unidades básicas, 7.128 hospitais; Blumenau 795 leitos (447 do SUS), 126 complementares, 63 unidades básicas, 9 hospitais.
 - **Frequência:** mensal (`datasus_cnes`, `ingestion/datasus/cnes.py`; ~30 s), na agenda mensal da VPS.
 
+## Câmara: placar das votações (armadilha)
+
+- Em parte das votações de plenário, `votosSim`/`votosNao` de `votacoes.csv` vêm vazios e a lista nominal (`votos.csv`) não traz todos os votos: no PLP 74/2026 (votação 2611313-31) a lista tem 343 "Sim", 46 "Não", 3 abstenções e 1 "Artigo 17", e o resultado proclamado na descrição é "Sim: 346; Não: 46; Abstenção: 3; Total: 395". O conector lê o placar da descrição quando os campos vêm vazios (`placar_da_descricao`).
+
 ## IBGE: população de 2001 a 2018 (série histórica)
 
 - Mesma tabela 6579 (estimativas), carregada uma vez com `python -m ingestion.ibge.populacao --ano 2001 ... 2018`. Sem 2007 e 2010 (anos de contagem e de Censo, sem estimativa): a conta por morador usa o ano anterior.

@@ -1,6 +1,8 @@
 "use client";
 
 // Lista no lugar do mapa: estados (no Brasil) ou cidades (dentro de um estado), com colunas ordenáveis.
+// Nos assuntos que não são dinheiro, as colunas vêm de fora e a lista abre do maior para o menor
+// (a ordem fica escrita; sem posição nem selo).
 
 import { useMemo, useState } from "react";
 
@@ -13,19 +15,28 @@ export function ListaLugares({
   nivel,
   legenda,
   onEscolher,
+  colunas: colunasExternas,
+  ordemInicial,
 }: {
   linhas: LinhaLista[];
   nivel: "uf" | "mun";
   legenda: string;
   onEscolher: (id: string) => void;
+  /** Títulos e formatos de c1, c2... (assuntos); sem isso, as colunas de dinheiro. */
+  colunas?: { titulo: string; formatar: (v: number | null) => string }[];
+  ordemInicial?: { k: keyof LinhaLista; dir: 1 | -1 };
 }) {
-  const [ordem, setOrdem] = useState<{ k: keyof LinhaLista; dir: 1 | -1 }>({ k: "nome", dir: 1 });
-  const cab: [keyof LinhaLista, string][] =
-    nivel === "uf"
+  const [ordem, setOrdem] = useState<{ k: keyof LinhaLista; dir: 1 | -1 }>(ordemInicial ?? { k: "nome", dir: 1 });
+  const cab: [keyof LinhaLista, string][] = colunasExternas
+    ? [["nome", nivel === "uf" ? "Estado" : "Cidade"], ...colunasExternas.map((c, i) => [`c${i + 1}` as keyof LinhaLista, c.titulo] as [keyof LinhaLista, string])]
+    : nivel === "uf"
       ? [["nome", "Estado"], ["c1", "A União arrecadou"], ["c2", "Repassou"], ["c3", "Repasse por habitante"], ["c4", "Repasse a cada R$ 100"]]
       : [["nome", "Cidade"], ["c1", "Moradores"], ["c2", "Repasse à prefeitura"], ["c3", "Repasse por morador"]];
-  const fmt =
-    nivel === "uf" ? [reais, reais, porHab, reaisA100] : [numero, reais, porHab];
+  const fmt = colunasExternas
+    ? colunasExternas.map((c) => c.formatar)
+    : nivel === "uf"
+      ? [reais, reais, porHab, reaisA100]
+      : [numero, reais, porHab];
   const ordenadas = useMemo(() => {
     const l = [...linhas];
     l.sort((a, b) => {
@@ -42,9 +53,11 @@ export function ListaLugares({
 
   return (
     <div className="min-h-0 flex-1 overflow-auto p-3 lg:max-h-[min(72vh,640px)] lg:p-4">
-      <table className="w-full min-w-[34rem] border-collapse text-left text-sm">
+      <table className={`w-full border-collapse text-left text-sm ${colunasExternas ? "" : "min-w-[34rem]"}`}>
         <caption className="pb-2 text-left text-sm text-muted-foreground">
-          {legenda} Toque ou clique no título da coluna para ordenar.
+          {legenda}
+          {ordem.k !== "nome" ? ` Em ordem ${ordem.dir < 0 ? "do maior para o menor" : "do menor para o maior"}: ${cab.find(([k]) => k === ordem.k)?.[1].toLowerCase()}.` : " Em ordem de nome."}{" "}
+          Toque ou clique no título da coluna para mudar a ordem.
         </caption>
         <thead>
           <tr>

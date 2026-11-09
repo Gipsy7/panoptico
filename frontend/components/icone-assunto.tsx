@@ -11,6 +11,8 @@ export type Assunto =
   | "economia"
   | "politica"
   | "pessoa"
+  | "partido"
+  | "projeto"
   | "lugar"
   | "mao";
 
@@ -36,6 +38,13 @@ const TRACOS: Record<Assunto, React.ReactNode> = {
     <>
       <circle cx="12" cy="8" r="4" />
       <path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6" />
+    </>
+  ),
+  partido: <path d="M5 21V4M5 4h11l-2 4 2 4H5" />,
+  projeto: (
+    <>
+      <path d="M7 3h7l4 4v14H7z" />
+      <path d="M14 3v4h4M10 12h5M10 16h5" />
     </>
   ),
   lugar: (

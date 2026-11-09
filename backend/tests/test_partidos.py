@@ -177,3 +177,12 @@ def test_detalhe_nao_expoe_despesa_vinculada(client, session):
     session.flush()
     corpo = client.get("/partidos/PL?ano=2024").json()
     assert not any("vinculad" in chave for chave in corpo)
+
+
+def test_detalhe_aceita_sigla_padronizada_de_outra_fonte(client, session):
+    from app.services import partidos
+
+    session.add(_soma(2024, "receita", "PC do B", "Outros", "10"))
+    session.flush()
+    assert partidos.sigla_do_banco(session, "PCdoB") == "PC do B"
+    assert partidos.sigla_do_banco(session, "pc do b") == "PC do B"

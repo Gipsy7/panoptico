@@ -619,12 +619,12 @@ export function respostaLista(f: { casa?: Casa; uf?: string; partido?: string })
 
 export function respostaCidade(m: Municipio): Mensagem {
   return {
-    texto: `Por dentro de ${m.nome}-${m.uf}: economia (PIB), agro, escolas (IDEB), obras federais, dinheiro público, prefeito e vice, vereadores e eleições, o que houver de dado oficial.`,
+    texto: `Por dentro de ${m.nome}-${m.uf}: o que mudou, economia, agro, escolas (IDEB), saúde, segurança, saneamento, internet, obras federais, dinheiro público, prefeito e vice, vereadores e eleições, o que houver de dado oficial. No Mapa dá para ver a cidade ao lado das vizinhas.`,
     links: [
       { rotulo: `Por dentro de ${m.nome}`, href: `/cidade/${m.ibge}` },
-      { rotulo: `Por dentro de ${nomeDaUf(m.uf)}`, href: `/estado/${m.uf}` },
       { rotulo: `Quem representa ${m.nome}`, href: `/representantes?municipio=${m.ibge}` },
-      { rotulo: "Impostos e repasses da cidade", href: `/impostos-e-repasses/${m.uf}/${m.ibge}` },
+      { rotulo: `${m.nome} no Mapa`, href: `/impostos-e-repasses/${m.uf}/${m.ibge}` },
+      { rotulo: `Por dentro de ${nomeDaUf(m.uf)}`, href: `/estado/${m.uf}` },
     ],
     botoes: SEM_BOTOES,
   };

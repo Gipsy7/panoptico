@@ -5,6 +5,8 @@ import { SobreOCargo } from "@/components/cargo/sobre-o-cargo";
 import { CabecalhoConfianca } from "@/components/perfil/cabecalho-confianca";
 import type { Metadata } from "next";
 import Link from "next/link";
+
+import { LigadoA } from "@/components/ligado-a";
 import { EsqueletoSecao } from "@/components/esqueleto-secao";
 import { notFound } from "next/navigation";
 
@@ -358,29 +360,23 @@ async function Perfil({
           Comparar com outro parlamentar
         </Link>
       </div>
-      <div className="flex flex-col gap-1">
-        {p.uf && (
-          <Link href={`/representantes?uf=${p.uf}`} className="alvo-link self-start text-sm text-muted-foreground underline underline-offset-4">
-            Ver quem mais representa o estado ({p.uf})
-          </Link>
-        )}
-        {p.partido && (
-          <Link
-            href={`/parlamentares?partido=${encodeURIComponent(p.partido)}`}
-            className="alvo-link self-start text-sm text-muted-foreground underline underline-offset-4"
-          >
-            Ver os outros parlamentares do {p.partido}
-          </Link>
-        )}
-      </div>
-      {p.uf && (
-        <Link
-          href={`/impostos-e-repasses/${p.uf}`}
-          className="alvo-link self-start text-sm text-muted-foreground underline underline-offset-4"
-        >
-          {p.uf} no mapa de impostos e repasses
-        </Link>
-      )}
+      <LigadoA
+        itens={[
+          ...(p.partido
+            ? [
+                { icone: "partido" as const, rotulo: `Partido: ${p.partido}`, href: `/partidos/${encodeURIComponent(p.partido)}` },
+                { icone: "pessoa" as const, rotulo: `Outros parlamentares do ${p.partido}`, href: `/parlamentares?partido=${encodeURIComponent(p.partido)}` },
+              ]
+            : []),
+          ...(p.uf
+            ? [
+                { icone: "pessoa" as const, rotulo: `Quem mais representa ${p.uf}`, href: `/representantes?uf=${p.uf}` },
+                { icone: "lugar" as const, rotulo: `Por dentro de ${p.uf}`, href: `/estado/${p.uf}` },
+                { icone: "lugar" as const, rotulo: `${p.uf} no Mapa`, href: `/impostos-e-repasses/${p.uf}` },
+              ]
+            : []),
+        ]}
+      />
       <CompartilharCartao
         caminho={`/parlamentar/${p.id}`}
         cartao={`/parlamentar/${p.id}/cartao`}

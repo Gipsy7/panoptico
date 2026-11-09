@@ -158,6 +158,23 @@ def _proposicoes_principais(z: zipfile.ZipFile, votacoes: set[str]) -> dict[str,
     return principais
 
 
+PLACAR = re.compile(
+    r"Sim:\s*(\d+)\s*;\s*N[ãa]o:\s*(\d+)(?:\s*;\s*Absten[çc][ãa]o:\s*(\d+))?", re.IGNORECASE
+)
+
+
+def placar_da_descricao(descricao: str) -> dict:
+    """Placar (sim, não, abstenção) escrito na descrição, ou {} se não houver."""
+    m = PLACAR.search(descricao or "")
+    if not m:
+        return {}
+    return {
+        "placar_sim": int(m.group(1)),
+        "placar_nao": int(m.group(2)),
+        "placar_abstencao": int(m.group(3)) if m.group(3) else None,
+    }
+
+
 def normalizar(conteudo: bytes) -> tuple[list[dict], list[dict], list[dict]]:
     """Devolve (votações, votos, orientações)."""
     with zipfile.ZipFile(io.BytesIO(conteudo)) as z:
@@ -197,6 +214,12 @@ def normalizar(conteudo: bytes) -> tuple[list[dict], list[dict], list[dict]]:
         for id_votacao in nominais - com_voto:
             v = plenario[id_votacao]
             v["secreta"] = bool(v.get("placar_sim") or v.get("placar_nao"))
+        # Placar oficial: sem votosSim/votosNao, vale o resultado escrito na descrição ("Sim: 346;
+        # Não: 46; Abstenção: 3"), não a contagem da lista nominal, que às vezes perde votos
+        # (PLP 74/2026: 343 "Sim" na lista; 346 no resultado proclamado).
+        for v in plenario.values():
+            if v.get("placar_sim") is None and v.get("placar_nao") is None:
+                v.update(placar_da_descricao(v["descricao"]))
         blocos = json.loads(z.read("blocos.json")) if "blocos.json" in z.namelist() else []
         orientacoes = _orientacoes(
             _csv(z, "orientacoes.csv"),

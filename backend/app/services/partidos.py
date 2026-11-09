@@ -12,6 +12,7 @@ from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from app.models import FonteIngestao, PartidoContaSoma, PartidoCotaMensal, PartidoFefcFp
+from app.partidos import sigla_partido
 
 FONTE_NOME = "Prestação de contas anual dos partidos (TSE, dados abertos)"
 FONTE_URL = "https://dadosabertos.tse.jus.br/dataset/prestacao-de-contas-partidarias-{ano}"
@@ -189,9 +190,18 @@ def detalhe(session: Session, sigla: str, ano: int) -> dict | None:
 
 
 def sigla_do_banco(session: Session, sigla: str) -> str | None:
-    """Acha a sigla como está no banco, sem diferenciar caixa ('pl' -> 'PL')."""
-    return session.scalar(
+    """Acha a sigla como está no banco, sem diferenciar caixa ('pl' -> 'PL') e aceitando a grafia
+    padronizada de outras fontes ('PCdoB' da Câmara -> 'PC do B' do TSE), para que o perfil e a
+    bancada levem à página do partido."""
+    exata = session.scalar(
         select(PartidoContaSoma.partido)
         .where(func.upper(PartidoContaSoma.partido) == sigla.strip().upper())
         .limit(1)
     )
+    if exata:
+        return exata
+    alvo = sigla_partido(sigla)
+    for nome in session.scalars(select(PartidoContaSoma.partido).distinct()):
+        if sigla_partido(nome) == alvo:
+            return nome
+    return None

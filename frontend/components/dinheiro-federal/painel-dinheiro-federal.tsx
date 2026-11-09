@@ -248,7 +248,6 @@ export function PainelDinheiroFederal({ inicial }: { inicial: EstadoInicial }) {
 
   function trocarTema(novo: AssuntoMapa["id"]) {
     setTema(novo);
-    if (novo !== "dinheiro") setVista("mapa");
     history.replaceState(null, "", urlDe(uf, ibge, ano, novo));
   }
 
@@ -382,6 +381,15 @@ export function PainelDinheiroFederal({ inicial }: { inicial: EstadoInicial }) {
         c3: repHab(u),
         c4: valorIndicador(u, "por100"),
       }));
+
+  // Lista de um assunto: um número por lugar (o da cor do mapa).
+  const linhasAssunto: LinhaLista[] = (nivelMun ? cidades.map((c) => ({ id: c.ibge, nome: c.nome })) : painel.ufs.map((u) => ({ id: u.uf, nome: u.nome }))).map((l) => ({
+    ...l,
+    c1: valorAssunto(l.id),
+    c2: null,
+    c3: null,
+    c4: null,
+  }));
 
   // ---- painel ----
   const munOk = municipio && municipio.municipio.ibge === ibge ? municipio : null;
@@ -743,7 +751,7 @@ export function PainelDinheiroFederal({ inicial }: { inicial: EstadoInicial }) {
           <button type="button" aria-label="Ver como mapa" aria-pressed={vista === "mapa"} onClick={() => setVista("mapa")}>
             Mapa
           </button>
-          <button type="button" aria-label="Ver como lista" aria-pressed={vista === "lista"} disabled={tema !== "dinheiro"} onClick={() => setVista("lista")}>
+          <button type="button" aria-label="Ver como lista" aria-pressed={vista === "lista"} onClick={() => setVista("lista")}>
             Lista
           </button>
         </div>
@@ -914,12 +922,17 @@ export function PainelDinheiroFederal({ inicial }: { inicial: EstadoInicial }) {
           )}
           {vista === "lista" && (
             <ListaLugares
+              key={`${tema}-${nivelMun}`}
               nivel={nivelMun ? "mun" : "uf"}
-              linhas={linhas}
+              linhas={assunto.indicador ? linhasAssunto : linhas}
+              colunas={assunto.indicador && indicadorAtivo ? [{ titulo: indicadorAtivo.rotulo, formatar: (v) => (v == null ? "sem dado" : formatarIndicadorAssunto(indicadorAtivo, v)) }] : undefined}
+              ordemInicial={assunto.indicador ? { k: "c1", dir: -1 } : undefined}
               legenda={
-                nivelMun
-                  ? `As ${linhas.length.toLocaleString("pt-BR")} cidades de ${ufNome}, ${anoMostrado}.`
-                  : `Os ${linhas.length} estados, ${anoMostrado}.`
+                assunto.indicador
+                  ? `${indicadorAtivo?.titulo ?? assunto.nome}: ${nivelMun ? `as ${linhasAssunto.length.toLocaleString("pt-BR")} cidades de ${ufNome}` : `os ${linhasAssunto.length} estados`}.`
+                  : nivelMun
+                    ? `As ${linhas.length.toLocaleString("pt-BR")} cidades de ${ufNome}, ${anoMostrado}.`
+                    : `Os ${linhas.length} estados, ${anoMostrado}.`
               }
               onEscolher={(id) => {
                 setVista("mapa");

@@ -66,6 +66,7 @@ export const PALAVRAS_ASSUNTO: Record<string, string[]> = {
     "saneamento", "esgoto", "agua encanada", "coleta de lixo", "internet", "banda larga", "fibra",
     "emprego", "empregos", "cidades parecidas", "seguranca", "homicidios", "violencia",
     "saude da cidade", "hospitais", "hospital", "leitos", "uti", "postos de saude",
+    "mapa", "mapa da cidade", "ver no mapa", "cidades vizinhas",
   ],
   eleicao: [
     "segundo turno", "2 turno", "eleicao", "eleicoes", "candidatos", "quem ganhou", "eleitos",
