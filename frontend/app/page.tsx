@@ -151,7 +151,8 @@ async function DinheiroFederalHome() {
           </h2>
         </div>
         <p className="revelar-item text-muted-foreground">
-          Toque num estado para ver o número dele. Depois, se quiser, mude o número, compare dois ou veja a lista.
+          Escolha um símbolo para mudar o que o mapa mostra. Toque num estado para abrir o Mapa completo, com as
+          cidades e quem as representa.
         </p>
         <details className="revelar-item border-t border-border pt-3">
           <summary className="cursor-pointer text-sm font-semibold">Impostos e repasses da União em {ano}</summary>

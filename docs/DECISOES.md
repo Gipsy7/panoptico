@@ -1917,6 +1917,10 @@ Pedido do dono depois de usar o release no celular:
   link para tudo sobre o assunto) e o dinheiro da União num bloco que abre ao toque. Homicídios na cidade e no
   estado na mesma conta (média dos 3 últimos anos, `homicidios_media3` nos estados). A lista segue só no assunto
   Dinheiro por enquanto.
+- **Mapa da home simplificado (dono, 09/11):** só os símbolos de assunto do Mapa completo (Dinheiro, Segurança,
+  Saúde, Saneamento, Escolas, Economia) trocam as cores dos estados, com legenda curta; tocar num estado ou no
+  botão abre o Mapa completo naquele estado e assunto. Perguntas, comparação e lista saíram da home (seguem no
+  Mapa completo).
 - **Ligações entre assuntos ("Ligado a", 09/11):** um mesmo componente de chips com ícone leva do perfil do
   parlamentar ao partido, aos outros do partido, aos representantes e ao "Por dentro" do estado e ao Mapa; do perfil
   de eleito ao partido, à cidade ou ao estado e ao Mapa; da página do partido aos parlamentares e às cadeiras. A
