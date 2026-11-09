@@ -132,7 +132,7 @@ export function CamadaAssunto({
         <>
           <p className="numero text-3xl leading-none">{formatarIndicadorAssunto(ref, ponto.valor)}</p>
           <p className="text-sm">
-            {ref.titulo.charAt(0).toLowerCase() + ref.titulo.slice(1)}
+            {/^\p{Lu}{2}/u.test(ref.titulo) ? ref.titulo : ref.titulo.charAt(0).toLowerCase() + ref.titulo.slice(1)}
             {ref.titulo.includes("média") ? "" : `, ${ponto.ano}`}
             {pontoUf && iUf ? (
               <span className="text-muted-foreground">
@@ -167,8 +167,8 @@ export function CamadaAssunto({
                 {serie.rotulo} <span className="font-normal text-muted-foreground">({serie.unidade})</span>
               </p>
               <p className="text-xs text-muted-foreground">{resumoSerie(serie, d)}</p>
-              <LinhaSerie d={d} s={serie} cor={cor} nomeEstado={uf} nomeLugar={nomeLugar} altura={80} />
-              <EixoAnos d={d} />
+              <LinhaSerie d={d} s={serie} cor={cor} nomeEstado={uf} nomeLugar={ibge ? nomeCidade : uf} altura={80} />
+              <EixoAnos d={d} reserva={serie.comparacoes.length > 0} />
             </>
           ) : assunto.serie && tempo?.chave !== chave ? (
             <p className="text-sm text-muted-foreground">Carregando a série…</p>

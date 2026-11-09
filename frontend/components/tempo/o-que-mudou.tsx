@@ -128,6 +128,8 @@ function Pergunta({
   const taxa = x.serie === "homicidios" ? porId.get("homicidios_taxa") : undefined;
   const cargos = s.responsavel === "estado" ? ["governador"] : s.responsavel === "prefeitura" ? ["prefeito"] : ["prefeito", "governador"];
   const curta = s.decimais <= 1 && !s.unidade.startsWith("R$");
+  // Se alguma linha tem estado e Brasil, todas reservam a coluna da direita (anos alinhados).
+  const reserva = [s, ...ligadas].some((v) => v.comparacoes.length > 0);
   return (
     <div className="flex flex-col gap-3 border border-t-4 border-border bg-card p-4" style={{ borderTopColor: corDoTema(x.tema) }}>
       <h3 tabIndex={-1} className="text-xl focus:outline-none">{x.pergunta}</h3>
@@ -142,17 +144,17 @@ function Pergunta({
           {s.rotulo} <span className="font-normal text-muted-foreground">({s.unidade})</span>
         </p>
         <p className="text-xs text-muted-foreground">{resumoSerie(s, dom)}</p>
-        <LinhaSerie d={dom} s={s} cor={corDoTema(s.tema)} todos={curta} altura={110} foco={foco} aoFocar={setFoco} nomeEstado={nomeEstado} nomeLugar={lugar} />
+        <LinhaSerie d={dom} s={s} cor={corDoTema(s.tema)} todos={curta} altura={110} foco={foco} aoFocar={setFoco} nomeEstado={nomeEstado} nomeLugar={lugar} reserva={reserva} />
         {ligadas.map((l) => (
           <div key={l.id} className="border-t border-border pt-2">
             <p className="text-sm font-semibold">
               {l.rotulo} <span className="font-normal text-muted-foreground">({l.unidade})</span>
             </p>
             <p className="text-xs text-muted-foreground">{resumoSerie(l, dom)}</p>
-            <LinhaSerie d={dom} s={l} cor={corDoTema(l.tema)} foco={foco} aoFocar={setFoco} nomeEstado={nomeEstado} nomeLugar={lugar} />
+            <LinhaSerie d={dom} s={l} cor={corDoTema(l.tema)} foco={foco} aoFocar={setFoco} nomeEstado={nomeEstado} nomeLugar={lugar} reserva={reserva} />
           </div>
         ))}
-        <EixoAnos d={dom} foco={foco} />
+        <EixoAnos d={dom} foco={foco} reserva={reserva} />
       </div>
       <PainelAno ano={foco} series={[s, ...ligadas]} gestoes={linha.gestoes} nomeEstado={nomeEstado} />
       {taxa && ultimoComparado(taxa, nomeEstado, lugar) && (

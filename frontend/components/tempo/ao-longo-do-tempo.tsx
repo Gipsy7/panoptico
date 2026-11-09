@@ -47,6 +47,7 @@ export function AoLongoDoTempo({ linha, lugar, nomeEstado = "estado" }: { linha:
   );
   const [sel, setSel] = useState<{ chave: string; g: Gestao; cargo: string } | null>(null);
   const ativas = linha.series.filter((s) => ligadas.has(s.id));
+  const reserva = ativas.some((s) => s.comparacoes.length > 0);
   const alternar = (id: string) =>
     setLigadas((atual) => {
       const n = new Set(atual);
@@ -103,10 +104,11 @@ export function AoLongoDoTempo({ linha, lugar, nomeEstado = "estado" }: { linha:
               aoFocar={setFoco}
               nomeEstado={nomeEstado}
               nomeLugar={lugar}
+              reserva={reserva}
             />
           </div>
         ))}
-        <EixoAnos d={d} foco={foco} />
+        <EixoAnos d={d} foco={foco} reserva={reserva} />
       </div>
       <div className="sticky bottom-2 z-10">
         <PainelAno ano={foco} series={ativas} gestoes={linha.gestoes} nomeEstado={nomeEstado} />
