@@ -5,7 +5,7 @@
  * pergunta completa, com a série, quem governava em cada período e os números ligados (o gasto da
  * área, a taxa ao lado do estado e do Brasil). As faixas só situam no tempo: não mostram causa.
  */
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { corDoTema, dominioDe } from "@/components/tempo/ao-longo-do-tempo";
 import { EixoAnos, FaixasGestao, LinhaSerie, PainelAno, resumoSerie, useAnoFoco } from "@/components/tempo/eixo-tempo";
@@ -45,6 +45,16 @@ export function OQueMudou({ linha, lugar, nomeEstado }: { linha: TempoDoLugar; l
   const descobertas = gerarDescobertas(linha, lugar, nomeEstado);
   const [aberta, setAberta] = useState<string | null>(null);
   const [todas, setTodas] = useState(false);
+  // Ao abrir, a resposta aparece logo abaixo do cartão tocado e a tela vai até ela (o título recebe
+  // o foco, para quem usa leitor de tela ou teclado).
+  useEffect(() => {
+    if (!aberta) return;
+    const el = document.getElementById(`pergunta-${aberta}`);
+    if (!el) return;
+    const reduzido = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    el.scrollIntoView({ behavior: reduzido ? "auto" : "smooth", block: "start" });
+    el.querySelector<HTMLElement>("h3")?.focus({ preventScroll: true });
+  }, [aberta]);
   if (descobertas.length === 0) return null;
   const porId = new Map(linha.series.map((s) => [s.id, s]));
   const atual = descobertas.find((x) => x.serie === aberta) ?? null;
@@ -54,13 +64,14 @@ export function OQueMudou({ linha, lugar, nomeEstado }: { linha: TempoDoLugar; l
       <h2 id="o-que-mudou" className="text-xl">
         O que mudou em {lugar}
       </h2>
-      <ul className="grid gap-2.5 sm:grid-cols-2 lg:grid-cols-3">
-        {descobertas.map((x, i) => (
-          <li key={x.serie} className={i >= 3 && !todas ? "hidden sm:flex" : "flex"}>
+      {/* dense: com a resposta aberta ocupando a linha toda, os outros cartões não deixam buraco. */}
+      <ul className="grid grid-flow-row-dense gap-2.5 sm:grid-cols-2 lg:grid-cols-3">
+        {descobertas.map((x, i) => [
+          <li key={x.serie} className={i >= 3 && !todas && aberta !== x.serie ? "hidden sm:flex" : "flex"}>
             <button
               type="button"
               aria-expanded={aberta === x.serie}
-              aria-controls="pergunta-aberta"
+              aria-controls={`pergunta-${x.serie}`}
               onClick={() => setAberta((a) => (a === x.serie ? null : x.serie))}
               className={`flex w-full flex-col gap-1 border border-l-4 border-border bg-card p-3 text-left hover:border-foreground ${
                 aberta === x.serie ? "outline-2 outline-foreground" : ""
@@ -74,17 +85,19 @@ export function OQueMudou({ linha, lugar, nomeEstado }: { linha: TempoDoLugar; l
               <span className="text-sm text-muted-foreground">{x.detalhe}</span>
               <span className="mt-auto pt-1 text-sm underline underline-offset-4">{x.pergunta}</span>
             </button>
-          </li>
-        ))}
+          </li>,
+          aberta === x.serie && atual ? (
+            <li key={`${x.serie}-resposta`} id={`pergunta-${x.serie}`} className="col-span-full scroll-mt-24" aria-live="polite">
+              <Pergunta d={atual} linha={linha} porId={porId} nomeEstado={nomeEstado} lugar={lugar} />
+            </li>
+          ) : null,
+        ])}
       </ul>
       {descobertas.length > 3 && !todas && (
         <button type="button" onClick={() => setTodas(true)} className="botao-linha self-start sm:hidden">
           Mais descobertas ({descobertas.length - 3})
         </button>
       )}
-      <div id="pergunta-aberta" aria-live="polite">
-        {atual && <Pergunta d={atual} linha={linha} porId={porId} nomeEstado={nomeEstado} lugar={lugar} />}
-      </div>
     </section>
   );
 }
@@ -117,7 +130,7 @@ function Pergunta({
   const curta = s.decimais <= 1 && !s.unidade.startsWith("R$");
   return (
     <div className="flex flex-col gap-3 border border-t-4 border-border bg-card p-4" style={{ borderTopColor: corDoTema(x.tema) }}>
-      <h3 className="text-xl">{x.pergunta}</h3>
+      <h3 tabIndex={-1} className="text-xl focus:outline-none">{x.pergunta}</h3>
       <div className="flex flex-col gap-1">
         {cargos.includes("prefeito") && linha.gestoes.prefeito && (
           <FaixasGestao d={dom} gestoes={linha.gestoes.prefeito} cargo="Prefeito" foco={foco} />

@@ -5,7 +5,7 @@
  * no mesmo eixo de anos, com prefeito e governador por período. Tocar numa gestão mostra cada
  * série no começo (último ano antes da posse) e no fim do período.
  */
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import {
   EixoAnos,
@@ -54,6 +54,13 @@ export function AoLongoDoTempo({ linha, lugar, nomeEstado = "estado" }: { linha:
       else n.add(id);
       return n;
     });
+  // Escolhida uma gestão, a tela vai até o resumo dela (que fica abaixo dos gráficos).
+  const resumoRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!sel) return;
+    const reduzido = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    resumoRef.current?.scrollIntoView({ behavior: reduzido ? "auto" : "smooth", block: "nearest" });
+  }, [sel]);
   const escolher = (cargo: string) => (chave: string, g: Gestao) =>
     setSel((atual) => (atual?.chave === chave ? null : { chave, g, cargo }));
 
@@ -105,7 +112,7 @@ export function AoLongoDoTempo({ linha, lugar, nomeEstado = "estado" }: { linha:
         <PainelAno ano={foco} series={ativas} gestoes={linha.gestoes} nomeEstado={nomeEstado} />
       </div>
 
-      <div aria-live="polite">
+      <div ref={resumoRef} aria-live="polite" className="scroll-mb-24">
         {sel ? (
           <div className="border border-t-4 border-border bg-card p-3" style={{ borderTopColor: "var(--bronze)" }}>
             <p className="text-xs font-semibold tracking-wider uppercase text-bronze-texto">
