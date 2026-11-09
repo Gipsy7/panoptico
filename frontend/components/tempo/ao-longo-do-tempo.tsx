@@ -60,9 +60,8 @@ export function AoLongoDoTempo({ linha, lugar, nomeEstado = "estado" }: { linha:
   return (
     <div className="flex flex-col gap-4">
       <p className="text-sm text-muted-foreground">
-        Cada gráfico tem a sua escala (o menor e o maior valor ficam escritos à direita). Dinheiro em reais de{" "}
-        {linha.reais_de}, descontada a inflação. Passe o dedo sobre um gráfico para ver o ano em todos. Escolha o que
-        ver:
+        Passe o dedo sobre um gráfico para ver o mesmo ano em todos. Dinheiro em reais de {linha.reais_de}, já
+        descontada a inflação. Marque o que quer ver:
       </p>
       <fieldset className="flex flex-wrap gap-x-4 gap-y-1">
         <legend className="sr-only">Séries mostradas</legend>
@@ -96,6 +95,7 @@ export function AoLongoDoTempo({ linha, lugar, nomeEstado = "estado" }: { linha:
               foco={foco}
               aoFocar={setFoco}
               nomeEstado={nomeEstado}
+              nomeLugar={lugar}
             />
           </div>
         ))}

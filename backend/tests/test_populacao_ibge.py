@@ -75,3 +75,18 @@ def test_carregar_aborta_se_nao_fecha_ou_vazio(session):
         pop.carregar(session, {}, ingestao)
     with pytest.raises(ValueError):
         pop.carregar(session, _payload(ufs=(1, 1)), ingestao)
+
+
+def test_conferir_tolera_diferenca_pequena_so_em_ano_antigo():
+    def regs(ano, mun):
+        return [
+            {"codigo": "1", "ano": ano, "valor": 100_000},
+            {"codigo": "42", "ano": ano, "valor": 100_000},
+            {"codigo": "4205902", "ano": ano, "valor": mun},
+        ]
+
+    pop.conferir(regs(2004, 100_050))  # 0,05%: passa com aviso
+    with pytest.raises(ValueError):
+        pop.conferir(regs(2004, 100_500))  # 0,5%: não
+    with pytest.raises(ValueError):
+        pop.conferir(regs(2024, 100_050))  # ano recente: exato

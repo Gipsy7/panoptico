@@ -14,7 +14,7 @@ import { type Descoberta, formatarValor, gerarDescobertas } from "@/lib/descober
 
 /** O que mostrar junto de cada série na pergunta completa. */
 const LIGADAS: Record<string, string[]> = {
-  homicidios: ["homicidios_taxa", "gasto_seguranca_estado", "gasto_seguranca_prefeitura"],
+  homicidios: ["gasto_seguranca_estado", "gasto_seguranca_prefeitura"],
   ideb: ["gasto_educacao_prefeitura", "gasto_educacao_estado"],
   gasto_seguranca_estado: ["homicidios_taxa"],
   gasto_saude_prefeitura: ["gasto_saude_estado"],
@@ -29,16 +29,16 @@ const AVISO: Record<string, string> = {
   "estado e prefeituras": "Este número junta escolas do governo do estado e das prefeituras.",
 };
 
-function ultimoComparado(s: SerieTempo, nomeEstado: string) {
+function ultimoComparado(s: SerieTempo, nomeEstado: string, lugar: string) {
   const fim = s.pontos[s.pontos.length - 1];
   if (!fim || s.comparacoes.length === 0) return null;
   const partes = s.comparacoes
     .map((c) => {
       const p = c.pontos.find((x) => x.ano === fim.ano);
-      return p ? `${c.rotulo === "estado" ? nomeEstado : c.rotulo}: ${formatarValor(s, p.valor)}` : null;
+      return p ? `${c.rotulo === "estado" ? nomeEstado : c.rotulo} ${formatarValor(s, p.valor)}` : null;
     })
     .filter(Boolean);
-  return partes.length ? `Em ${fim.ano}: ${formatarValor(s, fim.valor)}; ${partes.join("; ")}.` : null;
+  return partes.length ? `${s.rotulo} em ${fim.ano}: ${lugar} ${formatarValor(s, fim.valor)}; ${partes.join("; ")}.` : null;
 }
 
 export function OQueMudou({ linha, lugar, nomeEstado }: { linha: TempoDoLugar; lugar: string; nomeEstado: string }) {
@@ -83,7 +83,7 @@ export function OQueMudou({ linha, lugar, nomeEstado }: { linha: TempoDoLugar; l
         </button>
       )}
       <div id="pergunta-aberta" aria-live="polite">
-        {atual && <Pergunta d={atual} linha={linha} porId={porId} nomeEstado={nomeEstado} />}
+        {atual && <Pergunta d={atual} linha={linha} porId={porId} nomeEstado={nomeEstado} lugar={lugar} />}
       </div>
     </section>
   );
@@ -94,42 +94,64 @@ function Pergunta({
   linha,
   porId,
   nomeEstado,
+  lugar,
 }: {
   d: Descoberta;
   linha: TempoDoLugar;
   porId: Map<string, SerieTempo>;
+  lugar: string;
   nomeEstado: string;
 }) {
   const s = porId.get(x.serie)!;
   const dom = dominioDe(linha);
   const [foco, setFoco] = useAnoFoco();
-  const ligadas = (LIGADAS[x.serie] ?? []).map((id) => porId.get(id)).filter((v): v is SerieTempo => Boolean(v));
+  // Cruzamento só com dado suficiente: ao menos 4 anos em comum com a série principal.
+  const anosPrincipal = new Set(s.pontos.map((p) => p.ano));
+  const candidatas = (LIGADAS[x.serie] ?? []).map((id) => porId.get(id)).filter((v): v is SerieTempo => Boolean(v));
+  const emComum = (l: SerieTempo) => l.pontos.filter((p) => anosPrincipal.has(p.ano)).length;
+  const suficientes = candidatas.filter((l) => emComum(l) >= 4);
+  const ligadas = suficientes.slice(0, 1);
+  const poucas = candidatas.filter((l) => emComum(l) < 4);
+  const taxa = x.serie === "homicidios" ? porId.get("homicidios_taxa") : undefined;
+  const cargos = s.responsavel === "estado" ? ["governador"] : s.responsavel === "prefeitura" ? ["prefeito"] : ["prefeito", "governador"];
   const curta = s.decimais <= 1 && !s.unidade.startsWith("R$");
   return (
     <div className="flex flex-col gap-3 border border-t-4 border-border bg-card p-4" style={{ borderTopColor: corDoTema(x.tema) }}>
       <h3 className="text-xl">{x.pergunta}</h3>
       <div className="flex flex-col gap-1">
-        {linha.gestoes.prefeito && <FaixasGestao d={dom} gestoes={linha.gestoes.prefeito} cargo="Prefeito" foco={foco} />}
-        {linha.gestoes.governador && <FaixasGestao d={dom} gestoes={linha.gestoes.governador} cargo="Governador" foco={foco} />}
+        {cargos.includes("prefeito") && linha.gestoes.prefeito && (
+          <FaixasGestao d={dom} gestoes={linha.gestoes.prefeito} cargo="Prefeito" foco={foco} />
+        )}
+        {cargos.includes("governador") && linha.gestoes.governador && (
+          <FaixasGestao d={dom} gestoes={linha.gestoes.governador} cargo="Governador" foco={foco} />
+        )}
         <p className="pt-1 text-sm font-semibold">
           {s.rotulo} <span className="font-normal text-muted-foreground">({s.unidade})</span>
         </p>
         <p className="text-xs text-muted-foreground">{resumoSerie(s, dom)}</p>
-        <LinhaSerie d={dom} s={s} cor={corDoTema(s.tema)} todos={curta} altura={110} foco={foco} aoFocar={setFoco} nomeEstado={nomeEstado} />
+        <LinhaSerie d={dom} s={s} cor={corDoTema(s.tema)} todos={curta} altura={110} foco={foco} aoFocar={setFoco} nomeEstado={nomeEstado} nomeLugar={lugar} />
         {ligadas.map((l) => (
           <div key={l.id} className="border-t border-border pt-2">
             <p className="text-sm font-semibold">
               {l.rotulo} <span className="font-normal text-muted-foreground">({l.unidade})</span>
             </p>
             <p className="text-xs text-muted-foreground">{resumoSerie(l, dom)}</p>
-            <LinhaSerie d={dom} s={l} cor={corDoTema(l.tema)} foco={foco} aoFocar={setFoco} nomeEstado={nomeEstado} />
-            {ultimoComparado(l, nomeEstado) && <p className="text-sm text-muted-foreground">{ultimoComparado(l, nomeEstado)}</p>}
+            <LinhaSerie d={dom} s={l} cor={corDoTema(l.tema)} foco={foco} aoFocar={setFoco} nomeEstado={nomeEstado} nomeLugar={lugar} />
           </div>
         ))}
         <EixoAnos d={dom} foco={foco} />
       </div>
       <PainelAno ano={foco} series={[s, ...ligadas]} gestoes={linha.gestoes} nomeEstado={nomeEstado} />
-      {ultimoComparado(s, nomeEstado) && <p className="text-sm">{ultimoComparado(s, nomeEstado)}</p>}
+      {taxa && ultimoComparado(taxa, nomeEstado, lugar) && (
+        <p className="text-sm">{ultimoComparado(taxa, nomeEstado, lugar)}</p>
+      )}
+      {!taxa && ultimoComparado(s, nomeEstado, lugar) && <p className="text-sm">{ultimoComparado(s, nomeEstado, lugar)}</p>}
+      {poucas.map((l) => (
+        <p key={l.id} className="text-sm text-muted-foreground">
+          {l.rotulo}: só há dados de {l.pontos[0]?.ano} a {l.pontos[l.pontos.length - 1]?.ano}; poucos anos em comum para
+          comparar.
+        </p>
+      ))}
       <ul className="flex flex-col gap-1 text-sm text-muted-foreground">
         {AVISO[s.responsavel] && <li>{AVISO[s.responsavel]}</li>}
         {s.nota && !(AVISO[s.responsavel] ?? "").startsWith(s.nota.slice(0, 12)) && <li>{s.nota}</li>}

@@ -56,7 +56,10 @@ export function FaixasGestao({
   if (visiveis.length === 0) return null;
   return (
     <div className="flex flex-col">
-      <span className="text-xs text-muted-foreground">{cargo}</span>
+      <span className="text-xs text-muted-foreground">
+        {cargo}
+        {visiveis[0].inicio > d.de ? ` (antes de ${visiveis[0].inicio}: eleição não carregada)` : ""}
+      </span>
       <div className="relative h-8" role="group" aria-label={`${cargo} em cada período`}>
         {visiveis.map((g, i) => {
           const a = Math.max(g.inicio, d.de);
@@ -145,6 +148,7 @@ export function LinhaSerie({
   foco = null,
   aoFocar,
   nomeEstado = "estado",
+  nomeLugar,
 }: {
   d: Dominio;
   s: SerieTempo;
@@ -155,6 +159,8 @@ export function LinhaSerie({
   foco?: number | null;
   aoFocar?: (ano: number | null) => void;
   nomeEstado?: string;
+  /** Nome do lugar na legenda e no rótulo do fim da linha (quando há estado e Brasil). */
+  nomeLugar?: string;
 }) {
   const pts = s.pontos.filter((p) => p.ano >= d.de && p.ano <= d.ate);
   if (pts.length === 0) return null;
@@ -190,6 +196,20 @@ export function LinhaSerie({
     aoFocar(prox);
   };
 
+  const nomeComp = (r: string) => (r === "estado" ? nomeEstado : r);
+  const fins = comps.length
+    ? [
+        { nome: nomeLugar ?? "aqui", v: pts[pts.length - 1].valor, cor, forte: true },
+        ...comps.map((c) => ({ nome: nomeComp(c.rotulo), v: c.pontos[c.pontos.length - 1].valor, cor: CINZA_ESTADO, forte: false })),
+      ]
+        .map((f) => ({ ...f, y: y(f.v) }))
+        .sort((a, b) => a.y - b.y)
+    : [];
+  for (let k = 1; k < fins.length; k++) fins[k].y = Math.max(fins[k].y, fins[k - 1].y + 22);
+  if (fins.length) {
+    fins[fins.length - 1].y = Math.min(fins[fins.length - 1].y, 100);
+    for (let k = fins.length - 2; k >= 0; k--) fins[k].y = Math.min(fins[k].y, fins[k + 1].y - 22);
+  }
   const classe = `relative mt-5 ${aoFocar ? "cursor-crosshair touch-pan-y focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-bronze" : ""}`;
   const desenho = (
     <>
@@ -267,23 +287,8 @@ export function LinhaSerie({
               }}
             />
           ))}
-        {/* Rótulos de comparação no fim da linha (direto, sem caixa de legenda). */}
-        {foco == null &&
-          comps.map((c) => {
-            const u = c.pontos[c.pontos.length - 1];
-            return (
-              <span
-                key={c.rotulo}
-                aria-hidden
-                className="absolute -translate-x-full -translate-y-1/2 pr-1 text-[0.65rem] whitespace-nowrap text-muted-foreground"
-                style={{ left: `${pos(d, u.ano)}%`, top: `${y(u.valor)}%` }}
-              >
-                {c.rotulo === "estado" ? nomeEstado : c.rotulo}
-              </span>
-            );
-          })}
         {pts.map((p, i) => {
-          const mostrar = foco != null ? p.ano === foco : todos || i === 0 || i === pts.length - 1;
+          const mostrar = foco != null ? p.ano === foco : todos || i === 0 || (i === pts.length - 1 && comps.length === 0);
           if (!mostrar) return null;
           const lado = pos(d, p.ano) < 12 ? "-translate-x-1" : pos(d, p.ano) > 88 ? "-translate-x-full" : "-translate-x-1/2";
           return (
@@ -308,9 +313,7 @@ export function LinhaSerie({
         )}
     </>
   );
-  return (
-    <figure className="m-0">
-      {aoFocar ? (
+  const grafico = aoFocar ? (
         <div
           className={classe}
           style={{ height: altura }}
@@ -332,7 +335,35 @@ export function LinhaSerie({
         <div className={classe} style={{ height: altura }} role="img" aria-label={`${s.rotulo}. ${resumo}`}>
           {desenho}
         </div>
-      )}
+      );
+  if (comps.length === 0) return <figure className="m-0">{grafico}</figure>;
+  return (
+    <figure className="m-0">
+      <ul className="flex flex-wrap gap-x-4 text-xs text-muted-foreground" aria-hidden>
+        <li className="flex items-center gap-1.5">
+          <span className="inline-block h-0.5 w-5" style={{ background: cor }} /> {nomeLugar ?? "aqui"}
+        </li>
+        {comps.map((c) => (
+          <li key={c.rotulo} className="flex items-center gap-1.5">
+            <span className="inline-block w-5 border-t-2" style={{ borderColor: CINZA_ESTADO, borderStyle: c.traco ? "dashed" : "solid" }} />
+            {nomeComp(c.rotulo)}
+          </li>
+        ))}
+      </ul>
+      <div className="grid grid-cols-[1fr_4.75rem] gap-2">
+        {grafico}
+        <div className="relative mt-5" style={{ height: altura }} aria-hidden>
+          {fins.map((f) => (
+            <span
+              key={f.nome}
+              className={`absolute left-0 -translate-y-1/2 text-xs leading-tight whitespace-nowrap tabular-nums ${f.forte ? "font-semibold text-foreground" : "text-muted-foreground"}`}
+              style={{ top: `${f.y}%` }}
+            >
+              {f.nome} {formatarValor(s, f.v)}
+            </span>
+          ))}
+        </div>
+      </div>
     </figure>
   );
 }

@@ -36,11 +36,9 @@ const ROTEIRO_MAO = ["PA", "BA", "AM", "MG", "MT", "RS"];
 
 type Pergunta = { texto: string; camada: string; comparar?: string; ano?: "primeiro" };
 const PERGUNTAS: Pergunta[] = [
-  { texto: "Onde há mais homicídios por morador?", camada: "homicidios" },
-  { texto: "Como os homicídios mudaram desde 2019?", camada: "homicidios", ano: "primeiro" },
+  { texto: "Como os homicídios mudaram ano a ano?", camada: "homicidios", ano: "primeiro" },
   { texto: "Quem gasta mais com segurança tem menos homicídios?", camada: "gasto_seguranca", comparar: "homicidios" },
   { texto: "Estados com PIB maior têm IDEB maior?", camada: "pib", comparar: "ideb" },
-  { texto: "Quanto a União devolve a cada R$ 100?", camada: "retorno" },
 ];
 
 interface PontoMao {
@@ -70,7 +68,13 @@ function Dispersao({
   const pts = ufs
     .map((u) => ({ uf: u.uf, nome: u.nome, vx: x.valor(u.uf, anoX), vy: y.valor(u.uf, anoY) }))
     .filter((p): p is { uf: string; nome: string; vx: number; vy: number } => p.vx != null && p.vy != null);
-  if (pts.length < 5) return <p className="text-sm text-muted-foreground">Poucos estados com os dois números para comparar.</p>;
+  // Comparação só com dado suficiente: ao menos 20 dos 27 estados com os dois números.
+  if (pts.length < 20)
+    return (
+      <p className="text-sm text-muted-foreground">
+        Só {pts.length} dos 27 estados têm os dois números; são poucos para comparar.
+      </p>
+    );
   const xs = pts.map((p) => p.vx);
   const ys = pts.map((p) => p.vy);
   const [x0, x1, y0, y1] = [Math.min(...xs), Math.max(...xs), Math.min(...ys), Math.max(...ys)];
@@ -179,12 +183,12 @@ export function MapaHome({
     [ufs, indicadores, anoDinheiro, fonteDinheiro, fonteObras],
   );
   const grupos = [...new Set(camadas.map((c) => c.grupo))];
-  const [camadaId, setCamadaId] = useState(camadas[0]?.id ?? "retorno");
+  const [camadaId, setCamadaId] = useState(camadas.find((c) => c.id === "homicidios")?.id ?? camadas[0]?.id ?? "retorno");
   const [anoEscolhido, setAnoEscolhido] = useState<number | null>(null);
   const [cmpId, setCmpId] = useState("");
   const [sel, setSel] = useState<string | null>(null);
   const [realce, setRealce] = useState<string | null>(null);
-  const [lista, setLista] = useState(false);
+  const [aberto, setAberto] = useState<"numero" | "comparar" | "lista" | null>(null);
   const camada = camadas.find((c) => c.id === camadaId) ?? camadas[0];
   const cmp = camadas.find((c) => c.id === cmpId && c.id !== camada.id) ?? null;
   const ano = anoDaCamada(camada, anoEscolhido);
@@ -255,15 +259,15 @@ export function MapaHome({
     }
   }, [foco]);
 
-  const animar = () => {
-    if (reduzido || camada.anos.length < 2) return;
+  const animar = (anos: number[]) => {
+    if (reduzido || anos.length < 2) return;
     let i = 0;
-    setAnoEscolhido(camada.anos[0]);
+    setAnoEscolhido(anos[0]);
     const t = setInterval(() => {
       i++;
-      if (i >= camada.anos.length) return clearInterval(t);
-      setAnoEscolhido(camada.anos[i]);
-    }, 1100);
+      if (i >= anos.length) return clearInterval(t);
+      setAnoEscolhido(anos[i]);
+    }, 900);
   };
 
   const daVez = pontos.length > 0 ? pontos[passo % pontos.length] : null;
@@ -273,100 +277,29 @@ export function MapaHome({
   const escolhida = foco ? ufs.find((u) => u.uf === foco) : undefined;
   const ordenada = ordenarDoMaior(ufs.map((u) => ({ uf: u.uf, nome: u.nome, valor: camada.valor(u.uf, ano) })));
 
+  const botaoAbrir = (id: "numero" | "comparar" | "lista", rotulo: string) => (
+    <button
+      type="button"
+      aria-expanded={aberto === id}
+      onClick={() => setAberto((a) => (a === id ? null : id))}
+      className={`min-h-10 border px-3 text-sm ${aberto === id ? "border-foreground font-semibold" : "border-border bg-card hover:border-foreground"}`}
+    >
+      {rotulo}
+    </button>
+  );
+
   return (
     <div className="flex flex-col gap-3">
-      <div className="flex flex-col gap-1.5">
-        <p className="text-xs text-muted-foreground">Comece por uma pergunta</p>
-        <ul className="flex flex-wrap gap-1.5">
-          {PERGUNTAS.filter((p) => camadas.some((c) => c.id === p.camada) && (!p.comparar || camadas.some((c) => c.id === p.comparar))).map((p) => (
-            <li key={p.texto}>
-              <button
-                type="button"
-                onClick={() => {
-                  escolherCamada(p.camada);
-                  setCmpId(p.comparar ?? "");
-                  if (p.ano === "primeiro") {
-                    const c = camadas.find((x) => x.id === p.camada);
-                    if (c && c.anos.length > 1) setTimeout(animar, 0);
-                  }
-                }}
-                className="min-h-10 border border-border bg-card px-3 py-1.5 text-left text-sm hover:border-foreground"
-              >
-                {p.texto}
-              </button>
-            </li>
-          ))}
-        </ul>
+      <div className="flex flex-col gap-1">
+        <p className="flex items-center gap-2 text-xs font-semibold tracking-wider uppercase" style={{ color: `var(--tema-${camada.tema})` }}>
+          <span aria-hidden className="size-2.5" style={{ background: `var(--tema-${camada.tema})` }} />
+          {camada.grupo}
+        </p>
+        <h3 className="text-xl leading-snug" aria-live="polite">
+          {camada.titulo}
+          {ano && !camada.titulo.endsWith(String(ano)) ? `, ${ano}` : ""}
+        </h3>
       </div>
-
-      <div className="flex flex-col gap-1.5">
-        <p className="text-xs text-muted-foreground">Ou escolha o assunto e o número</p>
-        <Segmentado
-          rotulo="Assunto do mapa"
-          opcoes={grupos.map((g) => ({ valor: g, rotulo: g }))}
-          valor={camada.grupo}
-          aoMudar={(g) => escolherCamada(camadas.find((c) => c.grupo === g)!.id)}
-        />
-        <div className="flex flex-wrap gap-1.5" role="group" aria-label="O que colorir no mapa">
-          {camadas
-            .filter((c) => c.grupo === camada.grupo)
-            .map((c) => (
-              <button
-                key={c.id}
-                type="button"
-                aria-pressed={c.id === camada.id}
-                onClick={() => escolherCamada(c.id)}
-                className={`inline-flex min-h-10 items-center gap-2 border px-3 text-sm ${
-                  c.id === camada.id ? "border-foreground font-semibold" : "border-border bg-card"
-                }`}
-                style={c.id === camada.id ? { boxShadow: `inset 0 -3px 0 var(--tema-${c.tema})` } : undefined}
-              >
-                <span aria-hidden className="size-2.5" style={{ background: `var(--tema-${c.tema})` }} />
-                {c.rotulo}
-              </button>
-            ))}
-        </div>
-      </div>
-
-      <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm">
-        {camada.anos.length > 1 && (
-          <label className="flex max-w-full min-w-0 flex-wrap items-center gap-2">
-            Ano
-            <input
-              type="range"
-              min={0}
-              max={camada.anos.length - 1}
-              value={Math.max(0, camada.anos.indexOf(ano ?? camada.anos[camada.anos.length - 1]))}
-              onChange={(e) => setAnoEscolhido(camada.anos[Number(e.target.value)])}
-              className="w-32 max-w-full min-w-0 accent-[var(--bronze)] sm:w-40"
-              aria-valuetext={String(ano)}
-            />
-            <span className="numero">{ano}</span>
-          </label>
-        )}
-        <label className="flex max-w-full min-w-0 flex-wrap items-center gap-2">
-          Comparar com
-          <select
-            value={cmp?.id ?? ""}
-            onChange={(e) => setCmpId(e.target.value)}
-            className="min-h-10 w-[13rem] max-w-full min-w-0 border border-border bg-card px-2"
-          >
-            <option value="">nada (só o mapa)</option>
-            {camadas
-              .filter((c) => c.id !== camada.id)
-              .map((c) => (
-                <option key={c.id} value={c.id}>
-                  {c.grupo}: {c.rotulo}
-                </option>
-              ))}
-          </select>
-        </label>
-      </div>
-
-      <h3 className="text-xl leading-snug" aria-live="polite">
-        {camada.titulo}
-        {ano && !camada.titulo.endsWith(String(ano)) ? `, ${ano}` : ""}
-      </h3>
 
       <div
         ref={caixa}
@@ -380,7 +313,7 @@ export function MapaHome({
       >
         <MapaBrasil
           niveis="uf"
-          className="mx-auto h-[340px] w-full md:h-[400px]"
+          className="mx-auto h-[320px] w-full md:h-[380px]"
           titulo={`Mapa dos estados do Brasil: ${camada.titulo}`}
           toqueUnico={false}
           onNavegar={({ uf }) => uf && router.push(`/estado/${uf}`)}
@@ -398,9 +331,7 @@ export function MapaHome({
             return (
               <span className="flex flex-col text-sm">
                 <strong>{NOMES[id] ?? id}</strong>
-                <span>
-                  {camada.rotulo}: {v == null ? "sem dado" : camada.formatar(v)}
-                </span>
+                <span>{v == null ? "sem dado" : camada.formatar(v)}</span>
               </span>
             );
           }}
@@ -420,75 +351,161 @@ export function MapaHome({
 
       {limites.length > 0 && (
         <div className={`${estilos.caixa} flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground`}>
+          <span>{camada.formatar(limites[0])}</span>
           <span className="flex overflow-hidden ring-1 ring-border" aria-hidden>
             {[1, 2, 3, 4, 5].map((c) => (
-              <span key={c} className="h-3 w-7" style={{ background: `var(--mapa-${c})` }} />
+              <span key={c} className="h-3 w-6" style={{ background: `var(--mapa-${c})` }} />
             ))}
           </span>
-          <span>
-            de {camada.formatar(limites[0])} a {camada.formatar(limites[limites.length - 1])}; mais escuro = número maior (não
-            quer dizer melhor nem pior)
-          </span>
+          <span>{camada.formatar(limites[limites.length - 1])}</span>
+          <span className="basis-full">Mais escuro = número maior (não quer dizer melhor nem pior).</span>
         </div>
       )}
 
-      {cmp && (
-        <Dispersao ufs={ufs} x={camada} y={cmp} anoX={ano} anoY={anoCmp} realce={foco} aoRealcar={setRealce} />
+      {camada.anos.length > 1 && (
+        <label className="flex max-w-full min-w-0 flex-wrap items-center gap-2 text-sm">
+          Ano
+          <input
+            type="range"
+            min={0}
+            max={camada.anos.length - 1}
+            value={Math.max(0, camada.anos.indexOf(ano ?? camada.anos[camada.anos.length - 1]))}
+            onChange={(e) => setAnoEscolhido(camada.anos[Number(e.target.value)])}
+            className="w-40 max-w-full min-w-0 accent-[var(--bronze)]"
+            aria-valuetext={String(ano)}
+          />
+          <span className="numero">{ano}</span>
+          <span className="text-xs text-muted-foreground">
+            de {camada.anos[0]} a {camada.anos[camada.anos.length - 1]}
+          </span>
+        </label>
       )}
 
-      <div className="min-h-[5rem] border-t border-border pt-3" aria-live="polite">
+      <div aria-live="polite">
         {escolhida ? (
-          <div className="flex flex-col gap-2 text-sm">
-            <strong className="text-base">{escolhida.nome}</strong>
-            <dl className="grid grid-cols-2 gap-x-4 gap-y-1">
-              {camadas
-                .filter((c) => c.id === camada.id || c.id === cmp?.id || c.grupo === camada.grupo)
-                .map((c) => {
-                  const v = c.valor(escolhida.uf, c.id === camada.id ? ano : c.id === cmp?.id ? anoCmp : null);
-                  return (
-                    <div key={c.id}>
-                      <dt className="text-xs text-muted-foreground">{c.rotulo}</dt>
-                      <dd className="numero">{v == null ? "sem dado" : c.formatar(v)}</dd>
-                    </div>
-                  );
-                })}
-            </dl>
-            <Link href={`/estado/${escolhida.uf}`} className="botao-linha self-start">
-              Por dentro de {escolhida.nome}
+          <div className="flex flex-col gap-2 border-l-4 bg-card p-3 text-sm" style={{ borderLeftColor: `var(--tema-${camada.tema})` }}>
+            <p>
+              <strong className="text-base">{escolhida.nome}</strong>:{" "}
+              {(() => {
+                const v = camada.valor(escolhida.uf, ano);
+                return v == null ? "sem dado" : camada.formatar(v);
+              })()}
+              {cmp &&
+                (() => {
+                  const v = cmp.valor(escolhida.uf, anoCmp);
+                  return ` · ${minuscula(cmp.rotulo)}: ${v == null ? "sem dado" : cmp.formatar(v)}`;
+                })()}
+            </p>
+            <Link href={`/estado/${escolhida.uf}`} className="self-start underline underline-offset-4">
+              Tudo sobre {escolhida.nome}
             </Link>
           </div>
-        ) : (
-          <p className="text-sm text-muted-foreground">Toque, clique ou use as setas do teclado num estado para ver os números.</p>
-        )}
+        ) : null}
       </div>
 
-      <div className="flex flex-col gap-2">
-        <button type="button" aria-expanded={lista} onClick={() => setLista((v) => !v)} className="botao-linha self-start">
-          {lista ? "Esconder a lista" : "Ver os estados em lista"}
-        </button>
-        {lista && (
-          <div className="flex flex-col gap-1">
-            <p className="text-xs text-muted-foreground">
-              Em ordem do maior para o menor: {minuscula(camada.rotulo)}
-              {ano ? `, ${ano}` : ""}. Estados sem dado no fim.
-            </p>
-            <ol className="flex flex-col">
-              {ordenada.map((u) => (
-                <li key={u.uf} className="grid grid-cols-[1fr_auto] gap-3 border-b border-border py-1.5 text-sm">
-                  <Link href={`/estado/${u.uf}`} className="underline-offset-4 hover:underline">
-                    {u.nome}
-                  </Link>
-                  <span className="numero">{u.valor == null ? "sem dado" : camada.formatar(u.valor)}</span>
-                </li>
-              ))}
-            </ol>
-          </div>
-        )}
+      <div className="flex flex-col gap-1.5">
+        <p className="text-xs text-muted-foreground">Perguntas para começar</p>
+        <ul className="flex flex-wrap gap-1.5">
+          {PERGUNTAS.filter((p) => camadas.some((c) => c.id === p.camada) && (!p.comparar || camadas.some((c) => c.id === p.comparar))).map((p) => (
+            <li key={p.texto}>
+              <button
+                type="button"
+                onClick={() => {
+                  escolherCamada(p.camada);
+                  setCmpId(p.comparar ?? "");
+                  setAberto(p.comparar ? "comparar" : null);
+                  const c = camadas.find((x) => x.id === p.camada);
+                  if (p.ano === "primeiro" && c) animar(c.anos);
+                }}
+                className="min-h-10 border border-border bg-card px-3 py-1.5 text-left text-sm hover:border-foreground"
+              >
+                {p.texto}
+              </button>
+            </li>
+          ))}
+        </ul>
       </div>
+
+      <div className="flex flex-wrap gap-1.5">
+        {botaoAbrir("numero", "Mudar o número")}
+        {botaoAbrir("comparar", cmp ? "Comparação" : "Comparar com outro número")}
+        {botaoAbrir("lista", "Ver em lista")}
+      </div>
+
+      {aberto === "numero" && (
+        <div className="flex flex-col gap-2 border border-border bg-card p-3">
+          <Segmentado
+            rotulo="Assunto do mapa"
+            opcoes={grupos.map((g) => ({ valor: g, rotulo: g }))}
+            valor={camada.grupo}
+            aoMudar={(g) => escolherCamada(camadas.find((c) => c.grupo === g)!.id)}
+          />
+          <div className="flex flex-wrap gap-1.5" role="group" aria-label="O que colorir no mapa">
+            {camadas
+              .filter((c) => c.grupo === camada.grupo)
+              .map((c) => (
+                <button
+                  key={c.id}
+                  type="button"
+                  aria-pressed={c.id === camada.id}
+                  onClick={() => escolherCamada(c.id)}
+                  className={`inline-flex min-h-10 items-center gap-2 border px-3 text-sm ${
+                    c.id === camada.id ? "border-foreground font-semibold" : "border-border bg-background"
+                  }`}
+                >
+                  <span aria-hidden className="size-2.5" style={{ background: `var(--tema-${c.tema})` }} />
+                  {c.rotulo}
+                </button>
+              ))}
+          </div>
+        </div>
+      )}
+
+      {aberto === "comparar" && (
+        <div className="flex flex-col gap-2">
+          <label className="flex max-w-full min-w-0 flex-wrap items-center gap-2 text-sm">
+            Comparar {minuscula(camada.rotulo)} com
+            <select
+              value={cmp?.id ?? ""}
+              onChange={(e) => setCmpId(e.target.value)}
+              className="min-h-10 w-[13rem] max-w-full min-w-0 border border-border bg-card px-2"
+            >
+              <option value="">escolha um número</option>
+              {camadas
+                .filter((c) => c.id !== camada.id)
+                .map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.grupo}: {c.rotulo}
+                  </option>
+                ))}
+            </select>
+          </label>
+          {cmp && <Dispersao ufs={ufs} x={camada} y={cmp} anoX={ano} anoY={anoCmp} realce={foco} aoRealcar={setRealce} />}
+        </div>
+      )}
+
+      {aberto === "lista" && (
+        <div className="flex flex-col gap-1">
+          <p className="text-xs text-muted-foreground">
+            Em ordem do maior para o menor: {minuscula(camada.rotulo)}
+            {ano ? `, ${ano}` : ""}. Estados sem dado no fim.
+          </p>
+          <ol className="flex flex-col">
+            {ordenada.map((u) => (
+              <li key={u.uf} className="grid grid-cols-[1fr_auto] gap-3 border-b border-border py-1.5 text-sm">
+                <Link href={`/estado/${u.uf}`} className="underline-offset-4 hover:underline">
+                  {u.nome}
+                </Link>
+                <span className="numero">{u.valor == null ? "sem dado" : camada.formatar(u.valor)}</span>
+              </li>
+            ))}
+          </ol>
+        </div>
+      )}
 
       <p className="text-xs text-muted-foreground">
         Fonte: {camada.fonte}
-        {cmp && cmp.fonte !== camada.fonte ? `; ${cmp.fonte}` : ""}.{camada.nota ? ` ${camada.nota}` : ""}
+        {cmp && aberto === "comparar" && cmp.fonte !== camada.fonte ? `; ${cmp.fonte}` : ""}.{camada.nota ? ` ${camada.nota}` : ""}
       </p>
     </div>
   );

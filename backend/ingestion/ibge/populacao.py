@@ -1,6 +1,7 @@
 """População residente do IBGE (SIDRA): Brasil, estados e municípios.
 
-- Estimativas anuais: tabela 6579, variável 9324 (2019, 2020, 2021, 2024, 2025...).
+- Estimativas anuais: tabela 6579, variável 9324 (2019, 2020, 2021, 2024, 2025...). Os anos de
+  2001 a 2018 (série histórica, para as taxas por morador) entram com `--ano` uma vez só.
 - 2022: Censo, tabela 9514, variável 93, só o total (sexo, idade e forma de declaração
   "Total"). O IBGE não publicou estimativa para 2023 (salto do Censo 2022 para a
   estimativa de 2024): 2023 fica sem valor, não se interpola.
@@ -27,6 +28,7 @@ ANOS_ESTIMATIVA = [2019, 2020, 2021, 2024, 2025]
 ANO_CENSO = 2022
 NIVEIS = ("n1", "n3", "n6")
 AUSENTE = {"...", "..", "-", "X", ""}
+TOLERANCIA_ANTIGA = 0.001
 
 
 def url(nivel: str, ano: int) -> str:
@@ -60,6 +62,12 @@ def conferir(registros: list[dict[str, Any]]) -> None:
         brasil = sum(r["valor"] for r in do_ano if r["codigo"] == "1")
         ufs = sum(r["valor"] for r in do_ano if len(r["codigo"]) == 2)
         municipios = sum(r["valor"] for r in do_ano if len(r["codigo"]) == 7)
+        # Estimativas antigas (antes de 2019) por município não fecham exatas com o Brasil (áreas
+        # em litígio entre cidades): até 0,1% de diferença passa, com aviso. Estados: sempre exato.
+        folga = TOLERANCIA_ANTIGA * brasil if ano < 2019 else 0
+        if brasil and ufs == brasil and municipios != brasil and abs(municipios - brasil) <= folga:
+            print(f"  aviso: municípios de {ano} somam {municipios} (Brasil {brasil})", flush=True)
+            continue
         if not brasil or ufs != brasil or municipios != brasil:
             raise ValueError(
                 f"População {ano} não fecha: Brasil {brasil}, UFs {ufs}, municípios {municipios}."

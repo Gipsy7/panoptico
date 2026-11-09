@@ -1894,6 +1894,19 @@ Pedido do dono depois de usar o release no celular:
   entram como linhas cinza (contínua e tracejada) quando a unidade é a mesma, com o nome no fim da linha. No gráfico
   de pontos do mapa, as medianas tracejadas mostram "metade dos estados de cada lado" e o estado em foco ganha uma
   frase com os dois números e de que lado da metade está.
+- **Clareza e dado suficiente (dono, 08/11, diretrizes):**
+  - Cruzamento só com dado suficiente: na pergunta, a série ligada precisa de 4 anos em comum com a principal (senão
+    uma linha diz "só há dados de A a B; poucos anos em comum para comparar"); no gráfico de pontos, 20 dos 27
+    estados com os dois números (senão diz quantos têm). Faixa de gestão sem eleição carregada diz "antes de A:
+    eleição não carregada". Nada é preenchido por suposição.
+  - Pergunta com no máximo dois gráficos (o assunto e o cruzamento principal) e só a faixa de quem responde pelo
+    serviço (governador em segurança, prefeito nas escolas da prefeitura). Linha com estado e Brasil traz legenda
+    acima e, ao lado, os valores finais com nome ("Gaspar 3,9 · SC 8,1 · Brasil 20,0"), sem sobrepor.
+  - Mapa da home em camadas: abre limpo (homicídios por 100 mil, mapa, legenda com o menor e o maior valor, régua
+    de anos e três perguntas); "Mudar o número", "Comparar com outro número" e "Ver em lista" abrem só quando
+    pedidos. Os totais de impostos e repasses ficam num bloco que abre ao toque.
+  - Faltas buscadas em outra fonte: população do IBGE de 2001 a 2018 (taxas por morador desde 2014) e resultados
+    do TSE de 2012 e 2014 (prefeitos 2013-2016 e governadores 2015-2018).
 - **Ordenação sem ranking (dono, 08/11):** continua proibido ranking, posição ("1º", "top 10") ou selo. Lista pode
   vir ordenada por um número quando isso ajuda a ler (do maior para o menor, por exemplo), sempre com a ordem
   escrita numa linha curta junto da lista.

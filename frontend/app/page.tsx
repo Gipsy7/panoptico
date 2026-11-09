@@ -151,34 +151,35 @@ async function DinheiroFederalHome() {
           </h2>
         </div>
         <p className="revelar-item text-muted-foreground">
-          Segurança, saúde, escolas, economia, infraestrutura e o dinheiro da União no mesmo mapa. Escolha um número,
-          mude o ano, compare dois números e veja a lista. Toque num estado para os detalhes.
+          Toque num estado para ver o número dele. Depois, se quiser, mude o número, compare dois ou veja a lista.
         </p>
-        <p className="revelar-item text-sm font-semibold">Impostos e repasses da União em {ano}</p>
-        <dl className="revelar-item -mt-2 grid grid-cols-2 gap-4 border-t border-foreground pt-4">
-          <div>
-            <dt className="text-sm text-muted-foreground">Arrecadado no país</dt>
-            <dd className="numero text-2xl">{reais(brasil.arrecadacao)}</dd>
+        <details className="revelar-item border-t border-border pt-3">
+          <summary className="cursor-pointer text-sm font-semibold">Impostos e repasses da União em {ano}</summary>
+          <div className="mt-3 flex flex-col gap-4">
+            <dl className="grid grid-cols-2 gap-4">
+              <div>
+                <dt className="text-sm text-muted-foreground">Arrecadado no país</dt>
+                <dd className="numero text-2xl">{reais(brasil.arrecadacao)}</dd>
+              </div>
+              <div>
+                <dt className="text-sm text-muted-foreground">Repassado a estados e cidades</dt>
+                <dd className="numero text-2xl">{reais(brasil.repasse)}</dd>
+              </div>
+            </dl>
+            {textoSemDado(brasil, ano) && <p className="text-sm text-muted-foreground">{textoSemDado(brasil, ano)}</p>}
+            {avisos.map((a) => (
+              <p key={a} className="text-sm text-muted-foreground">
+                {a}
+              </p>
+            ))}
+            <div>
+              <Link href="/impostos-e-repasses" className="botao-linha">
+                Ver o mapa completo, com as 5.570 cidades
+              </Link>
+            </div>
+            <FonteRodape fonte={fontes[0]?.nome ?? "Tesouro Nacional e Receita Federal"} url={fontes[0]?.url} atualizadoEm={dataFonte} />
           </div>
-          <div>
-            <dt className="text-sm text-muted-foreground">Repassado a estados e cidades</dt>
-            <dd className="numero text-2xl">{reais(brasil.repasse)}</dd>
-          </div>
-        </dl>
-        <div className="revelar-item flex flex-col gap-4 empty:hidden">
-        {textoSemDado(brasil, ano) && <p className="text-sm text-muted-foreground">{textoSemDado(brasil, ano)}</p>}
-        {avisos.map((a) => (
-          <p key={a} className="text-sm text-muted-foreground">
-            {a}
-          </p>
-        ))}
-        <div>
-          <Link href="/impostos-e-repasses" className="botao-linha">
-            Ver o mapa completo, com as 5.570 cidades
-          </Link>
-        </div>
-        <FonteRodape fonte={fontes[0]?.nome ?? "Tesouro Nacional e Receita Federal"} url={fontes[0]?.url} atualizadoEm={dataFonte} />
-        </div>
+        </details>
       </div>
       <div className="revelar-item">
       <MapaHome

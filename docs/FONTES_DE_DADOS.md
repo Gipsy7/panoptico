@@ -260,6 +260,11 @@ Endpoints conferidos em 2026-10-06.
 - **Conferido (set/2026):** Brasil 460.549 leitos de internação (318.479 do SUS), 82.975 complementares, 50.733 unidades básicas, 7.128 hospitais; Blumenau 795 leitos (447 do SUS), 126 complementares, 63 unidades básicas, 9 hospitais.
 - **Frequência:** mensal (`datasus_cnes`, `ingestion/datasus/cnes.py`; ~30 s), na agenda mensal da VPS.
 
+## IBGE: população de 2001 a 2018 (série histórica)
+
+- Mesma tabela 6579 (estimativas), carregada uma vez com `python -m ingestion.ibge.populacao --ano 2001 ... 2018`. Sem 2007 e 2010 (anos de contagem e de Censo, sem estimativa): a conta por morador usa o ano anterior.
+- **Armadilha:** as estimativas antigas por município não fecham exatas com o Brasil (2004: +11.968; 2008: +7.817; 2012: +42.871, áreas em litígio entre cidades). Antes de 2019 aceitamos até 0,1% de diferença nos municípios, com aviso no log; estados e Brasil fecham exatos.
+
 ## IBGE: IPCA (linha do tempo)
 
 - **URL:** `https://servicodados.ibge.gov.br/api/v3/agregados/1737/periodos/200001-209912/variaveis/2266?localidades=N1[all]` (número-índice, base dez/1993 = 100). 321 meses até set/2026.
