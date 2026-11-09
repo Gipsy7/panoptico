@@ -1282,6 +1282,11 @@ export type IndicadorUf = {
 
 export type IndicadoresUfs = { reais_de: number | null; indicadores: IndicadorUf[] };
 
+/** Indicadores das cidades de um estado (cores do Mapa ao entrar no estado). */
+export function getIndicadoresCidades(uf: string) {
+  return getJson<IndicadoresUfs>(`/estados/${encodeURIComponent(uf)}/cidades/indicadores`);
+}
+
 /** Indicadores dos 27 estados, com os anos de cada um (mapa da home). */
 export function getIndicadoresUfs() {
   return getJson<IndicadoresUfs>("/estados/indicadores");

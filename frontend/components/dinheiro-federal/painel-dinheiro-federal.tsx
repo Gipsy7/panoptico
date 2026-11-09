@@ -1,11 +1,14 @@
 "use client";
 
-// Painel de dinheiro federal: mapa Brasil > estado > cidade, barra de ferramentas e painel
-// lateral (folha de baixo no celular). O lugar e o ano vivem neste componente e a URL acompanha
-// por history.pushState; assim a navegação é suave e o link continua compartilhável.
+// Mapa (protótipo A, antes "Impostos e repasses"): Brasil > estado > cidade sem trocar de página,
+// com os assuntos (dinheiro da União, segurança, saúde, saneamento, escolas, economia) pintando o
+// mapa e um painel lateral (folha de baixo no celular) que abre com os caminhos do lugar (quem o
+// representa, tudo sobre ele) e o assunto em camadas. Lugar, ano e assunto vivem aqui e a URL
+// acompanha por history.pushState; assim a navegação é suave e o link continua compartilhável.
 
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 
+import { IconeAssunto } from "@/components/icone-assunto";
 import { MapaBrasil, type MapaControle } from "@/components/mapa/mapa-brasil";
 import estilosMapa from "@/components/mapa/mapa-brasil.module.css";
 import { Migalhas } from "@/components/ui/migalhas";
@@ -15,9 +18,13 @@ import type {
   DinheiroFederalMunicipio,
   DinheiroFederalPainel,
   DinheiroFederalUF,
+  IndicadoresUfs,
 } from "@/lib/api";
+import { getIndicadoresCidades, getIndicadoresUfs } from "@/lib/api";
+import { ASSUNTOS_MAPA, type AssuntoMapa, assuntoPorId, formatarIndicadorAssunto, ultimoPonto } from "@/lib/assuntos-mapa";
 import { type ClasseMapa, type Lugar, type NivelMapa, classe, quantis } from "@/lib/mapa";
 
+import { CamadaAssunto, CaminhosDoLugar } from "./assunto-painel";
 import { BuscaCidade } from "./busca-cidade";
 import { estadoDoAno, municipioPorIbge, painelDoAno, semear } from "./cache";
 import {
@@ -60,8 +67,12 @@ export type EstadoInicial = {
 
 const INDICADORES = Object.keys(NOME_INDICADOR) as Indicador[];
 
-function urlDe(uf: string | null, ibge: string | null, ano: number) {
-  return `/impostos-e-repasses${uf ? `/${uf}` : ""}${uf && ibge ? `/${ibge}` : ""}${ano !== ANO_PADRAO ? `?ano=${ano}` : ""}`;
+function urlDe(uf: string | null, ibge: string | null, ano: number, tema = "dinheiro") {
+  const q = new URLSearchParams();
+  if (ano !== ANO_PADRAO) q.set("ano", String(ano));
+  if (tema !== "dinheiro") q.set("tema", tema);
+  const busca = q.toString();
+  return `/impostos-e-repasses${uf ? `/${uf}` : ""}${uf && ibge ? `/${ibge}` : ""}${busca ? `?${busca}` : ""}`;
 }
 
 /** Lê /impostos-e-repasses/SC/4205407?ano=2024 da barra de endereço (botão voltar do navegador). */
@@ -72,6 +83,7 @@ function lerEndereco() {
     uf: partes[0] ? partes[0].toUpperCase() : null,
     ibge: partes[0] && partes[1] ? partes[1] : null,
     ano: Number.isInteger(ano) && ano > 2000 ? ano : ANO_PADRAO,
+    tema: assuntoPorId(new URLSearchParams(location.search).get("tema")).id,
   };
 }
 
@@ -93,14 +105,40 @@ export function PainelDinheiroFederal({ inicial }: { inicial: EstadoInicial }) {
   const [municipio, setMunicipio] = useState(inicial.municipio);
   const [erro, setErro] = useState<string | null>(null);
   const [foco, setFoco] = useState<{ nivel: NivelMapa; id: string } | null>(null);
+  const [tema, setTema] = useState<AssuntoMapa["id"]>("dinheiro");
+  const assunto = assuntoPorId(tema);
+  const [indUf, setIndUf] = useState<IndicadoresUfs | null>(null);
+  const [indMun, setIndMun] = useState<{ uf: string; dados: IndicadoresUfs } | null>(null);
 
   // ?vista=lista abre já na lista (link "Ver como lista" da home); lido depois de montar para não
   // divergir do HTML do servidor.
   useEffect(() => {
-    if (new URLSearchParams(location.search).get("vista") !== "lista") return;
-    const id = requestAnimationFrame(() => setVista("lista"));
+    const busca = new URLSearchParams(location.search);
+    const id = requestAnimationFrame(() => {
+      if (busca.get("vista") === "lista") setVista("lista");
+      const t = assuntoPorId(busca.get("tema")).id;
+      if (t !== "dinheiro") setTema(t);
+    });
     return () => cancelAnimationFrame(id);
   }, []);
+
+  // Indicadores dos estados (uma vez) e das cidades do estado aberto, só quando o assunto pede.
+  useEffect(() => {
+    if (tema === "dinheiro" || indUf) return;
+    let vivo = true;
+    getIndicadoresUfs().then((r) => vivo && r.ok && setIndUf(r.dados));
+    return () => {
+      vivo = false;
+    };
+  }, [tema, indUf]);
+  useEffect(() => {
+    if (tema === "dinheiro" || !uf || indMun?.uf === uf) return;
+    let vivo = true;
+    getIndicadoresCidades(uf).then((r) => vivo && r.ok && setIndMun({ uf, dados: r.dados }));
+    return () => {
+      vivo = false;
+    };
+  }, [tema, uf, indMun?.uf]);
 
   const raizRef = useRef<HTMLDivElement>(null);
   const topoFolhaRef = useRef<HTMLDivElement>(null);
@@ -132,6 +170,7 @@ export function PainelDinheiroFederal({ inicial }: { inicial: EstadoInicial }) {
       setUf(e.uf);
       setIbge(e.ibge);
       setAno(e.ano);
+      setTema(e.tema);
       setFolha(e.ibge ? "meia" : "recolhida");
     };
     addEventListener("popstate", aoVoltar);
@@ -202,14 +241,20 @@ export function PainelDinheiroFederal({ inicial }: { inicial: EstadoInicial }) {
       setIbge(novoIbge);
       setFolha(novoIbge ? "meia" : "recolhida");
       setErro(null);
-      history.pushState(null, "", urlDe(novoUf, novoIbge, ano));
+      history.pushState(null, "", urlDe(novoUf, novoIbge, ano, tema));
     },
-    [ano],
+    [ano, tema],
   );
+
+  function trocarTema(novo: AssuntoMapa["id"]) {
+    setTema(novo);
+    if (novo !== "dinheiro") setVista("mapa");
+    history.replaceState(null, "", urlDe(uf, ibge, ano, novo));
+  }
 
   function trocarAno(novo: number) {
     setAno(novo);
-    history.replaceState(null, "", urlDe(uf, ibge, novo));
+    history.replaceState(null, "", urlDe(uf, ibge, novo, tema));
   }
 
   // ---- dados derivados ----
@@ -226,7 +271,21 @@ export function PainelDinheiroFederal({ inicial }: { inicial: EstadoInicial }) {
   const cortesUf = useMemo(() => quantis(painel.ufs.map((u) => valorIndicador(u, ind))), [painel, ind]);
   const cortesMun = useMemo(() => quantis(cidades.map(valorCidade)), [cidades]);
 
+  // Assunto que não é dinheiro: o indicador dele pinta estados e cidades.
+  const indicadorUf = assunto.indicador ? indUf?.indicadores.find((i) => i.id === assunto.indicador) : undefined;
+  const indicadorMun = assunto.indicador && indMun?.uf === uf ? indMun.dados.indicadores.find((i) => i.id === assunto.indicador) : undefined;
+  const indicadorAtivo = uf ? indicadorMun : indicadorUf;
+  const valorAssunto = (id: string) => (indicadorAtivo ? (ultimoPonto(indicadorAtivo, id)?.valor ?? null) : null);
+  const cortesAssunto = indicadorAtivo
+    ? quantis(Object.keys(indicadorAtivo.valores).map((k) => ultimoPonto(indicadorAtivo, k)?.valor))
+    : [];
+  const textoAssunto = (id: string) => {
+    const v = valorAssunto(id);
+    return v == null || !indicadorAtivo ? "sem dado" : formatarIndicadorAssunto(indicadorAtivo, v);
+  };
+
   const classeMapa = (nivel: NivelMapa, id: string): ClasseMapa => {
+    if (assunto.indicador) return classe(valorAssunto(id), cortesAssunto);
     if (nivel === "uf") {
       const u = painel.ufs.find((x) => x.uf === id);
       return u ? classe(valorIndicador(u, ind), cortesUf) : 0;
@@ -237,6 +296,10 @@ export function PainelDinheiroFederal({ inicial }: { inicial: EstadoInicial }) {
   // Nomes das cidades no mapa: as mais populosas aparecem primeiro.
   const prioridadeMapa = (id: string) => porIbge.get(id)?.populacao;
   const rotuloMapa = (nivel: NivelMapa, id: string) => {
+    if (assunto.indicador) {
+      const nome = nivel === "uf" ? (painel.ufs.find((x) => x.uf === id)?.nome ?? id) : (porIbge.get(id)?.nome ?? id);
+      return `${nome}: ${textoAssunto(id)}`;
+    }
     if (nivel === "uf") {
       const u = painel.ufs.find((x) => x.uf === id);
       return u
@@ -248,6 +311,18 @@ export function PainelDinheiroFederal({ inicial }: { inicial: EstadoInicial }) {
   };
 
   const resumoMapa = (nivel: NivelMapa, id: string) => {
+    if (assunto.indicador) {
+      const nome = nivel === "uf" ? (painel.ufs.find((x) => x.uf === id)?.nome ?? id) : (porIbge.get(id)?.nome ?? id);
+      return (
+        <div className="flex flex-col gap-0.5 text-sm">
+          <strong>{nome}</strong>
+          <span>
+            {indicadorAtivo?.rotulo}: {textoAssunto(id)}
+          </span>
+          <span className="text-muted-foreground">{nivel === "uf" ? "Toque de novo para entrar no estado" : "Toque de novo para abrir a cidade"}</span>
+        </div>
+      );
+    }
     if (nivel === "uf") {
       const u = painel.ufs.find((x) => x.uf === id);
       if (!u) return id;
@@ -279,13 +354,17 @@ export function PainelDinheiroFederal({ inicial }: { inicial: EstadoInicial }) {
   const nivelMun = Boolean(uf);
   const indEfetivo: Indicador = nivelMun ? "repHab" : ind;
   const valoresLegenda = (
-    nivelMun ? cidades.map(valorCidade) : painel.ufs.map((u) => valorIndicador(u, indEfetivo))
+    assunto.indicador
+      ? Object.keys(indicadorAtivo?.valores ?? {}).map((k) => valorAssunto(k))
+      : nivelMun
+        ? cidades.map(valorCidade)
+        : painel.ufs.map((u) => valorIndicador(u, indEfetivo))
   ).filter((v): v is number => v != null);
-  const cortesLegenda = nivelMun ? cortesMun : cortesUf;
+  const cortesLegenda = assunto.indicador ? cortesAssunto : nivelMun ? cortesMun : cortesUf;
   const minimo = valoresLegenda.length ? Math.min(...valoresLegenda) : null;
   const maximo = valoresLegenda.length ? Math.max(...valoresLegenda) : null;
   const rotulosLegenda = [minimo, cortesLegenda[1] ?? null, cortesLegenda[3] ?? null, maximo]
-    .map((v) => formatarIndicador(indEfetivo, v))
+    .map((v) => (assunto.indicador && indicadorAtivo ? (v == null ? "" : formatarIndicadorAssunto(indicadorAtivo, v)) : formatarIndicador(indEfetivo, v)))
     .filter((t, i, todos) => i === 0 || t !== todos[i - 1]);
   const valorUnico = rotulosLegenda.length === 1;
   const cidadesComValor = cidades.filter((c) => valorCidade(c) != null);
@@ -504,7 +583,7 @@ export function PainelDinheiroFederal({ inicial }: { inicial: EstadoInicial }) {
 
   const migalhas = [
     { rotulo: "Início", href: "/" },
-    { rotulo: "Impostos e repasses" },
+    { rotulo: "Mapa" },
   ];
 
   let cabecalho;
@@ -546,6 +625,46 @@ export function PainelDinheiroFederal({ inicial }: { inicial: EstadoInicial }) {
     corpo = <CorpoBrasil painel={painel} />;
   }
   if (!cabecalho) cabecalho = <CabecalhoPainel sobre="Brasil" titulo="Todos os estados" chave="" />;
+  // Outro assunto: o topo da folha mostra o lugar e o número do assunto (não os de dinheiro).
+  if (assunto.indicador) {
+    const idUf = assunto.indicador === "homicidios" ? "homicidios_media3" : assunto.indicador;
+    const indDoLugar = ibge ? indicadorMun : uf ? indUf?.indicadores.find((i) => i.id === idUf) : undefined;
+    const pontoLugar = indDoLugar && (ibge ?? uf) ? ultimoPonto(indDoLugar, (ibge ?? uf)!) : null;
+    cabecalho = (
+      <CabecalhoPainel
+        sobre={ibge ? ufNome : uf ? "Estado" : "Brasil"}
+        titulo={ibge ? nomeCidade : uf ? ufNome : "Todos os estados"}
+        chave={
+          indDoLugar && pontoLugar ? (
+            <>
+              {indDoLugar.rotulo}: <b>{formatarIndicadorAssunto(indDoLugar, pontoLugar.valor)}</b>
+            </>
+          ) : (
+            assunto.nome
+          )
+        }
+      />
+    );
+  }
+  const lugarPainel = { uf, ufNome, ibge, nomeCidade };
+  corpo = (
+    <div className="flex flex-col gap-4">
+      <CaminhosDoLugar {...lugarPainel} />
+      {assunto.indicador ? (
+        <>
+          <CamadaAssunto assunto={assunto} lugar={lugarPainel} indUf={indUf} indMun={indMun?.uf === uf ? indMun.dados : null} />
+          <details className="border-t border-border pt-2">
+            <summary className="flex cursor-pointer items-center gap-2 text-sm font-semibold">
+              <IconeAssunto assunto="dinheiro" className="size-4 text-bronze" /> Dinheiro da União aqui
+            </summary>
+            <div className="mt-3">{corpo}</div>
+          </details>
+        </>
+      ) : (
+        corpo
+      )}
+    </div>
+  );
 
   const resumoOnde = (
     <>
@@ -569,7 +688,9 @@ export function PainelDinheiroFederal({ inicial }: { inicial: EstadoInicial }) {
     </>
   );
 
-  const tituloMapa = uf
+  const tituloMapa = assunto.indicador
+    ? `Mapa ${uf ? `das cidades de ${ufNome}` : "do Brasil por estado"}, colorido por: ${(indicadorAtivo?.titulo ?? assunto.nome).toLowerCase()}`
+    : uf
     ? `Mapa das cidades de ${ufNome}, colorido pelo repasse da União por habitante`
     : `Mapa do Brasil por estado, colorido por: ${NOME_INDICADOR[ind].toLowerCase()}`;
 
@@ -579,23 +700,54 @@ export function PainelDinheiroFederal({ inicial }: { inicial: EstadoInicial }) {
         <div className={estilos.migalhas}>
           <Migalhas itens={migalhas} />
         </div>
-        <p className="sobretitulo">Dinheiro público</p>
+        <p className="sobretitulo">Mapa</p>
         <h1 className={`${estilos.h1} font-heading`}>
-          <span className={estilos.longo}>Quanto a União arrecada e quanto repassa em cada estado</span>
-          <span className={estilos.curto}>Imposto federal: o que sai e o que volta</span>
+          {assunto.indicador ? (
+            <>
+              <span className={estilos.longo}>{indicadorUf?.titulo ?? assunto.nome} em cada {uf ? "cidade" : "estado"}</span>
+              <span className={estilos.curto}>{assunto.nome}: estado por estado, cidade por cidade</span>
+            </>
+          ) : (
+            <>
+              <span className={estilos.longo}>Quanto a União arrecada e quanto repassa em cada estado</span>
+              <span className={estilos.curto}>Imposto federal: o que sai e o que volta</span>
+            </>
+          )}
         </h1>
       </header>
+
+      <div className={estilos.assuntos} role="group" aria-label="Assunto do mapa">
+        {ASSUNTOS_MAPA.map((a) => (
+          <button
+            key={a.id}
+            type="button"
+            aria-pressed={a.id === tema}
+            aria-label={a.nome}
+            title={a.nome}
+            onClick={() => trocarTema(a.id)}
+            className={`inline-flex min-h-11 items-center justify-center gap-1.5 border px-2.5 text-sm ${
+              a.id === tema ? "border-foreground font-semibold" : "border-border bg-card hover:border-foreground"
+            }`}
+            style={a.id === tema ? { boxShadow: `inset 0 -3px 0 var(--tema-${a.tema})` } : undefined}
+          >
+            <span style={{ color: `var(--tema-${a.tema})` }}>
+              <IconeAssunto assunto={a.icone} className="size-[18px]" />
+            </span>
+            <span className="hidden sm:inline">{a.nome}</span>
+          </button>
+        ))}
+      </div>
 
       <div className={estilos.barra}>
         <div className={estilos.abas} role="group" aria-label="Forma de ver">
           <button type="button" aria-label="Ver como mapa" aria-pressed={vista === "mapa"} onClick={() => setVista("mapa")}>
             Mapa
           </button>
-          <button type="button" aria-label="Ver como lista" aria-pressed={vista === "lista"} onClick={() => setVista("lista")}>
+          <button type="button" aria-label="Ver como lista" aria-pressed={vista === "lista"} disabled={tema !== "dinheiro"} onClick={() => setVista("lista")}>
             Lista
           </button>
         </div>
-        {!uf && (
+        {!uf && tema === "dinheiro" && (
           <div className={estilos.chips} role="group" aria-label="O que as cores mostram">
             {INDICADORES.map((k) => (
               <button key={k} type="button" aria-pressed={ind === k} onClick={() => setInd(k)}>
@@ -682,11 +834,13 @@ export function PainelDinheiroFederal({ inicial }: { inicial: EstadoInicial }) {
           <div className={`${estilosMapa.caixa} ${estilos.legenda}`} hidden={vista !== "mapa" || Boolean(ibge)}>
             {valoresLegenda.length > 0 && minimo != null && maximo != null ? (
               <>
-                <span className={`${estilos.tituloLeg} ${nivelMun ? "" : estilos.trocaCel}`}>
-                  {NOME_INDICADOR[indEfetivo]}, {anoMostrado}
+                <span className={`${estilos.tituloLeg} ${nivelMun || assunto.indicador ? "" : estilos.trocaCel}`}>
+                  {assunto.indicador
+                    ? `${indicadorAtivo?.titulo ?? ""}${indicadorAtivo && !indicadorAtivo.titulo.includes("média") && indicadorAtivo.anos.length ? `, ${indicadorAtivo.anos[indicadorAtivo.anos.length - 1]}` : ""}`
+                    : `${NOME_INDICADOR[indEfetivo]}, ${anoMostrado}`}
                   {nivelMun ? `, cidades de ${ufNome}` : ""}
                 </span>
-                {!nivelMun && (
+                {!nivelMun && !assunto.indicador && (
                   <label className={estilos.indCel}>
                     <span>Cores:</span>
                     <select
@@ -730,14 +884,20 @@ export function PainelDinheiroFederal({ inicial }: { inicial: EstadoInicial }) {
                 )}
                 <span className={estilos.legendaTexto}>
                   {valorUnico ? "" : `Cada cor reúne um quinto dos ${nivelMun ? "municípios" : "estados"}. `}Cinza: sem dado.
-                  {nivelMun && ind !== "repHab"
-                    ? " Nas cidades o mapa mostra o repasse por habitante: a Receita Federal não publica arrecadação por cidade."
-                    : ""}
+                  {assunto.indicador
+                    ? " Mais escuro = número maior; não quer dizer melhor nem pior."
+                    : nivelMun && ind !== "repHab"
+                      ? " Nas cidades o mapa mostra o repasse por habitante: a Receita Federal não publica arrecadação por cidade."
+                      : ""}
                 </span>
               </>
             ) : (
               <span>
-                {nivelMun && !estadoOk ? "Carregando as cidades…" : `Sem dado de ${NOME_INDICADOR[indEfetivo].toLowerCase()} em ${anoMostrado}.`}
+                {assunto.indicador && !indicadorAtivo
+                  ? "Carregando…"
+                  : nivelMun && !estadoOk
+                    ? "Carregando as cidades…"
+                    : `Sem dado de ${NOME_INDICADOR[indEfetivo].toLowerCase()} em ${anoMostrado}.`}
               </span>
             )}
           </div>

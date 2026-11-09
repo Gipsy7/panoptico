@@ -98,7 +98,8 @@ export function montarCamadas(ufs: UfDinheiro[], ind: IndicadoresUfs | null, ano
       formatar: num(0),
     });
   }
-  const indicadores: Camada[] = (ind?.indicadores ?? []).map((i) => {
+  // A média de 3 anos serve à comparação cidade × estado no Mapa; aqui seria uma opção repetida.
+  const indicadores: Camada[] = (ind?.indicadores ?? []).filter((i) => !i.id.endsWith("_media3")).map((i) => {
     const porUfAno = new Map(Object.entries(i.valores).map(([uf, pts]) => [uf, new Map(pts.map((p) => [p.ano, p.valor]))]));
     const fmt = i.unidade.startsWith("R$") ? reaisInteiros : i.unidade.startsWith("%") ? (v: number) => `${num(i.decimais)(v)}%` : num(i.decimais);
     return {

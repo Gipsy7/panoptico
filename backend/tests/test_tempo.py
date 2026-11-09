@@ -91,3 +91,28 @@ def test_indicadores_dos_estados(client, session):
     assert por["gasto_seguranca"]["valores"]["SC"][0]["valor"] == 400.0
     assert por["esgoto"]["anos"] == [2022]
     assert "leitos" not in por  # sem dado: fora
+
+
+def test_indicadores_das_cidades_media_de_tres_anos(client, session):
+    from app.models import HomicidioSim, PopulacaoIbge
+
+    session.add(Municipio(ibge="4205902", nome="Gaspar", uf="SC", nome_chave="GASPAR"))
+    session.flush()
+    session.execute(
+        insert(HomicidioSim),
+        [
+            {"codigo": "4205902", "ano": a, "homicidios": n}
+            for a, n in [(2022, 2), (2023, 3), (2024, 4)]
+        ],
+    )
+    session.execute(
+        insert(PopulacaoIbge),
+        [
+            {"codigo": "4205902", "ano": a, "valor": 100_000, "origem": "estimativa"}
+            for a in (2022, 2023, 2024)
+        ],
+    )
+    corpo = client.get("/estados/SC/cidades/indicadores").json()
+    hom = next(i for i in corpo["indicadores"] if i["id"] == "homicidios")
+    assert hom["valores"]["4205902"] == [{"ano": 2024, "valor": 3.0}]
+    assert client.get("/estados/XX/cidades/indicadores").status_code == 404

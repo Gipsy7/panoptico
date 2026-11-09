@@ -25,6 +25,24 @@
   display: none;
 }
 
+/* Assuntos do Mapa: ícone e nome; no celular só o ícone, dividindo a largura (sem rolagem lateral). */
+.assuntos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+@media (max-width: 959px) {
+  .assuntos {
+    flex-wrap: nowrap;
+    padding-inline: 16px;
+  }
+  .assuntos > button {
+    flex: 1 1 0;
+    min-width: 0;
+    padding-inline: 0;
+  }
+}
+
 .barra {
   display: flex;
   flex-wrap: wrap;

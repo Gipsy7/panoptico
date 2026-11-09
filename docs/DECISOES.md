@@ -1907,6 +1907,16 @@ Pedido do dono depois de usar o release no celular:
     pedidos. Os totais de impostos e repasses ficam num bloco que abre ao toque.
   - Faltas buscadas em outra fonte: população do IBGE de 2001 a 2018 (taxas por morador desde 2014) e resultados
     do TSE de 2012 e 2014 (prefeitos 2013-2016 e governadores 2015-2018).
+- **Mapa como centro (protótipo A, dono, 09/11):** a home não muda (localização ou cidade levam aos
+  representantes e à cidade). Impostos e repasses virou **Mapa** (menu "Mapa"; endereço `/impostos-e-repasses`
+  mantido): os assuntos Dinheiro (o de antes, padrão), Segurança, Saúde, Saneamento, Escolas e Economia pintam
+  estados e cidades (`/estados/indicadores` e `/estados/{uf}/cidades/indicadores`; assunto na URL, `?tema=`). Brasil
+  → estado → cidade sem trocar de página. O painel abre com os caminhos do lugar (na cidade: "Quem representa" →
+  `/representantes?municipio=`, os mesmos da home, e "Tudo sobre" → `/cidade/`; no estado: representantes e
+  "Por dentro do estado"), depois o assunto em camadas (número com o estado ao lado, "Aprofundar" com a série,
+  link para tudo sobre o assunto) e o dinheiro da União num bloco que abre ao toque. Homicídios na cidade e no
+  estado na mesma conta (média dos 3 últimos anos, `homicidios_media3` nos estados). A lista segue só no assunto
+  Dinheiro por enquanto.
 - **Ordenação sem ranking (dono, 08/11):** continua proibido ranking, posição ("1º", "top 10") ou selo. Lista pode
   vir ordenada por um número quando isso ajuda a ler (do maior para o menor, por exemplo), sempre com a ordem
   escrita numa linha curta junto da lista.

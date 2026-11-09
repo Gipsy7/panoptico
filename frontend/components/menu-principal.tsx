@@ -16,7 +16,7 @@ function itens(lugar: Lugar | null) {
     { href: hrefDoMenu("Seu lugar", lugar), rotulo: "Seu lugar" },
     { href: hrefDoMenu("Representantes", lugar), rotulo: "Representantes" },
     { href: "/projetos", rotulo: "Decisões" },
-    { href: "/impostos-e-repasses", rotulo: "Dinheiro público" },
+    { href: "/impostos-e-repasses", rotulo: "Mapa" },
     { href: "/comparar", rotulo: "Comparar" },
     { href: "/partidos", rotulo: "Partidos" },
     { href: "/apoie", rotulo: "Apoie" },

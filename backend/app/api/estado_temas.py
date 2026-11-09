@@ -28,7 +28,7 @@ from app.services import (
     seguranca,
     tempo,
 )
-from app.services.indicadores_ufs import indicadores
+from app.services.indicadores_ufs import indicadores, indicadores_cidades
 from app.services.pib import CODIGO_UF
 
 router = APIRouter()
@@ -46,6 +46,13 @@ def _codigo(uf: str) -> tuple[str, str]:
 def indicadores_dos_estados(session: Sessao) -> dict:
     """Indicadores dos 27 estados com os anos de cada um, para o mapa da home."""
     return indicadores(session)
+
+
+@router.get("/estados/{uf}/cidades/indicadores", response_model=IndicadoresUfs)
+def indicadores_das_cidades(uf: str, session: Sessao) -> dict:
+    """Indicadores das cidades de um estado, para colorir o mapa ao entrar nele."""
+    uf, _ = _codigo(uf)
+    return indicadores_cidades(session, uf)
 
 
 @router.get("/estados/{uf}/pib", response_model=PibMunicipio)
