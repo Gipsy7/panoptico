@@ -11,6 +11,7 @@ import { InternetResumo } from "@/components/internet-secao";
 import { SaneamentoResumo } from "@/components/saneamento-secao";
 import { SaudeResumo } from "@/components/saude-secao";
 import { AoLongoDoTempo } from "@/components/tempo/ao-longo-do-tempo";
+import { BotaoAvisoLugar } from "@/components/botao-aviso-lugar";
 import { OQueMudou } from "@/components/tempo/o-que-mudou";
 import { SegurancaResumo } from "@/components/seguranca-secao";
 import { ParecidasSecao, VocacoesSecao } from "@/components/parecidas-secao";
@@ -513,6 +514,7 @@ async function Cidade({ ibge }: { ibge: string }) {
               Por dentro de {estado}
             </Link>
           </p>
+          <BotaoAvisoLugar uf={uf} ibge={ibge} nome={municipio} />
         </div>
 
         {tempoCidade && <OQueMudou linha={tempoCidade} lugar={municipio} nomeEstado={uf} />}

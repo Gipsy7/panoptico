@@ -80,12 +80,15 @@ export default function PrivacidadePage() {
         &ldquo;Avisar sobre novidades&rdquo; e permitir as notificações no navegador; quem não ativa
         não tem nada guardado. Se você ativar, guardamos (1) o endereço técnico que o seu navegador
         fornece para receber o aviso, com as duas chaves que o acompanham, e (2) a lista do que o
-        aparelho acompanha (parlamentares e projetos federais). Não guardamos nome, telefone,
-        e-mail, CEP nem localização. O fundamento é o seu consentimento (Lei nº 13.709/2018, art.
+        aparelho acompanha (parlamentares, projetos federais e lugares, como uma cidade, um estado
+        ou o Brasil, com os assuntos e a frequência escolhidos). O lugar seguido é o que você
+        escolheu acompanhar, não a sua localização: não guardamos nome, telefone, e-mail, CEP nem
+        posição do aparelho. O fundamento é o seu consentimento (Lei nº 13.709/2018, art.
         7º, inciso I), que você retira quando quiser. O aviso passa pelo serviço de notificações do
         seu navegador (por exemplo, o do Google, da Mozilla, da Apple ou da Microsoft), que o entrega
-        ao aparelho. Enviamos no máximo 1 aviso por dia, com votos, andamento de projetos e
-        registros oficiais; gastos, emendas e dados da cidade ficam de fora. Para cancelar, use o
+        ao aparelho. Enviamos no máximo 1 aviso por dia (ou 1 por semana), com votos, andamento de
+        projetos e registros oficiais e, dos lugares seguidos, obras, emendas pagas, leis, votações
+        e dados novos publicados pelas fontes. Para cancelar, use o
         botão do próprio perfil ou a página &ldquo;Avisos neste aparelho&rdquo; (que só existe onde
         os avisos estão ligados): o cancelamento apaga na hora o endereço e a
         lista, sem cópia. Uma inscrição que fica 180 dias sem receber nenhum aviso é apagada, e esses

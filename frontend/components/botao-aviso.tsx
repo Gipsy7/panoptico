@@ -99,7 +99,7 @@ export function BotaoAviso({ alvoTipo, alvoChave, destino }: { alvoTipo: AlvoTip
           onClick={() => setInstrucaoAberta((v) => !v)}
           aria-expanded={instrucaoAberta}
           aria-controls="aviso-instrucao"
-          aria-label={`Avisar sobre novidades de ${destino}`}
+          aria-label={`Receber avisos sobre novidades de ${destino}`}
           className="botao !h-auto min-h-11 self-start py-2"
         >
           <Sino />
@@ -117,7 +117,10 @@ export function BotaoAviso({ alvoTipo, alvoChave, destino }: { alvoTipo: AlvoTip
 
   const ocupado = estado === "pedindo";
   const ativoAgora = estado === "ativo";
-  const nome = ativoAgora ? `Parar de avisar sobre ${destino}` : `Avisar sobre novidades de ${destino}`;
+  // O nome acessível começa pelo texto visível do botão (WCAG 2.5.3).
+  const nome = ativoAgora
+    ? `Avisos ligados para ${destino}; tocar para parar`
+    : `Receber avisos sobre novidades de ${destino}`;
 
   return (
     <div className="flex flex-col gap-2">

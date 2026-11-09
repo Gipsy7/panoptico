@@ -17,6 +17,7 @@ import { PibResumo } from "@/components/pib-secao";
 import { SaneamentoResumo } from "@/components/saneamento-secao";
 import { SaudeResumo } from "@/components/saude-secao";
 import { AoLongoDoTempo } from "@/components/tempo/ao-longo-do-tempo";
+import { BotaoAvisoLugar } from "@/components/botao-aviso-lugar";
 import { OQueMudou } from "@/components/tempo/o-que-mudou";
 import { SegurancaResumo } from "@/components/seguranca-secao";
 import {
@@ -329,6 +330,7 @@ async function Estado({ uf }: { uf: string }) {
           <p className="sobretitulo">Por dentro do estado</p>
           <h1 className="titulo-pagina">{e.nome}</h1>
           {partes.length > 0 && <p className="max-w-3xl text-lg leading-snug">{partes.join(" ")}</p>}
+          <BotaoAvisoLugar uf={uf} nome={e.nome} />
         </div>
         {tempo && <OQueMudou linha={tempo} lugar={e.nome} nomeEstado={uf} />}
         {abas.length > 0 ? (

@@ -10,7 +10,7 @@ Release e produção dividem o banco: toda consulta de inscrição filtra por `a
 
 from datetime import date, datetime
 
-from sqlalchemy import BigInteger, Date, DateTime, ForeignKey, Index, String, UniqueConstraint
+from sqlalchemy import JSON, BigInteger, Date, DateTime, ForeignKey, Index, String, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.models.base import Base
@@ -27,9 +27,12 @@ class AvisoEvento(Base):
 
     # BigInteger: ON CONFLICT DO NOTHING gasta um número da sequência a cada linha repetida.
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
-    alvo_tipo: Mapped[str] = mapped_column(String(12))  # parlamentar | projeto
-    alvo_chave: Mapped[str] = mapped_column(String(45))  # casa:id_externo
-    categoria: Mapped[str] = mapped_column(String(12))  # voto | tramitacao | evento
+    alvo_tipo: Mapped[str] = mapped_column(String(12))  # parlamentar | projeto | lugar
+    # casa:id_externo; no lugar: br | uf:SC | mun:4205902
+    alvo_chave: Mapped[str] = mapped_column(String(45))
+    # voto | tramitacao | evento; no lugar, o assunto: politica | dinheiro | obras |
+    # seguranca | saude | escolas | economia
+    categoria: Mapped[str] = mapped_column(String(12))
     chave_natural: Mapped[str] = mapped_column(String(200))
     titulo: Mapped[str] = mapped_column(String(300))
     caminho: Mapped[str] = mapped_column(String(120))  # relativo ao site
@@ -54,6 +57,8 @@ class AvisoInscricao(Base):
     # Até onde este aparelho recebeu. Nulo: acompanha o cursor do ambiente. Uma falha passageira
     # o fixa, e o aparelho recebe no dia seguinte o que perdeu, mesmo com o cursor à frente.
     ultimo_evento_id: Mapped[int | None] = mapped_column(BigInteger)
+    # "dia" (nulo também) ou "semana" (o resumo sai aos domingos).
+    frequencia: Mapped[str | None] = mapped_column(String(10))
 
 
 class AvisoAlvo(Base):
@@ -67,6 +72,8 @@ class AvisoAlvo(Base):
     alvo_tipo: Mapped[str] = mapped_column(String(12))
     alvo_chave: Mapped[str] = mapped_column(String(45))
     criado_em: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    # Só no lugar: os assuntos que este aparelho quer dele; nulo = todos.
+    assuntos: Mapped[list | None] = mapped_column(JSON)
 
 
 class AvisoCursor(Base):

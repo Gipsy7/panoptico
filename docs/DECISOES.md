@@ -1930,6 +1930,19 @@ Pedido do dono depois de usar o release no celular:
 - **Placar oficial da Câmara (09/11):** quando votosSim/votosNao vêm vazios, vale o resultado escrito na descrição
   ("Sim: 346; Não: 46; Abstenção: 3"), não a contagem da lista nominal, que às vezes perde votos. Achado no
   PLP 74/2026 (343 na lista, 346 proclamados). A carga diária reprocessa o ano e corrige o que já está no banco.
+- **Avisos por lugar (dono, 09/11; protótipos A + B + C, https://claude.ai/artifact/CK8GrmL4hiwgbKFGcbuiRU):**
+  - Alvo novo `lugar` (`br`, `uf:SC`, `mun:4205902`), com assuntos por lugar (`aviso_alvo.assuntos`; nulo = todos) e
+    frequência por aparelho (`aviso_inscricao.frequencia`: dia ou semana; migração 0076, só acrescenta).
+  - "Receber avisos de Gaspar" na cidade, no estado e no painel do Mapa (também o Brasil); ligada a cidade, sugere o
+    estado e o Brasil. "Meus avisos" (/avisos): frequência, lugares com os assuntos marcáveis (a grade do C) e as
+    novidades em camadas por lugar (o B).
+  - Fatos dos lugares seguidos (`app/services/avisos_lugar.py`): obra federal que muda de situação, emendas pagas
+    no mês fechado, projeto que virou lei (Brasil), votação na câmara ou na Assembleia (onde publicam) e "saiu o
+    dado" (homicídios, leitos, IDEB, PIB). Fonte sem data de mudança usa linha de base: a 1ª vez que um fato do
+    lugar aparece ele é gravado com data antiga e nunca enviado; só a mudança seguinte avisa.
+  - O envio continua uma vez por dia (não há "assim que sair"); "1 por semana" recebe aos domingos o que juntou. A
+    notificação conta por lugar ("Novidades: Gaspar 3 · SC 1"). Privacidade: o lugar seguido não é a localização;
+    nada de CEP, posição, nome, e-mail ou telefone.
 - **Ordenação sem ranking (dono, 08/11):** continua proibido ranking, posição ("1º", "top 10") ou selo. Lista pode
   vir ordenada por um número quando isso ajuda a ler (do maior para o menor, por exemplo), sempre com a ordem
   escrita numa linha curta junto da lista.

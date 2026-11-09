@@ -6,6 +6,8 @@
  */
 import {
   type AlvoTipo,
+  type AssuntoAviso,
+  type Frequencia,
   type MinhasAvisos,
   type PermissaoAviso,
   type RespostaAviso,
@@ -66,7 +68,7 @@ export type ResultadoAtivar = { ok: true } | { ok: false; motivo: "negado" | "er
  * então liga o alvo. Se o servidor recusar, desfaz o que criou no navegador: nunca fica "ativo"
  * sem a resposta `ok` do servidor.
  */
-export async function ativar(alvoTipo: AlvoTipo, alvoChave: string): Promise<ResultadoAtivar> {
+export async function ativar(alvoTipo: AlvoTipo, alvoChave: string, assuntos?: AssuntoAviso[] | null): Promise<ResultadoAtivar> {
   const permissao = await Notification.requestPermission();
   if (permissao !== "granted") {
     // "default": o pedido foi fechado ou o navegador o escondeu (no Chrome, vira um ícone na barra de endereço).
@@ -112,7 +114,7 @@ export async function ativar(alvoTipo: AlvoTipo, alvoChave: string): Promise<Res
     await desfazer();
     return { ok: false, motivo: "erro", mensagem: inscrita.mensagem };
   }
-  const alvo = await postar("/avisos/alvo", corpoAlvo(id, alvoTipo, alvoChave, "adicionar"));
+  const alvo = await postar("/avisos/alvo", corpoAlvo(id, alvoTipo, alvoChave, "adicionar", assuntos));
   if (!alvo.ok) {
     if (criou) {
       await postar("/avisos/cancelar", id);
@@ -123,10 +125,23 @@ export async function ativar(alvoTipo: AlvoTipo, alvoChave: string): Promise<Res
   return { ok: true };
 }
 
-export async function mudarAlvo(sub: PushSubscription, alvoTipo: AlvoTipo, alvoChave: string, acao: "adicionar" | "remover") {
+export async function mudarAlvo(
+  sub: PushSubscription,
+  alvoTipo: AlvoTipo,
+  alvoChave: string,
+  acao: "adicionar" | "remover",
+  assuntos?: AssuntoAviso[] | null,
+) {
   const id = identidade(sub.toJSON() as never);
   if (!id) return { ok: false as const, status: 0, mensagem: "Inscrição incompleta." };
-  return postar<{ ok: boolean; alvos: number }>("/avisos/alvo", corpoAlvo(id, alvoTipo, alvoChave, acao));
+  return postar<{ ok: boolean; alvos: number }>("/avisos/alvo", corpoAlvo(id, alvoTipo, alvoChave, acao, assuntos));
+}
+
+/** "1 por dia" ou "1 por semana" (aos domingos), para este aparelho. */
+export async function mudarFrequencia(sub: PushSubscription, frequencia: Frequencia) {
+  const id = identidade(sub.toJSON() as never);
+  if (!id) return { ok: false as const, status: 0, mensagem: "Inscrição incompleta." };
+  return postar<{ ok: boolean }>("/avisos/preferencias", { ...id, frequencia });
 }
 
 /** Cancela tudo: o servidor apaga a inscrição e o aparelho desfaz a dele. */

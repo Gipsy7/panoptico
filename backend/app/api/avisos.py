@@ -40,10 +40,31 @@ class Inscrever(Aparelho):
     p256dh: str = Field(min_length=64, max_length=256, pattern=BASE64URL)
 
 
+Assunto = Literal["politica", "dinheiro", "obras", "seguranca", "saude", "escolas", "economia"]
+
+
 class Alvo(Aparelho):
-    alvo_tipo: Literal["parlamentar", "projeto"]
-    alvo_chave: str = Field(pattern=r"^(camara|senado):[A-Za-z0-9_-]{1,30}$")
+    alvo_tipo: Literal["parlamentar", "projeto", "lugar"]
+    # Parlamentar e projeto: casa:id; lugar: br | uf:SC | mun:4205902.
+    alvo_chave: str = Field(
+        pattern=r"^((camara|senado):[A-Za-z0-9_-]{1,30}|br|uf:[A-Z]{2}|mun:\d{7})$"
+    )
     acao: Literal["adicionar", "remover"]
+    # Só no lugar: os assuntos que o aparelho quer; nada = todos.
+    assuntos: list[Assunto] | None = Field(default=None, max_length=7)
+
+    @field_validator("alvo_chave")
+    @classmethod
+    def _coerente(cls, valor: str, info) -> str:
+        tipo = info.data.get("alvo_tipo")
+        eh_lugar = valor == "br" or valor.startswith(("uf:", "mun:"))
+        if (tipo == "lugar") != eh_lugar:
+            raise ValueError("alvo_incoerente")
+        return valor
+
+
+class Preferencias(Aparelho):
+    frequencia: Literal["dia", "semana"]
 
 
 def _erro(status: int, detalhe: str) -> HTTPException:
@@ -97,10 +118,22 @@ def alvo(
     adicionar = corpo.acao == "adicionar"
     if adicionar and not servico.alvo_existe(session, corpo.alvo_tipo, corpo.alvo_chave):
         raise _erro(422, "alvo_inexistente")
-    total = servico.alterar_alvo(session, inscricao, corpo.alvo_tipo, corpo.alvo_chave, adicionar)
+    assuntos = sorted(set(corpo.assuntos)) if corpo.assuntos else None
+    total = servico.alterar_alvo(
+        session, inscricao, corpo.alvo_tipo, corpo.alvo_chave, adicionar, assuntos
+    )
     if total is None:
         raise _erro(429, "limite_de_alvos")
     return {"ok": True, "alvos": total}
+
+
+@router.post("/preferencias", dependencies=GUARDAS)
+def preferencias(
+    corpo: Preferencias, session: Annotated[Session, Depends(get_session)], resposta: Response
+) -> dict:
+    _sem_cache(resposta)
+    servico.definir_frequencia(session, _inscricao(session, corpo, travar=True), corpo.frequencia)
+    return {"ok": True}
 
 
 @router.post("/cancelar", dependencies=GUARDAS)

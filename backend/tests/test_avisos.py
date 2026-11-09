@@ -713,20 +713,24 @@ def test_minhas_lista_alvos_e_novidades_com_fonte_e_data(client, session):
             "alvo_chave": "camara:100",
             "nome": "Fulana de Tal",
             "caminho": f"/parlamentar/{p.id}",
+            "assuntos": None,
         },
         {
             "alvo_tipo": "projeto",
             "alvo_chave": "camara:900",
             "nome": "PEC 12/2026",
             "caminho": f"/projeto/{prop.casa}/{prop.id_externo}",
+            "assuntos": None,
         },
         {
             "alvo_tipo": "projeto",
             "alvo_chave": "camara:sumiu",
             "nome": "camara:sumiu",
             "caminho": "/avisos",
+            "assuntos": None,
         },
     ]
+    assert corpo["frequencia"] == "dia"
     assert len(corpo["novidades"]) == 1
     novidade = corpo["novidades"][0]
     assert novidade["titulo"] == "Fulana de Tal votou Sim na PEC 12/2026"

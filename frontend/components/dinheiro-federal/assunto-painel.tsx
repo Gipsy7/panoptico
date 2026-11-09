@@ -10,6 +10,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 
 import { IconeAssunto } from "@/components/icone-assunto";
+import { BotaoAvisoLugar } from "@/components/botao-aviso-lugar";
 import { EixoAnos, LinhaSerie, resumoSerie } from "@/components/tempo/eixo-tempo";
 import { dominioDe } from "@/components/tempo/ao-longo-do-tempo";
 import { getTempoEstado, getTempoMunicipio, type IndicadoresUfs, type TempoDoLugar } from "@/lib/api";
@@ -41,10 +42,13 @@ function Caminho({ href, icone, titulo, texto }: { href: string; icone: "pessoa"
 export function CaminhosDoLugar({ uf, ufNome, ibge, nomeCidade }: Lugar) {
   if (!uf) {
     return (
-      <p className="flex items-center gap-2 text-sm text-muted-foreground">
-        <IconeAssunto assunto="mao" className="size-5 text-bronze" />
-        Toque num estado no mapa para entrar nele; depois, numa cidade.
-      </p>
+      <div className="flex flex-col gap-3">
+        <p className="flex items-center gap-2 text-sm text-muted-foreground">
+          <IconeAssunto assunto="mao" className="size-5 text-bronze" />
+          Toque num estado no mapa para entrar nele; depois, numa cidade.
+        </p>
+        <BotaoAvisoLugar uf={null} nome="Brasil" />
+      </div>
     );
   }
   return (
@@ -70,6 +74,7 @@ export function CaminhosDoLugar({ uf, ufNome, ibge, nomeCidade }: Lugar) {
           <Caminho href={`/estado/${uf}`} icone="lugar" titulo={`Tudo sobre ${ufNome}`} texto="Por dentro do estado, assunto por assunto" />
         </>
       )}
+      <BotaoAvisoLugar uf={uf} ibge={ibge} nome={ibge ? nomeCidade : ufNome} />
     </nav>
   );
 }

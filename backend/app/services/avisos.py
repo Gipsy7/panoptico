@@ -44,6 +44,7 @@ from app.models import (
     Votacao,
     Voto,
 )
+from app.services import avisos_lugar
 from app.services.cruzamentos import _titulo
 from app.services.pessoas import publicavel
 from app.services.votos import VOTO_EFETIVO
@@ -275,8 +276,8 @@ def detectar(session: Session, agora: datetime | None = None) -> int:
     hoje = agora.astimezone(BRASILIA).date()
     inicio = hoje - timedelta(days=JANELA_DIAS)
     linhas = [
-        {**linha, "detectado_em": agora}
-        for origem in (_votos, _tramitacoes, _eventos_oficiais)
+        {"detectado_em": agora, **linha}
+        for origem in (_votos, _tramitacoes, _eventos_oficiais, avisos_lugar.detectar)
         for linha in origem(session, inicio, hoje)
     ]
     novos = 0
@@ -352,14 +353,27 @@ def enviar_webpush(destino: Destino, carga: str) -> int:
     return resposta.status_code
 
 
-def _mensagem(eventos: list) -> str:
-    """Uma notificação só, com fonte e data literais. Mais de um fato abre a página /avisos."""
+def _mensagem(eventos: list, rotulos: dict[str, str] | None = None) -> str:
+    """Uma notificação só, com fonte e data literais. Mais de um fato abre a página /avisos.
+    Com lugares, o título conta por lugar ("Novidades: Gaspar 3 · SC 1")."""
     eventos = sorted(eventos, key=lambda e: e.data_fato, reverse=True)
     recente = eventos[0]
     data = f"{recente.data_fato:%d/%m/%Y}"
+    por_lugar: dict[str, int] = {}
+    for e in eventos:
+        rotulo = (
+            (rotulos or {}).get(e.alvo_chave) if getattr(e, "alvo_tipo", "") == "lugar" else None
+        )
+        chave = rotulo or "quem você acompanha"
+        por_lugar[chave] = por_lugar.get(chave, 0) + 1
     if len(eventos) == 1:
         titulo, caminho = recente.titulo, recente.caminho
         corpo = f"Fonte: {recente.fonte}. Data: {data}."
+    elif any(k != "quem você acompanha" for k in por_lugar):
+        titulo = "Novidades: " + " · ".join(f"{k} {n}" for k, n in por_lugar.items())
+        caminho = "/avisos"
+        fontes = ", ".join(dict.fromkeys(e.fonte for e in eventos))
+        corpo = f"{recente.titulo}. Fontes: {fontes}. Data mais recente: {data}."
     else:
         titulo, caminho = f"{len(eventos)} novidades de quem você acompanha", "/avisos"
         fontes = ", ".join(dict.fromkeys(e.fonte for e in eventos))
@@ -382,6 +396,10 @@ def _pendentes(
             AvisoEvento.caminho,
             AvisoEvento.fonte,
             AvisoEvento.data_fato,
+            AvisoEvento.alvo_tipo,
+            AvisoEvento.alvo_chave,
+            AvisoEvento.categoria,
+            AvisoAlvo.assuntos,
         )
         .join(AvisoAlvo, AvisoAlvo.inscricao_id == AvisoInscricao.id)
         .join(
@@ -399,6 +417,9 @@ def _pendentes(
     )
     pendentes: dict[int, tuple[Destino, list]] = {}
     for linha in session.execute(q):
+        # Lugar com assuntos escolhidos: só chegam os desses assuntos.
+        if linha.alvo_tipo == "lugar" and linha.assuntos and linha.categoria not in linha.assuntos:
+            continue
         destino = Destino(linha.endpoint, linha.p256dh, linha.auth)
         pendentes.setdefault(linha.inscricao_id, (destino, []))[1].append(linha)
     return pendentes
@@ -493,12 +514,30 @@ def executar(
             .order_by(AvisoInscricao.id)
         )
     )
+    # "1 por semana": fora do domingo o aparelho não recebe, mas guarda o ponto de partida.
+    if agora.astimezone(BRASILIA).weekday() != 6:
+        semanais = list(
+            session.scalars(
+                select(AvisoInscricao.id).where(
+                    AvisoInscricao.ambiente == ambiente, AvisoInscricao.frequencia == "semana"
+                )
+            )
+        )
+        if semanais:
+            if not simular:
+                _fixar(session, semanais, base)
+            ids = [i for i in ids if i not in set(semanais)]
     r.inscricoes = len(ids)
+    rotulos: dict[str, str] = {}
+    for chave in session.scalars(
+        select(AvisoAlvo.alvo_chave).where(AvisoAlvo.alvo_tipo == "lugar").distinct()
+    ):
+        avisos_lugar.nome_curto(session, chave, rotulos)
 
     def chamar(item: tuple[int, tuple[Destino, list]]) -> tuple[int, int]:
         inscricao_id, (destino, eventos) = item
         try:
-            return inscricao_id, envio(destino, _mensagem(eventos))
+            return inscricao_id, envio(destino, _mensagem(eventos, rotulos))
         except Exception:  # a mensagem do erro pode trazer o endpoint: não vai para o log
             return inscricao_id, 0
 
@@ -577,6 +616,8 @@ def inscrever(session: Session, endpoint: str, p256dh: str, auth: str) -> bool:
 
 
 def alvo_existe(session: Session, tipo: str, chave: str) -> bool:
+    if tipo == "lugar":
+        return avisos_lugar.chave_valida(session, chave)
     casa, id_externo = chave.split(":", 1)
     modelo = Parlamentar if tipo == "parlamentar" else Proposicao
     q = select(modelo.id).where(modelo.casa == casa, modelo.id_externo == id_externo)
@@ -589,7 +630,12 @@ def _contar_alvos(session: Session, inscricao_id: int) -> int:
 
 
 def alterar_alvo(
-    session: Session, inscricao: AvisoInscricao, tipo: str, chave: str, adicionar: bool
+    session: Session,
+    inscricao: AvisoInscricao,
+    tipo: str,
+    chave: str,
+    adicionar: bool,
+    assuntos: list[str] | None = None,
 ) -> int | None:
     """Devolve quantos alvos o aparelho tem, ou None se passaria do máximo. O teste de existência
     fica na rota, que devolve 422."""
@@ -609,14 +655,22 @@ def alterar_alvo(
                 alvo_tipo=tipo,
                 alvo_chave=chave,
                 criado_em=datetime.now(UTC),
+                assuntos=assuntos if tipo == "lugar" else None,
             )
         )
+    elif adicionar and tipo == "lugar":
+        atual.assuntos = assuntos  # já seguido: troca só os assuntos
     elif not adicionar and atual is not None:
         session.delete(atual)
     session.flush()
     total = _contar_alvos(session, inscricao.id)
     session.commit()
     return total
+
+
+def definir_frequencia(session: Session, inscricao: AvisoInscricao, frequencia: str) -> None:
+    inscricao.frequencia = None if frequencia == "dia" else frequencia
+    session.commit()
 
 
 def cancelar(session: Session, inscricao: AvisoInscricao) -> None:
@@ -644,6 +698,9 @@ def _nomes(session: Session, alvos: list[AvisoAlvo]) -> dict[tuple[str, str], tu
         for p in session.scalars(q):
             chave = ("projeto", f"{p.casa}:{p.id_externo}")
             achados[chave] = (_rotulo(p), f"/projeto/{p.casa}/{p.id_externo}")
+    for a in alvos:
+        if a.alvo_tipo == "lugar":
+            achados[("lugar", a.alvo_chave)] = avisos_lugar.nome_e_caminho(session, a.alvo_chave)
     return achados
 
 
@@ -666,8 +723,15 @@ def minhas(session: Session, inscricao: AvisoInscricao) -> dict:
         )
         .where(AvisoAlvo.inscricao_id == inscricao.id)
         .order_by(AvisoEvento.data_fato.desc(), AvisoEvento.id.desc())
-        .limit(MAX_NOVIDADES)
+        .limit(MAX_NOVIDADES * 2)
     )
+    assuntos = {(a.alvo_tipo, a.alvo_chave): a.assuntos for a in alvos}
+    novidades = [
+        e
+        for e in novidades
+        if not (e.alvo_tipo == "lugar" and assuntos.get(("lugar", e.alvo_chave)))
+        or e.categoria in assuntos[("lugar", e.alvo_chave)]
+    ][:MAX_NOVIDADES]
     return {
         "alvos": [
             {
@@ -676,9 +740,11 @@ def minhas(session: Session, inscricao: AvisoInscricao) -> dict:
                 # Alvo que saiu das tabelas continua na lista, para poder ser removido.
                 "nome": nomes.get((a.alvo_tipo, a.alvo_chave), (a.alvo_chave, ""))[0],
                 "caminho": nomes.get((a.alvo_tipo, a.alvo_chave), ("", "/avisos"))[1],
+                "assuntos": a.assuntos,
             }
             for a in alvos
         ],
+        "frequencia": inscricao.frequencia or "dia",
         "novidades": [
             {
                 "titulo": e.titulo,
@@ -686,6 +752,9 @@ def minhas(session: Session, inscricao: AvisoInscricao) -> dict:
                 "fonte": e.fonte,
                 "data_fato": e.data_fato,
                 "detectado_em": e.detectado_em,
+                "alvo_tipo": e.alvo_tipo,
+                "alvo_chave": e.alvo_chave,
+                "categoria": e.categoria,
             }
             for e in novidades
         ],

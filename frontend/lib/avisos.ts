@@ -11,14 +11,32 @@ export type Suporte = "suportado" | "ios-instalar" | "app-interno" | "sem-suport
 
 export type PermissaoAviso = "default" | "granted" | "denied" | "indisponivel";
 
-export type AlvoTipo = "parlamentar" | "projeto";
+export type AlvoTipo = "parlamentar" | "projeto" | "lugar";
+
+/** Assuntos de um lugar seguido (os mesmos ícones do Mapa). */
+export const ASSUNTOS_AVISO = [
+  { id: "politica", nome: "Quem decide", icone: "politica", tema: "votos" },
+  { id: "dinheiro", nome: "Dinheiro", icone: "dinheiro", tema: "dinheiro" },
+  { id: "obras", nome: "Obras", icone: "lugar", tema: "obras" },
+  { id: "seguranca", nome: "Segurança", icone: "seguranca", tema: "seguranca" },
+  { id: "saude", nome: "Saúde", icone: "saude", tema: "saude" },
+  { id: "escolas", nome: "Escolas", icone: "escolas", tema: "escolas" },
+  { id: "economia", nome: "Economia", icone: "economia", tema: "economia" },
+] as const;
+export type AssuntoAviso = (typeof ASSUNTOS_AVISO)[number]["id"];
+export type Frequencia = "dia" | "semana";
+
+/** Chave do lugar no servidor: "br", "uf:SC" ou "mun:4205902". */
+export function chaveLugar(uf: string | null, ibge?: string | null): string {
+  return ibge ? `mun:${ibge}` : uf ? `uf:${uf}` : "br";
+}
 
 /** Frase que vale para o botão e para a página /avisos: o que é avisado e o que é guardado. */
 export const TEXTO_O_QUE_AVISA =
-  "Se você ativar, mandamos no máximo 1 aviso por dia, com votos, andamento de projetos e registros oficiais de quem você acompanha. Gastos, emendas e dados da cidade não entram nos avisos.";
+  "Se você ativar, mandamos no máximo 1 aviso por dia (ou 1 por semana, se preferir): votos, andamento de projetos e registros oficiais de quem você acompanha e, dos lugares que você segue, obras, emendas pagas, leis, votações e dados novos.";
 
 export const TEXTO_O_QUE_GUARDA =
-  "Guardamos só um endereço técnico do aparelho e o que ele acompanha; nunca nome, telefone nem e-mail. Você cancela quando quiser, e o cancelamento apaga esses dados na hora.";
+  "Guardamos só um endereço técnico do aparelho e o que ele acompanha (pessoas, projetos, lugares e assuntos escolhidos); nunca nome, telefone, e-mail nem a sua localização. Você cancela quando quiser, e o cancelamento apaga esses dados na hora.";
 
 export type EntradaSuporte = {
   userAgent: string;
@@ -103,8 +121,9 @@ export function corpoAlvo(
   alvoTipo: AlvoTipo,
   alvoChave: string,
   acao: "adicionar" | "remover",
+  assuntos?: AssuntoAviso[] | null,
 ) {
-  return { ...id, alvo_tipo: alvoTipo, alvo_chave: alvoChave, acao };
+  return { ...id, alvo_tipo: alvoTipo, alvo_chave: alvoChave, acao, ...(assuntos?.length ? { assuntos } : {}) };
 }
 
 // --- Chamadas à API (a rede entra pelo argumento `buscar`) ---
@@ -113,9 +132,24 @@ export type Buscar = (url: string, init: RequestInit) => Promise<Response>;
 
 export type RespostaAviso<T> = { ok: true; dados: T } | { ok: false; status: number; mensagem: string };
 
-export type AlvoAcompanhado = { alvo_tipo: AlvoTipo; alvo_chave: string; nome: string; caminho: string };
-export type Novidade = { titulo: string; caminho: string; fonte: string; data_fato: string; detectado_em: string };
-export type MinhasAvisos = { alvos: AlvoAcompanhado[]; novidades: Novidade[] };
+export type AlvoAcompanhado = {
+  alvo_tipo: AlvoTipo;
+  alvo_chave: string;
+  nome: string;
+  caminho: string;
+  assuntos?: AssuntoAviso[] | null;
+};
+export type Novidade = {
+  titulo: string;
+  caminho: string;
+  fonte: string;
+  data_fato: string;
+  detectado_em: string;
+  alvo_tipo?: AlvoTipo;
+  alvo_chave?: string;
+  categoria?: string;
+};
+export type MinhasAvisos = { alvos: AlvoAcompanhado[]; novidades: Novidade[]; frequencia?: Frequencia };
 
 /** O que mostrar para cada falha conhecida da API. */
 export function mensagemDeFalha(status: number): string {
