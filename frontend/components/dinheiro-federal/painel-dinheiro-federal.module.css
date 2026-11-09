@@ -302,7 +302,8 @@
 @media (max-width: 959px) {
   .raiz {
     position: fixed;
-    top: 56px;
+    /* fim do cabeçalho do site, medido (faixa do release e "Ao vivo" mudam a altura) */
+    top: var(--topo-app, 56px);
     left: 0;
     right: 0;
     bottom: 0;

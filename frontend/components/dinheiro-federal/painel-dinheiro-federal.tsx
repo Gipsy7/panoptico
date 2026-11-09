@@ -179,6 +179,25 @@ export function PainelDinheiroFederal({ inicial }: { inicial: EstadoInicial }) {
 
   // Marca a página como "tela de app" (celular sem rolagem) enquanto ela está aberta. O atributo vive
   // só no <html>: com a página anterior escondida (Activity) a limpeza do efeito o retira.
+  // No celular o Mapa ocupa a tela abaixo do cabeçalho do site: mede onde ele termina (a faixa do
+  // release e a do "Ao vivo" mudam a altura) e acompanha qualquer mudança.
+  useLayoutEffect(() => {
+    const raiz = raizRef.current;
+    const cab = document.querySelector<HTMLElement>("header.sticky");
+    if (!raiz || !cab) return;
+    const medir = () => raiz.style.setProperty("--topo-app", `${Math.max(0, Math.round(cab.getBoundingClientRect().bottom))}px`);
+    medir();
+    const ro = new ResizeObserver(medir);
+    ro.observe(cab);
+    const faixa = cab.previousElementSibling;
+    if (faixa instanceof HTMLElement) ro.observe(faixa);
+    addEventListener("resize", medir);
+    return () => {
+      ro.disconnect();
+      removeEventListener("resize", medir);
+    };
+  }, []);
+
   useEffect(() => {
     document.documentElement.dataset.appMapa = "1";
     return () => {
