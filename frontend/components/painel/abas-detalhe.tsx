@@ -19,6 +19,9 @@
  *   paint; depois de montar, o cliente passa a usar `hidden="until-found"` nos inativos, e a
  *   busca do navegador (Ctrl+F) acha o texto e abre a aba.
  * - Seção que não rendeu nada (componente devolveu null) some; aba sem nenhuma seção some.
+ * - `soGaveta`: sem índice nem fileira de abas e sem nada na página; as seções só aparecem na
+ *   gaveta, aberta por um link `#ver-<secao>` de outro componente (ex.: o painel dos prédios em
+ *   Representantes, que já mostra quem é cada grupo e aponta para a lista completa).
  *
  * Uso (servidor):
  *   <AbasDetalhe titulo="Tudo em detalhe" abas={[
@@ -89,11 +92,14 @@ export function AbasDetalhe({
   titulo,
   abas,
   indice = true,
+  soGaveta = false,
 }: {
   titulo: string;
   abas: AbaDetalhe[];
   /** Índice "tudo" acima das abas: cada grupo com as suas seções; tocar abre a seção inteira. */
   indice?: boolean;
+  /** Só gaveta: sem índice, sem abas e sem painéis na página (a lista abre por `#ver-<secao>`). */
+  soGaveta?: boolean;
 }) {
   const abaDaSecao = useMemo(() => {
     const mapa = new Map<string, string>();
@@ -266,28 +272,33 @@ export function AbasDetalhe({
     };
   }, [gaveta, fechar]);
 
+  // Painel à mostra: a aba ativa; em `soGaveta`, só o da seção aberta na gaveta.
+  const abaVisivel = soGaveta ? (gaveta ? (abaDaSecao.get(gaveta) ?? null) : null) : ativa;
+
   // Abas inativas: "until-found" deixa a busca do navegador achar o texto e abrir a aba.
+  // Em `soGaveta` não há o que achar: o painel fechado fica escondido de vez.
   useEffect(() => {
     const el = raiz.current;
     if (!el) return;
     const paineis = [...el.querySelectorAll<HTMLElement>("[data-aba]")];
     for (const p of paineis) {
-      if (p.dataset.aba !== ativa) p.setAttribute("hidden", "until-found");
+      if (p.dataset.aba !== abaVisivel) p.setAttribute("hidden", soGaveta ? "" : "until-found");
       else p.removeAttribute("hidden");
     }
+    if (soGaveta) return;
     const aoAchar = (e: Event) => setAtiva((e.currentTarget as HTMLElement).dataset.aba!);
     for (const p of paineis) p.addEventListener("beforematch", aoAchar);
     return () => {
       for (const p of paineis) p.removeEventListener("beforematch", aoAchar);
     };
-  }, [ativa, vazias]);
+  }, [abaVisivel, soGaveta, vazias]);
 
   const visiveis = abas.filter((a) => !vazias.has(a.id));
   const grupos = visiveis
     .map((aba) => ({ aba, secoes: aba.secoes.filter((s) => !secoesVazias.has(s.id) && s.conteudo) }))
     .filter((g) => g.secoes.length > 0);
   const totalSecoes = grupos.reduce((n, g) => n + g.secoes.length, 0);
-  const mostrarIndice = indice && grupos.length > 1 && totalSecoes >= 4;
+  const mostrarIndice = !soGaveta && indice && grupos.length > 1 && totalSecoes >= 4;
 
   const aoTeclarAba = (e: KeyboardEvent<HTMLButtonElement>) => {
     const i = visiveis.findIndex((a) => a.id === ativa);
@@ -303,10 +314,17 @@ export function AbasDetalhe({
   };
 
   return (
-    <section ref={raiz} aria-labelledby="detalhe-titulo" className="flex min-w-0 flex-col">
-      <h2 id="detalhe-titulo" className="mb-2 text-2xl">
-        {titulo}
-      </h2>
+    <section
+      ref={raiz}
+      aria-labelledby={soGaveta ? undefined : "detalhe-titulo"}
+      aria-label={soGaveta ? titulo : undefined}
+      className={soGaveta ? "contents" : "flex min-w-0 flex-col"}
+    >
+      {!soGaveta && (
+        <h2 id="detalhe-titulo" className="mb-2 text-2xl">
+          {titulo}
+        </h2>
+      )}
       {mostrarIndice && (
         <nav aria-label={`Índice: ${titulo}`} className="mb-6">
           <p className="mb-2 text-sm text-muted-foreground">
@@ -349,6 +367,7 @@ export function AbasDetalhe({
           </div>
         </nav>
       )}
+      {!soGaveta && (
       <div
         role="tablist"
         aria-label={titulo}
@@ -379,16 +398,17 @@ export function AbasDetalhe({
           );
         })}
       </div>
+      )}
 
       {abas.map((a) => (
         <div
           key={a.id}
-          role="tabpanel"
+          role={soGaveta ? undefined : "tabpanel"}
           id={`aba-${a.id}`}
           data-aba={a.id}
-          aria-labelledby={`aba-${a.id}-botao`}
-          data-ativa={a.id === ativa}
-          className="pagina-secoes min-w-0 pt-6"
+          aria-labelledby={soGaveta ? undefined : `aba-${a.id}-botao`}
+          data-ativa={a.id === abaVisivel}
+          className={soGaveta ? "min-w-0" : "pagina-secoes min-w-0 pt-6"}
         >
           {a.secoes.map((s) => {
             const aberta = gaveta === s.id;
@@ -404,14 +424,17 @@ export function AbasDetalhe({
                 className={
                   aberta
                     ? "fixed inset-x-0 bottom-0 z-[60] mx-auto flex max-h-[88dvh] w-full max-w-3xl flex-col gap-4 overflow-y-auto overscroll-contain rounded-t-[var(--raio)] border-t-4 bg-background px-4 pb-8 shadow-[var(--sombra-menu)] motion-safe:animate-in motion-safe:slide-in-from-bottom-8 motion-safe:fade-in motion-safe:duration-200 lg:inset-y-0 lg:right-0 lg:left-auto lg:mx-0 lg:max-h-none lg:w-[min(46rem,92vw)] lg:max-w-none lg:rounded-none lg:border-t-0 lg:border-l-4 lg:px-6 lg:motion-safe:slide-in-from-right-8"
-                    : "min-w-0 scroll-mt-28 empty:hidden"
+                    : soGaveta
+                      ? "hidden"
+                      : "min-w-0 scroll-mt-28 empty:hidden"
                 }
               >
                 {aberta && (
                   <div className="sticky top-0 z-10 -mx-4 flex flex-col items-center gap-1 border-b border-border bg-background px-4 pt-2 pb-2">
                     <span aria-hidden className="h-1 w-10 rounded-[1px] bg-border lg:hidden" />
-                    <div className="flex w-full items-center justify-between gap-3">
-                      <p className="min-w-0 truncate text-sm text-muted-foreground">{a.rotulo}</p>
+                    <div className={`flex w-full items-center gap-3 ${soGaveta ? "justify-end" : "justify-between"}`}>
+                      {/* Em `soGaveta` o título da seção, logo abaixo, já diz qual é: o rótulo só repetiria. */}
+                      {!soGaveta && <p className="min-w-0 truncate text-sm text-muted-foreground">{a.rotulo}</p>}
                       <button ref={botaoFechar} type="button" onClick={fechar} className="botao-linha shrink-0">
                         Fechar
                       </button>

@@ -18,6 +18,7 @@
 - [2026-11-08: redesenho, etapa 2 (home: entrar pelo lugar)](#2026-11-08-redesenho-etapa-2-home-entrar-pelo-lugar)
 - [2026-11-08: redesenho, etapa 1 (base visual e navegação)](#2026-11-08-redesenho-etapa-1-base-visual-e-navegação)
 - [2026-11-08: siglas de partido padronizadas](#2026-11-08-siglas-de-partido-padronizadas)
+- [2026-11-10: Representantes sem índice nem abas, só o painel dos prédios](#2026-11-10-representantes-sem-índice-nem-abas-só-o-painel-dos-prédios)
 - [2026-11-07: quanto custa o mandato (Frente 6)](#2026-11-07-quanto-custa-o-mandato-frente-6)
 - [2026-11-07: custo da câmara por morador e a média do estado (Frente 6)](#2026-11-07-custo-da-câmara-por-morador-e-a-média-do-estado-frente-6)
 - [2026-10-29: medidas provisórias e vetos do Presidente](#2026-10-29-medidas-provisórias-e-vetos-do-presidente)
@@ -2030,3 +2031,10 @@ etapas, cada uma conferida no celular do dono antes do release. A primeira:
 ## 2026-11-08: siglas de partido padronizadas
 
 As câmaras municipais escrevem a mesma sigla de vários jeitos ("REP", "Rep.", "REPUBL", "Republicanos"), o que partia a contagem das bancadas. `app/partidos.py` (`sigla_partido`) junta só variações óbvias da MESMA sigla na forma do TSE (REPUBLICANOS, UNIÃO, PCdoB, PODE...). Siglas de partidos que mudaram de nome ou se fundiram (PMDB, DEM, PRB, PSL, PPS) ficam como vieram: são o registro da fonte, não erro de grafia. Sigla desconhecida sai como veio. Vale na contagem das bancadas e na saída da API dos vereadores e deputados estaduais (dados já gravados) e na gravação do SAPL (próximas cargas). A escolha de autoridades no Senado continua contando como votação de mérito em "Só o que muda leis" (decisão do dono em 08/11).
+
+## 2026-11-10: Representantes sem índice nem abas, só o painel dos prédios
+
+- **Problema (visto no celular do dono):** a tela de Representantes dizia a mesma coisa três vezes: o painel que abre ao tocar no prédio (Executivo, Senado, Câmara, Assembleia, Câmara municipal), o índice "Quem são, esfera por esfera" com os mesmos 7 grupos e a fileira de abas com os mesmos nomes; na gaveta ainda havia o nome do grupo ao lado do "Fechar" e de novo no título.
+- **Decisão:** o painel dos prédios é o caminho. O índice e as abas saem; a lista completa de cada grupo continua existindo, uma vez só, e abre em gaveta pelo botão "Ver a lista com os números" do painel do prédio. Eleitos de 2026 fica, no cartão do topo ("Ver a lista ›"), que abre a mesma gaveta.
+- **Como:** `AbasDetalhe` ganhou `soGaveta` (sem título, índice, abas nem painéis na página; o rótulo repetido do topo da gaveta também sai). Só Representantes usa; perfis, cidade e projetos seguem com índice e abas.
+- **Links:** `#ver-<seção>` continua valendo (links compartilhados e botões dos prédios não quebram).

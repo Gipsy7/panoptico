@@ -233,7 +233,9 @@ async function Lista({ cep, uf, municipio }: Busca) {
     ...(temCidade ? { camaramun: bancada("camaramun") } : {}),
   };
 
-  // Cada lista aparece UMA vez, dentro de uma aba; o cartão do topo abre a mesma lista em gaveta.
+  // Cada lista existe UMA vez e só abre em gaveta: pelo botão "Ver a lista com os números" do painel
+  // do prédio ou pelo cartão dos eleitos do topo. Sem índice nem abas: o painel dos prédios já diz
+  // quem é cada grupo (repetir os mesmos nomes numa lista e em abas só duplicava a navegação).
   const abas: AbaDetalhe[] = [
     {
       id: "executivo",
@@ -503,7 +505,7 @@ async function Lista({ cep, uf, municipio }: Busca) {
         />
       )}
 
-      <AbasDetalhe titulo="Quem são, esfera por esfera" abas={abas} />
+      <AbasDetalhe titulo="Listas completas" abas={abas} soGaveta />
 
       <Link
         href={`/parlamentares?uf=${localizacao.uf}`}
