@@ -19,9 +19,11 @@
  *   paint; depois de montar, o cliente passa a usar `hidden="until-found"` nos inativos, e a
  *   busca do navegador (Ctrl+F) acha o texto e abre a aba.
  * - Seção que não rendeu nada (componente devolveu null) some; aba sem nenhuma seção some.
- * - `soGaveta`: sem índice nem fileira de abas e sem nada na página; as seções só aparecem na
- *   gaveta, aberta por um link `#ver-<secao>` de outro componente (ex.: o painel dos prédios em
- *   Representantes, que já mostra quem é cada grupo e aponta para a lista completa).
+ * - `soGaveta`: sem fileira de abas e sem painéis na página; as seções só aparecem na gaveta,
+ *   aberta por um link `#ver-<secao>` de outro componente (os cartões do topo do perfil; o painel
+ *   dos prédios em Representantes). O índice não repete o que já tem cartão: lista só as seções
+ *   SEM entrada (as que `jaTemEntrada` declara ou que têm um link `#ver-…` fora deste componente
+ *   quando a página monta), para nenhuma ficar sem caminho. Sem restante, não há índice.
  *
  * Uso (servidor):
  *   <AbasDetalhe titulo="Tudo em detalhe" abas={[
@@ -93,13 +95,16 @@ export function AbasDetalhe({
   abas,
   indice = true,
   soGaveta = false,
+  jaTemEntrada = [],
 }: {
   titulo: string;
   abas: AbaDetalhe[];
   /** Índice "tudo" acima das abas: cada grupo com as suas seções; tocar abre a seção inteira. */
   indice?: boolean;
-  /** Só gaveta: sem índice, sem abas e sem painéis na página (a lista abre por `#ver-<secao>`). */
+  /** Só gaveta: sem abas nem painéis na página (a lista abre por `#ver-<secao>`); o índice só traz as seções sem entrada. */
   soGaveta?: boolean;
+  /** Em `soGaveta`: ids de seção que já têm link de entrada que só aparece depois (ex.: botão do painel do prédio). */
+  jaTemEntrada?: string[];
 }) {
   const abaDaSecao = useMemo(() => {
     const mapa = new Map<string, string>();
@@ -115,6 +120,8 @@ export function AbasDetalhe({
   const [gaveta, setGaveta] = useState<string | null>(null);
   const [vazias, setVazias] = useState<Set<string>>(new Set());
   const [secoesVazias, setSecoesVazias] = useState<Set<string>>(new Set());
+  const [entradas, setEntradas] = useState<Set<string> | null>(null);
+  const chaveEntradas = jaTemEntrada.join(",");
   const largo = useSyncExternalStore(assinarLargura, () => window.matchMedia(LARGO).matches, () => false);
   const raiz = useRef<HTMLElement>(null);
   const botaoFechar = useRef<HTMLButtonElement>(null);
@@ -158,13 +165,25 @@ export function AbasDetalhe({
     const semSecao = new Set<string>();
     for (const s of el.querySelectorAll<HTMLElement>("[data-secao]:empty")) semSecao.add(s.dataset.secao!);
     const quadro = requestAnimationFrame(() => {
+      if (soGaveta) {
+        // Seções que já têm um link `#ver-…` fora deste componente (ex.: os cartões do topo).
+        const com = new Set<string>(chaveEntradas ? chaveEntradas.split(",") : []);
+        for (const a of document.querySelectorAll<HTMLAnchorElement>("a[href*='#ver-']")) {
+          if (el.contains(a)) continue;
+          const url = new URL(a.href, window.location.href);
+          if (url.origin !== window.location.origin || url.pathname !== window.location.pathname) continue;
+          const hash = decodeURIComponent(url.hash.slice(1));
+          if (hash.startsWith(PREFIXO)) com.add(hash.slice(PREFIXO.length));
+        }
+        setEntradas(com);
+      }
       setVazias(sem);
       setSecoesVazias(semSecao);
       setAtiva((atual) => (sem.has(atual) ? (abas.find((a) => !sem.has(a.id))?.id ?? atual) : atual));
       aplicarHash(true);
     });
     return () => cancelAnimationFrame(quadro);
-  }, [abas, aplicarHash]);
+  }, [abas, aplicarHash, soGaveta, chaveEntradas]);
 
   // Voltar/avançar do navegador e links comuns com hash.
   useEffect(() => {
@@ -298,7 +317,16 @@ export function AbasDetalhe({
     .map((aba) => ({ aba, secoes: aba.secoes.filter((s) => !secoesVazias.has(s.id) && s.conteudo) }))
     .filter((g) => g.secoes.length > 0);
   const totalSecoes = grupos.reduce((n, g) => n + g.secoes.length, 0);
-  const mostrarIndice = !soGaveta && indice && grupos.length > 1 && totalSecoes >= 4;
+  // Em `soGaveta` o índice traz só o que ficou sem entrada (e só depois de a página montar).
+  const gruposIndice = soGaveta
+    ? entradas
+      ? grupos
+          .map((g) => ({ aba: g.aba, secoes: g.secoes.filter((s) => !entradas.has(s.id)) }))
+          .filter((g) => g.secoes.length > 0)
+      : []
+    : grupos;
+  const totalIndice = gruposIndice.reduce((n, g) => n + g.secoes.length, 0);
+  const mostrarIndice = soGaveta ? totalIndice > 0 : indice && grupos.length > 1 && totalSecoes >= 4;
 
   const aoTeclarAba = (e: KeyboardEvent<HTMLButtonElement>) => {
     const i = visiveis.findIndex((a) => a.id === ativa);
@@ -320,7 +348,7 @@ export function AbasDetalhe({
       aria-label={soGaveta ? titulo : undefined}
       className={soGaveta ? "contents" : "flex min-w-0 flex-col"}
     >
-      {!soGaveta && (
+      {(!soGaveta || mostrarIndice) && (
         <h2 id="detalhe-titulo" className="mb-2 text-2xl">
           {titulo}
         </h2>
@@ -328,10 +356,11 @@ export function AbasDetalhe({
       {mostrarIndice && (
         <nav aria-label={`Índice: ${titulo}`} className="mb-6">
           <p className="mb-2 text-sm text-muted-foreground">
-            {totalSecoes} {totalSecoes === 1 ? "seção" : "seções"}, por assunto. Toque numa para abrir inteira, com a fonte e a data.
+            {totalIndice} {totalIndice === 1 ? "seção" : "seções"}
+            {soGaveta ? " a mais" : ""}, por assunto. Toque numa para abrir inteira, com a fonte e a data.
           </p>
           <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3 lg:gap-3">
-            {grupos.map(({ aba, secoes }) => (
+            {gruposIndice.map(({ aba, secoes }) => (
               <details
                 key={`${aba.id}-${largo}`}
                 open={largo}
@@ -425,7 +454,7 @@ export function AbasDetalhe({
                   aberta
                     ? "fixed inset-x-0 bottom-0 z-[60] mx-auto flex max-h-[88dvh] w-full max-w-3xl flex-col gap-4 overflow-y-auto overscroll-contain rounded-t-[var(--raio)] border-t-4 bg-background px-4 pb-8 shadow-[var(--sombra-menu)] motion-safe:animate-in motion-safe:slide-in-from-bottom-8 motion-safe:fade-in motion-safe:duration-200 lg:inset-y-0 lg:right-0 lg:left-auto lg:mx-0 lg:max-h-none lg:w-[min(46rem,92vw)] lg:max-w-none lg:rounded-none lg:border-t-0 lg:border-l-4 lg:px-6 lg:motion-safe:slide-in-from-right-8"
                     : soGaveta
-                      ? "hidden"
+                      ? "min-w-0 scroll-mt-28 empty:hidden [:root[data-js]_&]:hidden"
                       : "min-w-0 scroll-mt-28 empty:hidden"
                 }
               >

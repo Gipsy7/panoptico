@@ -2038,3 +2038,10 @@ As câmaras municipais escrevem a mesma sigla de vários jeitos ("REP", "Rep.", 
 - **Decisão:** o painel dos prédios é o caminho. O índice e as abas saem; a lista completa de cada grupo continua existindo, uma vez só, e abre em gaveta pelo botão "Ver a lista com os números" do painel do prédio. Eleitos de 2026 fica, no cartão do topo ("Ver a lista ›"), que abre a mesma gaveta.
 - **Como:** `AbasDetalhe` ganhou `soGaveta` (sem título, índice, abas nem painéis na página; o rótulo repetido do topo da gaveta também sai). Só Representantes usa; perfis, cidade e projetos seguem com índice e abas.
 - **Links:** `#ver-<seção>` continua valendo (links compartilhados e botões dos prédios não quebram).
+
+### Complemento (10/11, perfis): o índice só traz o que não tem entrada
+
+- **Perfis** (parlamentar, eleito, vereador/mandato local): os cartões "Ver detalhe" do topo já abrem a seção em gaveta; o índice "Tudo sobre este mandato" e as abas repetiam esse caminho (e o painel inline da aba aberta deixava a página com mais de 8.700 px). Os três passam a usar `soGaveta`.
+- **Nada some:** em `soGaveta` o índice não repete o que já tem entrada. Ele lista só as seções SEM entrada (as que o chamador declara em `jaTemEntrada` ou que têm um link `#ver-…` fora do componente quando a página monta), sob o título "Mais sobre este mandato" (perfis) ou "Mais listas" (Representantes). Sem restante, não há índice. No perfil federal, 8 de 17 seções têm cartão; as outras 9 ficam nesse bloco.
+- **Erro corrigido do mesmo dia:** a primeira versão (só Representantes) tirou o índice por completo e deixou sem caminho "Deputados estaduais eleitos", "Vereadores" e "Canais oficiais" quando o prédio abre outra lista. O bloco "Mais listas" cobre isso.
+- **Sem JavaScript:** as seções continuam visíveis na página (o esconder é só com `html[data-js]`).

@@ -491,7 +491,7 @@ export async function PerfilMandatoLocal({ id, paginaVotos }: { id: string; pagi
             )}
           </ListaPerguntas>
 
-          <AbasDetalhe titulo="Tudo sobre este mandato" abas={abas} />
+          <AbasDetalhe titulo="Mais sobre este mandato" abas={abas} soGaveta />
 
           <RespostasCitado tipo={camara ? "vereador" : "deputado-estadual"} id={String(v.id)} nome={v.nome} />
           <FimDoPerfil />

@@ -695,7 +695,7 @@ async function Perfil({
             )}
           </ListaPerguntas>
 
-          <AbasDetalhe titulo="Tudo sobre este mandato" abas={abas} />
+          <AbasDetalhe titulo="Mais sobre este mandato" abas={abas} soGaveta />
 
           <RespostasCitado tipo="eleito" id={String(e.id)} nome={e.nome_urna} />
           <FimDoPerfil />

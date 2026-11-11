@@ -465,7 +465,7 @@ async function Perfil({
             temSancoes={pessoaId !== null}
           />
 
-          <AbasDetalhe titulo="Tudo sobre este mandato" abas={abas} />
+          <AbasDetalhe titulo="Mais sobre este mandato" abas={abas} soGaveta />
 
           <RespostasCitado tipo="parlamentar" id={String(p.id)} nome={p.nome_parlamentar} />
           <FimDoPerfil />

@@ -505,7 +505,12 @@ async function Lista({ cep, uf, municipio }: Busca) {
         />
       )}
 
-      <AbasDetalhe titulo="Listas completas" abas={abas} soGaveta />
+      <AbasDetalhe
+        titulo="Mais listas"
+        abas={abas}
+        soGaveta
+        jaTemEntrada={[...predios.map((p) => p.destino).filter((d): d is string => Boolean(d)), "eleitos-2026"]}
+      />
 
       <Link
         href={`/parlamentares?uf=${localizacao.uf}`}
