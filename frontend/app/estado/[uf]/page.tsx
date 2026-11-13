@@ -318,7 +318,7 @@ async function Estado({ uf }: { uf: string }) {
 
   const tudo = [
     { href: `/representantes?uf=${uf}`, rotulo: `Quem representa ${e.nome}`, texto: "Governador, senadores, deputados federais e estaduais" },
-    { href: `/impostos-e-repasses/${uf}`, rotulo: "Impostos e repasses", texto: "O que a União arrecada e repassa, cidade por cidade" },
+    { href: `/impostos-e-repasses/${uf}`, rotulo: "Mapa", texto: "O que a União arrecada e repassa, cidade por cidade" },
     { href: `/parlamentares?uf=${uf}`, rotulo: "Deputados federais e senadores", texto: "Gastos, presença e projetos, com a média da Casa" },
     { href: `/projetos?esfera=estadual&uf=${uf}`, rotulo: "Projetos na Assembleia", texto: "O que está sendo votado no estado" },
   ];

@@ -17,13 +17,13 @@ const TEXTO = `# Panóptico
 - Deputado estadual: ${SITE_URL}/deputado-estadual/{id}; vereador: ${SITE_URL}/vereador/{id}; eleitos de 2026: ${SITE_URL}/eleito/{id}.
 - [Todos os parlamentares](${SITE_URL}/parlamentares): lista de deputados federais e senadores, filtrável por estado e partido.
 - [Partidos](${SITE_URL}/partidos): dinheiro público e contas dos partidos.
-- [Projetos e votações](${SITE_URL}/projetos): busca por número ou assunto; cada projeto mostra o que diz, as votações nominais, quem votou, o que disseram em Plenário e o caminho. Páginas: ${SITE_URL}/projeto/{camara|senado}/{id}, ${SITE_URL}/projeto/local/{id}, ${SITE_URL}/votacao/{camara|senado}/{id}, ${SITE_URL}/votacao/local/{id}.
+- [Decisões: projetos e votações](${SITE_URL}/projetos): busca por número ou assunto; cada projeto mostra o que diz, as votações nominais, quem votou, o que disseram em Plenário e o caminho. Páginas: ${SITE_URL}/projeto/{camara|senado}/{id}, ${SITE_URL}/projeto/local/{id}, ${SITE_URL}/votacao/{camara|senado}/{id}, ${SITE_URL}/votacao/local/{id}.
 
 ## Páginas principais
 
 - [Sobre as fontes](${SITE_URL}/sobre-as-fontes): de onde vem cada dado, como é calculado e quando foi atualizado.
 - [Cobertura](${SITE_URL}/sobre-as-fontes/cobertura): o que o site já cobre e o que ainda falta.
-- [Impostos e repasses](${SITE_URL}/impostos-e-repasses): dinheiro enviado pela União para estados e cidades.
+- [Mapa: impostos e repasses](${SITE_URL}/impostos-e-repasses): dinheiro enviado pela União para estados e cidades.
 - [Status](${SITE_URL}/status): situação e data da última carga de cada fonte.
 - [Privacidade](${SITE_URL}/privacidade): que dados são coletados e quais não são.
 

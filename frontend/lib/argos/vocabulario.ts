@@ -228,8 +228,8 @@ export const PAGINAS: Record<string, { href: string; rotulo: string; texto: stri
   },
   projetos: {
     href: "/projetos",
-    rotulo: "Projetos e votações",
-    texto: "Em Projetos e votações dá para buscar projetos de lei e ver as votações do Congresso, das assembleias e das câmaras, com resultado, quem votou e a fonte.",
+    rotulo: "Decisões",
+    texto: "Em Decisões dá para buscar projetos de lei e ver as votações do Congresso, das assembleias e das câmaras, com resultado, quem votou e a fonte.",
   },
   fontes: {
     href: "/sobre-as-fontes",

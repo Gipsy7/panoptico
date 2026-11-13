@@ -86,7 +86,7 @@ async function Dados(entrada: Entrada) {
   if (painel.dados.sem_dados) {
     return (
       <div className="flex flex-col gap-3">
-        <p className="sobretitulo">Impostos e repasses</p>
+        <p className="sobretitulo">Mapa</p>
         <h1 className="titulo-pagina">Quanto a União arrecada e repassa</h1>
         <p className="text-muted-foreground">{MENSAGEM_CARREGANDO}</p>
       </div>

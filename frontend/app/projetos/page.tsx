@@ -41,7 +41,7 @@ import { LeisPorAno } from "@/components/leis-por-ano";
 
 export async function generateMetadata({ searchParams }: PageProps<"/projetos">): Promise<Metadata> {
   return {
-    title: "Projetos e votações",
+    title: "Decisões: projetos e votações",
     description:
       "Procure um projeto de lei pelo número ou por uma palavra: o que ele diz, em que pé está, quem votou e o que disseram. Congresso, assembleias e câmaras municipais, com dado oficial.",
     ...metadadosComFiltro("/projetos", await searchParams),
@@ -54,7 +54,7 @@ export default function ProjetosPage({ searchParams }: PageProps<"/projetos">) {
   return (
     <div data-largura="larga" className="pagina-secoes">
       <CabecalhoPagina
-        sobretitulo="Projetos e votações"
+        sobretitulo="Decisões"
         titulo="O que está sendo votado"
         subtitulo="Procure um projeto de lei pelo número (PL 2338/2023) ou por uma palavra do assunto. Cada página mostra o que ele diz, em que pé está, quem votou e o que disseram."
       />

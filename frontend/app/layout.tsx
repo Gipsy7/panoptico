@@ -119,7 +119,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
             </div>
             <nav aria-label="Rodapé" className="flex flex-wrap gap-x-6 gap-y-1">
               <Link href="/partidos" className={LINK}>
-                Dinheiro dos partidos
+                Partidos
               </Link>
               <Link href="/o-panoptico" className={LINK}>
                 O que é o Panóptico

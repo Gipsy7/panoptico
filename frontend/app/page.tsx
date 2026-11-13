@@ -126,7 +126,7 @@ async function DinheiroFederalHome() {
   if (r.dados.sem_dados) {
     return (
       <section aria-labelledby="impostos-titulo" className="revelar flex flex-col gap-3">
-        <p className="sobretitulo">Impostos e repasses</p>
+        <p className="sobretitulo">Mapa</p>
         <h2 id="impostos-titulo" className="text-3xl leading-tight text-balance sm:text-4xl">
           Quanto a União arrecada e repassa em cada estado
         </h2>
@@ -238,7 +238,7 @@ const RECURSOS = [
     ),
   },
   {
-    titulo: "Projetos e votações",
+    titulo: "Decisões: projetos e votações",
     texto: "Procure um projeto pelo número ou assunto: o que diz, quem votou e o que disseram no Plenário.",
     href: "/projetos",
     icone: (
@@ -260,7 +260,7 @@ const RECURSOS = [
     ),
   },
   {
-    titulo: "Impostos e repasses por estado e cidade",
+    titulo: "Mapa: impostos e repasses por estado e cidade",
     texto: "Quanto a União arrecada e repassa em cada estado e município, no mapa, e as emendas pagas à sua cidade.",
     href: "/impostos-e-repasses",
     icone: (
