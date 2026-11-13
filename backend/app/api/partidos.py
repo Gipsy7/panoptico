@@ -1,9 +1,8 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, Query
-from sqlalchemy.orm import Session
+from fastapi import APIRouter, HTTPException, Query
 
-from app.db import get_session
+from app.db import Sessao
 from app.schemas import PartidoDetalheResposta, PartidosResposta
 from app.schemas.bancadas import CadeirasPorPartido
 from app.services import bancadas, partidos
@@ -12,9 +11,7 @@ router = APIRouter()
 
 
 @router.get("/partidos", response_model=PartidosResposta)
-def listar_partidos(
-    session: Annotated[Session, Depends(get_session)], ano: Annotated[int | None, Query()] = None
-) -> dict:
+def listar_partidos(session: Sessao, ano: Annotated[int | None, Query()] = None) -> dict:
     """Cotas, receita, gasto e repasses de cada partido numa prestação de contas anual."""
     anos = partidos.anos_disponiveis(session)
     if not anos:
@@ -26,7 +23,7 @@ def listar_partidos(
 
 
 @router.get("/partidos/cadeiras", response_model=CadeirasPorPartido)
-def cadeiras_dos_partidos(session: Annotated[Session, Depends(get_session)]) -> dict:
+def cadeiras_dos_partidos(session: Sessao) -> dict:
     """Deputados e senadores no cargo, prefeitos e vereadores eleitos, por partido."""
     return bancadas.cadeiras_por_partido(session)
 
@@ -34,7 +31,7 @@ def cadeiras_dos_partidos(session: Annotated[Session, Depends(get_session)]) -> 
 @router.get("/partidos/{sigla}", response_model=PartidoDetalheResposta)
 def detalhe_do_partido(
     sigla: str,
-    session: Annotated[Session, Depends(get_session)],
+    session: Sessao,
     ano: Annotated[int | None, Query()] = None,
 ) -> dict:
     """De onde veio o dinheiro do partido e em que gastou, com as transferências à parte."""

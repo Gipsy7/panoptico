@@ -3,10 +3,9 @@ prefeito e vices (docs/DECISOES.md, 19/10/2026)."""
 
 from typing import Annotated, Literal
 
-from fastapi import APIRouter, Depends, HTTPException, Path, Query
-from sqlalchemy.orm import Session
+from fastapi import APIRouter, HTTPException, Path, Query
 
-from app.db import get_session
+from app.db import Sessao
 from app.schemas.executivo import (
     AgendaResposta,
     AtosPresidenciaisResposta,
@@ -24,7 +23,7 @@ TipoAgenda = Literal["reuniao", "evento", "audiencia", "audiencia_publica", "via
 @router.get("/estados/{uf}/contas", response_model=ContasEstadoResposta)
 def contas_do_estado(
     uf: Annotated[str, Path(min_length=2, max_length=2)],
-    session: Annotated[Session, Depends(get_session)],
+    session: Sessao,
 ) -> dict:
     """Contas anuais do governo do estado no SICONFI: receita, despesa por área, por habitante
     e a média dos estados (com quantos ficaram fora por falta de dado)."""
@@ -37,9 +36,7 @@ def contas_do_estado(
 
 
 @router.get("/executivo/{candidatura_id}/painel", response_model=PainelExecutivo)
-def painel_do_executivo(
-    candidatura_id: int, session: Annotated[Session, Depends(get_session)]
-) -> dict:
+def painel_do_executivo(candidatura_id: int, session: Sessao) -> dict:
     """Em qual ente o cargo existe (União, estado ou município) e os números-resumo desse
     ente, cada um com a fonte e a data; o que não existe vem com o motivo."""
     candidatura = executivo.candidatura_executivo(session, candidatura_id)
@@ -51,7 +48,7 @@ def painel_do_executivo(
 @router.get("/executivo/{candidatura_id}/agenda", response_model=AgendaResposta)
 def agenda_do_executivo(
     candidatura_id: int,
-    session: Annotated[Session, Depends(get_session)],
+    session: Sessao,
     tipo: TipoAgenda | None = None,
     ano: Annotated[int | None, Query(ge=2022, le=2100)] = None,
     pagina: Annotated[int, Query(ge=1)] = 1,
@@ -67,7 +64,7 @@ def agenda_do_executivo(
 @router.get("/executivo/{candidatura_id}/atos", response_model=AtosPresidenciaisResposta)
 def atos_do_presidente(
     candidatura_id: int,
-    session: Annotated[Session, Depends(get_session)],
+    session: Sessao,
     tipo: Literal["mpv", "veto"],
     grupo: str | None = None,
     pagina: Annotated[int, Query(ge=1)] = 1,

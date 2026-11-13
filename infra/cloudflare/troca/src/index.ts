@@ -248,15 +248,19 @@ async function trafego(env: Env, horas: number): Promise<unknown> {
 // Robôs que varrem o site inteiro sem critério (o da Meta derrubou a CPU da Vercel em out/2026) e
 // robôs de ferramentas de SEO, que não trazem público. Ficam LIBERADOS os buscadores e os robôs de
 // pesquisa e resposta das IAs (OAI-SearchBot, ChatGPT-User, PerplexityBot, Perplexity-User,
-// Claude-SearchBot, Claude-User) e os de treino das grandes IAs que o público usa (GPTBot,
-// ClaudeBot, Applebot, Google-Extended): aparecer nas respostas delas é parte do objetivo do site.
+// Claude-SearchBot, Claude-User) e o Applebot: aparecer nas respostas delas é parte do objetivo do
+// site. Desde 13/11/2026 ficam bloqueados também os que coletam para treino ou usos fora da busca e
+// somavam ~45% do tráfego de robôs (GPTBot, Reflectionbot, GoogleOther, Amzn-SearchBot). O Googlebot
+// segue liberado: "googleother" não casa com ele.
 const ROBOS_BLOQUEADOS = [
   "meta-externalagent", "bytespider", "ccbot", "amazonbot", "cohere-ai", "diffbot", "imagesiftbot",
   "omgilibot", "petalbot", "timpibot", "ahrefsbot", "semrushbot", "mj12bot", "dataforseobot",
+  "gptbot", "reflectionbot", "googleother", "amzn-searchbot",
 ];
 
 /** Regras da zona: cada fase é gravada inteira (PUT do entrypoint), então rodar de novo não duplica.
- * Sem limite por IP: no plano Free a regra não pode excluir o User-Agent do servidor do site. */
+ * O limite por IP vale só para robôs verificados: no plano Free a regra não pode excluir o
+ * User-Agent nem o IP do servidor do site. */
 async function configurar(env: Env): Promise<Record<string, string>> {
   const zona = `/zones/${env.ZONE_ID}`;
   const api = env.REGISTRO_API;
@@ -297,6 +301,26 @@ async function configurar(env: Env): Promise<Record<string, string>> {
             description: "Bloquear robôs de coleta em massa",
             expression: ROBOS_BLOQUEADOS.map((r) => `(lower(http.user_agent) contains "${r}")`).join(" or "),
             action: "block",
+          },
+        ]),
+    ],
+    [
+      // Plano Free: uma regra, contagem por IP em 10 s, filtro só por caminho e "robô verificado".
+      // Por isso o limite vale só para robôs verificados (o servidor do site, que chama a API, não
+      // é um deles). 30 pedidos em 10 s por IP fica longe do ritmo do Googlebot e só corta rajadas.
+      "limite de pedidos para robôs verificados (30 a cada 10 s por IP)",
+      () =>
+        fase("http_ratelimit", [
+          {
+            description: "Robôs verificados: no máximo 30 pedidos a cada 10 s por IP",
+            expression: "(cf.bot_management.verified_bot)",
+            action: "block",
+            ratelimit: {
+              characteristics: ["ip.src", "cf.colo.id"],
+              period: 10,
+              requests_per_period: 30,
+              mitigation_timeout: 10,
+            },
           },
         ]),
     ],

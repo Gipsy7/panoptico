@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 
 /** Regras de busca e de robôs que não dependem do Next: ficam aqui para ter teste. */
 
-/** Robôs de IA de pesquisa e de treino das grandes IAs: liberados, para o Panóptico poder ser citado. */
+/** Robôs de IA que respondem com link (pesquisa e pedido do usuário): liberados, para o Panóptico
+ * poder ser citado. O GPTBot (treino) saiu em 13/11/2026: ver ROBOS_BLOQUEADOS. */
 export const ROBOS_DE_IA_LIBERADOS = [
-  "GPTBot",
   "OAI-SearchBot",
   "ChatGPT-User",
   "ClaudeBot",
@@ -16,7 +16,10 @@ export const ROBOS_DE_IA_LIBERADOS = [
   "Applebot-Extended",
 ];
 
-/** Coletores que só gastam CPU (o meta-externalagent esgotou o plano em out/2026) ou revendem dados. */
+/** Coletores que só gastam CPU (o meta-externalagent esgotou o plano em out/2026) ou revendem dados.
+ * Desde 13/11/2026 também os que coletam para treino ou usos fora da busca e somavam ~45% do tráfego
+ * de robôs (GPTBot, Reflectionbot, GoogleOther, Amzn-SearchBot). O Googlebot segue liberado: o
+ * GoogleOther não alimenta a busca do Google. */
 export const ROBOS_BLOQUEADOS = [
   "meta-externalagent",
   "Bytespider",
@@ -29,6 +32,10 @@ export const ROBOS_BLOQUEADOS = [
   "SemrushBot",
   "MJ12bot",
   "DataForSeoBot",
+  "GPTBot",
+  "Reflectionbot",
+  "GoogleOther",
+  "Amzn-SearchBot",
 ];
 
 /** Imagens de compartilhamento e resultado de busca por CEP: não são páginas para ler. */

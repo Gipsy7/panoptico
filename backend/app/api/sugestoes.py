@@ -8,10 +8,9 @@ nenhum. As rotas de leitura mostram só o que é público (nunca o contato nem q
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, Query, Response
-from sqlalchemy.orm import Session
 
 from app.api.limite import LimitePorOrigem
-from app.db import get_session
+from app.db import Sessao
 from app.schemas.sugestoes import Correcoes, Protocolo, RespostaPublicada, SugestaoEntrada
 from app.services import sugestoes as servico
 
@@ -29,7 +28,7 @@ _pedidos = limitar.pedidos
 @router.post("/sugestoes", status_code=201, response_model=Protocolo)
 def enviar(
     corpo: SugestaoEntrada,
-    session: Annotated[Session, Depends(get_session)],
+    session: Sessao,
     resposta: Response,
     _: Annotated[None, Depends(limitar)],
 ) -> dict:
@@ -43,7 +42,7 @@ def enviar(
 def respostas(
     tipo: str,
     id: Annotated[str, Query(min_length=1, max_length=40)],
-    session: Annotated[Session, Depends(get_session)],
+    session: Sessao,
 ) -> list[dict]:
     """Respostas de quem é citado já publicadas no perfil. Lista vazia se não houver."""
     return servico.respostas_publicadas(session, tipo, id)
@@ -51,7 +50,7 @@ def respostas(
 
 @router.get("/correcoes", response_model=Correcoes)
 def correcoes(
-    session: Annotated[Session, Depends(get_session)],
+    session: Sessao,
     tipo: str | None = None,
     id: Annotated[str | None, Query(max_length=40)] = None,
 ) -> dict:

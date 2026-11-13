@@ -2,10 +2,9 @@
 
 from typing import Annotated, Literal
 
-from fastapi import APIRouter, Depends, HTTPException, Path, Query
-from sqlalchemy.orm import Session
+from fastapi import APIRouter, HTTPException, Path, Query
 
-from app.db import get_session
+from app.db import Sessao
 from app.models import Municipio
 from app.schemas.bancadas import Bancada, BancadasEstado, ComposicaoCongresso
 from app.services import bancadas
@@ -17,7 +16,7 @@ router = APIRouter()
 @router.get("/estados/{uf}/bancadas", response_model=BancadasEstado)
 def bancadas_do_estado(
     uf: Annotated[str, Path(min_length=2, max_length=2)],
-    session: Annotated[Session, Depends(get_session)],
+    session: Sessao,
 ) -> dict:
     """Parlamentares no cargo por partido: assembleia, deputados federais e senadores do estado."""
     if uf.upper() not in UFS:
@@ -26,7 +25,7 @@ def bancadas_do_estado(
 
 
 @router.get("/municipios/{ibge}/bancada", response_model=Bancada)
-def bancada_do_municipio(ibge: str, session: Annotated[Session, Depends(get_session)]) -> dict:
+def bancada_do_municipio(ibge: str, session: Sessao) -> dict:
     """Vereadores por partido (os do cargo hoje; sem a câmara, os eleitos de 2024)."""
     if session.get(Municipio, ibge) is None:
         raise HTTPException(404, "Município não encontrado.")
@@ -35,7 +34,7 @@ def bancada_do_municipio(ibge: str, session: Annotated[Session, Depends(get_sess
 
 @router.get("/congresso/composicao", response_model=ComposicaoCongresso)
 def composicao_do_congresso(
-    session: Annotated[Session, Depends(get_session)],
+    session: Sessao,
     casa: Annotated[Literal["camara", "senado"], Query()] = "camara",
 ) -> dict:
     """Cadeiras por partido hoje e, havendo eleitos pendentes, a composição a partir de 2027."""

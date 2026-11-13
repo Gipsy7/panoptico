@@ -1,10 +1,9 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, HTTPException, Query
 from sqlalchemy import case, select
-from sqlalchemy.orm import Session
 
-from app.db import get_session
+from app.db import Sessao
 from app.models import CanalOficial, Municipio
 from app.schemas import (
     CanaisResposta,
@@ -50,7 +49,7 @@ router = APIRouter()
 
 
 @router.get("/municipios/{ibge}/emendas", response_model=EmendasMunicipioCompleta)
-def emendas_do_municipio(ibge: str, session: Annotated[Session, Depends(get_session)]) -> dict:
+def emendas_do_municipio(ibge: str, session: Sessao) -> dict:
     """Emendas pagas à cidade por tipo e autor, previsto nos planos Pix e convênios."""
     municipio = session.get(Municipio, ibge)
     if municipio is None:
@@ -59,7 +58,7 @@ def emendas_do_municipio(ibge: str, session: Annotated[Session, Depends(get_sess
 
 
 @router.get("/municipios/{ibge}/contas", response_model=ContasMunicipioResposta)
-def contas_do_municipio(ibge: str, session: Annotated[Session, Depends(get_session)]) -> dict:
+def contas_do_municipio(ibge: str, session: Sessao) -> dict:
     """Contas anuais da prefeitura no SICONFI: receita, despesa e áreas."""
     if session.get(Municipio, ibge) is None:
         raise HTTPException(404, "Município não encontrado.")
@@ -70,9 +69,7 @@ def contas_do_municipio(ibge: str, session: Annotated[Session, Depends(get_sessi
 
 
 @router.get("/municipios/{ibge}/repasses-estaduais", response_model=RepassesEstaduaisResposta)
-def repasses_estaduais_do_municipio(
-    ibge: str, session: Annotated[Session, Depends(get_session)]
-) -> dict:
+def repasses_estaduais_do_municipio(ibge: str, session: Sessao) -> dict:
     """Quanto o governo do estado repassou à prefeitura, por tipo (SICONFI, DCA)."""
     municipio = session.get(Municipio, ibge)
     if municipio is None:
@@ -81,7 +78,7 @@ def repasses_estaduais_do_municipio(
 
 
 @router.get("/municipios/{ibge}/fornecedores", response_model=FornecedoresResposta)
-def fornecedores_do_municipio(ibge: str, session: Annotated[Session, Depends(get_session)]) -> dict:
+def fornecedores_do_municipio(ibge: str, session: Sessao) -> dict:
     """Para quem a prefeitura e a câmara pagaram (onde o Tribunal de Contas publica)."""
     if session.get(Municipio, ibge) is None:
         raise HTTPException(404, "Município não encontrado.")
@@ -102,7 +99,7 @@ ORDEM_CANAIS = [
 
 
 @router.get("/municipios/{ibge}/canais", response_model=CanaisResposta)
-def canais_do_municipio(ibge: str, session: Annotated[Session, Depends(get_session)]) -> dict:
+def canais_do_municipio(ibge: str, session: Sessao) -> dict:
     """Sites oficiais da cidade, do catálogo revisado (data/canais_oficiais.csv)."""
     if session.get(Municipio, ibge) is None:
         raise HTTPException(404, "Município não encontrado.")
@@ -114,7 +111,7 @@ def canais_do_municipio(ibge: str, session: Annotated[Session, Depends(get_sessi
 
 
 @router.get("/municipios/{ibge}/obras", response_model=ObrasMunicipio)
-def obras_do_municipio(ibge: str, session: Annotated[Session, Depends(get_session)]) -> dict:
+def obras_do_municipio(ibge: str, session: Sessao) -> dict:
     """Obras federais do Obrasgov.br na cidade, por situação, com o percentual executado."""
     if session.get(Municipio, ibge) is None:
         raise HTTPException(404, "Município não encontrado.")
@@ -122,7 +119,7 @@ def obras_do_municipio(ibge: str, session: Annotated[Session, Depends(get_sessio
 
 
 @router.get("/municipios/{ibge}/ideb", response_model=IdebMunicipio)
-def ideb_do_municipio(ibge: str, session: Annotated[Session, Depends(get_session)]) -> dict:
+def ideb_do_municipio(ibge: str, session: Sessao) -> dict:
     """IDEB da cidade por etapa e rede, com o do estado e o do Brasil na mesma rede (INEP)."""
     municipio = session.get(Municipio, ibge)
     if municipio is None:
@@ -131,7 +128,7 @@ def ideb_do_municipio(ibge: str, session: Annotated[Session, Depends(get_session
 
 
 @router.get("/municipios/{ibge}/pib", response_model=PibMunicipio)
-def pib_do_municipio(ibge: str, session: Annotated[Session, Depends(get_session)]) -> dict:
+def pib_do_municipio(ibge: str, session: Sessao) -> dict:
     """PIB da cidade (IBGE), com o PIB por morador do estado e do Brasil no mesmo ano."""
     municipio = session.get(Municipio, ibge)
     if municipio is None:
@@ -140,7 +137,7 @@ def pib_do_municipio(ibge: str, session: Annotated[Session, Depends(get_session)
 
 
 @router.get("/municipios/{ibge}/agro", response_model=AgroMunicipio)
-def agro_do_municipio(ibge: str, session: Annotated[Session, Depends(get_session)]) -> dict:
+def agro_do_municipio(ibge: str, session: Sessao) -> dict:
     """Lavouras da cidade (IBGE, PAM): valor da produção e os produtos que mais pesam."""
     municipio = session.get(Municipio, ibge)
     if municipio is None:
@@ -149,7 +146,7 @@ def agro_do_municipio(ibge: str, session: Annotated[Session, Depends(get_session
 
 
 @router.get("/municipios/{ibge}/emprego", response_model=EmpregoMunicipio)
-def emprego_do_municipio(ibge: str, session: Annotated[Session, Depends(get_session)]) -> dict:
+def emprego_do_municipio(ibge: str, session: Sessao) -> dict:
     """Trabalho formal da cidade (IBGE, CEMPRE): empresas, pessoas ocupadas e salário médio."""
     municipio = session.get(Municipio, ibge)
     if municipio is None:
@@ -158,7 +155,7 @@ def emprego_do_municipio(ibge: str, session: Annotated[Session, Depends(get_sess
 
 
 @router.get("/municipios/{ibge}/parecidas", response_model=CidadesParecidas)
-def cidades_parecidas(ibge: str, session: Annotated[Session, Depends(get_session)]) -> dict:
+def cidades_parecidas(ibge: str, session: Sessao) -> dict:
     """As cidades com a população mais próxima, lado a lado (não é ranking)."""
     if session.get(Municipio, ibge) is None:
         raise HTTPException(404, "Município não encontrado.")
@@ -166,7 +163,7 @@ def cidades_parecidas(ibge: str, session: Annotated[Session, Depends(get_session
 
 
 @router.get("/municipios/{ibge}/vocacoes", response_model=Vocacoes)
-def vocacoes_da_cidade(ibge: str, session: Annotated[Session, Depends(get_session)]) -> dict:
+def vocacoes_da_cidade(ibge: str, session: Sessao) -> dict:
     """O peso de cada atividade aqui e no Brasil (PIB e pessoas ocupadas)."""
     if session.get(Municipio, ibge) is None:
         raise HTTPException(404, "Município não encontrado.")
@@ -174,7 +171,7 @@ def vocacoes_da_cidade(ibge: str, session: Annotated[Session, Depends(get_sessio
 
 
 @router.get("/municipios/{ibge}/internet", response_model=InternetMunicipio)
-def internet_da_cidade(ibge: str, session: Annotated[Session, Depends(get_session)]) -> dict:
+def internet_da_cidade(ibge: str, session: Sessao) -> dict:
     """Banda larga fixa (Anatel) por 100 moradores, com o estado e o Brasil."""
     municipio = session.get(Municipio, ibge)
     if municipio is None:
@@ -183,7 +180,7 @@ def internet_da_cidade(ibge: str, session: Annotated[Session, Depends(get_sessio
 
 
 @router.get("/municipios/{ibge}/saneamento", response_model=SaneamentoMunicipio)
-def saneamento_da_cidade(ibge: str, session: Annotated[Session, Depends(get_session)]) -> dict:
+def saneamento_da_cidade(ibge: str, session: Sessao) -> dict:
     """Água, esgoto e lixo no Censo 2022 (IBGE), com o estado e o Brasil."""
     municipio = session.get(Municipio, ibge)
     if municipio is None:
@@ -192,7 +189,7 @@ def saneamento_da_cidade(ibge: str, session: Annotated[Session, Depends(get_sess
 
 
 @router.get("/municipios/{ibge}/seguranca", response_model=SegurancaMunicipio)
-def seguranca_da_cidade(ibge: str, session: Annotated[Session, Depends(get_session)]) -> dict:
+def seguranca_da_cidade(ibge: str, session: Sessao) -> dict:
     """Homicídios de moradores (SIM/DATASUS) ano a ano, com o estado e o Brasil."""
     municipio = session.get(Municipio, ibge)
     if municipio is None:
@@ -201,7 +198,7 @@ def seguranca_da_cidade(ibge: str, session: Annotated[Session, Depends(get_sessi
 
 
 @router.get("/municipios/{ibge}/saude", response_model=SaudeMunicipio)
-def saude_da_cidade(ibge: str, session: Annotated[Session, Depends(get_session)]) -> dict:
+def saude_da_cidade(ibge: str, session: Sessao) -> dict:
     """Leitos, unidades básicas e hospitais (CNES/DATASUS), com o estado e o Brasil."""
     municipio = session.get(Municipio, ibge)
     if municipio is None:
@@ -210,7 +207,7 @@ def saude_da_cidade(ibge: str, session: Annotated[Session, Depends(get_session)]
 
 
 @router.get("/municipios/{ibge}/tempo", response_model=LinhaDoTempo)
-def tempo_da_cidade(ibge: str, session: Annotated[Session, Depends(get_session)]) -> dict:
+def tempo_da_cidade(ibge: str, session: Sessao) -> dict:
     """Séries anuais da cidade no mesmo eixo de anos, com prefeitos e governadores."""
     municipio = session.get(Municipio, ibge)
     if municipio is None:
@@ -219,7 +216,7 @@ def tempo_da_cidade(ibge: str, session: Annotated[Session, Depends(get_session)]
 
 
 @router.get("/obras/estados", response_model=ObrasPorUf)
-def obras_por_estado(session: Annotated[Session, Depends(get_session)]) -> dict:
+def obras_por_estado(session: Sessao) -> dict:
     """Obras federais por estado e situação (Obrasgov.br)."""
     return obras.resumo_ufs(session)
 
@@ -227,7 +224,7 @@ def obras_por_estado(session: Annotated[Session, Depends(get_session)]) -> dict:
 @router.get("/municipios/busca", response_model=list[MunicipioInfo])
 def buscar_municipio(
     q: Annotated[str, Query(min_length=2, max_length=80)],
-    session: Annotated[Session, Depends(get_session)],
+    session: Sessao,
 ) -> list[Municipio]:
     """Cidades pelo nome, sem acento nem caixa (a busca da home): primeiro as que começam com o
     texto, depois as que o contêm; no máximo 8."""
@@ -248,7 +245,7 @@ def buscar_municipio(
 @router.get("/municipios", response_model=list[MunicipioInfo])
 def municipios_da_uf(
     uf: Annotated[str, Query(min_length=2, max_length=2)],
-    session: Annotated[Session, Depends(get_session)],
+    session: Sessao,
 ) -> list[Municipio]:
     return list(
         session.scalars(
@@ -258,9 +255,7 @@ def municipios_da_uf(
 
 
 @router.get("/municipios/{ibge}/fornecedores-pncp", response_model=FornecedoresPncpResposta)
-def fornecedores_pncp_do_municipio(
-    ibge: str, session: Annotated[Session, Depends(get_session)]
-) -> dict:
+def fornecedores_pncp_do_municipio(ibge: str, session: Sessao) -> dict:
     """Maiores fornecedores dos órgãos municipais no PNCP, no ano mais recente."""
     if session.get(Municipio, ibge) is None:
         raise HTTPException(404, "Município não encontrado.")

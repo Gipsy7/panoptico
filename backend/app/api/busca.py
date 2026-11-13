@@ -1,9 +1,8 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, Query
-from sqlalchemy.orm import Session
+from fastapi import APIRouter, HTTPException, Query
 
-from app.db import get_session
+from app.db import Sessao
 from app.schemas import BuscaResposta
 from app.services import busca
 
@@ -12,7 +11,7 @@ router = APIRouter()
 
 @router.get("/busca", response_model=BuscaResposta)
 def buscar(
-    session: Annotated[Session, Depends(get_session)],
+    session: Sessao,
     q: Annotated[
         str | None, Query(min_length=1, max_length=100, description="Parte do nome")
     ] = None,

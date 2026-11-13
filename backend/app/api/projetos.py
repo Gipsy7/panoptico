@@ -1,10 +1,9 @@
 from typing import Annotated, Literal
 
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, HTTPException, Query
 from sqlalchemy import func, select
-from sqlalchemy.orm import Session
 
-from app.db import get_session
+from app.db import Sessao
 from app.models import ProposicaoTema, Votacao
 from app.schemas.projeto import (
     BuscaProjetos,
@@ -24,7 +23,7 @@ router = APIRouter()
 
 @router.get("/projetos", response_model=BuscaProjetos)
 def buscar_projetos(
-    session: Annotated[Session, Depends(get_session)],
+    session: Sessao,
     q: Annotated[str | None, Query(max_length=200)] = None,
     esfera: Literal["federal", "estadual", "municipal"] | None = None,
     casa: Literal["camara", "senado", "assembleia", "camara_municipal"] | None = None,
@@ -56,7 +55,7 @@ def buscar_projetos(
 
 @router.get("/projetos/temas", response_model=TemasProjetos)
 def temas_projetos(
-    session: Annotated[Session, Depends(get_session)],
+    session: Sessao,
     casa: Literal["camara", "senado"] | None = None,
 ) -> dict:
     """Temas distintos dos projetos do Congresso (sem "Sem classificação"), em ordem alfabética."""
@@ -69,7 +68,7 @@ def temas_projetos(
 
 @router.get("/projetos/ids", response_model=ProjetosIds)
 def ids_projetos(
-    session: Annotated[Session, Depends(get_session)],
+    session: Sessao,
     votacao: Literal["com"] = "com",
     limite: Annotated[int, Query(ge=1, le=20000)] = 5000,
 ) -> dict:
@@ -88,7 +87,7 @@ def ids_projetos(
 
 # Rotas fixas antes das com parâmetro: "local" não é uma casa.
 @router.get("/projetos/local/{projeto_local_id}", response_model=ProjetoLocalDetalhe)
-def projeto_local(projeto_local_id: int, session: Annotated[Session, Depends(get_session)]) -> dict:
+def projeto_local(projeto_local_id: int, session: Sessao) -> dict:
     """Projeto de câmara municipal ou assembleia, com as votações nominais ligadas a ele."""
     dados = votacao_local_detalhe.projeto(session, projeto_local_id)
     if dados is None:
@@ -100,7 +99,7 @@ def projeto_local(projeto_local_id: int, session: Annotated[Session, Depends(get
 def projeto_federal(
     casa: Literal["camara", "senado"],
     id_externo: str,
-    session: Annotated[Session, Depends(get_session)],
+    session: Sessao,
 ) -> dict:
     """Um projeto do Congresso: ficha, votações nominais, quem votou, discursos, caminho e
     pauta, cada bloco com fonte e data. `id_externo` é o id da proposição na Casa."""
@@ -111,7 +110,7 @@ def projeto_federal(
 
 
 @router.get("/votacoes/local/{votacao_local_id}", response_model=VotacaoLocalDetalhe)
-def votacao_local(votacao_local_id: int, session: Annotated[Session, Depends(get_session)]) -> dict:
+def votacao_local(votacao_local_id: int, session: Sessao) -> dict:
     """Votação nominal de câmara municipal ou assembleia, como a casa publica."""
     dados = votacao_local_detalhe.votacao(session, votacao_local_id)
     if dados is None:
@@ -121,7 +120,7 @@ def votacao_local(votacao_local_id: int, session: Annotated[Session, Depends(get
 
 @router.get("/pauta", response_model=Pauta)
 def pauta(
-    session: Annotated[Session, Depends(get_session)],
+    session: Sessao,
     casa: Literal["camara", "senado"] | None = None,
     dias: Annotated[int, Query(ge=1, le=60)] = 14,
 ) -> dict:
