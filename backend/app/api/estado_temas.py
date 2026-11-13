@@ -2,12 +2,9 @@
 os mesmos serviços das cidades, com o código do estado no lugar do município e sem a comparação do
 estado com ele mesmo."""
 
-from typing import Annotated
+from fastapi import APIRouter, HTTPException
 
-from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy.orm import Session
-
-from app.db import get_session
+from app.db import Sessao
 from app.schemas.agro import AgroMunicipio
 from app.schemas.emprego import EmpregoMunicipio
 from app.schemas.ideb import IdebMunicipio
@@ -32,7 +29,7 @@ from app.services.indicadores_ufs import indicadores, indicadores_cidades
 from app.services.pib import CODIGO_UF
 
 router = APIRouter()
-Sessao = Annotated[Session, Depends(get_session)]
+Sessao = Sessao
 
 
 def _codigo(uf: str) -> tuple[str, str]:

@@ -1,10 +1,9 @@
 from datetime import date
 from typing import Annotated, Literal
 
-from fastapi import APIRouter, Depends, HTTPException, Query
-from sqlalchemy.orm import Session
+from fastapi import APIRouter, HTTPException, Query
 
-from app.db import get_session
+from app.db import Sessao
 from app.schemas.votacao import CalendarioVotacoes, VotacaoDetalhe
 from app.services import calendario_votacoes, votacao_detalhe
 
@@ -13,7 +12,7 @@ router = APIRouter()
 
 @router.get("/votacoes/calendario", response_model=CalendarioVotacoes)
 def calendario(
-    session: Annotated[Session, Depends(get_session)],
+    session: Sessao,
     casa: Literal["camara", "senado"] = "camara",
     ano: Annotated[int | None, Query(ge=1990, le=2100)] = None,
     mes: Annotated[int | None, Query(ge=1, le=12)] = None,
@@ -38,7 +37,7 @@ def calendario(
 def detalhe_da_votacao(
     casa: Literal["camara", "senado"],
     id_externo: str,
-    session: Annotated[Session, Depends(get_session)],
+    session: Sessao,
 ) -> dict:
     """Uma votação nominal do Plenário: o que se votava, placar, orientações e votos.
     `id_externo` é o id da fonte (Câmara "2645346-18", Senado "7104"), estável entre cargas."""

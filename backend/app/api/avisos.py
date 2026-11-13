@@ -4,14 +4,14 @@ Com avisos desligados ou sem chave, tudo responde 503 sem tocar no banco: é o q
 e reserva fora do recurso. O corpo nunca vai para log.
 """
 
-from typing import Annotated, Literal
+from typing import Literal
 
 from fastapi import APIRouter, Depends, HTTPException, Request, Response
 from pydantic import BaseModel, Field, field_validator
 from sqlalchemy.orm import Session
 
 from app.api.limite import LimitePorOrigem
-from app.db import get_session
+from app.db import Sessao
 from app.models import AvisoInscricao
 from app.services import avisos as servico
 
@@ -99,9 +99,7 @@ def _inscricao(session: Session, corpo: Aparelho, *, travar: bool = False) -> Av
 
 
 @router.post("/inscrever", dependencies=GUARDAS)
-def inscrever(
-    corpo: Inscrever, session: Annotated[Session, Depends(get_session)], resposta: Response
-) -> dict:
+def inscrever(corpo: Inscrever, session: Sessao, resposta: Response) -> dict:
     _sem_cache(resposta)
     if not servico.inscrever(session, corpo.endpoint, corpo.p256dh, corpo.auth):
         raise _erro(429, "limite_de_inscricoes")
@@ -109,9 +107,7 @@ def inscrever(
 
 
 @router.post("/alvo", dependencies=GUARDAS)
-def alvo(
-    corpo: Alvo, session: Annotated[Session, Depends(get_session)], resposta: Response
-) -> dict:
+def alvo(corpo: Alvo, session: Sessao, resposta: Response) -> dict:
     _sem_cache(resposta)
     # Trava a linha da inscrição: dois pedidos juntos não passam do máximo de alvos.
     inscricao = _inscricao(session, corpo, travar=True)
@@ -128,26 +124,20 @@ def alvo(
 
 
 @router.post("/preferencias", dependencies=GUARDAS)
-def preferencias(
-    corpo: Preferencias, session: Annotated[Session, Depends(get_session)], resposta: Response
-) -> dict:
+def preferencias(corpo: Preferencias, session: Sessao, resposta: Response) -> dict:
     _sem_cache(resposta)
     servico.definir_frequencia(session, _inscricao(session, corpo, travar=True), corpo.frequencia)
     return {"ok": True}
 
 
 @router.post("/cancelar", dependencies=GUARDAS)
-def cancelar(
-    corpo: Aparelho, session: Annotated[Session, Depends(get_session)], resposta: Response
-) -> dict:
+def cancelar(corpo: Aparelho, session: Sessao, resposta: Response) -> dict:
     _sem_cache(resposta)
     servico.cancelar(session, _inscricao(session, corpo))
     return {"ok": True}
 
 
 @router.post("/minhas", dependencies=GUARDAS)
-def minhas(
-    corpo: Aparelho, session: Annotated[Session, Depends(get_session)], resposta: Response
-) -> dict:
+def minhas(corpo: Aparelho, session: Sessao, resposta: Response) -> dict:
     _sem_cache(resposta)
     return servico.minhas(session, _inscricao(session, corpo))

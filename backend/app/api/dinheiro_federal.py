@@ -1,9 +1,8 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, Query
-from sqlalchemy.orm import Session
+from fastapi import APIRouter, HTTPException, Query
 
-from app.db import get_session
+from app.db import Sessao
 from app.models import Municipio
 from app.schemas import DinheiroFederalEstado, DinheiroFederalMunicipio, DinheiroFederalPainel
 from app.services import dinheiro_federal as servico
@@ -20,7 +19,7 @@ def _validar_ano(ano: int) -> int:
 
 
 @router.get("/dinheiro-federal", response_model=DinheiroFederalPainel)
-def painel(session: Annotated[Session, Depends(get_session)], ano: AnoQuery = servico.ANO_PADRAO):
+def painel(session: Sessao, ano: AnoQuery = servico.ANO_PADRAO):
     """Arrecadação federal e repasses da União, no Brasil e em cada estado."""
     return servico.painel(session, _validar_ano(ano))
 
@@ -28,7 +27,7 @@ def painel(session: Annotated[Session, Depends(get_session)], ano: AnoQuery = se
 @router.get("/dinheiro-federal/{uf}", response_model=DinheiroFederalEstado)
 def estado(
     uf: str,
-    session: Annotated[Session, Depends(get_session)],
+    session: Sessao,
     ano: AnoQuery = servico.ANO_PADRAO,
 ):
     """Totais do estado e repasses a cada cidade."""
@@ -40,7 +39,7 @@ def estado(
 
 
 @router.get("/municipios/{ibge}/dinheiro-federal", response_model=DinheiroFederalMunicipio)
-def do_municipio(ibge: str, session: Annotated[Session, Depends(get_session)]):
+def do_municipio(ibge: str, session: Sessao):
     """Repasses da União à cidade por ano e quanto da receita da prefeitura vem deles."""
     mun = session.get(Municipio, ibge)
     if mun is None:

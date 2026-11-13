@@ -19,6 +19,7 @@
 - [2026-11-08: redesenho, etapa 1 (base visual e navegação)](#2026-11-08-redesenho-etapa-1-base-visual-e-navegação)
 - [2026-11-08: siglas de partido padronizadas](#2026-11-08-siglas-de-partido-padronizadas)
 - [2026-11-10: Representantes sem índice nem abas, só o painel dos prédios](#2026-11-10-representantes-sem-índice-nem-abas-só-o-painel-dos-prédios)
+- [2026-11-13: API travada pelo pool de conexões; robôs de treino bloqueados](#2026-11-13-api-travada-pelo-pool-de-conexões-robôs-de-treino-bloqueados)
 - [2026-11-07: quanto custa o mandato (Frente 6)](#2026-11-07-quanto-custa-o-mandato-frente-6)
 - [2026-11-07: custo da câmara por morador e a média do estado (Frente 6)](#2026-11-07-custo-da-câmara-por-morador-e-a-média-do-estado-frente-6)
 - [2026-10-29: medidas provisórias e vetos do Presidente](#2026-10-29-medidas-provisórias-e-vetos-do-presidente)
@@ -2045,3 +2046,11 @@ As câmaras municipais escrevem a mesma sigla de vários jeitos ("REP", "Rep.", 
 - **Nada some:** em `soGaveta` o índice não repete o que já tem entrada. Ele lista só as seções SEM entrada (as que o chamador declara em `jaTemEntrada` ou que têm um link `#ver-…` fora do componente quando a página monta), sob o título "Mais sobre este mandato" (perfis) ou "Mais listas" (Representantes). Sem restante, não há índice. No perfil federal, 8 de 17 seções têm cartão; as outras 9 ficam nesse bloco.
 - **Erro corrigido do mesmo dia:** a primeira versão (só Representantes) tirou o índice por completo e deixou sem caminho "Deputados estaduais eleitos", "Vereadores" e "Canais oficiais" quando o prédio abre outra lista. O bloco "Mais listas" cobre isso.
 - **Sem JavaScript:** as seções continuam visíveis na página (o esconder é só com `html[data-js]`).
+
+## 2026-11-13: API travada pelo pool de conexões; robôs de treino bloqueados
+
+- **O que houve:** a API da VPS ficou lenta e depois "unhealthy"; o Cloudflare deu 524 e o Worker de troca mandou a API para a reserva. No log, mais de 20 mil `QueuePool limit of size 5 overflow 10 reached` em 3 horas; no banco, 17 conexões "idle in transaction" havia mais de 2 minutos. O tráfego era ~3.500 pedidos por hora, 90% robôs dos EUA.
+- **Causa:** as rotas são síncronas e a sessão vinha de `Depends(get_session)` com o escopo padrão ("request"), que só fecha depois de enviar a resposta. A resposta é montada numa thread do mesmo grupo (40 por processo) que espera conexão (15 por processo). Com pedidos juntos, quem tem conexão espera thread e quem tem thread espera conexão; só destrava pelo tempo de espera de 30 s, e a fila não anda.
+- **Correção:** tipo `Sessao` em `app/db.py` = `Depends(get_session, scope="function")`: a conexão volta ao pool quando a rota termina, antes da resposta. O ORM não tem relacionamentos, então nada é carregado depois do fechamento. `pool_timeout` caiu de 30 para 10 s. O teste `test_sessao_escopo.py` falha se alguma rota usar outro escopo. Local: 200 pedidos com 60 ao mesmo tempo, todos 200.
+- **Robôs:** o GPTBot (treino) sai dos liberados; GPTBot, Reflectionbot, GoogleOther e Amzn-SearchBot entram nos bloqueados, no `robots.txt` (`lib/seo.ts`) e no firewall (Worker, `/configurar`). Eram ~45% do tráfego de robôs. Seguem liberados o Googlebot e o Bing (a busca), OAI-SearchBot, ChatGPT-User, PerplexityBot, Claude-SearchBot e Applebot (respostas com link). O GoogleOther não alimenta a busca do Google.
+- **Limite:** uma regra de rate limit (a única do plano Free, que só filtra por caminho e "robô verificado" e conta por IP em 10 s): robôs verificados com mais de 30 pedidos em 10 s do mesmo IP levam bloqueio por 10 s. Fica longe do ritmo do Googlebot e só corta rajadas; o servidor do site (que chama a API) não é robô verificado.

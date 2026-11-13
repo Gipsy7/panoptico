@@ -3,10 +3,9 @@ quem teve o cargo antes."""
 
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, Query
-from sqlalchemy.orm import Session
+from fastapi import APIRouter, HTTPException, Query
 
-from app.db import get_session
+from app.db import Sessao
 from app.schemas.resultados_eleicao import (
     Antecessores,
     EleicaoDisponivel,
@@ -20,14 +19,14 @@ router = APIRouter()
 
 
 @router.get("/eleicoes/disponiveis", response_model=list[EleicaoDisponivel])
-def disponiveis(session: Annotated[Session, Depends(get_session)]) -> list[dict]:
+def disponiveis(session: Sessao) -> list[dict]:
     """Anos, cargos e turnos com resultado carregado."""
     return resultados_eleicao.disponiveis(session)
 
 
 @router.get("/eleicoes/resultado", response_model=ResultadoEleicao)
 def resultado(
-    session: Annotated[Session, Depends(get_session)],
+    session: Sessao,
     ano: Annotated[int | None, Query()] = None,
     cargo: Annotated[str | None, Query(description="PRESIDENTE, GOVERNADOR, PREFEITO...")] = None,
     turno: Annotated[int | None, Query(ge=1, le=2)] = None,
@@ -56,7 +55,7 @@ def resultado(
 @router.get("/municipios/{ibge}/mais-votados", response_model=MaisVotados)
 def mais_votados(
     ibge: str,
-    session: Annotated[Session, Depends(get_session)],
+    session: Sessao,
     ano: Annotated[int | None, Query()] = None,
 ) -> dict:
     """Os 10 deputados mais votados no município (federal e estadual) e quanto dos votos daqui
@@ -68,7 +67,7 @@ def mais_votados(
 
 
 @router.get("/municipios/{ibge}/eleitores", response_model=Eleitores)
-def eleitores(ibge: str, session: Annotated[Session, Depends(get_session)]) -> dict:
+def eleitores(ibge: str, session: Sessao) -> dict:
     """Moradores, eleitores aptos e quantos votaram na eleição mais recente carregada."""
     r = resultados_eleicao.eleitores(session, ibge)
     if r is None:
@@ -78,7 +77,7 @@ def eleitores(ibge: str, session: Annotated[Session, Depends(get_session)]) -> d
 
 @router.get("/eleicoes/antecessores", response_model=Antecessores)
 def antecessores(
-    session: Annotated[Session, Depends(get_session)],
+    session: Sessao,
     cargo: Annotated[str, Query()],
     uf: Annotated[str | None, Query(min_length=2, max_length=2)] = None,
     municipio: Annotated[str | None, Query()] = None,

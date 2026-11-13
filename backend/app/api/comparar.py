@@ -1,9 +1,8 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, Query
-from sqlalchemy.orm import Session
+from fastapi import APIRouter, HTTPException, Query
 
-from app.db import get_session
+from app.db import Sessao
 from app.models import MandatoLocal, Parlamentar
 from app.schemas import (
     ComparacaoLocal,
@@ -47,7 +46,7 @@ def _escolhidos(ids: str | None, a: int | None, b: int | None) -> tuple[list[int
 
 @router.get("/comparar", response_model=ComparacaoNResposta | ComparacaoResposta)
 def comparar_parlamentares(
-    session: Annotated[Session, Depends(get_session)],
+    session: Sessao,
     ids: Annotated[str | None, Query(description="De 2 a 4 ids separados por vírgula")] = None,
     a: Annotated[int | None, Query(description="Alias antigo: primeiro id")] = None,
     b: Annotated[int | None, Query(description="Alias antigo: segundo id")] = None,
@@ -73,7 +72,7 @@ def comparar_parlamentares(
 
 @router.get("/comparar/local", response_model=ComparacaoLocalN | ComparacaoLocal)
 def comparar_locais(
-    session: Annotated[Session, Depends(get_session)],
+    session: Sessao,
     ids: Annotated[str | None, Query(description="De 2 a 4 ids separados por vírgula")] = None,
     a: Annotated[int | None, Query(description="Alias antigo: primeiro id")] = None,
     b: Annotated[int | None, Query(description="Alias antigo: segundo id")] = None,

@@ -1,9 +1,9 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, HTTPException, Query
 from sqlalchemy.orm import Session
 
-from app.db import get_session
+from app.db import Sessao
 from app.models import Municipio
 from app.schemas import Localizacao, RepresentantesResposta
 from app.services import cep as cep_service
@@ -54,7 +54,7 @@ def localizar(
 
 @router.get("/representantes", response_model=RepresentantesResposta)
 def representantes(
-    session: Annotated[Session, Depends(get_session)],
+    session: Sessao,
     cep: Annotated[str | None, Query(description="CEP com ou sem hífen")] = None,
     uf: Annotated[str | None, Query(description="Sigla da UF, se não souber o CEP")] = None,
     municipio: Annotated[

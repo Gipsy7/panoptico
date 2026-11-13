@@ -1,9 +1,9 @@
 from typing import Annotated, Literal
 
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, HTTPException, Query
 from sqlalchemy.orm import Session
 
-from app.db import get_session
+from app.db import Sessao
 from app.models import Parlamentar
 from app.schemas import (
     CandidaturaResposta,
@@ -48,7 +48,7 @@ def _buscar(session: Session, parlamentar_id: int) -> Parlamentar:
 
 @router.get("/parlamentares", response_model=ListaParlamentaresResposta)
 def lista_de_parlamentares(
-    session: Annotated[Session, Depends(get_session)],
+    session: Sessao,
     busca: Annotated[str | None, Query(description="Parte do nome")] = None,
     casa: Literal["camara", "senado"] | None = None,
     uf: Annotated[str | None, Query(min_length=2, max_length=2)] = None,
@@ -74,9 +74,7 @@ def lista_de_parlamentares(
 
 
 @router.get("/parlamentares/{parlamentar_id}", response_model=ParlamentarDetalhe)
-def parlamentar(
-    parlamentar_id: int, session: Annotated[Session, Depends(get_session)]
-) -> ParlamentarDetalhe:
+def parlamentar(parlamentar_id: int, session: Sessao) -> ParlamentarDetalhe:
     p = _buscar(session, parlamentar_id)
     colunas = {c.key: getattr(p, c.key) for c in Parlamentar.__table__.columns}
     salario = {**remuneracao.vigente(), "custo": custo_mandato.resumo(session, p)}
@@ -86,7 +84,7 @@ def parlamentar(
 @router.get("/parlamentares/{parlamentar_id}/gastos", response_model=GastosResposta)
 def gastos_do_parlamentar(
     parlamentar_id: int,
-    session: Annotated[Session, Depends(get_session)],
+    session: Sessao,
     ano: Annotated[int | None, Query(description="Padrão: ano mais recente com dados")] = None,
 ) -> dict:
     p = _buscar(session, parlamentar_id)
@@ -102,9 +100,7 @@ def gastos_do_parlamentar(
 
 
 @router.get("/parlamentares/{parlamentar_id}/candidatura", response_model=CandidaturaResposta)
-def candidatura_do_parlamentar(
-    parlamentar_id: int, session: Annotated[Session, Depends(get_session)]
-) -> dict:
+def candidatura_do_parlamentar(parlamentar_id: int, session: Sessao) -> dict:
     return tse.resumo(session, _buscar(session, parlamentar_id))
 
 
@@ -113,7 +109,7 @@ def candidatura_do_parlamentar(
 )
 def votos_nas_comissoes(
     parlamentar_id: int,
-    session: Annotated[Session, Depends(get_session)],
+    session: Sessao,
     pagina: Annotated[int, Query(ge=1)] = 1,
 ) -> dict:
     return comissoes.lista(session, _buscar(session, parlamentar_id), pagina)
@@ -122,9 +118,7 @@ def votos_nas_comissoes(
 @router.get(
     "/parlamentares/{parlamentar_id}/emendas-destino", response_model=DestinoEmendasResposta
 )
-def destino_das_emendas(
-    parlamentar_id: int, session: Annotated[Session, Depends(get_session)]
-) -> dict:
+def destino_das_emendas(parlamentar_id: int, session: Sessao) -> dict:
     """Situação dos convênios e transferências especiais das emendas individuais."""
     resultado = destino_emendas.resumo(session, _buscar(session, parlamentar_id))
     if resultado is None:
@@ -135,9 +129,7 @@ def destino_das_emendas(
 @router.get(
     "/parlamentares/{parlamentar_id}/emendas-relator", response_model=EmendasRelatorResposta
 )
-def indicacoes_emendas_relator(
-    parlamentar_id: int, session: Annotated[Session, Depends(get_session)]
-) -> dict:
+def indicacoes_emendas_relator(parlamentar_id: int, session: Sessao) -> dict:
     """Indicações de emendas de relator-geral (RP9) com o parlamentar como autor do pedido."""
     resultado = emendas_relator.resumo(session, _buscar(session, parlamentar_id))
     if resultado is None:
@@ -146,16 +138,14 @@ def indicacoes_emendas_relator(
 
 
 @router.get("/parlamentares/{parlamentar_id}/projetos", response_model=ProjetosResposta)
-def projetos_do_parlamentar(
-    parlamentar_id: int, session: Annotated[Session, Depends(get_session)]
-) -> dict:
+def projetos_do_parlamentar(parlamentar_id: int, session: Sessao) -> dict:
     return projetos.resumo(session, _buscar(session, parlamentar_id))
 
 
 @router.get("/parlamentares/{parlamentar_id}/presenca", response_model=PresencaResposta)
 def presenca_do_parlamentar(
     parlamentar_id: int,
-    session: Annotated[Session, Depends(get_session)],
+    session: Sessao,
     ano: Annotated[int | None, Query(description="Padrão: ano mais recente com dados")] = None,
 ) -> dict:
     p = _buscar(session, parlamentar_id)
@@ -170,9 +160,7 @@ def presenca_do_parlamentar(
 
 
 @router.get("/parlamentares/{parlamentar_id}/temas", response_model=TemasResposta)
-def temas_do_parlamentar(
-    parlamentar_id: int, session: Annotated[Session, Depends(get_session)]
-) -> dict:
+def temas_do_parlamentar(parlamentar_id: int, session: Sessao) -> dict:
     return temas.projetos_por_tema(session, _buscar(session, parlamentar_id))
 
 
@@ -188,7 +176,7 @@ def _com_links(
 @router.get("/parlamentares/{parlamentar_id}/votos", response_model=VotosResposta)
 def votos_do_parlamentar(
     parlamentar_id: int,
-    session: Annotated[Session, Depends(get_session)],
+    session: Sessao,
     ano: Annotated[int | None, Query(description="Padrão: ano mais recente com dados")] = None,
     tema: Annotated[str | None, Query(description="Tema oficial da proposição votada")] = None,
     pagina: Annotated[int, Query(ge=1)] = 1,
@@ -253,7 +241,7 @@ def votos_do_parlamentar(
 @router.get("/parlamentares/{parlamentar_id}/votos-por-tema", response_model=VotosPorTemaResposta)
 def votos_por_tema(
     parlamentar_id: int,
-    session: Annotated[Session, Depends(get_session)],
+    session: Sessao,
     ano: Annotated[int | None, Query(description="Padrão: ano mais recente com dados")] = None,
 ) -> dict:
     p = _buscar(session, parlamentar_id)
