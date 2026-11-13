@@ -74,7 +74,7 @@ export async function generateMetadata({
 }: PageProps<"/parlamentar/[id]">): Promise<Metadata> {
   const { id } = await params;
   const resultado = await getParlamentar(id);
-  if (!resultado.ok) return { title: "Parlamentar" };
+  if (!resultado.ok) return { title: resultado.status === 404 ? "Página não encontrada" : "Parlamentar" };
   const p = resultado.dados;
   const [gastos, presenca] = await Promise.all([getGastos(id), getPresenca(id)]);
   const media = `média ${p.casa === "camara" ? "da" : "do"} ${CASA_CURTA[p.casa]}`;

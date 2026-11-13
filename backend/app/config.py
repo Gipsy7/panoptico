@@ -43,6 +43,9 @@ class Settings(BaseSettings):
     # Em funções serverless (Vercel) cada instância vive pouco: sem pool de conexões.
     # SERVERLESS=1 faz o mesmo na reserva (Docker + PgBouncer em modo transação).
     serverless: bool = os.environ.get("VERCEL") == "1" or os.environ.get("SERVERLESS") == "1"
+    # Tempo máximo de cada consulta das rotas da API, em milissegundos (0 desliga). Vale só para
+    # a sessão das rotas (app/db.py): ingestão e migrações não têm teto.
+    api_statement_timeout_ms: int = 30000
 
     @field_validator("database_url", "test_database_url")
     @classmethod

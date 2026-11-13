@@ -27,6 +27,7 @@ export function CadeirasCongresso({
   return (
     <Cadeiras
       titulo={`Cadeiras: ${NOME[c.casa]}`}
+      nivelTitulo={2}
       nome={NOME[c.casa]}
       hoje={c.hoje}
       depois={c.a_partir_2027}

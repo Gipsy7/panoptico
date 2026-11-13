@@ -68,7 +68,7 @@ import { LinkExterno } from "@/components/link-externo";
 export async function generateMetadata({ params }: PageProps<"/eleito/[id]">): Promise<Metadata> {
   const { id } = await params;
   const resultado = await getEleito(id);
-  if (!resultado.ok) return { title: "Eleito" };
+  if (!resultado.ok) return { title: resultado.status === 404 ? "Página não encontrada" : "Eleito" };
   const e = resultado.dados;
   // Candidatura nova de quem já tem perfil: quem indexa deve guardar o perfil principal.
   if (e.perfil_principal) return { title: e.nome_urna, alternates: { canonical: e.perfil_principal } };

@@ -56,7 +56,7 @@ function quem(casa: VotacaoDetalhe["casa"], plural: boolean) {
 
 export async function metadadosVotacao(casa: string, id: string): Promise<Metadata> {
   const r = await getVotacao(casa, id);
-  if (!r.ok) return { title: "Votação" };
+  if (!r.ok) return { title: r.status === 404 || r.status === 422 ? "Votação não encontrada" : "Votação" };
   const d = r.dados;
   const p = placarPrincipal(d);
   const nome = d.proposicao ?? "Votação";

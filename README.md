@@ -104,7 +104,7 @@ E mais: **modo escuro** (segue o aparelho; um ícone troca), **filtros** com o m
 
 ¹ onde a Casa registra votação nominal. ² API com certificado autoassinado e 403, verba atrás de reCAPTCHA; pedido em [docs/pedidos/](docs/pedidos/). ³ sistema bloqueia automação; não contornamos. ⁴ do portal de transparência da Casa, carga à parte (`ingestion/assembleias/gastos_*.py`); nomes grafados diferente esperam revisão humana. No ES o valor publicado é o solicitado pelo gabinete, não o pago. ⁵ `robots.txt` veda ou responde 403; pedido em [docs/pedidos/](docs/pedidos/).
 
-Emendas estaduais: nove UFs (MG, BA, PE, SC, MA, ES, AL, SE, AC), por enquanto só na API; levantamento das 27 em [docs/emendas_estaduais_levantamento.md](docs/emendas_estaduais_levantamento.md). O que falta em cada Casa está em [data/pendencias_cobertura.csv](data/pendencias_cobertura.csv).
+Emendas estaduais: doze UFs (MG, BA, PE, SC, MA, ES, AL, SE, AC, GO, PB, DF), na página da cidade ("Emendas de deputados estaduais") e no perfil do deputado estadual; levantamento das 27 em [docs/emendas_estaduais_levantamento.md](docs/emendas_estaduais_levantamento.md). O que falta em cada Casa está em [data/pendencias_cobertura.csv](data/pendencias_cobertura.csv).
 
 </details>
 

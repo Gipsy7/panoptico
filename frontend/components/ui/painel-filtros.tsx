@@ -168,7 +168,8 @@ export function PainelFiltros({
         data-aberto={folhaAberta || undefined}
         className={sempreVisivel ? undefined : "folha-filtros"}
       >
-        <div className={cn("items-center justify-between gap-3 pb-[var(--esp-3)]", folhaAberta ? "flex" : "hidden")}>
+        {folhaAberta ? (
+        <div className="flex items-center justify-between gap-3 pb-[var(--esp-3)]">
           <h2 id={idTitulo} className="text-2xl">
             {titulo}
           </h2>
@@ -183,7 +184,7 @@ export function PainelFiltros({
             </svg>
           </button>
         </div>
-        {!folhaAberta && (
+        ) : (
           <h2 id={idTitulo} className="sr-only">
             {titulo}
           </h2>

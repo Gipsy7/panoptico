@@ -30,7 +30,10 @@ from app.config import settings
 
 app = FastAPI(
     title="Panóptico API",
-    description="Quem te representa, às claras. Dados oficiais de parlamentares federais.",
+    description=(
+        "Quem te representa, às claras. Dados oficiais de quem ocupa cargo eletivo, do presidente "
+        "ao vereador, e das cidades e estados, sempre com fonte e data. Só leitura."
+    ),
     version="0.1.0",
 )
 

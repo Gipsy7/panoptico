@@ -10,7 +10,7 @@ import { formatarReais } from "@/lib/formato";
 export async function generateMetadata({ params }: PageProps<"/vereador/[id]">): Promise<Metadata> {
   const { id } = await params;
   const resultado = await getVereador(id);
-  if (!resultado.ok) return { title: "Vereador" };
+  if (!resultado.ok) return { title: resultado.status === 404 ? "Página não encontrada" : "Vereador" };
   const v = resultado.dados;
   const g = v.gastos && v.gastos.total > 0 ? v.gastos : null;
   const pr = v.presenca && v.presenca.sessoes > 0 ? v.presenca : null;

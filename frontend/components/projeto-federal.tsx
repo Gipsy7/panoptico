@@ -37,7 +37,7 @@ export const AVISO_SEM_VOTACAO =
 export async function metadadosProjetoFederal(casa: string, id: string): Promise<Metadata> {
   if (casa !== "camara" && casa !== "senado") return { title: "Projeto" };
   const r = await getProjetoFederal(casa, id);
-  if (!r.ok) return { title: "Projeto" };
+  if (!r.ok) return { title: r.status === 404 || r.status === 422 ? "Projeto não encontrado" : "Projeto" };
   const d = r.dados;
   const ultima = d.votacoes.itens[0];
   const placar = ultima ? placarDaVotacao(ultima) : null;

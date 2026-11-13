@@ -20,6 +20,7 @@
 - [2026-11-08: siglas de partido padronizadas](#2026-11-08-siglas-de-partido-padronizadas)
 - [2026-11-10: Representantes sem índice nem abas, só o painel dos prédios](#2026-11-10-representantes-sem-índice-nem-abas-só-o-painel-dos-prédios)
 - [2026-11-13: API travada pelo pool de conexões; robôs de treino bloqueados](#2026-11-13-api-travada-pelo-pool-de-conexões-robôs-de-treino-bloqueados)
+- [2026-11-13: auditoria de produto, primeiros ajustes](#2026-11-13-auditoria-de-produto-primeiros-ajustes)
 - [2026-11-07: quanto custa o mandato (Frente 6)](#2026-11-07-quanto-custa-o-mandato-frente-6)
 - [2026-11-07: custo da câmara por morador e a média do estado (Frente 6)](#2026-11-07-custo-da-câmara-por-morador-e-a-média-do-estado-frente-6)
 - [2026-10-29: medidas provisórias e vetos do Presidente](#2026-10-29-medidas-provisórias-e-vetos-do-presidente)
@@ -2054,3 +2055,16 @@ As câmaras municipais escrevem a mesma sigla de vários jeitos ("REP", "Rep.", 
 - **Correção:** tipo `Sessao` em `app/db.py` = `Depends(get_session, scope="function")`: a conexão volta ao pool quando a rota termina, antes da resposta. O ORM não tem relacionamentos, então nada é carregado depois do fechamento. `pool_timeout` caiu de 30 para 10 s. O teste `test_sessao_escopo.py` falha se alguma rota usar outro escopo. Local: 200 pedidos com 60 ao mesmo tempo, todos 200.
 - **Robôs:** o GPTBot (treino) sai dos liberados; GPTBot, Reflectionbot, GoogleOther e Amzn-SearchBot entram nos bloqueados, no `robots.txt` (`lib/seo.ts`) e no firewall (Worker, `/configurar`). Eram ~45% do tráfego de robôs. Seguem liberados o Googlebot e o Bing (a busca), OAI-SearchBot, ChatGPT-User, PerplexityBot, Claude-SearchBot e Applebot (respostas com link). O GoogleOther não alimenta a busca do Google.
 - **Limite:** uma regra de rate limit (a única do plano Free, que só filtra por caminho e "robô verificado" e conta por IP em 10 s): robôs verificados com mais de 30 pedidos em 10 s do mesmo IP levam bloqueio por 10 s. Fica longe do ritmo do Googlebot e só corta rajadas; o servidor do site (que chama a API) não é robô verificado.
+
+## 2026-11-13: auditoria de produto, primeiros ajustes
+
+Auditoria completa (UX, acessibilidade, dados, arquitetura) em https://claude.ai/artifact/K9xemcje49KNNpcrEFqzn7. Primeira leva, só o que não muda o desenho nem pede escolha do dono:
+
+- **Tela de erro do site** (`app/error.tsx`, `app/global-error.tsx`): antes, uma falha fora do caminho `Resultado` caía na tela padrão do Next. Agora tem a voz do site, "Tentar de novo" e volta ao início.
+- **Não encontrado por contexto** (`app/votacao/not-found.tsx`, `app/projeto/not-found.tsx`): votação e projeto levam à busca de projetos, não à escolha da cidade. O título da aba diz que não achou. `AvisoErro` ganhou `principal` (título em h1 quando o aviso é a página inteira) e `acao`.
+- **Ordem dos títulos** (WCAG 1.3.1): "Sobre o cargo" usa h2 (vem logo depois do h1 do perfil) e `Cadeiras` aceita `nivelTitulo`. Como h2 herda a serifa, esses títulos levam `font-sans` para o desenho não mudar.
+- **Painel de filtros**: o título ficava duas vezes no HTML com o mesmo `id`; agora uma só.
+- **Teto de consulta nas rotas** (`API_STATEMENT_TIMEOUT_MS`, padrão 30 s, 0 desliga): `SET LOCAL statement_timeout` na sessão das rotas. Não vai no motor de propósito: ingestão e migrações usam o mesmo motor e não podem ter teto.
+- **Não feito, de propósito:** limite de pedidos por origem em `/busca` e `/projetos`. O servidor do site chama a API de um endereço só, então o limite na API trataria todos os visitantes como um. Se for preciso, a regra vai no Cloudflare.
+
+Ficam para escolha do dono: um nome por área no menu (Decisões/Projetos, Mapa/Impostos e repasses) e as sugestões no comparador (pedem os 3 protótipos).

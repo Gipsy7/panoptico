@@ -2,7 +2,7 @@ from collections.abc import Iterator
 from typing import Annotated
 
 from fastapi import Depends
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, text
 from sqlalchemy.orm import Session, sessionmaker
 from sqlalchemy.pool import NullPool
 
@@ -30,6 +30,12 @@ def get_session() -> Iterator[Session]:
     que a rota termina.
     """
     with SessionLocal() as session:
+        if settings.api_statement_timeout_ms > 0:
+            # Uma consulta presa segura uma das conexões do pool até terminar; com o teto, o
+            # banco a cancela e a conexão volta. SET LOCAL vale só para a transação da rota.
+            session.execute(
+                text(f"SET LOCAL statement_timeout = {int(settings.api_statement_timeout_ms)}")
+            )
         yield session
 
 

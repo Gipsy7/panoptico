@@ -198,7 +198,7 @@ com `scroll-margin-top` igual à altura dos dois cabeçalhos.
 
 ## 6. Problemas atuais priorizados
 
-Referências conferidas no código de `frontend/` em 17/10/2026.
+Referências conferidas no código de `frontend/` em 17/10/2026. Lista histórica: parte já foi resolvida (o comparador aceita 4 pessoas, o perfil tem índice); confira no código antes de usar. A lista atual está na auditoria de 13/11/2026 (`docs/DECISOES.md`).
 
 **P1 (quebra a leitura ou o uso no celular)**
 - Tabelas sem `overflow-x-auto` (estouram a página em 360 px): `components/destino-emendas-secao.tsx:107`,

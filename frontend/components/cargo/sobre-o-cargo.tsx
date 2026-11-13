@@ -13,7 +13,7 @@ import {
 function Lista({ titulo, itens }: { titulo: string; itens: ItemComArtigo[] }) {
   return (
     <div className="flex flex-col gap-1">
-      <h3 className="text-base font-semibold">{titulo}</h3>
+      <h2 className="font-sans text-base font-semibold tracking-normal">{titulo}</h2>
       <ul className="flex list-disc flex-col gap-1 pl-5">
         {itens.map((i) => (
           <li key={i.texto}>
@@ -45,14 +45,14 @@ export function SobreOCargo({ cargo, df = false }: { cargo: CargoId; df?: boolea
           O que a Constituição diz que o cargo pode, não pode e paga. Vale para o cargo, não avalia a pessoa.
         </p>
         <div className="flex flex-col gap-1">
-          <h3 className="text-base font-semibold">O que faz</h3>
+          <h2 className="font-sans text-base font-semibold tracking-normal">O que faz</h2>
           <p>{t.faz}</p>
           <p className="text-xs text-muted-foreground">Termo oficial: {t.fazOficial}</p>
         </div>
         <Lista titulo="O que pode" itens={c.pode} />
         <Lista titulo="O que não pode" itens={c.naoPode} />
         <div className="flex flex-col gap-1">
-          <h3 className="text-base font-semibold">Quanto ganha</h3>
+          <h2 className="font-sans text-base font-semibold tracking-normal">Quanto ganha</h2>
           <p>
             {c.ganha.texto} <span className="text-xs text-muted-foreground">({c.ganha.artigo})</span>
           </p>

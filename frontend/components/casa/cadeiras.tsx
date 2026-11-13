@@ -40,6 +40,7 @@ export function Cadeiras({
   onEscolher,
   porVoto,
   titulo,
+  nivelTitulo = 3,
 }: {
   nome: string;
   hoje?: ItemBancada[];
@@ -53,7 +54,10 @@ export function Cadeiras({
   onEscolher?: (partido: string | null) => void;
   porVoto?: { sim: number; nao: number; outros: number; rotuloOutros?: string };
   titulo?: string;
+  /** 2 quando o gráfico abre a página, antes de qualquer h2 (ordem dos títulos). */
+  nivelTitulo?: 2 | 3;
 }) {
+  const Titulo = nivelTitulo === 2 ? "h2" : "h3";
   const [quando, setQuando] = useState<"hoje" | "depois">("hoje");
   const [interno, setInterno] = useState<string | null>(null);
   const destaque = escolhido !== undefined ? escolhido : interno;
@@ -82,7 +86,7 @@ export function Cadeiras({
   if (total === 0) {
     return (
       <div className="flex flex-col gap-2">
-        {titulo && <h3 className="text-lg font-semibold">{titulo}</h3>}
+        {titulo && <Titulo className="font-sans text-lg font-semibold tracking-normal">{titulo}</Titulo>}
         <p className="text-sm text-muted-foreground">Sem dados de cadeiras na fonte.</p>
         <FonteRodape fonte={fonte.nome} url={fonte.url} atualizadoEm={fonte.atualizadoEm} />
       </div>
@@ -92,7 +96,7 @@ export function Cadeiras({
   return (
     <div className="flex flex-col gap-3">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        {titulo && <h3 className="text-lg font-semibold">{titulo}</h3>}
+        {titulo && <Titulo className="font-sans text-lg font-semibold tracking-normal">{titulo}</Titulo>}
         {temDepois && (
           <Segmentado
             rotulo="Qual composição mostrar"

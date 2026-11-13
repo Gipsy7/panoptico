@@ -82,7 +82,7 @@ export function MaisVotados({ d }: { d: Dados }) {
                       {i.candidatura_id ? (
                         <Link
                           href={`/eleito/${i.candidatura_id}`}
-                          className="underline underline-offset-2"
+                          className="inline-block min-h-6 underline underline-offset-2"
                         >
                           {i.nome_urna}
                         </Link>
