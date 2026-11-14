@@ -1,12 +1,16 @@
 name: Fumaça no release
 
-# Depois de cada Publicar que passou, confere no release os caminhos que definem o produto
-# (frontend/e2e/fluxos.spec.ts): cidade → perfil, projeto → votação, comparação e 404. Só leitura.
-# Não bloqueia nada: se falhar, o run fica vermelho e o GitHub avisa por e-mail.
+# A cada push no dev, espera o Publicar e a VPS e confere no release os caminhos que definem o
+# produto (frontend/e2e/fluxos.spec.ts): cidade → perfil, projeto → votação, comparação e 404.
+# Só leitura. Não bloqueia nada: se falhar, o run fica vermelho e o GitHub avisa por e-mail.
+#
+# Por que no push e não "depois do Publicar": o gatilho workflow_run só vale para workflow que já
+# está no main, e o release é avançado com o token do Actions, que não dispara outros workflows.
+# Fica fora do Publicar para não segurar o grupo `publicacao` (uma correção urgente esperaria).
+# Se o Publicar falhar, o release não muda e este teste confere a versão anterior, sem dano.
 on:
-  workflow_run:
-    workflows: ["Publicar"]
-    types: [completed]
+  push:
+    branches: [dev]
   workflow_dispatch:
     inputs:
       base_url:
@@ -23,7 +27,6 @@ concurrency:
 
 jobs:
   fumaca:
-    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     defaults:
@@ -31,8 +34,6 @@ jobs:
         working-directory: frontend
     steps:
       - uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
       - uses: actions/setup-node@v4
         with:
           node-version: 22
@@ -40,10 +41,10 @@ jobs:
           cache-dependency-path: frontend/package-lock.json
       - run: npm ci
       - run: npx playwright install --with-deps chromium
-      # A VPS busca o branch release a cada 10 minutos e ainda reconstrói as imagens.
-      - name: Esperar a VPS publicar o release
-        if: github.event_name == 'workflow_run'
-        run: sleep 780
+      # Publicar (uns 2 min) + a VPS, que busca o release a cada 10 min e reconstrói as imagens.
+      - name: Esperar o Publicar e a VPS
+        if: github.event_name == 'push'
+        run: sleep 1080
       - name: Rodar os fluxos
         run: npx playwright test fluxos --project=celular-360 --project=desktop-1280
         env:
