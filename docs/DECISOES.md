@@ -24,6 +24,7 @@
 - [2026-11-13: alertas por e-mail ao dono](#2026-11-13-alertas-por-e-mail-ao-dono)
 - [2026-11-14: comparador com atalhos do lugar](#2026-11-14-comparador-com-atalhos-do-lugar)
 - [2026-11-14: fumaça no release e peso das páginas](#2026-11-14-fumaça-no-release-e-peso-das-páginas)
+- [2026-11-14: cartão de votação por estado](#2026-11-14-cartão-de-votação-por-estado)
 - [2026-11-07: quanto custa o mandato (Frente 6)](#2026-11-07-quanto-custa-o-mandato-frente-6)
 - [2026-11-07: custo da câmara por morador e a média do estado (Frente 6)](#2026-11-07-custo-da-câmara-por-morador-e-a-média-do-estado-frente-6)
 - [2026-10-29: medidas provisórias e vetos do Presidente](#2026-10-29-medidas-provisórias-e-vetos-do-presidente)
@@ -2131,3 +2132,19 @@ Dentro do resultado, os mesmos grupos viram uma linha de abas ("De Gaspar: Senad
 **Foco e o botão do Argos.** `scroll-padding-bottom` de 4,5 rem na página: ao andar pelo Tab, o item em foco para acima do botão fixo (WCAG 2.4.11).
 
 **Placar do PLP 74/2026.** A pendência "343 no site, 346 na Câmara" não é erro: 346 é o placar publicado pela Casa e 343 é a lista nominal, que só liga quem está no cadastro (3 deputados deixaram o cargo). Já estava explicado na seção de 21/10; pendência fechada.
+
+## 2026-11-14: cartão de votação por estado
+
+**Problema.** O que circula no WhatsApp é a votação do dia. O site gerava cartão em imagem do perfil e da cidade, não da votação.
+
+**Decisão** (protótipo A, com as fotos do B em estado pequeno; https://claude.ai/artifact/XwnNHGoGmGPHfJJFFgLsLD). `GET /votacao/{casa}/{id}/cartao/{UF}?formato=feed|stories` devolve a imagem "Como votaram os deputados (ou senadores) de UF": proposição, resultado, ementa, barra e os nomes por voto. Regras em `frontend/lib/cartao-votacao.ts`, desenho em `lib/og-votacao.tsx`.
+
+- **Fotos só até 20 pessoas** do estado na votação (`LIMITE_FOTOS`); acima disso, o placar em número grande e os nomes, cortados com "e mais N". Em SP (62) cabem cerca de 15 nomes no Feed e 45 no Stories.
+- **Sem cor de certo ou errado:** Sim é cheio, Não é vazado, outro registro é tracejado, como nas cadeiras. Todas as fotos têm o mesmo tratamento.
+- **Três grupos:** Sim, Não e "Outro registro" (abstenção, obstrução, presidiu a sessão, ausência publicada pelo Senado). Ordem alfabética dentro de cada um.
+- **O que fica de fora, escrito no cartão:** a Câmara só publica quem registrou voto ou presença, então o total do estado pode ser menor que a bancada.
+- **Votação secreta não tem cartão** (não há voto por pessoa): a rota devolve a imagem padrão e o botão não aparece.
+- **Onde fica o botão:** no detalhe "Como votou cada deputado", logo abaixo do placar do estado escolhido ("Compartilhar como votou SC"). Usa o estado guardado no aparelho ou o de `?uf=`. O link compartilhado abre nesse detalhe, já no estado.
+- A função que embute as fotos saiu da rota da cidade para `lib/embutir-foto.ts`, usada pelos dois cartões.
+
+**Limite.** O botão só aparece depois de abrir o detalhe dos parlamentares e escolher o estado; não está no topo da página. Mover para o topo é mudança de tela e fica para a escolha do dono.

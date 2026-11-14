@@ -144,7 +144,7 @@ function fonteNome(nome: string, base: number, largura: number): number {
 
 // Geist (a fonte do site) em TTF: o gerador de imagem não lê woff2. Licença em assets/fonts/OFL.txt.
 let fontes: Promise<{ name: string; data: ArrayBuffer; weight: 400 | 700; style: "normal" }[]> | null = null;
-function carregarFontes() {
+export function carregarFontes() {
   fontes ??= Promise.all(
     ([["Geist-Regular.ttf", 400], ["Geist-Bold.ttf", 700]] as const).map(async ([arquivo, weight]) => ({
       name: "Geist",

@@ -60,6 +60,7 @@ export function CompartilharCartao({
   cartao,
   texto,
   nomeArquivo,
+  rotulo = "Compartilhar",
   children,
 }: {
   /** Caminho da página que será compartilhada (vira o link no texto). */
@@ -69,6 +70,8 @@ export function CompartilharCartao({
   texto: string;
   /** Nome da pessoa ou do lugar, usado no nome do arquivo baixado. */
   nomeArquivo: string;
+  /** Texto do botão no celular (o padrão é "Compartilhar"). */
+  rotulo?: string;
   /** O link do WhatsApp renderizado no servidor. */
   children: ReactNode;
 }) {
@@ -153,7 +156,7 @@ export function CompartilharCartao({
           className="botao-linha self-start disabled:opacity-60"
         >
           {nativo ? <IconeCompartilhar /> : <IconeBaixar />}
-          {ocupado ? "Preparando…" : nativo ? "Compartilhar" : "Baixar imagem"}
+          {ocupado ? "Preparando…" : nativo ? rotulo : rotulo === "Compartilhar" ? "Baixar imagem" : `${rotulo} (baixar imagem)`}
         </button>
       )}
       {mostraWhatsApp && children}

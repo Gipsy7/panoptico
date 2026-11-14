@@ -8,11 +8,14 @@
 import Link from "next/link";
 import { useDeferredValue, useMemo, useState } from "react";
 
+import { CompartilharWhatsApp } from "@/components/compartilhar";
+import { CompartilharCartao } from "@/components/compartilhar-cartao";
 import { PlacarPorUf } from "@/components/placar-por-uf";
 import { Segmentado } from "@/components/segmentado";
 import { PilulasAtivas, SemResultados } from "@/components/ui/campos-filtro";
 import { SeletorUf, useUfEscolhida } from "@/components/uf-escolhida";
 import type { ParlamentarNaVotacao, PorUf } from "@/lib/api";
+import { caminhoCartaoVotacao, fraseCompartilhar, gruposDoEstado, totalDosGrupos } from "@/lib/cartao-votacao";
 import { UFS } from "@/lib/ufs";
 
 function chave(texto: string) {
@@ -25,6 +28,7 @@ export function VotacaoParlamentares({
   casa,
   porUf = [],
   ufInicial = null,
+  cartao,
 }: {
   parlamentares: ParlamentarNaVotacao[];
   ordemPartidos: string[];
@@ -33,6 +37,8 @@ export function VotacaoParlamentares({
   porUf?: PorUf[];
   /** Estado vindo de `?uf=`; sem ele, vale o que o aparelho lembrou. */
   ufInicial?: string | null;
+  /** Dados para o cartão em imagem do estado escolhido; sem eles (votação secreta), sem botão. */
+  cartao?: { id: string; proposicao: string | null };
 }) {
   const [uf, escolherUf] = useUfEscolhida(ufInicial);
   const [busca, setBusca] = useState("");
@@ -63,11 +69,28 @@ export function VotacaoParlamentares({
     escolherUf(null);
   };
   const nomeUf = uf ? (UFS.find((u) => u.sigla === uf)?.nome ?? uf) : null;
+  const gruposUf = useMemo(() => (uf ? gruposDoEstado(parlamentares, uf) : null), [parlamentares, uf]);
 
   return (
     <div className="flex flex-col gap-4">
       <SeletorUf id="uf-votacao" uf={uf} onChange={escolherUf} rotulo="Ver só quem é do meu estado" />
       <PlacarPorUf porUf={porUf} uf={uf} />
+      {cartao && uf && gruposUf && totalDosGrupos(gruposUf) > 0 && (
+        // `key`: ao trocar de estado, a imagem já buscada deixa de valer.
+        <CompartilharCartao
+          key={uf}
+          caminho={`/votacao/${casa}/${cartao.id}?uf=${uf}#ver-parlamentares`}
+          cartao={caminhoCartaoVotacao(casa, cartao.id, uf)}
+          nomeArquivo={`${cartao.proposicao ?? "votacao"} ${uf}`}
+          rotulo={`Compartilhar como votou ${uf}`}
+          texto={fraseCompartilhar(casa, uf, cartao.proposicao, gruposUf)}
+        >
+          <CompartilharWhatsApp
+            caminho={`/votacao/${casa}/${cartao.id}?uf=${uf}#ver-parlamentares`}
+            texto={fraseCompartilhar(casa, uf, cartao.proposicao, gruposUf)}
+          />
+        </CompartilharCartao>
+      )}
       <div className="flex flex-col gap-[var(--esp-4)] sm:flex-row sm:items-end">
         <label className="flex min-w-0 flex-1 flex-col gap-[var(--esp-1)] text-sm font-medium">
           Buscar por nome, partido ou estado

@@ -135,6 +135,7 @@ async function Votacao({ casa, id, ufInicial }: { casa: string; id: string; ufIn
                 casa={d.casa}
                 porUf={d.por_uf ?? []}
                 ufInicial={ufInicial}
+                cartao={d.secreta ? undefined : { id: d.id_externo, proposicao: d.proposicao }}
               />
               {rodape}
             </section>

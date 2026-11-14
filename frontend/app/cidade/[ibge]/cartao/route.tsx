@@ -21,6 +21,7 @@ import {
   getVereadores,
   urlFotoDe,
 } from "@/lib/api";
+import { embutirFoto as embutir } from "@/lib/embutir-foto";
 import { formatarData } from "@/lib/formato";
 import { imagemPadrao } from "@/lib/og";
 import { cartaoCidade } from "@/lib/og-cidade";
@@ -29,28 +30,6 @@ import { cartaoCidade } from "@/lib/og-cidade";
 // Contagens e pessoas vêm das mesmas rotas da página "Quem te representa".
 
 const CACHE = "public, max-age=3600, s-maxage=86400, stale-while-revalidate=604800";
-
-/** Baixa a foto no servidor e a embute (data URL); sem foto ou com erro, volta nulo (silhueta). */
-async function embutir(url: string | null): Promise<string | null> {
-  if (!url) return null;
-  try {
-    const r = await fetch(url, { signal: AbortSignal.timeout(5000) });
-    if (!r.ok) return null;
-    let tipo = (r.headers.get("content-type") ?? "").split(";")[0];
-    if (!tipo.startsWith("image/")) return null;
-    let bytes: Buffer = Buffer.from(await r.arrayBuffer());
-    if (bytes.length === 0 || bytes.length > 3_000_000) return null;
-    if (tipo === "image/webp") {
-      // O gerador de imagem não lê WebP (as fotos do TSE são WebP): converte para JPEG.
-      const { default: sharp } = await import("sharp");
-      bytes = await sharp(bytes).resize({ width: 720, withoutEnlargement: true }).jpeg({ quality: 85 }).toBuffer();
-      tipo = "image/jpeg";
-    }
-    return `data:${tipo};base64,${bytes.toString("base64")}`;
-  } catch {
-    return null;
-  }
-}
 
 function fotoChapa(c: Chapa | null | undefined): string | null {
   return c?.titular.foto ? urlFotoDe(c.titular) : null;
