@@ -1,3 +1,7 @@
+# PROPOSTO, AINDA NÃO ATIVO. Para ativar, o dono move este arquivo para .github/workflows/ e
+# leva o commit ao `release` com a própria credencial: o Publicar avança o release com o token do
+# Actions, que não pode criar nem alterar workflows (o push é recusado e a publicação trava, como
+# em 14/11/2026). Vale para qualquer mudança em .github/workflows/.
 name: Fumaça no release
 
 # A cada push no dev, espera o Publicar e a VPS e confere no release os caminhos que definem o
