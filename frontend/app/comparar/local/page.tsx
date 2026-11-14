@@ -22,7 +22,7 @@ import {
 const MAXIMO = 4;
 const texto = (v: string | string[] | undefined) => (typeof v === "string" && v ? v : undefined);
 
-type Params = { ids: number[]; diferencas: boolean; adicionar: boolean; antigo: boolean };
+type Params = { ids: number[]; diferencas: boolean; adicionar: boolean; antigo: boolean; ibge?: string };
 
 /** Lê `ids=1,2,3` (ou os links antigos `a=` e `b=`), sem repetidos e até quatro. */
 function lerParametros(sp: Record<string, string | string[] | undefined>): Params {
@@ -37,6 +37,8 @@ function lerParametros(sp: Record<string, string | string[] | undefined>): Param
     diferencas: texto(sp.diferencas) === "1",
     adicionar: texto(sp.adicionar) === "1",
     antigo: !texto(sp.ids) && !!(texto(sp.a) || texto(sp.b)),
+    // Vindo do atalho "Vereadores de <cidade>" em /comparar: começa pela lista da câmara.
+    ibge: /^\d{7}$/.test(texto(sp.ibge) ?? "") ? texto(sp.ibge) : undefined,
   };
 }
 
@@ -81,8 +83,9 @@ export default function CompararLocalPage({ searchParams }: PageProps<"/comparar
   );
 }
 
-async function Conteudo({ ids, diferencas, adicionar, antigo }: Params) {
+async function Conteudo({ ids, diferencas, adicionar, antigo, ibge }: Params) {
   if (antigo && ids.length > 0) redirect(endereco(ids));
+  if (ids.length === 0 && ibge) return <EscolherPrimeiro ibge={ibge} />;
   if (ids.length === 0) {
     return (
       <p className="text-muted-foreground">
@@ -117,6 +120,42 @@ async function Conteudo({ ids, diferencas, adicionar, antigo }: Params) {
 }
 
 /** Com alguém escolhido, a lista dos colegas da mesma casa que ainda não estão na comparação. */
+/** Sem ninguém escolhido ainda: a lista da câmara da cidade, para tocar no primeiro. */
+async function EscolherPrimeiro({ ibge }: { ibge: string }) {
+  const casa = await getCamara(ibge);
+  if (!casa.ok || casa.dados.itens.length === 0) {
+    return (
+      <AvisoErro
+        titulo="Sem vereadores para comparar"
+        mensagem="Ainda não temos os vereadores desta câmara, ou não deu para buscar agora."
+      />
+    );
+  }
+  return (
+    <div className="flex flex-col gap-4">
+      <h2 className="text-xl">Escolha o primeiro vereador</h2>
+      <ul className="grid border-t border-border sm:grid-cols-2 sm:gap-x-10">
+        {casa.dados.itens.map((c) => (
+          <li key={c.id} className="border-b border-border">
+            <Link
+              href={endereco([c.id])}
+              className="flex min-h-11 items-center gap-3 py-2 hover:bg-accent/50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-bronze"
+            >
+              <FotoVereador vereador={c} tamanho={36} decorativa />
+              <span className="min-w-0">
+                <span className="block truncate font-medium">{c.nome}</span>
+                <span className="text-sm text-muted-foreground">
+                  {[c.partido, c.titular ? null : "suplente"].filter(Boolean).join(" · ")}
+                </span>
+              </span>
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
 async function Escolher({ ids }: { ids: number[] }) {
   const primeiro = await getVereador(String(ids[0]));
   if (!primeiro.ok) return <AvisoErro titulo="Não encontrado" mensagem={primeiro.mensagem} />;

@@ -22,6 +22,7 @@
 - [2026-11-13: API travada pelo pool de conexões; robôs de treino bloqueados](#2026-11-13-api-travada-pelo-pool-de-conexões-robôs-de-treino-bloqueados)
 - [2026-11-13: auditoria de produto, primeiros ajustes](#2026-11-13-auditoria-de-produto-primeiros-ajustes)
 - [2026-11-13: alertas por e-mail ao dono](#2026-11-13-alertas-por-e-mail-ao-dono)
+- [2026-11-14: comparador com atalhos do lugar](#2026-11-14-comparador-com-atalhos-do-lugar)
 - [2026-11-07: quanto custa o mandato (Frente 6)](#2026-11-07-quanto-custa-o-mandato-frente-6)
 - [2026-11-07: custo da câmara por morador e a média do estado (Frente 6)](#2026-11-07-custo-da-câmara-por-morador-e-a-média-do-estado-frente-6)
 - [2026-10-29: medidas provisórias e vetos do Presidente](#2026-10-29-medidas-provisórias-e-vetos-do-presidente)
@@ -2103,3 +2104,19 @@ Ficam para escolha do dono: um nome por área no menu (Decisões/Projetos, Mapa/
 **Limites.** O fluxo usa a contagem anônima do site (`metrica_diaria`), que é por dia e não conta robôs: um ataque de robôs como o de 13/11 não dispara esse aviso (apareceria como serviço sem responder). Medir pedidos por hora pelo Cloudflare fica para depois. O envio pelo Worker não foi testado contra o servidor real.
 
 **Alternativas descartadas.** Serviço externo de monitoramento (conta nova e mais um lugar para olhar); serviço de envio por HTTP (conta nova e chave a mais); Email Routing do Cloudflare (exige o MX do domínio no Cloudflare, e o e-mail está no Zoho).
+
+## 2026-11-14: comparador com atalhos do lugar
+
+**Problema.** `/comparar` abria com um campo de nome e mais nada: quem não sabe o nome de dois parlamentares parava ali.
+
+**Decisão** (protótipo A, com as abas do C no resultado; https://claude.ai/artifact/1i5GH5ZNwELe4tEa3f6N11). Com "Seu lugar" guardado no aparelho, a página oferece até três atalhos (`components/comparar-sugestoes.tsx`, regras em `lib/comparar-sugestoes.ts`):
+
+- **Os senadores do estado:** todos, em ordem alfabética.
+- **Os 2 deputados federais mais votados na cidade:** os dois eleitos com mais votos na cidade na eleição que escolheu a Câmara atual (`ANO_ELEICAO_FEDERAL`, hoje 2022; trocar na posse de fev/2027). O atalho só aparece quando os dois primeiros eleitos da lista do TSE são reconhecidos, pelo nome idêntico, entre os deputados em exercício. Se um não bate (saiu do cargo, ou o nome de urna difere do nome parlamentar), o atalho some: mostrar o terceiro como se fosse o segundo seria número errado.
+- **Vereadores da cidade:** leva a `/comparar/local?ibge=`, que agora lista a câmara para escolher o primeiro. Só aparece onde a câmara tem vereadores carregados.
+
+Dentro do resultado, os mesmos grupos viram uma linha de abas ("De Gaspar: Senadores de SC, Mais votados em Gaspar"), para trocar sem voltar.
+
+**Sem juízo.** Nenhum grupo é escolha do site, e a tela diz isso. Sem cidade guardada, só um convite a escolher a cidade (sem dupla sorteada: a home já faz isso).
+
+**Privacidade.** O lugar continua só no aparelho; à API vão o código da cidade e o estado, como nas outras telas.

@@ -6,6 +6,7 @@ import { redirect } from "next/navigation";
 import { AvisoErro } from "@/components/aviso-erro";
 import { BuscaParlamentar } from "@/components/busca-parlamentar";
 import { CompartilharWhatsApp } from "@/components/compartilhar";
+import { CompararSugestoes } from "@/components/comparar-sugestoes";
 import { ComparadorMatriz, type ParMatriz } from "@/components/comparador-matriz";
 import {
   type CelulaTabela,
@@ -100,7 +101,12 @@ async function Conteudo({ ids, ano, diferencas, adicionar, antigo }: Params) {
   if (antigo && ids.length > 0) redirect(endereco(ids, ano));
 
   if (ids.length === 0) {
-    return <BuscaParlamentar hrefBase="/comparar?ids=" rotulo="Escolha o primeiro parlamentar" />;
+    return (
+      <div className="flex flex-col gap-6">
+        <CompararSugestoes />
+        <BuscaParlamentar hrefBase="/comparar?ids=" rotulo="Ou procure pelo nome" />
+      </div>
+    );
   }
   if (ids.length === 1) {
     const primeiro = await getParlamentar(String(ids[0]));
@@ -271,6 +277,7 @@ function Resultado({
 
   return (
     <>
+      <CompararSugestoes idsAtuais={idsAtuais} />
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm">
           <nav aria-label="Ano" className="flex flex-wrap items-center gap-1">
