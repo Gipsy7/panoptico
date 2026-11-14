@@ -8,7 +8,14 @@ Ver docs/DECISOES.md, "Eleições completas".
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
-from app.models import Candidatura, FonteIngestao, Municipio, ResultadoCandidato, ResultadoTotais
+from app.models import (
+    Candidatura,
+    FonteIngestao,
+    Municipio,
+    Parlamentar,
+    ResultadoCandidato,
+    ResultadoTotais,
+)
 from app.services.camaras import populacao_cidade
 from ingestion.tse.resultados import EXTERIOR, MAJORITARIOS_GERAIS, PROPORCIONAIS_GERAIS
 
@@ -263,11 +270,16 @@ def mais_votados(session: Session, ibge: str, ano: int | None = None) -> dict | 
     cargos = []
     for cargo in ("DEPUTADO FEDERAL", "DEPUTADO ESTADUAL", "DEPUTADO DISTRITAL"):
         linhas = session.execute(
-            select(ResultadoCandidato, Candidatura.id)
+            select(ResultadoCandidato, Candidatura.id, Parlamentar.id)
             .outerjoin(
                 Candidatura,
                 (Candidatura.ano_eleicao == ResultadoCandidato.ano)
                 & (Candidatura.sq_candidato == ResultadoCandidato.sq_candidato),
+            )
+            # Só quem está no cargo hoje: o perfil de quem saiu não é "quem te representa".
+            .outerjoin(
+                Parlamentar,
+                (Parlamentar.id == Candidatura.parlamentar_id) & Parlamentar.em_exercicio.is_(True),
             )
             .where(
                 ResultadoCandidato.ano == ano,
@@ -304,8 +316,9 @@ def mais_votados(session: Session, ibge: str, ano: int | None = None) -> dict | 
                         "situacao": r.situacao,
                         "eleito": eleito(r.situacao),
                         "candidatura_id": cid,
+                        "parlamentar_id": pid,
                     }
-                    for i, (r, cid) in enumerate(linhas)
+                    for i, (r, cid, pid) in enumerate(linhas)
                 ],
             }
         )

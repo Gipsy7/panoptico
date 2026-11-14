@@ -26,6 +26,7 @@
 - [2026-11-14: fumaça no release e peso das páginas](#2026-11-14-fumaça-no-release-e-peso-das-páginas)
 - [2026-11-14: cartão de votação por estado](#2026-11-14-cartão-de-votação-por-estado)
 - [2026-11-14: ficha do fornecedor (só a rota)](#2026-11-14-ficha-do-fornecedor-só-a-rota)
+- [2026-11-14: emendas dos mais votados na cidade (só a rota)](#2026-11-14-emendas-dos-mais-votados-na-cidade-só-a-rota)
 - [2026-11-07: quanto custa o mandato (Frente 6)](#2026-11-07-quanto-custa-o-mandato-frente-6)
 - [2026-11-07: custo da câmara por morador e a média do estado (Frente 6)](#2026-11-07-custo-da-câmara-por-morador-e-a-média-do-estado-frente-6)
 - [2026-10-29: medidas provisórias e vetos do Presidente](#2026-10-29-medidas-provisórias-e-vetos-do-presidente)
@@ -2164,3 +2165,16 @@ Dentro do resultado, os mesmos grupos viram uma linha de abas ("De Gaspar: Senad
 - **Fora desta versão:** sócios que são pessoas públicas (`socio_pessoa`) e despesas de partidos (`partido_despesa_vinculada`), que envolvem ligação por pessoa e seguem as regras de `publicavel()`.
 
 **Correção à auditoria.** "Votou como o partido orientou" já era calculado (`resumo_parlamentar.partido_iguais` e `partido_total`) e já sai na API e na seção do partido no perfil; o que falta é só oferecê-lo como critério de ordenação, que é tela.
+
+## 2026-11-14: emendas dos mais votados na cidade (só a rota)
+
+**Pergunta do morador.** "Os deputados que tiveram voto aqui mandaram quanto para cá?"
+
+**Decisão.** `GET /municipios/{ibge}/emendas-dos-mais-votados` (`backend/app/services/emendas_votos.py`): os 5 deputados federais **em exercício** mais votados na cidade, na ordem dos votos, com a posição geral, os votos e o total de emendas individuais pagas à cidade. Quem não enviou nada entra com zero. **Ainda sem tela** (protótipos em https://claude.ai/artifact/MEWErY5fHPZH7a1Jsze5uZ).
+
+- **Dois números lado a lado, sem dizer que um explica o outro.** O recorte vai escrito na resposta.
+- **Ligação pelo cadastro, nunca pelo nome:** `candidatura.parlamentar_id`. A resposta diz quantos dos mais votados ficaram fora por não estarem em exercício (não se elegeram ou saíram do cargo).
+- **Só emendas individuais** (a mesma regra da página da cidade, `emendas._individual()`): bancada, comissão e relator não têm um autor só.
+- **A eleição é a da legislatura em curso:** a mais recente cujos eleitos já tomaram posse (1º de fevereiro do ano seguinte). Troca sozinha em fev/2027.
+
+**De quebra.** `GET /municipios/{ibge}/mais-votados` passou a trazer `parlamentar_id` (só de quem está em exercício). O atalho "Os 2 deputados federais mais votados" do comparador usa essa ligação e deixou de depender do nome de urna ser igual ao nome parlamentar; com API antiga, sem o campo, continua valendo o nome idêntico.

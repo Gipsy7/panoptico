@@ -75,6 +75,9 @@ class EleicaoDisponivel(BaseModel):
 
 class MaisVotadoItem(BaseModel):
     posicao: int
+    # Perfil do parlamentar, quando a candidatura é de alguém em exercício hoje (ligação do
+    # cadastro do TSE com o da Casa, não por nome). Acrescentado em 14/11/2026.
+    parlamentar_id: int | None = None
     nome_urna: str
     partido: str | None = None
     votos: int

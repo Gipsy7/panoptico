@@ -13,7 +13,7 @@ from app.schemas.resultados_eleicao import (
     MaisVotados,
     ResultadoEleicao,
 )
-from app.services import resultados_eleicao
+from app.services import emendas_votos, resultados_eleicao
 
 router = APIRouter()
 
@@ -63,6 +63,16 @@ def mais_votados(
     r = resultados_eleicao.mais_votados(session, ibge, ano)
     if r is None:
         raise HTTPException(404, "Resultado não carregado para esse município.")
+    return r
+
+
+@router.get("/municipios/{ibge}/emendas-dos-mais-votados")
+def emendas_dos_mais_votados(ibge: str, session: Sessao) -> dict:
+    """Os deputados federais em exercício mais votados na cidade e quanto cada um enviou a ela
+    em emendas individuais pagas. Dois números lado a lado; sem tela por enquanto."""
+    r = emendas_votos.do_municipio(session, ibge)
+    if r is None:
+        raise HTTPException(404, "Sem resultado de eleição ou sem deputado em exercício aqui.")
     return r
 
 

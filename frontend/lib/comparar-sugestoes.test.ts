@@ -47,6 +47,25 @@ describe("maisVotadosEmExercicio", () => {
     expect(maisVotadosEmExercicio(votados, deputados)).toBeNull();
   });
 
+  it("com a ligação da API, acha quem tem nome de urna diferente do nome parlamentar", () => {
+    const votados = [
+      { ...v("ANA PAULA LIMA"), parlamentar_id: 33 },
+      { ...v("CAROL DE TONI"), parlamentar_id: 84 },
+      { ...v("ISMAEL"), parlamentar_id: 242 },
+    ];
+    expect(maisVotadosEmExercicio(votados, deputados)?.map((d) => d.id)).toEqual([33, 84]);
+  });
+
+  it("com a ligação da API, some se um dos dois não está em exercício, sem tentar pelo nome", () => {
+    // O nome "ISMAEL" existe entre os deputados, mas a API disse que esta candidatura não é de
+    // ninguém em exercício.
+    const votados = [{ ...v("ANA PAULA LIMA"), parlamentar_id: 33 }, { ...v("ISMAEL"), parlamentar_id: null }];
+    expect(maisVotadosEmExercicio(votados, deputados)).toBeNull();
+    // Ligado a alguém que não está na lista de deputados do estado: também some.
+    const fora = [{ ...v("ANA PAULA LIMA"), parlamentar_id: 33 }, { ...v("X"), parlamentar_id: 9999 }];
+    expect(maisVotadosEmExercicio(fora, deputados)).toBeNull();
+  });
+
   it("some quando o nome serve a dois deputados ou há menos de dois eleitos", () => {
     const dois = [...deputados, p(999, "ISMAEL")];
     expect(maisVotadosEmExercicio([v("ANA PAULA LIMA"), v("ISMAEL")], dois)).toBeNull();

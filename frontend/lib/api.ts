@@ -3269,7 +3269,11 @@ export type MaisVotados = FonteEleicao & {
     nominais: number | null;
     votos_em_eleitos: number | null;
     pct_em_eleitos: number | null;
-    itens: (Omit<CandidatoResultado, "numero"> & { posicao: number })[];
+    itens: (Omit<CandidatoResultado, "numero"> & {
+      posicao: number;
+      /** Perfil de quem está em exercício (ligação do cadastro, não por nome). Ausente em API antiga. */
+      parlamentar_id?: number | null;
+    })[];
   }[];
 };
 

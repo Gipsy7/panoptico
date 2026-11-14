@@ -4,16 +4,17 @@
  *
  * Nenhuma escolha editorial: os senadores são todos os do estado, em ordem alfabética; os
  * deputados são os dois eleitos mais votados na cidade, na ordem dos votos, e o atalho só existe
- * quando os dois primeiros da lista oficial são reconhecidos, pelo nome idêntico, entre os
- * deputados em exercício. Se um deles não bate (saiu do cargo, ou o nome de urna é diferente do
- * nome parlamentar), o atalho some em vez de mostrar "os mais votados" com alguém faltando.
+ * quando os dois primeiros da lista oficial estão em exercício. Quem diz isso é a API
+ * (`parlamentar_id`, a ligação do cadastro do TSE com o da Casa). Numa API antiga, sem esse
+ * campo, vale o nome idêntico. Se um dos dois não está no cargo, o atalho some em vez de
+ * mostrar "os mais votados" com alguém faltando.
  */
 
 /** Eleição que escolheu os deputados federais em exercício. Trocar para 2026 na posse (fev/2027). */
 export const ANO_ELEICAO_FEDERAL = 2022;
 
 export type PessoaAtalho = { id: number; nome_parlamentar: string };
-export type VotadoNaCidade = { nome_urna: string; eleito: boolean };
+export type VotadoNaCidade = { nome_urna: string; eleito: boolean; parlamentar_id?: number | null };
 
 export function chaveDoNome(nome: string): string {
   return nome
@@ -53,6 +54,13 @@ export function maisVotadosEmExercicio<T extends PessoaAtalho>(
   if (eleitos.length < 2) return null;
   const achados: T[] = [];
   for (const e of eleitos) {
+    if (e.parlamentar_id !== undefined) {
+      // A API disse quem é (ou que não está em exercício): não se tenta pelo nome.
+      const pelaLigacao = deputados.find((d) => d.id === e.parlamentar_id);
+      if (!pelaLigacao) return null;
+      achados.push(pelaLigacao);
+      continue;
+    }
     const iguais = porNome.get(chaveDoNome(e.nome_urna)) ?? [];
     // Nome que não bate, ou dois deputados com o mesmo nome: não dá para afirmar quem é.
     if (iguais.length !== 1) return null;
