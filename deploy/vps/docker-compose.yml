@@ -51,6 +51,14 @@ services:
       PAINEL_USUARIO: ${PAINEL_USUARIO:-}
       PAINEL_SENHA_HASH: ${PAINEL_SENHA_HASH:-}
       PAINEL_SEGREDO: ${PAINEL_SEGREDO:-}
+      # Alertas de operação por e-mail ao dono (agenda/alertas.sh, a cada 5 min): desligados por
+      # padrão. SMTP_SENHA é uma senha de aplicativo do provedor de e-mail, só no .env da VPS.
+      ALERTAS_ATIVOS: ${ALERTAS_ATIVOS:-false}
+      ALERTA_EMAIL_PARA: ${ALERTA_EMAIL_PARA:-}
+      SMTP_HOST: ${SMTP_HOST:-smtp.zoho.com}
+      SMTP_PORTA: ${SMTP_PORTA:-465}
+      SMTP_USUARIO: ${SMTP_USUARIO:-}
+      SMTP_SENHA: ${SMTP_SENHA:-}
     volumes:
       - raw:/app/data
     depends_on:

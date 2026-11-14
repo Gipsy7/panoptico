@@ -3,10 +3,12 @@ import {
   decidir,
   enderecosDeRelease,
   estadoInicial,
+  eventoDeAlerta,
   respostaSaudavel,
   type Destino,
   type EstadoServico,
 } from "./decisao";
+import { emailConfigurado, enviarEmail } from "./email";
 
 export interface Env {
   ESTADO: KVNamespace;
@@ -23,7 +25,21 @@ export interface Env {
   TESTE_SITE_RESERVA: string;
   TESTE_API_PRINCIPAL: string;
   TESTE_API_RESERVA: string;
+  // Alertas por e-mail ao dono (opcionais; sem eles o Worker só não avisa). SMTP_SENHA é segredo
+  // (`wrangler secret put SMTP_SENHA`): a senha de aplicativo da conta que envia.
+  SMTP_HOST?: string;
+  SMTP_USUARIO?: string;
+  SMTP_SENHA?: string;
+  ALERTA_EMAIL_PARA?: string;
 }
+
+const NOME_SERVICO: Record<Servico, string> = { site: "o site", api: "a API" };
+const TEXTO_EVENTO = {
+  foi_para_reserva: "parou de responder e o endereço foi trocado para a reserva",
+  voltou_para_principal: "voltou a responder e o endereço voltou para a VPS",
+  parou_sem_troca: "parou de responder e NÃO houve troca para a reserva",
+  voltou_a_responder: "voltou a responder",
+} as const;
 
 /** Registros, destinos e testes que a troca usa (nenhum pode ser de release). */
 function enderecosDaTroca(env: Env): string[] {
@@ -148,10 +164,13 @@ export default {
       api: { registro: env.REGISTRO_API, destinos: { principal: env.API_PRINCIPAL, reserva: env.API_RESERVA } },
     };
 
+    const avisos: string[] = [];
     for (const s of ["site", "api"] as Servico[]) {
       const [principalOk, reservaOk] = testes[s];
-      const d = decidir(estados[s], principalOk, reservaOk === true);
+      const anterior = estados[s];
+      const d = decidir(anterior, principalOk, reservaOk === true);
       estados[s] = d.estado;
+      let evento = eventoDeAlerta(anterior, d, principalOk);
       if (d.observou) console.log(`${s}: [observar] trocaria para ${d.observou}`);
       if (d.trocarPara) {
         try {
@@ -161,7 +180,13 @@ export default {
           // Desfaz a troca no estado para tentar de novo no proximo minuto.
           estados[s].ativo = d.trocarPara === "reserva" ? "principal" : "reserva";
           console.log(`${s}: erro ao trocar DNS: ${(e as Error).message}`);
+          // A troca não aconteceu: não avisa que trocou (tenta de novo no próximo minuto).
+          evento = null;
         }
+      }
+      if (evento) {
+        const modo = estados[s].modo === "auto" ? "" : ` (modo ${estados[s].modo})`;
+        avisos.push(`${NOME_SERVICO[s]} ${TEXTO_EVENTO[evento]}${modo}`);
       }
       const x = estados[s];
       console.log(`${s}: ativo=${x.ativo} modo=${x.modo} falhas=${x.falhas} sucessos=${x.sucessos} principal=${principalOk} reserva=${reservaOk ?? "nao testada"}`);
@@ -169,6 +194,26 @@ export default {
     // Só grava quando algo mudou (limite diário de gravações do KV no plano grátis).
     const depois = JSON.stringify(estados);
     if (depois !== antes) await env.ESTADO.put(CHAVE_KV, depois);
+    // Por último e dentro de try: um alerta que falha nunca atrapalha a troca.
+    if (avisos.length && emailConfigurado(env)) {
+      const frase = avisos.join("; ");
+      const texto = [
+        `${frase[0].toUpperCase()}${frase.slice(1)}.`,
+        "",
+        `Conferido de fora da VPS, pelo Worker de troca, em ${new Date().toISOString()}.`,
+        `Testes: ${env.TESTE_SITE_PRINCIPAL} e ${env.TESTE_API_PRINCIPAL}.`,
+        "",
+        "Mensagem automática do Panóptico.",
+      ].join("\n");
+      try {
+        await enviarEmail(env, `Panóptico: ${avisos[0]}`.slice(0, 150), texto);
+        console.log(`alerta enviado: ${frase}`);
+      } catch (e) {
+        console.log(`alerta nao enviado: ${(e as Error).message}`);
+      }
+    } else if (avisos.length) {
+      console.log(`alerta sem envio (e-mail nao configurado): ${avisos.join("; ")}`);
+    }
   },
 
   async fetch(req: Request, env: Env): Promise<Response> {

@@ -42,7 +42,7 @@ app = FastAPI(
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.cors_origins,
-    # POST só existe em /argos, /avisos, /sugestoes, /metricas e /painel/entrar; o resto é de leitura.
+    # POST só existe em /argos, /avisos, /sugestoes, /metricas e /painel/entrar; o resto só lê.
     allow_methods=["GET", "POST"],
     allow_headers=["*"],
 )

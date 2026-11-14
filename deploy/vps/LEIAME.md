@@ -173,7 +173,7 @@ A API grava, sem identificar ninguém, frases que o Argos não entendeu, avalia�
 
 ## Contagem de acessos e painel privado
 
-Contagem anônima (totais por dia, aparelho e origem, sem IP nem identificador; ver `docs/DECISOES.md`, 31/10/2026) e o painel em `/painel`. Migração `0059_metrica_diaria` (só acrescenta; entra no banco pela API do release). Tudo vem **desligado** no `docker-compose.yml`.
+Contagem anônima (totais por dia, aparelho e origem, sem IP nem identificador; ver `docs/DECISOES.md`, 31/10/2026) e o painel em `/painel`. Migração `0077_metrica_diaria` (só acrescenta; entra no banco pela API do release). Tudo vem **desligado** no `docker-compose.yml`.
 
 Variáveis no `.env` da VPS (nunca no git; o compose só repassa, com padrão vazio ou `false`):
 
@@ -190,3 +190,33 @@ Como ligar sem somar ao total, nesta ordem:
 Teste local: `METRICAS_ATIVAS=true`, `AMBIENTE=producao` e as três variáveis do painel no `backend/.env`; sem `AMBIENTE=producao` nada grava (o padrão local é `desenvolvimento`).
 
 O painel lê a tabela `metrica_diaria` (índice `(tipo, dia)`) com agregação no banco; a consulta é leve para 4 GB de RAM. Enquanto a contagem não registrar nada, o `/painel` só diz que ainda não há acesso.
+
+## Alertas por e-mail ao dono
+
+A cada 5 minutos, `agenda/alertas.sh` roda `python -m app.alertas` no contêiner de ingestão (não depende da API estar de pé). Avisa, uma vez por janela:
+
+| Alerta | Quando | Repete |
+|---|---|---|
+| Fluxo grande | Visitas de hoje (contagem anônima) passam de 3 vezes a média dos 7 dias anteriores, e de 300 | 1 por dia |
+| Cargas com erro | Alguma carga terminou com erro nas últimas 24 horas | 1 por dia |
+| Serviço sem responder | A API (`/saude`) ou o site não respondem por dentro da rede | 1 por hora |
+| Disco | Disco acima de 85% | 1 por dia |
+
+O que foi enviado fica na tabela `alerta_enviado` (migração `0078_alerta_enviado`, só acrescenta). O fluxo depende da contagem de acessos ligada (`METRICAS_ATIVAS`); robôs não entram nela. **Se a VPS inteira cair, nada disto roda:** esse aviso sai do Worker de troca (`infra/cloudflare/troca`, seção "Alertas").
+
+Variáveis no `.env` da VPS (nunca no git):
+
+- `ALERTAS_ATIVOS=true`
+- `ALERTA_EMAIL_PARA`: quem recebe.
+- `SMTP_USUARIO` e `SMTP_SENHA`: a conta que envia e a **senha de aplicativo** dela (no Zoho: Conta, Segurança, Senhas de aplicativo). Nunca a senha da conta. `SMTP_HOST` e `SMTP_PORTA` já vêm com o Zoho (`smtp.zoho.com`, 465).
+- Opcionais: `ALERTA_FLUXO_FATOR` (3), `ALERTA_FLUXO_PISO` (300), `ALERTA_DISCO_PCT` (85). Para valer, precisam ser repassadas no `docker-compose.yml`.
+
+Ligar, na VPS:
+
+1. Depois que a migração entrar (ao subir a API do release), ponha as variáveis no `.env`.
+2. Teste o envio: `docker compose --profile ingestao run --rm -T ingestao python -m app.alertas --teste`.
+3. Veja o que seria enviado agora, sem enviar: o mesmo comando com `--simular`.
+4. Instale o timer: `sudo bash /opt/panoptico/deploy/vps/agenda/instalar-agenda.sh` (idempotente).
+5. Log: `journalctl -u panoptico-alertas --since today`.
+
+Sem as variáveis, a verificação roda e só escreve no log o que teria enviado.

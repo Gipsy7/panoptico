@@ -12,11 +12,10 @@ from typing import Annotated, Literal
 
 from fastapi import APIRouter, Depends, Header, HTTPException, Query, Request
 from pydantic import BaseModel, Field
-from sqlalchemy.orm import Session
 
 from app.api.metricas import origem_do_pedido
 from app.config import settings
-from app.db import get_session
+from app.db import Sessao
 from app.services import metricas as servico
 from app.services import painel_auth
 
@@ -85,7 +84,7 @@ def exigir_token(authorization: Annotated[str | None, Header()] = None) -> None:
 
 @router.get("/resumo", dependencies=[Depends(exigir_token)])
 def resumo(
-    session: Annotated[Session, Depends(get_session)],
+    session: Sessao,
     dias: Annotated[int, Query(ge=1, le=90)] = 7,
     aparelho: Literal["celular", "computador"] | None = None,
     origem: Literal["direto", "whatsapp", "google", "buscadores", "redes", "outro_site"]

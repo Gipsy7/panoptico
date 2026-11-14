@@ -6,7 +6,7 @@ set -euo pipefail
 
 aqui=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 destino=/etc/systemd/system
-timers=(diaria pncp justica camaras mensal backup)
+timers=(diaria pncp justica camaras mensal backup alertas)
 
 for nome in "${timers[@]}"; do
   install -m 0644 "$aqui/panoptico-$nome.service" "$aqui/panoptico-$nome.timer" "$destino/"

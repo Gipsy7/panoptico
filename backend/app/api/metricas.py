@@ -9,14 +9,13 @@ por IP vive só na memória do processo; o IP e o user-agent não são gravados 
 import json
 import time
 from collections import defaultdict, deque
-from typing import Annotated
 
-from fastapi import APIRouter, Depends, Request, Response
+from fastapi import APIRouter, Request, Response
 from fastapi.concurrency import run_in_threadpool
 from sqlalchemy.orm import Session
 
 from app.config import settings
-from app.db import get_session
+from app.db import Sessao
 from app.services import metricas as servico
 
 router = APIRouter(prefix="/metricas")
@@ -76,30 +75,30 @@ async def _tratar(request: Request, session: Session, gravar) -> None:
 
 
 @router.post("/visita", status_code=204)
-async def visita(request: Request, session: Annotated[Session, Depends(get_session)]) -> Response:
+async def visita(request: Request, session: Sessao) -> Response:
     await _tratar(request, session, servico.registrar_visita)
     return Response(status_code=204)
 
 
 @router.post("/recurso", status_code=204)
-async def recurso(request: Request, session: Annotated[Session, Depends(get_session)]) -> Response:
+async def recurso(request: Request, session: Sessao) -> Response:
     await _tratar(request, session, servico.registrar_recurso)
     return Response(status_code=204)
 
 
 @router.post("/saida", status_code=204)
-async def saida(request: Request, session: Annotated[Session, Depends(get_session)]) -> Response:
+async def saida(request: Request, session: Sessao) -> Response:
     await _tratar(request, session, servico.registrar_saida)
     return Response(status_code=204)
 
 
 @router.post("/secao", status_code=204)
-async def secao(request: Request, session: Annotated[Session, Depends(get_session)]) -> Response:
+async def secao(request: Request, session: Sessao) -> Response:
     await _tratar(request, session, servico.registrar_secao)
     return Response(status_code=204)
 
 
 @router.post("/busca", status_code=204)
-async def busca(request: Request, session: Annotated[Session, Depends(get_session)]) -> Response:
+async def busca(request: Request, session: Sessao) -> Response:
     await _tratar(request, session, servico.registrar_busca)
     return Response(status_code=204)

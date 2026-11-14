@@ -105,3 +105,23 @@ export function enderecosDeRelease(valores: (string | undefined)[]): string[] {
     return /(^|[.-])release[.-]/.test(host);
   });
 }
+
+/**
+ * O que avisar ao dono por e-mail depois de um teste: só nas viradas, nunca a cada minuto.
+ * - caiu e foi para a reserva; voltou para a principal;
+ * - a principal parou e NÃO houve troca (reserva fora do ar, ou modo fixo ou observar): avisa ao
+ *   chegar em FALHAS_PARA_RESERVA e de novo quando voltar a responder.
+ */
+export function eventoDeAlerta(
+  anterior: EstadoServico,
+  d: Decisao,
+  principalOk: boolean,
+): "foi_para_reserva" | "voltou_para_principal" | "parou_sem_troca" | "voltou_a_responder" | null {
+  if (d.trocarPara === "reserva") return "foi_para_reserva";
+  if (d.trocarPara === "principal") return "voltou_para_principal";
+  if (d.estado.ativo !== "principal") return null;
+  const estavaParada = anterior.falhas >= FALHAS_PARA_RESERVA;
+  if (!estavaParada && d.estado.falhas >= FALHAS_PARA_RESERVA) return "parou_sem_troca";
+  if (estavaParada && principalOk) return "voltou_a_responder";
+  return null;
+}

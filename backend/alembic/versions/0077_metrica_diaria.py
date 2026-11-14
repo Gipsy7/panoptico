@@ -4,8 +4,8 @@ Só acrescenta uma tabela nova. Sem IP, sem user-agent, sem identificador e sem 
 tipo (pagina, visita, entrada, ultima, recurso, busca, uf, cidade, perfil, partido, secao), a
 chave, o aparelho (celular ou computador), a categoria de origem e o total. Sem RECARREGAR_DADOS.
 
-Revision ID: 0059_metrica_diaria
-Revises: 0058_avisos_web_push
+Revision ID: 0077_metrica_diaria
+Revises: 0076_avisos_lugar
 Create Date: 2026-10-31
 """
 
@@ -15,8 +15,8 @@ import sqlalchemy as sa
 
 from alembic import op
 
-revision: str = "0059_metrica_diaria"
-down_revision: str | None = "0058_avisos_web_push"
+revision: str = "0077_metrica_diaria"
+down_revision: str | None = "0076_avisos_lugar"
 branch_labels: str | Sequence[str] | None = None
 depends_on: str | Sequence[str] | None = None
 

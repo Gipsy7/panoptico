@@ -43,6 +43,22 @@ class Settings(BaseSettings):
     # "scrypt:N:r:p:sal:hash" (de `python -m app.painel_senha`); sem "$", que o compose interpreta.
     painel_senha_hash: str = ""
     painel_segredo: str = ""
+    # Alertas de operação por e-mail ao dono (app/services/alertas.py, `python -m app.alertas`).
+    # Sem ALERTAS_ATIVOS, ALERTA_EMAIL_PARA, SMTP_USUARIO e SMTP_SENHA, a verificação roda e só
+    # escreve no log. A senha é uma senha de aplicativo do provedor de e-mail, nunca a da conta.
+    alertas_ativos: bool = False
+    alerta_email_para: str = ""
+    smtp_host: str = "smtp.zoho.com"
+    smtp_porta: int = 465
+    smtp_usuario: str = ""
+    smtp_senha: str = ""
+    # Fluxo grande: visitas de hoje acima de FATOR vezes a média dos 7 dias anteriores, e nunca
+    # abaixo do PISO (um dia parado seguido de um dia normal não é fluxo grande).
+    alerta_fluxo_fator: float = 3.0
+    alerta_fluxo_piso: int = 300
+    alerta_disco_pct: int = 85
+    # Endereços conferidos por dentro da rede do compose, separados por vírgula.
+    alerta_urls: str = "http://api:8000/saude,http://web:3000/"
     viacep_url: str = "https://viacep.com.br/ws/{cep}/json/"
     # Onde ficam os arquivos brutos. No acervo local pode apontar para um HD externo.
     raw_dir: Path = BACKEND_DIR / "data" / "raw"

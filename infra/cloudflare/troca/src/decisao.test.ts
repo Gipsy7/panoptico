@@ -3,6 +3,7 @@ import {
   FALHAS_PARA_RESERVA,
   decidir,
   enderecosDeRelease,
+  eventoDeAlerta,
   estadoInicial,
   respostaSaudavel,
   type EstadoServico,
@@ -115,5 +116,49 @@ describe("enderecosDeRelease", () => {
         "",
       ]),
     ).toEqual([]);
+  });
+});
+
+describe("eventoDeAlerta", () => {
+  /** Roda os testes em sequência e devolve os eventos de cada minuto. */
+  function eventos(inicio: EstadoServico, testes: [boolean, boolean][]) {
+    let e = inicio;
+    return testes.map(([principalOk, reservaOk]) => {
+      const d = decidir(e, principalOk, reservaOk);
+      const evento = eventoDeAlerta(e, d, principalOk);
+      e = d.estado;
+      return evento;
+    });
+  }
+
+  it("avisa uma vez ao ir para a reserva e uma vez ao voltar", () => {
+    const fora: [boolean, boolean] = [false, true];
+    const volta: [boolean, boolean] = [true, true];
+    const r = eventos(base(), [fora, fora, fora, fora, fora, ...Array(10).fill(volta), volta]);
+    expect(r.slice(0, 5)).toEqual([null, null, "foi_para_reserva", null, null]);
+    expect(r.slice(5, 14)).toEqual(Array(9).fill(null));
+    expect(r[14]).toBe("voltou_para_principal");
+    expect(r[15]).toBeNull();
+  });
+
+  it("sem reserva saudável, avisa que parou sem troca e depois que voltou", () => {
+    const fora: [boolean, boolean] = [false, false];
+    const r = eventos(base(), [fora, fora, fora, fora, fora, [true, false], [true, false]]);
+    expect(r).toEqual([null, null, "parou_sem_troca", null, null, "voltou_a_responder", null]);
+  });
+
+  it("em modo observar também avisa que parou, sem dizer que trocou", () => {
+    const fora: [boolean, boolean] = [false, true];
+    const r = eventos(base({ modo: "observar" }), [fora, fora, fora, fora]);
+    expect(r).toEqual([null, null, "parou_sem_troca", null]);
+  });
+
+  it("uma falha isolada não avisa", () => {
+    expect(eventos(base(), [[false, true], [true, true], [false, true], [true, true]])).toEqual([
+      null,
+      null,
+      null,
+      null,
+    ]);
   });
 });

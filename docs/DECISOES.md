@@ -21,6 +21,7 @@
 - [2026-11-10: Representantes sem índice nem abas, só o painel dos prédios](#2026-11-10-representantes-sem-índice-nem-abas-só-o-painel-dos-prédios)
 - [2026-11-13: API travada pelo pool de conexões; robôs de treino bloqueados](#2026-11-13-api-travada-pelo-pool-de-conexões-robôs-de-treino-bloqueados)
 - [2026-11-13: auditoria de produto, primeiros ajustes](#2026-11-13-auditoria-de-produto-primeiros-ajustes)
+- [2026-11-13: alertas por e-mail ao dono](#2026-11-13-alertas-por-e-mail-ao-dono)
 - [2026-11-07: quanto custa o mandato (Frente 6)](#2026-11-07-quanto-custa-o-mandato-frente-6)
 - [2026-11-07: custo da câmara por morador e a média do estado (Frente 6)](#2026-11-07-custo-da-câmara-por-morador-e-a-média-do-estado-frente-6)
 - [2026-10-29: medidas provisórias e vetos do Presidente](#2026-10-29-medidas-provisórias-e-vetos-do-presidente)
@@ -1618,7 +1619,7 @@ A reserva da VPS é uma **versão congelada** do site, da API e do banco, na Ver
 
 **Problema.** O dono quer saber quantas pessoas visitam, que páginas, representantes e recursos se usam, de onde vêm e em que aparelho. O Analytics da Cloudflare é quase todo robô, e o site promete não guardar quem você é nem usar cookies de rastreamento.
 
-**Decisão.** Contagem agregada e anônima, feita por um beacon no navegador (as páginas ficam 30 min em cache na borda, então o servidor de páginas não vê cada acesso). A tabela `metrica_diaria(dia, tipo, chave, aparelho, origem, total)` (migração `0059_metrica_diaria`, só acrescenta, índice `(tipo, dia)`) guarda totais por dia, aparelho e categoria de origem. Sem IP, user-agent, identificador de pessoa, navegador ou sessão, sem hora, sem termos de busca, sem "novo ou retorno" e sem tempo de carga.
+**Decisão.** Contagem agregada e anônima, feita por um beacon no navegador (as páginas ficam 30 min em cache na borda, então o servidor de páginas não vê cada acesso). A tabela `metrica_diaria(dia, tipo, chave, aparelho, origem, total)` (migração `0077_metrica_diaria`, só acrescenta, índice `(tipo, dia)`) guarda totais por dia, aparelho e categoria de origem. Sem IP, user-agent, identificador de pessoa, navegador ou sessão, sem hora, sem termos de busca, sem "novo ou retorno" e sem tempo de carga.
 
 - **Tipos:** `pagina` (modelo da rota), `visita`, `entrada` (primeira página da visita), `ultima` (beacon em `pagehide`, só o caminho), `recurso`, `busca` (`cep_com`, `cep_sem`), `uf`, `cidade` (código IBGE), `perfil` (`parlamentar:<id>`, `eleito:<id>`, `vereador:<id>`, `deputado-estadual:<id>`, `projeto-camara|senado:<id>`, `projeto-local:<id>`), `partido` (sigla) e `secao`.
 - **Aparelho e origem em todo beacon:** a categoria da origem é decidida no navegador na primeira página da aba e fica no `sessionStorage` (a mesma para todos que vêm do mesmo lugar, sem identificador). Assim o painel cruza qualquer número por aparelho e origem sem fingir: o filtro de aparelho e o de origem valem para tudo (a lista de origens ignora só o filtro de origem). Tocar numa página, perfil ou partido mostra a série daquele item (`item=`) e não filtra o resto. O filtro de estado vale só para a lista de cidades, porque o estado só existe depois da busca; a tela diz isso ao lado de cada filtro.
@@ -2087,3 +2088,18 @@ Auditoria completa (UX, acessibilidade, dados, arquitetura) em https://claude.ai
 - **Não feito, de propósito:** limite de pedidos por origem em `/busca` e `/projetos`. O servidor do site chama a API de um endereço só, então o limite na API trataria todos os visitantes como um. Se for preciso, a regra vai no Cloudflare.
 
 Ficam para escolha do dono: um nome por área no menu (Decisões/Projetos, Mapa/Impostos e repasses) e as sugestões no comparador (pedem os 3 protótipos).
+
+## 2026-11-13: alertas por e-mail ao dono
+
+**Problema.** A troca para a reserva é automática e silenciosa: em 13/11 a API travou e o dono só soube olhando. Também não havia aviso de carga com erro nem de pico de visitas.
+
+**Decisão.** Dois lugares, porque nenhum cobre tudo sozinho:
+
+- **Na VPS** (`backend/app/services/alertas.py`, `python -m app.alertas`, timer `panoptico-alertas` a cada 5 min): fluxo grande (visitas de hoje acima de 3 vezes a média dos 7 dias anteriores e de 300), cargas com erro nas últimas 24 h, API ou site sem responder por dentro da rede, disco acima de 85%. Roda no contêiner de ingestão, para não depender da API.
+- **No Worker de troca** (`infra/cloudflare/troca/src/email.ts`): queda e volta do site e da API. É o único que avisa com a VPS inteira fora.
+
+**Como.** Um aviso por chave e janela (dia, ou hora no caso de serviço sem responder), registrado em `alerta_enviado` (migração `0078_alerta_enviado`, só acrescenta); envio que falha não é registrado e tenta de novo. E-mail por SMTP com senha de aplicativo, que fica só no `.env` da VPS e nos segredos do Worker. Tudo desligado por padrão. Nenhum dado pessoal no texto: totais, nomes de fontes e endereços internos.
+
+**Limites.** O fluxo usa a contagem anônima do site (`metrica_diaria`), que é por dia e não conta robôs: um ataque de robôs como o de 13/11 não dispara esse aviso (apareceria como serviço sem responder). Medir pedidos por hora pelo Cloudflare fica para depois. O envio pelo Worker não foi testado contra o servidor real.
+
+**Alternativas descartadas.** Serviço externo de monitoramento (conta nova e mais um lugar para olhar); serviço de envio por HTTP (conta nova e chave a mais); Email Routing do Cloudflare (exige o MX do domínio no Cloudflare, e o e-mail está no Zoho).
