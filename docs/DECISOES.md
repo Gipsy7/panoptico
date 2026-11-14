@@ -23,6 +23,7 @@
 - [2026-11-13: auditoria de produto, primeiros ajustes](#2026-11-13-auditoria-de-produto-primeiros-ajustes)
 - [2026-11-13: alertas por e-mail ao dono](#2026-11-13-alertas-por-e-mail-ao-dono)
 - [2026-11-14: comparador com atalhos do lugar](#2026-11-14-comparador-com-atalhos-do-lugar)
+- [2026-11-14: fumaça no release e peso das páginas](#2026-11-14-fumaça-no-release-e-peso-das-páginas)
 - [2026-11-07: quanto custa o mandato (Frente 6)](#2026-11-07-quanto-custa-o-mandato-frente-6)
 - [2026-11-07: custo da câmara por morador e a média do estado (Frente 6)](#2026-11-07-custo-da-câmara-por-morador-e-a-média-do-estado-frente-6)
 - [2026-10-29: medidas provisórias e vetos do Presidente](#2026-10-29-medidas-provisórias-e-vetos-do-presidente)
@@ -2120,3 +2121,13 @@ Dentro do resultado, os mesmos grupos viram uma linha de abas ("De Gaspar: Senad
 **Sem juízo.** Nenhum grupo é escolha do site, e a tela diz isso. Sem cidade guardada, só um convite a escolher a cidade (sem dupla sorteada: a home já faz isso).
 
 **Privacidade.** O lugar continua só no aparelho; à API vão o código da cidade e o estado, como nas outras telas.
+
+## 2026-11-14: fumaça no release e peso das páginas
+
+**Fumaça.** `frontend/e2e/fluxos.spec.ts` confere, só lendo, os caminhos que definem o produto: cidade → perfil com o gasto do gabinete, a média da Casa e a fonte com data; cidade por dentro; projeto → votação; comparação de dois senadores; 404. Em cada tela confere também que não há tela de erro, que não houve erro de JavaScript e que nada rola para o lado em 360 px. Não confere valores (isso é dos testes da API). O workflow `fumaca-release.yml` roda depois de cada Publicar que passou, espera 13 minutos (a VPS busca o release a cada 10) e testa o release em celular e computador. Não bloqueia nada: falha vira run vermelho e e-mail do GitHub. O spec também roda na régua diária de acessibilidade, contra a produção, então só afirma o que já está nos dois ambientes.
+
+**Peso das páginas (medido em 14/11).** A página da cidade tem 987 KB de HTML, mas trafega 111 KB com compressão; representantes, 503 KB e cerca de 61 KB. O custo não é a rede: 566 KB (cidade) e 283 KB (representantes) são dados para o navegador remontar a página (hidratação), e é isso que pesa em celular de entrada. A correção de verdade é carregar as abas ao abrir, mudança estrutural que fica para depois do concurso. Até lá, nada a fazer na rede.
+
+**Foco e o botão do Argos.** `scroll-padding-bottom` de 4,5 rem na página: ao andar pelo Tab, o item em foco para acima do botão fixo (WCAG 2.4.11).
+
+**Placar do PLP 74/2026.** A pendência "343 no site, 346 na Câmara" não é erro: 346 é o placar publicado pela Casa e 343 é a lista nominal, que só liga quem está no cadastro (3 deputados deixaram o cargo). Já estava explicado na seção de 21/10; pendência fechada.

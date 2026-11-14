@@ -325,6 +325,9 @@
   html {
     @apply font-sans;
     scroll-padding-top: calc(var(--altura-cabecalho) + 2.75rem + var(--esp-4));
+    /* O botão fixo do Argos fica no canto de baixo: ao andar pelo Tab, o item em foco para acima
+       dele, nunca por baixo (WCAG 2.4.11, foco não encoberto). */
+    scroll-padding-bottom: 4.5rem;
     @media (min-width: 64rem) {
       scroll-padding-top: calc(var(--altura-cabecalho) + var(--esp-6));
     }
