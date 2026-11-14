@@ -25,6 +25,7 @@
 - [2026-11-14: comparador com atalhos do lugar](#2026-11-14-comparador-com-atalhos-do-lugar)
 - [2026-11-14: fumaça no release e peso das páginas](#2026-11-14-fumaça-no-release-e-peso-das-páginas)
 - [2026-11-14: cartão de votação por estado](#2026-11-14-cartão-de-votação-por-estado)
+- [2026-11-14: ficha do fornecedor (só a rota)](#2026-11-14-ficha-do-fornecedor-só-a-rota)
 - [2026-11-07: quanto custa o mandato (Frente 6)](#2026-11-07-quanto-custa-o-mandato-frente-6)
 - [2026-11-07: custo da câmara por morador e a média do estado (Frente 6)](#2026-11-07-custo-da-câmara-por-morador-e-a-média-do-estado-frente-6)
 - [2026-10-29: medidas provisórias e vetos do Presidente](#2026-10-29-medidas-provisórias-e-vetos-do-presidente)
@@ -2148,3 +2149,18 @@ Dentro do resultado, os mesmos grupos viram uma linha de abas ("De Gaspar: Senad
 - A função que embute as fotos saiu da rota da cidade para `lib/embutir-foto.ts`, usada pelos dois cartões.
 
 **Limite.** O botão só aparece depois de abrir o detalhe dos parlamentares e escolher o estado; não está no topo da página. Mover para o topo é mudança de tela e fica para a escolha do dono.
+
+## 2026-11-14: ficha do fornecedor (só a rota)
+
+**Problema.** O site mostra quanto cada gabinete gastou por categoria, mas não para quem; e a mesma empresa aparece em lugares separados (gabinetes, prefeituras, PNCP, emendas, sanções) sem que nada os junte.
+
+**Decisão.** `GET /fornecedores/{cnpj}` (`backend/app/services/ficha_fornecedor.py`) devolve, para um CNPJ: cadastro (razão social da Receita, quando há), pagamentos de gabinetes por ano com quantos gabinetes pagaram e os 20 maiores do ano mais recente, pagamentos de prefeituras e câmaras (Tribunais de Contas), contratos no PNCP, emendas em que é o favorecido, convênios em que é o beneficiário e sanções da CGU (CEIS, CNEP). **Ainda sem tela:** a página é etapa visível e começa por protótipos.
+
+- **A ligação é o CNPJ exato**, como cada fonte publica. Sem ligação por nome, então não há homônimo nem fila de revisão.
+- **CPF nunca casa nem sai:** só CNPJ de 14 dígitos com dígito verificador válido; `despesa.cnpj_cpf` também guarda CPF de fornecedor pessoa física, e a comparação é pelos 14 dígitos exatos. O nome passa por `sem_cpf` (MEI traz o CPF na razão social).
+- **Sem juízo:** só somas, contagens e datas. A sanção vem com início, fim e abrangência, ao lado dos pagamentos com os seus anos; a rota não diz se um pagamento caiu dentro da vigência de uma sanção. Esse cruzamento, se um dia for mostrado, precisa de conferência de vigência e de abrangência caso a caso.
+- **Recorte escrito em cada bloco:** cota só do ano atual e do anterior; prefeituras só onde o Tribunal de Contas publica e só os maiores fornecedores; PNCP só quando a empresa está entre os maiores do município; emendas pagas e convênios podem contar o mesmo dinheiro.
+- **Índice** `ix_despesa_documento` (migração `0079_despesa_documento`, só acrescenta) na mesma expressão da consulta: de 1,5 s para 0,4 s no banco local.
+- **Fora desta versão:** sócios que são pessoas públicas (`socio_pessoa`) e despesas de partidos (`partido_despesa_vinculada`), que envolvem ligação por pessoa e seguem as regras de `publicavel()`.
+
+**Correção à auditoria.** "Votou como o partido orientou" já era calculado (`resumo_parlamentar.partido_iguais` e `partido_total`) e já sai na API e na seção do partido no perfil; o que falta é só oferecê-lo como critério de ordenação, que é tela.

@@ -15,6 +15,7 @@ from app.api import (
     estado_temas,
     executivo,
     fontes,
+    fornecedores,
     metricas,
     municipios,
     painel,
@@ -96,6 +97,7 @@ app.include_router(municipios.router)
 app.include_router(estado_temas.router)
 app.include_router(dinheiro_federal.router)
 app.include_router(fontes.router)
+app.include_router(fornecedores.router)
 app.include_router(comparar.router)
 app.include_router(eleitos.router)
 app.include_router(bancadas.router)

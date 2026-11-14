@@ -246,6 +246,7 @@ Documentação interativa: [api.panoptico.social.br/docs](https://api.panoptico.
 | `GET /segundo-turno?cep=` | Candidatos do 2º turno da localidade |
 | `GET /partidos?ano=` · `GET /partidos/{sigla}` | Finanças dos partidos |
 | `GET /estados/{uf}/contas` · `GET /executivo/{id}/painel` · `/agenda` · `/atos?tipo=mpv\|veto` | Contas estaduais e Executivo (agenda, medidas provisórias e vetos do Presidente) |
+| `GET /fornecedores/{cnpj}` | Ficha do fornecedor: o que os dados registram sobre uma empresa (gabinetes, prefeituras, PNCP, emendas, sanções da CGU), só somas e contagens; ainda sem página no site |
 | `GET /casos` · `GET /casos/{slug}` | Casos montados com documentos oficiais |
 | `GET /fontes` · `GET /saude` | Última atualização de cada fonte e saúde da API |
 
