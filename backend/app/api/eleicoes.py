@@ -6,6 +6,7 @@ from typing import Annotated
 from fastapi import APIRouter, HTTPException, Query
 
 from app.db import Sessao
+from app.schemas.fornecedores import EmendasDosMaisVotados
 from app.schemas.resultados_eleicao import (
     Antecessores,
     EleicaoDisponivel,
@@ -66,7 +67,7 @@ def mais_votados(
     return r
 
 
-@router.get("/municipios/{ibge}/emendas-dos-mais-votados")
+@router.get("/municipios/{ibge}/emendas-dos-mais-votados", response_model=EmendasDosMaisVotados)
 def emendas_dos_mais_votados(ibge: str, session: Sessao) -> dict:
     """Os deputados federais em exercício mais votados na cidade e quanto cada um enviou a ela
     em emendas individuais pagas. Dois números lado a lado; sem tela por enquanto."""

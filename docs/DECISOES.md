@@ -30,6 +30,7 @@
 - [2026-11-14: telas da ficha do fornecedor, de Decisões e das emendas dos mais votados](#2026-11-14-telas-da-ficha-do-fornecedor-de-decisões-e-das-emendas-dos-mais-votados)
 - [2026-11-15: feed de cada pessoa à vista e a pauta no calendário](#2026-11-15-feed-de-cada-pessoa-à-vista-e-a-pauta-no-calendário)
 - [2026-11-15: "o maior desde…" nas séries](#2026-11-15-o-maior-desde-nas-séries)
+- [2026-11-15: contrato da API e conferência dos tipos do site](#2026-11-15-contrato-da-api-e-conferência-dos-tipos-do-site)
 - [2026-11-07: quanto custa o mandato (Frente 6)](#2026-11-07-quanto-custa-o-mandato-frente-6)
 - [2026-11-07: custo da câmara por morador e a média do estado (Frente 6)](#2026-11-07-custo-da-câmara-por-morador-e-a-média-do-estado-frente-6)
 - [2026-10-29: medidas provisórias e vetos do Presidente](#2026-10-29-medidas-provisórias-e-vetos-do-presidente)
@@ -2224,3 +2225,21 @@ Item DA-05 da auditoria, pedido pelo dono. Quando o último ponto de uma série 
 - Avisos de dado novo: homicídios ("…; o maior número desde 2019": contagem, não taxa) e IDEB. O PIB dos avisos fica de fora, porque está em valores da época e comparar anos assim engana; no "O que mudou" ele já vem em reais de hoje.
 
 **Frequência nos dados reais (15/11, release).** Em Gaspar, São Paulo, Cáceres, SC e BA, a frase sai em quase todas as séries de dinheiro (gasto por morador e PIB tendem a subir com o tempo) e com menos frequência em homicídios e IDEB. É fato literal; se ficar repetitivo, a saída é limitar às séries que não são dinheiro. Decisão do dono.
+
+## 2026-11-15: contrato da API e conferência dos tipos do site
+
+Item AR-01 da auditoria, pedido pelo dono. **Problema:** `frontend/lib/api.ts` tem cerca de 3 mil linhas de tipos escritos à mão que repetem os esquemas da API; uma coluna renomeada no backend só aparecia como erro na tela.
+
+**Decisão: conferir, não reescrever.** Trocar todos os tipos pelos gerados de uma vez mexeria em quase todo o site. Em vez disso:
+
+1. **Contrato versionado.** `python -m app.openapi_exportar` (dentro de `backend`) grava o OpenAPI da API em `frontend/lib/openapi.json`. O teste `test_openapi_em_dia` falha se a API mudar e o arquivo não.
+2. **Tipos gerados.** `npm run tipos-api` (dentro de `frontend`) gera `lib/api-schema.ts` com o `openapi-typescript` (7.13.0, só desenvolvimento) e `lib/api-conferencia.ts` com `scripts/gerar-conferencia.mjs`. O teste `lib/conferencia-api.test.ts` falha se algum dos dois estiver velho.
+3. **Conferência.** Para cada `getJson<Tipo>(\`/rota\`)` de `lib/api.ts` (hoje 90), uma linha que só compila se a resposta da rota couber no tipo que o site espera. O `tsc` do build acusa a divergência. Testado de propósito: um campo a mais no tipo do site e um tipo trocado numa rota de dois formatos foram acusados.
+
+**Duas folgas, de propósito:** o site pode estreitar um texto (`"camara" | "senado"`) onde a API declara `str`; e campo com valor padrão conta como enviado (o Pydantic sempre o serializa, mas o contrato o marca como opcional). Nas rotas que devolvem um de dois formatos (comparar), basta caber em um.
+
+**O que mudou na API para o contrato dizer a verdade:** esquemas de resposta nas duas rotas novas (`/fornecedores/{cnpj}`, `/municipios/{ibge}/emendas-dos-mais-votados`) e chaves fixas onde o contrato dizia "dicionário qualquer" mas o serviço sempre manda as mesmas (`medias` e `por_casa` com `camara` e `senado`; `periodo` com `inicio` e `fim`). Nenhum valor da resposta mudou.
+
+**Passo novo para quem mexe numa rota ou num esquema:** `python -m app.openapi_exportar` e depois `npm run tipos-api`. Sem isso, os testes avisam.
+
+**Fora:** as rotas POST e as de texto (feed, saúde) não são conferidas; o tipo escrito na própria chamada (`getJson<{ status: string }>`) também não.

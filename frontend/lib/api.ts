@@ -6,6 +6,9 @@ import {
 import type { Correcoes } from "@/lib/correcoes";
 import type { FichaFornecedor } from "@/lib/fornecedor";
 
+// Tipos de outros módulos que as rotas daqui devolvem (a conferência com a API os importa daqui).
+export type { Correcoes, FichaFornecedor };
+
 // No navegador, a API pública; no servidor (renderização), o endereço interno quando houver
 // (em produção, a rede do docker compose), para não sair e voltar pela internet.
 const API_URL =

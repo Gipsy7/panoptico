@@ -8,12 +8,13 @@ from typing import Annotated
 from fastapi import APIRouter, HTTPException, Path
 
 from app.db import Sessao
+from app.schemas.fornecedores import FichaFornecedor
 from app.services import ficha_fornecedor
 
 router = APIRouter()
 
 
-@router.get("/fornecedores/{cnpj}")
+@router.get("/fornecedores/{cnpj}", response_model=FichaFornecedor)
 def ficha_do_fornecedor(
     session: Sessao,
     # Com ou sem pontuação; a barra do CNPJ formatado não cabe num segmento de endereço.

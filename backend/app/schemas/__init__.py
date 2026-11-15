@@ -799,15 +799,27 @@ class ParlamentarNaLista(BaseModel):
     emendas: float
 
 
+class ContagemPorCasa(BaseModel):
+    camara: int
+    senado: int
+
+
+class MediasPorCasa(BaseModel):
+    """Média de cada critério por Casa (ranking.medias monta sempre as duas)."""
+
+    camara: dict[str, float | None]
+    senado: dict[str, float | None]
+
+
 class ListaParlamentaresResposta(BaseModel):
     ano: int
     anos_disponiveis: list[int]
     ordenar: str
     ordem: str
     criterios: list[Criterio]
-    medias: dict[str, dict[str, float | None]]
+    medias: MediasPorCasa
     partidos: list[str]
-    por_casa: dict[str, int]
+    por_casa: ContagemPorCasa
     total: int
     pagina: int
     por_pagina: int
@@ -972,7 +984,7 @@ class ComparacaoResposta(BaseModel):
     numeros_a: ParlamentarNaLista | None
     numeros_b: ParlamentarNaLista | None
     criterios: list[Criterio]
-    medias: dict[str, dict[str, float | None]]
+    medias: MediasPorCasa
     mesma_casa: bool
     temas: list[TemaLadoALado]
     convergencia: Convergencia | None
@@ -1005,7 +1017,7 @@ class ComparacaoNResposta(BaseModel):
     pessoas: list[ParlamentarResumo]
     numeros: list[ParlamentarNaLista | None]  # alinhado a `pessoas`
     criterios: list[Criterio]
-    medias: dict[str, dict[str, float | None]]
+    medias: MediasPorCasa
     mesma_casa: bool  # todas da mesma casa
     temas: list[TemaNPessoas]
     convergencia: list[ConvergenciaDoPar]

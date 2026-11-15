@@ -8,6 +8,11 @@ from pydantic import BaseModel
 from app.schemas import AreaDespesa, ContasAnterior
 
 
+class PeriodoMandato(BaseModel):
+    inicio: date
+    fim: date
+
+
 class ContasEstadoResposta(BaseModel):
     uf: str
     ano: int
@@ -132,7 +137,7 @@ class AtosPresidenciaisResposta(BaseModel):
     pagina: int
     por_pagina: int
     itens: list[AtoPresidencialItem]
-    periodo: dict
+    periodo: PeriodoMandato
     fonte_nome: str
     fonte_url: str
     atualizado_em: datetime | None

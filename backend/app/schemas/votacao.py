@@ -5,6 +5,11 @@ from datetime import date, datetime
 from pydantic import BaseModel
 
 
+class PorCasa(BaseModel):
+    camara: int
+    senado: int
+
+
 class PlacarVotacao(BaseModel):
     sim: int
     nao: int
@@ -194,7 +199,7 @@ class CalendarioVotacoes(BaseModel):
     mes_seguinte: MesRef | None
     dias: list[DiaCalendario]  # só os dias com votação
     totais: ContagemDia
-    por_casa: dict[str, int]  # votações no mês em cada Casa
+    por_casa: PorCasa  # votações no mês em cada Casa
     dia: date | None
     tipo: str
     lista: ListaCalendario

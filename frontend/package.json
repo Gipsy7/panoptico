@@ -9,7 +9,8 @@
     "start": "next start",
     "lint": "eslint",
     "test": "vitest run",
-    "e2e": "playwright test"
+    "e2e": "playwright test",
+    "tipos-api": "openapi-typescript lib/openapi.json -o lib/api-schema.ts && node --no-warnings scripts/gerar-conferencia.mjs"
   },
   "dependencies": {
     "@base-ui/react": "^1.8.0",
@@ -31,6 +32,7 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.4.3",
+    "openapi-typescript": "7.13.0",
     "tailwindcss": "^4",
     "typescript": "^5",
     "vitest": "4.1.11"

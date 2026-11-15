@@ -29,9 +29,11 @@ python -m uv run pytest tests/test_x.py -q        # só uma área
 python -m uv run ruff check . && python -m uv run ruff format --check .
 python -m uv run alembic upgrade head              # migrações no banco do DATABASE_URL
 python -m uv run uvicorn app.main:app --port 8000  # sem --reload (deixa processo órfão no Windows)
+python -m uv run python -m app.openapi_exportar     # mudou rota ou esquema: grava frontend/lib/openapi.json
 
 # Frontend (cd frontend)
 npm test                                                                   # Vitest (lib/**/*.test.ts, só lógica pura)
+npm run tipos-api   # depois do openapi_exportar: tipos gerados e conferência com lib/api.ts (o tsc acusa divergência)
 npx next typegen && npx tsc --noEmit && npm run lint && npm run build   # pare o `next start` antes do build
 # Worktree: copie o node_modules (robocopy); junction quebra o Turbopack, e --webpack sai sem Tailwind.
 # Mudou dependência? O npm local (11.6) tira do lock dependências opcionais de outras plataformas e o
