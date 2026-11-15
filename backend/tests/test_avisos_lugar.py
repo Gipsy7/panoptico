@@ -126,6 +126,20 @@ def test_dado_novo_tem_linha_de_base_e_formata_em_portugues(session):
     assert avisos_lugar.decimal(1234.5) == "1.234,5"
 
 
+def test_dado_novo_diz_quando_e_o_maior_desde_um_ano(session):
+    _gaspar(session)
+    i = _inscricao(session)
+    _alvo(session, i, "lugar", "mun:4205902")
+    session.add(FonteIngestao(fonte="datasus_homicidios", url="u", arquivo_raw="x", status="ok",
+                              concluido_em=AGORA - timedelta(days=1)))  # fmt: skip
+    for ano, n in ((2019, 20), (2020, 8), (2021, 9), (2022, 10), (2023, 12)):
+        session.add(HomicidioSim(codigo="4205902", ano=ano, homicidios=n))
+    session.flush()
+    servico.detectar(session, AGORA)
+    titulo = _do_lugar(session, "mun:4205902")[0].titulo
+    assert titulo == "Saiu o dado de 2023: 12 homicídios de moradores; o maior número desde 2019"
+
+
 def _evento_lugar(session, alvo, categoria, titulo, dia=HOJE):
     session.add(
         AvisoEvento(

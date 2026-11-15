@@ -10,6 +10,7 @@ enviado (o envio exige detectado_em depois de o alvo entrar); só a mudança seg
 Frases literais, com fonte; nada de "bom" ou "ruim".
 """
 
+import re
 from collections import defaultdict
 from collections.abc import Iterable
 from datetime import UTC, date, datetime, timedelta
@@ -34,6 +35,7 @@ from app.models import (
     Tramitacao,
     VotacaoLocal,
 )
+from app.services.extremos import extremo
 from app.services.pib import CODIGO_UF
 
 ASSUNTOS = ("politica", "dinheiro", "obras", "seguranca", "saude", "escolas", "economia")
@@ -283,15 +285,24 @@ def _dados_novos(
 
     if dia := _carga_recente(session, "datasus_homicidios", inicio):
         ano = session.scalar(select(func.max(HomicidioSim.ano)))
-        for codigo, n in session.execute(
-            select(HomicidioSim.codigo, HomicidioSim.homicidios).where(
-                HomicidioSim.ano == ano, HomicidioSim.codigo.in_(list(codigos))
+        series: dict[str, list[tuple[int, float]]] = {}
+        for codigo, a, total in session.execute(
+            select(HomicidioSim.codigo, HomicidioSim.ano, HomicidioSim.homicidios).where(
+                HomicidioSim.codigo.in_(list(codigos)), HomicidioSim.ano <= ano
             )
         ):
+            series.setdefault(codigo, []).append((a, float(total)))
+        for codigo, pontos in series.items():
+            n = next((int(v) for a, v in pontos if a == ano), None)
+            if n is None:
+                continue
             p = pop(codigo, ano)
             taxa = f" ({decimal(1e5 * n / p)} por 100 mil)" if p else ""
-            yield emitir(codigos[codigo], "seguranca", f"dado:homicidios:{ano}",
-                         f"Saiu o dado de {ano}: {inteiro(n)} homicídios de moradores{taxa}",
+            # Contagem, não taxa: "o maior número desde 2017" vale mesmo com a população mudando.
+            ext = extremo(pontos)
+            recorde = "; " + re.sub(r"^o (maior|menor)", r"o \1 número", ext) if ext else ""
+            titulo = f"Saiu o dado de {ano}: {inteiro(n)} homicídios de moradores{taxa}{recorde}"
+            yield emitir(codigos[codigo], "seguranca", f"dado:homicidios:{ano}", titulo,
                          "Ministério da Saúde, DATASUS (SIM)", dia)  # fmt: skip
     if dia := _carga_recente(session, "datasus_cnes", inicio):
         for r in session.scalars(select(SaudeCnes).where(SaudeCnes.codigo.in_(list(codigos)))):
@@ -313,13 +324,17 @@ def _dados_novos(
                 IdebResultado.rede == rede, IdebResultado.codigo.in_(cods),
             )  # fmt: skip
             ultimo: dict[str, IdebResultado] = {}
+            pontos_ideb: dict[str, list[tuple[int, float]]] = {}
             for r in session.scalars(q):
+                pontos_ideb.setdefault(r.codigo, []).append((r.ano, float(r.valor)))
                 if r.codigo not in ultimo or r.ano > ultimo[r.codigo].ano:
                     ultimo[r.codigo] = r
             for cod, r in ultimo.items():
                 alvo = "br" if abr == "brasil" else f"uf:{cod}" if abr == "uf" else f"mun:{cod}"
+                ext = extremo(pontos_ideb[cod])
+                recorde = f"; {ext}" if ext else ""
                 yield emitir(alvo, "escolas", f"dado:ideb:{r.ano}",
-                             f"IDEB {r.ano}, 1º ao 5º ano: {decimal(float(r.valor))}",
+                             f"IDEB {r.ano}, 1º ao 5º ano: {decimal(float(r.valor))}{recorde}",
                              "INEP (IDEB)", dia)  # fmt: skip
     if dia := _carga_recente(session, "ibge_pib", inicio):
         ultimo_pib: dict[str, PibIbge] = {}

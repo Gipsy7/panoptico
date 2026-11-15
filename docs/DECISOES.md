@@ -29,6 +29,7 @@
 - [2026-11-14: emendas dos mais votados na cidade (só a rota)](#2026-11-14-emendas-dos-mais-votados-na-cidade-só-a-rota)
 - [2026-11-14: telas da ficha do fornecedor, de Decisões e das emendas dos mais votados](#2026-11-14-telas-da-ficha-do-fornecedor-de-decisões-e-das-emendas-dos-mais-votados)
 - [2026-11-15: feed de cada pessoa à vista e a pauta no calendário](#2026-11-15-feed-de-cada-pessoa-à-vista-e-a-pauta-no-calendário)
+- [2026-11-15: "o maior desde…" nas séries](#2026-11-15-o-maior-desde-nas-séries)
 - [2026-11-07: quanto custa o mandato (Frente 6)](#2026-11-07-quanto-custa-o-mandato-frente-6)
 - [2026-11-07: custo da câmara por morador e a média do estado (Frente 6)](#2026-11-07-custo-da-câmara-por-morador-e-a-média-do-estado-frente-6)
 - [2026-10-29: medidas provisórias e vetos do Presidente](#2026-10-29-medidas-provisórias-e-vetos-do-presidente)
@@ -2207,3 +2208,19 @@ Item NF-02 da auditoria: dois jeitos de acompanhar sem voltar ao site e sem dar 
 **Pauta no calendário.** `GET /pauta.ics` (site, `frontend/app/pauta.ics/route.ts`, regras em `lib/calendario-pauta.ts`): a pauta do Plenário da Câmara e do Senado dos próximos 30 dias em iCalendar, um evento de dia inteiro por item (a pauta traz a data da sessão, não a hora). Cada evento diz que estar na pauta não garante a votação no dia, tem o link da página do projeto e a fonte. Na seção "Na pauta do Plenário" de Decisões, dois links: "assinar" (`webcal://`, o calendário busca sozinho; iPhone e computador) e "baixar o arquivo" (importa uma vez). No Android, o Google Agenda não abre `webcal://` direto: é preciso colar o endereço em "Adicionar calendário por URL" no computador. Isso ainda não está escrito na tela.
 
 **Alvos de 24 px (AC-02), o que ficou:** os links de fonte dentro de "Fonte: … · atualizado em …" ficam como estão: são alvo dentro de texto corrido, a exceção do critério 2.5.8.
+
+## 2026-11-15: "o maior desde…" nas séries
+
+Item DA-05 da auditoria, pedido pelo dono. Quando o último ponto de uma série bate um trecho longo dela, o site diz isso como fato.
+
+**Regra** (a mesma em `backend/app/services/extremos.py` e em `frontend/lib/descobertas.ts`, `extremoDaSerie`, com os mesmos casos de teste nos dois lados):
+- série com pelo menos 4 pontos, olhada inteira (não a janela de 5 anos da frase);
+- acima de todos os anteriores: "o maior da série, que começa em 2015"; abaixo: "o menor da série…";
+- senão, o ponto anterior mais recente que alcança o último; com pelo menos 3 pontos entre os dois, "o maior desde 2017" (ou "o menor desde");
+- empate não é recorde. Nada de "melhor", "pior", "recorde negativo".
+
+**Onde aparece.**
+- "O que mudou" da cidade e do estado: uma linha a mais no cartão ("O maior desde 2017 (8 em 2021).").
+- Avisos de dado novo: homicídios ("…; o maior número desde 2019": contagem, não taxa) e IDEB. O PIB dos avisos fica de fora, porque está em valores da época e comparar anos assim engana; no "O que mudou" ele já vem em reais de hoje.
+
+**Frequência nos dados reais (15/11, release).** Em Gaspar, São Paulo, Cáceres, SC e BA, a frase sai em quase todas as séries de dinheiro (gasto por morador e PIB tendem a subir com o tempo) e com menos frequência em homicídios e IDEB. É fato literal; se ficar repetitivo, a saída é limitar às séries que não são dinheiro. Decisão do dono.

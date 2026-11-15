@@ -13,6 +13,8 @@ export type Descoberta = {
   pergunta: string;
   frase: string;
   detalhe: string;
+  /** "É o maior desde 2017." quando o último ponto bate um trecho longo da série; senão nulo. */
+  extremo: string | null;
 };
 
 type Regra = {
@@ -98,6 +100,36 @@ export function inicioDaJanela(pontos: PontoAno[], janela: number): PontoAno | n
 
 const ultimo = (p: PontoAno[]) => p[p.length - 1];
 
+const MINIMO_PONTOS = 4;
+const MINIMO_ENTRE = 3;
+
+/**
+ * O último ponto é o maior ou o menor de um trecho da série? A mesma regra de
+ * backend/app/services/extremos.py, com os mesmos casos de teste. Só o fato, nunca bom ou ruim:
+ * a série inteira (não a janela da frase), 4 pontos no mínimo, pelo menos 3 pontos entre o
+ * recorde anterior e o último, e empate não conta.
+ */
+export function extremoDaSerie(pontos: PontoAno[]): string | null {
+  const serie = [...pontos].sort((a, b) => a.ano - b.ano);
+  if (serie.length < MINIMO_PONTOS) return null;
+  const fim = serie[serie.length - 1].valor;
+  const antes = serie.slice(0, -1);
+  if (fim > Math.max(...antes.map((p) => p.valor))) return `o maior da série, que começa em ${serie[0].ano}`;
+  if (fim < Math.min(...antes.map((p) => p.valor))) return `o menor da série, que começa em ${serie[0].ano}`;
+  for (const [tipo, alcanca] of [
+    ["maior", (v: number) => v >= fim],
+    ["menor", (v: number) => v <= fim],
+  ] as const) {
+    for (let i = antes.length - 1; i >= 0; i--) {
+      if (alcanca(antes[i].valor)) {
+        if (antes.length - 1 - i >= MINIMO_ENTRE) return `o ${tipo} desde ${antes[i].ano}`;
+        break;
+      }
+    }
+  }
+  return null;
+}
+
 export function gerarDescobertas(linha: TempoDoLugar, lugar: string, nomeEstado = "estado"): Descoberta[] {
   const porId = new Map(linha.series.map((s) => [s.id, s]));
   const saida: Descoberta[] = [];
@@ -122,7 +154,9 @@ export function gerarDescobertas(linha: TempoDoLugar, lugar: string, nomeEstado 
       const juntos = [base, ...comps].filter(Boolean).join("; ");
       if (juntos) detalhe += `. ${juntos}`;
     }
-    saida.push({ serie: s.id, tema: s.tema, titulo: r.titulo, pergunta: r.pergunta(lugar), frase, detalhe: `${detalhe}.` });
+    const ext = extremoDaSerie(s.pontos);
+    const extremo = ext ? `${ext.charAt(0).toUpperCase()}${ext.slice(1)} (${formatarValor(s, fim.valor)} em ${fim.ano}).` : null;
+    saida.push({ serie: s.id, tema: s.tema, titulo: r.titulo, pergunta: r.pergunta(lugar), frase, detalhe: `${detalhe}.`, extremo });
   }
   return saida;
 }

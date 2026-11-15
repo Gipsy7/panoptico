@@ -83,6 +83,7 @@ export function OQueMudou({ linha, lugar, nomeEstado }: { linha: TempoDoLugar; l
               </span>
               <span className="numero text-lg leading-snug">{x.frase}</span>
               <span className="text-sm text-muted-foreground">{x.detalhe}</span>
+              {x.extremo && <span className="text-sm">{x.extremo}</span>}
               <span className="mt-auto pt-1 text-sm underline underline-offset-4">{x.pergunta}</span>
             </button>
           </li>,

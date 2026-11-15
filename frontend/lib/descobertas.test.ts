@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import type { TempoDoLugar, SerieTempo } from "@/lib/api";
-import { formatarValor, gerarDescobertas, inicioDaJanela } from "@/lib/descobertas";
+import { extremoDaSerie, formatarValor, gerarDescobertas, inicioDaJanela } from "@/lib/descobertas";
 
 const serie = (id: string, pontos: [number, number][], extra: Partial<SerieTempo> = {}): SerieTempo => ({
   id,
@@ -63,5 +63,31 @@ describe("descobertas", () => {
     const r = { id: "x", unidade: "R$ de 2025", decimais: 0 };
     expect(formatarValor(r, 455.2)).toBe("R$ 455");
     expect(formatarValor(r, 5.54e9)).toBe("R$ 5,5 bi");
+  });
+});
+
+// Os mesmos casos de backend/tests/test_extremos.py.
+const CASOS: [[number, number][], string | null][] = [
+  [[[2019, 5], [2020, 6], [2021, 7], [2022, 9]], "o maior da série, que começa em 2019"],
+  [[[2019, 9], [2020, 7], [2021, 6], [2022, 5]], "o menor da série, que começa em 2019"],
+  [[[2017, 10], [2018, 4], [2019, 5], [2020, 6], [2021, 8]], "o maior desde 2017"],
+  [[[2017, 2], [2018, 8], [2019, 7], [2020, 9], [2021, 3]], "o menor desde 2017"],
+  [[[2016, 1], [2017, 10], [2018, 4], [2019, 5], [2020, 8]], null],
+  [[[2019, 9], [2020, 5], [2021, 6], [2022, 9]], null],
+  [[[2018, 9], [2019, 5], [2020, 6], [2021, 7], [2022, 9]], "o maior desde 2018"],
+  [[[2020, 1], [2021, 2], [2022, 3]], null],
+  [[[2018, 5], [2019, 9], [2020, 1], [2021, 6], [2022, 5]], null],
+];
+
+describe("extremoDaSerie", () => {
+  it.each(CASOS)("%j -> %s", (pontos, esperado) => {
+    expect(extremoDaSerie(pontos.map(([ano, valor]) => ({ ano, valor })))).toBe(esperado);
+  });
+
+  it("entra na descoberta com o valor e o ano", () => {
+    const d = gerarDescobertas(linha([serie("homicidios", [[2017, 10], [2018, 4], [2019, 5], [2020, 6], [2021, 8]])]), "Gaspar");
+    expect(d[0].extremo).toBe("O maior desde 2017 (8 em 2021).");
+    const sem = gerarDescobertas(linha([serie("homicidios", [[2020, 1], [2021, 2]])]), "Gaspar");
+    expect(sem[0]?.extremo ?? null).toBeNull();
   });
 });
