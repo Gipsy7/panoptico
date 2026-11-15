@@ -24,6 +24,11 @@ const CABECALHOS: HeadersInit | undefined =
 // Endereço público da API (o navegador baixa as fotos direto dela, com cache na CDN).
 const API_PUBLICA = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
+/** Feed Atom dos fatos oficiais da pessoa; `perfil` é o caminho da página no site (vira o link do feed). */
+export function urlFeedPessoa(pessoaId: number, perfil: string) {
+  return `${API_PUBLICA}/pessoas/${pessoaId}/eventos.rss?perfil=${encodeURIComponent(perfil)}`;
+}
+
 export function urlFotoTse(candidaturaId: number) {
   return `${API_PUBLICA}/fotos/${candidaturaId}.webp`;
 }

@@ -219,7 +219,7 @@ export async function PerfilMandatoLocal({ id, paginaVotos }: { id: string; pagi
         {
           id: "linha-do-tempo",
           titulo: "Linha do tempo",
-          conteudo: linha.ok && <LinhaDoTempoSecao dados={linha.dados} />,
+          conteudo: linha.ok && <LinhaDoTempoSecao dados={linha.dados} perfil={`/${camara ? "vereador" : "deputado-estadual"}/${v.id}`} />,
         },
         {
           id: "servico-federal",

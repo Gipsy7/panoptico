@@ -60,6 +60,9 @@ class Settings(BaseSettings):
     # Endereços conferidos por dentro da rede do compose, separados por vírgula.
     alerta_urls: str = "http://api:8000/saude,http://web:3000/"
     viacep_url: str = "https://viacep.com.br/ws/{cep}/json/"
+    # Endereço do site, para links que a API escreve para fora (feed da pessoa). O release também
+    # aponta para a produção, como as canônicas do site.
+    site_url: str = "https://panoptico.social.br"
     # Onde ficam os arquivos brutos. No acervo local pode apontar para um HD externo.
     raw_dir: Path = BACKEND_DIR / "data" / "raw"
     # No acervo, o bruto nunca é apagado (limpar_raw não faz nada).

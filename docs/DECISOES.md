@@ -28,6 +28,7 @@
 - [2026-11-14: ficha do fornecedor (só a rota)](#2026-11-14-ficha-do-fornecedor-só-a-rota)
 - [2026-11-14: emendas dos mais votados na cidade (só a rota)](#2026-11-14-emendas-dos-mais-votados-na-cidade-só-a-rota)
 - [2026-11-14: telas da ficha do fornecedor, de Decisões e das emendas dos mais votados](#2026-11-14-telas-da-ficha-do-fornecedor-de-decisões-e-das-emendas-dos-mais-votados)
+- [2026-11-15: feed de cada pessoa à vista e a pauta no calendário](#2026-11-15-feed-de-cada-pessoa-à-vista-e-a-pauta-no-calendário)
 - [2026-11-07: quanto custa o mandato (Frente 6)](#2026-11-07-quanto-custa-o-mandato-frente-6)
 - [2026-11-07: custo da câmara por morador e a média do estado (Frente 6)](#2026-11-07-custo-da-câmara-por-morador-e-a-média-do-estado-frente-6)
 - [2026-10-29: medidas provisórias e vetos do Presidente](#2026-10-29-medidas-provisórias-e-vetos-do-presidente)
@@ -2196,3 +2197,13 @@ Escolhas do dono nos protótipos (https://claude.ai/artifact/MEWErY5fHPZH7a1Jsze
 **3A, emendas dos mais votados** na página da cidade, aba "Entrou", logo depois das emendas ("Os mais votados aqui e o que enviaram", `components/emendas-votos-secao.tsx`). Emendas desde 2015, como o dono pediu, e a tela diz que a soma inclui mandatos anteriores de quem se reelegeu. Só aparece quando há deputado em exercício com voto registrado na cidade.
 
 **Conferido:** as três telas em 360 px (sem rolagem lateral, sem erro de JavaScript), a ficha com a TAM e com uma empresa com sanções, CPF e CNPJ inválido caindo em "Página não encontrada".
+
+## 2026-11-15: feed de cada pessoa à vista e a pauta no calendário
+
+Item NF-02 da auditoria: dois jeitos de acompanhar sem voltar ao site e sem dar nada em troca (nem e-mail, nem inscrição).
+
+**Feed da pessoa.** `GET /pessoas/{id}/eventos.rss` existia e nada no site apontava para ele. Agora a linha do tempo dos quatro tipos de perfil termina com "feed destes registros (Atom)". O link "alternate" do feed apontava para a API (`/pessoas/{id}`, um JSON); passou a apontar para o perfil no site, pelo parâmetro `perfil` (só caminhos de perfil do próprio site: `/parlamentar|eleito|vereador|deputado-estadual/{id}`, o resto dá 422) e pela configuração nova `SITE_URL` (padrão `https://panoptico.social.br`).
+
+**Pauta no calendário.** `GET /pauta.ics` (site, `frontend/app/pauta.ics/route.ts`, regras em `lib/calendario-pauta.ts`): a pauta do Plenário da Câmara e do Senado dos próximos 30 dias em iCalendar, um evento de dia inteiro por item (a pauta traz a data da sessão, não a hora). Cada evento diz que estar na pauta não garante a votação no dia, tem o link da página do projeto e a fonte. Na seção "Na pauta do Plenário" de Decisões, dois links: "assinar" (`webcal://`, o calendário busca sozinho; iPhone e computador) e "baixar o arquivo" (importa uma vez). No Android, o Google Agenda não abre `webcal://` direto: é preciso colar o endereço em "Adicionar calendário por URL" no computador. Isso ainda não está escrito na tela.
+
+**Alvos de 24 px (AC-02), o que ficou:** os links de fonte dentro de "Fonte: … · atualizado em …" ficam como estão: são alvo dentro de texto corrido, a exceção do critério 2.5.8.

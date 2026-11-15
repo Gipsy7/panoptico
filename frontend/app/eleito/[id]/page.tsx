@@ -416,7 +416,7 @@ async function Perfil({
         {
           id: "linha-do-tempo",
           titulo: "Linha do tempo",
-          conteudo: linha.ok && <LinhaDoTempoSecao dados={linha.dados} />,
+          conteudo: linha.ok && <LinhaDoTempoSecao dados={linha.dados} perfil={`/eleito/${id}`} />,
         },
         {
           id: "servico-federal",

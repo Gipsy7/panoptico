@@ -5,6 +5,7 @@ from typing import Annotated, Literal
 
 from fastapi import APIRouter, HTTPException, Query, Request, Response
 
+from app.config import settings
 from app.db import Sessao
 from app.schemas import (
     CarreiraDaPessoa,
@@ -83,11 +84,24 @@ def eventos(
 
 
 @router.get("/pessoas/{pessoa_id}/eventos.rss")
-def eventos_feed(pessoa_id: int, request: Request, session: Sessao) -> Response:
+def eventos_feed(
+    pessoa_id: int,
+    request: Request,
+    session: Sessao,
+    # Perfil no site de onde o feed foi aberto: vira o link "alternate" e o das entradas sem fonte.
+    perfil: Annotated[
+        str | None,
+        Query(pattern=r"^/(parlamentar|eleito|vereador|deputado-estadual)/\d{1,9}$"),
+    ] = None,
+) -> Response:
     """Feed Atom 1.0 com os últimos 50 fatos oficiais da pessoa (eventos e eleições)."""
     base = str(request.base_url).rstrip("/")
+    site = settings.site_url.rstrip("/")
     corpo = cruzamentos.feed_atom(
-        session, pessoa_id, f"{base}/pessoas/{pessoa_id}/eventos.rss", f"{base}/pessoas/{pessoa_id}"
+        session,
+        pessoa_id,
+        f"{base}/pessoas/{pessoa_id}/eventos.rss",
+        f"{site}{perfil}" if perfil else f"{site}/",
     )
     if corpo is None:
         raise HTTPException(404, "Pessoa não encontrada.")

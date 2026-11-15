@@ -177,3 +177,17 @@ def test_feed_atom_e_xml_valido(client, session):
     assert "Cache-Control" in r.headers
     _sem_chaves_sensiveis(r.text)
     assert client.get("/pessoas/999999/eventos.rss").status_code == 404
+    alternate = raiz.find("a:link[@rel='alternate']", ns).get("href")
+    assert alternate == "https://panoptico.social.br/"  # sem perfil: a página inicial do site
+
+
+def test_feed_aponta_para_o_perfil_no_site(client, session):
+    p = _pessoa(session)
+    r = client.get(f"/pessoas/{p.id}/eventos.rss?perfil=/parlamentar/141")
+    ns = {"a": "http://www.w3.org/2005/Atom"}
+    raiz = ET.fromstring(r.content)
+    alternate = raiz.find("a:link[@rel='alternate']", ns).get("href")
+    assert alternate == "https://panoptico.social.br/parlamentar/141"
+    # Só caminhos de perfil do próprio site: nada de endereço de fora.
+    assert client.get(f"/pessoas/{p.id}/eventos.rss?perfil=https://outro.site/x").status_code == 422
+    assert client.get(f"/pessoas/{p.id}/eventos.rss?perfil=/admin/1").status_code == 422

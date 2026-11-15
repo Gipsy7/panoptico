@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { metadadosComFiltro } from "@/lib/seo";
 import Form from "next/form";
 import Link from "next/link";
+import { SITE_URL } from "@/lib/site";
 
 import { AvisoErro } from "@/components/aviso-erro";
 import { SecaoCalendarioVotacoes } from "@/components/calendario-secao";
@@ -390,6 +391,17 @@ async function NaPauta() {
           )}
         </>
       )}
+      <p className="text-sm text-muted-foreground">
+        A pauta no seu calendário:{" "}
+        <a href={`webcal://${new URL(SITE_URL).host}/pauta.ics`} className="inline-block min-h-6 underline underline-offset-2">
+          assinar
+        </a>{" "}
+        (o calendário busca as novidades sozinho; funciona no iPhone e no calendário do computador) ou{" "}
+        <a href="/pauta.ics" type="text/calendar" className="inline-block min-h-6 underline underline-offset-2">
+          baixar o arquivo
+        </a>{" "}
+        (importa os próximos 30 dias uma vez). Estar na pauta não garante a votação no dia.
+      </p>
       <FonteRodape fonte={p.fonte_nome} url={p.fonte_url} atualizadoEm={p.atualizado_em} />
     </section>
   );

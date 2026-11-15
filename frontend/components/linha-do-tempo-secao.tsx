@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 
 import { FonteRodape } from "@/components/fonte-rodape";
-import type { EventoItem, LinhaDoTempo, ProcessoSituacao } from "@/lib/api";
+import { type EventoItem, type LinhaDoTempo, type ProcessoSituacao, urlFeedPessoa } from "@/lib/api";
 import { formatarData } from "@/lib/formato";
 import { LinkExterno } from "@/components/link-externo";
 import { TermoOficial } from "@/components/termo-oficial";
@@ -48,7 +48,7 @@ const LIMITE_TEXTO = 280;
 
 /** Linha do tempo da pessoa: fatos de órgãos oficiais, agrupados por tipo, cada um com a
  * situação informada pela fonte, o link e a data em que o dado foi conferido. */
-export function LinhaDoTempoSecao({ dados }: { dados: LinhaDoTempo }) {
+export function LinhaDoTempoSecao({ dados, perfil }: { dados: LinhaDoTempo; perfil?: string }) {
   const conhecidos = new Set(GRUPOS.flatMap((g) => g.tipos));
   const grupos = [
     ...GRUPOS.map((g) => ({ ...g, itens: dados.itens.filter((i) => g.tipos.includes(i.tipo)) })),
@@ -132,6 +132,20 @@ export function LinhaDoTempoSecao({ dados }: { dados: LinhaDoTempo }) {
       )}
 
       <FonteRodape fonte="TSE, CGU, TCU, Câmara, Senado e DataJud (CNJ)" atualizadoEm={conferido} />
+      {perfil && (
+        <p className="text-sm text-muted-foreground">
+          Para acompanhar sem voltar aqui:{" "}
+          <a
+            href={urlFeedPessoa(dados.pessoa_id, perfil)}
+            type="application/atom+xml"
+            className="inline-block min-h-6 underline underline-offset-2"
+          >
+            feed destes registros (Atom)
+          </a>
+          , para leitores de feed como Feedly ou Inoreader. Cada registro novo aparece lá com o link da fonte. Não
+          pede cadastro nem guarda nada sobre quem lê.
+        </p>
+      )}
     </section>
   );
 }
