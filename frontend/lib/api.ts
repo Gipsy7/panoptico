@@ -4,6 +4,7 @@ import {
   mensagemDeFalha,
 } from "@/lib/avisar-erro";
 import type { Correcoes } from "@/lib/correcoes";
+import type { FichaFornecedor } from "@/lib/fornecedor";
 
 // No navegador, a API pública; no servidor (renderização), o endereço interno quando houver
 // (em produção, a rede do docker compose), para não sair e voltar pela internet.
@@ -180,6 +181,8 @@ export type Gastos = {
     mes: number;
     categoria: string;
     fornecedor: string | null;
+    /** Só CNPJ válido (nunca CPF): leva à ficha do fornecedor. Ausente em API antiga. */
+    fornecedor_cnpj?: string | null;
     valor: number;
     data: string | null;
     url_documento: string | null;
@@ -3331,6 +3334,42 @@ export function urlResultadoEleicao(candidatura: number) {
 
 export function getEleicoesDisponiveis() {
   return getJson<EleicaoDisponivel[]>(`/eleicoes/disponiveis`);
+}
+
+/** Ficha do fornecedor por CNPJ (só os 14 dígitos). */
+export function getFornecedor(cnpj: string) {
+  return getJson<FichaFornecedor>(`/fornecedores/${encodeURIComponent(cnpj)}`);
+}
+
+export type EmendasDosMaisVotados = {
+  municipio: { ibge: string; nome: string; uf: string };
+  ano_eleicao: number;
+  itens: {
+    posicao: number;
+    parlamentar_id: number;
+    nome: string;
+    partido: string | null;
+    uf: string;
+    votos: number;
+    emendas_pagas: number;
+  }[];
+  fora_por_nao_estar_em_exercicio: number;
+  emendas_dos_listados: number;
+  emendas_individuais_da_cidade: number;
+  emendas_de: number | null;
+  emendas_ate: number | null;
+  recorte: string;
+  votos_fonte_nome: string;
+  emendas_fonte_nome: string;
+  emendas_fonte_url: string;
+  atualizado_em: string | null;
+};
+
+/** Deputados federais em exercício mais votados na cidade e as emendas individuais pagas a ela. */
+export function getEmendasDosMaisVotados(ibge: string) {
+  return getJson<EmendasDosMaisVotados>(
+    `/municipios/${encodeURIComponent(ibge)}/emendas-dos-mais-votados`,
+  );
 }
 
 export function getMaisVotados(ibge: string, ano?: number) {

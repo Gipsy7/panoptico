@@ -27,6 +27,7 @@
 - [2026-11-14: cartão de votação por estado](#2026-11-14-cartão-de-votação-por-estado)
 - [2026-11-14: ficha do fornecedor (só a rota)](#2026-11-14-ficha-do-fornecedor-só-a-rota)
 - [2026-11-14: emendas dos mais votados na cidade (só a rota)](#2026-11-14-emendas-dos-mais-votados-na-cidade-só-a-rota)
+- [2026-11-14: telas da ficha do fornecedor, de Decisões e das emendas dos mais votados](#2026-11-14-telas-da-ficha-do-fornecedor-de-decisões-e-das-emendas-dos-mais-votados)
 - [2026-11-07: quanto custa o mandato (Frente 6)](#2026-11-07-quanto-custa-o-mandato-frente-6)
 - [2026-11-07: custo da câmara por morador e a média do estado (Frente 6)](#2026-11-07-custo-da-câmara-por-morador-e-a-média-do-estado-frente-6)
 - [2026-10-29: medidas provisórias e vetos do Presidente](#2026-10-29-medidas-provisórias-e-vetos-do-presidente)
@@ -2178,3 +2179,20 @@ Dentro do resultado, os mesmos grupos viram uma linha de abas ("De Gaspar: Senad
 - **A eleição é a da legislatura em curso:** a mais recente cujos eleitos já tomaram posse (1º de fevereiro do ano seguinte). Troca sozinha em fev/2027.
 
 **De quebra.** `GET /municipios/{ibge}/mais-votados` passou a trazer `parlamentar_id` (só de quem está em exercício). O atalho "Os 2 deputados federais mais votados" do comparador usa essa ligação e deixou de depender do nome de urna ser igual ao nome parlamentar; com API antiga, sem o campo, continua valendo o nome idêntico.
+
+## 2026-11-14: telas da ficha do fornecedor, de Decisões e das emendas dos mais votados
+
+Escolhas do dono nos protótipos (https://claude.ai/artifact/MEWErY5fHPZH7a1Jsze5uZ): 1B, 2A, 3A, e emendas contadas desde 2015. A tela 4 (Minha semana, 4B) fica para depois do concurso.
+
+**1B, ficha do fornecedor** (`/fornecedor/{cnpj}`, `frontend/components/ficha-fornecedor.tsx`, regras em `lib/fornecedor.ts`). Cartões no topo (gabinetes, prefeituras e câmaras, PNCP, emendas, sanções), cada um com a frase do número, e o detalhe em abas, como na página da votação. Cada aba diz o que entra e o que fica de fora, a fonte e a data.
+- **Sanção só como registro:** período, órgão e abrangência. A página diz com todas as letras que não afirma se um pagamento caiu durante uma sanção.
+- **Fora dos buscadores** (`noindex`) por enquanto: página nova que reúne registros de sanção ao lado de nomes de empresa; o dono decide quando abrir.
+- **Entradas:** o nome do fornecedor vira link nos maiores gastos do perfil, nos maiores fornecedores da cidade (Tribunal de Contas) e nos favorecidos das emendas. Só quando o documento é CNPJ de 14 dígitos; CPF nunca vira link.
+- **De quebra, na API:** os maiores gastos do perfil (`/parlamentares/{id}/gastos`) passaram a trazer `fornecedor_cnpj` (só CNPJ válido) e o nome do fornecedor sem CPF (`sem_cpf`). Antes, um nome de MEI com o CPF do titular podia sair na lista: no banco local eram 21 lançamentos com 11 dígitos no nome, nenhum entre os 10 maiores de algum perfil. Teste novo em `test_despesas.py`.
+- **Limite:** o cartão de gabinetes mostra o ano mais recente, que pode estar em curso (R$ 487 mil em 2026 contra R$ 15,8 milhões em 2025 para a mesma empresa). O ano está escrito no cartão e a tabela da aba traz os dois anos.
+
+**2A, Decisões** (`/projetos`). Três atalhos acima da busca, cada um é um filtro que já existia: a pauta dos próximos dias (âncora `#pauta`), "O que virou lei" e "Votações com o voto de cada um". Só aparecem na página sem busca nem filtro. No computador, os filtros ficam recolhidos atrás de "Mais filtros" e abrem sozinhos quando há filtro ativo (`recolhidoNoComputador` em `PainelFiltros`); no celular nada mudou (já era o botão "Filtrar"); sem JavaScript, ficam à vista.
+
+**3A, emendas dos mais votados** na página da cidade, aba "Entrou", logo depois das emendas ("Os mais votados aqui e o que enviaram", `components/emendas-votos-secao.tsx`). Emendas desde 2015, como o dono pediu, e a tela diz que a soma inclui mandatos anteriores de quem se reelegeu. Só aparece quando há deputado em exercício com voto registrado na cidade.
+
+**Conferido:** as três telas em 360 px (sem rolagem lateral, sem erro de JavaScript), a ficha com a TAM e com uma empresa com sanções, CPF e CNPJ inválido caindo em "Página não encontrada".

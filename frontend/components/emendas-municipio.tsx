@@ -4,6 +4,7 @@ import { EmendasEstaduaisCidade } from "@/components/emendas-estaduais";
 import { FonteRodape } from "@/components/fonte-rodape";
 import type { EmendasMunicipio } from "@/lib/api";
 import { formatarReais, MESES } from "@/lib/formato";
+import { hrefFornecedor } from "@/lib/fornecedor";
 import { TermoOficial } from "@/components/termo-oficial";
 
 const LIMITE = 5;
@@ -332,7 +333,15 @@ export function EmendasMunicipioSecao({ dados }: { dados: EmendasMunicipio }) {
                 {dados.favorecidos.map((f) => (
                   <li key={f.cnpj} className="flex flex-col gap-1 py-3">
                     <div className="flex items-baseline justify-between gap-3">
-                      <span className="min-w-0 text-sm font-medium">{f.nome}</span>
+                      <span className="min-w-0 text-sm font-medium">
+                        {hrefFornecedor(f.cnpj) ? (
+                          <Link href={hrefFornecedor(f.cnpj)!} className="inline-block min-h-6 underline underline-offset-2">
+                            {f.nome}
+                          </Link>
+                        ) : (
+                          f.nome
+                        )}
+                      </span>
                       <span className="shrink-0 text-sm font-medium tabular-nums">
                         {formatarReais(f.total, true)}
                       </span>

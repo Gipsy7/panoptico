@@ -89,6 +89,7 @@ async function Conteudo({ filtros, calendario }: { filtros: FiltrosProjetos; cal
 
   return (
     <>
+      {primeiraPagina && semFiltro && <Atalhos />}
       <BarraDeBusca filtros={filtros} cidades={cidades} temas={temas} ativos={ativos} />
       {/* No computador: pauta e lista à esquerda, o calendário numa coluna de 20rem ao lado. No
           celular a ordem é a de sempre: pauta, calendário, lista. */}
@@ -96,7 +97,7 @@ async function Conteudo({ filtros, calendario }: { filtros: FiltrosProjetos; cal
         className={`flex flex-col gap-[var(--esp-10)] md:gap-[var(--esp-16)] ${primeiraPagina && semFiltro ? "lg:grid lg:grid-cols-[minmax(0,1fr)_20rem] lg:items-start lg:gap-x-10" : ""}`}
       >
         {primeiraPagina && semFiltro && (
-          <div className="min-w-0 lg:col-start-1 lg:row-start-1">
+          <div id="pauta" className="min-w-0 scroll-mt-24 lg:col-start-1 lg:row-start-1">
             <NaPauta />
           </div>
         )}
@@ -116,6 +117,55 @@ async function Conteudo({ filtros, calendario }: { filtros: FiltrosProjetos; cal
         </div>
       </div>
     </>
+  );
+}
+
+// ---- Atalhos (protótipo 2A, docs/DECISOES.md, 2026-11-14) ----
+
+const ATALHOS = [
+  {
+    href: "#pauta",
+    titulo: "O que vai ser votado nos próximos dias",
+    detalhe: `Pauta do Plenário da Câmara e do Senado, ${DIAS_PAUTA} dias à frente`,
+  },
+  {
+    href: "/projetos?virou_lei=sim",
+    titulo: "O que virou lei",
+    detalhe: "As leis do Congresso, contadas por ano, com o projeto de origem",
+  },
+  {
+    href: "/projetos?votacao=com&ordem=recentes",
+    titulo: "Votações com o voto de cada um",
+    detalhe: "Projetos que tiveram votação nominal, dos mais recentes",
+  },
+];
+
+/** Três portas para quem não sabe o que buscar. Cada uma é um filtro que já existe na página. */
+function Atalhos() {
+  return (
+    <nav aria-labelledby="atalhos-titulo" className="flex flex-col gap-3">
+      <h2 id="atalhos-titulo" className="font-sans text-base font-semibold tracking-normal">
+        Comece por aqui
+      </h2>
+      <ul className="grid gap-2 md:grid-cols-3">
+        {ATALHOS.map((a) => (
+          <li key={a.href}>
+            <Link
+              href={a.href}
+              className="flex h-full min-h-14 items-center gap-3 border border-border bg-card px-3 py-2 hover:border-foreground"
+            >
+              <span className="flex min-w-0 flex-col">
+                <span className="font-semibold">{a.titulo}</span>
+                <span className="text-sm text-muted-foreground">{a.detalhe}</span>
+              </span>
+              <span aria-hidden className="ml-auto text-xl text-bronze-texto">
+                ›
+              </span>
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </nav>
   );
 }
 
@@ -209,6 +259,8 @@ function BarraDeBusca({
         ocultos={{ q: filtros.q, casa: filtros.casa }}
         padroes={{ ordem: "informacao" }}
         titulo="Filtrar projetos"
+        recolhidoNoComputador
+        rotuloRecolhido="Mais filtros: onde, estado, cidade, tema e ano"
       >
         <CampoSelect rotulo="Onde" name="esfera" defaultValue={filtros.esfera} opcoes={ESFERAS} />
         <CamposUfCidade

@@ -6,7 +6,9 @@ from decimal import Decimal
 from sqlalchemy import func, select, text
 from sqlalchemy.orm import Session
 
+from app.cnpj import cnpj_valido, normalizar_cnpj
 from app.models import Despesa, FonteIngestao, Parlamentar, ResumoParlamentar
+from app.textos import sem_cpf
 
 FONTES = {
     "camara": {
@@ -83,6 +85,21 @@ def media_da_casa(session: Session, casa: str, ano: int) -> Decimal:
     )
 
 
+def _despesa(d: Despesa) -> dict:
+    """Uma despesa como a API mostra. O nome do fornecedor sai sem CPF (a razão social de MEI
+    traz o CPF do titular) e o documento só sai quando é CNPJ válido, nunca CPF."""
+    doc = normalizar_cnpj(d.cnpj_cpf)
+    return {
+        "mes": d.mes,
+        "categoria": d.categoria,
+        "fornecedor": sem_cpf(d.fornecedor),
+        "fornecedor_cnpj": doc if doc and len(doc) == 14 and cnpj_valido(doc) else None,
+        "valor": d.valor,
+        "data": d.data,
+        "url_documento": d.url_documento,
+    }
+
+
 def resumo(
     session: Session,
     parlamentar: Parlamentar,
@@ -131,7 +148,7 @@ def resumo(
         "media_casa": media_casa,
         "por_categoria": [{"categoria": c, "total": t} for c, t in por_categoria],
         "por_mes": [{"mes": m, "total": t} for m, t in por_mes],
-        "maiores_despesas": maiores,
+        "maiores_despesas": [_despesa(d) for d in maiores],
         "fonte_nome": fonte["nome"],
         "fonte_url": fonte["url"],
         "atualizado_em": atualizado_em,

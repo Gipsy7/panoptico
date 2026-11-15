@@ -102,6 +102,8 @@ class DespesaItem(BaseModel):
     mes: int
     categoria: str
     fornecedor: str | None
+    # Só CNPJ válido (nunca CPF): leva à ficha do fornecedor. Acrescentado em 14/11/2026.
+    fornecedor_cnpj: str | None = None
     valor: float
     data: date | None
     url_documento: str | None

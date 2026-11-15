@@ -1,6 +1,9 @@
+import Link from "next/link";
+
 import { FonteRodape } from "@/components/fonte-rodape";
 import type { Fornecedores } from "@/lib/api";
 import { formatarReais } from "@/lib/formato";
+import { hrefFornecedor } from "@/lib/fornecedor";
 
 const ROTULOS: Record<string, string> = {
   prefeitura: "Prefeitura",
@@ -36,7 +39,15 @@ export function FornecedoresSecao({ dados, cidade }: { dados: Fornecedores; cida
               <li key={i} className="flex items-baseline justify-between gap-3 py-2 text-sm">
                 <span className="min-w-0">
                   <span className="block">
-                    {f.nome_omitido ? "MEI (nome omitido por conter CPF)" : f.fornecedor}
+                    {hrefFornecedor(f.documento) && !f.nome_omitido ? (
+                      <Link href={hrefFornecedor(f.documento)!} className="inline-block min-h-6 underline underline-offset-2">
+                        {f.fornecedor}
+                      </Link>
+                    ) : f.nome_omitido ? (
+                      "MEI (nome omitido por conter CPF)"
+                    ) : (
+                      f.fornecedor
+                    )}
                   </span>
                   <span className="block text-sm text-muted-foreground">
                     {[formatarCnpj(f.documento) && `CNPJ ${formatarCnpj(f.documento)}`, `${f.pagamentos} pagamentos`]

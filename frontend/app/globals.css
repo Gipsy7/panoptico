@@ -581,6 +581,12 @@
     padding: var(--esp-4) var(--esp-4) env(safe-area-inset-bottom);
   }
 }
+/* No computador, filtros recolhidos atrás de "Mais filtros" (painel-filtros.tsx). */
+@media (min-width: 48rem) {
+  :root[data-js] .folha-filtros[data-recolhido] {
+    display: none;
+  }
+}
 @media (prefers-reduced-motion: no-preference) and (max-width: 47.99rem) {
   :root[data-js] .folha-filtros[data-aberto] {
     animation: folha-sobe var(--duracao-entrada) var(--curva-suave);

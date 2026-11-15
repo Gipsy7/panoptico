@@ -26,6 +26,7 @@ import { EleitoresBarras } from "@/components/eleicao/eleitores-barras";
 import { MaisVotados } from "@/components/eleicao/mais-votados";
 import { TabelaResultado } from "@/components/eleicao/tabela-resultado";
 import { EmendasMunicipioSecao } from "@/components/emendas-municipio";
+import { EmendasVotosSecao } from "@/components/emendas-votos-secao";
 import { EsqueletoSecao } from "@/components/esqueleto-secao";
 import { FonteRodape } from "@/components/fonte-rodape";
 import { FornecedoresPncpSecao } from "@/components/fornecedores-pncp-secao";
@@ -42,6 +43,7 @@ import {
   getContas,
   getEleitores,
   getExecutivo,
+  getEmendasDosMaisVotados,
   getMaisVotados,
   getIdebMunicipio,
   getPibMunicipio,
@@ -147,6 +149,7 @@ async function Cidade({ ibge }: { ibge: string }) {
     segurancaR,
     saudeR,
     tempoR,
+    emendasVotosR,
   ] = await Promise.all([
     getEmendasMunicipio(ibge),
     getContas(ibge),
@@ -181,6 +184,7 @@ async function Cidade({ ibge }: { ibge: string }) {
     getSegurancaMunicipio(ibge),
     getSaudeMunicipio(ibge),
     getTempoMunicipio(ibge),
+    getEmendasDosMaisVotados(ibge),
   ]);
   const repassesEstado = estaduaisR.ok ? estaduaisR.dados : null;
   const temRepassesEstado = Boolean(
@@ -269,6 +273,16 @@ async function Cidade({ ibge }: { ibge: string }) {
             />
           ),
         },
+        // Só aparece quando há deputado em exercício com voto registrado na cidade.
+        ...(emendasVotosR.ok && emendasVotosR.dados.itens.length > 0
+          ? [
+              {
+                id: "emendas-mais-votados",
+                titulo: "Os mais votados aqui e o que enviaram",
+                conteudo: <EmendasVotosSecao dados={emendasVotosR.dados} />,
+              },
+            ]
+          : []),
         {
           id: "repasses-estado",
           titulo: "Dinheiro do governo do estado",

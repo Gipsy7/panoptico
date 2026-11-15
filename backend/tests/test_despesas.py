@@ -170,3 +170,28 @@ def test_nome_proprio():
     assert comum.nome_proprio("MARIA DAS DORES E SILVA") == "Maria das Dores e Silva"
     assert comum.nome_proprio("Já Formatado") == "Já Formatado"
     assert comum.nome_proprio(None) is None
+
+
+def test_gastos_nao_devolve_cpf_no_nome_nem_no_documento(client, session):
+    """A razão social de MEI traz o CPF do titular; pessoa física tem CPF no documento."""
+    _popular(session)
+    p = session.scalars(select(Parlamentar).where(Parlamentar.casa == "camara")).first()
+    base = {"parlamentar_id": p.id, "categoria": "Divulgação", "url_documento": None}
+    linhas = [
+        {**base, "mes": 1, "valor": Decimal("300"), "fornecedor": "JOSE DA SILVA 12345678901",
+         "cnpj_cpf": "11.222.333/0001-81"},
+        {**base, "mes": 2, "valor": Decimal("200"), "fornecedor": "FULANO DE TAL",
+         "cnpj_cpf": "123.456.789-01"},
+        {**base, "mes": 3, "valor": Decimal("100"), "fornecedor": "EMPRESA LTDA",
+         "cnpj_cpf": "11222333000180"},
+    ]  # fmt: skip
+    comum.recarregar_despesas(session, "camara", 2026, linhas, _ingestao(session))
+    session.flush()
+
+    resposta = client.get(f"/parlamentares/{p.id}/gastos")
+    assert "12345678901" not in resposta.text and "123.456.789" not in resposta.text
+    mei, pessoa, invalido = resposta.json()["maiores_despesas"]
+    assert (mei["fornecedor"], mei["fornecedor_cnpj"]) == ("JOSE DA SILVA", "11222333000181")
+    # CPF nunca vira documento; CNPJ com dígito verificador errado também não.
+    assert (pessoa["fornecedor"], pessoa["fornecedor_cnpj"]) == ("FULANO DE TAL", None)
+    assert invalido["fornecedor_cnpj"] is None

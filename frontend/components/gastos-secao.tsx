@@ -4,6 +4,7 @@ import { FonteRodape } from "@/components/fonte-rodape";
 import { CobrarLinha } from "@/components/perfil/cobrar-linha";
 import type { Casa, Gastos } from "@/lib/api";
 import { CASA_DA, MESES, formatarData, formatarGastos, formatarReais } from "@/lib/formato";
+import { hrefFornecedor } from "@/lib/fornecedor";
 import { LinkExterno } from "@/components/link-externo";
 import { TermoOficial } from "@/components/termo-oficial";
 
@@ -124,7 +125,15 @@ export function GastosSecao({
                       {d.data ? formatarData(d.data) : `${MESES[d.mes - 1]}/${gastos.ano}`}
                     </td>
                     <td className="py-2 pr-3">
-                      <span className="block">{d.fornecedor ?? "Não informado"}</span>
+                      <span className="block">
+                        {hrefFornecedor(d.fornecedor_cnpj) ? (
+                          <Link href={hrefFornecedor(d.fornecedor_cnpj)!} className="inline-block min-h-6 underline underline-offset-2">
+                            {d.fornecedor ?? `CNPJ ${d.fornecedor_cnpj}`}
+                          </Link>
+                        ) : (
+                          (d.fornecedor ?? "Não informado")
+                        )}
+                      </span>
                       <span className="block text-sm text-muted-foreground">{d.categoria}</span>
                       {d.url_documento && (
                         <LinkExterno

@@ -32,6 +32,8 @@ export function PainelFiltros({
   ocultos,
   titulo = "Filtrar a lista",
   sempreVisivel = false,
+  recolhidoNoComputador = false,
+  rotuloRecolhido = "Mais filtros",
   rotuloAplicar = "Aplicar",
   children,
 }: {
@@ -50,11 +52,17 @@ export function PainelFiltros({
   titulo?: string;
   /** Poucos campos (2 ou 3): sem botão nem folha, os campos ficam sempre à vista. */
   sempreVisivel?: boolean;
+  /** No computador, os campos começam recolhidos atrás de um botão (abrem sozinhos se há filtro
+   * ativo). No celular nada muda: já é o botão "Filtrar". Sem JavaScript, ficam à vista. */
+  recolhidoNoComputador?: boolean;
+  rotuloRecolhido?: string;
   rotuloAplicar?: string;
   children: React.ReactNode;
 }) {
   const router = useRouter();
   const [aberto, setAberto] = useState(false);
+  const [expandido, setExpandido] = useState(ativos > 0);
+  const recolhido = recolhidoNoComputador && !sempreVisivel && !expandido;
   const [aplicando, iniciar] = useTransition();
   const botao = useRef<HTMLButtonElement>(null);
   const folha = useRef<HTMLDivElement>(null);
@@ -154,6 +162,20 @@ export function PainelFiltros({
         </button>
       )}
 
+      {recolhidoNoComputador && !sempreVisivel && (
+        <button
+          type="button"
+          aria-expanded={expandido}
+          aria-controls={idFolha}
+          onClick={() => setExpandido((v) => !v)}
+          // Só no computador e com JavaScript; no celular vale o botão "Filtrar" acima.
+          className="botao-linha hidden self-start md:[:root[data-js]_&]:inline-flex"
+        >
+          <IconeFiltro />
+          {expandido ? "Esconder os filtros" : rotuloRecolhido}
+        </button>
+      )}
+
       {folhaAberta && (
         // Fundo escurecido: tocar fora fecha a folha.
         <div ref={fundo} aria-hidden className="fixed inset-0 z-50 bg-foreground/40 md:hidden" onClick={fechar} />
@@ -166,6 +188,7 @@ export function PainelFiltros({
         aria-modal={folhaAberta || undefined}
         aria-labelledby={idTitulo}
         data-aberto={folhaAberta || undefined}
+        data-recolhido={recolhido || undefined}
         className={sempreVisivel ? undefined : "folha-filtros"}
       >
         {folhaAberta ? (
