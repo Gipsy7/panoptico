@@ -54,6 +54,8 @@ atualizar_producao() {
   docker compose up -d --no-build api web
   devolver_estaticos
   docker image prune -f >/dev/null
+  # Cache de montagem com mais de 3 dias: chegou a 34 GB e o disco a 94% em 16/11/2026.
+  docker builder prune -f --filter until=72h >/dev/null || true
   esperar_site
   avisar_recarga api "$versao_antes"
   limpar_cache_cloudflare
@@ -125,6 +127,7 @@ atualizar_release() {
     return 1
   fi
   docker image prune -f >/dev/null || true
+  docker builder prune -f --filter until=72h >/dev/null || true
   esperar_site web-release
   avisar_recarga api-release "$versao_antes"
   echo "$alvo" > "$ESTADO_RELEASE/release-publicado" || return 1
