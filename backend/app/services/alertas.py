@@ -137,7 +137,9 @@ def _responde(url: str) -> str | None:
 
 def saude(agora: datetime, conferir: Callable[[str], str | None] = _responde) -> Alerta | None:
     urls = [u.strip() for u in settings.alerta_urls.split(",") if u.strip()]
-    falhas = [(u, motivo) for u in urls if (motivo := conferir(u))]
+    # Uma segunda tentativa antes de avisar: logo depois de cada publicação a primeira página do
+    # site pode passar do prazo (montagem a frio) e daria um alarme falso.
+    falhas = [(u, motivo) for u in urls if conferir(u) and (motivo := conferir(u))]
     if not falhas:
         return None
     return Alerta(

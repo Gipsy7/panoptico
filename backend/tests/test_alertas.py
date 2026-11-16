@@ -118,6 +118,13 @@ def test_saude_lista_o_que_nao_respondeu_e_vale_por_hora(monkeypatch):
     assert alertas.saude(AGORA, lambda url: None) is None
 
 
+def test_saude_so_avisa_quando_falha_duas_vezes(monkeypatch):
+    monkeypatch.setattr(settings, "alerta_urls", "http://web:3000/")
+    tentativas = iter(["ReadTimeout", None])  # a frio, logo depois de publicar
+    assert alertas.saude(AGORA, lambda url: next(tentativas)) is None
+    assert alertas.saude(AGORA, lambda url: "ReadTimeout") is not None
+
+
 def test_disco_alerta_a_partir_do_limite():
     gb = 1024**3
     assert alertas.disco(AGORA, lambda: (70 * gb, 59 * gb)) is None  # 84%
