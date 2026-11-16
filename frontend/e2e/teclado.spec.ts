@@ -75,8 +75,9 @@ test("representantes: prédio abre o painel e 'Ver a lista com os números' abre
   await expect(ver).toBeFocused();
 });
 
-test("abas do perfil: setas mudam aria-selected", async ({ page }) => {
-  await page.goto("/parlamentar/538");
+// O perfil trocou as abas pela gaveta (10/11/2026); as abas com setas seguem nos temas do estado.
+test("abas dos temas do estado: setas mudam aria-selected", async ({ page }) => {
+  await page.goto("/estado/SC");
   const abas = page.getByRole("tab");
   await abas.first().focus();
   await expect(abas.first()).toHaveAttribute("aria-selected", "true");
@@ -141,7 +142,9 @@ test("busca de cidade: combobox por teclado (seta marca, Enter escolhe, Esc fech
 
 test("mapa do Brasil: Tab entra uma vez, setas e letras mudam o item, Enter abre, Esc volta", async ({ page }) => {
   await page.goto("/impostos-e-repasses");
-  const mapa = page.getByRole("group", { name: /mapa/i }).first();
+  // "Assunto do mapa" também é um grupo; o mapa se chama "Mapa do Brasil…" e, dentro do estado,
+  // "Mapa das cidades de…".
+  const mapa = page.getByRole("group", { name: /^mapa (do brasil|das cidades)/i }).first();
   const ufsTab = mapa.locator('path[data-nivel="uf"][tabindex="0"]');
   await expect(ufsTab).toHaveCount(1);
   // Antes de qualquer foco, a parada de Tab é o primeiro em ordem alfabética (Acre).
