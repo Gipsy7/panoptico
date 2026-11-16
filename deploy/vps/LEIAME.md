@@ -213,6 +213,8 @@ Variáveis no `.env` da VPS (nunca no git):
 
 Ligar, na VPS:
 
+**Só funciona depois que o `main` tiver o código** (o dono promoveu): o contêiner `ingestao` e a agenda vêm de `/opt/panoptico`, que é o `main`. Antes disso, `python -m app.alertas` dá "No module named app.alertas". Para testar o envio antes da promoção, use a imagem do release (o `--teste` não usa o banco): `docker run --rm --env-file .env vps-api-release python -m app.alertas --teste`.
+
 1. Depois que a migração entrar (ao subir a API do release), ponha as variáveis no `.env`.
 2. Teste o envio: `docker compose --profile ingestao run --rm -T ingestao python -m app.alertas --teste`.
 3. Veja o que seria enviado agora, sem enviar: o mesmo comando com `--simular`.
