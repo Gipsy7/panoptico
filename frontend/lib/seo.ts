@@ -11,7 +11,7 @@ export const ROBOS_DE_IA_LIBERADOS = [
   "Claude-SearchBot",
   "Claude-User",
   "anthropic-ai",
-  "PerplexityBot",
+  "Perplexity-User",
   "Google-Extended",
   "Applebot-Extended",
 ];
@@ -19,7 +19,8 @@ export const ROBOS_DE_IA_LIBERADOS = [
 /** Coletores que só gastam CPU (o meta-externalagent esgotou o plano em out/2026) ou revendem dados.
  * Desde 13/11/2026 também os que coletam para treino ou usos fora da busca e somavam ~45% do tráfego
  * de robôs (GPTBot, Reflectionbot, GoogleOther, Amzn-SearchBot). O Googlebot segue liberado: o
- * GoogleOther não alimenta a busca do Google. */
+ * GoogleOther não alimenta a busca do Google. Desde 18/11/2026 também o PerplexityBot (indexador),
+ * que esgotava a API varrendo os perfis; o Perplexity-User segue liberado. */
 export const ROBOS_BLOQUEADOS = [
   "meta-externalagent",
   "Bytespider",
@@ -36,6 +37,7 @@ export const ROBOS_BLOQUEADOS = [
   "Reflectionbot",
   "GoogleOther",
   "Amzn-SearchBot",
+  "PerplexityBot",
 ];
 
 /** Imagens de compartilhamento e resultado de busca por CEP: não são páginas para ler. */

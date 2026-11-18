@@ -296,11 +296,14 @@ async function trafego(env: Env, horas: number): Promise<unknown> {
 // Claude-SearchBot, Claude-User) e o Applebot: aparecer nas respostas delas é parte do objetivo do
 // site. Desde 13/11/2026 ficam bloqueados também os que coletam para treino ou usos fora da busca e
 // somavam ~45% do tráfego de robôs (GPTBot, Reflectionbot, GoogleOther, Amzn-SearchBot). O Googlebot
-// segue liberado: "googleother" não casa com ele.
+// segue liberado: "googleother" não casa com ele. Desde 18/11/2026 o PerplexityBot (indexador) também
+// fica bloqueado: varria os perfis em 8 IPs (~8 mil pedidos/h), esgotava o pool da API e fazia a
+// troca ir para a reserva. O Perplexity-User (quando alguém pergunta) segue liberado: "perplexitybot"
+// não casa com ele.
 const ROBOS_BLOQUEADOS = [
   "meta-externalagent", "bytespider", "ccbot", "amazonbot", "cohere-ai", "diffbot", "imagesiftbot",
   "omgilibot", "petalbot", "timpibot", "ahrefsbot", "semrushbot", "mj12bot", "dataforseobot",
-  "gptbot", "reflectionbot", "googleother", "amzn-searchbot",
+  "gptbot", "reflectionbot", "googleother", "amzn-searchbot", "perplexitybot",
 ];
 
 /** Regras da zona: cada fase é gravada inteira (PUT do entrypoint), então rodar de novo não duplica.

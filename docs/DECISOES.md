@@ -31,6 +31,7 @@
 - [2026-11-15: feed de cada pessoa à vista e a pauta no calendário](#2026-11-15-feed-de-cada-pessoa-à-vista-e-a-pauta-no-calendário)
 - [2026-11-15: "o maior desde…" nas séries](#2026-11-15-o-maior-desde-nas-séries)
 - [2026-11-15: contrato da API e conferência dos tipos do site](#2026-11-15-contrato-da-api-e-conferência-dos-tipos-do-site)
+- [2026-11-18: PerplexityBot bloqueado; rotação dos logs da VPS](#2026-11-18-perplexitybot-bloqueado-rotação-dos-logs-da-vps)
 - [2026-11-07: quanto custa o mandato (Frente 6)](#2026-11-07-quanto-custa-o-mandato-frente-6)
 - [2026-11-07: custo da câmara por morador e a média do estado (Frente 6)](#2026-11-07-custo-da-câmara-por-morador-e-a-média-do-estado-frente-6)
 - [2026-10-29: medidas provisórias e vetos do Presidente](#2026-10-29-medidas-provisórias-e-vetos-do-presidente)
@@ -2243,3 +2244,10 @@ Item AR-01 da auditoria, pedido pelo dono. **Problema:** `frontend/lib/api.ts` t
 **Passo novo para quem mexe numa rota ou num esquema:** `python -m app.openapi_exportar` e depois `npm run tipos-api`. Sem isso, os testes avisam.
 
 **Fora:** as rotas POST e as de texto (feed, saúde) não são conferidas; o tipo escrito na própria chamada (`getJson<{ status: string }>`) também não.
+
+## 2026-11-18: PerplexityBot bloqueado; rotação dos logs da VPS
+
+- **O que houve:** site lento, quedas e o painel com "Não deu para falar com o servidor". A VPS estava com carga média de 15 a 37 (2 vCPU) e pressão de CPU acima de 50%. A API recebia ~25 pedidos/s, quase todos do desenho da página de eleito (`/eleitos/N` e ~10 rotas de `/pessoas/N/...`), e voltou a esgotar o pool (`QueuePool limit ... reached`, 500). O Worker de troca mandou a API para a reserva, que roda código antigo sem `/painel/entrar`: o navegador recebia 404 sem CORS, e o painel mostrava o erro de rede.
+- **Causa:** o PerplexityBot (indexador) fez ~8 mil pedidos por hora, dividido em 8 IPs da AWS (18.97.9.96 a .103). Cada IP fica abaixo do limite de 30 pedidos em 10 s, e quase tudo era *miss* no cache, porque cada perfil é uma página diferente. O projeto novo na mesma VPS (minhascontas, desde 16/11) não era a causa: menos de 1% de CPU e ~20 MB de RAM, com limites de 384 MB e 256 MB.
+- **Decisão (dono):** bloquear o PerplexityBot no firewall (Worker, `/configurar`) e no `robots.txt` (`lib/seo.ts`). O Perplexity-User, que abre o site quando alguém pergunta, segue liberado: o site continua citável com link. Rever se a VPS ganhar folga (cache dos perfis ou máquina maior).
+- **Logs:** o log da API (json-file, sem rotação) chegou a 4,1 GB, e `docker logs` passou a pesar. O `docker-compose.yml` da VPS ganhou rotação (5 arquivos de 50 MB por serviço), que vale quando cada contêiner for recriado.

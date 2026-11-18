@@ -6,10 +6,19 @@
 #   docker compose --profile ingestao run --rm ingestao python -m ingestion.<módulo>
 # Agenda, backup e atualização automática: ver LEIAME.md.
 
+# Rotação dos logs dos contêineres: sem ela o log da API chegou a 4 GB em 3 semanas (nov/2026) e o
+# `docker logs` passou a pesar na máquina. 5 arquivos de 50 MB por serviço.
+x-logging: &logging
+  driver: json-file
+  options:
+    max-size: "50m"
+    max-file: "5"
+
 services:
   db:
     image: postgres:18-alpine
     restart: unless-stopped
+    logging: *logging
     environment:
       POSTGRES_DB: panoptico
       POSTGRES_USER: panoptico
@@ -28,6 +37,7 @@ services:
 
   api:
     build: ../../backend
+    logging: *logging
     restart: unless-stopped
     # Este é o banco principal: aplica as migrações ao subir (a imagem traz --root-path /api,
     # que aqui não vale, porque a API tem endereço próprio). Desde o release (30/10/2026) a api-release
@@ -79,6 +89,7 @@ services:
         NEXT_PUBLIC_SITE_URL: https://panoptico.social.br
         NEXT_PUBLIC_CONTATO_EMAIL: contato@panoptico.social.br
         NEXT_PUBLIC_VAPID_PUBLICA: ""
+    logging: *logging
     restart: unless-stopped
     environment:
       API_URL_INTERNA: http://api:8000
@@ -94,6 +105,7 @@ services:
   api-release:
     build: ${RELEASE_DIR:-/opt/panoptico-release}/backend
     profiles: ["release"]
+    logging: *logging
     restart: unless-stopped
     # Um worker só (a VPS tem 2 vCPU e 4 GB). Aplica as migrações ao subir: é aqui que elas entram
     # no banco da VPS (o Publicar só testa; não toca em banco nenhum).
@@ -139,6 +151,7 @@ services:
         NEXT_PUBLIC_AMBIENTE: release
         NEXT_PUBLIC_VAPID_PUBLICA: ${VAPID_PUBLICA_RELEASE:-}
     profiles: ["release"]
+    logging: *logging
     restart: unless-stopped
     environment:
       API_URL_INTERNA: http://api-release:8000
@@ -148,6 +161,7 @@ services:
 
   cloudflared:
     image: cloudflare/cloudflared:latest
+    logging: *logging
     restart: unless-stopped
     # Túnel nomeado com config.yml e credenciais em /opt/cloudflared (fora do git): cada hostname
     # vai para um serviço (site -> web:3000, api -> api:8000; release -> web-release:3000,
@@ -162,6 +176,7 @@ services:
   ingestao:
     build: ../../backend
     profiles: ["ingestao"]
+    logging: *logging
     environment:
       <<: *backend_env
       # Opcionais (vêm do .env; vazio = a fonte usa o padrão dela).
