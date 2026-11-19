@@ -6,6 +6,10 @@ export interface EstadoServico {
   falhas: number;
   sucessos: number;
   modo: Modo;
+  /** O dono foi avisado de que o serviço está fora e ainda não soube da volta. */
+  alertado?: boolean;
+  /** Quando saiu o último e-mail de queda (ms), para o intervalo mínimo entre eles. */
+  ultimoAlerta?: number;
 }
 
 // 3 minutos seguidos fora do ar: uma troca de contêiner (segundos) não dispara a reserva.
@@ -106,22 +110,34 @@ export function enderecosDeRelease(valores: (string | undefined)[]): string[] {
   });
 }
 
+/** Intervalo mínimo entre dois e-mails de queda do mesmo serviço. */
+export const INTERVALO_ALERTAS_MS = 60 * 60_000;
+
+export type Evento = "foi_para_reserva" | "voltou_para_principal" | "parou_sem_troca" | "voltou_a_responder";
+
 /**
- * O que avisar ao dono por e-mail depois de um teste: só nas viradas, nunca a cada minuto.
- * - caiu e foi para a reserva; voltou para a principal;
- * - a principal parou e NÃO houve troca (reserva fora do ar, ou modo fixo ou observar): avisa ao
- *   chegar em FALHAS_PARA_RESERVA e de novo quando voltar a responder.
+ * O que avisar ao dono por e-mail depois de um teste. Segue o estado, não cada virada: com a VPS
+ * oscilando (3 falhas, 1 sucesso, 3 falhas...) saíram 37 e-mails em 18/11/2026.
+ * - Queda: o serviço está fora (na reserva ou com FALHAS_PARA_RESERVA falhas seguidas) e o dono
+ *   ainda não sabe. No máximo um e-mail de queda por INTERVALO_ALERTAS_MS; se a queda continuar
+ *   depois do intervalo sem aviso, o e-mail sai nessa hora.
+ * - Volta: só para quem foi avisado da queda, e só com a principal estável (SUCESSOS_PARA_VOLTAR
+ *   sucessos seguidos, que é também quando o DNS volta da reserva).
+ * Devolve o evento e o estado com as marcas do aviso.
  */
-export function eventoDeAlerta(
-  anterior: EstadoServico,
-  d: Decisao,
-  principalOk: boolean,
-): "foi_para_reserva" | "voltou_para_principal" | "parou_sem_troca" | "voltou_a_responder" | null {
-  if (d.trocarPara === "reserva") return "foi_para_reserva";
-  if (d.trocarPara === "principal") return "voltou_para_principal";
-  if (d.estado.ativo !== "principal") return null;
-  const estavaParada = anterior.falhas >= FALHAS_PARA_RESERVA;
-  if (!estavaParada && d.estado.falhas >= FALHAS_PARA_RESERVA) return "parou_sem_troca";
-  if (estavaParada && principalOk) return "voltou_a_responder";
-  return null;
+export function alertar(d: Decisao, agora: number): { evento: Evento | null; estado: EstadoServico } {
+  const e = { ...d.estado };
+  const fora = e.ativo === "reserva" || e.falhas >= FALHAS_PARA_RESERVA;
+  const estavel = d.trocarPara === "principal" || (e.ativo === "principal" && e.sucessos >= SUCESSOS_PARA_VOLTAR);
+  if (fora && !e.alertado) {
+    if (e.ultimoAlerta !== undefined && agora - e.ultimoAlerta < INTERVALO_ALERTAS_MS) return { evento: null, estado: e };
+    e.alertado = true;
+    e.ultimoAlerta = agora;
+    return { evento: e.ativo === "reserva" ? "foi_para_reserva" : "parou_sem_troca", estado: e };
+  }
+  if (estavel && e.alertado) {
+    e.alertado = false;
+    return { evento: d.trocarPara === "principal" ? "voltou_para_principal" : "voltou_a_responder", estado: e };
+  }
+  return { evento: null, estado: e };
 }

@@ -32,6 +32,8 @@
 - [2026-11-15: "o maior desde…" nas séries](#2026-11-15-o-maior-desde-nas-séries)
 - [2026-11-15: contrato da API e conferência dos tipos do site](#2026-11-15-contrato-da-api-e-conferência-dos-tipos-do-site)
 - [2026-11-18: PerplexityBot bloqueado; rotação dos logs da VPS](#2026-11-18-perplexitybot-bloqueado-rotação-dos-logs-da-vps)
+- [2026-11-19: desafio para a China e Baiduspider bloqueado](#2026-11-19-desafio-para-a-china-e-baiduspider-bloqueado)
+- [2026-11-19: defesa contra varreduras: Brasil primeiro, vigia e alertas sem enxurrada](#2026-11-19-defesa-contra-varreduras-brasil-primeiro-vigia-e-alertas-sem-enxurrada)
 - [2026-11-07: quanto custa o mandato (Frente 6)](#2026-11-07-quanto-custa-o-mandato-frente-6)
 - [2026-11-07: custo da câmara por morador e a média do estado (Frente 6)](#2026-11-07-custo-da-câmara-por-morador-e-a-média-do-estado-frente-6)
 - [2026-10-29: medidas provisórias e vetos do Presidente](#2026-10-29-medidas-provisórias-e-vetos-do-presidente)
@@ -2251,3 +2253,19 @@ Item AR-01 da auditoria, pedido pelo dono. **Problema:** `frontend/lib/api.ts` t
 - **Causa:** o PerplexityBot (indexador) fez ~8 mil pedidos por hora, dividido em 8 IPs da AWS (18.97.9.96 a .103). Cada IP fica abaixo do limite de 30 pedidos em 10 s, e quase tudo era *miss* no cache, porque cada perfil é uma página diferente. O projeto novo na mesma VPS (minhascontas, desde 16/11) não era a causa: menos de 1% de CPU e ~20 MB de RAM, com limites de 384 MB e 256 MB.
 - **Decisão (dono):** bloquear o PerplexityBot no firewall (Worker, `/configurar`) e no `robots.txt` (`lib/seo.ts`). O Perplexity-User, que abre o site quando alguém pergunta, segue liberado: o site continua citável com link. Rever se a VPS ganhar folga (cache dos perfis ou máquina maior).
 - **Logs:** o log da API (json-file, sem rotação) chegou a 4,1 GB, e `docker logs` passou a pesar. O `docker-compose.yml` da VPS ganhou rotação (5 arquivos de 50 MB por serviço), que vale quando cada contêiner for recriado.
+
+## 2026-11-19: desafio para a China e Baiduspider bloqueado
+
+- **O que houve:** um dia depois do bloqueio do PerplexityBot, a API saturou de novo e o Worker a mandou para a reserva. Na última hora, ~28.700 dos ~32.500 pedidos vieram da China (78 do Brasil): ~20 mil de um coletor com User-Agent de navegador falso ("Chrome/99", de 2022) e ~5.700 do Baiduspider (dezenas de IPs em 116.179.33.x). Os IPs espalhados escapam do limite por IP.
+- **Decisão (dono):** desafio gerenciado do Cloudflare (`managed_challenge`) para pedidos da China (`PAISES_COM_DESAFIO` no Worker; a pessoa passa, o coletor não) e Baiduspider na lista de bloqueados. Usa 2 das 5 regras personalizadas do plano Free. O `robots.txt` não mudou: o coletor disfarçado não o lê, e o Baidu já é barrado no firewall.
+- **Rever:** se aparecerem visitantes reais da China reclamando ou se o tráfego migrar de país, a lista de países fica no Worker (`/configurar` reaplica).
+
+## 2026-11-19: defesa contra varreduras: Brasil primeiro, vigia e alertas sem enxurrada
+
+- **Problema:** quatro quedas em poucos dias, cada uma por um robô diferente (Meta, PerplexityBot, coletor "Chrome/99" da China, Baiduspider). Todas iguais por dentro: varredura de milhares de páginas diferentes, quase nada no cache, ~12 consultas ao banco por página e uma VPS de 2 vCPU. Bloquear um por vez sempre chega depois da queda.
+- **Decisão (dono), três camadas no Worker de troca** (`infra/cloudflare/troca`, LEIAME, "Defesa contra varreduras"):
+  1. **Brasil primeiro:** no site, desafio gerenciado para quem vem de fora do Brasil e não é robô conhecido nem liberado (buscadores, prévias de link, IAs que respondem com link). O público é brasileiro e chega pelo WhatsApp; quem está no exterior passa clicando uma vez. A API fica fora (o navegador a chama direto e não mostraria o desafio).
+  2. **Vigia:** a cada 10 minutos, país ou User-Agent com 3.000 pedidos ou mais e 30% ou mais da última hora entra no desafio por 24 h, com um e-mail ao dono e caminho para desfazer (`/defesa/remover`). Pega robô conhecido que exagera, como o PerplexityBot.
+  3. **Alertas:** um e-mail por queda (no máximo um por hora por serviço) e o de volta só com 10 minutos estável. Em 18/11 a VPS oscilando gerou 37 e-mails.
+- **Limite do plano Free:** `cf.bot_management.verified_bot` não vale em regra personalizada; usa-se `cf.client.bot`. São no máximo 4 das 5 regras.
+- **Falta (camada 3 da proposta, pelo release):** cache das respostas da API no site e resposta rápida de "ocupado" quando o pool encher, para a VPS aguentar o que passar pelo firewall.

@@ -3,11 +3,21 @@ import {
   decidir,
   enderecosDeRelease,
   estadoInicial,
-  eventoDeAlerta,
+  alertar,
   respostaSaudavel,
   type Destino,
   type EstadoServico,
 } from "./decisao";
+import {
+  defesaVazia,
+  descreverItem,
+  expressaoBrasilPrimeiro,
+  expressaoPaises,
+  expressaoRobos,
+  vigiar,
+  type Contagem,
+  type Defesa,
+} from "./defesa";
 import { emailConfigurado, enviarEmail } from "./email";
 
 export interface Env {
@@ -31,6 +41,8 @@ export interface Env {
   SMTP_USUARIO?: string;
   SMTP_SENHA?: string;
   ALERTA_EMAIL_PARA?: string;
+  /** IP da VPS: o servidor do site nunca recebe o desafio "Brasil primeiro". */
+  IP_SERVIDOR?: string;
 }
 
 const NOME_SERVICO: Record<Servico, string> = { site: "o site", api: "a API" };
@@ -52,6 +64,7 @@ function enderecosDaTroca(env: Env): string[] {
 type Servico = "site" | "api";
 type Estados = Record<Servico, EstadoServico>;
 const CHAVE_KV = "estado";
+const CHAVE_DEFESA = "defesa";
 
 async function testar(url: string, ehApi: boolean): Promise<boolean> {
   try {
@@ -170,7 +183,7 @@ export default {
       const anterior = estados[s];
       const d = decidir(anterior, principalOk, reservaOk === true);
       estados[s] = d.estado;
-      let evento = eventoDeAlerta(anterior, d, principalOk);
+      let falhouTroca = false;
       if (d.observou) console.log(`${s}: [observar] trocaria para ${d.observou}`);
       if (d.trocarPara) {
         try {
@@ -181,9 +194,12 @@ export default {
           estados[s].ativo = d.trocarPara === "reserva" ? "principal" : "reserva";
           console.log(`${s}: erro ao trocar DNS: ${(e as Error).message}`);
           // A troca não aconteceu: não avisa que trocou (tenta de novo no próximo minuto).
-          evento = null;
+          falhouTroca = true;
         }
       }
+      const a = falhouTroca ? { evento: null, estado: estados[s] } : alertar({ ...d, estado: estados[s] }, Date.now());
+      estados[s] = a.estado;
+      const evento = a.evento;
       if (evento) {
         const modo = estados[s].modo === "auto" ? "" : ` (modo ${estados[s].modo})`;
         avisos.push(`${NOME_SERVICO[s]} ${TEXTO_EVENTO[evento]}${modo}`);
@@ -213,6 +229,14 @@ export default {
       }
     } else if (avisos.length) {
       console.log(`alerta sem envio (e-mail nao configurado): ${avisos.join("; ")}`);
+    }
+    // Vigia de varreduras a cada 10 minutos, depois da troca (e dentro de try: nunca a atrapalha).
+    if (new Date().getUTCMinutes() % 10 === 0) {
+      try {
+        await rodarVigia(env);
+      } catch (e) {
+        console.log(`vigia: erro ${(e as Error).message}`);
+      }
     }
   },
 
@@ -254,6 +278,24 @@ export default {
     }
     if (req.method === "POST" && url.pathname === "/configurar") {
       return Response.json(await configurar(env), semCache);
+    }
+    if (req.method === "GET" && url.pathname === "/defesa") return Response.json(await lerDefesa(env), semCache);
+    // O que o vigia faria agora, sem gravar nada.
+    if (req.method === "GET" && url.pathname === "/defesa/simular") {
+      const contagem = await contarUltimaHora(env);
+      return Response.json({ ...contagem, resultado: vigiar(await lerDefesa(env), contagem.total, contagem.porPais, contagem.porRobo, Date.now()) }, semCache);
+    }
+    // Tira um item do desafio temporário (o caminho vai no e-mail do vigia). ?item=pais:CN ou robo:<UA>
+    if (req.method === "POST" && url.pathname === "/defesa/remover") {
+      const item = url.searchParams.get("item") ?? "";
+      const [tipo, ...resto] = item.split(":");
+      const valor = resto.join(":");
+      const atual = await lerDefesa(env);
+      const itens = atual.itens.filter((i) => !(i.tipo === tipo && i.valor === valor));
+      if (itens.length === atual.itens.length) return Response.json({ erro: "item nao encontrado" }, { status: 404 });
+      await env.ESTADO.put(CHAVE_DEFESA, JSON.stringify({ itens }));
+      await gravarFirewall(env, { itens });
+      return Response.json({ removido: item, itens }, semCache);
     }
     if (req.method === "GET" && url.pathname === "/trafego") {
       const horas = Math.min(Number(url.searchParams.get("horas") ?? "1") || 1, 24);
@@ -299,12 +341,19 @@ async function trafego(env: Env, horas: number): Promise<unknown> {
 // segue liberado: "googleother" não casa com ele. Desde 18/11/2026 o PerplexityBot (indexador) também
 // fica bloqueado: varria os perfis em 8 IPs (~8 mil pedidos/h), esgotava o pool da API e fazia a
 // troca ir para a reserva. O Perplexity-User (quando alguém pergunta) segue liberado: "perplexitybot"
-// não casa com ele.
+// não casa com ele. Desde 19/11/2026 o Baiduspider (busca chinesa, sem público do site) também.
 const ROBOS_BLOQUEADOS = [
   "meta-externalagent", "bytespider", "ccbot", "amazonbot", "cohere-ai", "diffbot", "imagesiftbot",
   "omgilibot", "petalbot", "timpibot", "ahrefsbot", "semrushbot", "mj12bot", "dataforseobot",
   "gptbot", "reflectionbot", "googleother", "amzn-searchbot", "perplexitybot",
+  "baiduspider",
 ];
+
+// Países que só recebem o desafio gerenciado do Cloudflare (pessoa passa; coletor disfarçado de
+// navegador, não). Em 19/11/2026 a China mandou ~28.700 pedidos numa hora (88% do tráfego, contra 78
+// do Brasil), quase todos com User-Agent de navegador falso ("Chrome/99") e IPs espalhados, o que o
+// limite por IP não pega; a API saturou e a troca foi para a reserva.
+const PAISES_COM_DESAFIO = ["CN"];
 
 /** Regras da zona: cada fase é gravada inteira (PUT do entrypoint), então rodar de novo não duplica.
  * O limite por IP vale só para robôs verificados: no plano Free a regra não pode excluir o
@@ -342,15 +391,8 @@ async function configurar(env: Env): Promise<Record<string, string>> {
         ]),
     ],
     [
-      "bloqueio de robôs de coleta em massa (firewall)",
-      () =>
-        fase("http_request_firewall_custom", [
-          {
-            description: "Bloquear robôs de coleta em massa",
-            expression: ROBOS_BLOQUEADOS.map((r) => `(lower(http.user_agent) contains "${r}")`).join(" or "),
-            action: "block",
-          },
-        ]),
+      "firewall: robôs bloqueados, Brasil primeiro, países e robôs do vigia",
+      async () => gravarFirewall(env, await lerDefesa(env)),
     ],
     [
       // Plano Free: uma regra, contagem por IP em 10 s, filtro só por caminho e "robô verificado".
@@ -415,6 +457,98 @@ async function configurar(env: Env): Promise<Record<string, string>> {
     }
   }
   return resultado;
+}
+
+async function lerDefesa(env: Env): Promise<Defesa> {
+  return (await env.ESTADO.get<Defesa>(CHAVE_DEFESA, "json")) ?? defesaVazia();
+}
+
+/** Grava a fase inteira de regras personalizadas (PUT: rodar de novo não duplica). O plano Free
+ * permite 5; aqui vão no máximo 4. */
+async function gravarFirewall(env: Env, defesa: Defesa): Promise<void> {
+  const regras: unknown[] = [
+    {
+      description: "Bloquear robôs de coleta em massa",
+      expression: ROBOS_BLOQUEADOS.map((r) => `(lower(http.user_agent) contains "${r}")`).join(" or "),
+      action: "block",
+    },
+    {
+      description: "Brasil primeiro: desafio no site para quem vem de fora e não é robô liberado",
+      expression: expressaoBrasilPrimeiro(env.REGISTRO_SITE, env.IP_SERVIDOR),
+      action: "managed_challenge",
+    },
+  ];
+  const paises = expressaoPaises([
+    ...PAISES_COM_DESAFIO,
+    ...defesa.itens.filter((i) => i.tipo === "pais").map((i) => i.valor),
+  ]);
+  if (paises) {
+    regras.push({ description: "Países com coleta em massa (fixos e do vigia)", expression: paises, action: "managed_challenge" });
+  }
+  const robos = expressaoRobos(defesa.itens.filter((i) => i.tipo === "robo").map((i) => i.valor));
+  if (robos) {
+    regras.push({ description: "Robôs com varredura em massa (vigia, temporário)", expression: robos, action: "managed_challenge" });
+  }
+  await cf(env, `/zones/${env.ZONE_ID}/rulesets/phases/http_request_firewall_custom/entrypoint`, {
+    method: "PUT",
+    body: JSON.stringify({ rules: regras }),
+  });
+}
+
+/** Contagem da última hora por país e por User-Agent, e o total, para o vigia. */
+async function contarUltimaHora(env: Env): Promise<{ total: number; porPais: Contagem[]; porRobo: Contagem[] }> {
+  const desde = new Date(Date.now() - 3600_000).toISOString();
+  const filtro = `filter: {datetime_geq: "${desde}"}`;
+  const query = `{ viewer { zones(filter: {zoneTag: "${env.ZONE_ID}"}) {
+    total: httpRequestsAdaptiveGroups(limit: 1, ${filtro}) { count }
+    porPais: httpRequestsAdaptiveGroups(limit: 10, ${filtro}, orderBy: [count_DESC]) { count dimensions { clientCountryName } }
+    porRobo: httpRequestsAdaptiveGroups(limit: 10, ${filtro}, orderBy: [count_DESC]) { count dimensions { userAgent } }
+  } } }`;
+  const r = await fetch("https://api.cloudflare.com/client/v4/graphql", {
+    method: "POST",
+    headers: { authorization: `Bearer ${env.CF_TOKEN.trim()}`, "content-type": "application/json" },
+    body: JSON.stringify({ query }),
+  });
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const j: any = await r.json();
+  if (j?.errors?.length) throw new Error(j.errors.map((e: { message: string }) => e.message).join("; "));
+  const z = j?.data?.viewer?.zones?.[0] ?? {};
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const lista = (g: any[] | undefined, campo: string): Contagem[] =>
+    (g ?? []).map((x) => ({ valor: String(x.dimensions?.[campo] ?? ""), pedidos: Number(x.count) || 0 }));
+  return {
+    total: Number(z.total?.[0]?.count) || 0,
+    porPais: lista(z.porPais, "clientCountryName"),
+    porRobo: lista(z.porRobo, "userAgent"),
+  };
+}
+
+async function rodarVigia(env: Env): Promise<void> {
+  const atual = await lerDefesa(env);
+  const { total, porPais, porRobo } = await contarUltimaHora(env);
+  const r = vigiar(atual, total, porPais, porRobo, Date.now());
+  console.log(`vigia: total=${total} novos=${r.novos.length} expirados=${r.expirados.length} ativos=${r.defesa.itens.length}`);
+  if (!r.mudou) return;
+  await env.ESTADO.put(CHAVE_DEFESA, JSON.stringify(r.defesa));
+  if (r.regravarRegras) await gravarFirewall(env, r.defesa);
+  if (!r.novos.length || !emailConfigurado(env)) return;
+  const base = "https://panoptico-troca.mikael-dev.workers.dev";
+  const texto = [
+    "O vigia do Worker de troca pôs no desafio do Cloudflare, por 24 horas:",
+    "",
+    ...r.novos.map((i) => `- ${descreverItem(i)} (de ${total} no total)`),
+    "",
+    "Pessoas passam clicando no desafio; coletores, não. Nos países, robôs verificados (Google, Bing) passam.",
+    `Ver a lista: GET ${base}/defesa?chave=...`,
+    `Desfazer um item: POST ${base}/defesa/remover?chave=...&item=<pais:XX ou robo:User-Agent>`,
+    "",
+    "Mensagem automática do Panóptico.",
+  ].join("\n");
+  try {
+    await enviarEmail(env, `Panóptico: vigia pôs ${r.novos.length} origem(ns) no desafio`, texto);
+  } catch (e) {
+    console.log(`vigia: e-mail nao enviado: ${(e as Error).message}`);
+  }
 }
 
 /** Deixa a zona no formato que a troca espera: raiz, www e api como CNAME com proxy, apontando

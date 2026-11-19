@@ -3,7 +3,7 @@ import {
   FALHAS_PARA_RESERVA,
   decidir,
   enderecosDeRelease,
-  eventoDeAlerta,
+  alertar,
   estadoInicial,
   respostaSaudavel,
   type EstadoServico,
@@ -119,46 +119,55 @@ describe("enderecosDeRelease", () => {
   });
 });
 
-describe("eventoDeAlerta", () => {
-  /** Roda os testes em sequência e devolve os eventos de cada minuto. */
-  function eventos(inicio: EstadoServico, testes: [boolean, boolean][]) {
+describe("alertar", () => {
+  const MIN = 60_000;
+  /** Roda os testes em sequência, um por minuto, e devolve os eventos. */
+  function eventos(inicio: EstadoServico, testes: [boolean, boolean][], t0 = 0) {
     let e = inicio;
-    return testes.map(([principalOk, reservaOk]) => {
-      const d = decidir(e, principalOk, reservaOk);
-      const evento = eventoDeAlerta(e, d, principalOk);
-      e = d.estado;
-      return evento;
+    return testes.map(([principalOk, reservaOk], i) => {
+      const a = alertar(decidir(e, principalOk, reservaOk), t0 + i * MIN);
+      e = a.estado;
+      return a.evento;
     });
   }
+  const fora: [boolean, boolean] = [false, true];
+  const ok: [boolean, boolean] = [true, true];
 
   it("avisa uma vez ao ir para a reserva e uma vez ao voltar", () => {
-    const fora: [boolean, boolean] = [false, true];
-    const volta: [boolean, boolean] = [true, true];
-    const r = eventos(base(), [fora, fora, fora, fora, fora, ...Array(10).fill(volta), volta]);
+    const r = eventos(base(), [fora, fora, fora, fora, fora, ...Array(10).fill(ok), ok]);
     expect(r.slice(0, 5)).toEqual([null, null, "foi_para_reserva", null, null]);
     expect(r.slice(5, 14)).toEqual(Array(9).fill(null));
     expect(r[14]).toBe("voltou_para_principal");
     expect(r[15]).toBeNull();
   });
 
-  it("sem reserva saudável, avisa que parou sem troca e depois que voltou", () => {
-    const fora: [boolean, boolean] = [false, false];
-    const r = eventos(base(), [fora, fora, fora, fora, fora, [true, false], [true, false]]);
-    expect(r).toEqual([null, null, "parou_sem_troca", null, null, "voltou_a_responder", null]);
+  it("sem reserva saudável, avisa que parou e só avisa a volta com a principal estável", () => {
+    const semReserva: [boolean, boolean] = [false, false];
+    const r = eventos(base(), [semReserva, semReserva, semReserva, semReserva, ...Array(10).fill([true, false])]);
+    expect(r.slice(0, 4)).toEqual([null, null, "parou_sem_troca", null]);
+    expect(r.slice(4, 13)).toEqual(Array(9).fill(null));
+    expect(r[13]).toBe("voltou_a_responder");
+  });
+
+  it("oscilando (3 falhas, 1 sucesso), avisa uma vez só", () => {
+    const semReserva: [boolean, boolean] = [false, false];
+    const ciclo: [boolean, boolean][] = [semReserva, semReserva, semReserva, [true, false]];
+    const r = eventos(base(), Array(10).fill(ciclo).flat());
+    expect(r.filter(Boolean)).toEqual(["parou_sem_troca"]);
+  });
+
+  it("nova queda dentro de uma hora da anterior não avisa; depois do intervalo, avisa", () => {
+    const r = eventos(base(), [fora, fora, fora, ...Array(10).fill(ok), fora, fora, fora, ...Array(60).fill(fora)]);
+    const avisos = r.map((x, i) => (x ? `${i}:${x}` : null)).filter(Boolean);
+    expect(avisos).toEqual(["2:foi_para_reserva", "12:voltou_para_principal", "62:foi_para_reserva"]);
   });
 
   it("em modo observar também avisa que parou, sem dizer que trocou", () => {
-    const fora: [boolean, boolean] = [false, true];
     const r = eventos(base({ modo: "observar" }), [fora, fora, fora, fora]);
     expect(r).toEqual([null, null, "parou_sem_troca", null]);
   });
 
   it("uma falha isolada não avisa", () => {
-    expect(eventos(base(), [[false, true], [true, true], [false, true], [true, true]])).toEqual([
-      null,
-      null,
-      null,
-      null,
-    ]);
+    expect(eventos(base(), [fora, ok, fora, ok])).toEqual([null, null, null, null]);
   });
 });
